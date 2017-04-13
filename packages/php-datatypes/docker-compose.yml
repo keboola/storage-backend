@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+
+  tests:
+    build: .
+    volumes:
+      - .:/code
+    working_dir: /code
+    command: sh -c 'composer install -n && php ./vendor/bin/phpunit'
+    tty: true
+    stdin_open: true
