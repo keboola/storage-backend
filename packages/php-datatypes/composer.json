@@ -16,12 +16,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Keboola\\Datatypes\\": "src/"
+            "Keboola\\Datatype\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Keboola\\DatatypesTest\\": "tests/"
+            "Keboola\\DatatypeTest\\": "tests/"
         }
     }
 }
