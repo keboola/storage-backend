@@ -2,9 +2,6 @@
 
 namespace Keboola\Datatype\Definition;
 
-use Keboola\Datatype\DatatypeInterface;
-use Keboola\Datatype\Definition\Exception\InvalidTypeException;
-
 class Common
 {
     /**
@@ -20,8 +17,6 @@ class Common
      */
     protected $nullable = false;
 
-    const TYPES = [];
-
     /**
      * Common constructor.
      *
@@ -31,9 +26,7 @@ class Common
      */
     public function __construct($type, $length = null, $nullable = false)
     {
-        $this->validateType($type);
         $this->type = $type;
-        $this->validateLength($type, $length);
         $this->length = $length;
         $this->nullable = (bool) $nullable;
     }
@@ -49,20 +42,9 @@ class Common
     /**
      * @return mixed
      */
-    public function getlength()
+    public function getLength()
     {
         return $this->length;
-    }
-
-    /**
-     * @param mixed $length
-     * @return $this
-     */
-    public function setlength($length)
-    {
-        $this->length = $length;
-
-        return $this;
     }
 
     /**
@@ -71,24 +53,5 @@ class Common
     public function isNullable()
     {
         return $this->nullable;
-    }
-
-    /**
-     * @param $type
-     * @throws InvalidTypeException
-     */
-    protected function validateType($type)
-    {
-        if (!in_array($type, $this::TYPES)) {
-            throw new InvalidTypeException("{$type} is not a valid type");
-        }
-    }
-
-    /**
-     * @param $type
-     * @param $length
-     */
-    protected function validateLength($type, $length = null)
-    {
     }
 }

@@ -2,6 +2,7 @@
 namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Snowflake extends Common
 {
@@ -20,7 +21,31 @@ class Snowflake extends Common
         "TIME",
         "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ"
     ];
-    
+
+    /**
+     * Snowflake constructor.
+     *
+     * @param $type
+     * @param null $length
+     * @param bool $nullable
+     */
+    public function __construct($type, $length = null, $nullable = false)
+    {
+        parent::__construct($type, $length, $nullable);
+        $this->validateType($type);
+        $this->validateLength($type, $length);
+    }
+
+    /**
+     * @param $type
+     * @throws InvalidTypeException
+     */
+    protected function validateType($type)
+    {
+        if (!in_array($type, $this::TYPES)) {
+            throw new InvalidTypeException("{$type} is not a valid type");
+        }
+    }
 
     /**
      * @param $type
