@@ -31,19 +31,19 @@ class Snowflake extends Common
      */
     public function __construct($type, $length = null, $nullable = false)
     {
-        parent::__construct($type, $length, $nullable);
         $this->validateType($type);
         $this->validateLength($type, $length);
+        parent::__construct($type, $length, $nullable);
     }
 
     /**
      * @param $type
      * @throws InvalidTypeException
      */
-    protected function validateType($type)
+    private function validateType($type)
     {
-        if (!in_array($type, $this::TYPES)) {
-            throw new InvalidTypeException("{$type} is not a valid type");
+        if (!in_array(strtoupper($type), $this::TYPES)) {
+            throw new InvalidTypeException("'{$type}' is not a valid type");
         }
     }
 
@@ -52,14 +52,14 @@ class Snowflake extends Common
      * @param null $length
      * @throws InvalidLengthException
      */
-    protected function validateLength($type, $length = null)
+    private function validateLength($type, $length = null)
     {
         $valid = true;
-        switch ($type) {
+        switch (strtoupper($type)) {
             case "NUMBER":
             case "DECIMAL":
             case "NUMERIC":
-                if (is_null($length)) {
+                if (is_null($length) || $length == "") {
                     break;
                 }
                 $parts = explode(",", $length);
@@ -81,7 +81,7 @@ class Snowflake extends Common
             case "CHARACTER":
             case "STRING":
             case "TEXT":
-                if (is_null($length)) {
+                if (is_null($length) || $length == "") {
                     break;
                 }
                 if (!is_numeric($length)) {
@@ -94,14 +94,14 @@ class Snowflake extends Common
                 }
                 break;
             default:
-                if (!is_null($length)) {
+                if (!is_null($length) && $length != "") {
                     $valid = false;
                     break;
                 }
                 break;
         }
         if (!$valid) {
-            throw new InvalidLengthException("{$length} is not valid length for {$type}");
+            throw new InvalidLengthException("'{$length}' is not valid length for {$type}");
         }
     }
 }

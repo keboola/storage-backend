@@ -24,7 +24,10 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testValidNumericLengths()
     {
+        new Snowflake("numeric");
         new Snowflake("NUMERIC");
+        new Snowflake("NUMERIC", "");
+        new Snowflake("INTEGER", "");
         new Snowflake("NUMERIC", "38,0");
     }
 
@@ -44,7 +47,9 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testValidCharacterLengths()
     {
+        new Snowflake("string");
         new Snowflake("STRING");
+        new Snowflake("STRING", "");
         new Snowflake("STRING", "1");
         new Snowflake("STRING", "16777216");
     }
@@ -75,7 +80,8 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
             ["38,a"],
             ["a,38"],
             ["a,a"],
-            ["10,10"]
+            ["10,10"],
+            ["38,38"]
         ];
     }
 
