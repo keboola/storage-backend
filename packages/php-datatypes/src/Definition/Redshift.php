@@ -190,6 +190,5 @@ class Redshift extends Common
         if (!$valid) {
             throw new InvalidCompressionException("'{$compression}' is not valid compression for {$type}");
         }
-
     }
 }
