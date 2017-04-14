@@ -25,4 +25,13 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
         $datatype = new Common("VARCHAR", "50", true);
         $this->assertEquals("VARCHAR(50)", $datatype->getSQLDefinition());
     }
+
+    public function testToArray()
+    {
+        $datatype = new Common("VARCHAR");
+        $this->assertEquals(["type" => "VARCHAR", "length" => "", "nullable" => false], $datatype->toArray());
+
+        $datatype = new Common("VARCHAR", "50", true);
+        $this->assertEquals(["type" => "VARCHAR", "length" => "50", "nullable" => true], $datatype->toArray());
+    }
 }

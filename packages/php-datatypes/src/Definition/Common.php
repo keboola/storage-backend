@@ -65,4 +65,15 @@ class Common
         }
         return $this->getType();
     }
+
+    /**
+     * @return array
+     */
+    public function toArray() {
+        return [
+            "type" => $this->getType(),
+            "length" => $this->getLength(),
+            "nullable" => $this->isNullable()
+        ];
+    }
 }

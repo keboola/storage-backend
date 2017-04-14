@@ -59,6 +59,16 @@ class Redshift extends Common
     }
 
     /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array["compression"] = $this->getCompression();
+        return $array;
+    }
+
+    /**
      * @param $type
      * @throws InvalidTypeException
      */
