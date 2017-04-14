@@ -54,4 +54,15 @@ class Common
     {
         return $this->nullable;
     }
+
+    /**
+     * @return string
+     */
+    public function getSQLDefinition()
+    {
+        if ($this->getLength() && $this->getLength() != "") {
+            return $this->getType() . "(" . $this->getLength() . ")";
+        }
+        return $this->getType();
+    }
 }

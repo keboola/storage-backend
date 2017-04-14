@@ -47,6 +47,18 @@ class Redshift extends Common
     }
 
     /**
+     * @return string
+     */
+    public function getSQLDefinition()
+    {
+        $definition = parent::getSQLDefinition();
+        if ($this->getCompression() && $this->getCompression() != "") {
+            $definition .= " ENCODE " . $this->getCompression();
+        }
+        return $definition;
+    }
+
+    /**
      * @param $type
      * @throws InvalidTypeException
      */

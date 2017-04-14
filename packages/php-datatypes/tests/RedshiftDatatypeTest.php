@@ -123,6 +123,12 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testSQLDefinition()
+    {
+        $datatype = new Redshift("VARCHAR", "50", true, "ZSTD");
+        $this->assertEquals("VARCHAR(50) ENCODE ZSTD", $datatype->getSQLDefinition());
+    }
+
     public function invalidNumericLengths()
     {
         return [
