@@ -69,7 +69,8 @@ class Common
     /**
      * @return array
      */
-    public function toArray() {
+    public function toArray()
+    {
         return [
             "type" => $this->getType(),
             "length" => $this->getLength(),
