@@ -9,3 +9,9 @@ Run tests with following command.
 ```
 docker-compose run --rm tests
 ```
+
+## Coding Style
+
+```
+docker-compose run --rm tests ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
+```
