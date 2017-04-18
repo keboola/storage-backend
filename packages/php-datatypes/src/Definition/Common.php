@@ -24,7 +24,7 @@ class Common
      * @param string $length
      * @param bool $nullable
      */
-    public function __construct($type, $length = null, $nullable = false)
+    public function __construct($type, $length = null, $nullable = true)
     {
         $this->type = $type;
         $this->length = $length;
