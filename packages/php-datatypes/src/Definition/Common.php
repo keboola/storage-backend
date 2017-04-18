@@ -102,7 +102,7 @@ class Common
      */
     public function getBaseType()
     {
-        if (stristr($this->type,"date")) {
+        if (stristr($this->type, "date")) {
             if (stristr($this->type, "time")) {
                 return 'TIMESTAMP';
             } else {

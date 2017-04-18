@@ -79,7 +79,8 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testGetBasetype() {
+    public function testGetBasetype()
+    {
         $this->assertEquals("DATE", (new Common("date"))->getBasetype());
         $this->assertEquals("DATE", (new Common("DATE"))->getBasetype());
         $this->assertEquals("TIMESTAMP", (new Common("DateTime"))->getBasetype());
