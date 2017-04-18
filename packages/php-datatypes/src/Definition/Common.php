@@ -122,7 +122,7 @@ class Common
             return "BOOLEAN";
         }
         if (stristr($this->type, "decimal") || stristr($this->type, "num")) {
-            return "NUMBERIC";
+            return "NUMERIC";
         }
         return "STRING";
     }
