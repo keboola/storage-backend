@@ -38,10 +38,9 @@ class Common
         $this->type = $type;
         $this->length = $length;
         $this->nullable = (bool) $nullable;
+        $this->default = $default;
         if ($nullable and is_null($default)) {
             $this->default = "NULL";
-        } else {
-            $this->default = $default;
         }
         $this->format = $format;
     }
@@ -104,10 +103,9 @@ class Common
     {
         $basetype = "STRING";
         if (stristr($this->type, "date")) {
+            $basetype = 'DATE';
             if (stristr($this->type, "time")) {
                 $basetype = 'TIMESTAMP';
-            } else {
-                $basetype = 'DATE';
             }
         }
         if (stristr($this->type, "int")) {
