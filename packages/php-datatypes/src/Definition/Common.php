@@ -67,6 +67,36 @@ class Common
     }
 
     /**
+     * @return string
+     */
+    public function getBaseType()
+    {
+        if (stristr($this->type,"date")) {
+            if (stristr($this->type, "time")) {
+                return 'TIMESTAMP';
+            } else {
+                return 'DATE';
+            }
+        }
+        if (stristr($this->type, "int")) {
+            return "INTEGER";
+        }
+        if (stristr($this->type, "float") || stristr($this->type, "double") || stristr($this->type, "real")) {
+            return "FLOAT";
+        }
+        if (stristr($this->type, "timestamp")) {
+            return "TIMESTAMP";
+        }
+        if (stristr($this->type, "bool")) {
+            return "BOOLEAN";
+        }
+        if (stristr($this->type, "decimal") || stristr($this->type, "num")) {
+            return "NUMBERIC";
+        }
+        return "STRING";
+    }
+
+    /**
      * @return array
      */
     public function toArray()
