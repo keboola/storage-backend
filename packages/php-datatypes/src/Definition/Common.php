@@ -100,7 +100,7 @@ class Common
     /**
      * @return string
      */
-    public function getBaseType()
+    public function getBasetype()
     {
         $basetype = "STRING";
         if (stristr($this->type, "date")) {
