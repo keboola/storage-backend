@@ -102,29 +102,30 @@ class Common
      */
     public function getBaseType()
     {
+        $basetype = "STRING";
         if (stristr($this->type, "date")) {
             if (stristr($this->type, "time")) {
-                return 'TIMESTAMP';
+                $basetype = 'TIMESTAMP';
             } else {
-                return 'DATE';
+                $basetype = 'DATE';
             }
         }
         if (stristr($this->type, "int")) {
-            return "INTEGER";
+            $basetype = "INTEGER";
         }
         if (stristr($this->type, "float") || stristr($this->type, "double") || stristr($this->type, "real")) {
-            return "FLOAT";
+            $basetype = "FLOAT";
         }
         if (stristr($this->type, "timestamp")) {
-            return "TIMESTAMP";
+            $basetype = "TIMESTAMP";
         }
         if (stristr($this->type, "bool")) {
-            return "BOOLEAN";
+            $basetype = "BOOLEAN";
         }
         if (stristr($this->type, "decimal") || stristr($this->type, "num")) {
-            return "NUMERIC";
+            $basetype = "NUMERIC";
         }
-        return "STRING";
+        return $basetype;
     }
 
     /**
