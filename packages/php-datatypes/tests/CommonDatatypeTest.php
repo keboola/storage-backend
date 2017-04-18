@@ -48,11 +48,11 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
             } else if ($mdat['key'] === 'KBC.datatype.length') {
                 $this->fail("unspecified length should not create metadata.");
             } else if ($mdat['key'] === 'KBC.datatype.nullable') {
-                $this->assertEquals(false, $mdat['value']);
+                $this->assertEquals(true, $mdat['value']);
             } else if ($mdat['key'] === 'KBC.datatype.format') {
                 $this->fail("unspecified format should not create metadata.");
             } else if ($mdat['key'] === 'KBC.datatype.default') {
-                $this->assertEquals("", $mdat['value']);
+                $this->assertEquals("NULL", $mdat['value']);
             } else if ($mdat['key'] === 'KBC.datatype.basetype') {
                 $this->assertEquals('STRING', $mdat['value']);
             }
