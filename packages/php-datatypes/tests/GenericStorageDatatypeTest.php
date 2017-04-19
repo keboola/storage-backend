@@ -94,8 +94,5 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
             'length' => 10
         ]);
         $this->assertEquals("INTEGER(10) NULL DEFAULT NULL", $datatype->getSQLDefinition());
-
-        $datatype = new GenericStorage("VARCHAR", ['length' => '50', 'nullable' => false, 'default' => "NULL"]);
-        $this->assertEquals("VARCHAR(50) NOT NULL DEFAULT 'NULL'", $datatype->getSQLDefinition());
     }
 }

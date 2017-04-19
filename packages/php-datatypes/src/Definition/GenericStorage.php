@@ -32,9 +32,7 @@ class GenericStorage extends Common
         }
         $sql .= ($this->nullable) ? " NULL" : " NOT NULL";
         if ($this->default) {
-            $sql .= " DEFAULT '" . $this->default . "'";
-        } else if ($this->isNullable()) {
-            $sql .= " DEFAULT NULL";
+            $sql .= ($this->default === "NULL") ? " DEFAULT NULL" : " DEFAULT '" . $this->default . "'";
         }
         return $sql;
     }

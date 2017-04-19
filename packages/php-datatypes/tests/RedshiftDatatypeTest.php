@@ -134,7 +134,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         $datatype = new Redshift("VARCHAR");
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "", "nullable" => true],
+            ["type" => "VARCHAR", "length" => "", "nullable" => true, "default" => "NULL"],
             $datatype->toArray()
         );
 

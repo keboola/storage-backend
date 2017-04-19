@@ -34,6 +34,10 @@ abstract class Common
         $this->nullable = (isset($options['nullable'])) ? (bool) $options['nullable'] : true;
         if (isset($options['default'])) {
             $this->default = $options['default'];
+        } else if ($this->isNullable()) {
+            $this->default = "NULL";
+        } else {
+            $this->default = "";
         }
     }
 
@@ -90,15 +94,12 @@ abstract class Common
      */
     public function toArray()
     {
-        $array = [
+        return [
             "type" => $this->getType(),
             "length" => $this->getLength(),
             "nullable" => $this->isNullable(),
+            "default" => $this->getDefault()
         ];
-        if (!is_null($this->getDefault())) {
-            $array["default"] = $this->getDefault();
-        }
-        return $array;
     }
 
     /**

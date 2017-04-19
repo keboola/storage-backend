@@ -33,12 +33,12 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         $datatype = new Snowflake("VARCHAR");
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "", "nullable" => true],
+            ["type" => "VARCHAR", "length" => "", "nullable" => true, "default" => "NULL"],
             $datatype->toArray()
         );
         $datatype = new Snowflake("VARCHAR", ['length' => "50", 'nullable' => false]);
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "50", "nullable" => false],
+            ["type" => "VARCHAR", "length" => "50", "nullable" => false, "default" => ""],
             $datatype->toArray()
         );
     }
