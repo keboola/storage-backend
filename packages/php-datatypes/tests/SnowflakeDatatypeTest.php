@@ -68,6 +68,52 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testBasetypes()
+    {
+        foreach (Snowflake::TYPES as $type) {
+            $basetype = (new Snowflake($type))->getBasetype();
+            switch($type) {
+                case "INT":
+                case "INTEGER":
+                case "BIGINT":
+                case "SMALLINT":
+                case "TINYINT":
+                case "BYTEINT":
+                    $this->assertEquals("INTEGER", $basetype);
+                    break;
+                case "NUMBER":
+                case "DECIMAL":
+                case "NUMERIC":
+                    $this->assertEquals("NUMERIC", $basetype);
+                    break;
+                case "FLOAT":
+                case "FLOAT4":
+                case "FLOAT8":
+                case "DOUBLE":
+                case "DOUBLE PRECISION":
+                case "REAL":
+                    $this->assertEquals("FLOAT", $basetype);
+                    break;
+                case "BOOLEAN":
+                    $this->assertEquals("BOOLEAN", $basetype);
+                    break;
+                case "DATE":
+                    $this->assertEquals("DATE", $basetype);
+                    break;
+                case "DATETIME":
+                case "TIMESTAMP":
+                case "TIMESTAMP_NTZ":
+                case "TIMESTAMP_LTZ":
+                case "TIMESTAMP_TZ":
+                    $this->assertEquals("TIMESTAMP", $basetype);
+                    break;
+                default:
+                    $this->assertEquals("STRING", $basetype);
+                    break;
+            }
+        }
+    }
+
     public function invalidNumericLengths()
     {
         return [

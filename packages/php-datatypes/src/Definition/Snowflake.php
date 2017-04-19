@@ -141,7 +141,7 @@ class Snowflake extends Common
             case "TIMESTAMP_NTZ":
             case "TIMESTAMP_LTZ":
             case "TIMESTAMP_TZ":
-                $basetype = "DATE";
+                $basetype = "TIMESTAMP";
                 break;
             default:
                 $basetype = "STRING";
