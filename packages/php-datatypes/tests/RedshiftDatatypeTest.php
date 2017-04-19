@@ -176,7 +176,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         foreach (Redshift::TYPES as $type) {
             $basetype = (new Redshift($type))->getBasetype();
-            switch($type) {
+            switch ($type) {
                 case "SMALLINT":
                 case "INT2":
                 case "INTEGER":

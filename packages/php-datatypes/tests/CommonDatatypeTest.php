@@ -88,5 +88,4 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
             }
         }
     }
-
 }

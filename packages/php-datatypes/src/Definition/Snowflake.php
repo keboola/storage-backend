@@ -108,7 +108,7 @@ class Snowflake extends Common
 
     public function getBasetype()
     {
-        switch(strtoupper($this->type)) {
+        switch (strtoupper($this->type)) {
             case "INT":
             case "INTEGER":
             case "BIGINT":

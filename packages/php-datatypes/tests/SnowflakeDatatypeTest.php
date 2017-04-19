@@ -72,7 +72,7 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         foreach (Snowflake::TYPES as $type) {
             $basetype = (new Snowflake($type))->getBasetype();
-            switch($type) {
+            switch ($type) {
                 case "INT":
                 case "INTEGER":
                 case "BIGINT":

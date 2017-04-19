@@ -2,7 +2,6 @@
 
 namespace Keboola\Datatype\Definition;
 
-
 class GenericStorage extends Common
 {
     /**

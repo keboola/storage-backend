@@ -2,7 +2,6 @@
 
 namespace Keboola\DataypeTest;
 
-
 use Keboola\Datatype\Definition\GenericStorage;
 
 class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
