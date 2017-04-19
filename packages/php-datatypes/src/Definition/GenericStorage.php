@@ -66,28 +66,27 @@ class GenericStorage extends Common
      */
     public function getBasetype()
     {
-        $basetype = "STRING";
         if (stristr($this->type, "date")) {
-            $basetype = 'DATE';
             if (stristr($this->type, "time")) {
-                $basetype = 'TIMESTAMP';
+                return 'TIMESTAMP';
             }
+            return 'DATE';
         }
         if (stristr($this->type, "int")) {
-            $basetype = "INTEGER";
+            return "INTEGER";
         }
         if (stristr($this->type, "float") || stristr($this->type, "double") || stristr($this->type, "real")) {
-            $basetype = "FLOAT";
+            return "FLOAT";
         }
         if (stristr($this->type, "timestamp")) {
-            $basetype = "TIMESTAMP";
+            return "TIMESTAMP";
         }
         if (stristr($this->type, "bool")) {
-            $basetype = "BOOLEAN";
+            return "BOOLEAN";
         }
         if (stristr($this->type, "decimal") || stristr($this->type, "num")) {
-            $basetype = "NUMERIC";
+            return "NUMERIC";
         }
-        return $basetype;
+        return "STRING";
     }
 }
