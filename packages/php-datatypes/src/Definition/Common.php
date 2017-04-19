@@ -32,7 +32,6 @@ abstract class Common
         $this->type = $type;
         $this->length = (isset($options['length'])) ? $options['length'] : "";
         $this->nullable = (isset($options['nullable'])) ? (bool) $options['nullable'] : true;
-        $this->default = "";
         if (isset($options['default'])) {
             $this->default = $options['default'];
         }
