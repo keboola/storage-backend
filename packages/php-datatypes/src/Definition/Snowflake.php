@@ -26,14 +26,15 @@ class Snowflake extends Common
      * Snowflake constructor.
      *
      * @param $type
-     * @param null $length
-     * @param bool $nullable
+     * @param array $options -- length, nullable, default
      */
-    public function __construct($type, $length = null, $nullable = false)
+    public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        $this->validateLength($type, $length);
-        parent::__construct($type, $length, $nullable);
+        if (isset($options['length'])) {
+            $this->validateLength($type, $options['length']);
+        }
+        parent::__construct($type, $options);
     }
 
     /**
@@ -103,5 +104,49 @@ class Snowflake extends Common
         if (!$valid) {
             throw new InvalidLengthException("'{$length}' is not valid length for {$type}");
         }
+    }
+
+    public function getBasetype()
+    {
+        switch(strtoupper($this->type)) {
+            case "INT":
+            case "INTEGER":
+            case "BIGINT":
+            case "SMALLINT":
+            case "TINYINT":
+            case "BYTEINT":
+                $basetype = "INTEGER";
+                break;
+            case "NUMBER":
+            case "DECIMAL":
+            case "NUMERIC":
+                $basetype = "NUMERIC";
+                break;
+            case "FLOAT":
+            case "FLOAT4":
+            case "FLOAT8":
+            case "DOUBLE":
+            case "DOUBLE PRECISION":
+            case "REAL":
+                $basetype = "FLOAT";
+                break;
+            case "BOOLEAN":
+                $basetype = "BOOLEAN";
+                break;
+            case "DATE":
+                $basetype = "DATE";
+                break;
+            case "DATETIME":
+            case "TIMESTAMP":
+            case "TIMESTAMP_NTZ":
+            case "TIMESTAMP_LTZ":
+            case "TIMESTAMP_TZ":
+                $basetype = "DATE";
+                break;
+            default:
+                $basetype = "STRING";
+                break;
+        }
+        return $basetype;
     }
 }

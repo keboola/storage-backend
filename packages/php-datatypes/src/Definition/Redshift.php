@@ -25,17 +25,19 @@ class Redshift extends Common
      * Redshift constructor.
      *
      * @param $type
-     * @param null $length
-     * @param bool $nullable
-     * @param null $compression
+     * @param array $options -- length, nullable, default, compression
      */
-    public function __construct($type, $length = null, $nullable = false, $compression = null)
+    public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        $this->validateLength($type, $length);
-        $this->validateCompression($type, $compression);
-        parent::__construct($type, $length, $nullable);
-        $this->compression = $compression;
+        if (isset($options['length'])) {
+            $this->validateLength($type, $options['length']);
+        }
+        if (isset($options['compression'])) {
+            $this->validateCompression($type, $options['compression']);
+            $this->compression = $options['compression'];
+        }
+        parent::__construct($type, $options);
     }
 
     /**
@@ -212,5 +214,48 @@ class Redshift extends Common
         if (!$valid) {
             throw new InvalidCompressionException("'{$compression}' is not valid compression for {$type}");
         }
+    }
+
+    public function getBasetype()
+    {
+        switch ($this->type) {
+            case "SMALLINT":
+            case "INT2":
+            case "INTEGER":
+            case "INT":
+            case "INT4":
+            case "BIGINT":
+            case "INT8":
+                $basetype = "INTEGER";
+                break;
+            case "DECIMAL":
+            case "NUMERIC":
+                $basetype = "NUMERIC";
+                break;
+            case "REAL":
+            case "FLOAT4":
+            case "DOUBLE PRECISION":
+            case "FLOAT8":
+            case "FLOAT":
+                $basetype = "FLOAT";
+                break;
+            case "BOOLEAN":
+            case "BOOL":
+                $basetype ="BOOLEAN";
+                break;
+            case "DATE":
+                $basetype = "DATE";
+                break;
+            case "TIMESTAMP":
+            case "TIMESTAMP WITHOUT TIME ZONE":
+            case "TIMESTAMPTZ":
+            case "TIMESTAMP WITH TIME ZONE":
+                $basetype = "TIMESTAMP";
+                break;
+            default:
+                $basetype = "STRING";
+                break;
+        }
+        return $basetype;
     }
 }

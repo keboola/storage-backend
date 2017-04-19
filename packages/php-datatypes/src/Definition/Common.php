@@ -2,7 +2,7 @@
 
 namespace Keboola\Datatype\Definition;
 
-class Common
+abstract class Common
 {
     /**
      * @var string
@@ -15,34 +15,30 @@ class Common
     /**
      * @var bool
      */
-    protected $nullable = false;
+    protected $nullable;
     /**
      * @var string
      */
     protected $default;
-    /**
-     * @var string
-     */
-    protected $format;
 
     /**
      * Common constructor.
      *
      * @param $type
-     * @param string $length
-     * @param bool $nullable
+     * @param array $options --  length, nullable, default
      */
-
-    public function __construct($type, $length = null, $nullable = true, $default = null, $format = null)
+    public function __construct($type, $options = [])
     {
         $this->type = $type;
-        $this->length = $length;
-        $this->nullable = (bool) $nullable;
-        $this->default = $default;
-        if ($nullable and is_null($default)) {
+        $this->length = (isset($options['length'])) ? $options['length'] : "";
+        $this->nullable = (isset($options['nullable'])) ? (bool) $options['nullable'] : true;
+        if (isset($options['default'])) {
+            $this->default = $options['default'];
+        } else if ($this->isNullable()) {
             $this->default = "NULL";
+        } else {
+            $this->default = "";
         }
-        $this->format = $format;
     }
 
     /**
@@ -80,14 +76,6 @@ class Common
     /**
      * @return string
      */
-    public function getFormat()
-    {
-        return $this->format;
-    }
-
-    /**
-     * @return string
-     */
     public function getSQLDefinition()
     {
         if ($this->getLength() && $this->getLength() != "") {
@@ -99,32 +87,7 @@ class Common
     /**
      * @return string
      */
-    public function getBasetype()
-    {
-        $basetype = "STRING";
-        if (stristr($this->type, "date")) {
-            $basetype = 'DATE';
-            if (stristr($this->type, "time")) {
-                $basetype = 'TIMESTAMP';
-            }
-        }
-        if (stristr($this->type, "int")) {
-            $basetype = "INTEGER";
-        }
-        if (stristr($this->type, "float") || stristr($this->type, "double") || stristr($this->type, "real")) {
-            $basetype = "FLOAT";
-        }
-        if (stristr($this->type, "timestamp")) {
-            $basetype = "TIMESTAMP";
-        }
-        if (stristr($this->type, "bool")) {
-            $basetype = "BOOLEAN";
-        }
-        if (stristr($this->type, "decimal") || stristr($this->type, "num")) {
-            $basetype = "NUMERIC";
-        }
-        return $basetype;
-    }
+    abstract public function getBasetype();
 
     /**
      * @return array
@@ -134,7 +97,8 @@ class Common
         return [
             "type" => $this->getType(),
             "length" => $this->getLength(),
-            "nullable" => $this->isNullable()
+            "nullable" => $this->isNullable(),
+            "default" => $this->getDefault()
         ];
     }
 
@@ -149,31 +113,24 @@ class Common
                 "value" => $this->getType(),
             ],[
                 "key" => "KBC.datatype.nullable",
-                "value" => $this->nullable
+                "value" => $this->isNullable()
             ],[
                 "key" => "KBC.datatype.basetype",
                 "value" => $this->getBasetype()
             ]
         ];
-        if ($this->length) {
+        if ($this->getLength()) {
             $metadata[] = [
                 "key" => "KBC.datatype.length",
-                "value" => $this->length
+                "value" => $this->getLength()
             ];
         }
-        if ($this->default) {
+        if ($this->getDefault()) {
             $metadata[] = [
                 "key" => "KBC.datatype.default",
-                "value" => $this->default
+                "value" => $this->getDefault()
             ];
         }
-        if ($this->format) {
-            $metadata[] = [
-                "key" => "KBC.datatype.format",
-                "value" => $this->format
-            ];
-        }
-
         return $metadata;
     }
 }
