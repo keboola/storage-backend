@@ -172,6 +172,51 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testBasetypes()
+    {
+        foreach (Redshift::TYPES as $type) {
+            $basetype = (new Redshift($type))->getBasetype();
+            switch($type) {
+                case "SMALLINT":
+                case "INT2":
+                case "INTEGER":
+                case "INT":
+                case "INT4":
+                case "BIGINT":
+                case "INT8":
+                    $this->assertEquals("INTEGER", $basetype);
+                    break;
+                case "DECIMAL":
+                case "NUMERIC":
+                    $this->assertEquals("NUMERIC", $basetype);
+                    break;
+                case "REAL":
+                case "FLOAT4":
+                case "DOUBLE PRECISION":
+                case "FLOAT8":
+                case "FLOAT":
+                    $this->assertEquals("FLOAT", $basetype);
+                    break;
+                case "BOOLEAN":
+                case "BOOL":
+                    $this->assertEquals("BOOLEAN", $basetype);
+                    break;
+                case "DATE":
+                    $this->assertEquals("DATE", $basetype);
+                    break;
+                case "TIMESTAMP":
+                case "TIMESTAMP WITHOUT TIME ZONE":
+                case "TIMESTAMPTZ":
+                case "TIMESTAMP WITH TIME ZONE":
+                    $this->assertEquals("TIMESTAMP", $basetype);
+                    break;
+                default:
+                    $this->assertEquals("STRING", $basetype);
+                    break;
+            }
+        }
+    }
+
     public function invalidNumericLengths()
     {
         return [
