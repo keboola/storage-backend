@@ -25,7 +25,7 @@ abstract class Common
      * Common constructor.
      *
      * @param $type
-     * @param array $options --  length, nullable, default
+     * @param array $options -- length, nullable, default
      */
     public function __construct($type, $options = [])
     {
