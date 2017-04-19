@@ -10,33 +10,33 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
-        $datatype = new Snowflake("VARCHAR");
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR"]);
         $this->assertEquals("VARCHAR", $datatype->getType());
         $this->assertEquals("", $datatype->getLength());
         $this->assertEquals(true, $datatype->isNullable());
 
-        $datatype = new Snowflake("VARCHAR", ["length" => "50", "nullable" => false]);
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ["length" => "50", "nullable" => false]]);
         $this->assertEquals("50", $datatype->getLength());
         $this->assertEquals(false, $datatype->isNullable());
     }
 
     public function testSQLDefinition()
     {
-        $datatype = new Snowflake("VARCHAR");
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR"]);
         $this->assertEquals("VARCHAR", $datatype->getSQLDefinition());
 
-        $datatype = new Snowflake("VARCHAR", ["length" => "50"]);
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ["length" => "50"]]);
         $this->assertEquals("VARCHAR(50)", $datatype->getSQLDefinition());
     }
 
     public function testToArray()
     {
-        $datatype = new Snowflake("VARCHAR");
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR"]);
         $this->assertEquals(
             ["type" => "VARCHAR", "length" => "", "nullable" => true, "default" => "NULL"],
             $datatype->toArray()
         );
-        $datatype = new Snowflake("VARCHAR", ['length' => "50", 'nullable' => false]);
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ['length' => "50", 'nullable' => false]]);
         $this->assertEquals(
             ["type" => "VARCHAR", "length" => "50", "nullable" => false, "default" => ""],
             $datatype->toArray()
@@ -45,8 +45,8 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testToMetadata()
     {
-        $datatype = new Snowflake("VARCHAR");
-
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR"]);
+        $datatype->method("getBasetype")->willReturn("STRING");
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
             $this->assertArrayHasKey('key', $mdat);
@@ -66,11 +66,12 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
             }
         }
 
-        $datatype = new Snowflake("NUMERIC", [
+        $datatype = $this->getMockForAbstractClass(Common::class, ["NUMERIC", [
             "length" => "10,0",
             "nullable" => false,
             "default" => "0"
-        ]);
+        ]]);
+        $datatype->method("getBasetype")->willReturn("NUMERIC");
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
             $this->assertArrayHasKey('key', $mdat);
