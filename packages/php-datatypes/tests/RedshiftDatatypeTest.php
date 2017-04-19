@@ -10,7 +10,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
 {
     public function testValid()
     {
-        new Redshift("VARCHAR", "50");
+        new Redshift("VARCHAR", ['length' => "50"]);
     }
 
     public function testInvalidType()
@@ -27,9 +27,9 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Redshift("numeric");
         new Redshift("NUMERIC");
-        new Redshift("NUMERIC", "");
-        new Redshift("INT", "");
-        new Redshift("NUMERIC", "38,0");
+        new Redshift("NUMERIC", ['length' => ""]);
+        new Redshift("INT", ['length' => ""]);
+        new Redshift("NUMERIC", ['length' => "38,0"]);
     }
 
     /**
@@ -39,7 +39,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidNumericLengths($length)
     {
         try {
-            new Redshift("NUMERIC", $length);
+            new Redshift("NUMERIC", ['length' => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -50,9 +50,9 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Redshift("varchar");
         new Redshift("VARCHAR");
-        new Redshift("VARCHAR", "");
-        new Redshift("VARCHAR", "1");
-        new Redshift("VARCHAR", "65535");
+        new Redshift("VARCHAR", ['length' => ""]);
+        new Redshift("VARCHAR", ['length' => "1"]);
+        new Redshift("VARCHAR", ['length' => "65535"]);
     }
 
     /**
@@ -62,7 +62,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidVarcharLengths($length)
     {
         try {
-            new Redshift("VARCHAR", $length);
+            new Redshift("VARCHAR", ['length' => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -73,8 +73,8 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Redshift("char");
         new Redshift("CHAR");
-        new Redshift("CHAR", "1");
-        new Redshift("CHAR", "4096");
+        new Redshift("CHAR", ['length' => "1"]);
+        new Redshift("CHAR", ['length' => "4096"]);
     }
 
     /**
@@ -84,7 +84,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidCharLengths($length)
     {
         try {
-            new Redshift("CHAR", $length);
+            new Redshift("CHAR", ['length' => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -93,19 +93,19 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testValidCompressions()
     {
-        new Redshift("VARCHAR", "10", false, "RAW");
-        new Redshift("VARCHAR", "10", false, "raw");
-        new Redshift("VARCHAR", "10", false, "BYTEDICT");
-        new Redshift("INT", "", false, "DELTA");
-        new Redshift("INT", "", false, "DELTA32K");
-        new Redshift("VARCHAR", "10", false, "LZO");
-        new Redshift("BIGINT", "", false, "MOSTLY8");
-        new Redshift("BIGINT", "", false, "MOSTLY16");
-        new Redshift("BIGINT", "", false, "MOSTLY32");
-        new Redshift("VARCHAR", "10", false, "RUNLENGTH");
-        new Redshift("VARCHAR", "10", false, "TEXT255");
-        new Redshift("VARCHAR", "10", false, "TEXT32K");
-        new Redshift("VARCHAR", "10", false, "ZSTD");
+        new Redshift("VARCHAR", ['compression' => "RAW"]);
+        new Redshift("VARCHAR", ['compression' => "raw"]);
+        new Redshift("VARCHAR", ['compression' => "BYTEDICT"]);
+        new Redshift("INT", ['compression' => "DELTA"]);
+        new Redshift("INT", ['compression' => "DELTA32K"]);
+        new Redshift("VARCHAR", ['compression' => "LZO"]);
+        new Redshift("BIGINT", ['compression' => "MOSTLY8"]);
+        new Redshift("BIGINT", ['compression' => "MOSTLY16"]);
+        new Redshift("BIGINT", ['compression' => "MOSTLY32"]);
+        new Redshift("VARCHAR", ['compression' => "RUNLENGTH"]);
+        new Redshift("VARCHAR", ['compression' => "TEXT255"]);
+        new Redshift("VARCHAR", ['compression' => "TEXT32K"]);
+        new Redshift("VARCHAR", ['compression' => "ZSTD"]);
     }
 
     /**
@@ -116,7 +116,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidCompressions($type, $compression)
     {
         try {
-            new Redshift($type, "", false, $compression);
+            new Redshift($type, ['compression' => $compression]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidCompressionException::class, get_class($e));
@@ -125,17 +125,23 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testSQLDefinition()
     {
-        $datatype = new Redshift("VARCHAR", "50", true, "ZSTD");
+        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => true, 'compression' => "ZSTD"]);
         $this->assertEquals("VARCHAR(50) ENCODE ZSTD", $datatype->getSQLDefinition());
     }
 
     public function testToArray()
     {
         $datatype = new Redshift("VARCHAR");
-        $this->assertEquals(["type" => "VARCHAR", "length" => "", "nullable" => false, "compression" => ""], $datatype->toArray());
+        $this->assertEquals(
+            ["type" => "VARCHAR", "length" => "", "nullable" => true, "default" => "NULL", "compression" => ""],
+            $datatype->toArray()
+        );
 
-        $datatype = new Redshift("VARCHAR", "50", true, "ZSTD");
-        $this->assertEquals(["type" => "VARCHAR", "length" => "50", "nullable" => true, "compression" => "ZSTD"], $datatype->toArray());
+        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => false, 'default' => "", 'compression' => "ZSTD"]);
+        $this->assertEquals(
+            ["type" => "VARCHAR", "length" => "50", "nullable" => false, 'default' => "", "compression" => "ZSTD"],
+            $datatype->toArray()
+        );
     }
 
     public function invalidNumericLengths()
