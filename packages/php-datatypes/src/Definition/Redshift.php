@@ -66,7 +66,9 @@ class Redshift extends Common
     public function toArray()
     {
         $array = parent::toArray();
-        $array["compression"] = $this->getCompression();
+        if ($this->getCompression()) {
+            $array["compression"] = $this->getCompression();
+        }
         return $array;
     }
 
@@ -257,5 +259,17 @@ class Redshift extends Common
                 break;
         }
         return $basetype;
+    }
+
+    public function toMetadata()
+    {
+        $metadata = parent::toMetadata();
+        if ($compression = $this->getCompression() !== null) {
+            $metadata[] = [
+                'key' => 'KBC.datatype.compression',
+                'value' => $this->getCompression()
+            ];
+        }
+        return $metadata;
     }
 }

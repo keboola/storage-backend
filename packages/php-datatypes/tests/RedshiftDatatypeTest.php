@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\DataypeTest;
 
+use Guzzle\Tests\Service\Description\ParameterTest;
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
@@ -133,7 +134,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         $datatype = new Redshift("VARCHAR");
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "", "nullable" => true, "default" => "NULL", "compression" => ""],
+            ["type" => "VARCHAR", "length" => "", "nullable" => true, "default" => "NULL"],
             $datatype->toArray()
         );
 
@@ -142,6 +143,33 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
             ["type" => "VARCHAR", "length" => "50", "nullable" => false, 'default' => "", "compression" => "ZSTD"],
             $datatype->toArray()
         );
+    }
+
+    public function testToMetadata()
+    {
+        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => false, 'default' => "", 'compression' => "ZSTD"]);
+
+        $md = $datatype->toMetadata();
+        $hasCompression = false;
+        foreach ($md as $mdat) {
+            $this->assertArrayHasKey('key', $mdat);
+            if ($mdat['key'] === 'KBC.datatype.compression') {
+                $this->assertEquals('ZSTD', $mdat['value']);
+                $hasCompression = true;
+            }
+        }
+        if (!$hasCompression) {
+            $this->fail("Redshift datatype metadata should produce compression data if present");
+        }
+
+        $datatype = new Redshift("VARCHAR");
+        $md = $datatype->toMetadata();
+        foreach ($md as $mdat) {
+            $this->assertArrayHasKey('key', $mdat);
+            if ($mdat['key'] === 'KBC.datatyp.compression') {
+                $this->fail("Redshift datatype should not produce compression metadata if compression is not set");
+            }
+        }
     }
 
     public function invalidNumericLengths()
