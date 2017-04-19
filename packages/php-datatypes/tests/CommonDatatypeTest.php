@@ -30,12 +30,12 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR"]);
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "", "nullable" => true, "default" => "NULL"],
+            ["type" => "VARCHAR", "length" => "", "nullable" => true],
             $datatype->toArray()
         );
         $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ['length' => "50", 'nullable' => false]]);
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "50", "nullable" => false, "default" => ""],
+            ["type" => "VARCHAR", "length" => "50", "nullable" => false],
             $datatype->toArray()
         );
     }
