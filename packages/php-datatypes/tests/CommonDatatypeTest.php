@@ -2,9 +2,6 @@
 namespace Keboola\DataypeTest;
 
 use Keboola\Datatype\Definition\Common;
-use Keboola\Datatype\Definition\GenericStorage;
-use Keboola\Datatype\Definition\Redshift;
-use Keboola\Datatype\Definition\Snowflake;
 
 class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
 {

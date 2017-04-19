@@ -1,7 +1,6 @@
 <?php
 namespace Keboola\DataypeTest;
 
-use Guzzle\Tests\Service\Description\ParameterTest;
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
