@@ -1,7 +1,6 @@
 <?php
 namespace Keboola\DataypeTest;
 
-use Guzzle\Tests\Service\Description\ParameterTest;
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
@@ -176,7 +175,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         foreach (Redshift::TYPES as $type) {
             $basetype = (new Redshift($type))->getBasetype();
-            switch($type) {
+            switch ($type) {
                 case "SMALLINT":
                 case "INT2":
                 case "INTEGER":

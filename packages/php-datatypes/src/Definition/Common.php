@@ -25,19 +25,18 @@ abstract class Common
      * Common constructor.
      *
      * @param $type
-     * @param array $options --  length, nullable, default
+     * @param array $options -- length, nullable, default
      */
     public function __construct($type, $options = [])
     {
         $this->type = $type;
         $this->length = (isset($options['length'])) ? $options['length'] : "";
         $this->nullable = (isset($options['nullable'])) ? (bool) $options['nullable'] : true;
+        $this->default = "";
         if (isset($options['default'])) {
             $this->default = $options['default'];
         } else if ($this->isNullable()) {
             $this->default = "NULL";
-        } else {
-            $this->default = "";
         }
     }
 
