@@ -35,8 +35,6 @@ abstract class Common
         $this->default = "";
         if (isset($options['default'])) {
             $this->default = $options['default'];
-        } else if ($this->isNullable()) {
-            $this->default = "NULL";
         }
     }
 
