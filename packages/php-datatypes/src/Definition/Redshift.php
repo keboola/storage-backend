@@ -3,6 +3,7 @@ namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Redshift extends Common
@@ -26,6 +27,7 @@ class Redshift extends Common
      *
      * @param $type
      * @param array $options -- length, nullable, default, compression
+     * @throws InvalidOptionException
      */
     public function __construct($type, $options = [])
     {
@@ -36,6 +38,10 @@ class Redshift extends Common
         if (isset($options['compression'])) {
             $this->validateCompression($type, $options['compression']);
             $this->compression = $options['compression'];
+        }
+        $diff = array_diff(array_keys($options), ["length", "nullable", "default", "compression"]);
+        if (count($diff) > 0) {
+            throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
     }

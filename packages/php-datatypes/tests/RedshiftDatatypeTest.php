@@ -3,6 +3,7 @@ namespace Keboola\DataypeTest;
 
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Redshift;
 
@@ -123,6 +124,17 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testInvalidOption() {
+        try {
+            new Redshift("NUMERIC", ['myoption' => 'value']);
+            $this->fail("Exception not caught");
+        } catch (\Exception $e) {
+            $this->assertEquals(InvalidOptionException::class, get_class($e));
+        }
+
+    }
+
+
     public function testSQLDefinition()
     {
         $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => true, 'compression' => "ZSTD"]);
@@ -133,13 +145,13 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         $datatype = new Redshift("VARCHAR");
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "", "nullable" => true],
+            ["type" => "VARCHAR", "length" => null, "nullable" => true, "compression" => null],
             $datatype->toArray()
         );
 
-        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => false, 'default' => "", 'compression' => "ZSTD"]);
+        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => false, 'compression' => "ZSTD"]);
         $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "50", "nullable" => false, 'default' => "", "compression" => "ZSTD"],
+            ["type" => "VARCHAR", "length" => "50", "nullable" => false, "compression" => "ZSTD"],
             $datatype->toArray()
         );
     }

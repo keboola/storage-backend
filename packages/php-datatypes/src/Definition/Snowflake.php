@@ -2,6 +2,7 @@
 namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Snowflake extends Common
@@ -27,12 +28,17 @@ class Snowflake extends Common
      *
      * @param $type
      * @param array $options -- length, nullable, default
+     * @throws InvalidOptionException
      */
     public function __construct($type, $options = [])
     {
         $this->validateType($type);
         if (isset($options['length'])) {
             $this->validateLength($type, $options['length']);
+        }
+        $diff = array_diff(array_keys($options), ["length", "nullable", "default"]);
+        if (count($diff) > 0) {
+            throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
     }

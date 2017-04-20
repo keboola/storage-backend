@@ -2,6 +2,7 @@
 namespace Keboola\DataypeTest;
 
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
 
@@ -42,6 +43,15 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
+        }
+    }
+
+    public function testInvalidOption() {
+        try {
+            new Snowflake("NUMERIC", ['myoption' => 'value']);
+            $this->fail("Exception not caught");
+        } catch (\Exception $e) {
+            $this->assertEquals(InvalidOptionException::class, get_class($e));
         }
     }
 
