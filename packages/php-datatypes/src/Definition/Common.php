@@ -11,15 +11,15 @@ abstract class Common
     /**
      * @var string
      */
-    protected $length;
+    protected $length = null;
     /**
      * @var bool
      */
-    protected $nullable;
+    protected $nullable = true;
     /**
      * @var string
      */
-    protected $default;
+    protected $default = null;
 
     /**
      * Common constructor.
@@ -30,8 +30,12 @@ abstract class Common
     public function __construct($type, $options = [])
     {
         $this->type = $type;
-        $this->length = (isset($options['length'])) ? $options['length'] : "";
-        $this->nullable = (isset($options['nullable'])) ? (bool) $options['nullable'] : true;
+        if (isset($options['length'])) {
+            $this->length = $options['length'];
+        }
+        if (isset($options['nullable'])) {
+            $this->nullable = (bool) $options['nullable'];
+        }
         if (isset($options['default'])) {
             $this->default = $options['default'];
         }

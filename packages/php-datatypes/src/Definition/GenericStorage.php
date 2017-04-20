@@ -7,7 +7,7 @@ class GenericStorage extends Common
     /**
      * @var string
      */
-    protected $format;
+    protected $format = null;
 
     /**
      * Base constructor.
@@ -17,7 +17,9 @@ class GenericStorage extends Common
     public function __construct($type, array $options = [])
     {
         parent::__construct($type, $options);
-        $this->format = (isset($options['format'])) ? $options['format'] : null;
+        if (isset($options['format'])) {
+            $this->format = $options['format'];
+        }
     }
 
     /**
