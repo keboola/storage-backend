@@ -2,7 +2,7 @@
 
 namespace Keboola\Datatype\Definition;
 
-class Common
+abstract class Common
 {
     /**
      * @var string
@@ -11,24 +11,34 @@ class Common
     /**
      * @var string
      */
-    protected $length;
+    protected $length = null;
     /**
      * @var bool
      */
-    protected $nullable = false;
+    protected $nullable = true;
+    /**
+     * @var string
+     */
+    protected $default = null;
 
     /**
      * Common constructor.
      *
      * @param $type
-     * @param string $length
-     * @param bool $nullable
+     * @param array $options -- length, nullable, default
      */
-    public function __construct($type, $length = null, $nullable = true)
+    public function __construct($type, $options = [])
     {
         $this->type = $type;
-        $this->length = $length;
-        $this->nullable = (bool) $nullable;
+        if (isset($options['length'])) {
+            $this->length = $options['length'];
+        }
+        if (isset($options['nullable'])) {
+            $this->nullable = (bool) $options['nullable'];
+        }
+        if (isset($options['default'])) {
+            $this->default = $options['default'];
+        }
     }
 
     /**
@@ -58,23 +68,55 @@ class Common
     /**
      * @return string
      */
-    public function getSQLDefinition()
+    public function getDefault()
     {
-        if ($this->getLength() && $this->getLength() != "") {
-            return $this->getType() . "(" . $this->getLength() . ")";
-        }
-        return $this->getType();
+        return $this->default;
     }
+    abstract public function getSQLDefinition();
+
+    /**
+     * @return string
+     */
+
+    /**
+     * @return string
+     */
+    abstract public function getBasetype();
 
     /**
      * @return array
      */
-    public function toArray()
+    abstract public function toArray();
+
+    /**
+     * @return array
+     */
+    public function toMetadata()
     {
-        return [
-            "type" => $this->getType(),
-            "length" => $this->getLength(),
-            "nullable" => $this->isNullable()
+        $metadata = [
+            [
+                "key" => "KBC.datatype.type",
+                "value" => $this->getType(),
+            ],[
+                "key" => "KBC.datatype.nullable",
+                "value" => $this->isNullable()
+            ],[
+                "key" => "KBC.datatype.basetype",
+                "value" => $this->getBasetype()
+            ]
         ];
+        if ($this->getLength()) {
+            $metadata[] = [
+                "key" => "KBC.datatype.length",
+                "value" => $this->getLength()
+            ];
+        }
+        if ($this->getDefault()) {
+            $metadata[] = [
+                "key" => "KBC.datatype.default",
+                "value" => $this->getDefault()
+            ];
+        }
+        return $metadata;
     }
 }

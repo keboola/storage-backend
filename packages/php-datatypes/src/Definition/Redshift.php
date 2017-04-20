@@ -3,6 +3,7 @@ namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Redshift extends Common
@@ -25,17 +26,24 @@ class Redshift extends Common
      * Redshift constructor.
      *
      * @param $type
-     * @param null $length
-     * @param bool $nullable
-     * @param null $compression
+     * @param array $options -- length, nullable, default, compression
+     * @throws InvalidOptionException
      */
-    public function __construct($type, $length = null, $nullable = false, $compression = null)
+    public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        $this->validateLength($type, $length);
-        $this->validateCompression($type, $compression);
-        parent::__construct($type, $length, $nullable);
-        $this->compression = $compression;
+        if (isset($options['length'])) {
+            $this->validateLength($type, $options['length']);
+        }
+        if (isset($options['compression'])) {
+            $this->validateCompression($type, $options['compression']);
+            $this->compression = $options['compression'];
+        }
+        $diff = array_diff(array_keys($options), ["length", "nullable", "default", "compression"]);
+        if (count($diff) > 0) {
+            throw new InvalidOptionException("Option '{$diff[0]}' not supported");
+        }
+        parent::__construct($type, $options);
     }
 
     /**
@@ -51,7 +59,13 @@ class Redshift extends Common
      */
     public function getSQLDefinition()
     {
-        $definition = parent::getSQLDefinition();
+        $definition =  $this->getType();
+        if ($this->getLength() && $this->getLength() != "") {
+            $definition .= "(" . $this->getLength() . ")";
+        }
+        if (!$this->isNullable()) {
+            $definition .= " NOT NULL";
+        }
         if ($this->getCompression() && $this->getCompression() != "") {
             $definition .= " ENCODE " . $this->getCompression();
         }
@@ -63,9 +77,12 @@ class Redshift extends Common
      */
     public function toArray()
     {
-        $array = parent::toArray();
-        $array["compression"] = $this->getCompression();
-        return $array;
+        return [
+            "type" => $this->getType(),
+            "length" => $this->getLength(),
+            "nullable" => $this->isNullable(),
+            "compression" => $this->getCompression()
+        ];
     }
 
     /**
@@ -158,49 +175,49 @@ class Redshift extends Common
         $valid = true;
         $type = strtoupper($type);
         switch (strtoupper($compression)) {
-            case 'RAW':
-            case 'ZSTD':
-            case 'RUNLENGTH':
+            case "RAW":
+            case "ZSTD":
+            case "RUNLENGTH":
             case null:
-            case '':
+            case "":
                 break;
-            case 'BYTEDICT':
+            case "BYTEDICT":
                 if (in_array($type, ["BOOLEAN", "BOOL"])) {
                     $valid = false;
                 }
                 break;
-            case 'DELTA':
+            case "DELTA":
                 if (!in_array($type, ["SMALLINT", "INT2", "INT", "INTEGER", "INT4", "BIGINT", "INT8", "DATE", "TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE", "TIMESTAMPTZ", "TIMESTAMP WITH TIMEZONE", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'DELTA32K':
+            case "DELTA32K":
                 if (!in_array($type, ["INT", "INTEGER", "INT4", "BIGINT", "INT8", "DATE", "TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE", "TIMESTAMPTZ", "TIMESTAMP WITH TIMEZONE", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'LZO':
+            case "LZO":
                 if (in_array($type, ["BOOLEAN", "BOOL", "REAL", "FLOAT4", "DOUBLE PRECISION", "FLOAT8", "FLOAT"])) {
                     $valid = false;
                 }
                 break;
-            case 'MOSTLY8':
+            case "MOSTLY8":
                 if (!in_array($type, ["SMALLINT", "INT2", "INT", "INTEGER", "INT4", "BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'MOSTLY16':
+            case "MOSTLY16":
                 if (!in_array($type, ["INT", "INTEGER", "INT4", "BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'MOSTLY32':
+            case "MOSTLY32":
                 if (!in_array($type, ["BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'TEXT255':
-            case 'TEXT32K':
+            case "TEXT255":
+            case "TEXT32K":
                 if (!in_array($type, ["VARCHAR", "CHARACTER VARYING", "NVARCHAR", "TEXT"])) {
                     $valid = false;
                 }
@@ -212,5 +229,60 @@ class Redshift extends Common
         if (!$valid) {
             throw new InvalidCompressionException("'{$compression}' is not valid compression for {$type}");
         }
+    }
+
+    public function getBasetype()
+    {
+        switch ($this->type) {
+            case "SMALLINT":
+            case "INT2":
+            case "INTEGER":
+            case "INT":
+            case "INT4":
+            case "BIGINT":
+            case "INT8":
+                $basetype = "INTEGER";
+                break;
+            case "DECIMAL":
+            case "NUMERIC":
+                $basetype = "NUMERIC";
+                break;
+            case "REAL":
+            case "FLOAT4":
+            case "DOUBLE PRECISION":
+            case "FLOAT8":
+            case "FLOAT":
+                $basetype = "FLOAT";
+                break;
+            case "BOOLEAN":
+            case "BOOL":
+                $basetype ="BOOLEAN";
+                break;
+            case "DATE":
+                $basetype = "DATE";
+                break;
+            case "TIMESTAMP":
+            case "TIMESTAMP WITHOUT TIME ZONE":
+            case "TIMESTAMPTZ":
+            case "TIMESTAMP WITH TIME ZONE":
+                $basetype = "TIMESTAMP";
+                break;
+            default:
+                $basetype = "STRING";
+                break;
+        }
+        return $basetype;
+    }
+
+    public function toMetadata()
+    {
+        $metadata = parent::toMetadata();
+        if ($this->getCompression()) {
+            $metadata[] = [
+                "key" => "KBC.datatype.compression",
+                "value" => $this->getCompression()
+            ];
+        }
+        return $metadata;
     }
 }

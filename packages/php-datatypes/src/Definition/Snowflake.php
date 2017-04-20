@@ -2,6 +2,7 @@
 namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Snowflake extends Common
@@ -26,14 +27,47 @@ class Snowflake extends Common
      * Snowflake constructor.
      *
      * @param $type
-     * @param null $length
-     * @param bool $nullable
+     * @param array $options -- length, nullable, default
+     * @throws InvalidOptionException
      */
-    public function __construct($type, $length = null, $nullable = false)
+    public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        $this->validateLength($type, $length);
-        parent::__construct($type, $length, $nullable);
+        if (isset($options["length"])) {
+            $this->validateLength($type, $options["length"]);
+        }
+        $diff = array_diff(array_keys($options), ["length", "nullable", "default"]);
+        if (count($diff) > 0) {
+            throw new InvalidOptionException("Option '{$diff[0]}' not supported");
+        }
+        parent::__construct($type, $options);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSQLDefinition()
+    {
+        $definition =  $this->getType();
+        if ($this->getLength() && $this->getLength() != "") {
+            $definition .= "(" . $this->getLength() . ")";
+        }
+        if (!$this->isNullable()) {
+            $definition .= " NOT NULL";
+        }
+        return $definition;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            "type" => $this->getType(),
+            "length" => $this->getLength(),
+            "nullable" => $this->isNullable()
+        ];
     }
 
     /**
@@ -103,5 +137,49 @@ class Snowflake extends Common
         if (!$valid) {
             throw new InvalidLengthException("'{$length}' is not valid length for {$type}");
         }
+    }
+
+    public function getBasetype()
+    {
+        switch (strtoupper($this->type)) {
+            case "INT":
+            case "INTEGER":
+            case "BIGINT":
+            case "SMALLINT":
+            case "TINYINT":
+            case "BYTEINT":
+                $basetype = "INTEGER";
+                break;
+            case "NUMBER":
+            case "DECIMAL":
+            case "NUMERIC":
+                $basetype = "NUMERIC";
+                break;
+            case "FLOAT":
+            case "FLOAT4":
+            case "FLOAT8":
+            case "DOUBLE":
+            case "DOUBLE PRECISION":
+            case "REAL":
+                $basetype = "FLOAT";
+                break;
+            case "BOOLEAN":
+                $basetype = "BOOLEAN";
+                break;
+            case "DATE":
+                $basetype = "DATE";
+                break;
+            case "DATETIME":
+            case "TIMESTAMP":
+            case "TIMESTAMP_NTZ":
+            case "TIMESTAMP_LTZ":
+            case "TIMESTAMP_TZ":
+                $basetype = "TIMESTAMP";
+                break;
+            default:
+                $basetype = "STRING";
+                break;
+        }
+        return $basetype;
     }
 }
