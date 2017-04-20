@@ -64,10 +64,18 @@ class GenericStorage extends Common
         if (!is_null($this->getDefault())) {
             $result["default"] = $this->getDefault();
         }
-        if ($this->format) {
-            $result['format'] = $this->format;
+        if ($this->getFormat()) {
+            $result['format'] = $this->getFormat();
         }
         return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->format;
     }
 
     /**
