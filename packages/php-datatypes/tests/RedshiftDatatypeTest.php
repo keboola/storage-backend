@@ -11,7 +11,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
 {
     public function testValid()
     {
-        new Redshift("VARCHAR", ['length' => "50"]);
+        new Redshift("VARCHAR", ["length" => "50"]);
     }
 
     public function testInvalidType()
@@ -28,9 +28,9 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Redshift("numeric");
         new Redshift("NUMERIC");
-        new Redshift("NUMERIC", ['length' => ""]);
-        new Redshift("INT", ['length' => ""]);
-        new Redshift("NUMERIC", ['length' => "38,0"]);
+        new Redshift("NUMERIC", ["length" => ""]);
+        new Redshift("INT", ["length" => ""]);
+        new Redshift("NUMERIC", ["length" => "38,0"]);
     }
 
     /**
@@ -40,7 +40,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidNumericLengths($length)
     {
         try {
-            new Redshift("NUMERIC", ['length' => $length]);
+            new Redshift("NUMERIC", ["length" => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -51,9 +51,9 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Redshift("varchar");
         new Redshift("VARCHAR");
-        new Redshift("VARCHAR", ['length' => ""]);
-        new Redshift("VARCHAR", ['length' => "1"]);
-        new Redshift("VARCHAR", ['length' => "65535"]);
+        new Redshift("VARCHAR", ["length" => ""]);
+        new Redshift("VARCHAR", ["length" => "1"]);
+        new Redshift("VARCHAR", ["length" => "65535"]);
     }
 
     /**
@@ -63,7 +63,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidVarcharLengths($length)
     {
         try {
-            new Redshift("VARCHAR", ['length' => $length]);
+            new Redshift("VARCHAR", ["length" => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -74,8 +74,8 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Redshift("char");
         new Redshift("CHAR");
-        new Redshift("CHAR", ['length' => "1"]);
-        new Redshift("CHAR", ['length' => "4096"]);
+        new Redshift("CHAR", ["length" => "1"]);
+        new Redshift("CHAR", ["length" => "4096"]);
     }
 
     /**
@@ -85,7 +85,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidCharLengths($length)
     {
         try {
-            new Redshift("CHAR", ['length' => $length]);
+            new Redshift("CHAR", ["length" => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -94,19 +94,19 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testValidCompressions()
     {
-        new Redshift("VARCHAR", ['compression' => "RAW"]);
-        new Redshift("VARCHAR", ['compression' => "raw"]);
-        new Redshift("VARCHAR", ['compression' => "BYTEDICT"]);
-        new Redshift("INT", ['compression' => "DELTA"]);
-        new Redshift("INT", ['compression' => "DELTA32K"]);
-        new Redshift("VARCHAR", ['compression' => "LZO"]);
-        new Redshift("BIGINT", ['compression' => "MOSTLY8"]);
-        new Redshift("BIGINT", ['compression' => "MOSTLY16"]);
-        new Redshift("BIGINT", ['compression' => "MOSTLY32"]);
-        new Redshift("VARCHAR", ['compression' => "RUNLENGTH"]);
-        new Redshift("VARCHAR", ['compression' => "TEXT255"]);
-        new Redshift("VARCHAR", ['compression' => "TEXT32K"]);
-        new Redshift("VARCHAR", ['compression' => "ZSTD"]);
+        new Redshift("VARCHAR", ["compression" => "RAW"]);
+        new Redshift("VARCHAR", ["compression" => "raw"]);
+        new Redshift("VARCHAR", ["compression" => "BYTEDICT"]);
+        new Redshift("INT", ["compression" => "DELTA"]);
+        new Redshift("INT", ["compression" => "DELTA32K"]);
+        new Redshift("VARCHAR", ["compression" => "LZO"]);
+        new Redshift("BIGINT", ["compression" => "MOSTLY8"]);
+        new Redshift("BIGINT", ["compression" => "MOSTLY16"]);
+        new Redshift("BIGINT", ["compression" => "MOSTLY32"]);
+        new Redshift("VARCHAR", ["compression" => "RUNLENGTH"]);
+        new Redshift("VARCHAR", ["compression" => "TEXT255"]);
+        new Redshift("VARCHAR", ["compression" => "TEXT32K"]);
+        new Redshift("VARCHAR", ["compression" => "ZSTD"]);
     }
 
     /**
@@ -117,7 +117,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidCompressions($type, $compression)
     {
         try {
-            new Redshift($type, ['compression' => $compression]);
+            new Redshift($type, ["compression" => $compression]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidCompressionException::class, get_class($e));
@@ -127,7 +127,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidOption()
     {
         try {
-            new Redshift("NUMERIC", ['myoption' => 'value']);
+            new Redshift("NUMERIC", ["myoption" => "value"]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidOptionException::class, get_class($e));
@@ -136,7 +136,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testSQLDefinition()
     {
-        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => true, 'compression' => "ZSTD"]);
+        $datatype = new Redshift("VARCHAR", ["length" => "50", "nullable" => true, "compression" => "ZSTD"]);
         $this->assertEquals("VARCHAR(50) ENCODE ZSTD", $datatype->getSQLDefinition());
     }
 
@@ -148,7 +148,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
             $datatype->toArray()
         );
 
-        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => false, 'compression' => "ZSTD"]);
+        $datatype = new Redshift("VARCHAR", ["length" => "50", "nullable" => false, "compression" => "ZSTD"]);
         $this->assertEquals(
             ["type" => "VARCHAR", "length" => "50", "nullable" => false, "compression" => "ZSTD"],
             $datatype->toArray()
@@ -157,14 +157,14 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function testToMetadata()
     {
-        $datatype = new Redshift("VARCHAR", ['length' => "50", 'nullable' => false, 'default' => "", 'compression' => "ZSTD"]);
+        $datatype = new Redshift("VARCHAR", ["length" => "50", "nullable" => false, "default" => "", "compression" => "ZSTD"]);
 
         $md = $datatype->toMetadata();
         $hasCompression = false;
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
-            if ($mdat['key'] === 'KBC.datatype.compression') {
-                $this->assertEquals('ZSTD', $mdat['value']);
+            $this->assertArrayHasKey("key", $mdat);
+            if ($mdat["key"] === "KBC.datatype.compression") {
+                $this->assertEquals("ZSTD", $mdat["value"]);
                 $hasCompression = true;
             }
         }
@@ -175,8 +175,8 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         $datatype = new Redshift("VARCHAR");
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
-            if ($mdat['key'] === 'KBC.datatyp.compression') {
+            $this->assertArrayHasKey("key", $mdat);
+            if ($mdat["key"] === "KBC.datatyp.compression") {
                 $this->fail("Redshift datatype should not produce compression metadata if compression is not set");
             }
         }

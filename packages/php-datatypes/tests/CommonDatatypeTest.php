@@ -23,20 +23,20 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
         $datatype->method("getBasetype")->willReturn("STRING");
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
-            $this->assertArrayHasKey('value', $mdat);
-            if ($mdat['key'] === "KBC.datatype.type") {
-                $this->assertEquals('VARCHAR', $mdat['value']);
-            } else if ($mdat['key'] === 'KBC.datatype.length') {
+            $this->assertArrayHasKey("key", $mdat);
+            $this->assertArrayHasKey("value", $mdat);
+            if ($mdat["key"] === "KBC.datatype.type") {
+                $this->assertEquals("VARCHAR", $mdat["value"]);
+            } else if ($mdat["key"] === "KBC.datatype.length") {
                 $this->fail("unspecified length should not create metadata.");
-            } else if ($mdat['key'] === 'KBC.datatype.nullable') {
-                $this->assertEquals(true, $mdat['value']);
-            } else if ($mdat['key'] === 'KBC.datatype.format') {
+            } else if ($mdat["key"] === "KBC.datatype.nullable") {
+                $this->assertEquals(true, $mdat["value"]);
+            } else if ($mdat["key"] === "KBC.datatype.format") {
                 $this->fail("unspecified format should not create metadata.");
-            } else if ($mdat['key'] === 'KBC.datatype.default') {
-                $this->assertEquals("NULL", $mdat['value']);
-            } else if ($mdat['key'] === 'KBC.datatype.basetype') {
-                $this->assertEquals('STRING', $mdat['value']);
+            } else if ($mdat["key"] === "KBC.datatype.default") {
+                $this->assertEquals("NULL", $mdat["value"]);
+            } else if ($mdat["key"] === "KBC.datatype.basetype") {
+                $this->assertEquals("STRING", $mdat["value"]);
             }
         }
 
@@ -48,18 +48,18 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
         $datatype->method("getBasetype")->willReturn("NUMERIC");
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
-            $this->assertArrayHasKey('value', $mdat);
-            if ($mdat['key'] === "KBC.datatype.type") {
-                $this->assertEquals('NUMERIC', $mdat['value']);
-            } else if ($mdat['key'] === 'KBC.datatype.length') {
-                $this->assertEquals("10,0", $mdat['value']);
-            } else if ($mdat['key'] === 'KBC.datatype.nullable') {
-                $this->assertEquals(false, $mdat['value']);
-            } else if ($mdat['key'] === 'KBC.datatype.default') {
-                $this->assertEquals("0", $mdat['value']);
-            } else if ($mdat['key'] === 'KBC.datatype.basetype') {
-                $this->assertEquals('NUMERIC', $mdat['value']);
+            $this->assertArrayHasKey("key", $mdat);
+            $this->assertArrayHasKey("value", $mdat);
+            if ($mdat["key"] === "KBC.datatype.type") {
+                $this->assertEquals("NUMERIC", $mdat["value"]);
+            } else if ($mdat["key"] === "KBC.datatype.length") {
+                $this->assertEquals("10,0", $mdat["value"]);
+            } else if ($mdat["key"] === "KBC.datatype.nullable") {
+                $this->assertEquals(false, $mdat["value"]);
+            } else if ($mdat["key"] === "KBC.datatype.default") {
+                $this->assertEquals("0", $mdat["value"]);
+            } else if ($mdat["key"] === "KBC.datatype.basetype") {
+                $this->assertEquals("NUMERIC", $mdat["value"]);
             }
         }
     }

@@ -33,8 +33,8 @@ class Snowflake extends Common
     public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        if (isset($options['length'])) {
-            $this->validateLength($type, $options['length']);
+        if (isset($options["length"])) {
+            $this->validateLength($type, $options["length"]);
         }
         $diff = array_diff(array_keys($options), ["length", "nullable", "default"]);
         if (count($diff) > 0) {
