@@ -44,6 +44,21 @@ class Snowflake extends Common
     }
 
     /**
+     * @return string
+     */
+    public function getSQLDefinition()
+    {
+        $definition =  $this->getType();
+        if ($this->getLength() && $this->getLength() != "") {
+            $definition .= "(" . $this->getLength() . ")";
+        }
+        if (!$this->isNullable()) {
+            $definition .= " NOT NULL";
+        }
+        return $definition;
+    }
+
+    /**
      * @param $type
      * @throws InvalidTypeException
      */

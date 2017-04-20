@@ -59,7 +59,13 @@ class Redshift extends Common
      */
     public function getSQLDefinition()
     {
-        $definition = parent::getSQLDefinition();
+        $definition =  $this->getType();
+        if ($this->getLength() && $this->getLength() != "") {
+            $definition .= "(" . $this->getLength() . ")";
+        }
+        if (!$this->isNullable()) {
+            $definition .= " NOT NULL";
+        }
         if ($this->getCompression() && $this->getCompression() != "") {
             $definition .= " ENCODE " . $this->getCompression();
         }
