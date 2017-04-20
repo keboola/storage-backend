@@ -46,10 +46,12 @@ class GenericStorage extends Common
     public function toMetadata()
     {
         $metadata = parent::toMetadata();
-        $metadata[] = [
-            "key" => "KBC.datatype.format",
-            "value" => $this->format
-        ];
+        if ($this->format) {
+            $metadata[] = [
+                "key" => "KBC.datatype.format",
+                "value" => $this->format
+            ];
+        }
         return $metadata;
     }
 

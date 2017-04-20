@@ -59,6 +59,13 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals('DATE', $md['value']);
             }
         }
+
+        $datatype = new GenericStorage("VARCHAR");
+        foreach ($datatype->toMetadata() as $md) {
+            if ($md['key'] === 'KBC.datatype.format') {
+                $this->fail("if format not specified, should not be included in metadata");
+            }
+        }
     }
 
     public function testToArray()
