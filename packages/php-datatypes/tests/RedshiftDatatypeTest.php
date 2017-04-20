@@ -132,7 +132,6 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         } catch (\Exception $e) {
             $this->assertEquals(InvalidOptionException::class, get_class($e));
         }
-
     }
 
     public function testSQLDefinition()
