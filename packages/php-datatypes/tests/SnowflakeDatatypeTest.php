@@ -27,9 +27,9 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Snowflake("numeric");
         new Snowflake("NUMERIC");
-        new Snowflake("NUMERIC", ['length' => ""]);
-        new Snowflake("INTEGER", ['length' => ""]);
-        new Snowflake("NUMERIC", ['length' => "38,0"]);
+        new Snowflake("NUMERIC", ["length" => ""]);
+        new Snowflake("INTEGER", ["length" => ""]);
+        new Snowflake("NUMERIC", ["length" => "38,0"]);
     }
 
     /**
@@ -39,7 +39,7 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidNumericLengths($length)
     {
         try {
-            new Snowflake("NUMERIC", ['length' => $length]);
+            new Snowflake("NUMERIC", ["length" => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -49,7 +49,7 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidOption()
     {
         try {
-            new Snowflake("NUMERIC", ['myoption' => 'value']);
+            new Snowflake("NUMERIC", ["myoption" => "value"]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidOptionException::class, get_class($e));
@@ -60,9 +60,9 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         new Snowflake("string");
         new Snowflake("STRING");
-        new Snowflake("STRING", ['length' => ""]);
-        new Snowflake("STRING", ['length' => "1"]);
-        new Snowflake("STRING", ['length' => "16777216"]);
+        new Snowflake("STRING", ["length" => ""]);
+        new Snowflake("STRING", ["length" => "1"]);
+        new Snowflake("STRING", ["length" => "16777216"]);
     }
 
     /**
@@ -72,7 +72,7 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testInvalidCharacterLengths($length)
     {
         try {
-            new Snowflake("STRING", ['length' => $length]);
+            new Snowflake("STRING", ["length" => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));

@@ -175,49 +175,49 @@ class Redshift extends Common
         $valid = true;
         $type = strtoupper($type);
         switch (strtoupper($compression)) {
-            case 'RAW':
-            case 'ZSTD':
-            case 'RUNLENGTH':
+            case "RAW":
+            case "ZSTD":
+            case "RUNLENGTH":
             case null:
-            case '':
+            case "":
                 break;
-            case 'BYTEDICT':
+            case "BYTEDICT":
                 if (in_array($type, ["BOOLEAN", "BOOL"])) {
                     $valid = false;
                 }
                 break;
-            case 'DELTA':
+            case "DELTA":
                 if (!in_array($type, ["SMALLINT", "INT2", "INT", "INTEGER", "INT4", "BIGINT", "INT8", "DATE", "TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE", "TIMESTAMPTZ", "TIMESTAMP WITH TIMEZONE", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'DELTA32K':
+            case "DELTA32K":
                 if (!in_array($type, ["INT", "INTEGER", "INT4", "BIGINT", "INT8", "DATE", "TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE", "TIMESTAMPTZ", "TIMESTAMP WITH TIMEZONE", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'LZO':
+            case "LZO":
                 if (in_array($type, ["BOOLEAN", "BOOL", "REAL", "FLOAT4", "DOUBLE PRECISION", "FLOAT8", "FLOAT"])) {
                     $valid = false;
                 }
                 break;
-            case 'MOSTLY8':
+            case "MOSTLY8":
                 if (!in_array($type, ["SMALLINT", "INT2", "INT", "INTEGER", "INT4", "BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'MOSTLY16':
+            case "MOSTLY16":
                 if (!in_array($type, ["INT", "INTEGER", "INT4", "BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'MOSTLY32':
+            case "MOSTLY32":
                 if (!in_array($type, ["BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
                     $valid = false;
                 }
                 break;
-            case 'TEXT255':
-            case 'TEXT32K':
+            case "TEXT255":
+            case "TEXT32K":
                 if (!in_array($type, ["VARCHAR", "CHARACTER VARYING", "NVARCHAR", "TEXT"])) {
                     $valid = false;
                 }
@@ -279,8 +279,8 @@ class Redshift extends Common
         $metadata = parent::toMetadata();
         if ($this->getCompression()) {
             $metadata[] = [
-                'key' => 'KBC.datatype.compression',
-                'value' => $this->getCompression()
+                "key" => "KBC.datatype.compression",
+                "value" => $this->getCompression()
             ];
         }
         return $metadata;

@@ -67,7 +67,7 @@ class GenericStorage extends Common
             $result["default"] = $this->getDefault();
         }
         if ($this->getFormat()) {
-            $result['format'] = $this->getFormat();
+            $result["format"] = $this->getFormat();
         }
         return $result;
     }
@@ -87,9 +87,9 @@ class GenericStorage extends Common
     {
         if (stristr($this->type, "date")) {
             if (stristr($this->type, "time")) {
-                return 'TIMESTAMP';
+                return "TIMESTAMP";
             }
-            return 'DATE';
+            return "DATE";
         }
         if (stristr($this->type, "int")) {
             return "INTEGER";
