@@ -46,7 +46,8 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testInvalidOption() {
+    public function testInvalidOption()
+    {
         try {
             new Snowflake("NUMERIC", ['myoption' => 'value']);
             $this->fail("Exception not caught");

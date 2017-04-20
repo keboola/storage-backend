@@ -124,7 +124,8 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testInvalidOption() {
+    public function testInvalidOption()
+    {
         try {
             new Redshift("NUMERIC", ['myoption' => 'value']);
             $this->fail("Exception not caught");
@@ -133,7 +134,6 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
 
     }
-
 
     public function testSQLDefinition()
     {
