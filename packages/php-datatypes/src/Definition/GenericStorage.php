@@ -56,7 +56,14 @@ class GenericStorage extends Common
      */
     public function toArray()
     {
-        $result = parent::toArray();
+        $result = [
+            "type" => $this->getType(),
+            "length" => $this->getLength(),
+            "nullable" => $this->isNullable()
+        ];
+        if (!is_null($this->getDefault())) {
+            $result["default"] = $this->getDefault();
+        }
         if ($this->format) {
             $result['format'] = $this->format;
         }

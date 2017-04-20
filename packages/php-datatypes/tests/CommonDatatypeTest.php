@@ -16,20 +16,6 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("50", $datatype->getLength());
         $this->assertEquals(false, $datatype->isNullable());
     }
-    
-    public function testToArray()
-    {
-        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR"]);
-        $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "", "nullable" => true],
-            $datatype->toArray()
-        );
-        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ['length' => "50", 'nullable' => false]]);
-        $this->assertEquals(
-            ["type" => "VARCHAR", "length" => "50", "nullable" => false],
-            $datatype->toArray()
-        );
-    }
 
     public function testToMetadata()
     {

@@ -77,11 +77,12 @@ class Redshift extends Common
      */
     public function toArray()
     {
-        $array = parent::toArray();
-        if ($this->getCompression()) {
-            $array["compression"] = $this->getCompression();
-        }
-        return $array;
+        return [
+            "type" => $this->getType(),
+            "length" => $this->getLength(),
+            "nullable" => $this->isNullable(),
+            "compression" => $this->getCompression()
+        ];
     }
 
     /**

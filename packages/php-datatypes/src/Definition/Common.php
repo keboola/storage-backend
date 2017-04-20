@@ -82,18 +82,7 @@ abstract class Common
     /**
      * @return array
      */
-    public function toArray()
-    {
-        $array = [
-            "type" => $this->getType(),
-            "length" => $this->getLength(),
-            "nullable" => $this->isNullable(),
-        ];
-        if (!is_null($this->getDefault())) {
-            $array["default"] = $this->getDefault();
-        }
-        return $array;
-    }
+    abstract public function toArray();
 
     /**
      * @return array

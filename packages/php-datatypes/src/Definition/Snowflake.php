@@ -59,6 +59,18 @@ class Snowflake extends Common
     }
 
     /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            "type" => $this->getType(),
+            "length" => $this->getLength(),
+            "nullable" => $this->isNullable()
+        ];
+    }
+
+    /**
      * @param $type
      * @throws InvalidTypeException
      */
