@@ -111,7 +111,7 @@ abstract class Common
                 "value" => $this->getLength()
             ];
         }
-        if ($this->getDefault()) {
+        if (!is_null($this->getDefault())) {
             $metadata[] = [
                 "key" => "KBC.datatype.default",
                 "value" => $this->getDefault()

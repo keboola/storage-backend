@@ -59,7 +59,6 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals("DATE", $md["value"]);
             }
         }
-
         $datatype = new GenericStorage("VARCHAR");
         foreach ($datatype->toMetadata() as $md) {
             if ($md['key'] === 'KBC.datatype.format') {
@@ -103,5 +102,39 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
 
         $datatype = new GenericStorage("VARCHAR", ["length" => "50", "nullable" => false, "default" => "NULL"]);
         $this->assertEquals("VARCHAR(50) NOT NULL DEFAULT 'NULL'", $datatype->getSQLDefinition());
+    }
+
+    public function testFalseyDefaults()
+    {
+        $datatype = new GenericStorage("INTEGER", [
+            "length" => 11,
+            "nullable" => false,
+            "default" => 0
+        ]);
+
+        $this->assertEquals("INTEGER(11) NOT NULL DEFAULT '0'", $datatype->getSQLDefinition());
+
+        $hasDefaultMetadata = false;
+        foreach ($datatype->toMetadata() as $metadatum) {
+            if ($metadatum['key'] === "KBC.datatype.default" && $metadatum['value'] === 0) {
+                $hasDefaultMetadata = true;
+            }
+        }
+        if (!$hasDefaultMetadata) {
+            $this->fail("Should have default set to zero and output it to metadata");
+        }
+
+        $datatype = new GenericStorage("VARCHAR", ["length" => "50", "nullable" => false, "default" => ""]);
+        $this->assertEquals("VARCHAR(50) NOT NULL DEFAULT ''", $datatype->getSQLDefinition());
+
+        $hasDefaultMetadata = false;
+        foreach ($datatype->toMetadata() as $metadatum) {
+            if ($metadatum['key'] === "KBC.datatype.default" && $metadatum['value'] === '') {
+                $hasDefaultMetadata = true;
+            }
+        }
+        if (!$hasDefaultMetadata) {
+            $this->fail("Should have default set to '' and output it to metadata");
+        }
     }
 }
