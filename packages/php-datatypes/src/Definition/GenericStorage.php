@@ -32,7 +32,7 @@ class GenericStorage extends Common
             $sql .= "(" . $this->getLength() . ")";
         }
         $sql .= ($this->isNullable()) ? " NULL" : " NOT NULL";
-        if ($this->default) {
+        if (!is_null($this->getDefault())) {
             $sql .= " DEFAULT '" . $this->default . "'";
         } else if ($this->isNullable()) {
             $sql .= " DEFAULT NULL";
@@ -46,7 +46,7 @@ class GenericStorage extends Common
     public function toMetadata()
     {
         $metadata = parent::toMetadata();
-        if ($this->getFormat()) {
+        if (!is_null($this->getFormat())) {
             $metadata[] = [
                 "key" => "KBC.datatype.format",
                 "value" => $this->format
