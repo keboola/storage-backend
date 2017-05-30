@@ -5,22 +5,23 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
-class Snowflake extends Common
+class MySQL extends Common
 {
     const TYPES = [
-        "NUMBER",
-        "DECIMAL", "NUMERIC",
-        "INT", "INTEGER", "BIGINT", "SMALLINT", "TINYINT", "BYTEINT",
-        "FLOAT", "FLOAT4", "FLOAT8",
-        "DOUBLE", "DOUBLE PRECISION", "REAL",
-        "VARCHAR",
-        "CHAR", "CHARACTER",
-        "STRING", "TEXT",
-        "BOOLEAN",
+        "INTEGER", "INT",
+        "TINYINT", "SMALLINT", "MEDIUMINT", "BIGINT",
+        "DECIMAL", "DEC", "FIXED", "NUMERIC",
+        "FLOAT", "DOUBLE PRECISION", "REAL", "DOUBLE",
+        "BIT",
         "DATE",
-        "DATETIME",
         "TIME",
-        "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ"
+        "DATETIME",
+        "TIMESTAMP",
+        "YEAR",
+        "CHAR",
+        "VARCHAR",
+        "BLOB",
+        "TEXT"
     ];
 
     /**
@@ -88,8 +89,75 @@ class Snowflake extends Common
     {
         $valid = true;
         switch (strtoupper($type)) {
-            case "NUMBER":
+            case "CHAR":
+                if (is_null($length) || $length == "") {
+                    break;
+                }
+                if (!is_numeric($length)) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$length <= 0 || (int)$length > 255) {
+                    $valid = false;
+                    break;
+                }
+                break;
+
+            case "VARCHAR":
+                if (is_null($length) || $length == "" || !is_numeric($length)) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$length <= 0 || (int)$length > 4294967295) {
+                    $valid = false;
+                    break;
+                }
+                break;
+
+            case "INT":
+            case "INTEGER":
+            case "TINYINT":
+            case "SMALLINT":
+            case "MEDIUMINT":
+            case "BIGINT":
+                if (is_null($length) || $length == "") {
+                    break;
+                }
+                if (!is_numeric($length)) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$length <= 0 || (int)$length > 255) {
+                    $valid = false;
+                    break;
+                }
+                break;
+
+            case "DOUBLE PRECISION":
+            case "REAL":
+            case "DOUBLE":
+            case "FLOAT":
+                if (is_null($length) || $length == "") {
+                    break;
+                }
+                $parts = explode(",", $length);
+                if (count($parts) != 2) {
+                    $valid = false;
+                    break;
+                }
+                if (!is_numeric($parts[0]) || !is_numeric($parts[1])) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$parts[0] <= 0 || (int)$parts[0] > 255 || (int)$parts[1] >= (int)$parts[0] || (int)$parts[1] > 30) {
+                    $valid = false;
+                    break;
+                }
+                break;
+
             case "DECIMAL":
+            case "DEC":
+            case "FIXED":
             case "NUMERIC":
                 if (is_null($length) || $length == "") {
                     break;
@@ -103,16 +171,13 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$parts[0] <= 0 || (int)$parts[0] > 38 || (int)$parts[1] >= (int)$parts[0]) {
+                if ((int)$parts[0] <= 0 || (int)$parts[0] > 65 || (int)$parts[1] >= (int)$parts[0] || (int)$parts[1] > 30) {
                     $valid = false;
                     break;
                 }
                 break;
-            case "VARCHAR":
-            case "CHAR":
-            case "CHARACTER":
-            case "STRING":
-            case "TEXT":
+
+            case "TIME":
                 if (is_null($length) || $length == "") {
                     break;
                 }
@@ -120,11 +185,12 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$length <= 0 || (int)$length > 16777216) {
+                if ((int)$length < 0 || (int)$length > 6) {
                     $valid = false;
                     break;
                 }
                 break;
+
             default:
                 if (!is_null($length) && $length != "") {
                     $valid = false;
@@ -145,33 +211,26 @@ class Snowflake extends Common
             case "BIGINT":
             case "SMALLINT":
             case "TINYINT":
-            case "BYTEINT":
+            case "MEDIUMINT":
                 $basetype = "INTEGER";
                 break;
-            case "NUMBER":
-            case "DECIMAL":
             case "NUMERIC":
+            case "DECIMAL":
+            case "DEC":
+            case "FIXED":
                 $basetype = "NUMERIC";
                 break;
             case "FLOAT":
-            case "FLOAT4":
-            case "FLOAT8":
-            case "DOUBLE":
             case "DOUBLE PRECISION":
             case "REAL":
+            case "DOUBLE":
                 $basetype = "FLOAT";
-                break;
-            case "BOOLEAN":
-                $basetype = "BOOLEAN";
                 break;
             case "DATE":
                 $basetype = "DATE";
                 break;
             case "DATETIME":
             case "TIMESTAMP":
-            case "TIMESTAMP_NTZ":
-            case "TIMESTAMP_LTZ":
-            case "TIMESTAMP_TZ":
                 $basetype = "TIMESTAMP";
                 break;
             default:
