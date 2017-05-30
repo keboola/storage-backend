@@ -32,9 +32,7 @@ class Redshift extends Common
     public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        if (isset($options['length'])) {
-            $this->validateLength($type, $options['length']);
-        }
+        $this->validateLength($type, isset($options["length"]) ? $options["length"] : null);
         if (isset($options['compression'])) {
             $this->validateCompression($type, $options['compression']);
             $this->compression = $options['compression'];

@@ -33,9 +33,7 @@ class Snowflake extends Common
     public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        if (isset($options["length"])) {
-            $this->validateLength($type, $options["length"]);
-        }
+        $this->validateLength($type, isset($options["length"]) ? $options["length"] : null);
         $diff = array_diff(array_keys($options), ["length", "nullable", "default"]);
         if (count($diff) > 0) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
