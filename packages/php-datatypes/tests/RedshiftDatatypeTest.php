@@ -30,7 +30,9 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         new Redshift("NUMERIC");
         new Redshift("NUMERIC", ["length" => ""]);
         new Redshift("INT", ["length" => ""]);
-        new Redshift("NUMERIC", ["length" => "38,0"]);
+        new Redshift("NUMERIC", ["length" => "37,0"]);
+        new Redshift("NUMERIC", ["length" => "37,37"]);
+        new Redshift("NUMERIC", ["length" => "37"]);
     }
 
     /**
@@ -231,16 +233,13 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ["notANumber"],
-            ["10"],
             ["0,0"],
-            ["39,0"],
+            ["38,0"],
             ["-10,-5"],
             ["-5,-10"],
-            ["38,a"],
-            ["a,38"],
-            ["a,a"],
-            ["10,10"],
-            ["38,38"]
+            ["37,a"],
+            ["a,37"],
+            ["a,a"]
         ];
     }
 

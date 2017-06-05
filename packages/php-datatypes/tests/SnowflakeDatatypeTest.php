@@ -30,6 +30,8 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         new Snowflake("NUMERIC", ["length" => ""]);
         new Snowflake("INTEGER", ["length" => ""]);
         new Snowflake("NUMERIC", ["length" => "38,0"]);
+        new Snowflake("NUMERIC", ["length" => "38,38"]);
+        new Snowflake("NUMERIC", ["length" => "38"]);
     }
 
     /**
@@ -129,16 +131,13 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ["notANumber"],
-            ["10"],
             ["0,0"],
             ["39,0"],
             ["-10,-5"],
             ["-5,-10"],
             ["38,a"],
             ["a,38"],
-            ["a,a"],
-            ["10,10"],
-            ["38,38"]
+            ["a,a"]
         ];
     }
 

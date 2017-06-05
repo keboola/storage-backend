@@ -39,6 +39,8 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
         new MySQL("NUMERIC");
         new MySQL("NUMERIC", ["length" => ""]);
         new MySQL("NUMERIC", ["length" => "65,0"]);
+        new MySQL("NUMERIC", ["length" => "65"]);
+        new MySQL("NUMERIC", ["length" => "10,10"]);
     }
 
     /**
@@ -83,6 +85,7 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
         new MySQL("float");
         new MySQL("FLOAT");
         new MySQL("FLOAT", ["length" => ""]);
+        new MySQL("FLOAT", ["length" => "255"]);
         new MySQL("FLOAT", ["length" => "255,0"]);
     }
 
@@ -202,7 +205,6 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ["notANumber"],
-            ["10"],
             ["0,0"],
             ["66,0"],
             ["-10,-5"],
@@ -210,7 +212,6 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
             ["66,a"],
             ["a,66"],
             ["a,a"],
-            ["10,10"],
             ["66,66"]
         ];
     }
@@ -259,7 +260,6 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ["notANumber"],
-            ["10"],
             ["0,0"],
             ["256,0"],
             ["-10,-5"],

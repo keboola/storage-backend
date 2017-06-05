@@ -141,15 +141,23 @@ class MySQL extends Common
                     break;
                 }
                 $parts = explode(",", $length);
-                if (count($parts) != 2) {
+                if (count($parts) > 2 || count($parts) < 1) {
                     $valid = false;
                     break;
                 }
-                if (!is_numeric($parts[0]) || !is_numeric($parts[1])) {
+                if (!is_numeric($parts[0])) {
                     $valid = false;
                     break;
                 }
-                if ((int)$parts[0] <= 0 || (int)$parts[0] > 255 || (int)$parts[1] >= (int)$parts[0] || (int)$parts[1] > 30) {
+                if (isset($parts[1]) && !is_numeric($parts[1])) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$parts[0] <= 0 || (int)$parts[0] > 255) {
+                    $valid = false;
+                    break;
+                }
+                if (isset($parts[1]) && ((int)$parts[1] >= (int)$parts[0] || (int)$parts[1] > 30)) {
                     $valid = false;
                     break;
                 }
@@ -163,15 +171,23 @@ class MySQL extends Common
                     break;
                 }
                 $parts = explode(",", $length);
-                if (count($parts) != 2) {
+                if (count($parts) > 2 || count($parts) < 1) {
                     $valid = false;
                     break;
                 }
-                if (!is_numeric($parts[0]) || !is_numeric($parts[1])) {
+                if (!is_numeric($parts[0])) {
                     $valid = false;
                     break;
                 }
-                if ((int)$parts[0] <= 0 || (int)$parts[0] > 65 || (int)$parts[1] >= (int)$parts[0] || (int)$parts[1] > 30) {
+                if (isset($parts[1]) && !is_numeric($parts[1])) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$parts[0] <= 0 || (int)$parts[0] > 65) {
+                    $valid = false;
+                    break;
+                }
+                if (isset($parts[1]) && ((int)$parts[1] > (int)$parts[0] || (int)$parts[1] > 30)) {
                     $valid = false;
                     break;
                 }
