@@ -59,6 +59,24 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         new Snowflake("TIMESTAMP_NTZ", ["length" => "9"]);
     }
 
+    public function testSqlDefinition()
+    {
+        $definition = new Snowflake("NUMERIC", ["length" => ""]);
+        $this->assertTrue($definition->getSQLDefinition() === "NUMERIC");
+
+        $definition = new Snowflake("TIMESTAMP_TZ", ["length" => "0"]);
+        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ(0)");
+
+        $definition = new Snowflake("TIMESTAMP_TZ", ["length" => "9"]);
+        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ(9)");
+
+        $definition = new Snowflake("TIMESTAMP_TZ", ["length" => ""]);
+        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ");
+
+        $definition = new Snowflake("TIMESTAMP_TZ");
+        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ");
+    }
+
     /**
      * @dataProvider invalidDateTimeLengths
      * @param $length
