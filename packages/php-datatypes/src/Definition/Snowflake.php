@@ -47,7 +47,7 @@ class Snowflake extends Common
     public function getSQLDefinition()
     {
         $definition =  $this->getType();
-        if ($this->getLength() && $this->getLength() != "") {
+        if ($this->getLength() !== null && $this->getLength() != "") {
             $definition .= "(" . $this->getLength() . ")";
         }
         if (!$this->isNullable()) {
@@ -129,6 +129,24 @@ class Snowflake extends Common
                     break;
                 }
                 if ((int)$length <= 0 || (int)$length > 16777216) {
+                    $valid = false;
+                    break;
+                }
+                break;
+            case "TIME":
+            case "DATETIME":
+            case "TIMESTAMP":
+            case "TIMESTAMP_NTZ":
+            case "TIMESTAMP_LTZ":
+            case "TIMESTAMP_TZ":
+                if (is_null($length) || $length == "") {
+                    break;
+                }
+                if (!is_numeric($length)) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$length < 0 || (int)$length > 9) {
                     $valid = false;
                     break;
                 }
