@@ -57,6 +57,7 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         new Snowflake("TIMESTAMP_LTZ", ["length" => "4"]);
         new Snowflake("TIMESTAMP_TZ", ["length" => "0"]);
         new Snowflake("TIMESTAMP_NTZ", ["length" => "9"]);
+        new Snowflake("TIME", ["length" => "9"]);
     }
 
     public function testSqlDefinition()
