@@ -48,6 +48,31 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testValidDateTimeLengths()
+    {
+        new Snowflake("datetime");
+        new Snowflake("DATETIME");
+        new Snowflake("DATETIME", ["length" => ""]);
+        new Snowflake("TIMESTAMP", ["length" => ""]);
+        new Snowflake("TIMESTAMP_LTZ", ["length" => "4"]);
+        new Snowflake("TIMESTAMP_TZ", ["length" => "0"]);
+        new Snowflake("TIMESTAMP_NTZ", ["length" => "9"]);
+    }
+
+    /**
+     * @dataProvider invalidDateTimeLengths
+     * @param $length
+     */
+    public function testInvalidDateTimeLengths($length)
+    {
+        try {
+            new Snowflake("DATETIME", ["length" => $length]);
+            $this->fail("Exception not caught");
+        } catch (\Exception $e) {
+            $this->assertEquals(InvalidLengthException::class, get_class($e));
+        }
+    }
+
     public function testInvalidOption()
     {
         try {
@@ -148,6 +173,18 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
             ["0"],
             ["16777217"],
             ["-1"]
+        ];
+    }
+
+    public function invalidDateTimeLengths()
+    {
+        return [
+            ["notANumber"],
+            ["0,0"],
+            ["-1"],
+            ["10"],
+            ["a"],
+            ["a,a"]
         ];
     }
 }

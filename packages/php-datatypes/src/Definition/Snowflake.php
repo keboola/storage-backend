@@ -133,6 +133,24 @@ class Snowflake extends Common
                     break;
                 }
                 break;
+            case "TIME":
+            case "DATETIME":
+            case "TIMESTAMP":
+            case "TIMESTAMP_NTZ":
+            case "TIMESTAMP_LTZ":
+            case "TIMESTAMP_TZ":
+                if (is_null($length) || $length == "") {
+                    break;
+                }
+                if (!is_numeric($length)) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$length < 0 || (int)$length > 9) {
+                    $valid = false;
+                    break;
+                }
+                break;
             default:
                 if (!is_null($length) && $length != "") {
                     $valid = false;
