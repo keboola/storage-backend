@@ -27,7 +27,7 @@ class MySQL extends Common
     /**
      * Snowflake constructor.
      *
-     * @param $type
+     * @param string $type
      * @param array $options -- length, nullable, default
      * @throws InvalidOptionException
      */
@@ -70,7 +70,7 @@ class MySQL extends Common
     }
 
     /**
-     * @param $type
+     * @param string $type
      * @throws InvalidTypeException
      */
     private function validateType($type)
@@ -81,8 +81,8 @@ class MySQL extends Common
     }
 
     /**
-     * @param $type
-     * @param null $length
+     * @param string $type
+     * @param string|null $length
      * @throws InvalidLengthException
      */
     private function validateLength($type, $length = null)
@@ -219,6 +219,9 @@ class MySQL extends Common
         }
     }
 
+    /**
+     * @return string
+     */
     public function getBasetype()
     {
         switch (strtoupper($this->type)) {

@@ -8,14 +8,17 @@ abstract class Common
      * @var string
      */
     protected $type;
+
     /**
      * @var string
      */
     protected $length = null;
+
     /**
      * @var bool
      */
     protected $nullable = true;
+
     /**
      * @var string
      */
@@ -24,7 +27,7 @@ abstract class Common
     /**
      * Common constructor.
      *
-     * @param $type
+     * @param string $type
      * @param array $options -- length, nullable, default
      */
     public function __construct($type, $options = [])
@@ -42,7 +45,7 @@ abstract class Common
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getType()
     {
@@ -50,7 +53,7 @@ abstract class Common
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getLength()
     {
@@ -66,17 +69,17 @@ abstract class Common
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getDefault()
     {
         return $this->default;
     }
-    abstract public function getSQLDefinition();
 
     /**
      * @return string
      */
+    abstract public function getSQLDefinition();
 
     /**
      * @return string
