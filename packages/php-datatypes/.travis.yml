@@ -7,9 +7,9 @@ before_script:
   - docker-compose -v
 
 install:
-  - docker-compose run --rm tests composer install
-  - docker-compose run --rm tests ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
-  - docker-compose run --rm tests ./vendor/bin/phpstan analyse ./src --level=4 -c phpstan.neon
+  - docker-compose run --rm dev composer install
+  - docker-compose run --rm dev ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
+  - docker-compose run --rm dev ./vendor/bin/phpstan analyse ./src --level=max -c phpstan.neon
 
 php:
   - 5.6

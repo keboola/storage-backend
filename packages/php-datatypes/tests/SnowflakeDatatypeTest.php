@@ -171,6 +171,11 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testVariant()
+    {
+        new Snowflake("VARIANT");
+    }
+
     public function invalidNumericLengths()
     {
         return [

@@ -25,7 +25,7 @@ class Redshift extends Common
     /**
      * Redshift constructor.
      *
-     * @param $type
+     * @param string $type
      * @param array $options -- length, nullable, default, compression
      * @throws InvalidOptionException
      */
@@ -84,7 +84,7 @@ class Redshift extends Common
     }
 
     /**
-     * @param $type
+     * @param string $type
      * @throws InvalidTypeException
      */
     private function validateType($type)
@@ -95,8 +95,8 @@ class Redshift extends Common
     }
 
     /**
-     * @param $type
-     * @param null $length
+     * @param string $type
+     * @param string|null $length
      * @throws InvalidLengthException
      */
     private function validateLength($type, $length = null)
@@ -176,6 +176,11 @@ class Redshift extends Common
         }
     }
 
+    /**
+     * @param string $type
+     * @param string $compression
+     * @throws InvalidCompressionException
+     */
     private function validateCompression($type, $compression)
     {
         $valid = true;
@@ -237,6 +242,9 @@ class Redshift extends Common
         }
     }
 
+    /**
+     * @return string
+     */
     public function getBasetype()
     {
         switch ($this->type) {
@@ -280,6 +288,9 @@ class Redshift extends Common
         return $basetype;
     }
 
+    /**
+     * @return array
+     */
     public function toMetadata()
     {
         $metadata = parent::toMetadata();

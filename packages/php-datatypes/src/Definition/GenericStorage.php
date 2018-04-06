@@ -11,7 +11,7 @@ class GenericStorage extends Common
 
     /**
      * Base constructor.
-     * @param $type
+     * @param string $type
      * @param array $options
      */
     public function __construct($type, array $options = [])
@@ -75,7 +75,7 @@ class GenericStorage extends Common
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getFormat()
     {

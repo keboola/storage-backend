@@ -20,13 +20,14 @@ class Snowflake extends Common
         "DATE",
         "DATETIME",
         "TIME",
-        "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ"
+        "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ",
+        "VARIANT"
     ];
 
     /**
      * Snowflake constructor.
      *
-     * @param $type
+     * @param string $type
      * @param array $options -- length, nullable, default
      * @throws InvalidOptionException
      */
@@ -47,7 +48,7 @@ class Snowflake extends Common
     public function getSQLDefinition()
     {
         $definition =  $this->getType();
-        if ($this->getLength() !== null && $this->getLength() != "") {
+        if ($this->getLength() !== null && $this->getLength() !== "") {
             $definition .= "(" . $this->getLength() . ")";
         }
         if (!$this->isNullable()) {
@@ -69,7 +70,7 @@ class Snowflake extends Common
     }
 
     /**
-     * @param $type
+     * @param string $type
      * @throws InvalidTypeException
      */
     private function validateType($type)
@@ -80,8 +81,8 @@ class Snowflake extends Common
     }
 
     /**
-     * @param $type
-     * @param null $length
+     * @param string $type
+     * @param string|null $length
      * @throws InvalidLengthException
      */
     private function validateLength($type, $length = null)
@@ -91,7 +92,7 @@ class Snowflake extends Common
             case "NUMBER":
             case "DECIMAL":
             case "NUMERIC":
-                if (is_null($length) || $length == "") {
+                if (is_null($length) || $length === "") {
                     break;
                 }
                 $parts = explode(",", $length);
@@ -163,6 +164,9 @@ class Snowflake extends Common
         }
     }
 
+    /**
+     * @return string
+     */
     public function getBasetype()
     {
         switch (strtoupper($this->type)) {
