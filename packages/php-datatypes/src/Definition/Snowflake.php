@@ -20,7 +20,8 @@ class Snowflake extends Common
         "DATE",
         "DATETIME",
         "TIME",
-        "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ"
+        "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ",
+        "VARIANT"
     ];
 
     /**
