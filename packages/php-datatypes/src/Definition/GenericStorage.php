@@ -4,6 +4,28 @@ namespace Keboola\Datatype\Definition;
 
 class GenericStorage extends Common
 {
+    const DATE_TYPES = ["date"];
+    const TIMESTAMP_TYPES = [
+        "datetime", "datetime2", "smalldatetime", "datetimeoffset", "timestamp_LTZ", "timestamp_NTZ", "TIMESTAMP_TZ",
+        "timestamptz", "timestamp", "timestamp with timezone", "timestamp with local timezone"
+    ];
+    const FLOATING_POINT_TYPES = [
+        "real", "float", "float4", "double precision", "float8", "binary_float", "binary_double", "double"
+    ];
+    // NOTE: "bit" is used in mssql as a 1/0 type boolean, but in pgsql as a bit(n) ie 10110.
+    // also in mysql bit is equivalent to tinyint
+    const BOOLEAN_TYPES = ["boolean", "bool"];
+
+    const INTEGER_TYPES = [
+        "integer", "int", "smallint", "mediumint",
+        "int2", "tinyint", "bigint", "int8", "bigserial", "serial8", "int4"
+    ];
+
+    const FIXED_NUMERIC_TYPES = [
+        "numeric", "decimal", "dec", "fixed", "money", "smallmoney", "number"
+    ];
+
+
     /**
      * @var string
      */
@@ -87,27 +109,26 @@ class GenericStorage extends Common
      */
     public function getBasetype()
     {
-        if (stristr($this->type, "date")) {
-            if (stristr($this->type, "time")) {
-                return "TIMESTAMP";
-            }
-            return "DATE";
+        $type = strtolower($this->type);
+        $baseType = "STRING";
+        if (in_array($type, self::DATE_TYPES)) {
+            $baseType = "DATE";
         }
-        if (stristr($this->type, "int")) {
-            return "INTEGER";
+        if (in_array($type, self::TIMESTAMP_TYPES)) {
+            $baseType = "TIMESTAMP";
         }
-        if (stristr($this->type, "float") || stristr($this->type, "double") || stristr($this->type, "real")) {
-            return "FLOAT";
+        if (in_array($type, self::INTEGER_TYPES)) {
+            $baseType = "INTEGER";
         }
-        if (stristr($this->type, "timestamp")) {
-            return "TIMESTAMP";
+        if (in_array($type, self::FIXED_NUMERIC_TYPES)) {
+            $baseType = "NUMERIC";
         }
-        if (stristr($this->type, "bool")) {
-            return "BOOLEAN";
+        if (in_array($type, self::FLOATING_POINT_TYPES)) {
+            $baseType = "FLOAT";
         }
-        if (stristr($this->type, "decimal") || stristr($this->type, "num")) {
-            return "NUMERIC";
+        if (in_array($type, self::BOOLEAN_TYPES)) {
+            $baseType = "BOOLEAN";
         }
-        return "STRING";
+        return $baseType;
     }
 }

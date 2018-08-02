@@ -14,18 +14,20 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("TIMESTAMP", (new GenericStorage("timestamp"))->getBasetype());
         $this->assertEquals("STRING", (new GenericStorage("dattim"))->getBasetype());
 
-        $this->assertEquals("INTEGER", (new GenericStorage("int16"))->getBasetype());
+        $this->assertEquals("INTEGER", (new GenericStorage("int8"))->getBasetype());
         $this->assertEquals("INTEGER", (new GenericStorage("int"))->getBasetype());
         $this->assertEquals("INTEGER", (new GenericStorage("INTEGER"))->getBasetype());
         $this->assertEquals("FLOAT", (new GenericStorage("float8"))->getBasetype());
         $this->assertEquals("FLOAT", (new GenericStorage("REAL"))->getBasetype());
-        $this->assertEquals("FLOAT", (new GenericStorage("double percision"))->getBasetype());
+        $this->assertEquals("FLOAT", (new GenericStorage("double precision"))->getBasetype());
         $this->assertEquals("NUMERIC", (new GenericStorage("number"))->getBasetype());
         $this->assertEquals("NUMERIC", (new GenericStorage("DECIMAL"))->getBasetype());
         $this->assertEquals("NUMERIC", (new GenericStorage("numeric"))->getBasetype());
 
         $this->assertEquals("BOOLEAN", (new GenericStorage("BOOL"))->getBasetype());
         $this->assertEquals("BOOLEAN", (new GenericStorage("boolean"))->getBasetype());
+
+        $this->assertEquals("STRING", (new GenericStorage("enum"))->getBasetype());
 
         $this->assertEquals("STRING", (new GenericStorage("anythingelse"))->getBasetype());
     }
