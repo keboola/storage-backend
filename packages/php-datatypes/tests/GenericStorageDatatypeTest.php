@@ -19,7 +19,7 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("INTEGER", (new GenericStorage("INTEGER"))->getBasetype());
         $this->assertEquals("FLOAT", (new GenericStorage("float8"))->getBasetype());
         $this->assertEquals("FLOAT", (new GenericStorage("REAL"))->getBasetype());
-        $this->assertEquals("NUMERIC", (new GenericStorage("double percision"))->getBasetype());
+        $this->assertEquals("NUMERIC", (new GenericStorage("double precision"))->getBasetype());
         $this->assertEquals("NUMERIC", (new GenericStorage("number"))->getBasetype());
         $this->assertEquals("NUMERIC", (new GenericStorage("DECIMAL"))->getBasetype());
         $this->assertEquals("NUMERIC", (new GenericStorage("numeric"))->getBasetype());
