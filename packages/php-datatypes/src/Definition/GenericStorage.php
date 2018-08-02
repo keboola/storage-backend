@@ -96,16 +96,21 @@ class GenericStorage extends Common
         if (stristr($this->type, "int")) {
             return "INTEGER";
         }
-        if (stristr($this->type, "float") || stristr($this->type, "double") || stristr($this->type, "real")) {
+        if (stripos($this->type, "float") === 0 || stripos($this->type, "real") === 0) {
             return "FLOAT";
         }
         if (stristr($this->type, "timestamp")) {
             return "TIMESTAMP";
         }
-        if (stristr($this->type, "bool")) {
+        if (stripos($this->type, "bool") === 0) {
             return "BOOLEAN";
         }
-        if (stristr($this->type, "decimal") || stristr($this->type, "num")) {
+        if (
+            stripos($this->type, "decimal") === 0 ||
+            stripos($this->type, "num") === 0 ||
+            stristr($this->type, "double")
+        )
+        {
             return "NUMERIC";
         }
         return "STRING";
