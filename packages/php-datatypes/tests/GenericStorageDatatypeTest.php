@@ -27,6 +27,8 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("BOOLEAN", (new GenericStorage("BOOL"))->getBasetype());
         $this->assertEquals("BOOLEAN", (new GenericStorage("boolean"))->getBasetype());
 
+        $this->assertEquals("STRING", (new GenericStorage("enum"))->getBasetype());
+
         $this->assertEquals("STRING", (new GenericStorage("anythingelse"))->getBasetype());
     }
 
