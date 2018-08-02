@@ -92,25 +92,17 @@ class GenericStorage extends Common
                 return "TIMESTAMP";
             }
             return "DATE";
-        }
-        if (stristr($this->type, "int")) {
+        } else if (stristr($this->type, "int")) {
             return "INTEGER";
-        }
-        if (stripos($this->type, "float") === 0 || stripos($this->type, "real") === 0) {
+        } else if (stripos($this->type, "float") === 0 || stripos($this->type, "real") === 0) {
             return "FLOAT";
-        }
-        if (stristr($this->type, "timestamp")) {
+        } else if (stristr($this->type, "timestamp")) {
             return "TIMESTAMP";
-        }
-        if (stripos($this->type, "bool") === 0) {
+        } else if (stripos($this->type, "bool") === 0) {
             return "BOOLEAN";
-        }
-        if (
-            stripos($this->type, "decimal") === 0 ||
+        } else if (stripos($this->type, "decimal") === 0 ||
             stripos($this->type, "num") === 0 ||
-            stristr($this->type, "double")
-        )
-        {
+            stristr($this->type, "double")) {
             return "NUMERIC";
         }
         return "STRING";
