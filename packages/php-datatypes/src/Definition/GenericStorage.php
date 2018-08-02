@@ -110,24 +110,25 @@ class GenericStorage extends Common
     public function getBasetype()
     {
         $type = strtolower($this->type);
+        $baseType = "STRING";
         if (in_array($type, self::DATE_TYPES)) {
-            return "DATE";
+            $baseType = "DATE";
         }
         if (in_array($type, self::TIMESTAMP_TYPES)) {
-            return "TIMESTAMP";
+            $baseType = "TIMESTAMP";
         }
         if (in_array($type, self::INTEGER_TYPES)) {
-            return "INTEGER";
+            $baseType = "INTEGER";
         }
         if (in_array($type, self::FIXED_NUMERIC_TYPES)) {
-            return "NUMERIC";
+            $baseType = "NUMERIC";
         }
         if (in_array($type, self::FLOATING_POINT_TYPES)) {
-            return "FLOAT";
+            $baseType = "FLOAT";
         }
         if (in_array($type, self::BOOLEAN_TYPES)) {
-            return "BOOLEAN";
+            $baseType = "BOOLEAN";
         }
-        return "STRING";
+        return $baseType;
     }
 }
