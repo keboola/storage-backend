@@ -4,6 +4,15 @@
 [![Code Climate](https://codeclimate.com/github/keboola/php-datatypes/badges/gpa.svg)](https://codeclimate.com/github/keboola/php-datatypes)
 [![Test Coverage](https://codeclimate.com/github/keboola/php-datatypes/badges/coverage.svg)](https://codeclimate.com/github/keboola/php-datatypes/coverage)
 
+## Introduction
+This library is used for datatype definitions, validation and sql statement generation. 
+Each type (Mysql, Redshift, Snowflake, GenericStorage) also provides a base type mapping that can be used to map types between different storage providers.
+
+## Base Types
+There are currently 7 base types: `String`, `Date`, `Timestamp`, `Integer`, `Numeric`, `Float`, and `Boolean`.
+Any type class that extends `Keboola\Datatype\Definition\Common` should provide a mapping for it's types to the above set.
+ This will allow us to map data-types between storage providers. 
+
 ## Build
 
 ```
