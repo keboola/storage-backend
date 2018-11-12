@@ -60,6 +60,19 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         new Snowflake("TIME", ["length" => "9"]);
     }
 
+    public function testValidBinaryLengths()
+    {
+        new Snowflake("binary");
+        new Snowflake("varbinary");
+        new Snowflake("VARBINARY");
+        new Snowflake("BINARY", ["length" => ""]);
+        new Snowflake("VARBINARY", ["length" => ""]);
+        new Snowflake("BINARY", ["length" => "1"]);
+        new Snowflake("VARBINARY", ["length" => "1"]);
+        new Snowflake("BINARY", ["length" => "8388608"]);
+        new Snowflake("VARBINARY", ["length" => "8388608"]);
+    }
+
     public function testSqlDefinition()
     {
         $definition = new Snowflake("NUMERIC", ["length" => ""]);
@@ -119,6 +132,27 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         try {
             new Snowflake("STRING", ["length" => $length]);
+            $this->fail("Exception not caught");
+        } catch (\Exception $e) {
+            $this->assertEquals(InvalidLengthException::class, get_class($e));
+        }
+    }
+
+    /**
+     * @dataProvider invalidBinaryLengths
+     * @param $length
+     */
+    public function testInvalidBinaryLengths($length)
+    {
+        try {
+            new Snowflake("BINARY", ["length" => $length]);
+            $this->fail("Exception not caught");
+        } catch (\Exception $e) {
+            $this->assertEquals(InvalidLengthException::class, get_class($e));
+        }
+
+        try {
+            new Snowflake("VARBINARY", ["length" => $length]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -209,6 +243,16 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
             ["10"],
             ["a"],
             ["a,a"]
+        ];
+    }
+
+    public function invalidBinaryLengths()
+    {
+        return [
+            ["a"],
+            ["0"],
+            ["8388609"],
+            ["-1"]
         ];
     }
 }

@@ -21,7 +21,8 @@ class Snowflake extends Common
         "DATETIME",
         "TIME",
         "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ",
-        "VARIANT"
+        "VARIANT",
+        "BINARY","VARBINARY",
     ];
 
     /**
@@ -148,6 +149,20 @@ class Snowflake extends Common
                     break;
                 }
                 if ((int)$length < 0 || (int)$length > 9) {
+                    $valid = false;
+                    break;
+                }
+                break;
+            case "BINARY":
+            case "VARBINARY":
+                if (is_null($length) || $length == "") {
+                    break;
+                }
+                if (!is_numeric($length)) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$length < 1 || (int)$length > 8388608) {
                     $valid = false;
                     break;
                 }
