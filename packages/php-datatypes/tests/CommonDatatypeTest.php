@@ -9,12 +9,19 @@ class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR"]);
         $this->assertEquals("VARCHAR", $datatype->getType());
-        $this->assertEquals("", $datatype->getLength());
-        $this->assertEquals(true, $datatype->isNullable());
+        $this->assertNull($datatype->getLength());
+        $this->assertNull($datatype->getDefault());
+        $this->assertTrue(true === $datatype->isNullable());
 
-        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ["length" => "50", "nullable" => false]]);
-        $this->assertEquals("50", $datatype->getLength());
-        $this->assertEquals(false, $datatype->isNullable());
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ["length" => "50", "nullable" => false, "default" => ""]]);
+        $this->assertTrue("50" === $datatype->getLength());
+        $this->assertTrue(false === $datatype->isNullable());
+        $this->assertTrue("" === $datatype->getDefault());
+
+        $datatype = $this->getMockForAbstractClass(Common::class, ["VARCHAR", ["length" => 50, "nullable" => false, "default" => 123]]);
+        $this->assertTrue("50" === $datatype->getLength());
+        $this->assertTrue(false === $datatype->isNullable());
+        $this->assertTrue("123" === $datatype->getDefault());
     }
 
     public function testToMetadata()
