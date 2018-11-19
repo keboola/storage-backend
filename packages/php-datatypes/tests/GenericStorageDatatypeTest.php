@@ -118,7 +118,7 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
 
         $hasDefaultMetadata = false;
         foreach ($datatype->toMetadata() as $metadatum) {
-            if ($metadatum['key'] === "KBC.datatype.default" && $metadatum['value'] === 0) {
+            if ($metadatum['key'] === "KBC.datatype.default" && $metadatum['value'] === "0") {
                 $hasDefaultMetadata = true;
             }
         }
