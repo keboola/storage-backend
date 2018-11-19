@@ -34,13 +34,13 @@ abstract class Common
     {
         $this->type = $type;
         if (isset($options['length'])) {
-            $this->length = $options['length'];
+            $this->length = (string) $options['length'];
         }
         if (isset($options['nullable'])) {
             $this->nullable = (bool) $options['nullable'];
         }
         if (isset($options['default'])) {
-            $this->default = $options['default'];
+            $this->default = (string) $options['default'];
         }
     }
 
