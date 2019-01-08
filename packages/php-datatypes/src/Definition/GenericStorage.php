@@ -7,7 +7,7 @@ class GenericStorage extends Common
     const DATE_TYPES = ["date"];
     const TIMESTAMP_TYPES = [
         "datetime", "datetime2", "smalldatetime", "datetimeoffset", "timestamp_LTZ", "timestamp_NTZ", "TIMESTAMP_TZ",
-        "timestamptz", "timestamp", "timestamp with timezone", "timestamp with local timezone"
+        "timestamptz", "timestamp", "timestamp with time zone", "timestamp with local time zone", "timestamp without time zone"
     ];
     const FLOATING_POINT_TYPES = [
         "real", "float", "float4", "double precision", "float8", "binary_float", "binary_double", "double"
