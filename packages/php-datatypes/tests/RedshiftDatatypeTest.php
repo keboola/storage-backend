@@ -229,6 +229,11 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testSkipLengthValidation()
+    {
+        new Redshift("timestamp", ["length" => "8", "skipLengthValidation" => true]);
+    }
+
     public function invalidNumericLengths()
     {
         return [
