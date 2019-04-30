@@ -308,8 +308,7 @@ class Redshift extends Common
     {
         if (in_array($this->getBasetype(), ["STRING", "NUMERIC"])) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 }
