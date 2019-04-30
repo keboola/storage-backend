@@ -26,15 +26,14 @@ class Redshift extends Common
      * Redshift constructor.
      *
      * @param string $type
-     * @param array $options -- length, nullable, default, compression, skipLengthValidation
+     * @param array $options -- length, nullable, default, compression
      * @throws InvalidOptionException
      */
     public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        if (!$options['skipLengthValidation']) {
-            $this->validateLength($type, isset($options["length"]) ? $options["length"] : null);
-        }
+        $this->validateLength($type, isset($options["length"]) ? $options["length"] : null);
+
         if (isset($options['compression'])) {
             $this->validateCompression($type, $options['compression']);
             $this->compression = $options['compression'];
