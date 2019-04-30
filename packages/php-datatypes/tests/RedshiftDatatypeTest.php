@@ -229,9 +229,25 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testSkipLengthValidation()
+    /**
+     * @dataProvider lengthSupportedProvider
+     * @param $type
+     * @param $expectedSupport
+     */
+    public function testSupportsLength(string $type, bool $expectedSupport)
     {
-        new Redshift("timestamp", ["length" => "8", "skipLengthValidation" => true]);
+        $redshiftType = new Redshift($type);
+        $this->assertEquals($expectedSupport, $redshiftType->supportsLength());
+    }
+
+    public function lengthSupportedProvider(): array
+    {
+        return [
+            ["NVARCHAR", true],
+            ["DECIMAL", true],
+            ["DATE", false],
+            ["TIMESTAMP", false],
+        ];
     }
 
     public function invalidNumericLengths()
