@@ -234,13 +234,13 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
      * @param $type
      * @param $expectedSupport
      */
-    public function testSupportsLength(string $type, bool $expectedSupport)
+    public function testSupportsLength($type, $expectedSupport)
     {
         $redshiftType = new Redshift($type);
         $this->assertEquals($expectedSupport, $redshiftType->supportsLength());
     }
 
-    public function lengthSupportedProvider(): array
+    public function lengthSupportedProvider()
     {
         return [
             ["NVARCHAR", true],
