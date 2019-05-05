@@ -72,6 +72,22 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @dataProvider timestampLengths
+     * @param $type
+     * @param $length
+     * @param $expectedValid
+     */
+    public function testTimestampLengths($type, $length, $expectedValid)
+    {
+        if (!$expectedValid) {
+            $this->expectException(InvalidLengthException::class);
+            new Redshift($type, ["length" => $length]);
+        } else {
+            new Redshift($type, ["length" => $length]);
+        }
+    }
+
     public function testValidCharLengths()
     {
         new Redshift("char");
@@ -274,6 +290,82 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
             ["VARCHAR", "MOSTLY32"],
             ["NUMERIC", "TEXT255"],
             ["NUMERIC","TEXT32K"]
+        ];
+    }
+
+    public function timestampLengths()
+    {
+        return [
+            [
+                "timestamp",
+                "-1",
+                false
+            ],
+            [
+                "timestamp",
+                "15",
+                false
+            ],
+            [
+                "timestamp",
+                "abc",
+                false
+            ],
+            [
+                "timestamp",
+                "8,3",
+                false
+            ],
+            [
+                "timestamp",
+                null,
+                true
+            ],
+            [
+                "timestamp",
+                "",
+                true
+            ],
+            [
+                "timestamp",
+                "8",
+                true
+            ],
+            [
+                "timestamptz",
+                "-1",
+                false
+            ],
+            [
+                "timestamptz",
+                "15",
+                false
+            ],
+            [
+                "timestamptz",
+                "abc",
+                false
+            ],
+            [
+                "timestamptz",
+                "8,3",
+                false
+            ],
+            [
+                "timestamptz",
+                null,
+                true
+            ],
+            [
+                "timestamptz",
+                "",
+                true
+            ],
+            [
+                "timestamptz",
+                "8",
+                true
+            ],
         ];
     }
 }
