@@ -303,12 +303,4 @@ class Redshift extends Common
         }
         return $metadata;
     }
-
-    public function supportsLength()
-    {
-        if (in_array($this->getBasetype(), ["STRING", "NUMERIC"])) {
-            return true;
-        }
-        return false;
-    }
 }
