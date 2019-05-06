@@ -33,6 +33,7 @@ class Redshift extends Common
     {
         $this->validateType($type);
         $this->validateLength($type, isset($options["length"]) ? $options["length"] : null);
+
         if (isset($options['compression'])) {
             $this->validateCompression($type, $options['compression']);
             $this->compression = $options['compression'];
@@ -163,7 +164,22 @@ class Redshift extends Common
                     break;
                 }
                 break;
-
+            case "TIMESTAMP":
+            case "TIMESTAMP WITHOUT TIME ZONE":
+            case "TIMESTAMPTZ":
+            case "TIMESTAMP WITH TIME ZONE":
+                if (is_null($length) || $length == "") {
+                    break;
+                }
+                if (!is_numeric($length)) {
+                    $valid = false;
+                    break;
+                }
+                if ((int)$length <= 0 || (int)$length > 11) {
+                    $valid = false;
+                    break;
+                }
+                break;
             default:
                 if (!is_null($length) && $length != "") {
                     $valid = false;
