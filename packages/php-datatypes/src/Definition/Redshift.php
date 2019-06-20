@@ -271,34 +271,34 @@ class Redshift extends Common
             case "INT4":
             case "BIGINT":
             case "INT8":
-                $basetype = "INTEGER";
+                $basetype = Common::BASE_TYPE_INTEGER;
                 break;
             case "DECIMAL":
             case "NUMERIC":
-                $basetype = "NUMERIC";
+                $basetype = Common::BASE_TYPE_NUMERIC;
                 break;
             case "REAL":
             case "FLOAT4":
             case "DOUBLE PRECISION":
             case "FLOAT8":
             case "FLOAT":
-                $basetype = "FLOAT";
+                $basetype = Common::BASE_TYPE_FLOAT;
                 break;
             case "BOOLEAN":
             case "BOOL":
-                $basetype ="BOOLEAN";
+                $basetype =Common::BASE_TYPE_BOOLEAN;
                 break;
             case "DATE":
-                $basetype = "DATE";
+                $basetype = Common::BASE_TYPE_DATE;
                 break;
             case "TIMESTAMP":
             case "TIMESTAMP WITHOUT TIME ZONE":
             case "TIMESTAMPTZ":
             case "TIMESTAMP WITH TIME ZONE":
-                $basetype = "TIMESTAMP";
+                $basetype = Common::BASE_TYPE_TIMESTAMP;
                 break;
             default:
-                $basetype = "STRING";
+                $basetype = Common::BASE_TYPE_STRING;
                 break;
         }
         return $basetype;

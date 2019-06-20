@@ -25,7 +25,6 @@ class GenericStorage extends Common
         "numeric", "decimal", "dec", "fixed", "money", "smallmoney", "number"
     ];
 
-
     /**
      * @var string
      */
@@ -110,24 +109,24 @@ class GenericStorage extends Common
     public function getBasetype()
     {
         $type = strtolower($this->type);
-        $baseType = "STRING";
+        $baseType = Common::BASE_TYPE_STRING;
         if (in_array($type, self::DATE_TYPES)) {
-            $baseType = "DATE";
+            $baseType = Common::BASE_TYPE_DATE;
         }
         if (in_array($type, self::TIMESTAMP_TYPES)) {
-            $baseType = "TIMESTAMP";
+            $baseType = Common::BASE_TYPE_TIMESTAMP;
         }
         if (in_array($type, self::INTEGER_TYPES)) {
-            $baseType = "INTEGER";
+            $baseType = Common::BASE_TYPE_INTEGER;
         }
         if (in_array($type, self::FIXED_NUMERIC_TYPES)) {
-            $baseType = "NUMERIC";
+            $baseType = Common::BASE_TYPE_NUMERIC;
         }
         if (in_array($type, self::FLOATING_POINT_TYPES)) {
-            $baseType = "FLOAT";
+            $baseType = Common::BASE_TYPE_FLOAT;
         }
         if (in_array($type, self::BOOLEAN_TYPES)) {
-            $baseType = "BOOLEAN";
+            $baseType = Common::BASE_TYPE_BOOLEAN;
         }
         return $baseType;
     }

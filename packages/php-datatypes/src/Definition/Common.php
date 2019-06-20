@@ -4,6 +4,14 @@ namespace Keboola\Datatype\Definition;
 
 abstract class Common
 {
+    const BASE_TYPE_BOOLEAN = "BOOLEAN";
+    const BASE_TYPE_DATE = "DATE";
+    const BASE_TYPE_FLOAT = "FLOAT";
+    const BASE_TYPE_INTEGER = "INTEGER";
+    const BASE_TYPE_NUMERIC = "NUMERIC";
+    const BASE_TYPE_STRING = "STRING";
+    const BASE_TYPE_TIMESTAMP = "TIMESTAMP";
+
     /**
      * @var string
      */
