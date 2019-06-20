@@ -231,29 +231,29 @@ class MySQL extends Common
             case "SMALLINT":
             case "TINYINT":
             case "MEDIUMINT":
-                $basetype = Common::BASE_TYPE_INTEGER;
+                $basetype = BaseType::INTEGER;
                 break;
             case "NUMERIC":
             case "DECIMAL":
             case "DEC":
             case "FIXED":
-                $basetype = Common::BASE_TYPE_NUMERIC;
+                $basetype = BaseType::NUMERIC;
                 break;
             case "FLOAT":
             case "DOUBLE PRECISION":
             case "REAL":
             case "DOUBLE":
-                $basetype = Common::BASE_TYPE_FLOAT;
+                $basetype = BaseType::FLOAT;
                 break;
             case "DATE":
-                $basetype = Common::BASE_TYPE_DATE;
+                $basetype = BaseType::DATE;
                 break;
             case "DATETIME":
             case "TIMESTAMP":
-                $basetype = Common::BASE_TYPE_TIMESTAMP;
+                $basetype = BaseType::TIMESTAMP;
                 break;
             default:
-                $basetype = Common::BASE_TYPE_STRING;
+                $basetype = BaseType::STRING;
                 break;
         }
         return $basetype;

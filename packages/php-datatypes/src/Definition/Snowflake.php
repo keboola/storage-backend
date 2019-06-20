@@ -191,12 +191,12 @@ class Snowflake extends Common
             case "SMALLINT":
             case "TINYINT":
             case "BYTEINT":
-                $basetype = Common::BASE_TYPE_INTEGER;
+                $basetype = BaseType::INTEGER;
                 break;
             case "NUMBER":
             case "DECIMAL":
             case "NUMERIC":
-                $basetype = Common::BASE_TYPE_NUMERIC;
+                $basetype = BaseType::NUMERIC;
                 break;
             case "FLOAT":
             case "FLOAT4":
@@ -204,23 +204,23 @@ class Snowflake extends Common
             case "DOUBLE":
             case "DOUBLE PRECISION":
             case "REAL":
-                $basetype = Common::BASE_TYPE_FLOAT;
+                $basetype = BaseType::FLOAT;
                 break;
             case "BOOLEAN":
-                $basetype = Common::BASE_TYPE_BOOLEAN;
+                $basetype = BaseType::BOOLEAN;
                 break;
             case "DATE":
-                $basetype = Common::BASE_TYPE_DATE;
+                $basetype = BaseType::DATE;
                 break;
             case "DATETIME":
             case "TIMESTAMP":
             case "TIMESTAMP_NTZ":
             case "TIMESTAMP_LTZ":
             case "TIMESTAMP_TZ":
-                $basetype = Common::BASE_TYPE_TIMESTAMP;
+                $basetype = BaseType::TIMESTAMP;
                 break;
             default:
-                $basetype = Common::BASE_TYPE_STRING;
+                $basetype = BaseType::STRING;
                 break;
         }
         return $basetype;
