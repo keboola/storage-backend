@@ -4,6 +4,7 @@ namespace Keboola\Datatype\Definition;
 
 abstract class Common
 {
+
     /**
      * @var string
      */
