@@ -7,7 +7,7 @@ services:
 
 before_script:
   - docker -v
-  - build -t dev .
+  - docker build -t dev .
 
 script:
   - docker run dev composer install
