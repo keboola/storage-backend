@@ -7,8 +7,8 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         bootstrap="tests/phpunit/bootstrap.php">
+         bootstrap="tests/bootstrap.php">
     <testsuite name="Main Test Suite">
-        <directory>tests/phpunit</directory>
+        <directory>tests/</directory>
     </testsuite>
 </phpunit>

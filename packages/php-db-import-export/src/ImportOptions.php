@@ -1,7 +1,97 @@
 <?php
 
-namespace Keboola\Db\ImportExport\ImportOptions;
+declare(strict_types=1);
+
+namespace Keboola\Db\ImportExport;
 
 class ImportOptions
 {
+
+    /** @var string */
+    private $schema;
+
+    /** @var string */
+    private $tableName;
+
+    /** @var boolean */
+    private $useTimestamp;
+
+    /** @var array */
+    private $convertEmptyValuesToNull;
+
+    /** @var array */
+    private $columns;
+
+    /** @var bool */
+    private $isIncremental;
+
+    /** @var int */
+    private $numberOfIgnoredLines;
+
+    public function __construct(string $schema, string $tableName)
+    {
+        $this->schema = $schema;
+        $this->tableName = $tableName;
+        $this->isIncremental = false;
+    }
+
+    public function getSchema(): string
+    {
+        return $this->schema;
+    }
+
+    public function getTableName(): string
+    {
+        return $this->tableName;
+    }
+
+    public function isUseTimestamp(): bool
+    {
+        return $this->useTimestamp;
+    }
+
+    public function setUseTimestamp(bool $useTimestamp): void
+    {
+        $this->useTimestamp = $useTimestamp;
+    }
+
+    public function getConvertEmptyValuesToNull(): array
+    {
+        return $this->convertEmptyValuesToNull;
+    }
+
+    public function setConvertEmptyValuesToNull(array $convertEmptyValuesToNull): void
+    {
+        $this->convertEmptyValuesToNull = $convertEmptyValuesToNull;
+    }
+
+    public function getColumns(): array
+    {
+        return $this->columns;
+    }
+
+    public function setColumns(array $columns): void
+    {
+        $this->columns = $columns;
+    }
+
+    public function isIncremental(): bool
+    {
+        return $this->isIncremental;
+    }
+
+    public function setIsIncremental(bool $isIncremental): void
+    {
+        $this->isIncremental = $isIncremental;
+    }
+
+    public function getNumberOfIgnoredLines(): int
+    {
+        return $this->numberOfIgnoredLines;
+    }
+
+    public function setNumberOfIgnoredLines(int $numberOfIgnoredLines): void
+    {
+        $this->numberOfIgnoredLines = $numberOfIgnoredLines;
+    }
 }

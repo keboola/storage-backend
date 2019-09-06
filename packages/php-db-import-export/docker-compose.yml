@@ -1,7 +1,12 @@
 version: '2'
 services:
-  dev:
+  dev: &dev
     build: .
+    image: keboola/php-db-import-export
     volumes:
       - ./:/code
-      - ./data:/data
+    env_file: .env
+  dev-xdebug:
+    <<: *dev
+    build: docker/xdebug
+

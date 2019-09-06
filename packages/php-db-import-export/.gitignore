@@ -2,3 +2,4 @@
 /.idea
 /data
 composer.lock
+.env
