@@ -24,6 +24,7 @@ $blobClient = \MicrosoftAzure\Storage\Blob\BlobRestProxy::createBlobService($con
 
 try {
     $blobClient->deleteContainer((string) getenv('ABS_CONTAINER_NAME'));
+    sleep(1);
 } catch (\MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e) {
     if (preg_match('~The specified container does not exist~', $e->getMessage())) {
         echo 'Container does not exists. Deleting skipped';
