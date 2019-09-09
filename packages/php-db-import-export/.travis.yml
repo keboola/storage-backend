@@ -7,6 +7,6 @@ services:
 
 before_script:
   - docker -v
-  - docker-compose run dev composer install
+  - docker-compose build production
 script:
-  - docker-compose run dev composer ci
+  - docker-compose run production composer ci
