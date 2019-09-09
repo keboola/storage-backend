@@ -113,9 +113,19 @@ class FromFileImportTest extends TestCase
         );
     }
 
-    private function initSchemaDb(Connection $connection)
+    private function initSchemaDb(Connection $connection): void
     {
-        $connection->query(sprintf('DROP SCHEMA IF EXISTS %s', $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)));
-        $connection->query(sprintf('CREATE SCHEMA %s', $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)));
+        $connection->query(
+            sprintf(
+                'DROP SCHEMA IF EXISTS %s',
+                $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)
+            )
+        );
+        $connection->query(
+            sprintf(
+                'CREATE SCHEMA %s',
+                $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)
+            )
+        );
     }
 }
