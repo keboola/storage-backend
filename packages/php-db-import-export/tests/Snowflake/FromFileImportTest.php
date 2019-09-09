@@ -40,7 +40,9 @@ class FromFileImportTest extends TestCase
                 (string) getenv('ABS_CONTAINER_NAME'),
                 strtr($file, [$prefix => '']),
                 $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-                (string) getenv('ABS_ACCOUNT_NAME')
+                (string) getenv('ABS_ACCOUNT_NAME'),
+                new CsvFile(strtr($file, [$prefix => ''])),
+                false
             )
         );
 

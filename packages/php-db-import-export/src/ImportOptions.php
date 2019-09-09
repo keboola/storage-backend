@@ -26,7 +26,7 @@ class ImportOptions
     private $isIncremental;
 
     /** @var int */
-    private $numberOfIgnoredLines;
+    private $numberOfIgnoredLines = 0;
 
     public function __construct(string $schema, string $tableName)
     {

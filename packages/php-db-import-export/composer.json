@@ -4,14 +4,14 @@
     "require": {
         "php": "^7.1",
         "keboola/php-component": "^7.0.1",
-        "keboola/php-csv-db-import": "^5.0"
+        "keboola/php-csv-db-import": "^5.0",
+        "microsoft/azure-storage-blob": "^1.4"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^1.0",
         "keboola/coding-standard": ">=7.0.2",
         "keboola/datadir-tests": "^2.0",
         "keboola/php-temp": "^1.0",
-        "microsoft/azure-storage-blob": "^1.4",
         "phpstan/phpstan-shim": "^0.10.6",
         "phpunit/phpunit": "^7.0",
         "symfony/process": "^4.0"
