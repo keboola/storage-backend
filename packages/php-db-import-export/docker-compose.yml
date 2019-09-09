@@ -5,7 +5,16 @@ services:
     image: keboola/php-db-import-export
     volumes:
       - ./:/code
-    env_file: .env
+    environment:
+      - ABS_ACCOUNT_NAME
+      - ABS_ACCOUNT_KEY
+      - ABS_CONTAINER_NAME
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
   dev-xdebug:
     <<: *dev
     build: docker/xdebug

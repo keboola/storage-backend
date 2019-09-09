@@ -10,5 +10,4 @@ before_script:
   - docker build -t dev .
 
 script:
-  - docker run dev composer install
   - docker run dev composer ci

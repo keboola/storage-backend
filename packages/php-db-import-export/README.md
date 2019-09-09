@@ -1,30 +1,18 @@
-# my-component
+## DB Import export library
 
-[![Build Status](https://travis-ci.com/keboola/my-component.svg?branch=master)](https://travis-ci.com/keboola/my-component)
+## Setting UP database environmets
 
-> Fill in description
+### SNOWFLAKE
+```sql 
+CREATE ROLE "KEBOOLA_DB_IMPORT_EXPORT";
+CREATE DATABASE "KEBOOLA_DB_IMPORT_EXPORT";
 
-# Usage
+GRANT ALL PRIVILEGES ON DATABASE "KEBOOLA_DB_IMPORT_EXPORT" TO ROLE "KEBOOLA_DB_IMPORT_EXPORT";
+GRANT USAGE ON WAREHOUSE "DEV" TO ROLE "KEBOOLA_DB_IMPORT_EXPORT";
 
-> fill in usage instructions
+CREATE USER "KEBOOLA_DB_IMPORT_EXPORT"
+PASSWORD = 'Password'
+DEFAULT_ROLE = "KEBOOLA_DB_IMPORT_EXPORT";
 
-## Development
- 
-Clone this repository and init the workspace with following command:
-
+GRANT ROLE "KEBOOLA_DB_IMPORT_EXPORT" TO USER "KEBOOLA_DB_IMPORT_EXPORT";
 ```
-git clone https://github.com/keboola/my-component
-cd my-component
-docker-compose build
-docker-compose run --rm dev composer install --no-scripts
-```
-
-Run the test suite using this command:
-
-```
-docker-compose run --rm dev composer tests
-```
- 
-# Integration
-
-For information about deployment and integration with KBC, please refer to the [deployment section of developers documentation](https://developers.keboola.com/extend/component/deployment/) 
