@@ -20,14 +20,16 @@ $connString = sprintf(
     getenv('ABS_ACCOUNT_KEY')
 );
 
+echo "Creating blob service \n";
 $blobClient = \MicrosoftAzure\Storage\Blob\BlobRestProxy::createBlobService($connString);
 
 try {
+    echo "Deleting a previous container \n";
     $blobClient->deleteContainer((string) getenv('ABS_CONTAINER_NAME'));
     sleep(1);
 } catch (\MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e) {
     if (preg_match('~The specified container does not exist~', $e->getMessage())) {
-        echo 'Container does not exists. Deleting skipped';
+        echo "Container does not exists. Deleting skipped\n";
     } else {
         throw $e;
     }
@@ -36,7 +38,9 @@ try {
 $created = false;
 while ($created === false) {
     try {
+        echo "Creating a container \n";
         $blobClient->createContainer((string) getenv('ABS_CONTAINER_NAME'));
+        echo "Container created \n";
         $created = true;
     } catch (\MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e) {
         if (preg_match('~The specified container is being deleted.~', $e->getMessage())) {
@@ -48,6 +52,7 @@ while ($created === false) {
     }
 }
 
+echo "Creating blobs ...\n";
 $blobClient->createBlockBlob(
     (string) getenv('ABS_CONTAINER_NAME'),
     'file.csv',
