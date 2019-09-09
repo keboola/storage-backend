@@ -58,3 +58,4 @@ $blobClient->createBlockBlob(
     'file.csv',
     file_get_contents(__DIR__ . '/data/file.csv')
 );
+echo "ABS load complete \n";
