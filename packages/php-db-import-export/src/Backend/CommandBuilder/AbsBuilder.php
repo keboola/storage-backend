@@ -12,7 +12,6 @@ use Keboola\Db\ImportExport\ImportOptions;
 
 class AbsBuilder
 {
-    private const STAGE_NAME = 'azstage';
     private const SLICED_FILES_CHUNK_SIZE = 1000;
 
     /** @var Connection */
@@ -43,7 +42,7 @@ class AbsBuilder
                     ', ',
                     array_map(
                         function ($entry) use ($file) {
-                            return $this->quote( strtr($entry, [$file->getContainerUrl() => '']));
+                            return $this->quote(strtr($entry, [$file->getContainerUrl() => '']));
                         },
                         $entries
                     )

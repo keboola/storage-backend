@@ -87,7 +87,7 @@ class Azure
         $SASConnectionString = Resources::BLOB_ENDPOINT_NAME .
             '=' .
             'https://' .
-            $this->blobClient->getAccountName() .
+            $this->getAccountName() .
             '.' .
             Resources::BLOB_BASE_DNS_NAME .
             ';' .
