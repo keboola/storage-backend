@@ -37,9 +37,9 @@ class FromFileImportTest extends TestCase
         $snowflake->importTableFromFile(
             $importOptions,
             new File\Azure(
-                'testing-container',
+                (string) getenv('ABS_CONTAINER_NAME'),
                 strtr($file, [$prefix => '']),
-                $this->getCredentialsForAzureContainer('testing-container'),
+                $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
                 (string) getenv('ABS_ACCOUNT_NAME')
             )
         );
