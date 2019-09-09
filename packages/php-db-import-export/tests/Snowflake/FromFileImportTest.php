@@ -23,6 +23,7 @@ class FromFileImportTest extends TestCase
         $prefix = __DIR__ . '/../data/';
         $file = $prefix . 'file.csv';
         $connection = $this->getSnowflakeConnection();
+        $this->initSchemaDb($connection);
         $snowflake = new Snowflake($connection);
         $this->createTableInSnowflake(
             $connection,
@@ -110,5 +111,11 @@ class FromFileImportTest extends TestCase
             $expirationDate,
             (new DateTime())
         );
+    }
+
+    private function initSchemaDb(Connection $connection)
+    {
+        $connection->query(sprintf('DROP SCHEMA IF EXISTS %s', $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)));
+        $connection->query(sprintf('CREATE SCHEMA %s', $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)));
     }
 }

@@ -1,10 +1,7 @@
 version: '2'
 services:
-  dev: &dev
+  production: &prod
     build: .
-    image: keboola/php-db-import-export
-    volumes:
-      - ./:/code
     environment:
       - ABS_ACCOUNT_NAME
       - ABS_ACCOUNT_KEY
@@ -15,6 +12,11 @@ services:
       - SNOWFLAKE_PASSWORD
       - SNOWFLAKE_DATABASE
       - SNOWFLAKE_WAREHOUSE
+  dev: &dev
+    <<: *prod
+    image: keboola/php-db-import-export
+    volumes:
+      - ./:/code
   dev-xdebug:
     <<: *dev
     build: docker/xdebug
