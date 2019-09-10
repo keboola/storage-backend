@@ -99,7 +99,7 @@ class Azure
         );
 
         $getResult = $blobClient->getBlob($this->getContainer(), $this->getFilePath());
-        $manifest = \GuzzleHttp\json_decode($getResult->getContentStream());
+        $manifest = \GuzzleHttp\json_decode(stream_get_contents($getResult->getContentStream()), true);
         return array_map(function ($entry) {
             return $entry['url'];
         }, $manifest['entries']);

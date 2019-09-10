@@ -7,6 +7,8 @@ namespace Keboola\Db\ImportExport;
 class ImportOptions
 {
 
+    public const SKIP_FIRST_LINE = 1;
+
     /** @var string */
     private $schema;
 

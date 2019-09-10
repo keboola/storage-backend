@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\CommandBuilder;
 
-use function GuzzleHttp\Psr7\str;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\File;
