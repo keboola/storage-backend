@@ -19,10 +19,10 @@ class ImportOptions
     private $useTimestamp;
 
     /** @var array */
-    private $convertEmptyValuesToNull;
+    private $convertEmptyValuesToNull = [];
 
     /** @var array */
-    private $columns;
+    private $columns = [];
 
     /** @var bool */
     private $isIncremental;
@@ -35,6 +35,7 @@ class ImportOptions
         $this->schema = $schema;
         $this->tableName = $tableName;
         $this->isIncremental = false;
+        $this->useTimestamp = false; //TODO: verify if default value should be false ???
     }
 
     public function getSchema(): string
@@ -47,7 +48,7 @@ class ImportOptions
         return $this->tableName;
     }
 
-    public function isUseTimestamp(): bool
+    public function useTimestamp(): bool
     {
         return $this->useTimestamp;
     }

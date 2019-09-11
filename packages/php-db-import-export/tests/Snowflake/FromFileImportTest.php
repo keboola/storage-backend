@@ -22,14 +22,16 @@ class FromFileImportTest extends ImportExportBaseTest
     {
         $prefix = __DIR__ . '/../data/';
         $file = 'file.csv';
+        $csvFile = new CsvFile($prefix . $file);
         $this->createTableInSnowflake(
             $this->connection,
             'testingTable',
-            (new CsvFile($prefix . $file))->getHeader()
+            $csvFile->getHeader()
         );
 
         $importOptions = new ImportOptions(self::SNOWFLAKE_SCHEMA_NAME, 'testingTable');
         $importOptions->setNumberOfIgnoredLines(ImportOptions::SKIP_FIRST_LINE);
+        $importOptions->setColumns($csvFile->getHeader());
 
         (new Snowflake($this->connection))->importTableFromFile(
             $importOptions,
@@ -38,7 +40,7 @@ class FromFileImportTest extends ImportExportBaseTest
                 $file,
                 $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
                 (string) getenv('ABS_ACCOUNT_NAME'),
-                new CsvFile($file),
+                $csvFile,
                 false
             )
         );
@@ -56,15 +58,16 @@ class FromFileImportTest extends ImportExportBaseTest
     public function testImportSlicedFile(): void
     {
         $file = 'sliced/sliced.csvmanifest';
-
+        $csvFile = new CsvFile(__DIR__ . '/../data/sliced/sliced.csv_01');
         $this->createTableInSnowflake(
             $this->connection,
             'testingSlicedTable',
-            (new CsvFile(__DIR__ . '/../data/sliced/sliced.csv_01'))->getHeader()
+            $csvFile->getHeader()
         );
 
         $importOptions = new ImportOptions(self::SNOWFLAKE_SCHEMA_NAME, 'testingSlicedTable');
         $importOptions->setNumberOfIgnoredLines(ImportOptions::SKIP_FIRST_LINE);
+        $importOptions->setColumns($csvFile->getHeader());
         (new Snowflake($this->connection))->importTableFromFile(
             $importOptions,
             new File\Azure(
