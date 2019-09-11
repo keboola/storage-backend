@@ -52,7 +52,7 @@ class Snowflake
         string $stagingTableName,
         array $primaryKeys
     ): void {
-        if (!empty($primaryKeys)){
+        if (!empty($primaryKeys)) {
             $tempTableName = $this->generateStagingTableName();
             $this->createStagingTable($importOptions, $tempTableName);
             $this->runQuery(
