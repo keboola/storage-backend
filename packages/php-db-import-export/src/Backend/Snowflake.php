@@ -59,10 +59,10 @@ class Snowflake
                 AbsBuilder::buildDedupCommand($importOptions, $primaryKeys, $stagingTableName, $tempTableName)
             );
             $this->runQuery(
-                AbsBuilder::buildDropCommand($importOptions->getSchema(), $importOptions->getTableName())
+                AbsBuilder::buildDropCommand($importOptions->getSchema(), $stagingTableName)
             );
             $this->runQuery(
-                AbsBuilder::buildRenameTableCommand($importOptions->getSchema(), $stagingTableName, $tempTableName)
+                AbsBuilder::buildRenameTableCommand($importOptions->getSchema(), $tempTableName, $stagingTableName)
             );
         }
         $this->runQuery(

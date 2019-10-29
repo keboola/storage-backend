@@ -10,6 +10,9 @@ use MicrosoftAzure\Storage\Common\Internal\Resources;
 
 class Azure
 {
+    public const IS_SLICED = true;
+    public const IS_NOT_SLICED = false;
+
     /** @var string */
     private $container;
 

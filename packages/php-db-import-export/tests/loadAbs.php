@@ -58,20 +58,14 @@ while ($created === false) {
 echo "Creating blobs ...\n";
 
 
-$blobClient->createBlockBlob(
-    $container,
-    'file.csv',
-    file_get_contents(__DIR__ . '/data/file.csv')
-);
-
+// GENERATE SLICED FILE MANIFEST
 $finder = new \Symfony\Component\Finder\Finder();
-$files = $finder->in(__DIR__ . '/data/sliced')->files()->name('sliced.csv_*');
 
+$files = $finder->in(__DIR__ . '/data/sliced')->files()->name('sliced.csv_*');
 $manifest = ['entries' => []];
 
 foreach ($files as $file) {
     $path = 'sliced/' . $file->getFilename();
-    $blobClient->createBlockBlob($container, $path, file_get_contents($file->getPathname()));
     $manifest['entries'][] = [
         'url' => sprintf(
             'azure://%s.%s/%s/%s',
@@ -85,6 +79,13 @@ foreach ($files as $file) {
 $manifestFilePath = __DIR__ . '/data/sliced/sliced.csvmanifest';
 $manifestFile = file_put_contents($manifestFilePath, \GuzzleHttp\json_encode($manifest));
 
-$blobClient->createBlockBlob($container, 'sliced/sliced.csvmanifest', file_get_contents($manifestFilePath));
+//UPLOAD ALL FILES TO ABS
+$files = (new \Symfony\Component\Finder\Finder())->in(__DIR__ . '/data/')->files();
+
+foreach ($files as $file) {
+    $blobClient->createBlockBlob($container, strtr($file->getPathname(), [__DIR__ . '/data/' => '']), $file->getContents());
+}
+
+
 
 echo "ABS load complete \n";

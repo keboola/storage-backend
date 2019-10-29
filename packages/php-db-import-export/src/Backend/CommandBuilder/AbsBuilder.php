@@ -260,7 +260,7 @@ class AbsBuilder
         }, $importOptions->getColumns()));
 
         $depudeSql .= sprintf(
-            'FROM (SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" FROM %s.%s)',
+            ' FROM (SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" FROM %s.%s)',
             self::getImplodedColumnsString($importOptions->getColumns(), ', '),
             $pkSql,
             $pkSql,

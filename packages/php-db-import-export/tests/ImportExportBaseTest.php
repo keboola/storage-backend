@@ -7,9 +7,11 @@ namespace Tests\Keboola\Db\ImportExport;
 use DateTime;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\CommandBuilder\AbsBuilder;
 use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
 use PHPUnit\Framework\TestCase;
+use Keboola\Db\ImportExport\File;
 
 abstract class ImportExportBaseTest extends TestCase
 {
@@ -88,17 +90,29 @@ abstract class ImportExportBaseTest extends TestCase
     protected function createTableInSnowflake(
         Connection $connection,
         string $tableName,
-        array $columns
+        array $columns,
+        array $primaryKeys
     ): void {
         $connection->query(sprintf('USE SCHEMA %s', $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)));
         $connection->query(sprintf('DROP TABLE IF EXISTS %s', $connection->quoteIdentifier($tableName)));
         $columnQuery = array_map(function (string $column) use ($connection) {
             return $connection->quoteIdentifier($column) . ' VARCHAR()';
         }, $columns);
+        $primaryKeysSql = '';
+        if ($primaryKeys) {
+            $primaryKeysSql = sprintf(
+                ', PRIMARY KEY (%s)',
+                implode(
+                    ', ',
+                    array_map(function (string $column): string {
+                        return AbsBuilder::quoteIdentifier($column);
+                    }, $primaryKeys)));
+        }
         $createQuery = sprintf(
-            'CREATE TABLE %s (%s)',
+            'CREATE TABLE %s (%s %s)',
             $connection->quoteIdentifier($tableName),
-            implode(',', $columnQuery)
+            implode(',', $columnQuery),
+            $primaryKeysSql
         );
         $connection->query($createQuery);
     }
@@ -139,6 +153,18 @@ abstract class ImportExportBaseTest extends TestCase
             'rwl',
             $expirationDate,
             (new DateTime())
+        );
+    }
+
+    protected function createAzureFileInstance(string $file, bool $isSliced = File\Azure::IS_NOT_SLICED)
+    {
+        return new File\Azure(
+            (string) getenv('ABS_CONTAINER_NAME'),
+            $file,
+            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
+            (string) getenv('ABS_ACCOUNT_NAME'),
+            new CsvFile($file), //TODO: create file inside or use only CSV file
+            $isSliced
         );
     }
 

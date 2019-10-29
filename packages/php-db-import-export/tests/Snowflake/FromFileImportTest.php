@@ -18,11 +18,13 @@ use Tests\Keboola\Db\ImportExport\ImportExportBaseTest;
 
 class FromFileImportTest extends ImportExportBaseTest
 {
+
+    private const DATA_DIR = __DIR__ . '/../data/';
+
     public function testImportFile(): void
     {
-        $prefix = __DIR__ . '/../data/';
         $file = 'file.csv';
-        $csvFile = new CsvFile($prefix . $file);
+        $csvFile = new CsvFile(self::DATA_DIR . $file);
         $this->createTableInSnowflake(
             $this->connection,
             'testingTable',
@@ -35,14 +37,7 @@ class FromFileImportTest extends ImportExportBaseTest
 
         (new Snowflake($this->connection))->importTableFromFile(
             $importOptions,
-            new File\Azure(
-                (string) getenv('ABS_CONTAINER_NAME'),
-                $file,
-                $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-                (string) getenv('ABS_ACCOUNT_NAME'),
-                $csvFile,
-                false
-            )
+            $this->createAzureFileInstance($file)
         );
 
         $this->assertTableEqualsFiles(
@@ -55,10 +50,45 @@ class FromFileImportTest extends ImportExportBaseTest
         );
     }
 
+    public function testImportFileWithPrivateKey(): void
+    {
+        $file = 'primaryKey/first.csv';
+        $csvFile = new CsvFile(self::DATA_DIR . $file);
+        $this->createTableInSnowflake(
+            $this->connection,
+            'testingTableWithPrimaryKey',
+            $csvFile->getHeader(),
+            [$csvFile->getHeader()[0]]
+        );
+
+        $importOptions = new ImportOptions(self::SNOWFLAKE_SCHEMA_NAME, 'testingTableWithPrimaryKey');
+        $importOptions->setColumns($csvFile->getHeader());
+        $importOptions->getNumberOfIgnoredLines(ImportOptions::SKIP_FIRST_LINE);
+        //import first file
+        (new Snowflake($this->connection))->importTableFromFile(
+            $importOptions,
+            $this->createAzureFileInstance($file)
+        );
+        //import second file with some same data on primary key
+        (new Snowflake($this->connection))->importTableFromFile(
+            $importOptions,
+            $this->createAzureFileInstance('primaryKey/second.csv')
+        );
+
+        $this->assertTableEqualsFiles(
+            $importOptions->getTableName(),
+            [
+                __DIR__ . '/../data/primaryKey/result.csv',
+            ],
+            'a',
+            'Imported tables are not the same as files'
+        );
+    }
+
     public function testImportSlicedFile(): void
     {
         $file = 'sliced/sliced.csvmanifest';
-        $csvFile = new CsvFile(__DIR__ . '/../data/sliced/sliced.csv_01');
+        $csvFile = new CsvFile(self::DATA_DIR . 'sliced/sliced.csv_01');
         $this->createTableInSnowflake(
             $this->connection,
             'testingSlicedTable',
@@ -70,14 +100,7 @@ class FromFileImportTest extends ImportExportBaseTest
         $importOptions->setColumns($csvFile->getHeader());
         (new Snowflake($this->connection))->importTableFromFile(
             $importOptions,
-            new File\Azure(
-                (string) getenv('ABS_CONTAINER_NAME'),
-                $file,
-                $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-                (string) getenv('ABS_ACCOUNT_NAME'),
-                new CsvFile($file),
-                true
-            )
+            $this->createAzureFileInstance($file, File\Azure::IS_SLICED)
         );
         $this->assertTableEqualsFiles(
             $importOptions->getTableName(),
