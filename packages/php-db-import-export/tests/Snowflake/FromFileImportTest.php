@@ -4,40 +4,35 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExport\Snowflake;
 
-use DateTime;
 use Keboola\Csv\CsvFile;
-use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\Db\ImportExport\Backend\Snowflake;
+use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
-use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
-use MicrosoftAzure\Storage\Common\Internal\Resources;
-use PHP_CodeSniffer\Reports\Csv;
-use PHPUnit\Framework\TestCase;
-use Keboola\Db\ImportExport\File;
 use Tests\Keboola\Db\ImportExport\ImportExportBaseTest;
 
 class FromFileImportTest extends ImportExportBaseTest
 {
-
-    private const DATA_DIR = __DIR__ . '/../data/';
-
     public function testImportFile(): void
     {
         $file = 'file.csv';
         $csvFile = new CsvFile(self::DATA_DIR . $file);
-        $this->createTableInSnowflake(
-            $this->connection,
+        $importOptions = new ImportOptions(
+            self::SNOWFLAKE_SCHEMA_NAME,
             'testingTable',
-            $csvFile->getHeader()
+            [],
+            $csvFile->getHeader(),
+            false,
+            false,
+            ImportOptions::SKIP_FIRST_LINE
         );
 
-        $importOptions = new ImportOptions(self::SNOWFLAKE_SCHEMA_NAME, 'testingTable');
-        $importOptions->setNumberOfIgnoredLines(ImportOptions::SKIP_FIRST_LINE);
-        $importOptions->setColumns($csvFile->getHeader());
+        $this->createTableInSnowflake(
+            $this->connection,
+            $importOptions
+        );
 
-        (new Snowflake($this->connection))->importTableFromFile(
+        (new Importer($this->connection))->importTable(
             $importOptions,
-            $this->createAzureFileInstance($file)
+            $this->createABSSourceInstance($file)
         );
 
         $this->assertTableEqualsFiles(
@@ -50,29 +45,47 @@ class FromFileImportTest extends ImportExportBaseTest
         );
     }
 
-    public function testImportFileWithPrivateKey(): void
+    public function testImportFileWithPrimaryKey(): void
     {
         $file = 'primaryKey/first.csv';
         $csvFile = new CsvFile(self::DATA_DIR . $file);
+
+        $importOptions = new ImportOptions(
+            self::SNOWFLAKE_SCHEMA_NAME,
+            'testingTableWithPrimaryKey',
+            [],
+            $csvFile->getHeader(),
+            false,
+            false,
+            ImportOptions::SKIP_FIRST_LINE
+        );
+
         $this->createTableInSnowflake(
             $this->connection,
-            'testingTableWithPrimaryKey',
-            $csvFile->getHeader(),
+            $importOptions,
             [$csvFile->getHeader()[0]]
         );
 
-        $importOptions = new ImportOptions(self::SNOWFLAKE_SCHEMA_NAME, 'testingTableWithPrimaryKey');
-        $importOptions->setColumns($csvFile->getHeader());
-        $importOptions->getNumberOfIgnoredLines(ImportOptions::SKIP_FIRST_LINE);
         //import first file
-        (new Snowflake($this->connection))->importTableFromFile(
+        (new Importer($this->connection))->importTable(
             $importOptions,
-            $this->createAzureFileInstance($file)
+            $this->createABSSourceInstance($file)
         );
+
+        $importOptions = new ImportOptions(
+            self::SNOWFLAKE_SCHEMA_NAME,
+            'testingTableWithPrimaryKey',
+            [],
+            $csvFile->getHeader(),
+            true,
+            false,
+            ImportOptions::SKIP_FIRST_LINE
+        );
+
         //import second file with some same data on primary key
-        (new Snowflake($this->connection))->importTableFromFile(
+        (new Importer($this->connection))->importTable(
             $importOptions,
-            $this->createAzureFileInstance('primaryKey/second.csv')
+            $this->createABSSourceInstance('primaryKey/second.csv')
         );
 
         $this->assertTableEqualsFiles(
@@ -89,18 +102,24 @@ class FromFileImportTest extends ImportExportBaseTest
     {
         $file = 'sliced/sliced.csvmanifest';
         $csvFile = new CsvFile(self::DATA_DIR . 'sliced/sliced.csv_01');
-        $this->createTableInSnowflake(
-            $this->connection,
+        $importOptions = new ImportOptions(
+            self::SNOWFLAKE_SCHEMA_NAME,
             'testingSlicedTable',
-            $csvFile->getHeader()
+            [],
+            $csvFile->getHeader(),
+            false,
+            false,
+            ImportOptions::SKIP_FIRST_LINE
         );
 
-        $importOptions = new ImportOptions(self::SNOWFLAKE_SCHEMA_NAME, 'testingSlicedTable');
-        $importOptions->setNumberOfIgnoredLines(ImportOptions::SKIP_FIRST_LINE);
-        $importOptions->setColumns($csvFile->getHeader());
-        (new Snowflake($this->connection))->importTableFromFile(
+        $this->createTableInSnowflake(
+            $this->connection,
+            $importOptions
+        );
+
+        (new Importer($this->connection))->importTable(
             $importOptions,
-            $this->createAzureFileInstance($file, File\Azure::IS_SLICED)
+            $this->createABSSourceInstance($file, true)
         );
         $this->assertTableEqualsFiles(
             $importOptions->getTableName(),

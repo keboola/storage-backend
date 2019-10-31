@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport;
 
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
+
 class ImportOptions
 {
-
     public const SKIP_FIRST_LINE = 1;
 
     /** @var string */
@@ -30,42 +31,23 @@ class ImportOptions
     /** @var int */
     private $numberOfIgnoredLines = 0;
 
-    public function __construct(string $schema, string $tableName)
-    {
+    public function __construct(
+        string $schema,
+        string $tableName,
+        array $convertEmptyValuesToNull = [],
+        array $columns = [],
+        bool $isIncremental = false,
+        bool $useTimestamp = false,
+        //TODO: verify if default value should be false ???
+        int $numberOfIgnoredLines = 0
+    ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
-        $this->isIncremental = false;
-        $this->useTimestamp = false; //TODO: verify if default value should be false ???
-    }
-
-    public function getSchema(): string
-    {
-        return $this->schema;
-    }
-
-    public function getTableName(): string
-    {
-        return $this->tableName;
-    }
-
-    public function useTimestamp(): bool
-    {
-        return $this->useTimestamp;
-    }
-
-    public function setUseTimestamp(bool $useTimestamp): void
-    {
         $this->useTimestamp = $useTimestamp;
-    }
-
-    public function getConvertEmptyValuesToNull(): array
-    {
-        return $this->convertEmptyValuesToNull;
-    }
-
-    public function setConvertEmptyValuesToNull(array $convertEmptyValuesToNull): void
-    {
         $this->convertEmptyValuesToNull = $convertEmptyValuesToNull;
+        $this->columns = $columns;
+        $this->isIncremental = $isIncremental;
+        $this->numberOfIgnoredLines = $numberOfIgnoredLines;
     }
 
     public function getColumns(): array
@@ -78,14 +60,9 @@ class ImportOptions
         $this->columns = $columns;
     }
 
-    public function isIncremental(): bool
+    public function getConvertEmptyValuesToNull(): array
     {
-        return $this->isIncremental;
-    }
-
-    public function setIsIncremental(bool $isIncremental): void
-    {
-        $this->isIncremental = $isIncremental;
+        return $this->convertEmptyValuesToNull;
     }
 
     public function getNumberOfIgnoredLines(): int
@@ -93,8 +70,32 @@ class ImportOptions
         return $this->numberOfIgnoredLines;
     }
 
-    public function setNumberOfIgnoredLines(int $numberOfIgnoredLines): void
+    public function getSchema(): string
     {
-        $this->numberOfIgnoredLines = $numberOfIgnoredLines;
+        return $this->schema;
+    }
+
+    public function getTableName(): string
+    {
+        return $this->tableName;
+    }
+
+    public function getTargetTableWithScheme(): string
+    {
+        return sprintf(
+            '%s.%s',
+            QuoteHelper::quoteIdentifier($this->schema),
+            QuoteHelper::quoteIdentifier($this->tableName),
+        );
+    }
+
+    public function isIncremental(): bool
+    {
+        return $this->isIncremental;
+    }
+
+    public function useTimestamp(): bool
+    {
+        return $this->useTimestamp;
     }
 }

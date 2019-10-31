@@ -57,7 +57,6 @@ while ($created === false) {
 
 echo "Creating blobs ...\n";
 
-
 // GENERATE SLICED FILE MANIFEST
 $finder = new \Symfony\Component\Finder\Finder();
 
@@ -83,9 +82,11 @@ $manifestFile = file_put_contents($manifestFilePath, \GuzzleHttp\json_encode($ma
 $files = (new \Symfony\Component\Finder\Finder())->in(__DIR__ . '/data/')->files();
 
 foreach ($files as $file) {
-    $blobClient->createBlockBlob($container, strtr($file->getPathname(), [__DIR__ . '/data/' => '']), $file->getContents());
+    $blobClient->createBlockBlob(
+        $container,
+        strtr($file->getPathname(), [__DIR__ . '/data/' => '']),
+        $file->getContents()
+    );
 }
-
-
 
 echo "ABS load complete \n";

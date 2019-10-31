@@ -7,34 +7,27 @@ namespace Tests\Keboola\Db\ImportExport;
 use DateTime;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\Db\ImportExport\Backend\CommandBuilder\AbsBuilder;
+use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
 use PHPUnit\Framework\TestCase;
-use Keboola\Db\ImportExport\File;
+use Keboola\Db\ImportExport\SourceStorage;
 
 abstract class ImportExportBaseTest extends TestCase
 {
+    protected const DATA_DIR = __DIR__ . '/data/';
     protected const SNOWFLAKE_SCHEMA_NAME = 'testing-schema';
 
     /** @var Connection */
     protected $connection;
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->connection = $this->getSnowflakeConnection();
-        $this->initSchemaDb($this->connection);
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-        unset($this->connection);
-    }
-
-    protected function assertTableEqualsFiles(string $tableName, array $files, string $sortKey, string $message): void
-    {
+    protected function assertTableEqualsFiles(
+        string $tableName,
+        array $files,
+        string $sortKey,
+        string $message
+    ): void {
         $filesContent = [];
         $filesHeader = [];
 
@@ -87,34 +80,72 @@ abstract class ImportExportBaseTest extends TestCase
         $this->assertEquals($expected, $actual, $message);
     }
 
+    protected function createABSSourceInstance(
+        string $file,
+        bool $isSliced = false
+    ): SourceStorage\ABS\Source {
+        return new SourceStorage\ABS\Source(
+            (string) getenv('ABS_CONTAINER_NAME'),
+            $file,
+            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
+            (string) getenv('ABS_ACCOUNT_NAME'),
+            new CsvFile($file), //TODO: create file inside or use only CSV file
+            $isSliced
+        );
+    }
+
+    protected function getCredentialsForAzureContainer(
+        string $container
+    ): string {
+        $sasHelper = new BlobSharedAccessSignatureHelper(
+            (string) getenv('ABS_ACCOUNT_NAME'),
+            (string) getenv('ABS_ACCOUNT_KEY')
+        );
+        $expirationDate = (new DateTime())->modify('+1hour');
+        return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
+            Resources::RESOURCE_TYPE_CONTAINER,
+            $container,
+            'rwl',
+            $expirationDate,
+            (new DateTime())
+        );
+    }
+
     protected function createTableInSnowflake(
         Connection $connection,
-        string $tableName,
-        array $columns,
-        array $primaryKeys
+        ImportOptions $options,
+        array $primaryKeys = []
     ): void {
         $connection->query(sprintf('USE SCHEMA %s', $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)));
-        $connection->query(sprintf('DROP TABLE IF EXISTS %s', $connection->quoteIdentifier($tableName)));
+        $connection->query(sprintf('DROP TABLE IF EXISTS %s', $connection->quoteIdentifier($options->getTableName())));
         $columnQuery = array_map(function (string $column) use ($connection) {
             return $connection->quoteIdentifier($column) . ' VARCHAR()';
-        }, $columns);
+        }, $options->getColumns());
         $primaryKeysSql = '';
-        if ($primaryKeys) {
+        if (!empty($primaryKeys)) {
+            $quotedPrimaryKeys = array_map(function (string $column): string {
+                return QuoteHelper::quoteIdentifier($column);
+            }, $primaryKeys);
+
             $primaryKeysSql = sprintf(
                 ', PRIMARY KEY (%s)',
-                implode(
-                    ', ',
-                    array_map(function (string $column): string {
-                        return AbsBuilder::quoteIdentifier($column);
-                    }, $primaryKeys)));
+                implode(', ', $quotedPrimaryKeys)
+            );
         }
         $createQuery = sprintf(
             'CREATE TABLE %s (%s %s)',
-            $connection->quoteIdentifier($tableName),
+            $connection->quoteIdentifier($options->getTableName()),
             implode(',', $columnQuery),
             $primaryKeysSql
         );
         $connection->query($createQuery);
+    }
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->connection = $this->getSnowflakeConnection();
+        $this->initSchemaDb($this->connection);
     }
 
     private function getSnowflakeConnection(): Connection
@@ -140,34 +171,6 @@ abstract class ImportExportBaseTest extends TestCase
         return $connection;
     }
 
-    protected function getCredentialsForAzureContainer(string $container): string
-    {
-        $sasHelper = new BlobSharedAccessSignatureHelper(
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            (string) getenv('ABS_ACCOUNT_KEY')
-        );
-        $expirationDate = (new DateTime())->modify('+1hour');
-        return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
-            Resources::RESOURCE_TYPE_CONTAINER,
-            $container,
-            'rwl',
-            $expirationDate,
-            (new DateTime())
-        );
-    }
-
-    protected function createAzureFileInstance(string $file, bool $isSliced = File\Azure::IS_NOT_SLICED)
-    {
-        return new File\Azure(
-            (string) getenv('ABS_CONTAINER_NAME'),
-            $file,
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            new CsvFile($file), //TODO: create file inside or use only CSV file
-            $isSliced
-        );
-    }
-
     private function initSchemaDb(Connection $connection): void
     {
         $connection->query(
@@ -182,5 +185,11 @@ abstract class ImportExportBaseTest extends TestCase
                 $connection->quoteIdentifier(self::SNOWFLAKE_SCHEMA_NAME)
             )
         );
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        unset($this->connection);
     }
 }
