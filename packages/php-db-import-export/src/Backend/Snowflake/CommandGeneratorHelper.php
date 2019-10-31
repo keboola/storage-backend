@@ -144,9 +144,8 @@ class CommandGeneratorHelper
             || $importOptions->useTimestamp() === false
         ) {
             return sprintf(
-                'INSERT INTO %s.%s (%s) (SELECT %s FROM %s.%s)',
-                QuoteHelper::quoteIdentifier($importOptions->getSchema()),
-                QuoteHelper::quoteIdentifier($importOptions->getTableName()),
+                'INSERT INTO %s (%s) (SELECT %s FROM %s.%s)',
+                $importOptions->getTargetTableWithScheme(),
                 ColumnsHelper::getColumnsString($importOptions->getColumns()),
                 $columnsSetSqlSelect,
                 QuoteHelper::quoteIdentifier($importOptions->getSchema()),
@@ -155,9 +154,8 @@ class CommandGeneratorHelper
         }
 
         return sprintf(
-            'INSERT INTO %s.%s (%s, "%s") (SELECT %s, \'%s\' FROM %s.%s)',
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
-            QuoteHelper::quoteIdentifier($importOptions->getTableName()),
+            'INSERT INTO %s (%s, "%s") (SELECT %s, \'%s\' FROM %s.%s)',
+            $importOptions->getTargetTableWithScheme(),
             ColumnsHelper::getColumnsString($importOptions->getColumns()),
             self::TIMESTAMP_COLUMN_NAME,
             $columnsSetSqlSelect,
@@ -199,9 +197,8 @@ class CommandGeneratorHelper
         }
 
         return sprintf(
-            'INSERT INTO %s.%s (%s) SELECT %s FROM %s.%s AS "src"',
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
-            QuoteHelper::quoteIdentifier($importOptions->getTableName()),
+            'INSERT INTO %s (%s) SELECT %s FROM %s.%s AS "src"',
+            $importOptions->getTargetTableWithScheme(),
             ColumnsHelper::getColumnsString($insColumns),
             implode(',', $columnsSetSql),
             QuoteHelper::quoteIdentifier($importOptions->getSchema()),
