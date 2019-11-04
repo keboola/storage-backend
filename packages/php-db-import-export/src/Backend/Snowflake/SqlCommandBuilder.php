@@ -86,7 +86,7 @@ class SqlCommandBuilder
             QuoteHelper::quoteIdentifier($importOptions->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
             $importOptions->getTargetTableWithScheme(),
-            self::getPrimayKeyWhereConditions($primaryKeys)
+            $this->getPrimayKeyWhereConditions($primaryKeys)
         );
     }
 
@@ -277,7 +277,7 @@ class SqlCommandBuilder
             implode(', ', $columnsSet),
             QuoteHelper::quoteIdentifier($importOptions->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
-            self::getPrimayKeyWhereConditions($primaryKeys),
+            $this->getPrimayKeyWhereConditions($primaryKeys),
             implode(' OR ', $columnsComparsionSql)
         );
 
