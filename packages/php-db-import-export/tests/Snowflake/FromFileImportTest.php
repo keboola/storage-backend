@@ -30,10 +30,15 @@ class FromFileImportTest extends ImportExportBaseTest
             $importOptions
         );
 
-        (new Importer($this->connection))->importTable(
+        $result = (new Importer($this->connection))->importTable(
             $importOptions,
             $this->createABSSourceInstance($file)
         );
+
+        $this->assertCount(2, $result->getTimers());
+        $this->assertEquals('copyToStaging-file.csv', $result->getTimers()[0]['name']);
+        $this->assertEquals('copyFromStagingToTarget', $result->getTimers()[1]['name']);
+        $this->assertEquals(1, $result->getImportedRowsCount());
 
         $this->assertTableEqualsFiles(
             $importOptions->getTableName(),
@@ -49,10 +54,11 @@ class FromFileImportTest extends ImportExportBaseTest
     {
         $file = 'primaryKey/first.csv';
         $csvFile = new CsvFile(self::DATA_DIR . $file);
+        $targetTable = 'testingTableWithPrimaryKey';
 
         $importOptions = new ImportOptions(
             self::SNOWFLAKE_SCHEMA_NAME,
-            'testingTableWithPrimaryKey',
+            $targetTable,
             [],
             $csvFile->getHeader(),
             false,
@@ -67,14 +73,21 @@ class FromFileImportTest extends ImportExportBaseTest
         );
 
         //import first file
-        (new Importer($this->connection))->importTable(
+        $result = (new Importer($this->connection))->importTable(
             $importOptions,
             $this->createABSSourceInstance($file)
         );
 
+        $this->assertCount(3, $result->getTimers());
+        $this->assertEquals('copyToStaging-first.csv', $result->getTimers()[0]['name']);
+        $this->assertEquals('dedup', $result->getTimers()[1]['name']);
+        $this->assertEquals('copyFromStagingToTarget', $result->getTimers()[2]['name']);
+        $this->assertEquals(3, $result->getImportedRowsCount());
+        $this->assertSame($importOptions->getColumns(), $result->getImportedColumns());
+
         $importOptions = new ImportOptions(
             self::SNOWFLAKE_SCHEMA_NAME,
-            'testingTableWithPrimaryKey',
+            $targetTable,
             [],
             $csvFile->getHeader(),
             true,
@@ -83,10 +96,18 @@ class FromFileImportTest extends ImportExportBaseTest
         );
 
         //import second file with some same data on primary key
-        (new Importer($this->connection))->importTable(
+        $result = (new Importer($this->connection))->importTable(
             $importOptions,
             $this->createABSSourceInstance('primaryKey/second.csv')
         );
+        $this->assertCount(5, $result->getTimers());
+        $this->assertEquals('copyToStaging-second.csv', $result->getTimers()[0]['name']);
+        $this->assertEquals('updateTargetTable', $result->getTimers()[1]['name']);
+        $this->assertEquals('deleteUpdatedRowsFromStaging', $result->getTimers()[2]['name']);
+        $this->assertEquals('dedupStaging', $result->getTimers()[3]['name']);
+        $this->assertEquals('insertIntoTargetFromStaging', $result->getTimers()[4]['name']);
+        $this->assertEquals(2, $result->getImportedRowsCount());
+        $this->assertSame($importOptions->getColumns(), $result->getImportedColumns());
 
         $this->assertTableEqualsFiles(
             $importOptions->getTableName(),
@@ -117,10 +138,17 @@ class FromFileImportTest extends ImportExportBaseTest
             $importOptions
         );
 
-        (new Importer($this->connection))->importTable(
+        $result = (new Importer($this->connection))->importTable(
             $importOptions,
             $this->createABSSourceInstance($file, true)
         );
+
+        $this->assertCount(2, $result->getTimers());
+        $this->assertEquals('copyToStaging-sliced.csvmanifest', $result->getTimers()[0]['name']);
+        $this->assertEquals('copyFromStagingToTarget', $result->getTimers()[1]['name']);
+        $this->assertEquals(6, $result->getImportedRowsCount());
+        $this->assertSame($importOptions->getColumns(), $result->getImportedColumns());
+
         $this->assertTableEqualsFiles(
             $importOptions->getTableName(),
             [

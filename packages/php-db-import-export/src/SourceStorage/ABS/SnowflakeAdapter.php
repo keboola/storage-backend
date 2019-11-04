@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\SourceStorage\ABS;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\ImportExport\SourceStorage\BackendImportAdapterInterface;
-use Keboola\Db\ImportExport\Backend\Snowflake\CommandGeneratorHelper;
+use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\ImporterInterface;
+use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\SourceStorage\SourceInterface;
 
-class SnowflakeAdapter implements BackendImportAdapterInterface
+class SnowflakeAdapter implements SnowflakeImportAdapterInterface
 {
     /**
      * @var Source
@@ -26,13 +28,36 @@ class SnowflakeAdapter implements BackendImportAdapterInterface
         $this->source = $source;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function executeCopyCommands(
+        array $commands,
+        Connection $connection,
+        ImportOptions $importOptions,
+        ImportState $importState
+    ): int {
+        $timerName = sprintf('copyToStaging-%s', $this->source->getCsvFile()->getBasename());
+        $importState->startTimer($timerName);
+        $rowsCount = 0;
+        foreach ($commands as $command) {
+            $results = $connection->fetchAll($command);
+            foreach ($results as $result) {
+                $rowsCount += (int) $result['rows_loaded'];
+            }
+        }
+        $importState->stopTimer($timerName);
+
+        return $rowsCount;
+    }
+
     public function getCopyCommands(
         ImportOptions $importOptions,
         string $stagingTableName
     ): array {
         $filesToImport = $this->source->getManifestEntries();
         $commands = [];
-        foreach (array_chunk($filesToImport, CommandGeneratorHelper::SLICED_FILES_CHUNK_SIZE) as $entries) {
+        foreach (array_chunk($filesToImport, ImporterInterface::SLICED_FILES_CHUNK_SIZE) as $entries) {
             $commands[] = sprintf(
                 'COPY INTO %s.%s 
                 FROM %s

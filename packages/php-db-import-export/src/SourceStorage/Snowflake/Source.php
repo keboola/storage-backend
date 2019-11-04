@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\SourceStorage\Snowflake;
 
-use Keboola\Db\ImportExport\SourceStorage\BackendImportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
-use Keboola\Db\ImportExport\SourceStorage\Snowflake\SnowflakeAdapter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
 use Keboola\Db\ImportExport\SourceStorage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\SourceStorage\SourceInterface;
@@ -29,7 +28,7 @@ class Source implements SourceInterface
         $this->tableName = $tableName;
     }
 
-    public function getBackendAdapter(
+    public function getBackendImportAdapter(
         ImporterInterface $importer
     ): BackendImportAdapterInterface {
         switch (true) {

@@ -6,25 +6,22 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake;
 
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
+use Keboola\Db\ImportExport\ImportOptions;
 
-class CommandGeneratorHelper
+class SqlCommandBuilder
 {
-    public const SLICED_FILES_CHUNK_SIZE = 1000;
-    public const TIMESTAMP_COLUMN_NAME = '_timestamp';
-
-    public static function buildBeginTransactionCommand(): string
+    public function getBeginTransaction(): string
     {
         return 'BEGIN TRANSACTION';
     }
 
-    public static function buildCommitTransactionCommand(): string
+    public function getCommitTransaction(): string
     {
         return 'COMMIT';
     }
 
-    public static function buildCreateStagingTableCommand(
+    public function getCreateStagingTableCommand(
         string $schema,
         string $tableName,
         array $columns
@@ -40,7 +37,7 @@ class CommandGeneratorHelper
         );
     }
 
-    public static function buildDedupCommand(
+    public function getDedupCommand(
         ImportOptions $importOptions,
         array $primaryKeys,
         string $stagingTableName,
@@ -57,8 +54,8 @@ class CommandGeneratorHelper
 
         $depudeSql = sprintf(
             'SELECT %s FROM ('
-                .'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_"'
-                .'FROM %s.%s'
+            .'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_"'
+            .'FROM %s.%s'
             .') AS a '
             .'WHERE a."_row_number_" = 1',
             ColumnsHelper::getColumnsString($importOptions->getColumns(), ',', 'a'),
@@ -78,7 +75,7 @@ class CommandGeneratorHelper
         );
     }
 
-    public static function buildDeleteOldItemsCommand(
+    public function getDeleteOldItemsCommand(
         ImportOptions $importOptions,
         string $stagingTableName,
         array $primaryKeys
@@ -89,11 +86,11 @@ class CommandGeneratorHelper
             QuoteHelper::quoteIdentifier($importOptions->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
             $importOptions->getTargetTableWithScheme(),
-            self::buildPrimayKeyWhereConditions($primaryKeys)
+            self::getPrimayKeyWhereConditions($primaryKeys)
         );
     }
 
-    private static function buildPrimayKeyWhereConditions(
+    private function getPrimayKeyWhereConditions(
         array $primaryKeys
     ): string {
         $pkWhereSql = array_map(function (string $col) {
@@ -107,7 +104,7 @@ class CommandGeneratorHelper
         return implode(' AND ', $pkWhereSql) . ' ';
     }
 
-    public static function buildDropCommand(
+    public function getDropCommand(
         string $schema,
         string $tableName
     ): string {
@@ -118,7 +115,7 @@ class CommandGeneratorHelper
         );
     }
 
-    public static function buildInsertAllIntoTargetTableCommand(
+    public function getInsertAllIntoTargetTableCommand(
         ImportOptions $importOptions,
         string $stagingTableName
     ): string {
@@ -140,7 +137,7 @@ class CommandGeneratorHelper
             );
         }, $importOptions->getColumns()));
 
-        if (in_array(self::TIMESTAMP_COLUMN_NAME, $importOptions->getColumns())
+        if (in_array(Importer::TIMESTAMP_COLUMN_NAME, $importOptions->getColumns())
             || $importOptions->useTimestamp() === false
         ) {
             return sprintf(
@@ -157,7 +154,7 @@ class CommandGeneratorHelper
             'INSERT INTO %s (%s, "%s") (SELECT %s, \'%s\' FROM %s.%s)',
             $importOptions->getTargetTableWithScheme(),
             ColumnsHelper::getColumnsString($importOptions->getColumns()),
-            self::TIMESTAMP_COLUMN_NAME,
+            Importer::TIMESTAMP_COLUMN_NAME,
             $columnsSetSqlSelect,
             DateTimeHelper::getNowFormatted(),
             QuoteHelper::quoteIdentifier($importOptions->getSchema()),
@@ -165,12 +162,12 @@ class CommandGeneratorHelper
         );
     }
 
-    public static function buildInsertFromStagingToTargetTableCommand(
+    public function getInsertFromStagingToTargetTableCommand(
         ImportOptions $importOptions,
         string $stagingTableName
     ): string {
         if ($importOptions->useTimestamp()) {
-            $insColumns = array_merge($importOptions->getColumns(), [self::TIMESTAMP_COLUMN_NAME]);
+            $insColumns = array_merge($importOptions->getColumns(), [Importer::TIMESTAMP_COLUMN_NAME]);
         } else {
             $insColumns = $importOptions->getColumns();
         }
@@ -206,7 +203,7 @@ class CommandGeneratorHelper
         );
     }
 
-    public static function buildRenameTableCommand(
+    public function getRenameTableCommand(
         string $schema,
         string $sourceTableName,
         string $targetTable
@@ -220,7 +217,7 @@ class CommandGeneratorHelper
         );
     }
 
-    public static function buildTruncateTableCommand(
+    public function getTruncateTableCommand(
         string $schema,
         string $tableName
     ): string {
@@ -231,7 +228,7 @@ class CommandGeneratorHelper
         );
     }
 
-    public static function buildUpdateWithPkCommand(
+    public function getUpdateWithPkCommand(
         ImportOptions $importOptions,
         string $stagingTableName,
         array $primaryKeys
@@ -257,7 +254,7 @@ class CommandGeneratorHelper
         if ($importOptions->useTimestamp()) {
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
-                QuoteHelper::quoteIdentifier(self::TIMESTAMP_COLUMN_NAME),
+                QuoteHelper::quoteIdentifier(Importer::TIMESTAMP_COLUMN_NAME),
                 DateTimeHelper::getNowFormatted()
             );
         }
@@ -280,7 +277,7 @@ class CommandGeneratorHelper
             implode(', ', $columnsSet),
             QuoteHelper::quoteIdentifier($importOptions->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
-            self::buildPrimayKeyWhereConditions($primaryKeys),
+            self::getPrimayKeyWhereConditions($primaryKeys),
             implode(' OR ', $columnsComparsionSql)
         );
 

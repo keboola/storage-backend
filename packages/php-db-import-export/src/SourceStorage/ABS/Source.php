@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\SourceStorage\ABS;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\ImportExport\SourceStorage\BackendImportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
 use Keboola\Db\ImportExport\SourceStorage\NoBackendAdapterException;
@@ -61,7 +61,7 @@ class Source implements SourceInterface
         $this->csvFile = $csvFile;
     }
 
-    public function getBackendAdapter(
+    public function getBackendImportAdapter(
         ImporterInterface $importer
     ): BackendImportAdapterInterface {
         switch (true) {

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\SourceStorage;
+namespace Keboola\Db\ImportExport\Backend;
 
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\SourceStorage\SourceInterface;
 
 interface BackendImportAdapterInterface
 {

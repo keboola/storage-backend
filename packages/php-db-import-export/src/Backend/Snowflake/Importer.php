@@ -5,48 +5,64 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Snowflake;
 
 use Keboola\Db\Import\Exception;
+use Keboola\Db\Import\Result;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
+use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\SourceStorage;
-use Tracy\Debugger;
 
 class Importer implements ImporterInterface
 {
+    public const TIMESTAMP_COLUMN_NAME = '_timestamp';
+
     /** @var Connection */
     private $connection;
 
-    /** @var array */
-    private $timers = [];
+    /**
+     * @var SqlCommandBuilder
+     */
+    private $sqlBuilder;
+
+    /**
+     * @var ImportState
+     */
+    private $importState;
 
     public function __construct(
         Connection $connection
     ) {
         $this->connection = $connection;
+        $this->sqlBuilder = new SqlCommandBuilder();
     }
 
     public function importTable(
         ImportOptions $options,
         SourceStorage\SourceInterface $source
-    ): void {
+    ): Result {
+        $this->importState = new ImportState(BackendHelper::generateStagingTableName());
         $this->validateColumns($options);
 
-        //create staging table
-        $stagingTableName = BackendHelper::generateStagingTableName();
-        $this->createStagingTable($options, $stagingTableName);
+        $this->createTable($options, $this->importState->getStagingTableName());
 
-        //import files to staging table
-        $this->importFileToStagingTable($options, $source, $stagingTableName);
-        $primaryKeys = $this->getTablesPrimaryKeys($options);
-        if ($options->isIncremental()) {
-            $this->doIncrementalLoad($options, $stagingTableName, $primaryKeys);
-        } else {
-            $this->doNonIncrementalLoad($options, $stagingTableName, $primaryKeys);
+        try {
+            //import files to staging table
+            $this->importToStagingTable($options, $source);
+            $primaryKeys = $this->getTablesPrimaryKeys($options);
+            if ($options->isIncremental()) {
+                $this->doIncrementalLoad($options, $primaryKeys);
+            } else {
+                $this->doNonIncrementalLoad($options, $primaryKeys);
+            }
+            $this->importState->setImportedColumns($options->getColumns());
+        } finally {
+            $this->runQuery(
+                $this->sqlBuilder->getDropCommand($options->getSchema(), $this->importState->getStagingTableName())
+            );
         }
-        $this->runQuery(
-            CommandGeneratorHelper::buildDropCommand($options->getSchema(), $stagingTableName)
-        );
+
+        return $this->importState->getResult();
     }
 
     private function validateColumns(ImportOptions $importOptions): void
@@ -72,13 +88,13 @@ class Importer implements ImporterInterface
         }
     }
 
-    private function createStagingTable(
+    private function createTable(
         ImportOptions $importOptions,
-        string $stagingTableName
+        string $tableName
     ): void {
-        $this->runQuery(CommandGeneratorHelper::buildCreateStagingTableCommand(
+        $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
             $importOptions->getSchema(),
-            $stagingTableName,
+            $tableName,
             $importOptions->getColumns()
         ));
     }
@@ -86,30 +102,31 @@ class Importer implements ImporterInterface
     private function runQuery(string $query, ?string $timerName = null): void
     {
         if ($timerName) {
-            Debugger::timer($timerName);
+            $this->importState->startTimer($timerName);
         }
         // echo sprintf("Executing query: %s \n", $query);
 
         $this->connection->query($query);
         if ($timerName) {
-            $this->timers[] = [
-                'name' => $timerName,
-                'durationSeconds' => Debugger::timer($timerName),
-            ];
+            $this->importState->stopTimer($timerName);
         }
     }
 
-    private function importFileToStagingTable(
+    private function importToStagingTable(
         ImportOptions $importOptions,
-        SourceStorage\SourceInterface $source,
-        string $stagingTableName
+        SourceStorage\SourceInterface $source
     ): void {
-        $commands = ($source->getBackendAdapter($this))
-            ->getCopyCommands($importOptions, $stagingTableName);
-
-        foreach ($commands as $command) {
-            $this->runQuery($command);
+        $adapter = $source->getBackendImportAdapter($this);
+        if (!$adapter instanceof SnowflakeImportAdapterInterface) {
+            throw new \Exception(sprintf(
+                'Adapter "%s" must implement "SnowflakeImportAdapterInterface".',
+                get_class($adapter)
+            ));
         }
+        $commands = $adapter->getCopyCommands($importOptions, $this->importState->getStagingTableName());
+        $this->importState->addImportedRowsCount(
+            $adapter->executeCopyCommands($commands, $this->connection, $importOptions, $this->importState)
+        );
     }
 
     private function getTablesPrimaryKeys(ImportOptions $importOptions): array
@@ -122,95 +139,104 @@ class Importer implements ImporterInterface
 
     private function doIncrementalLoad(
         ImportOptions $importOptions,
-        string $stagingTableName,
         array $primaryKeys
     ): void {
+        $this->runQuery(
+            $this->sqlBuilder->getBeginTransaction()
+        );
         if (!empty($primaryKeys)) {
             $this->runQuery(
-                CommandGeneratorHelper::buildBeginTransactionCommand()
-            );
-            $this->runQuery(
-                CommandGeneratorHelper::buildUpdateWithPkCommand($importOptions, $stagingTableName, $primaryKeys)
-            );
-            $this->runQuery(
-                CommandGeneratorHelper::buildDeleteOldItemsCommand($importOptions, $stagingTableName, $primaryKeys)
-            );
-            $tempTableName = BackendHelper::generateStagingTableName();
-            $this->createStagingTable($importOptions, $tempTableName);
-            $this->runQuery(
-                CommandGeneratorHelper::buildDedupCommand(
+                $this->sqlBuilder->getUpdateWithPkCommand(
                     $importOptions,
-                    $primaryKeys,
-                    $stagingTableName,
-                    $tempTableName
-                )
+                    $this->importState->getStagingTableName(),
+                    $primaryKeys
+                ),
+                'updateTargetTable'
             );
             $this->runQuery(
-                CommandGeneratorHelper::buildDropCommand(
-                    $importOptions->getSchema(),
-                    $stagingTableName
-                )
+                $this->sqlBuilder->getDeleteOldItemsCommand(
+                    $importOptions,
+                    $this->importState->getStagingTableName(),
+                    $primaryKeys
+                ),
+                'deleteUpdatedRowsFromStaging'
             );
-            $this->runQuery(
-                CommandGeneratorHelper::buildRenameTableCommand(
-                    $importOptions->getSchema(),
-                    $tempTableName,
-                    $stagingTableName
-                )
-            );
+            $this->importState->startTimer('dedupStaging');
+            $this->dedup($importOptions, $primaryKeys);
+            $this->importState->stopTimer('dedupStaging');
         }
         $this->runQuery(
-            CommandGeneratorHelper::buildInsertFromStagingToTargetTableCommand($importOptions, $stagingTableName)
+            $this->sqlBuilder->getInsertFromStagingToTargetTableCommand(
+                $importOptions,
+                $this->importState->getStagingTableName()
+            ),
+            'insertIntoTargetFromStaging'
         );
         $this->runQuery(
-            CommandGeneratorHelper::buildCommitTransactionCommand()
+            $this->sqlBuilder->getCommitTransaction()
+        );
+    }
+
+    /**
+     * @param ImportOptions $importOptions
+     * @param array $primaryKeys
+     */
+    private function dedup(
+        ImportOptions $importOptions,
+        array $primaryKeys
+    ): void {
+        $tempTableName = BackendHelper::generateStagingTableName();
+        $this->createTable($importOptions, $tempTableName);
+        $this->runQuery(
+            $this->sqlBuilder->getDedupCommand(
+                $importOptions,
+                $primaryKeys,
+                $this->importState->getStagingTableName(),
+                $tempTableName
+            )
+        );
+        $this->runQuery(
+            $this->sqlBuilder->getDropCommand(
+                $importOptions->getSchema(),
+                $this->importState->getStagingTableName()
+            )
+        );
+        $this->runQuery(
+            $this->sqlBuilder->getRenameTableCommand(
+                $importOptions->getSchema(),
+                $tempTableName,
+                $this->importState->getStagingTableName()
+            )
         );
     }
 
     private function doNonIncrementalLoad(
         ImportOptions $importOptions,
-        string $stagingTableName,
         array $primaryKeys
     ): void {
         if (!empty($primaryKeys)) {
-            $tempTableName = BackendHelper::generateStagingTableName();
-            $this->createStagingTable($importOptions, $tempTableName);
-            $this->runQuery(
-                CommandGeneratorHelper::buildDedupCommand(
-                    $importOptions,
-                    $primaryKeys,
-                    $stagingTableName,
-                    $tempTableName
-                )
-            );
-            $this->runQuery(
-                CommandGeneratorHelper::buildDropCommand(
-                    $importOptions->getSchema(),
-                    $stagingTableName
-                )
-            );
-            $this->runQuery(
-                CommandGeneratorHelper::buildRenameTableCommand(
-                    $importOptions->getSchema(),
-                    $tempTableName,
-                    $stagingTableName
-                )
-            );
+            $this->importState->startTimer('dedup');
+            $this->dedup($importOptions, $primaryKeys);
+            $this->importState->stopTimer('dedup');
         }
         $this->runQuery(
-            CommandGeneratorHelper::buildBeginTransactionCommand()
+            $this->sqlBuilder->getBeginTransaction()
         );
         $this->runQuery(
-            CommandGeneratorHelper::buildTruncateTableCommand(
+            $this->sqlBuilder->getTruncateTableCommand(
                 $importOptions->getSchema(),
                 $importOptions->getTableName()
             )
         );
         $this->runQuery(
-            CommandGeneratorHelper::buildInsertAllIntoTargetTableCommand($importOptions, $stagingTableName)
+            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                $importOptions,
+                $this->importState->getStagingTableName()
+            ),
+            'copyFromStagingToTarget'
         );
         $this->runQuery(
-            CommandGeneratorHelper::buildCommitTransactionCommand()
+            $this->sqlBuilder->getCommitTransaction()
         );
     }
 }

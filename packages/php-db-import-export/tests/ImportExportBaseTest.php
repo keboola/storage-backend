@@ -6,7 +6,9 @@ namespace Tests\Keboola\Db\ImportExport;
 
 use DateTime;
 use Keboola\Csv\CsvFile;
+use Keboola\Db\Import\Result;
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
@@ -139,6 +141,30 @@ abstract class ImportExportBaseTest extends TestCase
             $primaryKeysSql
         );
         $connection->query($createQuery);
+    }
+
+
+    protected function importFileToSnowflake(string $file, string $tableName): Result
+    {
+        $csvFile = new CsvFile(self::DATA_DIR . $file);
+        $importOptions = new ImportOptions(
+            self::SNOWFLAKE_SCHEMA_NAME,
+            $tableName,
+            [],
+            $csvFile->getHeader(),
+            false,
+            false,
+            ImportOptions::SKIP_FIRST_LINE
+        );
+
+        $this->createTableInSnowflake(
+            $this->connection,
+            $importOptions
+        );
+        return (new Importer($this->connection))->importTable(
+            $importOptions,
+            $this->createABSSourceInstance($file)
+        );
     }
 
     public function setUp(): void
