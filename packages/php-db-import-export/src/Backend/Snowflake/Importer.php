@@ -49,7 +49,10 @@ class Importer implements ImporterInterface
         try {
             //import files to staging table
             $this->importToStagingTable($options, $source);
-            $primaryKeys = $this->getTablesPrimaryKeys($options);
+            $primaryKeys = $this->connection->getTablePrimaryKey(
+                $options->getSchema(),
+                $options->getTableName()
+            );
             if ($options->isIncremental()) {
                 $this->doIncrementalLoad($options, $primaryKeys);
             } else {
@@ -126,14 +129,6 @@ class Importer implements ImporterInterface
         $commands = $adapter->getCopyCommands($importOptions, $this->importState->getStagingTableName());
         $this->importState->addImportedRowsCount(
             $adapter->executeCopyCommands($commands, $this->connection, $importOptions, $this->importState)
-        );
-    }
-
-    private function getTablesPrimaryKeys(ImportOptions $importOptions): array
-    {
-        return $this->connection->getTablePrimaryKey(
-            $importOptions->getSchema(),
-            $importOptions->getTableName()
         );
     }
 
