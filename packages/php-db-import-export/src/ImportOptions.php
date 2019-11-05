@@ -8,6 +8,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 
 class ImportOptions
 {
+    public const SKIP_NO_LINE = 0;
     public const SKIP_FIRST_LINE = 1;
 
     /** @var string */
