@@ -9,7 +9,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\SourceStorage;
 
-class FullFileImportTest extends SnowflakeImportExportBaseTest
+class FullImportTest extends SnowflakeImportExportBaseTest
 {
     public function fullImportData()
     {
