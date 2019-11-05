@@ -12,7 +12,8 @@
         "keboola/coding-standard": ">=7.0.2",
         "keboola/datadir-tests": "^2.0",
         "keboola/php-temp": "^1.0",
-        "phpstan/phpstan-shim": "^0.10.6",
+        "phpstan/phpstan-phpunit": "^0.11.2",
+        "phpstan/phpstan-shim": "^0.11.2",
         "phpunit/phpunit": "^7.0",
         "symfony/process": "^4.0"
     },
