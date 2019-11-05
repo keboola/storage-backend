@@ -38,7 +38,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             $this->assertNotContains('_timestamp', $tableColumns);
         }
 
-        if(!in_array('_timestamp',$options->getColumns())) {
+        if (!in_array('_timestamp', $options->getColumns())) {
             $tableColumns = array_filter($tableColumns, function ($column) {
                 return $column !== '_timestamp';
             });
@@ -186,7 +186,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             return $connection->quoteIdentifier($column) . ' VARCHAR()';
         }, $options->getColumns());
 
-        if($options->useTimestamp()){
+        if ($options->useTimestamp()) {
             $columnQuery[] = '"_timestamp" TIMESTAMP_NTZ';
         }
 
@@ -236,8 +236,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         $currentDate = new \DateTime('now', new \DateTimeZone('UTC'));
         $now = $currentDate->format('Y-m-d H:i:s');
 
-        foreach (
-            [
+        foreach ([
                 self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
                 self::SNOWFLAKE_DEST_SCHEMA_NAME,
             ] as $schema

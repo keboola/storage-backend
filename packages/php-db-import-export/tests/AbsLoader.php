@@ -113,7 +113,7 @@ class AbsLoader
         echo "ABS load complete \n";
     }
 
-    private function generateLargeSliced()
+    private function generateLargeSliced(): void
     {
         for ($i = 0; $i <= 1500; $i++) {
             $sliceName = sprintf('sliced.csv_%d', $i);
@@ -153,9 +153,6 @@ class AbsLoader
             }
             /** @var SplFileInfo $file */
             $file = iterator_to_array($files->getIterator())[0];
-            if ($file === null) {
-                continue;
-            }
 
             $manifestFilePath = sprintf(
                 '%s/%s.csvmanifest',

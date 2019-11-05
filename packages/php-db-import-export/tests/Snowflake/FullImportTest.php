@@ -11,7 +11,7 @@ use Keboola\Db\ImportExport\SourceStorage;
 
 class FullImportTest extends SnowflakeImportExportBaseTest
 {
-    public function fullImportData()
+    public function fullImportData(): array
     {
         $expectedEscaping = [];
         $file = new CsvFile(self::DATA_DIR . 'escaping/standard-with-enclosures.csv');
@@ -81,7 +81,9 @@ class FullImportTest extends SnowflakeImportExportBaseTest
 
         $tests[] = [
             $this->getSimpleImportOptions('out.csv_2Cols', $escapingHeader),
-            $this->createABSSourceInstanceFromCsv(new CsvFile(self::DATA_DIR . 'standard-with-enclosures.tabs.csv', "\t")),
+            $this->createABSSourceInstanceFromCsv(
+                new CsvFile(self::DATA_DIR . 'standard-with-enclosures.tabs.csv', "\t")
+            ),
             $expectedEscaping,
         ];
 

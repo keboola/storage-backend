@@ -82,7 +82,7 @@ abstract class ImportExportBaseTest extends TestCase
         );
     }
 
-    private function getCsvFilesForManifest(string $manifest): array
+    protected function getCsvFilesForManifest(string $manifest): array
     {
         $path = (new SplFileInfo(self::DATA_DIR . $manifest, '', ''))->getPath();
         $files = (new Finder)->in($path)->files()->depth(0)->name('/^((?!.csvmanifest).)*$/');
@@ -91,7 +91,7 @@ abstract class ImportExportBaseTest extends TestCase
         $filesHeader = [];
         /** @var SplFileInfo $file */
         foreach ($files as $file) {
-            $csvFile = new CsvFile($file);
+            $csvFile = new CsvFile($file->getPathname());
             $csvFileRows = [];
             foreach ($csvFile as $row) {
                 $csvFileRows[] = $row;
