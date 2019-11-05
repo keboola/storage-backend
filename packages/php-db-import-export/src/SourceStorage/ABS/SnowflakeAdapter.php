@@ -62,7 +62,7 @@ class SnowflakeAdapter implements SnowflakeImportAdapterInterface
                 'COPY INTO %s.%s 
                 FROM %s
                 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
-                FILE_FORMAT = (TYPE=CSV %s )
+                FILE_FORMAT = (TYPE=CSV %s)
                 FILES = (%s)',
                 QuoteHelper::quoteIdentifier($importOptions->getSchema()),
                 QuoteHelper::quoteIdentifier($stagingTableName),
@@ -99,7 +99,7 @@ class SnowflakeAdapter implements SnowflakeImportAdapterInterface
             $options[] = sprintf('FIELD_OPTIONALLY_ENCLOSED_BY = %s', QuoteHelper::quote($csvFile->getEnclosure()));
             $options[] = 'ESCAPE_UNENCLOSED_FIELD = NONE';
         } elseif ($csvFile->getEscapedBy()) {
-            $options[] = sprintf('ESCAPED_UNENCLOSED_FIELD = %s', QuoteHelper::quote($csvFile->getEscapedBy()));
+            $options[] = sprintf('ESCAPE_UNENCLOSED_FIELD = %s', QuoteHelper::quote($csvFile->getEscapedBy()));
         }
         return $options;
     }
