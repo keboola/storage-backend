@@ -110,6 +110,25 @@ class AbsLoader
             );
         }
 
+        // invalid manifest
+        $this->getBlobService()->createBlockBlob(
+            $this->containerName,
+            '02_tw_accounts.csv.invalid.manifest',
+            json_encode([
+                'entries' => [
+                    [
+                        'url' => sprintf(
+                            'azure://%s.%s/%s/not-exists.csv',
+                            $this->accountName,
+                            Resources::BLOB_BASE_DNS_NAME,
+                            $this->containerName
+                        ),
+                        'mandatory' => true,
+                    ],
+                ],
+            ])
+        );
+
         echo "ABS load complete \n";
     }
 

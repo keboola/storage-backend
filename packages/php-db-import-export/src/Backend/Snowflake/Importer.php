@@ -127,9 +127,17 @@ class Importer implements ImporterInterface
             ));
         }
         $commands = $adapter->getCopyCommands($importOptions, $this->importState->getStagingTableName());
-        $this->importState->addImportedRowsCount(
-            $adapter->executeCopyCommands($commands, $this->connection, $importOptions, $this->importState)
-        );
+        try {
+            $this->importState->addImportedRowsCount(
+                $adapter->executeCopyCommands($commands, $this->connection, $importOptions, $this->importState)
+            );
+        } catch (\Throwable $e) {
+            $stringCode = Exception::INVALID_SOURCE_DATA;
+            if (strpos($e->getMessage(), 'was not found') !== false) {
+                $stringCode = Exception::MANDATORY_FILE_NOT_FOUND;
+            }
+            throw new Exception('Load error: ' . $e->getMessage(), $stringCode, $e);
+        }
     }
 
     private function doIncrementalLoad(
