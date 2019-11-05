@@ -56,11 +56,6 @@ class ImportOptions
         return $this->columns;
     }
 
-    public function setColumns(array $columns): void
-    {
-        $this->columns = $columns;
-    }
-
     public function getConvertEmptyValuesToNull(): array
     {
         return $this->convertEmptyValuesToNull;
