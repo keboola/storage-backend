@@ -12,11 +12,6 @@ use Keboola\Db\ImportExport\SourceStorage;
 
 class OtherImportTest extends SnowflakeImportExportBaseTest
 {
-    public function testCopyInvalidParamsShouldThrowException(): void
-    {
-        $this->markTestSkipped('This is not needed as parameters are typed.');
-    }
-
     public function testCopyInvalidSourceDataShouldThrowException(): void
     {
         $options = $this->getSimpleImportOptions('out.csv_2Cols', ['c1', 'c2']);
@@ -28,11 +23,6 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             $options,
             $source
         );
-    }
-
-    public function testGetPrimaryKey(): void
-    {
-        $this->markTestSkipped('This is connection test.');
     }
 
     public function testImportShouldNotFailOnColumnNameRowNumber(): void
@@ -50,12 +40,6 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         self::assertEquals(2, $result->getImportedRowsCount());
     }
 
-    public function testInvalidCsvImport(): void
-    {
-        $this->markTestSkipped('Source is typed can\'t be invalid.');
-        // TODO: maybe test for empty values?
-    }
-
     public function testInvalidManifestImport(): void
     {
         $initialFile = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
@@ -68,14 +52,6 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             $options,
             $source
         );
-    }
-
-    /**
-     * This should not exhaust memory
-     */
-    public function testLargeTableIterate(): void
-    {
-        $this->markTestSkipped('This is connection test.');
     }
 
     public function testMoreColumnsShouldThrowException(): void
@@ -413,10 +389,5 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         $this->assertTrue($importedData[1]['name'] === null);
         $this->assertTrue($importedData[2]['price'] === null);
         $this->assertTrue($importedData[3]['name'] === null);
-    }
-
-    public function testTableInfo(): void
-    {
-        $this->markTestSkipped('This is connection test.');
     }
 }
