@@ -118,7 +118,7 @@ class AbsLoader
         for ($i = 0; $i <= 1500; $i++) {
             $sliceName = sprintf('sliced.csv_%d', $i);
             file_put_contents(
-                self::BASE_DIR . '/manifests/2cols-large/' . $sliceName,
+                self::BASE_DIR . 'sliced/2cols-large/' . $sliceName,
                 "\"a\",\"b\"\n"
             );
         }
@@ -152,7 +152,7 @@ class AbsLoader
                 ];
             }
             /** @var SplFileInfo $file */
-            $file = iterator_to_array($files->getIterator())[0];
+            $file = array_values(iterator_to_array($files->getIterator()))[0];
 
             $manifestFilePath = sprintf(
                 '%s/%s.csvmanifest',
