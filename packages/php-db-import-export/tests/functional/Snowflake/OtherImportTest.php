@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport\Snowflake;
+namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Exception;

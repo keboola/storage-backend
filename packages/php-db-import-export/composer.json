@@ -24,12 +24,17 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\Keboola\\Db\\ImportExport\\": "tests/"
+            "Tests\\Keboola\\Db\\ImportExport\\": "tests/",
+            "Tests\\Keboola\\Db\\ImportExportUnit\\": "tests/unit",
+            "Tests\\Keboola\\Db\\ImportExportFunctional\\": "tests/functional/"
         }
     },
     "scripts": {
+        "tests-unit": "phpunit tests/unit",
+        "tests-functional": "phpunit tests/functional",
         "tests": [
-            "phpunit"
+            "@tests-unit",
+            "@tests-functional"
         ],
 
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",

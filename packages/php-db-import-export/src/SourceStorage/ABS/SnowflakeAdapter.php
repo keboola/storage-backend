@@ -60,10 +60,10 @@ class SnowflakeAdapter implements SnowflakeImportAdapterInterface
         foreach (array_chunk($filesToImport, ImporterInterface::SLICED_FILES_CHUNK_SIZE) as $entries) {
             $commands[] = sprintf(
                 'COPY INTO %s.%s 
-                FROM %s
-                CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
-                FILE_FORMAT = (TYPE=CSV %s)
-                FILES = (%s)',
+FROM %s
+CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
+FILE_FORMAT = (TYPE=CSV %s)
+FILES = (%s)',
                 QuoteHelper::quoteIdentifier($importOptions->getSchema()),
                 QuoteHelper::quoteIdentifier($stagingTableName),
                 QuoteHelper::quote($this->source->getContainerUrl()),

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport\Snowflake;
+namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Result;
@@ -11,7 +11,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\SourceStorage;
-use Tests\Keboola\Db\ImportExport\ImportExportBaseTest;
+use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
 {

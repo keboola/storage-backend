@@ -2,20 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport;
+namespace Tests\Keboola\Db\ImportExportFunctional;
 
-use DateTime;
 use Keboola\Csv\CsvFile;
-use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
-use MicrosoftAzure\Storage\Common\Internal\Resources;
 use PHPUnit\Framework\TestCase;
-use Keboola\Db\ImportExport\SourceStorage;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 
 abstract class ImportExportBaseTest extends TestCase
 {
-    protected const DATA_DIR = __DIR__ . '/data/';
+    protected const DATA_DIR = __DIR__ . '/../data/';
+
+    use ABSSourceTrait;
 
     /**
      * @param int|string $sortKey
@@ -35,51 +34,6 @@ abstract class ImportExportBaseTest extends TestCase
         usort($expected, $comparsion);
         usort($actual, $comparsion);
         $this->assertEquals($expected, $actual, $message);
-    }
-
-    protected function createABSSourceInstanceFromCsv(
-        CsvFile $file,
-        bool $isSliced = false
-    ): SourceStorage\ABS\Source {
-        return new SourceStorage\ABS\Source(
-            (string) getenv('ABS_CONTAINER_NAME'),
-            $file->getFilename(),
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            $file,
-            $isSliced
-        );
-    }
-
-    protected function getCredentialsForAzureContainer(
-        string $container
-    ): string {
-        $sasHelper = new BlobSharedAccessSignatureHelper(
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            (string) getenv('ABS_ACCOUNT_KEY')
-        );
-        $expirationDate = (new DateTime())->modify('+1hour');
-        return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
-            Resources::RESOURCE_TYPE_CONTAINER,
-            $container,
-            'rwl',
-            $expirationDate,
-            (new DateTime())
-        );
-    }
-
-    protected function createABSSourceInstance(
-        string $file,
-        bool $isSliced = false
-    ): SourceStorage\ABS\Source {
-        return new SourceStorage\ABS\Source(
-            (string) getenv('ABS_CONTAINER_NAME'),
-            $file,
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            new CsvFile($file), //TODO: create file inside or use only CSV file
-            $isSliced
-        );
     }
 
     protected function getCsvFilesForManifest(string $manifest): array
