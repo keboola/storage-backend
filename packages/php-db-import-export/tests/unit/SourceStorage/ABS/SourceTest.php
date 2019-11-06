@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportUnit\SourceStorage\ABS;
+namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
@@ -10,9 +10,9 @@ use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\SourceStorage;
-use Keboola\Db\ImportExport\SourceStorage\ABS\SnowflakeAdapter;
-use Keboola\Db\ImportExport\SourceStorage\NoBackendAdapterException;
+use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\ABS\SnowflakeImportAdapter;
+use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
@@ -24,7 +24,7 @@ class SourceTest extends BaseTestCase
     public function testDefaultValues(): void
     {
         $source = $this->createDummyABSSourceInstance('file.csv');
-        self::assertInstanceOf(SourceStorage\SourceInterface::class, $source);
+        self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('file.csv', $source->getCsvFile()->getFilename());
         self::assertEquals('azure://absAccount.blob.core.windows.net/absContainer/', $source->getContainerUrl());
         self::assertEquals('azureCredentials', $source->getSasToken());
@@ -38,7 +38,7 @@ class SourceTest extends BaseTestCase
         $adapter = $source->getBackendImportAdapter($importer);
         self::assertInstanceOf(BackendImportAdapterInterface::class, $adapter);
         self::assertInstanceOf(SnowflakeImportAdapterInterface::class, $adapter);
-        self::assertInstanceOf(SnowflakeAdapter::class, $adapter);
+        self::assertInstanceOf(SnowflakeImportAdapter::class, $adapter);
     }
 
     public function testGetBackendImportAdapterInvalidImporter(): void
@@ -47,8 +47,9 @@ class SourceTest extends BaseTestCase
         $dummyImporter = new class implements ImporterInterface
         {
             public function importTable(
-                ImportOptions $options,
-                SourceStorage\SourceInterface $source
+                Storage\SourceInterface $source,
+                Storage\DestinationInterface $destination,
+                ImportOptions $options
             ): Result {
                 return new Result([]);
             }

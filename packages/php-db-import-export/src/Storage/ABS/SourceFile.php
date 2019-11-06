@@ -2,39 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\SourceStorage\ABS;
+namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
-use Keboola\Db\ImportExport\SourceStorage\NoBackendAdapterException;
-use Keboola\Db\ImportExport\SourceStorage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
 
-class Source implements SourceInterface
+class SourceFile extends BaseFile implements SourceInterface
 {
-    /**
-     * @var string
-     */
-    private $container;
-
-    /**
-     * @var string
-     */
-    private $sasToken;
-
-    /**
-     * @var string
-     */
-    private $accountName;
-
-    /**
-     * @var string
-     */
-    private $filePath;
-
     /**
      * @var bool
      */
@@ -47,16 +27,12 @@ class Source implements SourceInterface
 
     public function __construct(
         string $container,
-        string $filePath,
         string $sasToken,
         string $accountName,
         CsvFile $csvFile,
         bool $isSliced
     ) {
-        $this->container = $container;
-        $this->sasToken = $sasToken;
-        $this->accountName = $accountName;
-        $this->filePath = $filePath;
+        parent::__construct($container, $csvFile->getPathname(), $sasToken, $accountName);
         $this->isSliced = $isSliced;
         $this->csvFile = $csvFile;
     }
@@ -66,7 +42,7 @@ class Source implements SourceInterface
     ): BackendImportAdapterInterface {
         switch (true) {
             case $importer instanceof SnowflakeImporter:
-                return new SnowflakeAdapter($this);
+                return new SnowflakeImportAdapter($this);
             default:
                 throw new NoBackendAdapterException();
         }
@@ -101,19 +77,5 @@ class Source implements SourceInterface
         return array_map(function ($entry) {
             return $entry['url'];
         }, $manifest['entries']);
-    }
-
-    public function getContainerUrl(): string
-    {
-        return sprintf(
-            'azure://%s.blob.core.windows.net/%s/',
-            $this->accountName,
-            $this->container
-        );
-    }
-
-    public function getSasToken(): string
-    {
-        return $this->sasToken;
     }
 }

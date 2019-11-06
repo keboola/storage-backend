@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\SourceStorage\ABS;
+namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
@@ -11,17 +11,19 @@ use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
-use Keboola\Db\ImportExport\SourceStorage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\DestinationInterface;
+use Keboola\Db\ImportExport\Storage\Snowflake\Table;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 
-class SnowflakeAdapter implements SnowflakeImportAdapterInterface
+class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 {
     /**
-     * @var Source
+     * @var SourceFile
      */
     private $source;
 
     /**
-     * @param Source $source
+     * @param SourceFile $source
      */
     public function __construct(SourceInterface $source)
     {
@@ -30,10 +32,12 @@ class SnowflakeAdapter implements SnowflakeImportAdapterInterface
 
     /**
      * @inheritDoc
+     * @param Table $destination
      */
     public function executeCopyCommands(
         array $commands,
         Connection $connection,
+        DestinationInterface $destination,
         ImportOptions $importOptions,
         ImportState $importState
     ): int {
@@ -51,7 +55,11 @@ class SnowflakeAdapter implements SnowflakeImportAdapterInterface
         return $rowsCount;
     }
 
+    /**
+     * @param Table $destination
+     */
     public function getCopyCommands(
+        DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
     ): array {
@@ -64,7 +72,7 @@ FROM %s
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
 FILE_FORMAT = (TYPE=CSV %s)
 FILES = (%s)',
-                QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+                QuoteHelper::quoteIdentifier($destination->getSchema()),
                 QuoteHelper::quoteIdentifier($stagingTableName),
                 QuoteHelper::quote($this->source->getContainerUrl()),
                 $this->source->getSasToken(),

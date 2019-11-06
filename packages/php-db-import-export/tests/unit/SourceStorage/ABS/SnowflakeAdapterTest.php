@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportUnit\SourceStorage\ABS;
+namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\SourceStorage\ABS\SnowflakeAdapter;
-use Keboola\Db\ImportExport\SourceStorage;
+use Keboola\Db\ImportExport\Storage\ABS\SnowflakeImportAdapter;
+use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
@@ -17,8 +17,8 @@ class SnowflakeAdapterTest extends BaseTestCase
 {
     public function testExecuteCopyCommands(): void
     {
-        /** @var SourceStorage\ABS\Source|MockObject $source */
-        $source = self::createMock(SourceStorage\ABS\Source::class);
+        /** @var Storage\ABS\SourceFile|MockObject $source */
+        $source = self::createMock(Storage\ABS\SourceFile::class);
         $source->expects(self::once())->method('getCsvFile')->willReturn(new CsvFile(self::DATA_DIR . 'empty.csv'));
         /** @var Connection|MockObject $connection */
         $connection = self::createMock(Connection::class);
@@ -30,10 +30,11 @@ class SnowflakeAdapterTest extends BaseTestCase
         /** @var ImportOptions|MockObject $options */
         $options = self::createMock(ImportOptions::class);
 
-        $adapter = new SnowflakeAdapter($source);
+        $adapter = new SnowflakeImportAdapter($source);
         $rows = $adapter->executeCopyCommands(
             ['cmd1', 'cmd2'],
             $connection,
+            new Storage\Snowflake\Table('', ''),
             $options,
             $state
         );
@@ -43,16 +44,18 @@ class SnowflakeAdapterTest extends BaseTestCase
 
     public function testGetCopyCommands(): void
     {
-        /** @var SourceStorage\ABS\Source|MockObject $source */
-        $source = self::createMock(SourceStorage\ABS\Source::class);
+        /** @var Storage\ABS\SourceFile|MockObject $source */
+        $source = self::createMock(Storage\ABS\SourceFile::class);
         $source->expects(self::once())->method('getCsvFile')->willReturn(new CsvFile(self::DATA_DIR . 'empty.csv'));
         $source->expects(self::once())->method('getManifestEntries')->willReturn(['azure://url']);
         $source->expects(self::exactly(2))->method('getContainerUrl')->willReturn('containerUrl');
         $source->expects(self::once())->method('getSasToken')->willReturn('sasToken');
 
-        $options = new ImportOptions('schema', 'table');
-        $adapter = new SnowflakeAdapter($source);
+        $destination = new Storage\Snowflake\Table('schema', 'table');
+        $options = new ImportOptions();
+        $adapter = new SnowflakeImportAdapter($source);
         $commands = $adapter->getCopyCommands(
+            $destination,
             $options,
             'stagingTable'
         );
@@ -76,17 +79,19 @@ EOT,
             $files[] = 'azure://url' . $i;
         }
 
-        /** @var SourceStorage\ABS\Source|MockObject $source */
-        $source = self::createMock(SourceStorage\ABS\Source::class);
+        /** @var Storage\ABS\SourceFile|MockObject $source */
+        $source = self::createMock(Storage\ABS\SourceFile::class);
         $source->expects(self::exactly(2))->method('getCsvFile')->willReturn(new CsvFile(self::DATA_DIR . 'empty.csv'));
         $source->expects(self::exactly(1))->method('getManifestEntries')->willReturn($files);
         $source->expects(self::exactly(1502/*Called for each entry plus 2times*/))
             ->method('getContainerUrl')->willReturn('containerUrl');
         $source->expects(self::exactly(2))->method('getSasToken')->willReturn('sasToken');
 
-        $options = new ImportOptions('schema', 'table');
-        $adapter = new SnowflakeAdapter($source);
+        $destination = new Storage\Snowflake\Table('schema', 'table');
+        $options = new ImportOptions();
+        $adapter = new SnowflakeImportAdapter($source);
         $commands = $adapter->getCopyCommands(
+            $destination,
             $options,
             'stagingTable'
         );

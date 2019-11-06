@@ -6,14 +6,15 @@ namespace Keboola\Db\ImportExport\Backend;
 
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\SourceStorage;
+use Keboola\Db\ImportExport\Storage;
 
 interface ImporterInterface
 {
     public const SLICED_FILES_CHUNK_SIZE = 1000;
 
     public function importTable(
-        ImportOptions $options,
-        SourceStorage\SourceInterface $source
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
+        ImportOptions $options
     ): Result;
 }

@@ -8,17 +8,16 @@ use DateTime;
 use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
 use Keboola\Csv\CsvFile;
-use Keboola\Db\ImportExport\SourceStorage;
+use Keboola\Db\ImportExport\Storage;
 
 trait ABSSourceTrait
 {
     protected function createDummyABSSourceInstance(
         string $file,
         bool $isSliced = false
-    ): SourceStorage\ABS\Source {
-        return new SourceStorage\ABS\Source(
+    ): Storage\ABS\SourceFile {
+        return new Storage\ABS\SourceFile(
             'absContainer',
-            $file,
             'azureCredentials',
             'absAccount',
             new CsvFile($file),
@@ -26,27 +25,30 @@ trait ABSSourceTrait
         );
     }
 
+    protected function createABSSourceDestinationInstance(
+        string $filePath
+    ): Storage\ABS\DestinationFile {
+        return new Storage\ABS\DestinationFile(
+            (string) getenv('ABS_CONTAINER_NAME'),
+            $filePath,
+            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
+            (string) getenv('ABS_ACCOUNT_NAME')
+        );
+    }
+
     protected function createABSSourceInstance(
         string $file,
         bool $isSliced = false
-    ): SourceStorage\ABS\Source {
-        return new SourceStorage\ABS\Source(
-            (string) getenv('ABS_CONTAINER_NAME'),
-            $file,
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            new CsvFile($file), //TODO: create file inside or use only CSV file
-            $isSliced
-        );
+    ): Storage\ABS\SourceFile {
+        return $this->createABSSourceInstanceFromCsv(new CsvFile($file), $isSliced);
     }
 
     protected function createABSSourceInstanceFromCsv(
         CsvFile $file,
         bool $isSliced = false
-    ): SourceStorage\ABS\Source {
-        return new SourceStorage\ABS\Source(
+    ): Storage\ABS\SourceFile {
+        return new Storage\ABS\SourceFile(
             (string) getenv('ABS_CONTAINER_NAME'),
-            $file->getFilename(),
             $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
             (string) getenv('ABS_ACCOUNT_NAME'),
             $file,

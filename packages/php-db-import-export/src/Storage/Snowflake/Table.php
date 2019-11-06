@@ -2,15 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\SourceStorage\Snowflake;
+namespace Keboola\Db\ImportExport\Storage\Snowflake;
 
+use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
-use Keboola\Db\ImportExport\SourceStorage\NoBackendAdapterException;
-use Keboola\Db\ImportExport\SourceStorage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\DestinationInterface;
+use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 
-class Source implements SourceInterface
+class Table implements SourceInterface, DestinationInterface
 {
     /**
      * @var string
@@ -28,15 +32,30 @@ class Source implements SourceInterface
         $this->tableName = $tableName;
     }
 
+    public function getBackendExportAdapter(
+        ExporterInterface $exporter
+    ): BackendExportAdapterInterface {
+        throw new NoBackendAdapterException();
+    }
+
     public function getBackendImportAdapter(
         ImporterInterface $importer
     ): BackendImportAdapterInterface {
         switch (true) {
             case $importer instanceof SnowflakeImporter:
-                return new SnowflakeAdapter($this);
+                return new SnowflakeImportAdapter($this);
             default:
                 throw new NoBackendAdapterException();
         }
+    }
+
+    public function getQuotedTableWithScheme(): string
+    {
+        return sprintf(
+            '%s.%s',
+            QuoteHelper::quoteIdentifier($this->schema),
+            QuoteHelper::quoteIdentifier($this->tableName),
+        );
     }
 
     public function getSchema(): string

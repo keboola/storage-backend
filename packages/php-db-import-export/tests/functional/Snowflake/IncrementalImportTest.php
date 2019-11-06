@@ -7,7 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\SourceStorage;
+use Keboola\Db\ImportExport\Storage;
 
 class IncrementalImportTest extends SnowflakeImportExportBaseTest
 {
@@ -33,40 +33,39 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
 
         $tests = [];
         $tests[] = [
-            $this->getSimpleImportOptions('accounts-3', $accountColumns),
-            $this->getSimpleIncrementalImportOptions('accounts-3', $accountColumns),
             $this->createABSSourceInstance('tw_accounts.csv', false),
+            $this->getSimpleImportOptions($accountColumns),
             $this->createABSSourceInstance('tw_accounts.increment.csv', false),
+            $this->getSimpleIncrementalImportOptions($accountColumns),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $expectedAccountsRows,
         ];
         $tests[] = [
+            $this->createABSSourceInstance('tw_accounts.csv', false),
             new ImportOptions(
-                self::SNOWFLAKE_DEST_SCHEMA_NAME,
-                'accounts-bez-ts',
                 [],
                 $accountColumns,
                 false,
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
+            $this->createABSSourceInstance('tw_accounts.increment.csv', false),
             new ImportOptions(
-                self::SNOWFLAKE_DEST_SCHEMA_NAME,
-                'accounts-bez-ts',
                 [],
                 $accountColumns,
                 true, // incremental
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            $this->createABSSourceInstance('tw_accounts.csv', false),
-            $this->createABSSourceInstance('tw_accounts.increment.csv', false),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-bez-ts'),
             $expectedAccountsRows,
         ];
         $tests[] = [
-            $this->getSimpleImportOptions('multi-pk', $multiPkColumns),
-            $this->getSimpleIncrementalImportOptions('multi-pk', $multiPkColumns),
             $this->createABSSourceInstance('multi-pk.csv', false),
+            $this->getSimpleImportOptions($multiPkColumns),
             $this->createABSSourceInstance('multi-pk.increment.csv', false),
+            $this->getSimpleIncrementalImportOptions($multiPkColumns),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'multi-pk'),
             $expectedMultiPkRows,
         ];
         return $tests;
@@ -74,27 +73,32 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
 
     /**
      * @dataProvider  incrementalImportData
+     * @param Storage\Snowflake\Table $destination
      * @param int|string $sortKey
      */
     public function testIncrementalImport(
+        Storage\SourceInterface $initialSource,
         ImportOptions $initialOptions,
+        Storage\SourceInterface $incrementalsource,
         ImportOptions $incrementalOptions,
-        SourceStorage\SourceInterface $initialSource,
-        SourceStorage\SourceInterface $incrementalsource,
+        Storage\DestinationInterface $destination,
         array $expected = [],
         $sortKey = 0
     ): void {
         (new Importer($this->connection))->importTable(
-            $initialOptions,
-            $initialSource
+            $initialSource,
+            $destination,
+            $initialOptions
         );
 
         (new Importer($this->connection))->importTable(
-            $incrementalOptions,
-            $incrementalsource
+            $incrementalsource,
+            $destination,
+            $incrementalOptions
         );
 
         $this->assertTableEqualsExpected(
+            $destination,
             $incrementalOptions,
             $expected,
             $sortKey
