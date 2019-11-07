@@ -21,6 +21,7 @@ class DestinationFileTest extends BaseTestCase
     public function testDefaultValues(): void
     {
         $source = $this->createABSSourceDestinationInstance('file.csv');
+        self::assertInstanceOf(Storage\ABS\BaseFile::class, $source);
         self::assertInstanceOf(Storage\DestinationInterface::class, $source);
     }
 

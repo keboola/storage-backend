@@ -24,6 +24,7 @@ class SourceFileTest extends BaseTestCase
     public function testDefaultValues(): void
     {
         $source = $this->createDummyABSSourceInstance('file.csv');
+        self::assertInstanceOf(Storage\ABS\BaseFile::class, $source);
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('file.csv', $source->getCsvFile()->getFilename());
     }
