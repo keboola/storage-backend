@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportUnit\Storage\Snowflake;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\Exporter as SnowflakeExporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -15,7 +16,7 @@ use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class SourceTest extends TestCase
+class TableTest extends TestCase
 {
     public function testDefaultValues(): void
     {
@@ -23,6 +24,15 @@ class SourceTest extends TestCase
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('schema', $source->getSchema());
         self::assertEquals('table', $source->getTableName());
+    }
+
+    public function testGetBackendExportAdapter(): void
+    {
+        $source = new Storage\Snowflake\Table('schema', 'table');
+        /** @var SnowflakeExporter|MockObject $exporter */
+        $exporter = self::createMock(SnowflakeExporter::class);
+        self::expectException(NoBackendAdapterException::class);
+        $source->getBackendExportAdapter($exporter);
     }
 
     public function testGetBackendImportAdapter(): void

@@ -13,7 +13,7 @@ use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
-class SnowflakeAdapterTest extends BaseTestCase
+class SnowflakeImportAdapterTest extends BaseTestCase
 {
     public function testExecuteCopyCommands(): void
     {

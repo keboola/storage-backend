@@ -17,7 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
-class SourceTest extends BaseTestCase
+class SourceFileTest extends BaseTestCase
 {
     use ABSSourceTrait;
 
@@ -26,8 +26,6 @@ class SourceTest extends BaseTestCase
         $source = $this->createDummyABSSourceInstance('file.csv');
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('file.csv', $source->getCsvFile()->getFilename());
-        self::assertEquals('azure://absAccount.blob.core.windows.net/absContainer/', $source->getContainerUrl());
-        self::assertEquals('azureCredentials', $source->getSasToken());
     }
 
     public function testGetBackendImportAdapter(): void
