@@ -51,7 +51,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
         // full imports
         $tests[] = [
             $this->getSimpleImportOptions('out.csv_2Cols', $escapingHeader, ImportOptions::SKIP_NO_LINE),
-            $this->createABSSourceInstance('sliced/2cols-large/sliced.csvmanifest', true),
+            $this->createABSSourceInstance('sliced/2cols-large/2cols-large.csvmanifest', true),
             $expectedLargeSlicedManifest,
         ];
 
@@ -106,13 +106,13 @@ class FullImportTest extends SnowflakeImportExportBaseTest
         // manifests
         $tests[] = [
             $this->getSimpleImportOptions('accounts-3', $accountsHeader, ImportOptions::SKIP_NO_LINE),
-            $this->createABSSourceInstance('sliced/accounts/tw_accounts.csvmanifest', true),
+            $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', true),
             $expectedAccounts,
         ];
 
         $tests[] = [
             $this->getSimpleImportOptions('accounts-3', $accountsHeader, ImportOptions::SKIP_NO_LINE),
-            $this->createABSSourceInstance('sliced/accounts-gzip/tw_accounts.csv.gz0000_part_00.csvmanifest', true),
+            $this->createABSSourceInstance('sliced/accounts-gzip/accounts-gzip.csvmanifest', true),
             $expectedAccounts,
         ];
 

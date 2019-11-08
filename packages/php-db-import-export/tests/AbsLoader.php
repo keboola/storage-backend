@@ -170,13 +170,11 @@ class AbsLoader
                     'mandatory' => true,
                 ];
             }
-            /** @var SplFileInfo $file */
-            $file = array_values(iterator_to_array($files->getIterator()))[0];
 
             $manifestFilePath = sprintf(
                 '%s/%s.csvmanifest',
                 $directory->getPathname(),
-                $file->getBasename('.' . $file->getExtension())
+                $directory->getBasename()
             );
             file_put_contents($manifestFilePath, guzzle_json_encode($manifest));
         }
