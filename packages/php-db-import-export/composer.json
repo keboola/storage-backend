@@ -1,0 +1,61 @@
+{
+    "name": "keboola/db-import-export",
+    "description": "Package allows to import files to Snowflake from multiple cloud storages",
+    "require": {
+        "php": "^7.3",
+        "keboola/php-component": "^7.0.1",
+        "keboola/php-csv-db-import": "^5.0",
+        "microsoft/azure-storage-blob": "^1.4"
+    },
+    "require-dev": {
+        "jakub-onderka/php-parallel-lint": "^1.0",
+        "keboola/coding-standard": ">=7.0.2",
+        "keboola/datadir-tests": "^2.0",
+        "keboola/php-temp": "^1.0",
+        "phpstan/phpstan-phpunit": "^0.11.2",
+        "phpstan/phpstan-shim": "^0.11.2",
+        "phpunit/phpunit": "^7.0",
+        "symfony/process": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Keboola\\Db\\ImportExport\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Keboola\\Db\\ImportExport\\": "tests/",
+            "Tests\\Keboola\\Db\\ImportExportUnit\\": "tests/unit",
+            "Tests\\Keboola\\Db\\ImportExportFunctional\\": "tests/functional/"
+        }
+    },
+    "scripts": {
+        "tests-unit": "phpunit tests/unit",
+        "tests-functional": "phpunit tests/functional",
+        "tests": [
+            "@tests-unit",
+            "@tests-functional"
+        ],
+
+        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
+        "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+        "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
+        "phplint": "parallel-lint -j 10 --exclude vendor .",
+        "loadAbs": "php ./tests/loadAbs.php",
+        "build": [
+            "@phplint",
+            "@phpcs",
+            "@phpstan",
+            "@loadAbs",
+            "@tests"
+        ],
+        "ci": [
+            "@composer validate --no-check-publish --no-check-all",
+            "@build"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}
