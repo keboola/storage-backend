@@ -1,15 +1,22 @@
 {
     "name": "keboola/db-import-export",
     "description": "Package allows to import files to Snowflake from multiple cloud storages",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:keboola/php-csv-options.git"
+        }
+    ],
     "require": {
-        "php": "^7.3",
+        "php": "^7.1",
         "keboola/php-component": "^7.0.1",
+        "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^5.0",
         "microsoft/azure-storage-blob": "^1.4"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^1.0",
-        "keboola/coding-standard": ">=7.0.2",
+        "keboola/coding-standard": "9.0.*",
         "keboola/datadir-tests": "^2.0",
         "keboola/php-temp": "^1.0",
         "phpstan/phpstan-phpunit": "^0.11.2",

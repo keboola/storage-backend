@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
-use Keboola\Csv\CsvFile;
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
@@ -21,20 +21,21 @@ class SourceFile extends BaseFile implements SourceInterface
     private $isSliced;
 
     /**
-     * @var CsvFile
+     * @var CsvOptions
      */
-    private $csvFile;
+    private $csvOptions;
 
     public function __construct(
         string $container,
+        string $filePath,
         string $sasToken,
         string $accountName,
-        CsvFile $csvFile,
+        CsvOptions $csvOptions,
         bool $isSliced
     ) {
-        parent::__construct($container, $csvFile->getPathname(), $sasToken, $accountName);
+        parent::__construct($container, $filePath, $sasToken, $accountName);
         $this->isSliced = $isSliced;
-        $this->csvFile = $csvFile;
+        $this->csvOptions = $csvOptions;
     }
 
     public function getBackendImportAdapter(
@@ -48,9 +49,9 @@ class SourceFile extends BaseFile implements SourceInterface
         }
     }
 
-    public function getCsvFile(): CsvFile
+    public function getCsvOptions(): CsvOptions
     {
-        return $this->csvFile;
+        return $this->csvOptions;
     }
 
     public function getManifestEntries(): array

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
 use Keboola\Csv\CsvFile;
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -92,7 +93,8 @@ class FullImportTest extends SnowflakeImportExportBaseTest
 
         $tests[] = [
             $this->createABSSourceInstanceFromCsv(
-                new CsvFile('standard-with-enclosures.tabs.csv', "\t")
+                'standard-with-enclosures.tabs.csv',
+                new CsvOptions("\t")
             ),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader),
@@ -101,7 +103,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
         ];
 
         $tests[] = [
-            $this->createABSSourceInstanceFromCsv(new CsvFile('raw.rs.csv', "\t", '', '\\')),
+            $this->createABSSourceInstanceFromCsv('raw.rs.csv', new CsvOptions("\t", '', '\\')),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader),
             $expectedEscaping,

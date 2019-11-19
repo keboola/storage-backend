@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Snowflake\Exporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
@@ -116,9 +117,9 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $actual = $this->getCsvFileFromBlob($destination->getFilePath() . '_0_0_0.csv');
         $expected = new CsvFile(
             self::DATA_DIR . 'with-ts.csv',
-            CsvFile::DEFAULT_DELIMITER,
-            CsvFile::DEFAULT_ENCLOSURE,
-            CsvFile::DEFAULT_ESCAPED_BY,
+            CsvOptions::DEFAULT_DELIMITER,
+            CsvOptions::DEFAULT_ENCLOSURE,
+            CsvOptions::DEFAULT_ESCAPED_BY,
             1 // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
@@ -190,9 +191,9 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $actual = $this->getCsvFileFromBlob($destination->getFilePath() . '_0_0_0.csv');
         $expected = new CsvFile(
             self::DATA_DIR . 'tw_accounts.csv',
-            CsvFile::DEFAULT_DELIMITER,
-            CsvFile::DEFAULT_ENCLOSURE,
-            CsvFile::DEFAULT_ESCAPED_BY,
+            CsvOptions::DEFAULT_DELIMITER,
+            CsvOptions::DEFAULT_ENCLOSURE,
+            CsvOptions::DEFAULT_ESCAPED_BY,
             1 // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
