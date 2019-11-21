@@ -51,7 +51,6 @@ FILE_FORMAT = (
     %s
     TIMESTAMP_FORMAT = \'YYYY-MM-DD HH24:MI:SS\'
 )
-OVERWRITE = TRUE
 MAX_FILE_SIZE=50000000',
             $this->destination->getContainerUrl(),
             $this->destination->getFilePath(),
