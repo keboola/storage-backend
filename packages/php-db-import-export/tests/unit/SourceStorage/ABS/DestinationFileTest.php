@@ -28,9 +28,9 @@ class DestinationFileTest extends BaseTestCase
     public function testGetBackendExportAdapter(): void
     {
         $source = $this->createABSSourceDestinationInstance('file.csv');
-        /** @var SnowflakeExporter|MockObject $importer */
-        $importer = self::createMock(SnowflakeExporter::class);
-        $adapter = $source->getBackendExportAdapter($importer);
+        /** @var SnowflakeExporter|MockObject $exporter */
+        $exporter = self::createMock(SnowflakeExporter::class);
+        $adapter = $source->getBackendExportAdapter($exporter);
         self::assertInstanceOf(BackendExportAdapterInterface::class, $adapter);
         self::assertInstanceOf(Storage\ABS\SnowflakeExportAdapter::class, $adapter);
     }
