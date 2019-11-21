@@ -8,7 +8,6 @@ use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\ABS\SnowflakeImportAdapter;
@@ -36,7 +35,6 @@ class SourceFileTest extends BaseTestCase
         $importer = self::createMock(SnowflakeImporter::class);
         $adapter = $source->getBackendImportAdapter($importer);
         self::assertInstanceOf(BackendImportAdapterInterface::class, $adapter);
-        self::assertInstanceOf(SnowflakeImportAdapterInterface::class, $adapter);
         self::assertInstanceOf(SnowflakeImportAdapter::class, $adapter);
     }
 

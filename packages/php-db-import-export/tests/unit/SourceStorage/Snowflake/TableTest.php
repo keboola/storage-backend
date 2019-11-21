@@ -9,7 +9,6 @@ use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Exporter as SnowflakeExporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\Storage;
@@ -42,7 +41,6 @@ class TableTest extends TestCase
         $importer = self::createMock(SnowflakeImporter::class);
         $adapter = $source->getBackendImportAdapter($importer);
         self::assertInstanceOf(BackendImportAdapterInterface::class, $adapter);
-        self::assertInstanceOf(SnowflakeImportAdapterInterface::class, $adapter);
         self::assertInstanceOf(Storage\Snowflake\SnowflakeImportAdapter::class, $adapter);
     }
 

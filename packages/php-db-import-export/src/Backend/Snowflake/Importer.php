@@ -10,6 +10,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 
@@ -118,29 +119,22 @@ class Importer implements ImporterInterface
         }
     }
 
+    /**
+     * @param Storage\Snowflake\Table $destination
+     */
     private function importToStagingTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptions $importOptions
     ): void {
         $adapter = $source->getBackendImportAdapter($this);
-        if (!$adapter instanceof SnowflakeImportAdapterInterface) {
-            throw new \Exception(sprintf(
-                'Adapter "%s" must implement "SnowflakeImportAdapterInterface".',
-                get_class($adapter)
-            ));
-        }
         $commands = $adapter->getCopyCommands($destination, $importOptions, $this->importState->getStagingTableName());
         try {
-            $this->importState->addImportedRowsCount(
-                $adapter->executeCopyCommands(
-                    $commands,
-                    $this->connection,
-                    $destination,
-                    $importOptions,
-                    $this->importState
-                )
-            );
+            $this->importState->startTimer('copyToStaging');
+            foreach ($commands as $command) {
+                $this->connection->query($command);
+            }
+            $this->importState->stopTimer('copyToStaging');
         } catch (\Throwable $e) {
             $stringCode = Exception::INVALID_SOURCE_DATA;
             if (strpos($e->getMessage(), 'was not found') !== false) {
@@ -148,6 +142,13 @@ class Importer implements ImporterInterface
             }
             throw new Exception('Load error: ' . $e->getMessage(), $stringCode, $e);
         }
+
+        $rows = $this->connection->fetchAll(sprintf(
+            'SELECT COUNT(*) AS "count" FROM %s.%s',
+            QuoteHelper::quoteIdentifier($destination->getSchema()),
+            QuoteHelper::quoteIdentifier($this->importState->getStagingTableName())
+        ));
+        $this->importState->addImportedRowsCount((int) $rows[0]['count']);
     }
 
     private function doIncrementalLoad(

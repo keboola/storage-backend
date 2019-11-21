@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\Snowflake;
 
-use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\Db\ImportExport\Backend\ImportState;
+use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 
-class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
+class SnowflakeImportAdapter implements BackendImportAdapterInterface
 {
     /**
      * @var Table
@@ -25,27 +23,6 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     public function __construct(SourceInterface $source)
     {
         $this->source = $source;
-    }
-
-    /**
-     * @param Table $destination
-     */
-    public function executeCopyCommands(
-        array $commands,
-        Connection $connection,
-        DestinationInterface $destination,
-        ImportOptions $importOptions,
-        ImportState $importState
-    ): int {
-        $importState->startTimer('copyToStaging');
-        $connection->query($commands[0]);
-        $rows = $connection->fetchAll(sprintf(
-            'SELECT COUNT(*) AS "count" FROM %s.%s',
-            QuoteHelper::quoteIdentifier($destination->getSchema()),
-            QuoteHelper::quoteIdentifier($importState->getStagingTableName())
-        ));
-        $importState->stopTimer('copyToStaging');
-        return (int) $rows[0]['count'];
     }
 
     /**

@@ -39,7 +39,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->getSimpleIncrementalImportOptions($accountColumns),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $expectedAccountsRows,
-            4
+            4,
         ];
         $tests[] = [
             $this->createABSSourceInstance('tw_accounts.csv', false),
@@ -60,7 +60,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             ),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-bez-ts'),
             $expectedAccountsRows,
-            4
+            4,
         ];
         $tests[] = [
             $this->createABSSourceInstance('multi-pk.csv', false),
@@ -69,7 +69,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->getSimpleIncrementalImportOptions($multiPkColumns),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'multi-pk'),
             $expectedMultiPkRows,
-            3
+            3,
         ];
         return $tests;
     }
@@ -77,7 +77,6 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
     /**
      * @dataProvider  incrementalImportData
      * @param Storage\Snowflake\Table $destination
-     * @param int|string $sortKey
      */
     public function testIncrementalImport(
         Storage\SourceInterface $initialSource,

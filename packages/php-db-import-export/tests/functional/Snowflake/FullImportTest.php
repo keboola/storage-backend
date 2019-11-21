@@ -55,7 +55,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader, ImportOptions::SKIP_NO_LINE),
             $expectedLargeSlicedManifest,
-            1501
+            1501,
         ];
 
         $tests[] = [
@@ -63,7 +63,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader, ImportOptions::SKIP_NO_LINE),
             [],
-            0
+            0,
         ];
 
         $tests[] = [
@@ -71,7 +71,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.lemma'),
             $this->getSimpleImportOptions($lemmaHeader),
             $expectedLemma,
-            5
+            5,
         ];
 
         $tests[] = [
@@ -79,7 +79,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader),
             $expectedEscaping,
-            7
+            7,
         ];
 
         $tests[] = [
@@ -87,7 +87,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader),
             $expectedEscaping,
-            7
+            7,
         ];
 
         $tests[] = [
@@ -97,7 +97,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader),
             $expectedEscaping,
-            7
+            7,
         ];
 
         $tests[] = [
@@ -105,7 +105,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader),
             $expectedEscaping,
-            7
+            7,
         ];
 
         $tests[] = [
@@ -113,14 +113,14 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $this->getSimpleImportOptions($accountChangedColumnsOrderHeader),
             $expectedAccounts,
-            3
+            3,
         ];
         $tests[] = [
             $this->createABSSourceInstance('tw_accounts.csv'),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $this->getSimpleImportOptions($accountsHeader),
             $expectedAccounts,
-            3
+            3,
         ];
         // manifests
         $tests[] = [
@@ -128,7 +128,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $this->getSimpleImportOptions($accountsHeader, ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
-            3
+            3,
         ];
 
         $tests[] = [
@@ -136,7 +136,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $this->getSimpleImportOptions($accountsHeader, ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
-            3
+            3,
         ];
 
         // reserved words
@@ -145,7 +145,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'table'),
             $this->getSimpleImportOptions(['column', 'table']),
             [['table', 'column']],
-            1
+            1,
         ];
         // import table with _timestamp columns - used by snapshots
         $tests[] = [
@@ -160,7 +160,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                 ['a', 'b', '2014-11-10 13:12:06.000'],
                 ['c', 'd', '2014-11-10 14:12:06.000'],
             ],
-            2
+            2,
         ];
         // test creating table without _timestamp column
         $tests[] = [
@@ -174,7 +174,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                 ImportOptions::SKIP_FIRST_LINE
             ),
             $expectedEscaping,
-            7
+            7,
         ];
         // copy from table
         $tests[] = [
@@ -182,7 +182,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols'),
             $this->getSimpleImportOptions($escapingHeader),
             [['a', 'b'], ['c', 'd']],
-            2
+            2,
         ];
         $tests[] = [
             new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'types'),
@@ -194,7 +194,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                 'boolCol',
             ]),
             [['a', '10.5', '0.3', 'true']],
-            1
+            1,
         ];
 
         return $tests;

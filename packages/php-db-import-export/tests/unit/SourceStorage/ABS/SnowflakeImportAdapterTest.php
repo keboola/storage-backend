@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage;
@@ -15,33 +13,6 @@ use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SnowflakeImportAdapterTest extends BaseTestCase
 {
-    public function testExecuteCopyCommands(): void
-    {
-        /** @var Storage\ABS\SourceFile|MockObject $source */
-        $source = self::createMock(Storage\ABS\SourceFile::class);
-        $source->expects(self::once())->method('getCsvFile')->willReturn(new CsvFile(self::DATA_DIR . 'empty.csv'));
-        /** @var Connection|MockObject $connection */
-        $connection = self::createMock(Connection::class);
-        $connection->expects(self::exactly(2))->method('fetchAll')->willReturn([['rows_loaded' => 1]]);
-        /** @var ImportState|MockObject $state */
-        $state = self::createMock(ImportState::class);
-        $state->expects(self::once())->method('startTimer');
-        $state->expects(self::once())->method('stopTimer');
-        /** @var ImportOptions|MockObject $options */
-        $options = self::createMock(ImportOptions::class);
-
-        $adapter = new SnowflakeImportAdapter($source);
-        $rows = $adapter->executeCopyCommands(
-            ['cmd1', 'cmd2'],
-            $connection,
-            new Storage\Snowflake\Table('', ''),
-            $options,
-            $state
-        );
-
-        self::assertEquals(2, $rows);
-    }
-
     public function testGetCopyCommands(): void
     {
         /** @var Storage\ABS\SourceFile|MockObject $source */
