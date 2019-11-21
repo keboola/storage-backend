@@ -39,6 +39,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->getSimpleIncrementalImportOptions($accountColumns),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $expectedAccountsRows,
+            4
         ];
         $tests[] = [
             $this->createABSSourceInstance('tw_accounts.csv', false),
@@ -59,6 +60,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             ),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-bez-ts'),
             $expectedAccountsRows,
+            4
         ];
         $tests[] = [
             $this->createABSSourceInstance('multi-pk.csv', false),
@@ -67,6 +69,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->getSimpleIncrementalImportOptions($multiPkColumns),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'multi-pk'),
             $expectedMultiPkRows,
+            3
         ];
         return $tests;
     }
@@ -79,11 +82,11 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
     public function testIncrementalImport(
         Storage\SourceInterface $initialSource,
         ImportOptions $initialOptions,
-        Storage\SourceInterface $incrementalsource,
+        Storage\SourceInterface $incrementalSource,
         ImportOptions $incrementalOptions,
         Storage\DestinationInterface $destination,
-        array $expected = [],
-        $sortKey = 0
+        array $expected,
+        int $expectedImportedRowCount
     ): void {
         (new Importer($this->connection))->importTable(
             $initialSource,
@@ -91,17 +94,18 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $initialOptions
         );
 
-        (new Importer($this->connection))->importTable(
-            $incrementalsource,
+        $result = (new Importer($this->connection))->importTable(
+            $incrementalSource,
             $destination,
             $incrementalOptions
         );
+        self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
         $this->assertTableEqualsExpected(
             $destination,
             $incrementalOptions,
             $expected,
-            $sortKey
+            0
         );
     }
 }
