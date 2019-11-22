@@ -85,8 +85,8 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyTableDestination(),
             'stagingTable',
             [
-            'pk1',
-            'pk2',
+                'pk1',
+                'pk2',
             ]
         );
         self::assertEquals(
@@ -195,6 +195,12 @@ class SqlCommandBuilderTest extends TestCase
     {
         $sql = $this->getInstance()->getRenameTableCommand('schema', 'sourceTable', 'targetTable');
         self::assertEquals('ALTER TABLE "schema"."sourceTable" RENAME TO "schema"."targetTable"', $sql);
+    }
+
+    public function testGetTableItemsCountCommand(): void
+    {
+        $sql = $this->getInstance()->getTableItemsCountCommand('schema', 'table');
+        self::assertEquals('SELECT COUNT(*) AS "count" FROM "schema"."table"', $sql);
     }
 
     public function testGetTruncateTableCommand(): void

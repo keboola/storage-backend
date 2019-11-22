@@ -56,10 +56,10 @@ class SqlCommandBuilder
 
         $depudeSql = sprintf(
             'SELECT %s FROM ('
-            .'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_"'
-            .'FROM %s.%s'
-            .') AS a '
-            .'WHERE a."_row_number_" = 1',
+            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_"'
+            . 'FROM %s.%s'
+            . ') AS a '
+            . 'WHERE a."_row_number_" = 1',
             ColumnsHelper::getColumnsString($importOptions->getColumns(), ',', 'a'),
             ColumnsHelper::getColumnsString($importOptions->getColumns(), ', '),
             $pkSql,
@@ -218,6 +218,15 @@ class SqlCommandBuilder
             QuoteHelper::quoteIdentifier($sourceTableName),
             QuoteHelper::quoteIdentifier($schema),
             QuoteHelper::quoteIdentifier($targetTable)
+        );
+    }
+
+    public function getTableItemsCountCommand(string $schema, string $table): string
+    {
+        return sprintf(
+            'SELECT COUNT(*) AS "count" FROM %s.%s',
+            QuoteHelper::quoteIdentifier($schema),
+            QuoteHelper::quoteIdentifier($table)
         );
     }
 

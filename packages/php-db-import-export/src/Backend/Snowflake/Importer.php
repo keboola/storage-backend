@@ -143,10 +143,9 @@ class Importer implements ImporterInterface
             throw new Exception('Load error: ' . $e->getMessage(), $stringCode, $e);
         }
 
-        $rows = $this->connection->fetchAll(sprintf(
-            'SELECT COUNT(*) AS "count" FROM %s.%s',
-            QuoteHelper::quoteIdentifier($destination->getSchema()),
-            QuoteHelper::quoteIdentifier($this->importState->getStagingTableName())
+        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+            $destination->getSchema(),
+            $this->importState->getStagingTableName()
         ));
         $this->importState->addImportedRowsCount((int) $rows[0]['count']);
     }
