@@ -2,53 +2,28 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportUnit\SourceStorage\Snowflake;
+namespace Tests\Keboola\Db\ImportExportUnit\Storage\Snowflake;
 
-use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\SourceStorage\Snowflake\SnowflakeAdapter;
-use Keboola\Db\ImportExport\SourceStorage;
+use Keboola\Db\ImportExport\Storage\Snowflake\SnowflakeImportAdapter;
+use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SnowflakeAdapterTest extends BaseTestCase
 {
-    public function testExecuteCopyCommands(): void
-    {
-        /** @var SourceStorage\Snowflake\Source|MockObject $source */
-        $source = self::createMock(SourceStorage\Snowflake\Source::class);
-        /** @var Connection|MockObject $connection */
-        $connection = self::createMock(Connection::class);
-        $connection->expects(self::once())->method('fetchAll')->willReturn([['count' => 1]]);
-        /** @var ImportState|MockObject $state */
-        $state = self::createMock(ImportState::class);
-        $state->expects(self::once())->method('startTimer');
-        $state->expects(self::once())->method('stopTimer');
-        /** @var ImportOptions|MockObject $options */
-        $options = self::createMock(ImportOptions::class);
-
-        $adapter = new SnowflakeAdapter($source);
-        $rows = $adapter->executeCopyCommands(
-            ['cmd1'],
-            $connection,
-            $options,
-            $state
-        );
-
-        self::assertEquals(1, $rows);
-    }
-
     public function testGetCopyCommands(): void
     {
-        /** @var SourceStorage\Snowflake\Source|MockObject $source */
-        $source = self::createMock(SourceStorage\Snowflake\Source::class);
+        /** @var Storage\Snowflake\Table|MockObject $source */
+        $source = self::createMock(Storage\Snowflake\Table::class);
         $source->expects(self::once())->method('getSchema')->willReturn('schema');
         $source->expects(self::once())->method('getTableName')->willReturn('table');
 
-        $options = new ImportOptions('schema', 'table', [], ['col1', 'col2']);
-        $adapter = new SnowflakeAdapter($source);
+        $destination = new Storage\Snowflake\Table('schema', 'table');
+        $options = new ImportOptions([], ['col1', 'col2']);
+        $adapter = new SnowflakeImportAdapter($source);
         $commands = $adapter->getCopyCommands(
+            $destination,
             $options,
             'stagingTable'
         );

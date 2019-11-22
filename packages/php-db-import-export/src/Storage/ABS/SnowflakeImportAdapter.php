@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\SourceStorage\ABS;
+namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
-use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
-use Keboola\Db\ImportExport\SourceStorage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\DestinationInterface;
+use Keboola\Db\ImportExport\Storage\Snowflake\Table;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 
-class SnowflakeAdapter implements SnowflakeImportAdapterInterface
+class SnowflakeImportAdapter implements BackendImportAdapterInterface
 {
     /**
-     * @var Source
+     * @var SourceFile
      */
     private $source;
 
     /**
-     * @param Source $source
+     * @param SourceFile $source
      */
     public function __construct(SourceInterface $source)
     {
@@ -29,29 +29,10 @@ class SnowflakeAdapter implements SnowflakeImportAdapterInterface
     }
 
     /**
-     * @inheritDoc
+     * @param Table $destination
      */
-    public function executeCopyCommands(
-        array $commands,
-        Connection $connection,
-        ImportOptions $importOptions,
-        ImportState $importState
-    ): int {
-        $timerName = sprintf('copyToStaging-%s', $this->source->getCsvFile()->getBasename());
-        $importState->startTimer($timerName);
-        $rowsCount = 0;
-        foreach ($commands as $command) {
-            $results = $connection->fetchAll($command);
-            foreach ($results as $result) {
-                $rowsCount += (int) $result['rows_loaded'];
-            }
-        }
-        $importState->stopTimer($timerName);
-
-        return $rowsCount;
-    }
-
     public function getCopyCommands(
+        DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
     ): array {
@@ -64,7 +45,7 @@ FROM %s
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
 FILE_FORMAT = (TYPE=CSV %s)
 FILES = (%s)',
-                QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+                QuoteHelper::quoteIdentifier($destination->getSchema()),
                 QuoteHelper::quoteIdentifier($stagingTableName),
                 QuoteHelper::quote($this->source->getContainerUrl()),
                 $this->source->getSasToken(),

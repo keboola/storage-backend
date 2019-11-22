@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\Import\Result;
 use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
-use Keboola\Db\ImportExport\SourceStorage;
+use Keboola\Db\ImportExport\Storage\Snowflake\Table;
+use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
 {
     protected const SNOWFLAKE_SOURCE_SCHEMA_NAME = 'some.tests';
     protected const SNOWFLAKE_DEST_SCHEMA_NAME = 'in.c-tests';
+
+    use ABSSourceTrait;
 
     /** @var Connection */
     protected $connection;
@@ -25,12 +25,13 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
      * @param int|string $sortKey
      */
     protected function assertTableEqualsExpected(
+        Table $table,
         ImportOptions $options,
         array $expected,
         $sortKey,
         string $message = 'Imported tables are not the same as expected'
     ): void {
-        $tableColumns = $this->connection->getTableColumns($options->getSchema(), $options->getTableName());
+        $tableColumns = $this->connection->getTableColumns($table->getSchema(), $table->getTableName());
 
         if ($options->useTimestamp()) {
             $this->assertContains('_timestamp', $tableColumns);
@@ -52,7 +53,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         $sql = sprintf(
             'SELECT %s FROM %s',
             implode(', ', $columnsSql),
-            $options->getTargetTableWithScheme()
+            $table->getQuotedTableWithScheme()
         );
 
         $queryResult = array_map(function ($row) {
@@ -70,13 +71,10 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
     }
 
     protected function getSimpleImportOptions(
-        string $tableName,
         array $header,
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): ImportOptions {
         return new ImportOptions(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            $tableName,
             [],
             $header,
             false,
@@ -86,13 +84,10 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
     }
 
     protected function getSimpleIncrementalImportOptions(
-        string $tableName,
         array $header,
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): ImportOptions {
         return new ImportOptions(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            $tableName,
             [],
             $header,
             true,
@@ -148,80 +143,6 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         if (!empty($filesHeader)) {
             $this->assertSame($filesHeader, array_keys(reset($queryResult)));
         }
-    }
-
-    protected function importFileToSnowflake(
-        string $file,
-        string $tableName
-    ): Result {
-        $csvFile = new CsvFile(self::DATA_DIR . $file);
-        $importOptions = new ImportOptions(
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
-            $tableName,
-            [],
-            $csvFile->getHeader(),
-            false,
-            false,
-            ImportOptions::SKIP_FIRST_LINE
-        );
-
-        $this->createTableInSnowflake(
-            $this->connection,
-            $importOptions
-        );
-        return (new Importer($this->connection))->importTable(
-            $importOptions,
-            $this->createABSSourceInstance($file)
-        );
-    }
-
-    protected function createTableInSnowflake(
-        Connection $connection,
-        ImportOptions $options,
-        array $primaryKeys = []
-    ): void {
-        $connection->query(sprintf('USE SCHEMA %s', $connection->quoteIdentifier(self::SNOWFLAKE_SOURCE_SCHEMA_NAME)));
-        $connection->query(sprintf('DROP TABLE IF EXISTS %s', $connection->quoteIdentifier($options->getTableName())));
-        $columnQuery = array_map(function (string $column) use ($connection) {
-            return $connection->quoteIdentifier($column) . ' VARCHAR()';
-        }, $options->getColumns());
-
-        if ($options->useTimestamp()) {
-            $columnQuery[] = '"_timestamp" TIMESTAMP_NTZ';
-        }
-
-        $primaryKeysSql = '';
-        if (!empty($primaryKeys)) {
-            $quotedPrimaryKeys = array_map(function (string $column): string {
-                return QuoteHelper::quoteIdentifier($column);
-            }, $primaryKeys);
-
-            $primaryKeysSql = sprintf(
-                ', PRIMARY KEY (%s)',
-                implode(', ', $quotedPrimaryKeys)
-            );
-        }
-        $createQuery = sprintf(
-            'CREATE TABLE %s (%s %s)',
-            $connection->quoteIdentifier($options->getTableName()),
-            implode(',', $columnQuery),
-            $primaryKeysSql
-        );
-        $connection->query($createQuery);
-    }
-
-    protected function createABSSourceInstance(
-        string $file,
-        bool $isSliced = false
-    ): SourceStorage\ABS\Source {
-        return new SourceStorage\ABS\Source(
-            (string) getenv('ABS_CONTAINER_NAME'),
-            $file,
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            new CsvFile($file), //TODO: create file inside or use only CSV file
-            $isSliced
-        );
     }
 
     public function setUp(): void

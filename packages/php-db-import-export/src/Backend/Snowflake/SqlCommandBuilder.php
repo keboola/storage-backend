@@ -8,6 +8,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 
 class SqlCommandBuilder
 {
@@ -38,6 +39,7 @@ class SqlCommandBuilder
     }
 
     public function getDedupCommand(
+        Table $destination,
         ImportOptions $importOptions,
         array $primaryKeys,
         string $stagingTableName,
@@ -54,21 +56,21 @@ class SqlCommandBuilder
 
         $depudeSql = sprintf(
             'SELECT %s FROM ('
-            .'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_"'
-            .'FROM %s.%s'
-            .') AS a '
-            .'WHERE a."_row_number_" = 1',
+            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_"'
+            . 'FROM %s.%s'
+            . ') AS a '
+            . 'WHERE a."_row_number_" = 1',
             ColumnsHelper::getColumnsString($importOptions->getColumns(), ',', 'a'),
             ColumnsHelper::getColumnsString($importOptions->getColumns(), ', '),
             $pkSql,
             $pkSql,
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+            QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName)
         );
 
         return sprintf(
             'INSERT INTO %s.%s (%s) %s',
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+            QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($tempTableName),
             ColumnsHelper::getColumnsString($importOptions->getColumns()),
             $depudeSql
@@ -76,16 +78,16 @@ class SqlCommandBuilder
     }
 
     public function getDeleteOldItemsCommand(
-        ImportOptions $importOptions,
+        Table $destination,
         string $stagingTableName,
         array $primaryKeys
     ): string {
         // Delete updated rows from staging table
         return sprintf(
             'DELETE FROM %s.%s "src" USING %s AS "dest" WHERE %s',
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+            QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
-            $importOptions->getTargetTableWithScheme(),
+            $destination->getQuotedTableWithScheme(),
             $this->getPrimayKeyWhereConditions($primaryKeys)
         );
     }
@@ -116,6 +118,7 @@ class SqlCommandBuilder
     }
 
     public function getInsertAllIntoTargetTableCommand(
+        Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName
     ): string {
@@ -142,27 +145,28 @@ class SqlCommandBuilder
         ) {
             return sprintf(
                 'INSERT INTO %s (%s) (SELECT %s FROM %s.%s)',
-                $importOptions->getTargetTableWithScheme(),
+                $destination->getQuotedTableWithScheme(),
                 ColumnsHelper::getColumnsString($importOptions->getColumns()),
                 $columnsSetSqlSelect,
-                QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+                QuoteHelper::quoteIdentifier($destination->getSchema()),
                 QuoteHelper::quoteIdentifier($stagingTableName)
             );
         }
 
         return sprintf(
             'INSERT INTO %s (%s, "%s") (SELECT %s, \'%s\' FROM %s.%s)',
-            $importOptions->getTargetTableWithScheme(),
+            $destination->getQuotedTableWithScheme(),
             ColumnsHelper::getColumnsString($importOptions->getColumns()),
             Importer::TIMESTAMP_COLUMN_NAME,
             $columnsSetSqlSelect,
             DateTimeHelper::getNowFormatted(),
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+            QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName)
         );
     }
 
     public function getInsertFromStagingToTargetTableCommand(
+        Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName
     ): string {
@@ -195,10 +199,10 @@ class SqlCommandBuilder
 
         return sprintf(
             'INSERT INTO %s (%s) SELECT %s FROM %s.%s AS "src"',
-            $importOptions->getTargetTableWithScheme(),
+            $destination->getQuotedTableWithScheme(),
             ColumnsHelper::getColumnsString($insColumns),
             implode(',', $columnsSetSql),
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+            QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName)
         );
     }
@@ -217,6 +221,15 @@ class SqlCommandBuilder
         );
     }
 
+    public function getTableItemsCountCommand(string $schema, string $table): string
+    {
+        return sprintf(
+            'SELECT COUNT(*) AS "count" FROM %s.%s',
+            QuoteHelper::quoteIdentifier($schema),
+            QuoteHelper::quoteIdentifier($table)
+        );
+    }
+
     public function getTruncateTableCommand(
         string $schema,
         string $tableName
@@ -229,6 +242,7 @@ class SqlCommandBuilder
     }
 
     public function getUpdateWithPkCommand(
+        Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName,
         array $primaryKeys
@@ -273,9 +287,9 @@ class SqlCommandBuilder
 
         $sql = sprintf(
             'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s AND (%s) ',
-            $importOptions->getTargetTableWithScheme(),
+            $destination->getQuotedTableWithScheme(),
             implode(', ', $columnsSet),
-            QuoteHelper::quoteIdentifier($importOptions->getSchema()),
+            QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
             $this->getPrimayKeyWhereConditions($primaryKeys),
             implode(' OR ', $columnsComparsionSql)
