@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
-use Keboola\Csv\CsvFile;
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -49,7 +49,7 @@ FILES = (%s)',
                 QuoteHelper::quoteIdentifier($stagingTableName),
                 QuoteHelper::quote($this->source->getContainerUrl()),
                 $this->source->getSasToken(),
-                implode(' ', $this->getCsvCopyCommandOptions($importOptions, $this->source->getCsvFile())),
+                implode(' ', $this->getCsvCopyCommandOptions($importOptions, $this->source->getCsvOptions())),
                 implode(
                     ', ',
                     array_map(
@@ -66,21 +66,21 @@ FILES = (%s)',
 
     private function getCsvCopyCommandOptions(
         ImportOptions $importOptions,
-        CsvFile $csvFile
+        CsvOptions $csvOptions
     ): array {
         $options = [
-            sprintf('FIELD_DELIMITER = %s', QuoteHelper::quote($csvFile->getDelimiter())),
+            sprintf('FIELD_DELIMITER = %s', QuoteHelper::quote($csvOptions->getDelimiter())),
         ];
 
         if ($importOptions->getNumberOfIgnoredLines() > 0) {
             $options[] = sprintf('SKIP_HEADER = %d', $importOptions->getNumberOfIgnoredLines());
         }
 
-        if ($csvFile->getEnclosure()) {
-            $options[] = sprintf('FIELD_OPTIONALLY_ENCLOSED_BY = %s', QuoteHelper::quote($csvFile->getEnclosure()));
+        if ($csvOptions->getEnclosure()) {
+            $options[] = sprintf('FIELD_OPTIONALLY_ENCLOSED_BY = %s', QuoteHelper::quote($csvOptions->getEnclosure()));
             $options[] = 'ESCAPE_UNENCLOSED_FIELD = NONE';
-        } elseif ($csvFile->getEscapedBy()) {
-            $options[] = sprintf('ESCAPE_UNENCLOSED_FIELD = %s', QuoteHelper::quote($csvFile->getEscapedBy()));
+        } elseif ($csvOptions->getEscapedBy()) {
+            $options[] = sprintf('ESCAPE_UNENCLOSED_FIELD = %s', QuoteHelper::quote($csvOptions->getEscapedBy()));
         }
         return $options;
     }
