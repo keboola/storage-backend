@@ -1,6 +1,7 @@
 {
     "name": "keboola/db-import-export",
     "description": "Package allows to import files to Snowflake from multiple cloud storages",
+    "license": "MIT",
     "require": {
         "php": "^7.3",
         "keboola/php-component": "^7.0.1",
