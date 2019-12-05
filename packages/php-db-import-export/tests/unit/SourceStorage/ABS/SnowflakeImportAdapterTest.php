@@ -38,8 +38,8 @@ FROM 'containerUrl'
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
 FILES = ('azure://url')
-EOT,
-
+EOT
+            ,
         ], $commands);
     }
 
@@ -83,14 +83,16 @@ FROM 'containerUrl'
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
 FILES = ($cmd1Files)
-EOT,
+EOT
+            ,
             <<<EOT
 COPY INTO "schema"."stagingTable" 
 FROM 'containerUrl'
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
 FILES = ($cmd2Files)
-EOT,
+EOT
+            ,
         ], $commands);
     }
 }

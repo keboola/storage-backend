@@ -48,7 +48,7 @@ class SnowflakeImportAdapter implements BackendImportAdapterInterface
             ' SELECT %s FROM %s.%s',
             implode(', ', $quotedColumns),
             QuoteHelper::quoteIdentifier($this->source->getSchema()),
-            QuoteHelper::quoteIdentifier($this->source->getTableName()),
+            QuoteHelper::quoteIdentifier($this->source->getTableName())
         );
 
         return [$sql];
