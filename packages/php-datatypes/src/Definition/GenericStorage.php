@@ -10,7 +10,8 @@ class GenericStorage extends Common
         "timestamptz", "timestamp", "timestamp with time zone", "timestamp with local time zone", "timestamp without time zone"
     ];
     const FLOATING_POINT_TYPES = [
-        "real", "float", "float4", "double precision", "float8", "binary_float", "binary_double", "double", "d_float"
+        "real", "float", "float4", "double precision", "float8", "binary_float", "binary_double", "double",
+        "d_float", "quad"
     ];
     // NOTE: "bit" is used in mssql as a 1/0 type boolean, but in pgsql as a bit(n) ie 10110.
     // also in mysql bit is equivalent to tinyint
