@@ -53,7 +53,7 @@ EOT
         $destination->expects(self::once())->method('getSasToken')->willReturn('sasToken');
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions(null, true);
+        $options = new ExportOptions(null, [], true);
         $adapter = new Storage\ABS\SnowflakeExportAdapter($destination);
         $commands = $adapter->getCopyCommand(
             $source,
