@@ -64,7 +64,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
 
         // export
         $source = $destination;
-        $options = new ExportOptions(null, true);
+        $options = new ExportOptions(null, [], true);
         $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/gz_test');
 
         (new Exporter($this->connection))->exportTable(

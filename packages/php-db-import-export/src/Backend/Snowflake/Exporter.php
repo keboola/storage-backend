@@ -38,6 +38,6 @@ class Exporter implements ExporterInterface
         }
         $adapter = $destination->getBackendExportAdapter($this);
         $cmd = $adapter->getCopyCommand($source, $options);
-        $this->connection->fetchAll($cmd);
+        $this->connection->fetchAll($cmd, $options->getQueryBindings());
     }
 }
