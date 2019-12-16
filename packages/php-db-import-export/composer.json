@@ -5,7 +5,7 @@
     "require": {
         "php": "^7.1",
         "keboola/csv-options": "^1",
-        "keboola/php-csv-db-import": "^4.1.2",
+        "keboola/php-csv-db-import": "^5.0",
         "microsoft/azure-storage-blob": "^1.4"
     },
     "require-dev": {
