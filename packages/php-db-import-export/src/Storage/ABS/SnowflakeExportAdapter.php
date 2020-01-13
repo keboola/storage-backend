@@ -35,10 +35,10 @@ class SnowflakeExportAdapter implements BackendExportAdapterInterface
         $compression = $exportOptions->isCompresed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
 
         switch (true) {
-            case ($source instanceof Storage\Snowflake\Table);
+            case ($source instanceof Storage\Snowflake\Table):
                 $from = $source->getQuotedTableWithScheme();
                 break;
-            case ($source instanceof Storage\Snowflake\SelectSource);
+            case ($source instanceof Storage\Snowflake\SelectSource):
                 $from = sprintf('(%s)', $source->getQuery());
                 break;
             default:
