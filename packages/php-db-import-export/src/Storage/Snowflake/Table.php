@@ -73,4 +73,9 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     {
         return $this->tableName;
     }
+
+    public function getQueryBindings(): array
+    {
+        return [];
+    }
 }

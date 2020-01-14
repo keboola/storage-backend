@@ -15,11 +15,11 @@ class SelectSourceTest extends TestCase
 {
     public function testDefaultValues(): void
     {
-        $source = new Storage\Snowflake\SelectSource('SELECT * FROM "SCHEMA"."TABLE"', []);
+        $source = new Storage\Snowflake\SelectSource('SELECT * FROM "SCHEMA"."TABLE"', ['prop' => 1]);
 
         $this->assertEquals('(SELECT * FROM "SCHEMA"."TABLE")', $source->getFromStatement());
         $this->assertEquals('SELECT * FROM "SCHEMA"."TABLE"', $source->getQuery());
-        $this->assertSame([], $source->getQueryBindings());
+        $this->assertSame(['prop' => 1], $source->getQueryBindings());
 
         $this->expectException(NoBackendAdapterException::class);
         $source->getBackendImportAdapter((new class implements ImporterInterface {
