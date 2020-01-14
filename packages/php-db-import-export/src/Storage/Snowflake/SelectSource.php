@@ -8,8 +8,9 @@ use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 
-class SelectSource implements SourceInterface
+class SelectSource implements SourceInterface, SqlSourceInterface
 {
     /**
      * @var string
@@ -31,6 +32,11 @@ class SelectSource implements SourceInterface
         ImporterInterface $importer
     ): BackendImportAdapterInterface {
         throw new NoBackendAdapterException();
+    }
+
+    public function getFromStatement(): string
+    {
+        return sprintf('(%s)', $this->getQuery());
     }
 
     public function getQuery(): string
