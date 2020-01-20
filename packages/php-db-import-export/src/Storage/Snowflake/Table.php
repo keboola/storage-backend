@@ -13,8 +13,9 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 
-class Table implements SourceInterface, DestinationInterface
+class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 {
     /**
      * @var string
@@ -49,6 +50,11 @@ class Table implements SourceInterface, DestinationInterface
         }
     }
 
+    public function getFromStatement(): string
+    {
+        return $this->getQuotedTableWithScheme();
+    }
+
     public function getQuotedTableWithScheme(): string
     {
         return sprintf(
@@ -66,5 +72,10 @@ class Table implements SourceInterface, DestinationInterface
     public function getTableName(): string
     {
         return $this->tableName;
+    }
+
+    public function getQueryBindings(): array
+    {
+        return [];
     }
 }

@@ -24,9 +24,8 @@ class SnowflakeExportAdapter implements BackendExportAdapterInterface
     }
 
     /**
-     * @param Storage\Snowflake\Table $source
-     * @param ExportOptions $exportOptions
-     * @return string
+     * @param Storage\SqlSourceInterface $source
+     * @throws \Exception
      */
     public function getCopyCommand(
         Storage\SourceInterface $source,
@@ -34,10 +33,15 @@ class SnowflakeExportAdapter implements BackendExportAdapterInterface
     ): string {
         $compression = $exportOptions->isCompresed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
 
-        $from = $source->getQuotedTableWithScheme();
-        if ($exportOptions->getQuery() !== null) {
-            $from = sprintf('(%s)', $exportOptions->getQuery());
+        if (!$source instanceof Storage\SqlSourceInterface) {
+            throw new \Exception(sprintf(
+                'Source "%s" must implement "%s".',
+                get_class($source),
+                Storage\SqlSourceInterface::class
+            ));
         }
+
+        $from = $source->getFromStatement();
 
 //TODO: encryption "ENCRYPTION = (TYPE = 'AZURE_CSE' master_key = '%s')"
         $sql = sprintf(

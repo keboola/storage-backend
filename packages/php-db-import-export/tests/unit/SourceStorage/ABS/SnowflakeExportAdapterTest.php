@@ -53,7 +53,7 @@ EOT
         $destination->expects(self::once())->method('getSasToken')->willReturn('sasToken');
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions(null, [], true);
+        $options = new ExportOptions(true);
         $adapter = new Storage\ABS\SnowflakeExportAdapter($destination);
         $commands = $adapter->getCopyCommand(
             $source,
@@ -87,8 +87,8 @@ EOT
         $destination->expects(self::once())->method('getContainerUrl')->willReturn('containerUrl');
         $destination->expects(self::once())->method('getSasToken')->willReturn('sasToken');
 
-        $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions('SELECT * FROM "schema"."table"');
+        $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
+        $options = new ExportOptions();
         $adapter = new Storage\ABS\SnowflakeExportAdapter($destination);
         $commands = $adapter->getCopyCommand(
             $source,

@@ -23,6 +23,8 @@ class TableTest extends TestCase
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('schema', $source->getSchema());
         self::assertEquals('table', $source->getTableName());
+        self::assertEquals([], $source->getQueryBindings());
+        self::assertEquals('"schema"."table"', $source->getFromStatement());
     }
 
     public function testGetBackendExportAdapter(): void
@@ -47,8 +49,7 @@ class TableTest extends TestCase
     public function testGetBackendImportAdapterInvalidImporter(): void
     {
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $dummyImporter = new class implements ImporterInterface
-        {
+        $dummyImporter = new class implements ImporterInterface {
             public function importTable(
                 Storage\SourceInterface $source,
                 Storage\DestinationInterface $destination,

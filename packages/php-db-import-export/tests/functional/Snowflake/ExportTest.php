@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
+use _HumbugBoxbfaeed0746fa\Symfony\Component\Console\Helper\Table;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Snowflake\Exporter;
@@ -64,7 +65,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
 
         // export
         $source = $destination;
-        $options = new ExportOptions(null, [], true);
+        $options = new ExportOptions(true);
         $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/gz_test');
 
         (new Exporter($this->connection))->exportTable(
@@ -172,14 +173,14 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
 
         // export
-        $source = $destination;
         // query needed otherwise timestamp is downloaded
         $query = sprintf(
             'SELECT %s FROM %s',
             ColumnsHelper::getColumnsString($file->getHeader()),
-            $source->getQuotedTableWithScheme()
+            $destination->getQuotedTableWithScheme()
         );
-        $options = new ExportOptions($query);
+        $source = new Storage\Snowflake\SelectSource($query);
+        $options = new ExportOptions();
         $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/tw_test');
 
         (new Exporter($this->connection))->exportTable(

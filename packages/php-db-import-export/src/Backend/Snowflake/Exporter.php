@@ -21,23 +21,22 @@ class Exporter implements ExporterInterface
     }
 
     /**
-     * @param Storage\Snowflake\Table $source
+     * @param Storage\SqlSourceInterface $source
      */
     public function exportTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ExportOptions $options
     ): void {
-        if (!$source instanceof Storage\Snowflake\Table) {
-            // php 7.4 to the rescue
+        if (!$source instanceof Storage\SqlSourceInterface) {
             throw new \Exception(sprintf(
-                'Source "%s" is invalid only "%s" is supported.',
+                'Source "%s" must implement "%s".',
                 get_class($source),
-                Storage\Snowflake\Table::class
+                Storage\SqlSourceInterface::class
             ));
         }
         $adapter = $destination->getBackendExportAdapter($this);
         $cmd = $adapter->getCopyCommand($source, $options);
-        $this->connection->fetchAll($cmd, $options->getQueryBindings());
+        $this->connection->fetchAll($cmd, $source->getQueryBindings());
     }
 }
