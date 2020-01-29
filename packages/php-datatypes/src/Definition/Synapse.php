@@ -62,7 +62,7 @@ class Synapse extends Common
     }
 
     /**
-     * @param $length
+     * @param string|null $length
      * @return bool
      */
     private function isEmpty($length)
