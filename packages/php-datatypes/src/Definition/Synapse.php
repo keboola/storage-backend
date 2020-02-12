@@ -205,7 +205,6 @@ class Synapse extends Common
                 break;
             case 'datetimeoffset':
             case 'datetime2':
-            case 'date':
             case 'time':
                 if ($this->isEmpty($length)) {
                     break;

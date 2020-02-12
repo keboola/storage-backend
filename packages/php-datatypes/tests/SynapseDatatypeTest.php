@@ -71,10 +71,6 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['datetime2', '-1'],
             ['datetime2', '8'],
 
-            ['date', 'notANumber'],
-            ['date', '-1'],
-            ['date', '8'],
-
             ['time', 'notANumber'],
             ['time', '-1'],
             ['time', '8'],
@@ -269,10 +265,6 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['datetime2', null],
             ['datetime2', ''],
             ['datetime2', '0'],
-
-            ['date', null],
-            ['date', ''],
-            ['date', '0'],
 
             ['time', null],
             ['time', ''],
