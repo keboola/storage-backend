@@ -29,6 +29,7 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['decimal', '38,a'],
             ['decimal', 'a,38'],
             ['decimal', 'a,a'],
+            ['decimal', '16,32'],
 
             ['numeric', 'notANumber'],
             ['numeric', '0,0'],
@@ -38,6 +39,7 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['numeric', '38,a'],
             ['numeric', 'a,38'],
             ['numeric', 'a,a'],
+            ['decimal', '16,32'],
 
             ['nvarchar', 'notANumber'],
             ['nvarchar', '0'],
