@@ -1,10 +1,11 @@
-FROM php:7-cli
+FROM php:7.1-cli
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 3600
 
+ARG SQLSRV_VERSION=5.6.1
 ARG SNOWFLAKE_ODBC_VERSION=2.21.0
 ARG SNOWFLAKE_GPG_KEY=EC218558EABB25A1
 
@@ -13,7 +14,12 @@ WORKDIR /code/
 COPY docker/php-prod.ini /usr/local/etc/php/php.ini
 COPY docker/composer-install.sh /tmp/composer-install.sh
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -q \
+    && apt-get install gnupg -y --no-install-recommends \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update -q \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends\
         git \
         locales \
         unzip \
@@ -24,6 +30,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         debsig-verify \
         dirmngr \
         gpg-agent \
+        msodbcsql17 \
+        libonig-dev \
+        libxml2-dev \
 	&& rm -r /var/lib/apt/lists/* \
 	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
 	&& locale-gen \
@@ -53,6 +62,12 @@ RUN set -ex; \
 COPY ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol
 ADD https://sfc-repo.snowflakecomputing.com/odbc/linux/$SNOWFLAKE_ODBC_VERSION/snowflake-odbc-$SNOWFLAKE_ODBC_VERSION.x86_64.deb /tmp/snowflake-odbc.deb
 COPY ./docker/snowflake/simba.snowflake.ini /usr/lib/snowflake/odbc/lib/simba.snowflake.ini
+
+#Synapse ODBC
+RUN set -ex; \
+    pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
+    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
+    docker-php-source delete
 
 RUN mkdir -p ~/.gnupg \
     && chmod 700 ~/.gnupg \
