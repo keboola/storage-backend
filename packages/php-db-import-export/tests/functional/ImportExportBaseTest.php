@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional;
 
+use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 
@@ -31,5 +32,31 @@ abstract class ImportExportBaseTest extends TestCase
         usort($expected, $comparsion);
         usort($actual, $comparsion);
         $this->assertEquals($expected, $actual, $message);
+    }
+
+    protected function getSimpleImportOptions(
+        array $header,
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+    ): ImportOptions {
+        return new ImportOptions(
+            [],
+            $header,
+            false,
+            true,
+            $skipLines
+        );
+    }
+
+    protected function getSimpleIncrementalImportOptions(
+        array $header,
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+    ): ImportOptions {
+        return new ImportOptions(
+            [],
+            $header,
+            true,
+            true,
+            $skipLines
+        );
     }
 }

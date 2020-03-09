@@ -70,32 +70,6 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         );
     }
 
-    protected function getSimpleImportOptions(
-        array $header,
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
-    ): ImportOptions {
-        return new ImportOptions(
-            [],
-            $header,
-            false,
-            true,
-            $skipLines
-        );
-    }
-
-    protected function getSimpleIncrementalImportOptions(
-        array $header,
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
-    ): ImportOptions {
-        return new ImportOptions(
-            [],
-            $header,
-            true,
-            true,
-            $skipLines
-        );
-    }
-
     protected function assertTableEqualsFiles(
         string $tableName,
         array $files,
