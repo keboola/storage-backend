@@ -49,7 +49,7 @@
             "@phpcs",
             "@phpstan",
             "@loadAbs",
-            "@tests"
+            "@tests-unit"
         ],
         "ci": [
             "@composer validate --no-check-publish --no-check-all",

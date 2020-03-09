@@ -7,6 +7,12 @@ services:
 
 before_script:
   - docker -v
+  # Send resume to synapse server in background
+  - bash docker/synapse/synapse.sh -r &
   - docker-compose build production
 script:
-  - travis_wait 60 docker-compose run production composer ci
+  - docker-compose run production composer ci
+  - bash docker/synapse/synapse.sh -w && docker-compose run production composer tests-functional
+after_script:
+  # Send pause to synapse server in background
+  - bash docker/synapse/synapse.sh -p &
