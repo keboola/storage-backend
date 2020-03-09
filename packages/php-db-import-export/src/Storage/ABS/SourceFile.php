@@ -8,6 +8,7 @@ use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
+use Keboola\Db\ImportExport\Backend\Synapse\Importer as SynapseImporter;
 use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
@@ -15,6 +16,7 @@ use MicrosoftAzure\Storage\Common\Internal\Resources;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
+
     /**
      * @var bool
      */
@@ -44,6 +46,8 @@ class SourceFile extends BaseFile implements SourceInterface
         switch (true) {
             case $importer instanceof SnowflakeImporter:
                 return new SnowflakeImportAdapter($this);
+            case $importer instanceof SynapseImporter:
+                return new SynapseImportAdapter($this);
             default:
                 throw new NoBackendAdapterException();
         }
@@ -54,10 +58,10 @@ class SourceFile extends BaseFile implements SourceInterface
         return $this->csvOptions;
     }
 
-    public function getManifestEntries(): array
+    public function getManifestEntries(string $protocol = self::PROTOCOL_AZURE): array
     {
         if (!$this->isSliced) {
-            return [$this->getContainerUrl() . $this->filePath];
+            return [$this->getContainerUrl($protocol) . $this->filePath];
         }
 
         $SASConnectionString = sprintf(
@@ -75,8 +79,13 @@ class SourceFile extends BaseFile implements SourceInterface
 
         $getResult = $blobClient->getBlob($this->container, $this->filePath);
         $manifest = \GuzzleHttp\json_decode(stream_get_contents($getResult->getContentStream()), true);
-        return array_map(function ($entry) {
-            return $entry['url'];
+        return array_map(function ($entry) use ($protocol) {
+            switch ($protocol) {
+                case self::PROTOCOL_AZURE:
+                    return str_replace('https://', 'azure://', $entry['url']);
+                case self::PROTOCOL_HTTPS:
+                    return str_replace('azure://', 'https://', $entry['url']);
+            }
         }, $manifest['entries']);
     }
 }

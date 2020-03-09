@@ -15,7 +15,7 @@ class BaseFileTest extends BaseTestCase
             'absContainer',
             'file.csv',
             'azureCredentials',
-            'absAccount',
+            'absAccount'
         ) extends Storage\ABS\BaseFile
         {
         };

@@ -30,11 +30,13 @@ class SnowflakeImportAdapter implements BackendImportAdapterInterface
 
     /**
      * @param Table $destination
+     * @param null $connection
      */
     public function getCopyCommands(
         DestinationInterface $destination,
         ImportOptions $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
+        $connection = null
     ): array {
         $filesToImport = $this->source->getManifestEntries();
         $commands = [];

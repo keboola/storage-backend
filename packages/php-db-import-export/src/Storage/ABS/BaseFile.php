@@ -6,6 +6,9 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 
 abstract class BaseFile
 {
+    public const PROTOCOL_AZURE = 'azure';
+    public const PROTOCOL_HTTPS = 'https';
+
     /**
      * @var string
      */
@@ -43,10 +46,15 @@ abstract class BaseFile
         return $this->sasToken;
     }
 
-    public function getContainerUrl(): string
+    /**
+     * Snowflake won't import files if protocol is other than azure://
+     * Synapse won't import files if protocol is other than https://
+     */
+    public function getContainerUrl(string $protocol = self::PROTOCOL_AZURE): string
     {
         return sprintf(
-            'azure://%s.blob.core.windows.net/%s/',
+            '%s://%s.blob.core.windows.net/%s/',
+            $protocol,
             $this->accountName,
             $this->container
         );
