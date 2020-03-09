@@ -31,7 +31,7 @@ abstract class ImportExportBaseTest extends TestCase
         };
         usort($expected, $comparsion);
         usort($actual, $comparsion);
-        $this->assertEquals($expected, $actual, $message);
+        $this->assertEqualsCanonicalizing($expected, $actual, $message);
     }
 
     protected function getSimpleImportOptions(
