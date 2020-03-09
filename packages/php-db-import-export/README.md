@@ -2,18 +2,18 @@
 
 ## Supported operations
 
-- Load/Export csv from `ABS` to `Snowflake` 
-- Unload/Import table from `Snowflake` to `ABS` 
+- Load/Import csv from `ABS` to `Snowflake` or `Synapse` 
+- Unload/Export table from `Snowflake` to `ABS` 
 
 ## Features
 
-### Export
+### Import
 - Full load - destination table is truncated before load
 - Incremental load - data are merged
 - Primary key dedup for all engines
 - Convert empty values to NULL (using convertEmptyValuesToNull option)
 
-## Import
+## Export
 - Full unload - destination csv is always rewriten
 
 ## Development
@@ -49,6 +49,16 @@ DEFAULT_ROLE = "KEBOOLA_DB_IMPORT_EXPORT";
 
 GRANT ROLE "KEBOOLA_DB_IMPORT_EXPORT" TO USER "KEBOOLA_DB_IMPORT_EXPORT";
 ```
+
+#### SYNAPSE
+
+Create synapse server on Azure portal or using CLI.
+
+set up env variables:
+SYNAPSE_UID
+SYNAPSE_PWD
+SYNAPSE_DATABASE
+SYNAPSE_SERVER
 
 ### Tests
 
