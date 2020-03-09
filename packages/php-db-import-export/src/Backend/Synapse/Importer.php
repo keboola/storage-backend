@@ -121,9 +121,6 @@ class Importer implements ImporterInterface
             $this->importState->startTimer($timerName);
         }
         // echo sprintf("Executing query: %s \n", $query);
-
-        echo $query . PHP_EOL;
-        ob_flush();
         $this->connection->exec($query);
         if ($timerName) {
             $this->importState->stopTimer($timerName);
