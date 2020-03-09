@@ -4,6 +4,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.1",
+        "doctrine/dbal": "^2.9",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^5.0",
         "microsoft/azure-storage-blob": "^1.4"
