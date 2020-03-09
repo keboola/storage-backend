@@ -32,8 +32,13 @@
         }
     },
     "scripts": {
-        "tests-unit": "phpunit tests/unit",
-        "tests-functional": "phpunit tests/functional",
+        "tests-unit": "phpunit --debug --colors=always --testsuite unit",
+        "tests-snowflake": "phpunit --debug --colors=always --testsuite snowflake",
+        "tests-synapse": "phpunit --debug --colors=always --testsuite synapse",
+        "tests-functional": [
+            "@tests-snowflake",
+            "@tests-synapse"
+        ],
         "tests": [
             "@tests-unit",
             "@tests-functional"
