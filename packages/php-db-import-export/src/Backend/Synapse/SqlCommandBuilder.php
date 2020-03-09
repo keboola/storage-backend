@@ -199,10 +199,13 @@ class SqlCommandBuilder
         ImportOptions $importOptions,
         string $stagingTableName
     ): string {
-        if ($importOptions->useTimestamp()) {
+
+        $insColumns = $importOptions->getColumns();
+        $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $insColumns, true)
+            && $importOptions->useTimestamp();
+
+        if ($useTimestamp) {
             $insColumns = array_merge($importOptions->getColumns(), [Importer::TIMESTAMP_COLUMN_NAME]);
-        } else {
-            $insColumns = $importOptions->getColumns();
         }
 
         $columnsSetSql = [];
@@ -222,7 +225,7 @@ class SqlCommandBuilder
             }
         }
 
-        if ($importOptions->useTimestamp()) {
+        if ($useTimestamp) {
             $columnsSetSql[] = $this->connection->quote(DateTimeHelper::getNowFormatted());
         }
 
