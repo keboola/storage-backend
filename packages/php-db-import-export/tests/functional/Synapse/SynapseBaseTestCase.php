@@ -86,17 +86,17 @@ EOT
         switch ($tableName) {
             case self::TABLE_OUT_LEMMA:
                 $this->connection->exec(sprintf('CREATE TABLE [%s].[out.lemma] (
-          "ts" nvarchar(4000) NOT NULL DEFAULT \'\',
-          "lemma" nvarchar(4000) NOT NULL DEFAULT \'\',
-          "lemmaIndex" nvarchar(4000) NOT NULL DEFAULT \'\',
-          "_timestamp" datetime2
+          [ts] nvarchar(4000) NOT NULL DEFAULT \'\',
+          [lemma] nvarchar(4000) NOT NULL DEFAULT \'\',
+          [lemmaIndex] nvarchar(4000) NOT NULL DEFAULT \'\',
+          [_timestamp] datetime2
         );', self::SYNAPSE_DEST_SCHEMA_NAME));
                 break;
             case self::TABLE_OUT_CSV_2COLS:
                 $this->connection->exec(sprintf('CREATE TABLE [%s].[out.csv_2Cols] (
-          "col1" nvarchar(4000) NOT NULL DEFAULT \'\',
-          "col2" nvarchar(4000) NOT NULL DEFAULT \'\',
-          "_timestamp" datetime2
+          [col1] nvarchar(4000) NOT NULL DEFAULT \'\',
+          [col2] nvarchar(4000) NOT NULL DEFAULT \'\',
+          [_timestamp] datetime2
         );', self::SYNAPSE_DEST_SCHEMA_NAME));
 
                 $this->connection->exec(sprintf(
@@ -107,8 +107,8 @@ EOT
                 ));
 
                 $this->connection->exec(sprintf('CREATE TABLE [%s].[out.csv_2Cols] (
-          "col1" nvarchar(4000) NOT NULL DEFAULT \'\',
-          "col2" nvarchar(4000) NOT NULL DEFAULT \'\'
+          [col1] nvarchar(4000) NOT NULL DEFAULT \'\',
+          [col2] nvarchar(4000) NOT NULL DEFAULT \'\'
         );', self::SYNAPSE_SOURCE_SCHEMA_NAME));
 
                 $this->connection->exec(sprintf('INSERT INTO [%s].[out.csv_2Cols] VALUES
@@ -121,19 +121,19 @@ EOT
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[accounts-3] (
-                "id" nvarchar(4000) NOT NULL,
-                "idTwitter" nvarchar(4000) NOT NULL,
-                "name" nvarchar(4000) NOT NULL,
-                "import" nvarchar(4000) NOT NULL,
-                "isImported" nvarchar(4000) NOT NULL,
-                "apiLimitExceededDatetime" nvarchar(4000) NOT NULL,
-                "analyzeSentiment" nvarchar(4000) NOT NULL,
-                "importKloutScore" nvarchar(4000) NOT NULL,
-                "timestamp" nvarchar(4000) NOT NULL,
-                "oauthToken" nvarchar(4000) NOT NULL,
-                "oauthSecret" nvarchar(4000) NOT NULL,
-                "idApp" nvarchar(4000) NOT NULL,
-                "_timestamp" datetime2,
+                [id] nvarchar(4000) NOT NULL,
+                [idTwitter] nvarchar(4000) NOT NULL,
+                [name] nvarchar(4000) NOT NULL,
+                [import] nvarchar(4000) NOT NULL,
+                [isImported] nvarchar(4000) NOT NULL,
+                [apiLimitExceededDatetime] nvarchar(4000) NOT NULL,
+                [analyzeSentiment] nvarchar(4000) NOT NULL,
+                [importKloutScore] nvarchar(4000) NOT NULL,
+                [timestamp] nvarchar(4000) NOT NULL,
+                [oauthToken] nvarchar(4000) NOT NULL,
+                [oauthSecret] nvarchar(4000) NOT NULL,
+                [idApp] nvarchar(4000) NOT NULL,
+                [_timestamp] datetime2,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             )',
                     self::SYNAPSE_DEST_SCHEMA_NAME
@@ -142,18 +142,18 @@ EOT
             case self::TABLE_ACCOUNTS_BEZ_TS:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[accounts-bez-ts] (
-                "id" nvarchar(4000) NOT NULL,
-                "idTwitter" nvarchar(4000) NOT NULL,
-                "name" nvarchar(4000) NOT NULL,
-                "import" nvarchar(4000) NOT NULL,
-                "isImported" nvarchar(4000) NOT NULL,
-                "apiLimitExceededDatetime" nvarchar(4000) NOT NULL,
-                "analyzeSentiment" nvarchar(4000) NOT NULL,
-                "importKloutScore" nvarchar(4000) NOT NULL,
-                "timestamp" nvarchar(4000) NOT NULL,
-                "oauthToken" nvarchar(4000) NOT NULL,
-                "oauthSecret" nvarchar(4000) NOT NULL,
-                "idApp" nvarchar(4000) NOT NULL,
+                [id] nvarchar(4000) NOT NULL,
+                [idTwitter] nvarchar(4000) NOT NULL,
+                [name] nvarchar(4000) NOT NULL,
+                [import] nvarchar(4000) NOT NULL,
+                [isImported] nvarchar(4000) NOT NULL,
+                [apiLimitExceededDatetime] nvarchar(4000) NOT NULL,
+                [analyzeSentiment] nvarchar(4000) NOT NULL,
+                [importKloutScore] nvarchar(4000) NOT NULL,
+                [timestamp] nvarchar(4000) NOT NULL,
+                [oauthToken] nvarchar(4000) NOT NULL,
+                [oauthSecret] nvarchar(4000) NOT NULL,
+                [idApp] nvarchar(4000) NOT NULL,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             )',
                     self::SYNAPSE_DEST_SCHEMA_NAME
@@ -162,9 +162,9 @@ EOT
             case self::TABLE_TABLE:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[table] (
-              "column"  nvarchar(4000) NOT NULL DEFAULT \'\',
-              "table" nvarchar(4000) NOT NULL DEFAULT \'\',
-              "_timestamp" datetime2
+              [column]  nvarchar(4000) NOT NULL DEFAULT \'\',
+              [table] nvarchar(4000) NOT NULL DEFAULT \'\',
+              [_timestamp] datetime2
             );',
                     self::SYNAPSE_DEST_SCHEMA_NAME
                 ));
@@ -172,21 +172,21 @@ EOT
             case self::TABLE_TYPES:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[types] (
-              "charCol"  nvarchar(4000) NOT NULL,
-              "numCol" nvarchar(4000) NOT NULL,
-              "floatCol" nvarchar(4000) NOT NULL,
-              "boolCol" nvarchar(4000) NOT NULL,
-              "_timestamp" datetime2
+              [charCol]  nvarchar(4000) NOT NULL,
+              [numCol] nvarchar(4000) NOT NULL,
+              [floatCol] nvarchar(4000) NOT NULL,
+              [boolCol] nvarchar(4000) NOT NULL,
+              [_timestamp] datetime2
             );',
                     self::SYNAPSE_DEST_SCHEMA_NAME
                 ));
 
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[types] (
-              "charCol"  nvarchar(4000) NOT NULL,
-              "numCol" decimal(10,1) NOT NULL,
-              "floatCol" float NOT NULL,
-              "boolCol" tinyint NOT NULL
+              [charCol]  nvarchar(4000) NOT NULL,
+              [numCol] decimal(10,1) NOT NULL,
+              [floatCol] float NOT NULL,
+              [boolCol] tinyint NOT NULL
             );',
                     self::SYNAPSE_SOURCE_SCHEMA_NAME
                 ));
@@ -200,8 +200,8 @@ EOT
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[out.no_timestamp_table] (
-              "col1" nvarchar(4000) NOT NULL DEFAULT \'\',
-              "col2" nvarchar(4000) NOT NULL DEFAULT \'\'
+              [col1] nvarchar(4000) NOT NULL DEFAULT \'\',
+              [col2] nvarchar(4000) NOT NULL DEFAULT \'\'
             );',
                     self::SYNAPSE_DEST_SCHEMA_NAME
                 ));
@@ -209,9 +209,9 @@ EOT
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[column-name-row-number] (
-              "id" nvarchar(4000) NOT NULL,
-              "row_number" nvarchar(4000) NOT NULL,
-              "_timestamp" datetime2,
+              [id] nvarchar(4000) NOT NULL,
+              [row_number] nvarchar(4000) NOT NULL,
+              [_timestamp] datetime2,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             );',
                     self::SYNAPSE_DEST_SCHEMA_NAME
@@ -220,12 +220,12 @@ EOT
             case self::TABLE_MULTI_PK:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[multi-pk] (
-            "VisitID" nvarchar(4000) NOT NULL DEFAULT \'\',
-            "Value" nvarchar(4000) NOT NULL DEFAULT \'\',
-            "MenuItem" nvarchar(4000) NOT NULL DEFAULT \'\',
-            "Something" nvarchar(4000) NOT NULL DEFAULT \'\',
-            "Other" nvarchar(4000) NOT NULL DEFAULT \'\',
-            "_timestamp" datetime2,
+            [VisitID] nvarchar(4000) NOT NULL DEFAULT \'\',
+            [Value] nvarchar(4000) NOT NULL DEFAULT \'\',
+            [MenuItem] nvarchar(4000) NOT NULL DEFAULT \'\',
+            [Something] nvarchar(4000) NOT NULL DEFAULT \'\',
+            [Other] nvarchar(4000) NOT NULL DEFAULT \'\',
+            [_timestamp] datetime2,
             PRIMARY KEY NONCLUSTERED("VisitID","Value","MenuItem") NOT ENFORCED
             );',
                     self::SYNAPSE_DEST_SCHEMA_NAME
@@ -293,8 +293,6 @@ EOT
                 return $column;
             }, array_values($row));
         }, $this->connection->fetchAll($sql));
-
-        var_dump($queryResult);
 
         $this->assertArrayEqualsSorted(
             $expected,
