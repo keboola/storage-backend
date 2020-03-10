@@ -242,7 +242,7 @@ EOT
         $this->platform = $this->connection->getDatabasePlatform();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->connection->close();
         parent::tearDown();
