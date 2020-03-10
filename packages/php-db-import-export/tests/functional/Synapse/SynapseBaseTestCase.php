@@ -242,6 +242,12 @@ EOT
         $this->platform = $this->connection->getDatabasePlatform();
     }
 
+    protected function tearDown()
+    {
+        $this->connection->close();
+        parent::tearDown();
+    }
+
     private function getSynapseConnection(): Connection
     {
         return \Doctrine\DBAL\DriverManager::getConnection([
