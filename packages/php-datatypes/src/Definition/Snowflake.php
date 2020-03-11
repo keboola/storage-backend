@@ -35,7 +35,8 @@ class Snowflake extends Common
     public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        $this->validateLength($type, isset($options["length"]) ? $options["length"] : null);
+        $options['length'] = $this->processLength($options);
+        $this->validateLength($type, $options['length']);
         $diff = array_diff(array_keys($options), ["length", "nullable", "default"]);
         if (count($diff) > 0) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
@@ -68,6 +69,48 @@ class Snowflake extends Common
             "length" => $this->getLength(),
             "nullable" => $this->isNullable()
         ];
+    }
+
+    /**
+     * @param array $options
+     * @return string|null
+     * @throws InvalidOptionException
+     */
+    private function processLength($options)
+    {
+        if (!isset($options['length'])) {
+            return null;
+        }
+        if (is_array($options['length'])) {
+            return $this->getLengthFromArray($options['length']);
+        }
+        return $options['length'];
+    }
+
+    /**
+     * @param array $lengthOptions
+     * @throws InvalidOptionException
+     * @return null|string
+     */
+    private function getLengthFromArray($lengthOptions)
+    {
+        $expectedOptions = ['character_maximum', 'numeric_precision', 'numeric_scale'];
+        $diff = array_diff(array_keys($lengthOptions), $expectedOptions);
+        if (count($diff) > 0) {
+            throw new InvalidOptionException(sprintf('Length option "%s" not supported', $diff[0]));
+        }
+
+        $characterMaximum = isset($lengthOptions['character_maximum']) ? $lengthOptions['character_maximum'] : null;
+        $numericPrecision = isset($lengthOptions['numeric_precision']) ? $lengthOptions['numeric_precision'] : null;
+        $numericScale = isset($lengthOptions['numeric_scale']) ? $lengthOptions['numeric_scale'] : null;
+
+        if (!is_null($characterMaximum)) {
+            return $characterMaximum;
+        }
+        if (!is_null($numericPrecision) && is_numeric($numericScale)) {
+            return $numericPrecision . ',' . $numericScale;
+        }
+        return $numericPrecision;
     }
 
     /**

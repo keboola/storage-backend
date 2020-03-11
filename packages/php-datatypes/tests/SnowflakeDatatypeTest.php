@@ -28,10 +28,34 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         new Snowflake("numeric");
         new Snowflake("NUMERIC");
         new Snowflake("NUMERIC", ["length" => ""]);
+        new Snowflake("NUMERIC", ["length" => []]);
         new Snowflake("INTEGER", ["length" => ""]);
+        new Snowflake("INTEGER", ["length" => []]);
         new Snowflake("NUMERIC", ["length" => "38,0"]);
         new Snowflake("NUMERIC", ["length" => "38,38"]);
         new Snowflake("NUMERIC", ["length" => "38"]);
+        new Snowflake('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '38',
+                'numeric_scale' => '0'
+            ]
+        ]);
+        new Snowflake('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '38',
+                'numeric_scale' => '38'
+            ]
+        ]);
+        new Snowflake('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '38'
+            ]
+        ]);
+        new Snowflake('NUMERIC', [
+            'length' => [
+                'numeric_scale' => '38'
+            ]
+        ]);
     }
 
     /**
@@ -115,6 +139,13 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testInvalidLengthOption()
+    {
+        $this->expectException(InvalidOptionException::class);
+        $this->expectExceptionMessage('Length option "invalidOption" not supported');
+        new Snowflake("NUMERIC", ["length" => ["invalidOption" => '123']]);
+    }
+
     public function testValidCharacterLengths()
     {
         new Snowflake("string");
@@ -122,6 +153,14 @@ class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
         new Snowflake("STRING", ["length" => ""]);
         new Snowflake("STRING", ["length" => "1"]);
         new Snowflake("STRING", ["length" => "16777216"]);
+        new Snowflake('STRING', [
+            'length' => [
+                'character_maximum' => '16777216'
+            ]
+        ]);
+        new Snowflake('STRING', [
+            'length' => []
+        ]);
     }
 
     /**
