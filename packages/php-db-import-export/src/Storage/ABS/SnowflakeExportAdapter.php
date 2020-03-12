@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -24,15 +25,16 @@ class SnowflakeExportAdapter implements BackendExportAdapterInterface
     }
 
     /**
+     * phpcs:disable SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
      * @param Storage\SqlSourceInterface $source
+     * @param Connection $connection
      * @throws \Exception
      */
-    public function getCopyCommand(
+    public function runCopyCommand(
         Storage\SourceInterface $source,
-        ExportOptions $exportOptions
-    ): string {
-        $compression = $exportOptions->isCompresed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
-
+        ExportOptions $exportOptions,
+        $connection = null
+    ): void {
         if (!$source instanceof Storage\SqlSourceInterface) {
             throw new \Exception(sprintf(
                 'Source "%s" must implement "%s".',
@@ -41,9 +43,14 @@ class SnowflakeExportAdapter implements BackendExportAdapterInterface
             ));
         }
 
+        if ($connection === null || !$connection instanceof Connection) {
+            throw new \Exception(sprintf('Connection must be instance of "%s"', Connection::class));
+        }
+
+        $compression = $exportOptions->isCompresed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
+
         $from = $source->getFromStatement();
 
-//TODO: encryption "ENCRYPTION = (TYPE = 'AZURE_CSE' master_key = '%s')"
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
 FROM %s
@@ -63,6 +70,6 @@ MAX_FILE_SIZE=50000000',
             $compression
         );
 
-        return $sql;
+        $connection->fetchAll($sql, $source->getQueryBindings());
     }
 }

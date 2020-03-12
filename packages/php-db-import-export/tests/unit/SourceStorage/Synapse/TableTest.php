@@ -23,6 +23,6 @@ class TableTest extends TestCase
         self::assertEquals('schema', $source->getSchema());
         self::assertEquals('table', $source->getTableName());
         self::assertEquals([], $source->getQueryBindings());
-        self::assertEquals('[schema].[table]', $source->getFromStatement());
+        self::assertEquals('SELECT * FROM [schema].[table]', $source->getFromStatement());
     }
 }

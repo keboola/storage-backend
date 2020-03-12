@@ -45,7 +45,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 
     public function getFromStatement(): string
     {
-        return $this->getQuotedTableWithScheme();
+        return sprintf('SELECT * FROM %s', $this->getQuotedTableWithScheme());
     }
 
     public function getQuotedTableWithScheme(): string

@@ -2,8 +2,8 @@
 
 ## Supported operations
 
-- Load/Import csv from `ABS` to `Snowflake` or `Synapse` 
-- Unload/Export table from `Snowflake` to `ABS` 
+- Load/Import csv from `ABS` to `Snowflake` or `Synapse`
+- Unload/Export table from `Snowflake` or `Synapse` to `ABS`
 
 ## Features
 
@@ -36,7 +36,7 @@ ABS_CONTAINER_NAME=containerName
 
 Role, user, database and warehouse are required for tests. You can create them:
 
-```sql 
+```sql
 CREATE ROLE "KEBOOLA_DB_IMPORT_EXPORT";
 CREATE DATABASE "KEBOOLA_DB_IMPORT_EXPORT";
 
@@ -60,12 +60,18 @@ SYNAPSE_PWD
 SYNAPSE_DATABASE
 SYNAPSE_SERVER
 
+Run query:
+```sql
+CREATE MASTER KEY;
+```
+this will create master key for polybase.
+
 ### Tests
 
 Run tests with following command.
 
 *note: azure credentials must be provided and fixtures uploaded*
- 
+
 ```
 docker-compose run --rm dev composer tests
 ```
@@ -171,7 +177,7 @@ For each backend there is corresponding adapter injected by Source or Destinatio
 
 Storage can have `Source` and `Destination` which must implement `SourceInterface` or `DestinationInterface`.
 
-- **SourceInterface** has method `getBackendImportAdapter` which must return Adapter implementing `BackendImportAdapterInterface` for used Backend   
+- **SourceInterface** has method `getBackendImportAdapter` which must return Adapter implementing `BackendImportAdapterInterface` for used Backend
 - **DestinationInterface** has method `getBackendExportAdapter` which must return Adapter implementing `BackendExportAdapterInterface` for used Backend
 
 

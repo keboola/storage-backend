@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Backend\Snowflake;
+namespace Keboola\Db\ImportExport\Backend\Synapse;
 
-use Keboola\Db\Import\Snowflake\Connection;
+use Exception;
+use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
 
 class Exporter implements ExporterInterface
 {
-
     /** @var Connection */
     private $connection;
 
@@ -30,7 +30,7 @@ class Exporter implements ExporterInterface
         ExportOptions $options
     ): void {
         if (!$source instanceof Storage\SqlSourceInterface) {
-            throw new \Exception(sprintf(
+            throw new Exception(sprintf(
                 'Source "%s" must implement "%s".',
                 get_class($source),
                 Storage\SqlSourceInterface::class
