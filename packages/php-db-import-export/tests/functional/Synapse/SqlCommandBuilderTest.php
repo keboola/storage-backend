@@ -12,15 +12,10 @@ use Keboola\Db\ImportExport\Storage\Synapse\Table;
 class SqlCommandBuilderTest extends SynapseBaseTestCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'schema';
-
     public const TEST_SCHEMA_QUOTED = '[' . self::TEST_SCHEMA . ']';
-
     public const TEST_STAGING_TABLE = '#stagingTable';
-
     public const TEST_TABLE = self::TESTS_PREFIX . 'test';
-
     public const TEST_TABLE_IN_SCHEMA = self::TEST_SCHEMA_QUOTED . '.' . self::TEST_TABLE_QUOTED;
-
     public const TEST_TABLE_QUOTED = '[' . self::TEST_TABLE . ']';
 
     protected function dropTestSchema(): void
@@ -46,7 +41,17 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             ]
         );
 
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (LOCATION = USER_DB)',
+            $sql
+        );
         $this->connection->exec($sql);
+    }
+
+    protected function createTestSchema(): void
+    {
+        $this->connection->exec(sprintf('CREATE SCHEMA %s', self::TEST_SCHEMA_QUOTED));
     }
 
     public function testGetDedupCommand(): void
@@ -76,7 +81,11 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             self::TEST_STAGING_TABLE,
             '#tempTable'
         );
-
+        $this->assertEquals(
+        // phpcs:ignore
+            'INSERT INTO [import-export-test_schema].[#tempTable] ([col1], [col2]) SELECT a.[col1],a.[col2] FROM (SELECT [col1], [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            $sql
+        );
         $this->connection->exec($sql);
         $result = $this->connection->fetchAll(sprintf(
             'SELECT * FROM %s.[%s]',
@@ -201,6 +210,12 @@ EOT
                 'pk2',
             ]
         );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'DELETE [import-export-test_schema].[#stagingTable] WHERE EXISTS (SELECT * FROM [import-export-test_schema].[import-export-test_test] WHERE [import-export-test_schema].[import-export-test_test].[pk1] = COALESCE([import-export-test_schema].[#stagingTable].[pk1], \'\') AND [import-export-test_schema].[import-export-test_test].[pk2] = COALESCE([import-export-test_schema].[#stagingTable].[pk2], \'\'))',
+            $sql
+        );
         $this->connection->exec($sql);
 
         $result = $this->connection->fetchAll(sprintf(
@@ -210,12 +225,14 @@ EOT
         ));
 
         $this->assertCount(1, $result);
-        $this->assertSame([[
-            'pk1'=> '2',
-            'pk2'=> '1',
-            'col1'=> '1',
-            'col2'=> '1',
-        ]], $result);
+        $this->assertSame([
+            [
+                'pk1' => '2',
+                'pk2' => '1',
+                'col1' => '1',
+                'col2' => '1',
+            ],
+        ], $result);
     }
 
     public function testGetDropCommand(): void
@@ -223,12 +240,34 @@ EOT
         $this->createTestSchema();
         $this->createTestTable();
         $sql = $this->qb->getDropCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+
+        $this->assertEquals(
+            'DROP TABLE [import-export-test_schema].[import-export-test_test]',
+            $sql
+        );
+
         $this->connection->exec($sql);
 
         $tableId = $this->connection->fetchColumn(
             $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
         );
         $this->assertFalse($tableId);
+    }
+
+    protected function createTestTable(): void
+    {
+        $table = self::TEST_TABLE_IN_SCHEMA;
+        $this->connection->exec(<<<EOT
+CREATE TABLE $table (  
+    id int NOT NULL
+)  
+WITH
+    (
+      PARTITION ( id RANGE LEFT FOR VALUES ( )),  
+      CLUSTERED COLUMNSTORE INDEX  
+    ) 
+EOT
+        );
     }
 
     public function testGetInsertAllIntoTargetTableCommand(): void
@@ -242,6 +281,12 @@ EOT
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
             self::TEST_STAGING_TABLE
+        );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'INSERT INTO [import-export-test_schema].[import-export-test_test] ([col1], [col2]) (SELECT CAST(COALESCE([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2] FROM [import-export-test_schema].[#stagingTable] AS [src])',
+            $sql
         );
 
         $out = $this->connection->exec($sql);
@@ -276,6 +321,34 @@ EOT
         ], $result);
     }
 
+    protected function createTestTableWithColumns(bool $includeTimestamp = false, bool $includePrimaryKey = false): void
+    {
+        $table = self::TEST_TABLE_IN_SCHEMA;
+        $timestampDeclaration = '';
+        if ($includeTimestamp) {
+            $timestampDeclaration = ',_timestamp datetime';
+        }
+        $idDeclaration = 'id varchar';
+        if ($includePrimaryKey) {
+            $idDeclaration = 'id INT PRIMARY KEY NONCLUSTERED NOT ENFORCED';
+        }
+
+        $this->connection->exec(<<<EOT
+CREATE TABLE $table (  
+    $idDeclaration,
+    col1 varchar,
+    col2 varchar
+    $timestampDeclaration
+)  
+WITH
+    (
+      PARTITION ( id RANGE LEFT FOR VALUES ( )),  
+      CLUSTERED COLUMNSTORE INDEX  
+    ) 
+EOT
+        );
+    }
+
     public function testGetInsertAllIntoTargetTableCommandConvertToNull(): void
     {
         $this->createTestSchema();
@@ -291,6 +364,11 @@ EOT
             $this->getDummyTableDestination(),
             $options,
             self::TEST_STAGING_TABLE
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'INSERT INTO [import-export-test_schema].[import-export-test_test] ([col1], [col2]) (SELECT NULLIF([col1], \'\'),CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2] FROM [import-export-test_schema].[#stagingTable] AS [src])',
+            $sql
         );
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
@@ -340,6 +418,12 @@ EOT
             $options,
             self::TEST_STAGING_TABLE
         );
+        $this->assertStringStartsWith(
+        // phpcs:ignore
+            'INSERT INTO [import-export-test_schema].[import-export-test_test] ([col1], [col2], [_timestamp]) (SELECT NULLIF([col1], \'\'),CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2],\'',
+            $sql
+        );
+        $this->assertStringEndsWith('\' FROM [import-export-test_schema].[#stagingTable] AS [src])', $sql);
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
@@ -362,6 +446,12 @@ EOT
         $this->createTestSchema();
         $this->createTestTableWithColumns();
         $sql = $this->qb->getRenameTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $renameTo);
+
+        $this->assertEquals(
+            'RENAME OBJECT [import-export-test_schema].[import-export-test_test] TO [newTable]',
+            $sql
+        );
+
         $this->connection->exec($sql);
 
         $expectedFalse = $this->connection->fetchColumn(
@@ -398,9 +488,13 @@ EOT
             $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
         );
 
-        $response = $this->connection->fetchAll(
-            $this->qb->getTableColumnsCommand($tableId)
+        $sql = $this->qb->getTableColumnsCommand($tableId);
+        $this->assertStringStartsWith(
+            'SELECT [NAME] FROM sys.all_columns WHERE object_id = \'',
+            $sql
         );
+
+        $response = $this->connection->fetchAll($sql);
 
         $this->assertCount(3, $response);
         $this->assertEqualsCanonicalizing(
@@ -413,39 +507,15 @@ EOT
         );
     }
 
-    protected function createTestTableWithColumns(bool $includeTimestamp = false, bool $includePrimaryKey = false): void
-    {
-        $table = self::TEST_TABLE_IN_SCHEMA;
-        $timestampDeclaration = '';
-        if ($includeTimestamp) {
-            $timestampDeclaration = ',_timestamp datetime';
-        }
-        $idDeclaration = 'id varchar';
-        if ($includePrimaryKey) {
-            $idDeclaration = 'id INT PRIMARY KEY NONCLUSTERED NOT ENFORCED';
-        }
-
-        $this->connection->exec(<<<EOT
-CREATE TABLE $table (  
-    $idDeclaration,
-    col1 varchar,
-    col2 varchar
-    $timestampDeclaration
-)  
-WITH
-    (
-      PARTITION ( id RANGE LEFT FOR VALUES ( )),  
-      CLUSTERED COLUMNSTORE INDEX  
-    ) 
-EOT
-        );
-    }
-
     public function testGetTableItemsCountCommand(): void
     {
         $this->createTestSchema();
         $this->createStagingTableWithData();
         $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $this->assertEquals(
+            'SELECT COUNT(*) AS [count] FROM [import-export-test_schema].[#stagingTable]',
+            $sql
+        );
         $response = $this->connection->fetchColumn($sql);
 
         $this->assertEquals(3, (int) $response);
@@ -464,9 +534,13 @@ EOT
         $this->createTestSchema();
         $this->createTestTable();
 
-        $response = $this->connection->fetchAll(
-            $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
+        $sql = $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+        $this->assertEquals(
+        // phpcs:ignore
+            'SELECT [object_id] FROM sys.tables WHERE schema_name(schema_id) = \'import-export-test_schema\' AND NAME = \'import-export-test_test\'',
+            $sql
         );
+        $response = $this->connection->fetchAll($sql);
         $this->assertCount(1, $response);
         $this->assertArrayHasKey('object_id', $response[0]);
 
@@ -505,6 +579,10 @@ EOT
         $this->assertEquals(3, (int) $response);
 
         $sql = $this->qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $this->assertEquals(
+            'TRUNCATE TABLE [import-export-test_schema].[#stagingTable]',
+            $sql
+        );
         $this->connection->exec($sql);
 
         $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
@@ -544,6 +622,11 @@ EOT
             $this->getDummyImportOptions(),
             self::TEST_STAGING_TABLE,
             ['col1']
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = COALESCE([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
+            $sql
         );
         $this->connection->exec($sql);
 
@@ -609,6 +692,11 @@ EOT
             $options,
             self::TEST_STAGING_TABLE,
             ['col1']
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = NULLIF([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
+            $sql
         );
         $this->connection->exec($sql);
 
@@ -685,6 +773,16 @@ EOT
             self::TEST_STAGING_TABLE,
             ['col1']
         );
+        $this->assertStringStartsWith(
+        // phpcs:ignore
+            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = NULLIF([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'',
+            $sql
+        );
+        $this->assertStringEndsWith(
+        // phpcs:ignore
+            '\' FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
+            $sql
+        );
         $this->connection->exec($sql);
 
         $result = $this->connection->fetchAll(sprintf(
@@ -701,6 +799,10 @@ EOT
         }
     }
 
+    /**
+     * hpcs:disable SlevomatCodingStandard.TypeHints.TypeHintDeclaration
+     * @doesNotPerformAssertions
+     */
     public function testTransaction(): void
     {
         $this->createTestSchema();
@@ -710,41 +812,15 @@ EOT
             $this->qb->getBeginTransaction()
         );
 
-        $this->insertDataToTestTable();
-
-        $this->connection->exec(
-            $this->qb->getCommitTransaction()
-        );
-    }
-
-    protected function createTestSchema(): void
-    {
-        $this->connection->exec(sprintf('CREATE SCHEMA %s', self::TEST_SCHEMA_QUOTED));
-    }
-
-    protected function createTestTable(): void
-    {
-        $table = self::TEST_TABLE_IN_SCHEMA;
-        $this->connection->exec(<<<EOT
-CREATE TABLE $table (  
-    id int NOT NULL
-)  
-WITH
-    (
-      PARTITION ( id RANGE LEFT FOR VALUES ( )),  
-      CLUSTERED COLUMNSTORE INDEX  
-    ) 
-EOT
-        );
-    }
-
-    protected function insertDataToTestTable(): void
-    {
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id]) VALUES (1)',
                 self::TEST_TABLE_IN_SCHEMA
             )
+        );
+
+        $this->connection->exec(
+            $this->qb->getCommitTransaction()
         );
     }
 }
