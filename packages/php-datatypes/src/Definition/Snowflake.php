@@ -107,7 +107,7 @@ class Snowflake extends Common
         if (!is_null($characterMaximum)) {
             return $characterMaximum;
         }
-        if (!is_null($numericPrecision) && is_numeric($numericScale)) {
+        if (!is_null($numericPrecision) && !is_null($numericScale)) {
             return $numericPrecision . ',' . $numericScale;
         }
         return $numericPrecision;
