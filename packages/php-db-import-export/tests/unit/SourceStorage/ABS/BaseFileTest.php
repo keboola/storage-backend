@@ -21,6 +21,7 @@ class BaseFileTest extends BaseTestCase
         };
         self::assertEquals('file.csv', $baseFile->getFilePath());
         self::assertEquals('azure://absAccount.blob.core.windows.net/absContainer/', $baseFile->getContainerUrl());
+        self::assertEquals('https://absAccount.blob.core.windows.net/absContainer/', $baseFile->getContainerUrl($baseFile::PROTOCOL_HTTPS));
         self::assertEquals('azureCredentials', $baseFile->getSasToken());
     }
 }
