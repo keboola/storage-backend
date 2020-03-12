@@ -79,8 +79,6 @@ class Importer implements ImporterInterface
                 $this->doNonIncrementalLoad($options, $destination, $primaryKeys);
             }
             $this->importState->setImportedColumns($options->getColumns());
-        } catch (\Throwable $e) {
-            echo $e;
         } finally {
             $this->runQuery(
                 $this->sqlBuilder->getDropCommand($destination->getSchema(), $this->importState->getStagingTableName())
