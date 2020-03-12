@@ -23,7 +23,7 @@ script:
     phpcs
     phpstan
     loadAbs
-    tests-unit
+  - docker-compose run production composer tests-unit
   # prepare tests
   - echo -n > commands
   - echo 'synapse     -;bash docker/synapse/synapse.sh -w && docker-compose run production php ./vendor/bin/phpunit --debug --colors=always --testsuite synapse' >> commands
