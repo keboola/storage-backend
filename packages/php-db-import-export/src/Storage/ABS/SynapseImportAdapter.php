@@ -37,10 +37,11 @@ class SynapseImportAdapter implements BackendImportAdapterInterface
         string $stagingTableName,
         $connection = null
     ): array {
-        /**
-         * @var Connection $connection
-         */
-        $connection = $connection;
+
+        if ($connection === null || !$connection instanceof Connection) {
+            throw new \Exception(sprintf('Connection must be instance of "%s"', Connection::class));
+        }
+
         $platform = $connection->getDatabasePlatform();
         $sasToken = $this->source->getSasToken();
         $destinationSchema = $platform->quoteSingleIdentifier($destination->getSchema());
