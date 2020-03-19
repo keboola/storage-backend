@@ -33,6 +33,28 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         new Redshift("NUMERIC", ["length" => "37,0"]);
         new Redshift("NUMERIC", ["length" => "37,37"]);
         new Redshift("NUMERIC", ["length" => "37"]);
+        new Redshift('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '37',
+                'numeric_scale' => '0'
+            ]
+        ]);
+        new Redshift('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '37',
+                'numeric_scale' => '37'
+            ]
+        ]);
+        new Redshift('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '37'
+            ]
+        ]);
+        new Redshift('NUMERIC', [
+            'length' => [
+                'numeric_scale' => '37'
+            ]
+        ]);
     }
 
     /**
@@ -56,6 +78,8 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         new Redshift("VARCHAR", ["length" => ""]);
         new Redshift("VARCHAR", ["length" => "1"]);
         new Redshift("VARCHAR", ["length" => "65535"]);
+        new Redshift("VARCHAR", ["length" => ['character_maximum' => 65535]]);
+        new Redshift("VARCHAR", ["length" => []]);
     }
 
     /**
