@@ -27,10 +27,10 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
-        if (!$source instanceof Storage\ABS\DestinationFile) {
+        if (!$source instanceof Storage\SqlSourceInterface) {
             return false;
         }
-        if (!$destination instanceof Storage\SqlSourceInterface) {
+        if (!$destination instanceof Storage\ABS\DestinationFile) {
             return false;
         }
         return true;
