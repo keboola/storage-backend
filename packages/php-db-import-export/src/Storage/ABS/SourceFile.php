@@ -41,19 +41,6 @@ class SourceFile extends BaseFile implements SourceInterface
         $this->csvOptions = $csvOptions;
     }
 
-    public function getBackendImportAdapter(
-        ImporterInterface $importer
-    ): BackendImportAdapterInterface {
-        switch (true) {
-            case $importer instanceof SnowflakeImporter:
-                return new SnowflakeImportAdapter($this);
-            case $importer instanceof SynapseImporter:
-                return new SynapseImportAdapter($this);
-            default:
-                throw new NoBackendAdapterException();
-        }
-    }
-
     public function getCsvOptions(): CsvOptions
     {
         return $this->csvOptions;

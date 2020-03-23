@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend;
 
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\DestinationInterface;
+use Keboola\Db\ImportExport\Storage;
 
 interface BackendImportAdapterInterface
 {
+    public static function isSupported(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination
+    ): bool;
+
     /**
-     * @param null|Connection|\Doctrine\DBAL\Connection $connection
      * @return string[]
      */
     public function getCopyCommands(
-        DestinationInterface $destination,
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
-        string $stagingTableName,
-        $connection = null
+        string $stagingTableName
     ): array;
 }

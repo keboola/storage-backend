@@ -17,6 +17,14 @@ class Importer implements ImporterInterface
 {
     public const TIMESTAMP_COLUMN_NAME = '_timestamp';
 
+    public const DEFAULT_ADAPTERS = [
+        Storage\ABS\SynapseImportAdapter::class,
+        Storage\Synapse\SynapseImportAdapter::class,
+    ];
+
+    /** @var string[] */
+    private $adapters = self::DEFAULT_ADAPTERS;
+
     /** @var Connection */
     private $connection;
 
@@ -37,18 +45,16 @@ class Importer implements ImporterInterface
         $this->sqlBuilder = new SqlCommandBuilder($this->connection);
     }
 
+    /**
+     * @param Storage\Synapse\Table $destination
+     */
     public function importTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptions $options
     ): Result {
-        if (!$destination instanceof Storage\Synapse\Table) {
-            throw new \Exception(sprintf(
-                'Destination "%s" is invalid only "%s" is supported.',
-                get_class($destination),
-                Storage\Synapse\Table::class
-            ));
-        }
+        $adapter = $this->getAdapter($source, $destination);
+
         if ($source instanceof Storage\ABS\SourceFile
             && $source->getCsvOptions()->getEnclosure() === ''
         ) {
@@ -68,7 +74,7 @@ class Importer implements ImporterInterface
 
         try {
             //import files to staging table
-            $this->importToStagingTable($source, $destination, $options);
+            $this->importToStagingTable($source, $destination, $options, $adapter);
             $primaryKeys = $this->sqlBuilder->getTablePrimaryKey(
                 $destination->getSchema(),
                 $destination->getTableName()
@@ -118,7 +124,6 @@ class Importer implements ImporterInterface
         if ($timerName) {
             $this->importState->startTimer($timerName);
         }
-        // echo sprintf("Executing query: %s \n", $query);
         $this->connection->exec($query);
         if ($timerName) {
             $this->importState->stopTimer($timerName);
@@ -131,14 +136,14 @@ class Importer implements ImporterInterface
     private function importToStagingTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptions $importOptions
+        ImportOptions $importOptions,
+        SynapseImportAdapterInterface $adapter
     ): void {
-        $adapter = $source->getBackendImportAdapter($this);
         $commands = $adapter->getCopyCommands(
+            $source,
             $destination,
             $importOptions,
-            $this->importState->getStagingTableName(),
-            $this->connection
+            $this->importState->getStagingTableName()
         );
 
         try {
@@ -287,5 +292,52 @@ class Importer implements ImporterInterface
         $this->runQuery(
             $this->sqlBuilder->getCommitTransaction()
         );
+    }
+
+    public function setAdapters(array $adapters): void
+    {
+        $this->adapters = $adapters;
+    }
+
+    private function getAdapter(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination
+    ): SynapseImportAdapterInterface {
+        $adapterForUse = null;
+        foreach ($this->adapters as $adapter) {
+            $ref = new \ReflectionClass($adapter);
+            if (!$ref->implementsInterface(SynapseImportAdapterInterface::class)) {
+                throw new \Exception(
+                    sprintf(
+                        'Each Synapse import adapter must implement "%s".',
+                        SynapseImportAdapterInterface::class
+                    )
+                );
+            }
+            if ($adapter::isSupported($source, $destination)) {
+                if ($adapterForUse !== null) {
+                    throw new \Exception(
+                        sprintf(
+                            'More than one suitable adapter found for Synapse importer with source: '
+                            . '"%s", destination "%s".',
+                            get_class($source),
+                            get_class($destination)
+                        )
+                    );
+                }
+                $adapterForUse = new $adapter($this->connection);
+            }
+        }
+        if ($adapterForUse === null) {
+            throw new \Exception(
+                sprintf(
+                    'No suitable adapter found for Synapse importer with source: "%s", destination "%s".',
+                    get_class($source),
+                    get_class($destination)
+                )
+            );
+        }
+
+        return $adapterForUse;
     }
 }

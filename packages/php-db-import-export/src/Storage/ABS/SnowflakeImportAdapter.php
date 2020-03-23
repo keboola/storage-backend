@@ -5,62 +5,71 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
-use Keboola\Db\ImportExport\Storage\DestinationInterface;
-use Keboola\Db\ImportExport\Storage\Snowflake\Table;
-use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage;
 
-class SnowflakeImportAdapter implements BackendImportAdapterInterface
+class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 {
-    /**
-     * @var SourceFile
-     */
-    private $source;
+    /** @var Connection */
+    private $connection;
 
-    /**
-     * @param SourceFile $source
-     */
-    public function __construct(SourceInterface $source)
+    public function __construct(Connection $connection)
     {
-        $this->source = $source;
+        $this->connection = $connection;
+    }
+
+    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
+    {
+        if (!$source instanceof Storage\ABS\SourceFile) {
+            return false;
+        }
+        if (!$destination instanceof Storage\Snowflake\Table) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * @param Table $destination
-     * @param null $connection
+     * @param Storage\ABS\SourceFile $source
+     * @param Storage\Snowflake\Table $destination
      */
     public function getCopyCommands(
-        DestinationInterface $destination,
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
-        string $stagingTableName,
-        $connection = null
+        string $stagingTableName
     ): array {
-        $filesToImport = $this->source->getManifestEntries();
+        $filesToImport = $source->getManifestEntries();
         $commands = [];
         foreach (array_chunk($filesToImport, ImporterInterface::SLICED_FILES_CHUNK_SIZE) as $entries) {
+            $quotedFiles = array_map(
+                static function ($entry) use ($source) {
+                    return QuoteHelper::quote(
+                        strtr(
+                            $entry,
+                            [$source->getContainerUrl(BaseFile::PROTOCOL_AZURE) => '']
+                        )
+                    );
+                },
+                $entries
+            );
+
             $commands[] = sprintf(
                 'COPY INTO %s.%s 
 FROM %s
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
 FILE_FORMAT = (TYPE=CSV %s)
 FILES = (%s)',
-                QuoteHelper::quoteIdentifier($destination->getSchema()),
-                QuoteHelper::quoteIdentifier($stagingTableName),
-                QuoteHelper::quote($this->source->getContainerUrl()),
-                $this->source->getSasToken(),
-                implode(' ', $this->getCsvCopyCommandOptions($importOptions, $this->source->getCsvOptions())),
-                implode(
-                    ', ',
-                    array_map(
-                        function ($entry) {
-                            return QuoteHelper::quote(strtr($entry, [$this->source->getContainerUrl() => '']));
-                        },
-                        $entries
-                    )
-                )
+                $this->connection->quoteIdentifier($destination->getSchema()),
+                $this->connection->quoteIdentifier($stagingTableName),
+                QuoteHelper::quote($source->getContainerUrl(BaseFile::PROTOCOL_AZURE)),
+                $source->getSasToken(),
+                implode(' ', $this->getCsvCopyCommandOptions($importOptions, $source->getCsvOptions())),
+                implode(', ', $quotedFiles)
             );
         }
         return $commands;
