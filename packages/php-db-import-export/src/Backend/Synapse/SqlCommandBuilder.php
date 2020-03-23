@@ -139,10 +139,6 @@ class SqlCommandBuilder
             $this->platform->quoteSingleIdentifier($destination->getSchema()),
             $this->platform->quoteSingleIdentifier($stagingTableName)
         );
-//        $on = [];
-//        foreach ($primaryKeys as $key) {
-//            $on[] = sprintf('%s.[%s] = [dest].[%s]', $sourceTable, $key, $key);
-//        }
 
         return sprintf(
             'DELETE %s WHERE EXISTS (SELECT * FROM %s WHERE %s)',
@@ -154,15 +150,6 @@ class SqlCommandBuilder
                 $destination->getQuotedTableWithScheme()
             )
         );
-
-//        // Delete updated rows from staging table
-//        return sprintf(
-//            'DELETE FROM %s INNER JOIN %s AS [dest] ON %s WHERE %s',
-//            $sourceTable,
-//            $destination->getQuotedTableWithScheme(),
-//            implode(' AND ', $on),
-//            $this->getPrimaryKeyWhereConditions($primaryKeys, $sourceTable, '[dest]')
-//        );
     }
 
     private function getPrimaryKeyWhereConditions(
