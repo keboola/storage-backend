@@ -29,33 +29,6 @@ class SourceFileTest extends BaseTestCase
         self::assertEquals('file.csv', $source->getFilePath());
     }
 
-    public function testGetBackendImportAdapter(): void
-    {
-        $source = $this->createDummyABSSourceInstance('file.csv');
-        /** @var SnowflakeImporter|MockObject $importer */
-        $importer = self::createMock(SnowflakeImporter::class);
-        $adapter = $source->getBackendImportAdapter($importer);
-        self::assertInstanceOf(BackendImportAdapterInterface::class, $adapter);
-        self::assertInstanceOf(SnowflakeImportAdapter::class, $adapter);
-    }
-
-    public function testGetBackendImportAdapterInvalidImporter(): void
-    {
-        $source = $this->createDummyABSSourceInstance('file.csv');
-        $dummyImporter = new class implements ImporterInterface {
-            public function importTable(
-                Storage\SourceInterface $source,
-                Storage\DestinationInterface $destination,
-                ImportOptions $options
-            ): Result {
-                return new Result([]);
-            }
-        };
-
-        self::expectException(NoBackendAdapterException::class);
-        $source->getBackendImportAdapter($dummyImporter);
-    }
-
     public function testGetManifestEntries(): void
     {
         $source = $this->createABSSourceInstance('file.csv');

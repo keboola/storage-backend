@@ -35,12 +35,12 @@ class SynapseImportAdapterTest extends BaseTestCase
 
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new ImportOptions();
-        $adapter = new SynapseImportAdapter($source);
+        $adapter = new SynapseImportAdapter($conn);
         $commands = $adapter->getCopyCommands(
+            $source,
             $destination,
             $options,
-            'stagingTable',
-            $conn
+            'stagingTable'
         );
 
         $this->assertSame([
@@ -81,12 +81,12 @@ EOT
 
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new ImportOptions([], [], false, false, 1);
-        $adapter = new SynapseImportAdapter($source);
+        $adapter = new SynapseImportAdapter($conn);
         $commands = $adapter->getCopyCommands(
+            $source,
             $destination,
             $options,
-            'stagingTable',
-            $conn
+            'stagingTable'
         );
 
         $this->assertSame([

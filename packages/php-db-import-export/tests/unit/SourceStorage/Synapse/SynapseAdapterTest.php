@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\Synapse;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
@@ -20,10 +21,17 @@ class SynapseAdapterTest extends BaseTestCase
         $source->expects(self::once())->method('getSchema')->willReturn('schema');
         $source->expects(self::once())->method('getTableName')->willReturn('table');
 
+        /** @var Connection|MockObject $source */
+        $conn = $this->createMock(Connection::class);
+        $conn->expects($this->once())->method('getDatabasePlatform')->willReturn(
+            new SQLServer2012Platform()
+        );
+
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new ImportOptions([], ['col1', 'col2']);
-        $adapter = new SynapseImportAdapter($source, new SQLServer2012Platform());
+        $adapter = new SynapseImportAdapter($conn);
         $commands = $adapter->getCopyCommands(
+            $source,
             $destination,
             $options,
             'stagingTable'

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\Snowflake;
 
-use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
-use Keboola\Db\ImportExport\Backend\ImporterInterface;
-use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 
@@ -26,12 +23,6 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     {
         $this->query = $query;
         $this->queryBindings = $queryBindings;
-    }
-
-    public function getBackendImportAdapter(
-        ImporterInterface $importer
-    ): BackendImportAdapterInterface {
-        throw new NoBackendAdapterException();
     }
 
     public function getFromStatement(): string

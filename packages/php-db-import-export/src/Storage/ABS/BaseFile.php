@@ -50,7 +50,7 @@ abstract class BaseFile
      * Snowflake won't import files if protocol is other than azure://
      * Synapse won't import files if protocol is other than https://
      */
-    public function getContainerUrl(string $protocol = self::PROTOCOL_AZURE): string
+    public function getContainerUrl(string $protocol): string
     {
         return sprintf(
             '%s://%s.blob.core.windows.net/%s/',

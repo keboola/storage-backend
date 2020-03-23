@@ -35,31 +35,4 @@ class TableTest extends TestCase
         self::expectException(NoBackendAdapterException::class);
         $source->getBackendExportAdapter($exporter);
     }
-
-    public function testGetBackendImportAdapter(): void
-    {
-        $source = new Storage\Snowflake\Table('schema', 'table');
-        /** @var SnowflakeImporter|MockObject $importer */
-        $importer = self::createMock(SnowflakeImporter::class);
-        $adapter = $source->getBackendImportAdapter($importer);
-        self::assertInstanceOf(BackendImportAdapterInterface::class, $adapter);
-        self::assertInstanceOf(Storage\Snowflake\SnowflakeImportAdapter::class, $adapter);
-    }
-
-    public function testGetBackendImportAdapterInvalidImporter(): void
-    {
-        $source = new Storage\Snowflake\Table('schema', 'table');
-        $dummyImporter = new class implements ImporterInterface {
-            public function importTable(
-                Storage\SourceInterface $source,
-                Storage\DestinationInterface $destination,
-                ImportOptions $options
-            ): Result {
-                return new Result([]);
-            }
-        };
-
-        self::expectException(NoBackendAdapterException::class);
-        $source->getBackendImportAdapter($dummyImporter);
-    }
 }

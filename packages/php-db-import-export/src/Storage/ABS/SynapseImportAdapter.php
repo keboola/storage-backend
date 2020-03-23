@@ -5,63 +5,65 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\DestinationInterface;
-use Keboola\Db\ImportExport\Storage\Synapse\Table;
-use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage;
 
-class SynapseImportAdapter implements BackendImportAdapterInterface
+class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
-    /**
-     * @var SourceFile
-     */
-    private $source;
+    /** @var Connection */
+    private $connection;
 
-    /**
-     * @param SourceFile $source
-     */
-    public function __construct(SourceInterface $source)
+    /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
+    private $platform;
+
+    public function __construct(Connection $connection)
     {
-        $this->source = $source;
+        $this->connection = $connection;
+        $this->platform = $connection->getDatabasePlatform();
+    }
+
+    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
+    {
+        if (!$source instanceof Storage\ABS\SourceFile) {
+            return false;
+        }
+        if (!$destination instanceof Storage\Synapse\Table) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * phpcs:disable SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
-     * @param Table $destination
-     * @param Connection $connection
+     * @param Storage\ABS\SourceFile $source
+     * @param Storage\Synapse\Table $destination
      */
     public function getCopyCommands(
-        DestinationInterface $destination,
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
-        string $stagingTableName,
-        $connection = null
+        string $stagingTableName
     ): array {
+        $sasToken = $source->getSasToken();
+        $destinationSchema = $this->platform->quoteSingleIdentifier($destination->getSchema());
+        $destinationTable = $this->platform->quoteSingleIdentifier($stagingTableName);
 
-        if ($connection === null || !$connection instanceof Connection) {
-            throw new \Exception(sprintf('Connection must be instance of "%s"', Connection::class));
-        }
-
-        $platform = $connection->getDatabasePlatform();
-        $sasToken = $this->source->getSasToken();
-        $destinationSchema = $platform->quoteSingleIdentifier($destination->getSchema());
-        $destinationTable = $platform->quoteSingleIdentifier($stagingTableName);
-
-        $fieldDelimiter = $connection->quote($this->source->getCsvOptions()->getDelimiter());
+        $fieldDelimiter = $this->connection->quote($source->getCsvOptions()->getDelimiter());
         $firstRow = '';
         if ($importOptions->getNumberOfIgnoredLines() !== 0) {
             $firstRow = sprintf(',FIRSTROW=%s', $importOptions->getNumberOfIgnoredLines() + 1);
         }
-        $enclosure = $connection->quote($this->source->getCsvOptions()->getEnclosure());
+        $enclosure = $this->connection->quote($source->getCsvOptions()->getEnclosure());
 
-        $entries = $this->source->getManifestEntries(SourceFile::PROTOCOL_HTTPS);
+        $entries = $source->getManifestEntries(SourceFile::PROTOCOL_HTTPS);
 
         if (count($entries) === 0) {
             return [];
         }
 
         foreach ($entries as &$entry) {
-            $entry = $connection->quote($entry);
+            $entry = $this->connection->quote($entry);
         }
         unset($entry);
 

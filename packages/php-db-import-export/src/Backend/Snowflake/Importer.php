@@ -10,13 +10,23 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 
 class Importer implements ImporterInterface
 {
     public const TIMESTAMP_COLUMN_NAME = '_timestamp';
+
+    public const DEFAULT_ADAPTERS = [
+        Storage\ABS\SnowflakeImportAdapter::class,
+        Storage\Snowflake\SnowflakeImportAdapter::class,
+    ];
+
+    /** @var string[] */
+    private $adapters = self::DEFAULT_ADAPTERS;
+
+    /** @var SnowflakeImportAdapterInterface */
+    private $currentImportAdapter;
 
     /** @var Connection */
     private $connection;
@@ -38,18 +48,16 @@ class Importer implements ImporterInterface
         $this->sqlBuilder = new SqlCommandBuilder();
     }
 
+    /**
+     * @param Storage\Snowflake\Table $destination
+     */
     public function importTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptions $options
     ): Result {
-        if (!$destination instanceof Storage\Snowflake\Table) {
-            throw new \Exception(sprintf(
-                'Destination "%s" is invalid only "%s" is supported.',
-                get_class($destination),
-                Storage\Snowflake\Table::class
-            ));
-        }
+        $this->setUpAdapter($source, $destination);
+
         $this->importState = new ImportState(BackendHelper::generateStagingTableName());
         $this->validateColumns($options, $destination);
 
@@ -111,9 +119,9 @@ class Importer implements ImporterInterface
         if ($timerName) {
             $this->importState->startTimer($timerName);
         }
-        // echo sprintf("Executing query: %s \n", $query);
 
         $this->connection->query($query);
+
         if ($timerName) {
             $this->importState->stopTimer($timerName);
         }
@@ -127,8 +135,13 @@ class Importer implements ImporterInterface
         Storage\DestinationInterface $destination,
         ImportOptions $importOptions
     ): void {
-        $adapter = $source->getBackendImportAdapter($this);
-        $commands = $adapter->getCopyCommands($destination, $importOptions, $this->importState->getStagingTableName());
+        $commands = $this->currentImportAdapter->getCopyCommands(
+            $source,
+            $destination,
+            $importOptions,
+            $this->importState->getStagingTableName()
+        );
+
         try {
             $this->importState->startTimer('copyToStaging');
             foreach ($commands as $command) {
@@ -263,5 +276,49 @@ class Importer implements ImporterInterface
         $this->runQuery(
             $this->sqlBuilder->getCommitTransaction()
         );
+    }
+
+    public function setAdapters(array $adapters): void
+    {
+        $this->adapters = $adapters;
+    }
+
+    private function setUpAdapter(Storage\SourceInterface $source, Storage\DestinationInterface $destination): void
+    {
+        $adapterFound = false;
+        foreach ($this->adapters as $adapter) {
+            $ref = new \ReflectionClass($adapter);
+            if (!$ref->implementsInterface(SnowflakeImportAdapterInterface::class)) {
+                throw new \Exception(
+                    sprintf(
+                        'Each snowflake import adapter must implement "%s".',
+                        SnowflakeImportAdapterInterface::class
+                    )
+                );
+            }
+            if ($adapter::isSupported($source, $destination)) {
+                if ($adapterFound === true) {
+                    throw new \Exception(
+                        sprintf(
+                            'More than one suitable adapter found for Snowflake importer with source: '
+                            .'"%s", destination "%s".',
+                            get_class($source),
+                            get_class($destination)
+                        )
+                    );
+                }
+                $this->currentImportAdapter = new $adapter($this->connection);
+                $adapterFound = true;
+            }
+        }
+        if ($adapterFound === false) {
+            throw new \Exception(
+                sprintf(
+                    'No suitable adapter found for Snowflake importer with source: "%s", destination "%s".',
+                    get_class($source),
+                    get_class($destination)
+                )
+            );
+        }
     }
 }

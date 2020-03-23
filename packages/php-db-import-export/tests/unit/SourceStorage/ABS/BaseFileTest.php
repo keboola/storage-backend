@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\ABS\BaseFile;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class BaseFileTest extends BaseTestCase
@@ -21,7 +22,7 @@ class BaseFileTest extends BaseTestCase
         self::assertEquals('file.csv', $baseFile->getFilePath());
         self::assertEquals(
             'azure://absAccount.blob.core.windows.net/absContainer/',
-            $baseFile->getContainerUrl()
+            $baseFile->getContainerUrl($baseFile::PROTOCOL_AZURE)
         );
         self::assertEquals(
             'https://absAccount.blob.core.windows.net/absContainer/',

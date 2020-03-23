@@ -6,40 +6,40 @@ namespace Keboola\Db\ImportExport\Storage\Synapse;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\DestinationInterface;
-use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage;
 
-class SynapseImportAdapter implements BackendImportAdapterInterface
+class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
-    /**
-     * @var Table
-     */
-    private $source;
-
-    /** @var SQLServerPlatform */
+    /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
     private $platform;
 
-    /**
-     * @param Table $source
-     */
-    public function __construct(SourceInterface $source, SQLServerPlatform $platform)
+    public function __construct(Connection $connection)
     {
-        $this->source = $source;
-        $this->platform = $platform;
+        $this->platform = $connection->getDatabasePlatform();
+    }
+
+    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
+    {
+        if (!$source instanceof Storage\Synapse\Table) {
+            return false;
+        }
+        if (!$destination instanceof Storage\Synapse\Table) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * phpcs:disable SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
-     * @param Table $destination
-     * @param Connection $connection
+     * @param Storage\Synapse\Table $source
+     * @param Storage\Synapse\Table $destination
      */
     public function getCopyCommands(
-        DestinationInterface $destination,
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
-        string $stagingTableName,
-        $connection = null
+        string $stagingTableName
     ): array {
         $quotedColumns = array_map(function ($column) {
             return $this->platform->quoteSingleIdentifier($column);
@@ -55,8 +55,8 @@ class SynapseImportAdapter implements BackendImportAdapterInterface
         $sql .= sprintf(
             ' SELECT %s FROM %s.%s',
             implode(', ', $quotedColumns),
-            $this->platform->quoteSingleIdentifier($this->source->getSchema()),
-            $this->platform->quoteSingleIdentifier($this->source->getTableName())
+            $this->platform->quoteSingleIdentifier($source->getSchema()),
+            $this->platform->quoteSingleIdentifier($source->getTableName())
         );
 
         return [$sql];

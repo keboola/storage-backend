@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
+use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SnowflakeImportAdapterTest extends BaseTestCase
 {
+    use MockConnectionTrait;
+
     public function testGetCopyCommands(): void
     {
         /** @var Storage\ABS\SourceFile|MockObject $source */
@@ -24,8 +28,9 @@ class SnowflakeImportAdapterTest extends BaseTestCase
 
         $destination = new Storage\Snowflake\Table('schema', 'table');
         $options = new ImportOptions();
-        $adapter = new SnowflakeImportAdapter($source);
+        $adapter = new SnowflakeImportAdapter($this->mockConnection());
         $commands = $adapter->getCopyCommands(
+            $source,
             $destination,
             $options,
             'stagingTable'
@@ -60,8 +65,9 @@ EOT
 
         $destination = new Storage\Snowflake\Table('schema', 'table');
         $options = new ImportOptions();
-        $adapter = new SnowflakeImportAdapter($source);
+        $adapter = new SnowflakeImportAdapter($this->mockConnection());
         $commands = $adapter->getCopyCommands(
+            $source,
             $destination,
             $options,
             'stagingTable'

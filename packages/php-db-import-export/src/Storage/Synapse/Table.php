@@ -43,17 +43,6 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         throw new NoBackendAdapterException();
     }
 
-    public function getBackendImportAdapter(
-        ImporterInterface $importer
-    ): BackendImportAdapterInterface {
-        switch (true) {
-            case $importer instanceof SynapseImporter:
-                return new SynapseImportAdapter($this, $this->platform);
-            default:
-                throw new NoBackendAdapterException();
-        }
-    }
-
     public function getFromStatement(): string
     {
         return $this->getQuotedTableWithScheme();

@@ -25,33 +25,4 @@ class TableTest extends TestCase
         self::assertEquals([], $source->getQueryBindings());
         self::assertEquals('[schema].[table]', $source->getFromStatement());
     }
-
-//  TODO: Export adapter
-
-    public function testGetBackendImportAdapter(): void
-    {
-        $source = new Storage\Synapse\Table('schema', 'table');
-        /** @var SynapseImporter|MockObject $importer */
-        $importer = self::createMock(SynapseImporter::class);
-        $adapter = $source->getBackendImportAdapter($importer);
-        self::assertInstanceOf(BackendImportAdapterInterface::class, $adapter);
-        self::assertInstanceOf(Storage\Synapse\SynapseImportAdapter::class, $adapter);
-    }
-
-    public function testGetBackendImportAdapterInvalidImporter(): void
-    {
-        $source = new Storage\Synapse\Table('schema', 'table');
-        $dummyImporter = new class implements ImporterInterface {
-            public function importTable(
-                Storage\SourceInterface $source,
-                Storage\DestinationInterface $destination,
-                ImportOptions $options
-            ): Result {
-                return new Result([]);
-            }
-        };
-
-        self::expectException(NoBackendAdapterException::class);
-        $source->getBackendImportAdapter($dummyImporter);
-    }
 }

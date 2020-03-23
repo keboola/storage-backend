@@ -56,7 +56,7 @@ FILE_FORMAT = (
     TIMESTAMP_FORMAT = \'YYYY-MM-DD HH24:MI:SS\'
 )
 MAX_FILE_SIZE=50000000',
-            $this->destination->getContainerUrl(),
+            $this->destination->getContainerUrl(BaseFile::PROTOCOL_AZURE),
             $this->destination->getFilePath(),
             $from,
             $this->destination->getSasToken(),
