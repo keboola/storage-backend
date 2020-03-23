@@ -62,10 +62,9 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             return [];
         }
 
-        foreach ($entries as &$entry) {
-            $entry = $this->connection->quote($entry);
-        }
-        unset($entry);
+        $entries = array_map(function ($entry) {
+            return $this->connection->quote($entry);
+        }, $entries);
 
         $entries = implode(', ', $entries);
 
