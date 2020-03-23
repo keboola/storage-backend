@@ -5,15 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\Db\Import\Exception;
-use Keboola\Db\Import\Result;
-use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
-use Keboola\Db\ImportExport\Backend\ImporterInterface;
-use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Storage\ABS\SnowflakeImportAdapter;
-use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
-use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 

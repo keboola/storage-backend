@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend;
 
-use Doctrine\DBAL\Connection as DBALConnection;
-use Keboola\Db\Import\Snowflake\Connection as SNFLKConnection;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
 
 interface BackendExportAdapterInterface
 {
-    public function __construct(Storage\DestinationInterface $destination);
+    public static function isSupported(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination
+    ): bool;
 
-    /**
-     * @param null|SNFLKConnection|DBALConnection $connection
-     */
     public function runCopyCommand(
         Storage\SourceInterface $source,
-        ExportOptions $exportOptions,
-        $connection = null
+        Storage\DestinationInterface $destination,
+        ExportOptions $exportOptions
     ): void;
 }

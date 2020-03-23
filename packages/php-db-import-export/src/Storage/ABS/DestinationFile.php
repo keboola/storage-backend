@@ -27,19 +27,6 @@ class DestinationFile extends BaseFile implements DestinationInterface
         $this->blobMasterKey = $blobMasterKey;
     }
 
-    public function getBackendExportAdapter(
-        ExporterInterface $exporter
-    ): BackendExportAdapterInterface {
-        switch (true) {
-            case $exporter instanceof SnowflakeExporter:
-                return new SnowflakeExportAdapter($this);
-            case $exporter instanceof SynapseExporter:
-                return new SynapseExportAdapter($this);
-            default:
-                throw new NoBackendAdapterException();
-        }
-    }
-
     public function getBlobMasterKey(): ?string
     {
         return $this->blobMasterKey;

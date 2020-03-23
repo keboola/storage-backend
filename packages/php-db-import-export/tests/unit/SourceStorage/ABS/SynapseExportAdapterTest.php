@@ -102,11 +102,11 @@ EOT
         );
 
         $source = new Storage\Synapse\SelectSource('SELECT * FROM "schema"."table" WHERE id = ?', [1]);
-        $adapter = new Storage\ABS\SynapseExportAdapter($destination);
+        $adapter = new Storage\ABS\SynapseExportAdapter($conn);
         $adapter->runCopyCommand(
             $source,
-            $options,
-            $conn
+            $destination,
+            $options
         );
     }
 
@@ -259,11 +259,11 @@ EOT
         );
 
         $source = new Storage\Synapse\Table('schema', 'table');
-        $adapter = new Storage\ABS\SynapseExportAdapter($destination);
+        $adapter = new Storage\ABS\SynapseExportAdapter($conn);
         $adapter->runCopyCommand(
             $source,
-            $options,
-            $conn
+            $destination,
+            $options
         );
     }
 
@@ -355,11 +355,11 @@ EOT
         );
 
         $source = new Storage\Synapse\Table('schema', 'table');
-        $adapter = new Storage\ABS\SynapseExportAdapter($destination);
+        $adapter = new Storage\ABS\SynapseExportAdapter($conn);
         $adapter->runCopyCommand(
             $source,
-            $options,
-            $conn
+            $destination,
+            $options
         );
     }
 }

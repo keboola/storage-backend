@@ -9,7 +9,4 @@ use Keboola\Db\ImportExport\Backend\ExporterInterface;
 
 interface DestinationInterface
 {
-    public function getBackendExportAdapter(
-        ExporterInterface $exporter
-    ): BackendExportAdapterInterface;
 }

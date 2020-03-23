@@ -41,11 +41,11 @@ EOT
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions();
-        $adapter = new Storage\ABS\SnowflakeExportAdapter($destination);
+        $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
         $adapter->runCopyCommand(
             $source,
-            $options,
-            $conn
+            $destination,
+            $options
         );
     }
 
@@ -78,11 +78,11 @@ EOT
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions(true);
-        $adapter = new Storage\ABS\SnowflakeExportAdapter($destination);
+        $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
         $adapter->runCopyCommand(
             $source,
-            $options,
-            $conn
+            $destination,
+            $options
         );
     }
 
@@ -115,11 +115,11 @@ EOT
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
         $options = new ExportOptions();
-        $adapter = new Storage\ABS\SnowflakeExportAdapter($destination);
+        $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
         $adapter->runCopyCommand(
             $source,
-            $options,
-            $conn
+            $destination,
+            $options
         );
     }
 }

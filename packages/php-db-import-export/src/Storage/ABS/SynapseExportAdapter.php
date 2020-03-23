@@ -5,78 +5,71 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
 
-class SynapseExportAdapter implements BackendExportAdapterInterface
+class SynapseExportAdapter implements SynapseExportAdapterInterface
 {
-    /**
-     * @var Storage\ABS\DestinationFile
-     */
-    private $destination;
+    /** @var Connection */
+    private $connection;
 
-    /**
-     * @param Storage\ABS\DestinationFile $destination
-     */
-    public function __construct(Storage\DestinationInterface $destination)
+    /** @var AbstractPlatform|SQLServer2012Platform */
+    private $platform;
+
+    public function __construct(Connection $connection)
     {
-        $this->destination = $destination;
+        $this->connection = $connection;
+        $this->platform = $connection->getDatabasePlatform();
+    }
+
+    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
+    {
+        if (!$source instanceof Storage\ABS\DestinationFile) {
+            return false;
+        }
+        if (!$destination instanceof Storage\SqlSourceInterface) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * phpcs:disable SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
-     *
      * @param Storage\SqlSourceInterface $source
-     * @param Connection $connection
-     * @throws \Exception
+     * @param Storage\ABS\DestinationFile $destination
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
-        ExportOptions $exportOptions,
-        $connection = null
+        Storage\DestinationInterface $destination,
+        ExportOptions $exportOptions
     ): void {
-        if (!$source instanceof Storage\SqlSourceInterface) {
-            throw new \Exception(sprintf(
-                'Source "%s" must implement "%s".',
-                get_class($source),
-                Storage\SqlSourceInterface::class
-            ));
-        }
 
-        if ($connection === null || !$connection instanceof Connection) {
-            throw new \Exception(sprintf('Connection must be instance of "%s"', Connection::class));
-        }
-
-        /** @var SQLServer2012Platform $platform */
-        $platform = $connection->getDatabasePlatform();
         $compression = $exportOptions->isCompresed() ?
             ',DATA_COMPRESSION = \'org.apache.hadoop.io.compress.GzipCodec\'' :
             '';
         //https://docs.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=azure-sqldw-latest#arguments
         $dateFormat = 'yyyy-MM-dd HH:mm:ss';
         $exportId = $exportOptions->getExportId();
-// TODO: this should work with sas in future
-//        $sasToken = $connection->quote(urldecode($this->destination->getSasToken()));
-        $sasToken = $connection->quote($this->destination->getBlobMasterKey());
-        $containerUrl = $connection->quote($this->destination->getPolyBaseUrl());
-        $credentialsId = $platform->quoteSingleIdentifier($exportId . '_StorageCredential');
-        $dataSourceId = $platform->quoteSingleIdentifier($exportId . '_StorageSource');
-        $fileFormatId = $platform->quoteSingleIdentifier($exportId . '_StorageFileFormat');
-        $tableId = $platform->quoteSingleIdentifier($exportId . '_StorageExternalTable');
-        $exportPath = $this->destination->getFilePath();
+        $sasToken = $this->connection->quote($destination->getBlobMasterKey());
+        $containerUrl = $this->connection->quote($destination->getPolyBaseUrl());
+        $credentialsId = $this->platform->quoteSingleIdentifier($exportId . '_StorageCredential');
+        $dataSourceId = $this->platform->quoteSingleIdentifier($exportId . '_StorageSource');
+        $fileFormatId = $this->platform->quoteSingleIdentifier($exportId . '_StorageFileFormat');
+        $tableId = $this->platform->quoteSingleIdentifier($exportId . '_StorageExternalTable');
+        $exportPath = $destination->getFilePath();
 
         $exception = null;
         try {
             $sql = $this->getCredentialsQuery($credentialsId, $sasToken);
-            $connection->exec($sql);
+            $this->connection->exec($sql);
 
             $sql = $this->getDataSourceQuery($dataSourceId, $containerUrl, $credentialsId);
-            $connection->exec($sql);
+            $this->connection->exec($sql);
 
             $sql = $this->getFileFormatQuery($fileFormatId, $dateFormat, $compression);
-            $connection->exec($sql);
+            $this->connection->exec($sql);
 
             $sql = $this->getExternalTableQuery($source, $tableId, $exportPath, $dataSourceId, $fileFormatId);
 
@@ -85,7 +78,7 @@ class SynapseExportAdapter implements BackendExportAdapterInterface
                 $dataTypes = $source->getDataTypes();
             }
 
-            $connection->executeQuery($sql, $source->getQueryBindings(), $dataTypes);
+            $this->connection->executeQuery($sql, $source->getQueryBindings(), $dataTypes);
         } catch (\Throwable $e) {
             //exception is saved for later while we try to clean created resources
             $exception = $e;
@@ -93,22 +86,22 @@ class SynapseExportAdapter implements BackendExportAdapterInterface
 
         // clean up
         try {
-            $connection->exec(sprintf('DROP EXTERNAL TABLE %s', $tableId));
+            $this->connection->exec(sprintf('DROP EXTERNAL TABLE %s', $tableId));
         } catch (\Throwable $e) {
             // we want to perform whole clean up
         }
         try {
-            $connection->exec(sprintf('DROP EXTERNAL FILE FORMAT %s', $fileFormatId));
+            $this->connection->exec(sprintf('DROP EXTERNAL FILE FORMAT %s', $fileFormatId));
         } catch (\Throwable $e) {
             // we want to perform whole clean up
         }
         try {
-            $connection->exec(sprintf('DROP EXTERNAL DATA SOURCE %s', $dataSourceId));
+            $this->connection->exec(sprintf('DROP EXTERNAL DATA SOURCE %s', $dataSourceId));
         } catch (\Throwable $e) {
             // we want to perform whole clean up
         }
         try {
-            $connection->exec(sprintf('DROP DATABASE SCOPED CREDENTIAL %s', $credentialsId));
+            $this->connection->exec(sprintf('DROP DATABASE SCOPED CREDENTIAL %s', $credentialsId));
         } catch (\Throwable $e) {
             // we want to perform whole clean up
         }

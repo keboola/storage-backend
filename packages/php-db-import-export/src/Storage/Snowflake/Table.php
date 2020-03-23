@@ -33,12 +33,6 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         $this->tableName = $tableName;
     }
 
-    public function getBackendExportAdapter(
-        ExporterInterface $exporter
-    ): BackendExportAdapterInterface {
-        throw new NoBackendAdapterException();
-    }
-
     public function getFromStatement(): string
     {
         return $this->getQuotedTableWithScheme();

@@ -35,12 +35,6 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         $this->dataTypes = $dataTypes;
     }
 
-    public function getBackendImportAdapter(
-        ImporterInterface $importer
-    ): BackendImportAdapterInterface {
-        throw new NoBackendAdapterException();
-    }
-
     public function getFromStatement(): string
     {
         return sprintf('%s', $this->getQuery());

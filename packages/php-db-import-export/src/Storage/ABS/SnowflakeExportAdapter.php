@@ -5,35 +5,39 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\Db\Import\Snowflake\Connection;
-use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
 
-class SnowflakeExportAdapter implements BackendExportAdapterInterface
+class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
 {
-    /**
-     * @var Storage\ABS\DestinationFile
-     */
-    private $destination;
+    /** @var Connection */
+    private $connection;
 
-    /**
-     * @param Storage\ABS\DestinationFile $destination
-     */
-    public function __construct(Storage\DestinationInterface $destination)
+    public function __construct(Connection $connection)
     {
-        $this->destination = $destination;
+        $this->connection = $connection;
+    }
+
+    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
+    {
+        if (!$source instanceof Storage\ABS\DestinationFile) {
+            return false;
+        }
+        if (!$destination instanceof Storage\SqlSourceInterface) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * phpcs:disable SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
      * @param Storage\SqlSourceInterface $source
-     * @param Connection $connection
-     * @throws \Exception
+     * @param Storage\ABS\DestinationFile $destination
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
-        ExportOptions $exportOptions,
-        $connection = null
+        Storage\DestinationInterface $destination,
+        ExportOptions $exportOptions
     ): void {
         if (!$source instanceof Storage\SqlSourceInterface) {
             throw new \Exception(sprintf(
@@ -41,10 +45,6 @@ class SnowflakeExportAdapter implements BackendExportAdapterInterface
                 get_class($source),
                 Storage\SqlSourceInterface::class
             ));
-        }
-
-        if ($connection === null || !$connection instanceof Connection) {
-            throw new \Exception(sprintf('Connection must be instance of "%s"', Connection::class));
         }
 
         $compression = $exportOptions->isCompresed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
@@ -63,13 +63,13 @@ FILE_FORMAT = (
     TIMESTAMP_FORMAT = \'YYYY-MM-DD HH24:MI:SS\'
 )
 MAX_FILE_SIZE=50000000',
-            $this->destination->getContainerUrl(BaseFile::PROTOCOL_AZURE),
-            $this->destination->getFilePath(),
+            $destination->getContainerUrl(BaseFile::PROTOCOL_AZURE),
+            $destination->getFilePath(),
             $from,
-            $this->destination->getSasToken(),
+            $destination->getSasToken(),
             $compression
         );
 
-        $connection->fetchAll($sql, $source->getQueryBindings());
+        $this->connection->fetchAll($sql, $source->getQueryBindings());
     }
 }
