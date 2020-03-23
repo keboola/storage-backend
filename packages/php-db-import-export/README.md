@@ -171,13 +171,18 @@ Keboola\Db\ImportExport\Backend\ImporterInterface
 Keboola\Db\ImportExport\Backend\ExporterInterface
 ```
 
-For each backend there is corresponding adapter injected by Source or Destination.
+For each backend there is corresponding adapter which supports own combination of SourceInterface and DestinationInterface. Custom adapters can be set with `setAdapters` method.
 
-#### Create new Storage
+#### Create new storage
 
-Storage can have `Source` and `Destination` which must implement `SourceInterface` or `DestinationInterface`.
+Storage is now file storage ABS|S3 (in future) or table storage Snowflake|Synapse.
+Storage can have `Source` and `Destination` which must implement `SourceInterface` or `DestinationInterface`. These interfaces are empty and it's up to adapter to support own combination.
+In general there is one Import/Export adapter per FileStorage <=> TableStorage combination.
 
-- **SourceInterface** has method `getBackendImportAdapter` which must return Adapter implementing `BackendImportAdapterInterface` for used Backend
-- **DestinationInterface** has method `getBackendExportAdapter` which must return Adapter implementing `BackendExportAdapterInterface` for used Backend
+Adapter must implement:
+- `Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface` for import
+- `Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface` for export
+
+Backend can require own extended AdapterInterface (Synapse and Snowflake do now).
 
 
