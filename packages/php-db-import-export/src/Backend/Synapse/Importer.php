@@ -146,19 +146,11 @@ class Importer implements ImporterInterface
             $this->importState->getStagingTableName()
         );
 
-        try {
-            $this->importState->startTimer('copyToStaging');
-            foreach ($commands as $command) {
-                $this->runQuery($command);
-            }
-            $this->importState->stopTimer('copyToStaging');
-        } catch (\Throwable $e) {
-            $stringCode = Exception::INVALID_SOURCE_DATA;
-            if (strpos($e->getMessage(), 'was not found') !== false) {
-                $stringCode = Exception::MANDATORY_FILE_NOT_FOUND;
-            }
-            throw new Exception('Load error: ' . $e->getMessage(), $stringCode, $e);
+        $this->importState->startTimer('copyToStaging');
+        foreach ($commands as $command) {
+            $this->runQuery($command);
         }
+        $this->importState->stopTimer('copyToStaging');
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),
