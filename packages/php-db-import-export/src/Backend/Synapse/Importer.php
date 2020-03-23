@@ -25,9 +25,6 @@ class Importer implements ImporterInterface
     /** @var string[] */
     private $adapters = self::DEFAULT_ADAPTERS;
 
-    /** @var SynapseImportAdapterInterface */
-    private $currentImportAdapter;
-
     /** @var Connection */
     private $connection;
 
@@ -56,7 +53,7 @@ class Importer implements ImporterInterface
         Storage\DestinationInterface $destination,
         ImportOptions $options
     ): Result {
-        $this->setUpAdapter($source, $destination);
+        $adapter = $this->getAdapter($source, $destination);
 
         if ($source instanceof Storage\ABS\SourceFile
             && $source->getCsvOptions()->getEnclosure() === ''
@@ -77,7 +74,7 @@ class Importer implements ImporterInterface
 
         try {
             //import files to staging table
-            $this->importToStagingTable($source, $destination, $options);
+            $this->importToStagingTable($source, $destination, $options, $adapter);
             $primaryKeys = $this->sqlBuilder->getTablePrimaryKey(
                 $destination->getSchema(),
                 $destination->getTableName()
@@ -139,9 +136,10 @@ class Importer implements ImporterInterface
     private function importToStagingTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptions $importOptions
+        ImportOptions $importOptions,
+        SynapseImportAdapterInterface $adapter
     ): void {
-        $commands = $this->currentImportAdapter->getCopyCommands(
+        $commands = $adapter->getCopyCommands(
             $source,
             $destination,
             $importOptions,
@@ -301,9 +299,11 @@ class Importer implements ImporterInterface
         $this->adapters = $adapters;
     }
 
-    private function setUpAdapter(Storage\SourceInterface $source, Storage\DestinationInterface $destination): void
-    {
-        $adapterFound = false;
+    private function getAdapter(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination
+    ): SynapseImportAdapterInterface {
+        $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
             $ref = new \ReflectionClass($adapter);
             if (!$ref->implementsInterface(SynapseImportAdapterInterface::class)) {
@@ -315,21 +315,20 @@ class Importer implements ImporterInterface
                 );
             }
             if ($adapter::isSupported($source, $destination)) {
-                if ($adapterFound === true) {
+                if ($adapterForUse !== null) {
                     throw new \Exception(
                         sprintf(
                             'More than one suitable adapter found for Synapse importer with source: '
-                            .'"%s", destination "%s".',
+                            . '"%s", destination "%s".',
                             get_class($source),
                             get_class($destination)
                         )
                     );
                 }
-                $this->currentImportAdapter = new $adapter($this->connection);
-                $adapterFound = true;
+                $adapterForUse = new $adapter($this->connection);
             }
         }
-        if ($adapterFound === false) {
+        if ($adapterForUse === null) {
             throw new \Exception(
                 sprintf(
                     'No suitable adapter found for Synapse importer with source: "%s", destination "%s".',
@@ -338,5 +337,7 @@ class Importer implements ImporterInterface
                 )
             );
         }
+
+        return $adapterForUse;
     }
 }
