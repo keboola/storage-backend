@@ -16,7 +16,7 @@ use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
 class ExportTest extends SynapseBaseTestCase
 {
-    private const EXPORT_BLOB_DIR = 'test_export_synapse';
+    private const EXPORT_BLOB_DIR = 'synapse_test_export';
 
     /**
      * @var BlobRestProxy
