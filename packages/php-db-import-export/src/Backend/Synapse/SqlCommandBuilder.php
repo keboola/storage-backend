@@ -184,7 +184,8 @@ class SqlCommandBuilder
     public function getInsertAllIntoTargetTableCommand(
         Table $destination,
         ImportOptions $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
+        string $timestamp
     ): string {
 
         $insColumns = $importOptions->getColumns();
@@ -213,7 +214,7 @@ class SqlCommandBuilder
         }
 
         if ($useTimestamp) {
-            $columnsSetSql[] = $this->connection->quote(DateTimeHelper::getNowFormatted());
+            $columnsSetSql[] = $this->connection->quote($timestamp);
         }
 
         return sprintf(
@@ -324,12 +325,13 @@ EOT
         Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName,
-        array $primaryKeys
+        array $primaryKeys,
+        string $timestamp
     ): string {
         $dest = $destination->getQuotedTableWithScheme();
         $columnsSet = [];
         foreach ($importOptions->getColumns() as $columnName) {
-            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull())) {
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = NULLIF([src].%s, \'\')',
                     $this->platform->quoteSingleIdentifier($columnName),
@@ -348,12 +350,12 @@ EOT
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 $this->platform->quoteSingleIdentifier(Importer::TIMESTAMP_COLUMN_NAME),
-                DateTimeHelper::getNowFormatted()
+                $timestamp
             );
         }
 
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-        $columnsComparsionSql = array_map(
+        $columnsComparisionSql = array_map(
             function ($columnName) use ($dest) {
                 return sprintf(
                     'COALESCE(CAST(%s.%s AS varchar), \'\') != COALESCE([src].%s, \'\')',
@@ -372,7 +374,7 @@ EOT
             $this->platform->quoteSingleIdentifier($destination->getSchema()),
             $this->platform->quoteSingleIdentifier($stagingTableName),
             $this->getPrimaryKeyWhereConditions($primaryKeys, '[src]', $dest),
-            implode(' OR ', $columnsComparsionSql)
+            implode(' OR ', $columnsComparisionSql)
         );
     }
 }

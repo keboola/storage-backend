@@ -280,7 +280,8 @@ EOT
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
-            self::TEST_STAGING_TABLE
+            self::TEST_STAGING_TABLE,
+            '2020-01-01 00:00:00'
         );
 
         $this->assertEquals(
@@ -363,7 +364,8 @@ EOT
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
-            self::TEST_STAGING_TABLE
+            self::TEST_STAGING_TABLE,
+            '2020-01-01 00:00:00'
         );
         $this->assertEquals(
         // phpcs:ignore
@@ -416,14 +418,14 @@ EOT
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
-            self::TEST_STAGING_TABLE
+            self::TEST_STAGING_TABLE,
+            '2020-01-01 00:00:00'
         );
-        $this->assertStringStartsWith(
+        $this->assertEquals(
         // phpcs:ignore
-            'INSERT INTO [import-export-test_schema].[import-export-test_test] ([col1], [col2], [_timestamp]) (SELECT NULLIF([col1], \'\'),CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2],\'',
+            'INSERT INTO [import-export-test_schema].[import-export-test_test] ([col1], [col2], [_timestamp]) (SELECT NULLIF([col1], \'\'),CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2],\'2020-01-01 00:00:00\' FROM [import-export-test_schema].[#stagingTable] AS [src])',
             $sql
         );
-        $this->assertStringEndsWith('\' FROM [import-export-test_schema].[#stagingTable] AS [src])', $sql);
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
@@ -621,7 +623,8 @@ EOT
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
             self::TEST_STAGING_TABLE,
-            ['col1']
+            ['col1'],
+            '2020-01-01 00:00:00'
         );
         $this->assertEquals(
         // phpcs:ignore
@@ -691,7 +694,8 @@ EOT
             $this->getDummyTableDestination(),
             $options,
             self::TEST_STAGING_TABLE,
-            ['col1']
+            ['col1'],
+            '2020-01-01 00:00:00'
         );
         $this->assertEquals(
         // phpcs:ignore
@@ -722,7 +726,7 @@ EOT
     public function testGetUpdateWithPkCommandConvertValuesWithTimestamp(): void
     {
         $timestampInit = new DateTime('2020-01-01 00:00:01');
-        $timestampNow = new DateTime('now');
+        $timestampSet = new DateTime('2020-01-01 01:01:01');
         $this->createTestSchema();
         $this->createTestTableWithColumns(true);
         $this->createStagingTableWithData(true);
@@ -771,16 +775,13 @@ EOT
             $this->getDummyTableDestination(),
             $options,
             self::TEST_STAGING_TABLE,
-            ['col1']
+            ['col1'],
+            $timestampSet->format(DateTimeHelper::FORMAT) . '.000'
         );
-        $this->assertStringStartsWith(
+
+        $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = NULLIF([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'',
-            $sql
-        );
-        $this->assertStringEndsWith(
-        // phpcs:ignore
-            '\' FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
+            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = NULLIF([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
             $sql
         );
         $this->connection->exec($sql);
@@ -795,7 +796,10 @@ EOT
             $this->assertArrayHasKey('col1', $item);
             $this->assertArrayHasKey('col2', $item);
             $this->assertArrayHasKey('_timestamp', $item);
-            $this->assertTrue($timestampNow < new DateTime($item['_timestamp']));
+            $this->assertSame(
+                $timestampSet->format(DateTimeHelper::FORMAT),
+                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
+            );
         }
     }
 

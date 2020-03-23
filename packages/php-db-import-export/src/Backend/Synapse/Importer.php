@@ -9,6 +9,7 @@ use Keboola\Db\Import\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Synapse\Helper\BackendHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -164,6 +165,8 @@ class Importer implements ImporterInterface
         Storage\Synapse\Table $destination,
         array $primaryKeys
     ): void {
+        $timestampValue = DateTimeHelper::getNowFormatted();
+
         $this->runQuery(
             $this->sqlBuilder->getBeginTransaction()
         );
@@ -173,7 +176,8 @@ class Importer implements ImporterInterface
                     $destination,
                     $importOptions,
                     $this->importState->getStagingTableName(),
-                    $primaryKeys
+                    $primaryKeys,
+                    $timestampValue
                 ),
                 'updateTargetTable'
             );
@@ -200,7 +204,8 @@ class Importer implements ImporterInterface
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
                 $destination,
                 $importOptions,
-                $this->importState->getStagingTableName()
+                $this->importState->getStagingTableName(),
+                $timestampValue
             ),
             'insertIntoTargetFromStaging'
         );
@@ -277,7 +282,8 @@ class Importer implements ImporterInterface
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
                 $destination,
                 $importOptions,
-                $this->importState->getStagingTableName()
+                $this->importState->getStagingTableName(),
+                DateTimeHelper::getNowFormatted()
             ),
             'copyFromStagingToTarget'
         );

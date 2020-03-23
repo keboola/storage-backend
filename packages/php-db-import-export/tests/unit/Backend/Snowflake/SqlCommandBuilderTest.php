@@ -163,7 +163,8 @@ class SqlCommandBuilderTest extends TestCase
         $sql = $this->getInstance()->getInsertFromStagingToTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
-            'stagingTable'
+            'stagingTable',
+            '2020-01-01 00:00:00'
         );
         self::assertEquals(
         // phpcs:ignore
@@ -177,16 +178,12 @@ class SqlCommandBuilderTest extends TestCase
         $sql = $this->getInstance()->getInsertFromStagingToTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
-            'stagingTable'
+            'stagingTable',
+            '2020-01-01 00:00:00'
         );
-        self::assertStringStartsWith(
+        self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "schema"."table" ("col1", "col2", "_timestamp") SELECT IFF("src"."col1" = \'\', NULL, "col1"),COALESCE("src"."col2", \'\'),\'',
-            $sql
-        );
-        // there is datetime between
-        self::assertStringEndsWith(
-            '\' FROM "schema"."stagingTable" AS "src"',
+            'INSERT INTO "schema"."table" ("col1", "col2", "_timestamp") SELECT IFF("src"."col1" = \'\', NULL, "col1"),COALESCE("src"."col2", \'\'),\'2020-01-01 00:00:00\' FROM "schema"."stagingTable" AS "src"',
             $sql
         );
     }
@@ -216,7 +213,8 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
             'staging table',
-            ['col1']
+            ['col1'],
+            '2020-01-01 00:00:00'
         );
         self::assertEquals(
         // phpcs:ignore
@@ -233,7 +231,8 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyTableDestination(),
             $options,
             'staging table',
-            ['col1']
+            ['col1'],
+            '2020-01-01 00:00:00'
         );
         self::assertEquals(
         // phpcs:ignore
@@ -250,17 +249,13 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyTableDestination(),
             $options,
             'staging table',
-            ['col1']
+            ['col1'],
+            '2020-01-01 00:00:00'
         );
-        self::assertStringStartsWith(
+
+        self::assertEquals(
         // phpcs:ignore
-            'UPDATE "schema"."table" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'',
-            $sql
-        );
-        // there is datetime between
-        self::assertStringEndsWith(
-        // phpcs:ignore
-            '\' FROM "schema"."staging table" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\')) ',
+            'UPDATE "schema"."table" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 00:00:00\' FROM "schema"."staging table" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\')) ',
             $sql
         );
     }
