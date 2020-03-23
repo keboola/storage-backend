@@ -12,10 +12,42 @@ use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\SynapseImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
+use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SynapseImportAdapterTest extends BaseTestCase
 {
+    use ABSSourceTrait;
+
+    public function testIsSupported(): void
+    {
+        $absSource = $this->createDummyABSSourceInstance('');
+        $snowflakeTable = new Storage\Snowflake\Table('', '');
+        $snowflakeSelectSource = new Storage\Snowflake\SelectSource('', []);
+        $synapseTable = new Storage\Synapse\Table('', '');
+
+        $this->assertTrue(
+            SynapseImportAdapter::isSupported(
+                $absSource,
+                $synapseTable
+            )
+        );
+
+        $this->assertFalse(
+            SynapseImportAdapter::isSupported(
+                $snowflakeSelectSource,
+                $snowflakeTable
+            )
+        );
+
+        $this->assertFalse(
+            SynapseImportAdapter::isSupported(
+                $absSource,
+                $snowflakeTable
+            )
+        );
+    }
+
     public function testGetCopyCommands(): void
     {
         /** @var Storage\ABS\SourceFile|MockObject $source */

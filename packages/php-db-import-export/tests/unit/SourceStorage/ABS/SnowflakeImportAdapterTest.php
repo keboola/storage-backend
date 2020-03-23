@@ -5,17 +5,47 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
+use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SnowflakeImportAdapterTest extends BaseTestCase
 {
     use MockConnectionTrait;
+    use ABSSourceTrait;
+
+    public function testIsSupported(): void
+    {
+        $absSource = $this->createDummyABSSourceInstance('');
+        $snowflakeTable = new Storage\Snowflake\Table('', '');
+        $snowflakeSelectSource = new Storage\Snowflake\SelectSource('', []);
+        $synapseTable = new Storage\Synapse\Table('', '');
+
+        $this->assertTrue(
+            SnowflakeImportAdapter::isSupported(
+                $absSource,
+                $snowflakeTable
+            )
+        );
+
+        $this->assertFalse(
+            SnowflakeImportAdapter::isSupported(
+                $snowflakeSelectSource,
+                $snowflakeTable
+            )
+        );
+
+        $this->assertFalse(
+            SnowflakeImportAdapter::isSupported(
+                $absSource,
+                $synapseTable
+            )
+        );
+    }
 
     public function testGetCopyCommands(): void
     {
