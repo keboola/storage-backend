@@ -24,12 +24,14 @@ script:
     phpstan
     loadAbs
   - docker-compose run production composer tests-unit
+  # wait for Synapse to start, should be already online
+  - bash docker/synapse/synapse.sh -w
   # prepare tests
   - echo -n > commands
-  - echo 'synapse     -;bash docker/synapse/synapse.sh -w && docker-compose run production php ./vendor/bin/phpunit --debug --colors=always --testsuite synapse' >> commands
+  - echo 'synapse     -;docker-compose run production php ./vendor/bin/phpunit --debug --colors=always --testsuite synapse' >> commands
   - echo 'snowflake   -;docker-compose run production php ./vendor/bin/phpunit --debug --colors=always --testsuite snowflake' >> commands
   # run parallel functional tests
-  - parallel -j12 --linebuffer --colsep ';' --tagstring {1} -a commands bash -c {2}
+  - travis_wait 60 parallel -j12 --linebuffer --colsep ';' --tagstring {1} -a commands bash -c {2}
 after_script:
   # Send pause to synapse server in background
   - bash docker/synapse/synapse.sh -p &
