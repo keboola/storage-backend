@@ -44,7 +44,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptions $exportOptions
     ): void {
-        $compression = $exportOptions->isCompresed() ?
+        $compression = $exportOptions->isCompressed() ?
             ',DATA_COMPRESSION = \'org.apache.hadoop.io.compress.GzipCodec\'' :
             '';
         //https://docs.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=azure-sqldw-latest#arguments

@@ -150,7 +150,7 @@ class Importer implements ImporterInterface
             $this->importState->stopTimer('copyToStaging');
             $this->importState->addImportedRowsCount($rowsCount);
         } catch (\Throwable $e) {
-            if($e instanceof Exception){
+            if ($e instanceof Exception) {
                 throw $e;
             }
             throw new Exception('Load error: ' . $e->getMessage(), Exception::INVALID_SOURCE_DATA, $e);
