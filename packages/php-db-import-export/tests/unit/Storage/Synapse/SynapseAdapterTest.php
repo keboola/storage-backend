@@ -11,11 +11,13 @@ use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SynapseAdapterTest extends BaseTestCase
 {
     use ABSSourceTrait;
+    use MockConnectionTrait;
 
     public function testIsSupported(): void
     {
@@ -60,24 +62,30 @@ class SynapseAdapterTest extends BaseTestCase
         $source->expects(self::once())->method('getSchema')->willReturn('schema');
         $source->expects(self::once())->method('getTableName')->willReturn('table');
 
-        /** @var Connection|MockObject $source */
-        $conn = $this->createMock(Connection::class);
-        $conn->expects($this->once())->method('getDatabasePlatform')->willReturn(
-            new SQLServer2012Platform()
+        $conn = $this->mockConnection();
+        $conn->expects($this->once())->method('exec')->with(
+            'INSERT INTO [schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [schema].[table]'
         );
+        $conn->expects($this->once())->method('fetchAll')
+            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(
+                [
+                    [
+                        'count' => 10,
+                    ],
+                ]
+            );
 
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new ImportOptions([], ['col1', 'col2']);
         $adapter = new SynapseImportAdapter($conn);
-        $commands = $adapter->getCopyCommands(
+        $count = $adapter->runCopyCommand(
             $source,
             $destination,
             $options,
             'stagingTable'
         );
 
-        self::assertSame([
-            'INSERT INTO [schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [schema].[table]',
-        ], $commands);
+        $this->assertEquals(10, $count);
     }
 }

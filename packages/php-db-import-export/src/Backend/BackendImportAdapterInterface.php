@@ -15,12 +15,12 @@ interface BackendImportAdapterInterface
     ): bool;
 
     /**
-     * @return string[]
+     * @return int number of inserted rows
      */
-    public function getCopyCommands(
+    public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
-    ): array;
+    ): int;
 }

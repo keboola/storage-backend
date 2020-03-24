@@ -61,18 +61,30 @@ class SnowflakeAdapterTest extends BaseTestCase
         $source->expects(self::once())->method('getSchema')->willReturn('schema');
         $source->expects(self::once())->method('getTableName')->willReturn('table');
 
+        $conn = $this->mockConnection();
+        $conn->expects($this->once())->method('query')->with(
+            'INSERT INTO "schema"."stagingTable" ("col1", "col2") SELECT "col1", "col2" FROM "schema"."table"'
+        );
+        $conn->expects($this->once())->method('fetchAll')
+            ->with('SELECT COUNT(*) AS "count" FROM "schema"."stagingTable"')
+            ->willReturn(
+                [
+                    [
+                        'count' => 10,
+                    ],
+                ]
+            );
+
         $destination = new Storage\Snowflake\Table('schema', 'table');
         $options = new ImportOptions([], ['col1', 'col2']);
-        $adapter = new SnowflakeImportAdapter($this->mockConnection());
-        $commands = $adapter->getCopyCommands(
+        $adapter = new SnowflakeImportAdapter($conn);
+        $count = $adapter->runCopyCommand(
             $source,
             $destination,
             $options,
             'stagingTable'
         );
 
-        self::assertSame([
-            'INSERT INTO "schema"."stagingTable" ("col1", "col2") SELECT "col1", "col2" FROM "schema"."table"',
-        ], $commands);
+        $this->assertEquals(10, $count);
     }
 }

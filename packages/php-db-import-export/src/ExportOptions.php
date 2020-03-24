@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport;
 
-use Keboola\Db\ImportExport\Backend\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Backend\BackendHelper;
 
 class ExportOptions
 {
     /**
      * @var bool
      */
-    private $isCompresed;
+    private $isCompressed;
 
     /** @var string */
     private $exportId;
 
     public function __construct(
-        bool $isCompresed = false
+        bool $isCompressed = false
     ) {
-        $this->isCompresed = $isCompresed;
+        $this->isCompressed = $isCompressed;
         $this->exportId = BackendHelper::generateRandomExportPrefix();
     }
 
@@ -28,8 +28,8 @@ class ExportOptions
         return $this->exportId;
     }
 
-    public function isCompresed(): bool
+    public function isCompressed(): bool
     {
-        return $this->isCompresed;
+        return $this->isCompressed;
     }
 }

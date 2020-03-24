@@ -13,11 +13,13 @@ use Keboola\Db\ImportExport\Storage\ABS\SynapseImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SynapseImportAdapterTest extends BaseTestCase
 {
     use ABSSourceTrait;
+    use MockConnectionTrait;
 
     public function testIsSupported(): void
     {
@@ -56,26 +58,8 @@ class SynapseImportAdapterTest extends BaseTestCase
         $source->expects($this->once())->method('getManifestEntries')->willReturn(['https://url']);
         $source->expects($this->once())->method('getSasToken')->willReturn('sasToken');
 
-        /** @var Connection|MockObject $source */
-        $conn = $this->createMock(Connection::class);
-        $conn->expects($this->once())->method('getDatabasePlatform')->willReturn(
-            new SQLServer2012Platform()
-        );
-        $conn->expects($this->any())->method('quote')->willReturnCallback(static function ($input) {
-            return QuoteHelper::quote($input);
-        });
-
-        $destination = new Storage\Synapse\Table('schema', 'table');
-        $options = new ImportOptions();
-        $adapter = new SynapseImportAdapter($conn);
-        $commands = $adapter->getCopyCommands(
-            $source,
-            $destination,
-            $options,
-            'stagingTable'
-        );
-
-        $this->assertSame([
+        $conn = $this->mockConnection();
+        $conn->expects($this->once())->method('exec')->with(
             <<<EOT
 COPY INTO [schema].[stagingTable]
 FROM 'https://url'
@@ -90,8 +74,29 @@ WITH (
     
 )
 EOT
-            ,
-        ], $commands);
+        );
+
+        $conn->expects($this->once())->method('fetchAll')
+            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(
+                [
+                    [
+                        'count' => 10,
+                    ],
+                ]
+            );
+
+        $destination = new Storage\Synapse\Table('schema', 'table');
+        $options = new ImportOptions();
+        $adapter = new SynapseImportAdapter($conn);
+        $count = $adapter->runCopyCommand(
+            $source,
+            $destination,
+            $options,
+            'stagingTable'
+        );
+
+        $this->assertEquals(10, $count);
     }
 
     public function testGetCopyCommandsRowSkip(): void
@@ -102,26 +107,8 @@ EOT
         $source->expects($this->once())->method('getManifestEntries')->willReturn(['https://url']);
         $source->expects($this->once())->method('getSasToken')->willReturn('sasToken');
 
-        /** @var Connection|MockObject $source */
-        $conn = $this->createMock(Connection::class);
-        $conn->expects($this->once())->method('getDatabasePlatform')->willReturn(
-            new SQLServer2012Platform()
-        );
-        $conn->expects($this->any())->method('quote')->willReturnCallback(static function ($input) {
-            return QuoteHelper::quote($input);
-        });
-
-        $destination = new Storage\Synapse\Table('schema', 'table');
-        $options = new ImportOptions([], [], false, false, 1);
-        $adapter = new SynapseImportAdapter($conn);
-        $commands = $adapter->getCopyCommands(
-            $source,
-            $destination,
-            $options,
-            'stagingTable'
-        );
-
-        $this->assertSame([
+        $conn = $this->mockConnection();
+        $conn->expects($this->once())->method('exec')->with(
             <<<EOT
 COPY INTO [schema].[stagingTable]
 FROM 'https://url'
@@ -136,7 +123,27 @@ WITH (
     ,FIRSTROW=2
 )
 EOT
-            ,
-        ], $commands);
+        );
+        $conn->expects($this->once())->method('fetchAll')
+            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(
+                [
+                    [
+                        'count' => 10,
+                    ],
+                ]
+            );
+
+        $destination = new Storage\Synapse\Table('schema', 'table');
+        $options = new ImportOptions([], [], false, false, 1);
+        $adapter = new SynapseImportAdapter($conn);
+        $count = $adapter->runCopyCommand(
+            $source,
+            $destination,
+            $options,
+            'stagingTable'
+        );
+
+        $this->assertEquals(10, $count);
     }
 }

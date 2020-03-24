@@ -140,24 +140,16 @@ class Importer implements ImporterInterface
         ImportOptions $importOptions,
         SynapseImportAdapterInterface $adapter
     ): void {
-        $commands = $adapter->getCopyCommands(
+        $this->importState->startTimer('copyToStaging');
+        $rowsCount = $adapter->runCopyCommand(
             $source,
             $destination,
             $importOptions,
             $this->importState->getStagingTableName()
         );
-
-        $this->importState->startTimer('copyToStaging');
-        foreach ($commands as $command) {
-            $this->runQuery($command);
-        }
         $this->importState->stopTimer('copyToStaging');
 
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
-            $destination->getSchema(),
-            $this->importState->getStagingTableName()
-        ));
-        $this->importState->addImportedRowsCount((int) $rows[0]['count']);
+        $this->importState->addImportedRowsCount($rowsCount);
     }
 
     private function doIncrementalLoad(

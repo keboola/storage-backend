@@ -132,7 +132,7 @@ EOT
     {
         /** @var ExportOptions|MockObject $destination */
         $options = $this->createMock(ExportOptions::class);
-        $options->expects($this->once())->method('isCompresed')->willReturn($compressed);
+        $options->expects($this->once())->method('isCompressed')->willReturn($compressed);
         $options->expects($this->once())->method('getExportId')->willReturn('random_export_id');
         return $options;
     }

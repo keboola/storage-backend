@@ -139,32 +139,22 @@ class Importer implements ImporterInterface
         ImportOptions $importOptions,
         SnowflakeImportAdapterInterface $adapter
     ): void {
-        $commands = $adapter->getCopyCommands(
-            $source,
-            $destination,
-            $importOptions,
-            $this->importState->getStagingTableName()
-        );
-
         try {
             $this->importState->startTimer('copyToStaging');
-            foreach ($commands as $command) {
-                $this->connection->query($command);
-            }
+            $rowsCount = $adapter->runCopyCommand(
+                $source,
+                $destination,
+                $importOptions,
+                $this->importState->getStagingTableName()
+            );
             $this->importState->stopTimer('copyToStaging');
+            $this->importState->addImportedRowsCount($rowsCount);
         } catch (\Throwable $e) {
-            $stringCode = Exception::INVALID_SOURCE_DATA;
-            if (strpos($e->getMessage(), 'was not found') !== false) {
-                $stringCode = Exception::MANDATORY_FILE_NOT_FOUND;
+            if ($e instanceof Exception) {
+                throw $e;
             }
-            throw new Exception('Load error: ' . $e->getMessage(), $stringCode, $e);
+            throw new Exception('Load error: ' . $e->getMessage(), Exception::INVALID_SOURCE_DATA, $e);
         }
-
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
-            $destination->getSchema(),
-            $this->importState->getStagingTableName()
-        ));
-        $this->importState->addImportedRowsCount((int) $rows[0]['count']);
     }
 
     private function doIncrementalLoad(

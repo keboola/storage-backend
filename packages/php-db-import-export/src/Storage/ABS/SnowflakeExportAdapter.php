@@ -47,7 +47,7 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
             ));
         }
 
-        $compression = $exportOptions->isCompresed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
+        $compression = $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
 
         $from = $source->getFromStatement();
 
