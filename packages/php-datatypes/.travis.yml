@@ -6,10 +6,8 @@ services:
 before_script:
   - composer update
 
-install:
+script:
   - composer ci
-
-script: skip
 
 php:
   - 5.6
