@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Storage\Snowflake;
 
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\SqlCommandBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 
@@ -14,9 +15,13 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     /** @var Connection */
     private $connection;
 
+    /** @var SqlCommandBuilder */
+    private $sqlBuilder;
+
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
+        $this->sqlBuilder = new SqlCommandBuilder();
     }
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -34,12 +39,12 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
      * @param Storage\Snowflake\Table $source
      * @param Storage\Snowflake\Table $destination
      */
-    public function getCopyCommands(
+    public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
-    ): array {
+    ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->connection->quoteIdentifier($column);
         }, $importOptions->getColumns());
@@ -58,6 +63,13 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             $this->connection->quoteIdentifier($source->getTableName())
         );
 
-        return [$sql];
+        $this->connection->query($sql);
+
+        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+            $destination->getSchema(),
+            $stagingTableName
+        ));
+
+        return (int) $rows[0]['count'];
     }
 }

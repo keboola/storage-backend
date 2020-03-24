@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -18,10 +19,14 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
     private $platform;
 
+    /** @var SqlCommandBuilder */
+    private $sqlBuilder;
+
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
         $this->platform = $connection->getDatabasePlatform();
+        $this->sqlBuilder = new SqlCommandBuilder($this->connection);
     }
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -39,12 +44,32 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
      * @param Storage\ABS\SourceFile $source
      * @param Storage\Synapse\Table $destination
      */
-    public function getCopyCommands(
+    public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
-    ): array {
+    ): int {
+        $sql = $this->getCopyCommand($source, $destination, $importOptions, $stagingTableName);
+
+        if ($sql !== null) {
+            $this->connection->exec($sql);
+        }
+
+        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+            $destination->getSchema(),
+            $stagingTableName
+        ));
+
+        return (int) $rows[0]['count'];
+    }
+
+    private function getCopyCommand(
+        Storage\ABS\SourceFile $source,
+        Storage\Synapse\Table $destination,
+        ImportOptions $importOptions,
+        string $stagingTableName
+    ): ?string {
         $sasToken = $source->getSasToken();
         $destinationSchema = $this->platform->quoteSingleIdentifier($destination->getSchema());
         $destinationTable = $this->platform->quoteSingleIdentifier($stagingTableName);
@@ -59,7 +84,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
         $entries = $source->getManifestEntries(SourceFile::PROTOCOL_HTTPS);
 
         if (count($entries) === 0) {
-            return [];
+            return null;
         }
 
         $entries = array_map(function ($entry) {
@@ -68,8 +93,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
 
         $entries = implode(', ', $entries);
 
-        return [
-            <<< EOT
+        return <<< EOT
 COPY INTO $destinationSchema.$destinationTable
 FROM $entries
 WITH (
@@ -83,7 +107,6 @@ WITH (
     $firstRow
 )
 EOT
-            ,
-        ];
+            ;
     }
 }

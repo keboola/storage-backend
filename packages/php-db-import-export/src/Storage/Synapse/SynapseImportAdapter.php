@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Storage\Synapse;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -15,9 +16,17 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
     private $platform;
 
+    /** @var Connection */
+    private $connection;
+
+    /** @var SqlCommandBuilder */
+    private $sqlBuilder;
+
     public function __construct(Connection $connection)
     {
         $this->platform = $connection->getDatabasePlatform();
+        $this->connection = $connection;
+        $this->sqlBuilder = new SqlCommandBuilder($this->connection);
     }
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -35,12 +44,12 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
      * @param Storage\Synapse\Table $source
      * @param Storage\Synapse\Table $destination
      */
-    public function getCopyCommands(
+    public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
-    ): array {
+    ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->platform->quoteSingleIdentifier($column);
         }, $importOptions->getColumns());
@@ -59,6 +68,13 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             $this->platform->quoteSingleIdentifier($source->getTableName())
         );
 
-        return [$sql];
+        $this->connection->exec($sql);
+
+        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+            $destination->getSchema(),
+            $stagingTableName
+        ));
+
+        return (int) $rows[0]['count'];
     }
 }
