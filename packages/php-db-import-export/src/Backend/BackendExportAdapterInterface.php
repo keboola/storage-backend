@@ -9,10 +9,14 @@ use Keboola\Db\ImportExport\Storage;
 
 interface BackendExportAdapterInterface
 {
-    public function __construct(Storage\DestinationInterface $destination);
-
-    public function getCopyCommand(
+    public static function isSupported(
         Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination
+    ): bool;
+
+    public function runCopyCommand(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ExportOptions $exportOptions
-    ): string;
+    ): void;
 }

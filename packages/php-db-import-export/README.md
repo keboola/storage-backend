@@ -2,8 +2,8 @@
 
 ## Supported operations
 
-- Load/Import csv from `ABS` to `Snowflake` or `Synapse` 
-- Unload/Export table from `Snowflake` to `ABS` 
+- Load/Import csv from `ABS` to `Snowflake` or `Synapse`
+- Unload/Export table from `Snowflake` or `Synapse` to `ABS`
 
 ## Features
 
@@ -36,7 +36,7 @@ ABS_CONTAINER_NAME=containerName
 
 Role, user, database and warehouse are required for tests. You can create them:
 
-```sql 
+```sql
 CREATE ROLE "KEBOOLA_DB_IMPORT_EXPORT";
 CREATE DATABASE "KEBOOLA_DB_IMPORT_EXPORT";
 
@@ -60,12 +60,18 @@ SYNAPSE_PWD
 SYNAPSE_DATABASE
 SYNAPSE_SERVER
 
+Run query:
+```sql
+CREATE MASTER KEY;
+```
+this will create master key for polybase.
+
 ### Tests
 
 Run tests with following command.
 
 *note: azure credentials must be provided and fixtures uploaded*
- 
+
 ```
 docker-compose run --rm dev composer tests
 ```
@@ -165,13 +171,18 @@ Keboola\Db\ImportExport\Backend\ImporterInterface
 Keboola\Db\ImportExport\Backend\ExporterInterface
 ```
 
-For each backend there is corresponding adapter injected by Source or Destination.
+For each backend there is corresponding adapter which supports own combination of SourceInterface and DestinationInterface. Custom adapters can be set with `setAdapters` method.
 
-#### Create new Storage
+#### Create new storage
 
-Storage can have `Source` and `Destination` which must implement `SourceInterface` or `DestinationInterface`.
+Storage is now file storage ABS|S3 (in future) or table storage Snowflake|Synapse.
+Storage can have `Source` and `Destination` which must implement `SourceInterface` or `DestinationInterface`. These interfaces are empty and it's up to adapter to support own combination.
+In general there is one Import/Export adapter per FileStorage <=> TableStorage combination.
 
-- **SourceInterface** has method `getBackendImportAdapter` which must return Adapter implementing `BackendImportAdapterInterface` for used Backend   
-- **DestinationInterface** has method `getBackendExportAdapter` which must return Adapter implementing `BackendExportAdapterInterface` for used Backend
+Adapter must implement:
+- `Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface` for import
+- `Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface` for export
+
+Backend can require own extended AdapterInterface (Synapse and Snowflake do now).
 
 

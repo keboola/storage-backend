@@ -26,13 +26,4 @@ class TableTest extends TestCase
         self::assertEquals([], $source->getQueryBindings());
         self::assertEquals('"schema"."table"', $source->getFromStatement());
     }
-
-    public function testGetBackendExportAdapter(): void
-    {
-        $source = new Storage\Snowflake\Table('schema', 'table');
-        /** @var SnowflakeExporter|MockObject $exporter */
-        $exporter = self::createMock(SnowflakeExporter::class);
-        self::expectException(NoBackendAdapterException::class);
-        $source->getBackendExportAdapter($exporter);
-    }
 }

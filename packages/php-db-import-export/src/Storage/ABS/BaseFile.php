@@ -60,6 +60,15 @@ abstract class BaseFile
         );
     }
 
+    public function getPolyBaseUrl(): string
+    {
+        return sprintf(
+            'wasbs://%s@%s.blob.core.windows.net/',
+            $this->container,
+            $this->accountName
+        );
+    }
+
     public function getFilePath(): string
     {
         return $this->filePath;

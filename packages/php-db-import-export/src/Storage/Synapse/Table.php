@@ -37,15 +37,9 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         $this->platform = new SQLServerPlatform();
     }
 
-    public function getBackendExportAdapter(
-        ExporterInterface $exporter
-    ): BackendExportAdapterInterface {
-        throw new NoBackendAdapterException();
-    }
-
     public function getFromStatement(): string
     {
-        return $this->getQuotedTableWithScheme();
+        return sprintf('SELECT * FROM %s', $this->getQuotedTableWithScheme());
     }
 
     public function getQuotedTableWithScheme(): string

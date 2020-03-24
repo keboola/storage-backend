@@ -18,7 +18,7 @@ use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
 class ExportTest extends SnowflakeImportExportBaseTest
 {
-    private const EXPORT_BLOB_DIR = 'test_export';
+    private const EXPORT_BLOB_DIR = 'snowflake_test_export';
 
     /**
      * @var BlobRestProxy

@@ -14,8 +14,9 @@ before_script:
   - parallel --version
   - docker-compose build production
 script:
-  # prepare docekr network
+  # prepare docker network
   - docker network create php-db-import-export_default
+
   #run CI stuff
   - >-
     parallel -j12 --linebuffer docker-compose run production composer :::
@@ -23,13 +24,18 @@ script:
     phpcs
     phpstan
     loadAbs
+
+  # Run unit tests
   - docker-compose run production composer tests-unit
-  # prepare tests
-  - echo -n > commands
-  - echo 'synapse     -;bash docker/synapse/synapse.sh -w && docker-compose run production php ./vendor/bin/phpunit --debug --colors=always --testsuite synapse' >> commands
-  - echo 'snowflake   -;docker-compose run production php ./vendor/bin/phpunit --debug --colors=always --testsuite snowflake' >> commands
+
+  # wait for Synapse to start, should be already online
+  - bash docker/synapse/synapse.sh -w
+
   # run parallel functional tests
-  - parallel -j12 --linebuffer --colsep ';' --tagstring {1} -a commands bash -c {2}
+  - >-
+    travis_wait 60 parallel -j12 --linebuffer docker-compose run production composer :::
+    tests-snowflake
+    tests-synapse
 after_script:
   # Send pause to synapse server in background
   - bash docker/synapse/synapse.sh -p &
