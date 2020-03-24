@@ -77,7 +77,7 @@ EOT
         );
 
         $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [SCHEMA].[stagingTable]')
+            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(
                 [
                     [
@@ -125,7 +125,7 @@ WITH (
 EOT
         );
         $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [SCHEMA].[stagingTable]')
+            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(
                 [
                     [
