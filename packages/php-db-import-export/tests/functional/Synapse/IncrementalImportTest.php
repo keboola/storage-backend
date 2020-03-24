@@ -50,7 +50,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $expectedAccountsRows,
             4,
             [self::TABLE_ACCOUNTS_3],
-            true
+            true,
         ];
         $tests[] = [
             $this->createABSSourceInstance('tw_accounts.csv', false),
@@ -73,7 +73,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $expectedAccountsRows,
             4,
             [self::TABLE_ACCOUNTS_BEZ_TS],
-            true
+            true,
         ];
         $tests[] = [
             $this->createABSSourceInstance('multi-pk.csv', false),
@@ -118,7 +118,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
         );
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-        if($isSkipped === true){
+        if ($isSkipped === true) {
             $this->markTestIncomplete(
                 'Skip assertion due to UTF-8 COPY INTO error in synapse.'
             );

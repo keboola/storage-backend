@@ -132,7 +132,7 @@ class FullImportTest extends SynapseBaseTestCase
             $expectedAccounts,
             3,
             [self::TABLE_ACCOUNTS_3],
-            true
+            true,
         ];
         $tests[] = [
             $this->createABSSourceInstance('tw_accounts.csv'),
@@ -141,7 +141,7 @@ class FullImportTest extends SynapseBaseTestCase
             $expectedAccounts,
             3,
             [self::TABLE_ACCOUNTS_3],
-            true
+            true,
         ];
         // manifests
         $tests[] = [
@@ -151,7 +151,7 @@ class FullImportTest extends SynapseBaseTestCase
             $expectedAccounts,
             3,
             [self::TABLE_ACCOUNTS_3],
-            true
+            true,
         ];
 
         $tests[] = [
@@ -161,7 +161,7 @@ class FullImportTest extends SynapseBaseTestCase
             $expectedAccounts,
             3,
             [self::TABLE_ACCOUNTS_3],
-            true
+            true,
         ];
 
         // reserved words
@@ -253,7 +253,7 @@ class FullImportTest extends SynapseBaseTestCase
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-        if($isSkipped === true){
+        if ($isSkipped === true) {
             $this->markTestIncomplete(
                 'Skip assertion due to UTF-8 COPY INTO error in synapse.'
             );
