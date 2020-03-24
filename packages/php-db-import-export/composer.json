@@ -4,6 +4,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.1",
+        "doctrine/dbal": "^2.9",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^5.0",
         "microsoft/azure-storage-blob": "^1.4"
@@ -31,8 +32,13 @@
         }
     },
     "scripts": {
-        "tests-unit": "phpunit tests/unit",
-        "tests-functional": "phpunit tests/functional",
+        "tests-unit": "phpunit --colors=always --testsuite unit",
+        "tests-snowflake": "phpunit --colors=always --testsuite snowflake",
+        "tests-synapse": "phpunit --colors=always --testsuite synapse",
+        "tests-functional": [
+            "@tests-snowflake",
+            "@tests-synapse"
+        ],
         "tests": [
             "@tests-unit",
             "@tests-functional"
@@ -48,7 +54,7 @@
             "@phpcs",
             "@phpstan",
             "@loadAbs",
-            "@tests"
+            "@tests-unit"
         ],
         "ci": [
             "@composer validate --no-check-publish --no-check-all",

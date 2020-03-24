@@ -8,7 +8,18 @@
          processIsolation="false"
          stopOnFailure="false"
          bootstrap="tests/bootstrap.php">
-    <testsuite name="Main Test Suite">
-        <directory>tests/</directory>
-    </testsuite>
+
+    <testsuites>
+        <testsuite name="snowflake">
+            <directory>tests/functional/Snowflake</directory>
+        </testsuite>
+
+        <testsuite name="synapse">
+            <directory>tests/functional/Synapse</directory>
+        </testsuite>
+
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+    </testsuites>
 </phpunit>

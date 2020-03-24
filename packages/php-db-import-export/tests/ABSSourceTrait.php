@@ -33,8 +33,9 @@ trait ABSSourceTrait
         return new Storage\ABS\DestinationFile(
             (string) getenv('ABS_CONTAINER_NAME'),
             $filePath,
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
-            (string) getenv('ABS_ACCOUNT_NAME')
+            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME'), 'rwla'),
+            (string) getenv('ABS_ACCOUNT_NAME'),
+            (string) getenv('ABS_ACCOUNT_KEY')
         );
     }
 
@@ -61,7 +62,8 @@ trait ABSSourceTrait
     }
 
     protected function getCredentialsForAzureContainer(
-        string $container
+        string $container,
+        string $permissions = 'rwl'
     ): string {
         $sasHelper = new BlobSharedAccessSignatureHelper(
             (string) getenv('ABS_ACCOUNT_NAME'),
@@ -71,7 +73,7 @@ trait ABSSourceTrait
         return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
             Resources::RESOURCE_TYPE_CONTAINER,
             $container,
-            'rwl',
+            $permissions,
             $expirationDate,
             (new DateTime())
         );

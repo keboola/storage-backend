@@ -4,35 +4,41 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
-use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
+use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
 
-class SnowflakeExportAdapter implements BackendExportAdapterInterface
+class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
 {
-    /**
-     * @var Storage\ABS\DestinationFile
-     */
-    private $destination;
+    /** @var Connection */
+    private $connection;
 
-    /**
-     * @param Storage\ABS\DestinationFile $destination
-     */
-    public function __construct(Storage\DestinationInterface $destination)
+    public function __construct(Connection $connection)
     {
-        $this->destination = $destination;
+        $this->connection = $connection;
+    }
+
+    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
+    {
+        if (!$source instanceof Storage\SqlSourceInterface) {
+            return false;
+        }
+        if (!$destination instanceof Storage\ABS\DestinationFile) {
+            return false;
+        }
+        return true;
     }
 
     /**
      * @param Storage\SqlSourceInterface $source
-     * @throws \Exception
+     * @param Storage\ABS\DestinationFile $destination
      */
-    public function getCopyCommand(
+    public function runCopyCommand(
         Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ExportOptions $exportOptions
-    ): string {
-        $compression = $exportOptions->isCompresed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
-
+    ): void {
         if (!$source instanceof Storage\SqlSourceInterface) {
             throw new \Exception(sprintf(
                 'Source "%s" must implement "%s".',
@@ -41,9 +47,10 @@ class SnowflakeExportAdapter implements BackendExportAdapterInterface
             ));
         }
 
+        $compression = $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
+
         $from = $source->getFromStatement();
 
-//TODO: encryption "ENCRYPTION = (TYPE = 'AZURE_CSE' master_key = '%s')"
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
 FROM %s
@@ -56,13 +63,13 @@ FILE_FORMAT = (
     TIMESTAMP_FORMAT = \'YYYY-MM-DD HH24:MI:SS\'
 )
 MAX_FILE_SIZE=50000000',
-            $this->destination->getContainerUrl(),
-            $this->destination->getFilePath(),
+            $destination->getContainerUrl(BaseFile::PROTOCOL_AZURE),
+            $destination->getFilePath(),
             $from,
-            $this->destination->getSasToken(),
+            $destination->getSasToken(),
             $compression
         );
 
-        return $sql;
+        $this->connection->fetchAll($sql, $source->getQueryBindings());
     }
 }

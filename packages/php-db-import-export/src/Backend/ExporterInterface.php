@@ -14,4 +14,6 @@ interface ExporterInterface
         Storage\DestinationInterface $destination,
         ExportOptions $options
     ): void;
+
+    public function setAdapters(array $adapters): void;
 }

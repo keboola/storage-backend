@@ -4,53 +4,72 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\Snowflake;
 
-use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
+use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\SqlCommandBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
-use Keboola\Db\ImportExport\Storage\DestinationInterface;
-use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage;
 
-class SnowflakeImportAdapter implements BackendImportAdapterInterface
+class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 {
-    /**
-     * @var Table
-     */
-    private $source;
+    /** @var Connection */
+    private $connection;
 
-    /**
-     * @param Table $source
-     */
-    public function __construct(SourceInterface $source)
+    /** @var SqlCommandBuilder */
+    private $sqlBuilder;
+
+    public function __construct(Connection $connection)
     {
-        $this->source = $source;
+        $this->connection = $connection;
+        $this->sqlBuilder = new SqlCommandBuilder();
+    }
+
+    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
+    {
+        if (!$source instanceof Storage\Snowflake\Table) {
+            return false;
+        }
+        if (!$destination instanceof Storage\Snowflake\Table) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * @param Table $destination
+     * @param Storage\Snowflake\Table $source
+     * @param Storage\Snowflake\Table $destination
      */
-    public function getCopyCommands(
-        DestinationInterface $destination,
+    public function runCopyCommand(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
-    ): array {
+    ): int {
         $quotedColumns = array_map(function ($column) {
-            return QuoteHelper::quoteIdentifier($column);
+            return $this->connection->quoteIdentifier($column);
         }, $importOptions->getColumns());
 
         $sql = sprintf(
             'INSERT INTO %s.%s (%s)',
-            QuoteHelper::quoteIdentifier($destination->getSchema()),
-            QuoteHelper::quoteIdentifier($stagingTableName),
+            $this->connection->quoteIdentifier($destination->getSchema()),
+            $this->connection->quoteIdentifier($stagingTableName),
             implode(', ', $quotedColumns)
         );
 
         $sql .= sprintf(
             ' SELECT %s FROM %s.%s',
             implode(', ', $quotedColumns),
-            QuoteHelper::quoteIdentifier($this->source->getSchema()),
-            QuoteHelper::quoteIdentifier($this->source->getTableName())
+            $this->connection->quoteIdentifier($source->getSchema()),
+            $this->connection->quoteIdentifier($source->getTableName())
         );
 
-        return [$sql];
+        $this->connection->query($sql);
+
+        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+            $destination->getSchema(),
+            $stagingTableName
+        ));
+
+        return (int) $rows[0]['count'];
     }
 }

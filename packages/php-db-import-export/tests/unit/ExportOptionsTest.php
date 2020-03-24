@@ -13,6 +13,6 @@ class ExportOptionsTest extends TestCase
     {
         $options = new ExportOptions();
 
-        self::assertSame(false, $options->isCompresed());
+        self::assertSame(false, $options->isCompressed());
     }
 }

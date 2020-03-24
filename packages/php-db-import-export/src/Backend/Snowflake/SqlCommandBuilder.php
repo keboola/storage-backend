@@ -168,7 +168,8 @@ class SqlCommandBuilder
     public function getInsertFromStagingToTargetTableCommand(
         Table $destination,
         ImportOptions $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
+        string $timestampValue
     ): string {
         if ($importOptions->useTimestamp()) {
             $insColumns = array_merge($importOptions->getColumns(), [Importer::TIMESTAMP_COLUMN_NAME]);
@@ -194,7 +195,7 @@ class SqlCommandBuilder
         }
 
         if ($importOptions->useTimestamp()) {
-            $columnsSetSql[] = sprintf('\'%s\'', DateTimeHelper::getNowFormatted());
+            $columnsSetSql[] = sprintf('\'%s\'', $timestampValue);
         }
 
         return sprintf(
@@ -245,11 +246,12 @@ class SqlCommandBuilder
         Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName,
-        array $primaryKeys
+        array $primaryKeys,
+        string $timestamp
     ): string {
         $columnsSet = [];
         foreach ($importOptions->getColumns() as $columnName) {
-            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull())) {
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = IFF("src".%s = \'\', NULL, "src".%s)',
                     QuoteHelper::quoteIdentifier($columnName),
@@ -269,13 +271,13 @@ class SqlCommandBuilder
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 QuoteHelper::quoteIdentifier(Importer::TIMESTAMP_COLUMN_NAME),
-                DateTimeHelper::getNowFormatted()
+                $timestamp
             );
         }
 
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-        $columnsComparsionSql = array_map(
-            function ($columnName) {
+        $columnsComparisionSql = array_map(
+            static function ($columnName) {
                 return sprintf(
                     'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
                     QuoteHelper::quoteIdentifier($columnName),
@@ -285,16 +287,14 @@ class SqlCommandBuilder
             $importOptions->getColumns()
         );
 
-        $sql = sprintf(
+        return sprintf(
             'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s AND (%s) ',
             $destination->getQuotedTableWithScheme(),
             implode(', ', $columnsSet),
             QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
             $this->getPrimayKeyWhereConditions($primaryKeys),
-            implode(' OR ', $columnsComparsionSql)
+            implode(' OR ', $columnsComparisionSql)
         );
-
-        return $sql;
     }
 }

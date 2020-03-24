@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend;
 
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\DestinationInterface;
-use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage;
 
 interface BackendImportAdapterInterface
 {
-    public function __construct(SourceInterface $source);
+    public static function isSupported(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination
+    ): bool;
 
     /**
-     * @return string[]
+     * @return int number of inserted rows
      */
-    public function getCopyCommands(
-        DestinationInterface $destination,
+    public function runCopyCommand(
+        Storage\SourceInterface $source,
+        Storage\DestinationInterface $destination,
         ImportOptions $importOptions,
         string $stagingTableName
-    ): array;
+    ): int;
 }

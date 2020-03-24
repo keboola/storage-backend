@@ -4,14 +4,54 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional;
 
+use Keboola\Csv\CsvFile;
+use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 
 abstract class ImportExportBaseTest extends TestCase
 {
     protected const DATA_DIR = __DIR__ . '/../data/';
-
     use ABSSourceTrait;
+
+    /**
+     * @param CsvFile[] $expected
+     * @param CsvFile[] $actual
+     */
+    public function assertCsvFilesCountSliced(array $expected, array $actual): void
+    {
+        $expectedContent = [];
+        foreach ($expected as $item) {
+            $item = iterator_to_array($item);
+            if (empty($item)) {
+                continue;
+            }
+            $expectedContent = array_merge($expectedContent, $item);
+        }
+        $actualContent = [];
+        foreach ($actual as $item) {
+            $item = iterator_to_array($item);
+            if (empty($item)) {
+                continue;
+            }
+            $actualContent = array_merge($actualContent, $item);
+        }
+        $this->assertCount(
+            count($expectedContent),
+            $actualContent,
+            'Csv dont have equals count of items.'
+        );
+    }
+
+    public function assertCsvFilesSame(CsvFile $expected, CsvFile $actual): void
+    {
+        $this->assertArrayEqualsSorted(
+            iterator_to_array($expected),
+            iterator_to_array($actual),
+            0,
+            'Csv files are not same'
+        );
+    }
 
     /**
      * @param int|string $sortKey
@@ -30,6 +70,62 @@ abstract class ImportExportBaseTest extends TestCase
         };
         usort($expected, $comparsion);
         usort($actual, $comparsion);
-        $this->assertEquals($expected, $actual, $message);
+        $this->assertEqualsCanonicalizing($expected, $actual, $message);
+    }
+
+    /**
+     * @param CsvFile[] $expected
+     * @param CsvFile[] $actual
+     */
+    public function assertCsvFilesSameSliced(array $expected, array $actual): void
+    {
+        $expectedContent = [];
+        foreach ($expected as $item) {
+            $item = iterator_to_array($item);
+            if (empty($item)) {
+                continue;
+            }
+            $expectedContent = array_merge($expectedContent, $item);
+        }
+        $actualContent = [];
+        foreach ($actual as $item) {
+            $item = iterator_to_array($item);
+            if (empty($item)) {
+                continue;
+            }
+            $actualContent = array_merge($actualContent, $item);
+        }
+        $this->assertArrayEqualsSorted(
+            $expectedContent,
+            $actualContent,
+            0,
+            'Csv files are not same'
+        );
+    }
+
+    protected function getSimpleImportOptions(
+        array $header,
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+    ): ImportOptions {
+        return new ImportOptions(
+            [],
+            $header,
+            false,
+            true,
+            $skipLines
+        );
+    }
+
+    protected function getSimpleIncrementalImportOptions(
+        array $header,
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+    ): ImportOptions {
+        return new ImportOptions(
+            [],
+            $header,
+            true,
+            true,
+            $skipLines
+        );
     }
 }
