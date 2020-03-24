@@ -4,8 +4,6 @@ services:
   app: &base
     build:
       context: .
-    tty: true
-    stdin_open: true
 
   dev:
     <<: *base
