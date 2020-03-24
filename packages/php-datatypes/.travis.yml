@@ -3,10 +3,11 @@ language: php
 services:
   - docker
 
+before_script:
+  - composer update
+
 install:
-  - docker-compose -v
-  - docker-compose build
-  - docker-compose run --rm app composer ci
+  - composer ci
 
 script: skip
 
