@@ -72,6 +72,7 @@ class MySQL extends Common
     /**
      * @param string $type
      * @throws InvalidTypeException
+     * @return void
      */
     private function validateType($type)
     {
