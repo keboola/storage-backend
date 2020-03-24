@@ -8,6 +8,8 @@ install:
   - docker-compose build
   - docker-compose run --rm app composer ci
 
+script: skip
+
 php:
   - 5.6
   - 7.0
