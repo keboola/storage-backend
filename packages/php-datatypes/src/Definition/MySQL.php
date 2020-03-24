@@ -84,6 +84,7 @@ class MySQL extends Common
      * @param string $type
      * @param string|null $length
      * @throws InvalidLengthException
+     * @return void
      */
     private function validateLength($type, $length = null)
     {
