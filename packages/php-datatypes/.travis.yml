@@ -3,13 +3,10 @@ language: php
 services:
   - docker
 
-before_script:
+before_install:
   - docker-compose -v
-
-install:
-  - docker-compose run --rm dev composer install
-  - docker-compose run --rm dev ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
-  - docker-compose run --rm dev ./vendor/bin/phpstan analyse ./src --level=max -c phpstan.neon
+  - docker-compose build
+  - docker-compose run --rm app composer ci
 
 php:
   - 5.6

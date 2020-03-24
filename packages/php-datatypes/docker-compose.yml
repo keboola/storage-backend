@@ -1,12 +1,13 @@
 version: "2"
 
 services:
-
-  dev:
-    build: .
-    volumes:
-      - .:/code
-    working_dir: /code
-    command: sh -c 'composer install -n && php ./vendor/bin/phpunit'
+  app: &base
+    build:
+      context: .
     tty: true
     stdin_open: true
+
+  dev:
+    <<: *base
+    volumes:
+      - .:/code

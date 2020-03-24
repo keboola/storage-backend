@@ -1,5 +1,7 @@
 {
     "name": "keboola/php-datatypes",
+    "license": "MIT",
+    "description": "PHP datatypes for databases",
     "authors": [
         {
             "name": "Ondřej Hlaváček",
@@ -23,5 +25,20 @@
         "psr-4": {
             "Keboola\\DatatypeTest\\": "tests/"
         }
+    },
+    "scripts": {
+        "tests": "phpunit",
+        "phpstan": "phpstan analyse ./src --no-progress --level=max -c phpstan.neon",
+        "phpcs": "phpcs -n --standard=psr2 --ignore=vendor --extensions=php .",
+        "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
+        "build": [
+            "@phpcs",
+            "@phpstan",
+            "@tests"
+        ],
+        "ci": [
+            "@composer validate --no-check-all --strict",
+            "@build"
+        ]
     }
 }
