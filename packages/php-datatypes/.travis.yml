@@ -17,6 +17,7 @@ php:
 jobs:
   include:
     - php: 5.6
-      before_script: skip
+      before_script:
+        - composer install php-parallel-lint/php-parallel-lint
       script:
         - composer phplint
