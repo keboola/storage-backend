@@ -27,6 +27,11 @@ class Synapse extends Common
         'time',
     ];
 
+    const MAX_LENGTH_NVARCHAR = 4000;
+    const MAX_LENGTH_BINARY = 8000;
+    const MAX_LENGTH_FLOAT = 53;
+    const MAX_LENGTH_NUMERIC = '38,0';
+
     /**
      * @param string $type
      * @param array $options -- length, nullable, default
@@ -52,13 +57,51 @@ class Synapse extends Common
     {
         $definition = $this->getType();
         $length = $this->getLength();
-        if ($length !== null && $length !== "") {
+        if ($length !== null && $length !== '') {
             $definition .= sprintf('(%s)', $length);
+        } else {
+            $length = $this->getDefaultLength();
+            if (null !== $length) {
+                $definition .= sprintf('(%s)', $length);
+            }
         }
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
         return $definition;
+    }
+
+    /**
+     * Unlike RS or SNFLK which sets default values for types to max
+     * Synapse sets default length to min, so when length is empty we need to set maximum values
+     * to maintain same behavior as with RS and SNFLK
+     *
+     * @return int|string|null
+     */
+    private function getDefaultLength()
+    {
+        switch (strtolower($this->getType())) {
+            case 'float':
+            case 'real':
+                return self::MAX_LENGTH_FLOAT;
+                break;
+            case 'decimal':
+            case 'numeric':
+                return self::MAX_LENGTH_NUMERIC;
+                break;
+            case 'nchar':
+            case 'nvarchar':
+                return self::MAX_LENGTH_NVARCHAR;
+                break;
+            case 'binary':
+            case 'char':
+            case 'varbinary':
+            case 'varchar':
+                return self::MAX_LENGTH_BINARY;
+                break;
+        }
+
+        return null;
     }
 
     /**

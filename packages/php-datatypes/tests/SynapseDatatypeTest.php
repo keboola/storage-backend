@@ -164,22 +164,112 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
         new Synapse('UNKNOWN');
     }
 
-    public function testSqlDefinition()
+    /**
+     * @param string $type
+     * @param array|null $options
+     * @param string $expectedDefinition
+     *
+     * @dataProvider expectedSqlDefinitions
+     */
+    public function testSqlDefinition($type, $options, $expectedDefinition)
     {
-        $definition = new Synapse('numeric', ['length' => '']);
-        $this->assertTrue($definition->getSQLDefinition() === 'numeric');
+        $definition = new Synapse($type, $options);
+        $this->assertEquals($expectedDefinition, $definition->getSQLDefinition());
+    }
 
-        $definition = new Synapse('datetime2', ['length' => '0']);
-        $this->assertTrue($definition->getSQLDefinition() === 'datetime2(0)');
+    public function expectedSqlDefinitions()
+    {
+        $tests = [];
 
-        $definition = new Synapse('datetime2', ['length' => '7']);
-        $this->assertTrue($definition->getSQLDefinition() === 'datetime2(7)');
+        foreach (['numeric', 'decimal'] as $type) {
+            $tests[] = [
+                $type,
+                ['length' => ''],
+                $type . '(38,0)',
+            ];
+            $tests[] = [
+                $type,
+                [],
+                $type . '(38,0)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '35,2'],
+                $type . '(35,2)',
+            ];
+        }
 
-        $definition = new Synapse('datetime2', ['length' => '']);
-        $this->assertTrue($definition->getSQLDefinition() === 'datetime2');
+        foreach (['float', 'real'] as $type) {
+            $tests[] = [
+                $type,
+                ['length' => ''],
+                $type . '(53)',
+            ];
+            $tests[] = [
+                $type,
+                [],
+                $type . '(53)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '1'],
+                $type . '(1)',
+            ];
+        }
 
-        $definition = new Synapse('datetime2');
-        $this->assertTrue($definition->getSQLDefinition() === 'datetime2');
+        foreach (['nvarchar', 'nchar'] as $type) {
+            $tests[] = [
+                $type,
+                ['length' => ''],
+                $type . '(4000)',
+            ];
+            $tests[] = [
+                $type,
+                [],
+                $type . '(4000)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '1000'],
+                $type . '(1000)',
+            ];
+        }
+
+        foreach (['binary', 'char', 'varbinary', 'varchar'] as $type) {
+            $tests[] = [
+                $type,
+                ['length' => ''],
+                $type . '(8000)',
+            ];
+            $tests[] = [
+                $type,
+                [],
+                $type . '(8000)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '1000'],
+                $type . '(1000)',
+            ];
+        }
+
+        $tests[] = [
+            'datetime2',
+            ['length' => '0'],
+            'datetime2(0)',
+        ];
+        $tests[] = [
+            'datetime2',
+            ['length' => '7'],
+            'datetime2(7)',
+        ];
+        $tests[] = [
+            'datetime2',
+            ['length' => ''],
+            'datetime2',
+        ];
+
+        return $tests;
     }
 
     /**
