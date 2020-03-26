@@ -4,8 +4,8 @@
     "description": "PHP datatypes for databases",
     "authors": [
         {
-            "name": "Ondřej Hlaváček",
-            "email": "ondrej.hlavacek@keboola.com"
+            "name": "Keboola",
+            "email": "devel@keboola.com"
         }
     ],
     "require": {
