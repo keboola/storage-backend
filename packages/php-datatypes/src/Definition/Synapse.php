@@ -14,23 +14,56 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
  */
 class Synapse extends Common
 {
+    const TYPE_DECIMAL = 'decimal';
+    const TYPE_NUMERIC = 'numeric';
+    const TYPE_FLOAT = 'float';
+    const TYPE_REAL = 'real';
+    const TYPE_MONEY = 'money';
+    const TYPE_SMALLMONEY = 'smallmoney';
+    const TYPE_BIGINT = 'bigint';
+    const TYPE_INT = 'int';
+    const TYPE_SMALLINT = 'smallint';
+    const TYPE_TINYINT = 'tinyint';
+    const TYPE_BIT = 'bit';
+    const TYPE_NVARCHAR = 'nvarchar';
+    const TYPE_NCHAR = 'nchar';
+    const TYPE_VARCHAR = 'varchar';
+    const TYPE_CHAR = 'char';
+    const TYPE_VARBINARY = 'varbinary';
+    const TYPE_BINARY = 'binary';
+    const TYPE_UNIQUEIDENTIFIER = 'uniqueidentifier';
+    const TYPE_DATETIMEOFFSET = 'datetimeoffset';
+    const TYPE_DATETIME2 = 'datetime2';
+    const TYPE_DATETIME = 'datetime';
+    const TYPE_SMALLDATETIME = 'smalldatetime';
+    const TYPE_DATE = 'date';
+    const TYPE_TIME = 'time';
+
     const TYPES = [
-        'decimal', 'numeric',
-        'float', 'real',
-        'money', 'smallmoney',
-        'bigint', 'int', 'smallint', 'tinyint',
-        'bit',
-        'nvarchar','nchar','varchar','char',
-        'varbinary','binary',
-        'uniqueidentifier',
-        'datetimeoffset','datetime2','datetime','smalldatetime','date',
-        'time',
+        self::TYPE_DECIMAL, self::TYPE_NUMERIC,
+        self::TYPE_FLOAT, self::TYPE_REAL,
+        self::TYPE_MONEY, self::TYPE_SMALLMONEY,
+        self::TYPE_BIGINT, self::TYPE_INT, self::TYPE_SMALLINT, self::TYPE_TINYINT,
+        self::TYPE_BIT,
+        self::TYPE_NVARCHAR,self::TYPE_NCHAR,self::TYPE_VARCHAR,self::TYPE_CHAR,
+        self::TYPE_VARBINARY,self::TYPE_BINARY,
+        self::TYPE_UNIQUEIDENTIFIER,
+        self::TYPE_DATETIMEOFFSET,self::TYPE_DATETIME2,self::TYPE_DATETIME,self::TYPE_SMALLDATETIME,self::TYPE_DATE,
+        self::TYPE_TIME,
     ];
 
     const MAX_LENGTH_NVARCHAR = 4000;
     const MAX_LENGTH_BINARY = 8000;
     const MAX_LENGTH_FLOAT = 53;
     const MAX_LENGTH_NUMERIC = '38,0';
+
+    /**
+     * Types with precision and scale
+     * This used to separate (precision,scale) types from length types when column is retrieved from database
+     */
+    const TYPES_WITH_COMPLEX_LENGTH = [
+        self::TYPE_DECIMAL, self::TYPE_NUMERIC,
+    ];
 
     /**
      * @param string $type
@@ -81,22 +114,22 @@ class Synapse extends Common
     private function getDefaultLength()
     {
         switch (strtolower($this->getType())) {
-            case 'float':
-            case 'real':
+            case self::TYPE_FLOAT:
+            case self::TYPE_REAL:
                 return self::MAX_LENGTH_FLOAT;
                 break;
-            case 'decimal':
-            case 'numeric':
+            case self::TYPE_DECIMAL:
+            case self::TYPE_NUMERIC:
                 return self::MAX_LENGTH_NUMERIC;
                 break;
-            case 'nchar':
-            case 'nvarchar':
+            case self::TYPE_NCHAR:
+            case self::TYPE_NVARCHAR:
                 return self::MAX_LENGTH_NVARCHAR;
                 break;
-            case 'binary':
-            case 'char':
-            case 'varbinary':
-            case 'varchar':
+            case self::TYPE_BINARY:
+            case self::TYPE_CHAR:
+            case self::TYPE_VARBINARY:
+            case self::TYPE_VARCHAR:
                 return self::MAX_LENGTH_BINARY;
                 break;
         }
@@ -145,8 +178,8 @@ class Synapse extends Common
     {
         $valid = true;
         switch (strtolower($type)) {
-            case 'float':
-            case 'real':
+            case self::TYPE_FLOAT:
+            case self::TYPE_REAL:
                 if ($this->isEmpty($length)) {
                     break;
                 }
@@ -159,8 +192,8 @@ class Synapse extends Common
                     break;
                 }
                 break;
-            case 'decimal':
-            case 'numeric':
+            case self::TYPE_DECIMAL:
+            case self::TYPE_NUMERIC:
                 if ($this->isEmpty($length)) {
                     break;
                 }
@@ -186,7 +219,7 @@ class Synapse extends Common
                     break;
                 }
                 break;
-            case 'nvarchar':
+            case self::TYPE_NVARCHAR:
                 if ($this->isEmpty($length)) {
                     break;
                 }
@@ -202,7 +235,7 @@ class Synapse extends Common
                     break;
                 }
                 break;
-            case 'nchar':
+            case self::TYPE_NCHAR:
                 if ($this->isEmpty($length)) {
                     break;
                 }
@@ -215,8 +248,8 @@ class Synapse extends Common
                     break;
                 }
                 break;
-            case 'varbinary':
-            case 'varchar':
+            case self::TYPE_VARBINARY:
+            case self::TYPE_VARCHAR:
                 if ($this->isEmpty($length)) {
                     break;
                 }
@@ -232,8 +265,8 @@ class Synapse extends Common
                     break;
                 }
                 break;
-            case 'binary':
-            case 'char':
+            case self::TYPE_BINARY:
+            case self::TYPE_CHAR:
                 if ($this->isEmpty($length)) {
                     break;
                 }
@@ -246,9 +279,9 @@ class Synapse extends Common
                     break;
                 }
                 break;
-            case 'datetimeoffset':
-            case 'datetime2':
-            case 'time':
+            case self::TYPE_DATETIMEOFFSET:
+            case self::TYPE_DATETIME2:
+            case self::TYPE_TIME:
                 if ($this->isEmpty($length)) {
                     break;
                 }
@@ -279,31 +312,31 @@ class Synapse extends Common
     public function getBasetype()
     {
         switch (strtolower($this->type)) {
-            case 'int':
-            case 'bigint':
-            case 'smallint':
-            case 'tinyint':
+            case self::TYPE_INT:
+            case self::TYPE_BIGINT:
+            case self::TYPE_SMALLINT:
+            case self::TYPE_TINYINT:
                 $basetype = BaseType::INTEGER;
                 break;
-            case 'decimal':
-            case 'numeric':
+            case self::TYPE_DECIMAL:
+            case self::TYPE_NUMERIC:
                 $basetype = BaseType::NUMERIC;
                 break;
-            case 'float':
-            case 'real':
+            case self::TYPE_FLOAT:
+            case self::TYPE_REAL:
                 $basetype = BaseType::FLOAT;
                 break;
-            case 'bit':
+            case self::TYPE_BIT:
                 $basetype = BaseType::BOOLEAN;
                 break;
-            case 'date':
+            case self::TYPE_DATE:
                 $basetype = BaseType::DATE;
                 break;
-            case 'datetimeoffset':
-            case 'datetime':
-            case 'datetime2':
-            case 'smalldatetime':
-            case 'time':
+            case self::TYPE_DATETIMEOFFSET:
+            case self::TYPE_DATETIME:
+            case self::TYPE_DATETIME2:
+            case self::TYPE_SMALLDATETIME:
+            case self::TYPE_TIME:
                 $basetype = BaseType::TIMESTAMP;
                 break;
             default:
