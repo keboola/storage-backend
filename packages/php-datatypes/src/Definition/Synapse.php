@@ -66,6 +66,24 @@ class Synapse extends Common
     ];
 
     /**
+     * Types without precision, scale, or length
+     * This used to separate types when column is retrieved from database
+     */
+    const TYPES_WITHOUT_LENGTH = [
+        Synapse::TYPE_DATETIME,
+        Synapse::TYPE_SMALLDATETIME,
+        Synapse::TYPE_DATE,
+        Synapse::TYPE_MONEY,
+        Synapse::TYPE_SMALLMONEY,
+        Synapse::TYPE_BIGINT,
+        Synapse::TYPE_INT,
+        Synapse::TYPE_SMALLINT,
+        Synapse::TYPE_TINYINT,
+        Synapse::TYPE_BIT,
+        Synapse::TYPE_UNIQUEIDENTIFIER,
+    ];
+
+    /**
      * @param string $type
      * @param array $options -- length, nullable, default
      * @throws InvalidLengthException
