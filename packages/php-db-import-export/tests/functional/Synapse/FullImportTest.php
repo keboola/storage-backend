@@ -226,6 +226,22 @@ class FullImportTest extends SynapseBaseTestCase
             1,
             [self::TABLE_TYPES],
         ];
+        $tests[] = [
+            new Storage\Synapse\SelectSource(
+                sprintf('SELECT * FROM [%s].[%s]', self::SYNAPSE_SOURCE_SCHEMA_NAME, self::TABLE_TYPES),
+                []
+            ),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_TYPES),
+            $this->getSimpleImportOptions([
+                'charCol',
+                'numCol',
+                'floatCol',
+                'boolCol',
+            ]),
+            [['a', '10.5', '0.3', '1']],
+            1,
+            [self::TABLE_TYPES],
+        ];
 
         return $tests;
     }

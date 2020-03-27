@@ -26,18 +26,20 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
-        if (!$source instanceof Storage\Snowflake\Table) {
+        if (!$destination instanceof Table) {
             return false;
         }
-        if (!$destination instanceof Storage\Snowflake\Table) {
+
+        if (!$source instanceof Table && !$source instanceof SelectSource) {
             return false;
         }
+
         return true;
     }
 
     /**
-     * @param Storage\Snowflake\Table $source
-     * @param Storage\Snowflake\Table $destination
+     * @param Table|SelectSource $source
+     * @param Table $destination
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
@@ -56,14 +58,18 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             implode(', ', $quotedColumns)
         );
 
-        $sql .= sprintf(
-            ' SELECT %s FROM %s.%s',
-            implode(', ', $quotedColumns),
-            $this->connection->quoteIdentifier($source->getSchema()),
-            $this->connection->quoteIdentifier($source->getTableName())
-        );
-
-        $this->connection->query($sql);
+        if ($source instanceof Table) {
+            $sql .= sprintf(
+                ' SELECT %s FROM %s.%s',
+                implode(', ', $quotedColumns),
+                $this->connection->quoteIdentifier($source->getSchema()),
+                $this->connection->quoteIdentifier($source->getTableName())
+            );
+            $this->connection->query($sql);
+        } elseif ($source instanceof SelectSource) {
+            $sql .= ' ' . $source->getFromStatement();
+            $this->connection->query($sql, $source->getQueryBindings());
+        }
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),

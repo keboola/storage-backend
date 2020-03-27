@@ -31,18 +31,20 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
-        if (!$source instanceof Storage\Synapse\Table) {
+        if (!$destination instanceof Table) {
             return false;
         }
-        if (!$destination instanceof Storage\Synapse\Table) {
+
+        if (!$source instanceof Table && !$source instanceof SelectSource) {
             return false;
         }
+
         return true;
     }
 
     /**
-     * @param Storage\Synapse\Table $source
-     * @param Storage\Synapse\Table $destination
+     * @param Table|SelectSource $source
+     * @param Table $destination
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
@@ -61,14 +63,22 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             implode(', ', $quotedColumns)
         );
 
-        $sql .= sprintf(
-            ' SELECT %s FROM %s.%s',
-            implode(', ', $quotedColumns),
-            $this->platform->quoteSingleIdentifier($source->getSchema()),
-            $this->platform->quoteSingleIdentifier($source->getTableName())
-        );
-
-        $this->connection->exec($sql);
+        if ($source instanceof Table) {
+            $sql .= sprintf(
+                ' SELECT %s FROM %s.%s',
+                implode(', ', $quotedColumns),
+                $this->platform->quoteSingleIdentifier($source->getSchema()),
+                $this->platform->quoteSingleIdentifier($source->getTableName())
+            );
+            $this->connection->exec($sql);
+        } elseif ($source instanceof SelectSource) {
+            $sql .= ' ' . $source->getFromStatement();
+            $this->connection->executeQuery(
+                $sql,
+                $source->getQueryBindings(),
+                $source->getDataTypes()
+            );
+        }
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),

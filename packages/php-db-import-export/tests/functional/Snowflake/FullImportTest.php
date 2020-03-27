@@ -198,6 +198,21 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             [['a', '10.5', '0.3', 'true']],
             1,
         ];
+        $tests[] = [
+            new Storage\Snowflake\SelectSource(
+                sprintf('SELECT * FROM "%s"."types"', self::SNOWFLAKE_SOURCE_SCHEMA_NAME),
+                []
+            ),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'types'),
+            $this->getSimpleImportOptions([
+                'charCol',
+                'numCol',
+                'floatCol',
+                'boolCol',
+            ]),
+            [['a', '10.5', '0.3', 'true']],
+            1,
+        ];
 
         return $tests;
     }
