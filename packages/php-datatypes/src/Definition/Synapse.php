@@ -135,21 +135,17 @@ class Synapse extends Common
             case self::TYPE_FLOAT:
             case self::TYPE_REAL:
                 return self::MAX_LENGTH_FLOAT;
-                break;
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
                 return self::MAX_LENGTH_NUMERIC;
-                break;
             case self::TYPE_NCHAR:
             case self::TYPE_NVARCHAR:
                 return self::MAX_LENGTH_NVARCHAR;
-                break;
             case self::TYPE_BINARY:
             case self::TYPE_CHAR:
             case self::TYPE_VARBINARY:
             case self::TYPE_VARCHAR:
                 return self::MAX_LENGTH_BINARY;
-                break;
         }
 
         return null;
@@ -178,6 +174,7 @@ class Synapse extends Common
 
     /**
      * @param string $type
+     * @return void
      * @throws InvalidTypeException
      */
     private function validateType($type)
@@ -190,6 +187,7 @@ class Synapse extends Common
     /**
      * @param string $type
      * @param string|null $length
+     * @return void
      * @throws InvalidLengthException
      */
     private function validateLength($type, $length = null)
@@ -212,11 +210,12 @@ class Synapse extends Common
                 break;
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
-                if ($this->isEmpty($length)) {
+                if ($length === null || $length === '') {
                     break;
                 }
                 $parts = explode(',', $length);
-                if (count($parts) > 2 || count($parts) < 1) {
+                $countParts = count($parts);
+                if ($countParts > 2 || $countParts < 1) {
                     $valid = false;
                     break;
                 }
