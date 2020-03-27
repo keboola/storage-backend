@@ -116,6 +116,7 @@ class Snowflake extends Common
     /**
      * @param string $type
      * @throws InvalidTypeException
+     * @return void
      */
     private function validateType($type)
     {
@@ -128,6 +129,7 @@ class Snowflake extends Common
      * @param string $type
      * @param string|null $length
      * @throws InvalidLengthException
+     * @return void
      */
     private function validateLength($type, $length = null)
     {

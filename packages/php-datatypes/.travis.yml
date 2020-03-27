@@ -4,14 +4,19 @@ services:
   - docker
 
 before_script:
-  - docker-compose -v
+  - composer install
 
-install:
-  - docker-compose run --rm dev composer install
-  - docker-compose run --rm dev ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
-  - docker-compose run --rm dev ./vendor/bin/phpstan analyse ./src --level=max -c phpstan.neon
+script:
+  - composer ci
 
 php:
-  - 5.6
-  - 7.0
   - 7.1
+  - 7.2
+  - 7.3
+
+jobs:
+  include:
+    - php: 5.6
+      before_script:
+        - php generate-composer56.php
+        - composer install

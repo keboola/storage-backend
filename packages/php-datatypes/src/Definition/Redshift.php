@@ -20,6 +20,7 @@ class Redshift extends Common
         "TIMESTAMPTZ", "TIMESTAMP WITH TIME ZONE"
     ];
 
+    /** @var mixed  */
     protected $compression;
 
     /**
@@ -130,6 +131,7 @@ class Redshift extends Common
     /**
      * @param string $type
      * @throws InvalidTypeException
+     * @return void
      */
     private function validateType($type)
     {
@@ -142,6 +144,7 @@ class Redshift extends Common
      * @param string $type
      * @param string|null $length
      * @throws InvalidLengthException
+     * @return void
      */
     private function validateLength($type, $length = null)
     {
@@ -239,6 +242,7 @@ class Redshift extends Common
      * @param string $type
      * @param string $compression
      * @throws InvalidCompressionException
+     * @return void
      */
     private function validateCompression($type, $compression)
     {
