@@ -33,9 +33,10 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidLengths($columnType, $option, $expectedOutput)
     {
-        $redshift = new Redshift($columnType, $option);
-
-        $this->assertEquals($expectedOutput, $redshift->getLength());
+        foreach ([$columnType, strtoupper($columnType)] as $item) {
+            $redshift = new Redshift($item, $option);
+            $this->assertEquals($expectedOutput, $redshift->getLength());
+        }
     }
 
     /**
@@ -45,11 +46,13 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidLengths($columnType, $options)
     {
-        foreach ($options as $option) {
-            try {
-                new Redshift($columnType, ['length' => $option]);
-            } catch (\Exception $e) {
-                $this->assertEquals(InvalidLengthException::class, get_class($e));
+        foreach ([$columnType, strtoupper($columnType)] as $item) {
+            foreach ($options as $option) {
+                try {
+                    new Redshift($item, ['length' => $option]);
+                } catch (\Exception $e) {
+                    $this->assertEquals(InvalidLengthException::class, get_class($e));
+                }
             }
         }
     }
