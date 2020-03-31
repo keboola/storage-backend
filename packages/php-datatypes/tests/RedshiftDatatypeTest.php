@@ -194,6 +194,16 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [
+                'int',
+                [],
+                ''
+            ],
+            [
+                'int',
+                ['length' => ''],
+                ''
+            ],
+            [
                 'numeric',
                 [],
                 ''
@@ -319,6 +329,16 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
     public function invalidLengthsProvider()
     {
         return [
+            [
+                'int',
+                [
+                    'notInt',
+                    '1',
+                    '255',
+                    '256',
+                    '-1'
+                ]
+            ],
             [
                 'numeric',
                 [
