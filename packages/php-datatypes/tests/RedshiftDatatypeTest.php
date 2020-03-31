@@ -24,113 +24,35 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testValidNumericLengths()
-    {
-        new Redshift("numeric");
-        new Redshift("NUMERIC");
-        new Redshift("NUMERIC", ["length" => ""]);
-        new Redshift("INT", ["length" => ""]);
-        new Redshift("NUMERIC", ["length" => "37,0"]);
-        new Redshift("NUMERIC", ["length" => "37,37"]);
-        new Redshift("NUMERIC", ["length" => "37"]);
-        new Redshift('NUMERIC', [
-            'length' => [
-                'numeric_precision' => '37',
-                'numeric_scale' => '0'
-            ]
-        ]);
-        new Redshift('NUMERIC', [
-            'length' => [
-                'numeric_precision' => '37',
-                'numeric_scale' => '37'
-            ]
-        ]);
-        new Redshift('NUMERIC', [
-            'length' => [
-                'numeric_precision' => '37'
-            ]
-        ]);
-        new Redshift('NUMERIC', [
-            'length' => [
-                'numeric_scale' => '37'
-            ]
-        ]);
-    }
-
     /**
-     * @dataProvider invalidNumericLengths
-     * @param $length
+     * @param string $columnType
+     * @param array $lengthOption
+     * @param string $expectedOutput
+     * @dataProvider validLengthsProvider
      */
-    public function testInvalidNumericLengths($length)
+    public function testValidLengths($columnType, $option, $expectedOutput)
     {
-        try {
-            new Redshift("NUMERIC", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
-            $this->assertEquals(InvalidLengthException::class, get_class($e));
-        }
-    }
-
-    public function testValidVarcharLengths()
-    {
-        new Redshift("varchar");
-        new Redshift("VARCHAR");
-        new Redshift("VARCHAR", ["length" => ""]);
-        new Redshift("VARCHAR", ["length" => "1"]);
-        new Redshift("VARCHAR", ["length" => "65535"]);
-        new Redshift("VARCHAR", ["length" => ['character_maximum' => 65535]]);
-        new Redshift("VARCHAR", ["length" => []]);
-    }
-
-    /**
-     * @dataProvider invalidVarcharLengths
-     * @param $length
-     */
-    public function testInvalidVarcharLengths($length)
-    {
-        try {
-            new Redshift("VARCHAR", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
-            $this->assertEquals(InvalidLengthException::class, get_class($e));
+        foreach ([$columnType, strtoupper($columnType)] as $item) {
+            $redshift = new Redshift($item, $option);
+            $this->assertEquals($expectedOutput, $redshift->getLength());
         }
     }
 
     /**
-     * @dataProvider timestampLengths
-     * @param $type
-     * @param $length
-     * @param $expectedValid
+     * @param string $columnType
+     * @param array $options
+     * @dataProvider invalidLengthsProvider
      */
-    public function testTimestampLengths($type, $length, $expectedValid)
+    public function testInvalidLengths($columnType, $options)
     {
-        if (!$expectedValid) {
-            $this->expectException(InvalidLengthException::class);
-            new Redshift($type, ["length" => $length]);
-        } else {
-            new Redshift($type, ["length" => $length]);
-        }
-    }
-
-    public function testValidCharLengths()
-    {
-        new Redshift("char");
-        new Redshift("CHAR");
-        new Redshift("CHAR", ["length" => "1"]);
-        new Redshift("CHAR", ["length" => "4096"]);
-    }
-
-    /**
-     * @dataProvider invalidCharLengths
-     * @param $length
-     */
-    public function testInvalidCharLengths($length)
-    {
-        try {
-            new Redshift("CHAR", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
-            $this->assertEquals(InvalidLengthException::class, get_class($e));
+        foreach ([$columnType, strtoupper($columnType)] as $item) {
+            foreach ($options as $option) {
+                try {
+                    new Redshift($item, ['length' => $option]);
+                } catch (\Exception $e) {
+                    $this->assertEquals(InvalidLengthException::class, get_class($e));
+                }
+            }
         }
     }
 
@@ -149,21 +71,6 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         new Redshift("VARCHAR", ["compression" => "TEXT255"]);
         new Redshift("VARCHAR", ["compression" => "TEXT32K"]);
         new Redshift("VARCHAR", ["compression" => "ZSTD"]);
-    }
-
-    /**
-     * @dataProvider invalidCompressions
-     * @param $type
-     * @param $compression
-     */
-    public function testInvalidCompressions($type, $compression)
-    {
-        try {
-            new Redshift($type, ["compression" => $compression]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
-            $this->assertEquals(InvalidCompressionException::class, get_class($e));
-        }
     }
 
     public function testInvalidOption()
@@ -269,40 +176,6 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function invalidNumericLengths()
-    {
-        return [
-            ["notANumber"],
-            ["0,0"],
-            ["38,0"],
-            ["-10,-5"],
-            ["-5,-10"],
-            ["37,a"],
-            ["a,37"],
-            ["a,a"]
-        ];
-    }
-
-    public function invalidVarcharLengths()
-    {
-        return [
-            ["a"],
-            ["0"],
-            ["65536"],
-            ["-1"]
-        ];
-    }
-
-    public function invalidCharLengths()
-    {
-        return [
-            ["a"],
-            ["0"],
-            ["4097"],
-            ["-1"]
-        ];
-    }
-
     public function invalidCompressions()
     {
         return [
@@ -317,78 +190,203 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    public function timestampLengths()
+    public function validLengthsProvider()
     {
         return [
             [
-                "timestamp",
-                "-1",
-                false
+                'int',
+                [],
+                ''
             ],
             [
-                "timestamp",
-                "15",
-                false
+                'int',
+                ['length' => ''],
+                ''
             ],
             [
-                "timestamp",
-                "abc",
-                false
+                'numeric',
+                [],
+                ''
             ],
             [
-                "timestamp",
-                "8,3",
-                false
+                'numeric',
+                ['length' => ''],
+                ''
             ],
             [
-                "timestamp",
-                null,
-                true
+                'numeric',
+                ['length' => ''],
+                ''
             ],
             [
-                "timestamp",
-                "",
-                true
+                'numeric',
+                ['length' => '37,0'],
+                '37,0'
             ],
             [
-                "timestamp",
-                "8",
-                true
+                'numeric',
+                ['length' => '37,37'],
+                '37,37'
             ],
             [
-                "timestamptz",
-                "-1",
-                false
+                'numeric',
+                ['length' => '37'],
+                '37'
             ],
             [
-                "timestamptz",
-                "15",
-                false
+                'numeric',
+                ['length' => ['numeric_precision' => '37']],
+                '37'
             ],
             [
-                "timestamptz",
-                "abc",
-                false
+                'numeric',
+                ['length' => ['numeric_precision' => '37', 'numeric_scale' => '37']],
+                '37,37'
             ],
             [
-                "timestamptz",
-                "8,3",
-                false
+                'numeric',
+                ['length' => ['numeric_scale' => '37']],
+                ''
             ],
             [
-                "timestamptz",
-                null,
-                true
+                'varchar',
+                [],
+                ''
             ],
             [
-                "timestamptz",
-                "",
-                true
+                'varchar',
+                ['length' => ''],
+                ''
             ],
             [
-                "timestamptz",
-                "8",
-                true
+                'varchar',
+                ['length' => '1'],
+                '1'
+            ],
+            [
+                'varchar',
+                ['length' => '65535'],
+                '65535'
+            ],
+            [
+                'varchar',
+                ['length' => ['character_maximum' => 65535]],
+                '65535'
+            ],
+            [
+                'varchar',
+                ['length' => []],
+                ''
+            ],
+            [
+                'char',
+                [],
+                ''
+            ],
+            [
+                'char',
+                ['length' => '1'],
+                '1'
+            ],
+            [
+                'char',
+                ['length' => '4096'],
+                '4096'
+            ],
+            [
+                'timestamptz',
+                ['length' => null],
+                ''
+            ],
+            [
+                'timestamp',
+                ['length' => null],
+                ''
+            ],
+            [
+                'timestamp',
+                ['length' => ""],
+                ''
+            ],
+            [
+                'timestamp',
+                ['length' => '8'],
+                '8'
+            ],
+            [
+                'timestamptz',
+                ['length' => ''],
+                ''
+            ],
+            [
+                'timestamptz',
+                ['length' => '8'],
+                '8'
+            ],
+        ];
+    }
+
+    public function invalidLengthsProvider()
+    {
+        return [
+            [
+                'int',
+                [
+                    'notInt',
+                    '1',
+                    '255',
+                    '256',
+                    '-1'
+                ]
+            ],
+            [
+                'numeric',
+                [
+                    'notANumber',
+                    '0,0',
+                    '38,0',
+                    '-10,-5',
+                    '-5,-10',
+                    '37,a',
+                    'a,37',
+                    'a,a',
+                ],
+            ],
+            [
+                'varchar',
+                [
+                    'a',
+                    '0',
+                    '65536',
+                    '-1'
+                ],
+            ],
+            [
+                'char',
+                [
+                    'a',
+                    '0',
+                    '4097',
+                    '-1',
+                ],
+            ],
+            [
+                'timestamp',
+                [
+                    '-1',
+                    '15',
+                    'abc',
+                    '8,3',
+                ],
+            ],
+            [
+                'timestamptz',
+                [
+                    '-1',
+                    '15',
+                    'abc',
+                    '8,3',
+                ],
             ],
         ];
     }
