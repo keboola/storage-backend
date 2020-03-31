@@ -28,7 +28,6 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
      * @param string $columnType
      * @param array $lengthOption
      * @param string $expectedOutput
-     * @throws InvalidOptionException
      * @dataProvider validLengthsProvider
      */
     public function testValidLengths($columnType, $option, $expectedOutput)
