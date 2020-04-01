@@ -198,6 +198,16 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
                 ['length' => '35,2'],
                 $type . '(35,2)',
             ];
+            $tests[] = [
+                $type,
+                ['length' => '35,2', 'default' => '(10.00)'],
+                $type . '(35,2) DEFAULT (10.00)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '35,2', 'default' => '(10.00)', 'nullable' => false],
+                $type . '(35,2) NOT NULL DEFAULT (10.00)',
+            ];
         }
 
         foreach (['float'] as $type) {
@@ -216,6 +226,11 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
                 ['length' => '1'],
                 $type . '(1)',
             ];
+            $tests[] = [
+                $type,
+                ['length' => '1', 'default' => '5'],
+                $type . '(1) DEFAULT 5',
+            ];
         }
 
         foreach (['nvarchar', 'nchar'] as $type) {
@@ -233,6 +248,11 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
                 $type,
                 ['length' => '1000'],
                 $type . '(1000)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '1', 'default' => '\'some string\''],
+                $type . '(1) DEFAULT \'some string\'',
             ];
         }
 
@@ -268,6 +288,11 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             'datetime2',
             ['length' => ''],
             'datetime2',
+        ];
+        $tests[] = [
+            'datetime2',
+            ['length' => '', 'default'=>'NOW()'],
+            'datetime2 DEFAULT NOW()',
         ];
 
         return $tests;
