@@ -45,7 +45,7 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
 
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (LOCATION = USER_DB)',
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB)',
             $sql
         );
         $this->connection->exec($sql);
