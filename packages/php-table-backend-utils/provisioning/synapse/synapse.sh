@@ -62,7 +62,7 @@ createServer(){
     export SYNAPSE_UID=keboola
     export SYNAPSE_PWD=${SYNAPSE_SERVER_PASSWORD}
     export SYNAPSE_DATABASE=${SYNAPSE_DW_SERVER_NAME}
-    export SYNAPSE_SERVER=${SYNAPSE_DW_SERVER_NAME}.database.windows.net
+    export SYNAPSE_SERVER=${SYNAPSE_SQL_SERVER_NAME}.database.windows.net
 }
 
 deleteServer(){
