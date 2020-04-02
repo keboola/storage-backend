@@ -1,0 +1,37 @@
+sudo: required
+
+language: bash
+
+services:
+  - docker
+
+before_script:
+  - docker -v
+  # Send resume to synapse server in background
+  - bash docker/synapse/synapse.sh -r &
+  # install dependencies
+  - sudo apt-get -y install parallel
+  - parallel --version
+  - docker-compose build production
+script:
+  # prepare docker network
+  - docker network create php-table-backend-utils_default
+
+  #run CI stuff
+  - >-
+    parallel -j12 --linebuffer docker-compose run production composer :::
+    phplint
+    phpcs
+    phpstan
+
+  # Run unit tests
+  - docker-compose run production composer tests-unit
+
+  # wait for Synapse to start, should be already online
+  - bash docker/synapse/synapse.sh -w
+
+  # Run functional tests
+  - docker-compose run production composer tests-functional
+after_script:
+  # Send pause to synapse server in background
+  - bash docker/synapse/synapse.sh -p &

@@ -1,0 +1,27 @@
+version: '3'
+services:
+  production: &prod
+    build: .
+    environment:
+      - ABS_ACCOUNT_NAME
+      - ABS_ACCOUNT_KEY
+      - ABS_CONTAINER_NAME
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
+      - SYNAPSE_UID
+      - SYNAPSE_PWD
+      - SYNAPSE_DATABASE
+      - SYNAPSE_SERVER
+  dev: &dev
+    <<: *prod
+    image: keboola/php-db-import-export
+    volumes:
+      - ./:/code
+  dev-xdebug:
+    <<: *dev
+    build: docker/xdebug
+

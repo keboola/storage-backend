@@ -1,0 +1,56 @@
+{
+    "name": "keboola/table-backend-utils",
+    "description": "Package allows to import files to Snowflake from multiple cloud storages",
+    "license": "MIT",
+    "require": {
+        "php": "^7.1",
+        "doctrine/dbal": "^2.9",
+        "keboola/php-datatypes": "dev-zajca-synapse-fix",
+        "keboola/common-exceptions": "^1"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master",
+        "jakub-onderka/php-parallel-lint": "^1.0",
+        "keboola/coding-standard": "^9",
+        "phpstan/phpstan-phpunit": "^0.12",
+        "phpstan/phpstan": "^0.12",
+        "phpunit/phpunit": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Keboola\\TableBackendUtils\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Keboola\\TableBackendUtils\\": "tests"
+        }
+    },
+    "scripts": {
+        "tests-unit": "phpunit --colors=always --testsuite unit",
+        "tests-functional": "phpunit --colors=always --testsuite functional",
+        "tests": [
+            "@tests-unit",
+            "@tests-functional"
+        ],
+        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
+        "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+        "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
+        "phplint": "parallel-lint -j 10 --exclude vendor .",
+        "build": [
+            "@phplint",
+            "@phpcs",
+            "@phpstan",
+            "@tests-unit",
+            "@tests-functional"
+        ],
+        "ci": [
+            "@composer validate --no-check-publish --no-check-all",
+            "@build"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}
