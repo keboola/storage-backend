@@ -11,8 +11,10 @@ before_script:
   - sudo apt-get -y install parallel
   - parallel --version
   - docker-compose build production
+  - docker pull quay.io/keboola/azure-cli
   #create synapse server
   - . ./provisioning/synapse/synapse.sh -c
+  - echo $SYNAPSE_RESOURCE_ID
 script:
   - echo $SYNAPSE_RESOURCE_ID
   # prepare docker network
