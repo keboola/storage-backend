@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Table;
 
-use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Column\ColumnIterator;
 
 interface TableReflectionInterface
 {
@@ -13,10 +13,7 @@ interface TableReflectionInterface
      */
     public function getColumnsNames(): array;
 
-    /**
-     * @return SynapseColumn[]
-     */
-    public function getColumnsDefinitions(): array;
+    public function getColumnsDefinitions(): ColumnIterator;
 
     public function getRowsCount(): int;
 

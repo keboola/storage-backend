@@ -432,24 +432,26 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $definitions = $ref->getColumnsDefinitions();
         $this->assertCount(1, $definitions);
 
+        $definition = $definitions->current();
+
         $this->assertEquals(
             $expectedDefinition,
-            $definitions[0]->getColumnDefinition()->getSQLDefinition(),
+            $definition->getColumnDefinition()->getSQLDefinition(),
             sprintf('SQL definitions don\'t match real definition was "%s".', $sqlDef)
         );
         $this->assertEquals(
             $expectedType,
-            $definitions[0]->getColumnDefinition()->getType(),
+            $definition->getColumnDefinition()->getType(),
             'Types don\'t match.'
         );
         $this->assertEquals(
             $expectedDefault,
-            $definitions[0]->getColumnDefinition()->getDefault(),
+            $definition->getColumnDefinition()->getDefault(),
             'Defaults don\'t match.'
         );
         $this->assertEquals(
             $expectedLength,
-            $definitions[0]->getColumnDefinition()->getLength(),
+            $definition->getColumnDefinition()->getLength(),
             'Length don\'t match.'
         );
     }

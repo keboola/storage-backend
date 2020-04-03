@@ -22,7 +22,7 @@ Function to retrieve information's about table:
 interface TableReflectionInterface
 {
     public function getColumnsNames(): array;
-    public function getColumnsDefinitions(): array;
+    public function getColumnsDefinitions(): ColumnIterator;
     public function getRowsCount(): int;
     public function getPrimaryKeysNames(): array;
     public function getTableStats(): TableStatsInterface;

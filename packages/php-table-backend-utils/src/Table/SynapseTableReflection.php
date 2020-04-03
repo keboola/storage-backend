@@ -7,6 +7,7 @@ namespace Keboola\TableBackendUtils\Table;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Keboola\TableBackendUtils\Column\ColumnIterator;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\ReflectionException;
 
@@ -98,10 +99,7 @@ final class SynapseTableReflection implements TableReflectionInterface
         return $this->objectId;
     }
 
-    /**
-     * @return SynapseColumn[]
-     */
-    public function getColumnsDefinitions(): array
+    public function getColumnsDefinitions(): ColumnIterator
     {
         if ($this->isTemporary) {
             $this->throwTemporaryTableException();
@@ -139,7 +137,7 @@ EOT;
             return SynapseColumn::createFromDB($col);
         }, $columns);
 
-        return $columns;
+        return new ColumnIterator($columns);
     }
 
     public function getRowsCount(): int
