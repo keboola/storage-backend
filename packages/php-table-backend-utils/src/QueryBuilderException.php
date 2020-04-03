@@ -10,6 +10,7 @@ use RuntimeException;
 class QueryBuilderException extends RuntimeException implements ApplicationExceptionInterface
 {
     public const STRING_CODE_TO_MANY_COLUMNS = 'tooManyColumns';
+    public const STRING_CODE_INVALID_TEMP_TABLE = 'invalidTempTable';
 
     /**
      * @var string

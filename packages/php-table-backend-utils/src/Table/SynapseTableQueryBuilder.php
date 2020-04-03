@@ -7,10 +7,8 @@ namespace Keboola\TableBackendUtils\Table;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Keboola\TableBackendUtils\Column\ColumnInterface;
-use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Column\ColumnIterator;
 use Keboola\TableBackendUtils\QueryBuilderException;
-use Keboola\TableBackendUtils\TableBackendUtilException;
 
 class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 {
@@ -27,18 +25,20 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     public function getCreateTempTableCommand(
         string $schemaName,
         string $tableName,
-        array $columns
+        ColumnIterator $columns
     ): string {
         $this->assertTemporaryTable($tableName);
         $this->assertTableColumnsCount($columns);
 
-        $columnsSql = array_map(function (SynapseColumn $column) {
-            return sprintf(
+        $columnsSql = [];
+        foreach ($columns as $column) {
+            $columnsSql[] = sprintf(
                 '%s %s',
                 $this->platform->quoteSingleIdentifier($column->getColumnName()),
                 $column->getColumnDefinition()->getSQLDefinition()
             );
-        }, $columns);
+        }
+
         return sprintf(
             'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
             $this->platform->quoteSingleIdentifier($schemaName),
@@ -50,17 +50,30 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     private function assertTemporaryTable(string $tableName): void
     {
         if (strpos($tableName, '#') !== 0) {
-            throw new TableBackendUtilException(sprintf(
-                'Staging table must start with "#" table name "%s" supplied',
-                $tableName
-            ));
+            throw new QueryBuilderException(
+                sprintf(
+                    'Staging table must start with "#" table name "%s" supplied.',
+                    $tableName
+                ),
+                QueryBuilderException::STRING_CODE_INVALID_TEMP_TABLE
+            );
+        }
+    }
+
+    private function assertTableColumnsCount(ColumnIterator $columns): void
+    {
+        if (count($columns) > self::MAX_TABLE_COLUMNS) {
+            throw new QueryBuilderException(
+                sprintf('Too many columns. Maximum is %s columns.', self::MAX_TABLE_COLUMNS),
+                QueryBuilderException::STRING_CODE_TO_MANY_COLUMNS
+            );
         }
     }
 
     public function getCreateTableCommand(
         string $schemaName,
         string $tableName,
-        array $columns,
+        ColumnIterator $columns,
         array $primaryKeys = []
     ): string {
         $this->assertTableColumnsCount($columns);
@@ -131,18 +144,5 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             $this->platform->quoteSingleIdentifier($schemaName),
             $this->platform->quoteSingleIdentifier($tableName)
         );
-    }
-
-    /**
-     * @param ColumnInterface[] $columns
-     */
-    private function assertTableColumnsCount(array $columns): void
-    {
-        if (count($columns) > self::MAX_TABLE_COLUMNS) {
-            throw new QueryBuilderException(
-                sprintf('Too many columns. Maximum is %s columns.', self::MAX_TABLE_COLUMNS),
-                QueryBuilderException::STRING_CODE_TO_MANY_COLUMNS
-            );
-        }
     }
 }

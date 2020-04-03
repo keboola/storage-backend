@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Table;
 
 use Keboola\Datatype\Definition\Synapse;
+use Keboola\TableBackendUtils\Column\ColumnIterator;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\ReflectionException;
@@ -34,10 +35,10 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $sql = $qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#' . self::TEST_TABLE,
-            [
+            new ColumnIterator([
                 SynapseColumn::createGenericColumn('col1'),
                 SynapseColumn::createGenericColumn('col2'),
-            ]
+            ])
         );
 
         $this->assertEquals(
@@ -63,7 +64,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $qb = new SynapseTableQueryBuilder($this->connection);
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage('Too many columns. Maximum is 1024 columns.');
-        $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols);
+        $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnIterator($cols));
     }
 
     public function testGetCreateTableCommand(): void
@@ -74,7 +75,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             SynapseColumn::createGenericColumn('col2'),
         ];
         $qb = new SynapseTableQueryBuilder($this->connection);
-        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols);
+        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnIterator($cols));
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\')',
@@ -102,7 +103,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             new SynapseColumn('_timestamp', new Synapse(Synapse::TYPE_DATETIME2)),
         ];
         $qb = new SynapseTableQueryBuilder($this->connection);
-        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols);
+        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnIterator($cols));
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\', [_timestamp] datetime2)',
@@ -124,7 +125,12 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             new SynapseColumn('_timestamp', new Synapse(Synapse::TYPE_DATETIME2)),
         ];
         $qb = new SynapseTableQueryBuilder($this->connection);
-        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols, ['pk1', 'col1']);
+        $sql = $qb->getCreateTableCommand(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            new ColumnIterator($cols),
+            ['pk1', 'col1']
+        );
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([pk1] int, [col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\', [_timestamp] datetime2, PRIMARY KEY NONCLUSTERED([pk1],[col1]) NOT ENFORCED)',
@@ -246,12 +252,12 @@ EOT
         $this->connection->exec($this->tableQb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
-            [
+            new ColumnIterator([
                 SynapseColumn::createGenericColumn('pk1'),
                 SynapseColumn::createGenericColumn('pk2'),
                 SynapseColumn::createGenericColumn('col1'),
                 SynapseColumn::createGenericColumn('col2'),
-            ]
+            ])
         ));
         $this->connection->exec(
             sprintf(

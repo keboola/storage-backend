@@ -6,6 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Table;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Keboola\TableBackendUtils\Column\ColumnIterator;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
@@ -31,7 +32,7 @@ class SynapseTableQueryBuilderTest extends TestCase
         $qb = new SynapseTableQueryBuilder($connMock);
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage('Too many columns. Maximum is 1024 columns.');
-        $qb->getCreateTableCommand('schema', 'table', $cols);
+        $qb->getCreateTableCommand('schema', 'table', new ColumnIterator($cols));
     }
 
     public function testGetCreateTempTableCommandTooMuchColumns(): void
@@ -49,6 +50,20 @@ class SynapseTableQueryBuilderTest extends TestCase
         $qb = new SynapseTableQueryBuilder($connMock);
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage('Too many columns. Maximum is 1024 columns.');
-        $qb->getCreateTempTableCommand('schema', 'table', $cols);
+        $qb->getCreateTempTableCommand('schema', '#table', new ColumnIterator($cols));
+    }
+
+
+    public function testGetCreateTempTableCommandNotTemporary(): void
+    {
+        $connMock = $this->createMock(Connection::class);
+        $connMock->expects($this->once())->method('getDatabasePlatform')->willReturn(
+            $this->createMock(SQLServer2012Platform::class)
+        );
+
+        $qb = new SynapseTableQueryBuilder($connMock);
+        $this->expectException(QueryBuilderException::class);
+        $this->expectExceptionMessage('Staging table must start with "#" table name "table" supplied.');
+        $qb->getCreateTempTableCommand('schema', 'table', new ColumnIterator([]));
     }
 }
