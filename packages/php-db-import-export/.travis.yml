@@ -26,6 +26,7 @@ script:
     phpcs
     phpstan
     loadAbs
+    init-synapse
 
   # Run unit tests
   - docker-compose run production composer tests-unit
@@ -37,4 +38,4 @@ script:
     tests-synapse
 after_script:
   # delete synapse
-  - ./provisioning/synapse/synapse.sh -d
+  - bash ./provisioning/synapse/synapse.sh -d
