@@ -7,6 +7,9 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Schema;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaQueryBuilder;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
+/**
+ * @covers SynapseSchemaQueryBuilder
+ */
 class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'ref-schema-schema';

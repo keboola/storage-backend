@@ -7,6 +7,9 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Table;
 use Keboola\TableBackendUtils\Table\TableStats;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers TableStats
+ */
 class TableStatsTest extends TestCase
 {
     public function testGetters(): void

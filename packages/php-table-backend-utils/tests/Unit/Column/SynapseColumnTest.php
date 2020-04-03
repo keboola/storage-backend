@@ -8,6 +8,9 @@ use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers SynapseColumn
+ */
 class SynapseColumnTest extends TestCase
 {
     public function testCreateFromDBSimpleType(): void

@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Table;
 
+use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\ReflectionException;
+use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
+/**
+ * @covers SynapseTableQueryBuilder
+ */
 class SynapseTableQueryBuilderTest extends SynapseBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'qb-schema';
     public const TEST_STAGING_TABLE = '#stagingTable';
     public const TEST_TABLE = self::TESTS_PREFIX . 'test';
-
-    protected function dropTestSchema(): void
-    {
-        $this->connection->exec($this->schemaQb->getDropSchemaCommand(self::TEST_SCHEMA));
-    }
 
     protected function setUp(): void
     {
@@ -29,7 +30,8 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
     public function testGetCreateTempTableCommand(): void
     {
         $this->createTestSchema();
-        $sql = $this->tableQb->getCreateTempTableCommand(
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#' . self::TEST_TABLE,
             [
@@ -46,16 +48,100 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $this->connection->exec($sql);
     }
 
-    protected function createTestSchema(): void
+    private function createTestSchema(): void
     {
         $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
+    }
+
+    public function testGetCreateTableCommandTooMuchColumns(): void
+    {
+        $cols = [];
+        for ($i = 0; $i < 1026; $i++) {
+            $cols[] = SynapseColumn::createGenericColumn('name' . $i);
+        }
+
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $this->expectException(QueryBuilderException::class);
+        $this->expectExceptionMessage('Too many columns. Maximum is 1024 columns.');
+        $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols);
+    }
+
+    public function testGetCreateTableCommand(): void
+    {
+        $this->createTestSchema();
+        $cols = [
+            SynapseColumn::createGenericColumn('col1'),
+            SynapseColumn::createGenericColumn('col2'),
+        ];
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols);
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\')',
+            $sql
+        );
+        $this->connection->exec($sql);
+        $ref = $this->getSynapseTableReflection();
+        $this->assertNotNull($ref->getObjectId());
+        $this->assertEqualsCanonicalizing(['col1', 'col2'], $ref->getColumnsNames());
+    }
+
+    private function getSynapseTableReflection(
+        string $schema = self::TEST_SCHEMA,
+        string $table = self::TEST_TABLE
+    ): SynapseTableReflection {
+        return new SynapseTableReflection($this->connection, $schema, $table);
+    }
+
+    public function testGetCreateTableCommandWithTimestamp(): void
+    {
+        $this->createTestSchema();
+        $cols = [
+            SynapseColumn::createGenericColumn('col1'),
+            SynapseColumn::createGenericColumn('col2'),
+            new SynapseColumn('_timestamp', new Synapse(Synapse::TYPE_DATETIME2)),
+        ];
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols);
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\', [_timestamp] datetime2)',
+            $sql
+        );
+        $this->connection->exec($sql);
+        $ref = $this->getSynapseTableReflection();
+        $this->assertNotNull($ref->getObjectId());
+        $this->assertEqualsCanonicalizing(['col1', 'col2', '_timestamp'], $ref->getColumnsNames());
+    }
+
+    public function testGetCreateTableCommandWithTimestampAndPrimaryKeys(): void
+    {
+        $this->createTestSchema();
+        $cols = [
+            new SynapseColumn('pk1', new Synapse(Synapse::TYPE_INT)),
+            SynapseColumn::createGenericColumn('col1'),
+            SynapseColumn::createGenericColumn('col2'),
+            new SynapseColumn('_timestamp', new Synapse(Synapse::TYPE_DATETIME2)),
+        ];
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $cols, ['pk1', 'col1']);
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([pk1] int, [col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\', [_timestamp] datetime2, PRIMARY KEY NONCLUSTERED([pk1],[col1]) NOT ENFORCED)',
+            $sql
+        );
+        $this->connection->exec($sql);
+        $ref = $this->getSynapseTableReflection();
+        $this->assertNotNull($ref->getObjectId());
+        $this->assertEqualsCanonicalizing(['pk1', 'col1', 'col2', '_timestamp'], $ref->getColumnsNames());
     }
 
     public function testGetDropCommand(): void
     {
         $this->createTestSchema();
         $this->createTestTable();
-        $sql = $this->tableQb->getDropTableCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getDropTableCommand(self::TEST_SCHEMA, self::TEST_TABLE);
 
         $this->assertEquals(
             'DROP TABLE [utils-test_qb-schema].[utils-test_test]',
@@ -69,7 +155,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $ref->getObjectId();
     }
 
-    protected function createTestTable(): void
+    private function createTestTable(): void
     {
         $table = sprintf('[%s].[%s]', self::TEST_SCHEMA, self::TEST_TABLE);
         $this->connection->exec(<<<EOT
@@ -85,19 +171,13 @@ EOT
         );
     }
 
-    private function getSynapseTableReflection(
-        string $schema = self::TEST_SCHEMA,
-        string $table = self::TEST_TABLE
-    ): SynapseTableReflection {
-        return new SynapseTableReflection($this->connection, $schema, $table);
-    }
-
     public function testGetRenameTableCommand(): void
     {
         $renameTo = 'newTable';
         $this->createTestSchema();
         $this->createTestTableWithColumns();
-        $sql = $this->tableQb->getRenameTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $renameTo);
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getRenameTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $renameTo);
 
         $this->assertEquals(
             'RENAME OBJECT [utils-test_qb-schema].[utils-test_test] TO [newTable]',
@@ -114,7 +194,7 @@ EOT
         $ref->getObjectId();
     }
 
-    protected function createTestTableWithColumns(bool $includeTimestamp = false, bool $includePrimaryKey = false): void
+    private function createTestTableWithColumns(bool $includeTimestamp = false, bool $includePrimaryKey = false): void
     {
         $table = sprintf('[%s].[%s]', self::TEST_SCHEMA, self::TEST_TABLE);
         $timestampDeclaration = '';
@@ -150,7 +230,8 @@ EOT
         $ref = $this->getSynapseTableReflection(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(3, $ref->getRowsCount());
 
-        $sql = $this->tableQb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(
             'TRUNCATE TABLE [utils-test_qb-schema].[#stagingTable]',
             $sql

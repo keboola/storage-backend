@@ -7,6 +7,7 @@ namespace Keboola\TableBackendUtils\Table;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\TableBackendUtilException;
@@ -29,6 +30,8 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         array $columns
     ): string {
         $this->assertTemporaryTable($tableName);
+        $this->assertTableColumnsCount($columns);
+
         $columnsSql = array_map(function (SynapseColumn $column) {
             return sprintf(
                 '%s %s',
@@ -60,12 +63,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         array $columns,
         array $primaryKeys = []
     ): string {
-        if (count($columns) > self::MAX_TABLE_COLUMNS) {
-            throw new QueryBuilderException(
-                sprintf('Too many columns. Maximum is %s columns.', self::MAX_TABLE_COLUMNS),
-                QueryBuilderException::STRING_CODE_TO_MANY_COLUMNS
-            );
-        }
+        $this->assertTableColumnsCount($columns);
 
         $columnsSql = [];
         foreach ($columns as $column) {
@@ -133,5 +131,18 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             $this->platform->quoteSingleIdentifier($schemaName),
             $this->platform->quoteSingleIdentifier($tableName)
         );
+    }
+
+    /**
+     * @param ColumnInterface[] $columns
+     */
+    private function assertTableColumnsCount(array $columns): void
+    {
+        if (count($columns) > self::MAX_TABLE_COLUMNS) {
+            throw new QueryBuilderException(
+                sprintf('Too many columns. Maximum is %s columns.', self::MAX_TABLE_COLUMNS),
+                QueryBuilderException::STRING_CODE_TO_MANY_COLUMNS
+            );
+        }
     }
 }

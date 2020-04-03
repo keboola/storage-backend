@@ -9,6 +9,9 @@ use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
+/**
+ * @covers SynapseSchemaReflection
+ */
 class SynapseSchemaReflectionTest extends SynapseBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'ref-schema-schema';

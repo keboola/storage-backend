@@ -10,6 +10,10 @@ use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
+/**
+ * @covers SynapseTableReflection
+ * @uses ColumnIterator
+ */
 class SynapseTableReflectionTest extends SynapseBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'ref-table-schema';

@@ -19,18 +19,8 @@ script:
   - echo $SYNAPSE_RESOURCE_ID
   # prepare docker network
   - docker network create php-table-backend-utils_default
-
-  #run CI stuff
-  - >-
-    parallel -j12 --linebuffer docker-compose run production composer :::
-    phplint
-    phpcs
-    phpstan
-
-  # Run unit tests
-  - docker-compose run production composer tests-unit
-  # Run functional tests
-  - docker-compose run production composer tests-functional
+  # run ci
+  - docker-compose run production composer ci
 after_script:
   # delete synapse
   - ./provisioning/synapse/synapse.sh -d

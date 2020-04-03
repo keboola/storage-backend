@@ -8,6 +8,10 @@ use Keboola\TableBackendUtils\Column\ColumnIterator;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers ColumnIterator
+ * @uses SynapseColumn
+ */
 class ColumnIteratorTest extends TestCase
 {
     public function testHasColumnWithName(): void
