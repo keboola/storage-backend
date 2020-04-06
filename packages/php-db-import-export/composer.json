@@ -49,6 +49,7 @@
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor .",
         "loadAbs": "php ./tests/loadAbs.php",
+        "init-synapse": "php ./tests/InitSynapse.php",
         "build": [
             "@phplint",
             "@phpcs",

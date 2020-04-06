@@ -13,10 +13,12 @@ before_script:
   - sudo apt-get -y install parallel
   - parallel --version
   - docker-compose build production
-script:
+  - docker pull quay.io/keboola/azure-cli
+  #create synapse server
+  - . ./provisioning/synapse/synapse.sh -c
   # prepare docker network
   - docker network create php-db-import-export_default
-
+script:
   #run CI stuff
   - >-
     parallel -j12 --linebuffer docker-compose run production composer :::
@@ -24,12 +26,10 @@ script:
     phpcs
     phpstan
     loadAbs
+    init-synapse
 
   # Run unit tests
   - docker-compose run production composer tests-unit
-
-  # wait for Synapse to start, should be already online
-  - bash docker/synapse/synapse.sh -w
 
   # run parallel functional tests
   - >-
@@ -37,5 +37,5 @@ script:
     tests-snowflake
     tests-synapse
 after_script:
-  # Send pause to synapse server in background
-  - bash docker/synapse/synapse.sh -p &
+  # delete synapse
+  - bash ./provisioning/synapse/synapse.sh -d
