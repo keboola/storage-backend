@@ -23,14 +23,14 @@ set -o pipefail         # Use last non-zero exit code in a pipeline
 # DESC: Runs az cli cmd under principal login
 runCliCmd(){
     docker run --volume $(pwd):/keboola quay.io/keboola/azure-cli  \
-        sh -c "az login --service-principal -u $AZURE_SERVICE_PRINCIPAL -p $AZURE_SERVICE_PRINCIPAL_PASSWORD --tenant $AZURE_SERVICE_PRINCIPAL_TENANT >> /dev/null && az $1"
+        sh -c "az login --service-principal -u $AZURE_SERVICE_PRINCIPAL -p $AZURE_SERVICE_PRINCIPAL_PASSWORD --tenant $AZURE_SERVICE_PRINCIPAL_TENANT >> /dev/null && $1"
 }
 
 createServer(){
     export SYNAPSE_SERVER_PASSWORD=`openssl rand -base64 32`
     export DEPLOYMENT_NAME=${SYNAPSE_SERVER_NAME}"_"`openssl rand -hex 5`
 
-    local output=$(runCliCmd "group deployment create \
+    local output=$(runCliCmd "az group deployment create \
   --name ${DEPLOYMENT_NAME} \
   --resource-group ${AZURE_RESOURCE_GROUP} \
   --template-file /keboola/provisioning/synapse/synapse.json \
@@ -49,12 +49,12 @@ createServer(){
     echo $SYNAPSE_DW_SERVER_NAME
     echo $SYNAPSE_RESOURCE_ID
 
-    local output=$(runCliCmd "sql server firewall-rule create \
+    runCliCmd "az sql server firewall-rule create \
   --resource-group ${AZURE_RESOURCE_GROUP} \
   --server ${SYNAPSE_SQL_SERVER_NAME} \
   --name all \
   --start-ip-address 0.0.0.0 \
-  --end-ip-address 255.255.255.255")
+  --end-ip-address 255.255.255.255"
 
     echo "Firewall rule set."
 
@@ -66,7 +66,7 @@ createServer(){
 }
 
 deleteServer(){
-    local output=$(runCliCmd "sql dw delete -y \
+    local output=$(runCliCmd "az sql dw delete -y \
   --resource-group ${AZURE_RESOURCE_GROUP} \
   --name ${SYNAPSE_DW_SERVER_NAME} \
   --server ${SYNAPSE_SQL_SERVER_NAME}")
@@ -74,11 +74,17 @@ deleteServer(){
   echo "Synapse deleted."
   echo $output
 
-      local output=$(runCliCmd "sql server delete -y \
+      local output=$(runCliCmd "az sql server delete -y \
   --resource-group ${AZURE_RESOURCE_GROUP} \
   --name ${SYNAPSE_SQL_SERVER_NAME}")
 
   echo "Logical SQL server deleted."
+  echo $output
+
+        local output=$(runCliCmd "az deployment delete \
+  --name ${DEPLOYMENT_NAME}")
+
+  echo "Deployment deleted."
   echo $output
 }
 
@@ -86,7 +92,7 @@ deleteServer(){
 # DESC: Usage help
 function script_usage() {
     cat << EOF
-synapse.sh [--resume|--pause|--waitForStart]
+synapse.sh [-c| -d| -h]
 
 Script for starting azure synapse.
 
@@ -103,7 +109,6 @@ while [[ $# -gt 0 ]]; do
     case $param in
         -h | --help)
             script_usage
-            exit 0
             ;;
         -c )
             createServer
