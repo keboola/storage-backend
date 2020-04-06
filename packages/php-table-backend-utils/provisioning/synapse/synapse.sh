@@ -81,11 +81,13 @@ deleteServer(){
   echo "Logical SQL server deleted."
   echo $output
 
-        local output=$(runCliCmd "az deployment delete \
-  --name ${DEPLOYMENT_NAME}")
-
-  echo "Deployment deleted."
-  echo $output
+# no right for principal to delete deploy
+# https://github.com/keboola/php-table-backend-utils/pull/1#discussion_r403919848
+#        local output=$(runCliCmd "az deployment delete \
+#  --name ${DEPLOYMENT_NAME}")
+#
+#  echo "Deployment deleted."
+#  echo $output
 }
 
 
