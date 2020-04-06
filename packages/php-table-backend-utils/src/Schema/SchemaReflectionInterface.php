@@ -10,4 +10,9 @@ interface SchemaReflectionInterface
      * @return string[]
      */
     public function getTablesNames(): array;
+
+    /**
+     * @return string[]
+     */
+    public function getViewsNames(): array;
 }

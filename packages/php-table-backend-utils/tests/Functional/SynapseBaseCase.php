@@ -39,6 +39,13 @@ class SynapseBaseCase extends TestCase
             );
         }
 
+        $ref = new SynapseSchemaReflection($this->connection, $schema);
+        $views = $ref->getViewsNames();
+
+        foreach ($views as $view) {
+            $this->connection->exec(sprintf('DROP VIEW [%s].[%s]', $schema, $view));
+        }
+
         $schemas = $this->connection->fetchAll(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',

@@ -12,6 +12,7 @@ Function to retrieve information's about schema:
 interface SchemaReflectionInterface
 {
     public function getTablesNames(): array;
+    public function getViewsNames(): array;
 }
 ```
 

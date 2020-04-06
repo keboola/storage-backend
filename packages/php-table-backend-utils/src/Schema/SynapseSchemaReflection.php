@@ -20,9 +20,6 @@ final class SynapseSchemaReflection implements SchemaReflectionInterface
         $this->connection = $connection;
     }
 
-    /**
-     * @return string[]
-     */
     public function getTablesNames(): array
     {
         $schema = $this->connection->quote($this->schemaName);
@@ -30,6 +27,23 @@ final class SynapseSchemaReflection implements SchemaReflectionInterface
             <<< EOT
 SELECT name
 FROM sys.tables
+WHERE schema_name(schema_id) = $schema
+order by name;
+EOT
+        );
+
+        return array_map(static function ($table) {
+            return $table['name'];
+        }, $tables);
+    }
+
+    public function getViewsNames(): array
+    {
+        $schema = $this->connection->quote($this->schemaName);
+        $tables = $this->connection->fetchAll(
+            <<< EOT
+SELECT name
+FROM sys.views
 WHERE schema_name(schema_id) = $schema
 order by name;
 EOT

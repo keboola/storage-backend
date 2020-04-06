@@ -54,4 +54,36 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
             'table2',
         ], $tables);
     }
+
+    public function testGetViewsNames(): void
+    {
+        $ref = new SynapseSchemaReflection($this->connection, self::TEST_SCHEMA);
+        $tables = $ref->getViewsNames();
+        $this->assertEmpty($tables);
+
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $this->connection->exec($qb->getCreateTableCommand(
+            self::TEST_SCHEMA,
+            'table1',
+            new ColumnIterator([SynapseColumn::createGenericColumn('col1')])
+        ));
+
+        $this->connection->exec(sprintf(
+            'CREATE VIEW [%s].[view1] AS SELECT [col1] FROM [%s].[table1]',
+            self::TEST_SCHEMA,
+            self::TEST_SCHEMA
+        ));
+        $this->connection->exec(sprintf(
+            'CREATE VIEW [%s].[view2] AS SELECT [col1] FROM [%s].[table1]',
+            self::TEST_SCHEMA,
+            self::TEST_SCHEMA
+        ));
+
+        $tables = $ref->getViewsNames();
+        $this->assertCount(2, $tables);
+        $this->assertEqualsCanonicalizing([
+            'view1',
+            'view2',
+        ], $tables);
+    }
 }
