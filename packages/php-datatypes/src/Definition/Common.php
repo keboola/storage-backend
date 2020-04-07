@@ -2,7 +2,7 @@
 
 namespace Keboola\Datatype\Definition;
 
-abstract class Common
+abstract class Common implements DefinitionInterface
 {
 
     /**
