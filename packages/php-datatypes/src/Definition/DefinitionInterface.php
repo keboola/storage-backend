@@ -10,7 +10,7 @@ interface DefinitionInterface
     public function getSQLDefinition();
 
     /**
-     * @return array
+     * @return array{type:string, length:string|null, nullable:bool, compression?:mixed}
      */
     public function toArray();
 
