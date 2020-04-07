@@ -8,6 +8,8 @@ use Keboola\Datatype\Definition\Synapse;
 
 interface ColumnInterface
 {
+    public const TIMESTAMP_COLUMN_NAME = '_timestamp';
+
     public function getColumnName(): string;
 
     public function getColumnDefinition(): Synapse;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Schema;
 
-use Keboola\TableBackendUtils\Column\ColumnIterator;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
@@ -39,12 +39,12 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $this->connection->exec($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',
-            new ColumnIterator([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
         $this->connection->exec($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table2',
-            new ColumnIterator([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
 
         $tables = $ref->getTablesNames();
@@ -65,7 +65,7 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $this->connection->exec($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',
-            new ColumnIterator([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
 
         $this->connection->exec(sprintf(

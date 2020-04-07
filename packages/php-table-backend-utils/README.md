@@ -23,7 +23,7 @@ Function to retrieve information's about table:
 interface TableReflectionInterface
 {
     public function getColumnsNames(): array;
-    public function getColumnsDefinitions(): ColumnIterator;
+    public function getColumnsDefinitions(): ColumnCollection;
     public function getRowsCount(): int;
     public function getPrimaryKeysNames(): array;
     public function getTableStats(): TableStatsInterface;
@@ -45,12 +45,12 @@ interface TableQueryBuilderInterface
     public function getCreateTempTableCommand(
         string $schemaName,
         string $tableName,
-        array $columns
+        ColumnCollection $columns
     ): string;
     public function getCreateTableCommand(
         string $schemaName,
         string $tableName,
-        array $columns,
+        ColumnCollection $columns,
         array $primaryKeys = []
     ): string;
 }
@@ -75,7 +75,7 @@ Table column definition:
 interface ColumnInterface
 {
     public function getColumnName(): string;
-    public function getColumnDefinition(): Keboola\Datatype\Definition\Synapse;
+    public function getColumnDefinition(): Keboola\Datatype\Definition\DefinitionInterface;
     public static function createGenericColumn(string $columnName): self;
 }
 ```

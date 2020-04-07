@@ -7,7 +7,8 @@ namespace Keboola\TableBackendUtils\Table;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Keboola\TableBackendUtils\Column\ColumnIterator;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\QueryBuilderException;
 
 class SynapseTableQueryBuilder implements TableQueryBuilderInterface
@@ -25,7 +26,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     public function getCreateTempTableCommand(
         string $schemaName,
         string $tableName,
-        ColumnIterator $columns
+        ColumnCollection $columns
     ): string {
         $this->assertTemporaryTable($tableName);
         $this->assertTableColumnsCount($columns);
@@ -60,7 +61,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         }
     }
 
-    private function assertTableColumnsCount(ColumnIterator $columns): void
+    private function assertTableColumnsCount(ColumnCollection $columns): void
     {
         if (count($columns) > self::MAX_TABLE_COLUMNS) {
             throw new QueryBuilderException(
@@ -73,15 +74,15 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     public function getCreateTableCommand(
         string $schemaName,
         string $tableName,
-        ColumnIterator $columns,
+        ColumnCollection $columns,
         array $primaryKeys = []
     ): string {
         $this->assertTableColumnsCount($columns);
 
         $columnsSql = [];
         foreach ($columns as $column) {
-            if ($column->getColumnName() === self::TIMESTAMP_COLUMN_NAME) {
-                $columnsSql[] = sprintf('[%s] datetime2', self::TIMESTAMP_COLUMN_NAME);
+            if ($column->getColumnName() === ColumnInterface::TIMESTAMP_COLUMN_NAME) {
+                $columnsSql[] = sprintf('[%s] datetime2', ColumnInterface::TIMESTAMP_COLUMN_NAME);
                 continue;
             }
             $columnsSql[] = sprintf(

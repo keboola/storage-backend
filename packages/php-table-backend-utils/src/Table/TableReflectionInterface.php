@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Table;
 
-use Keboola\TableBackendUtils\Column\ColumnIterator;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
 
 interface TableReflectionInterface
 {
@@ -13,7 +13,7 @@ interface TableReflectionInterface
      */
     public function getColumnsNames(): array;
 
-    public function getColumnsDefinitions(): ColumnIterator;
+    public function getColumnsDefinitions(): ColumnCollection;
 
     public function getRowsCount(): int;
 

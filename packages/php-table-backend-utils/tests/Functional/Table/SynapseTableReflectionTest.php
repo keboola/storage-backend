@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Table;
 
 use Generator;
-use Keboola\TableBackendUtils\Column\ColumnIterator;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
@@ -13,7 +13,7 @@ use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
 /**
  * @covers SynapseTableReflection
- * @uses ColumnIterator
+ * @uses ColumnCollection
  */
 class SynapseTableReflectionTest extends SynapseBaseCase
 {
@@ -437,7 +437,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $definitions = $ref->getColumnsDefinitions();
         $this->assertCount(1, $definitions);
 
-        $definition = $definitions->current();
+        $definition = $definitions->getIterator()->current();
 
         $this->assertEquals(
             $expectedDefinition,
@@ -474,7 +474,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->connection->exec($this->tableQb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#table_defs',
-            new ColumnIterator([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, '#table_defs');
         $objectId = $ref->getObjectId();
@@ -486,7 +486,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->connection->exec($this->tableQb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#table_defs',
-            new ColumnIterator([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, '#table_defs');
         $count = $ref->getRowsCount();
@@ -520,7 +520,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->connection->exec($this->tableQb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#table_defs',
-            new ColumnIterator([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, '#table_defs');
         $this->expectException(ReflectionException::class);
