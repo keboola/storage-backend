@@ -54,8 +54,12 @@ class ExportTest extends SnowflakeImportExportBaseTest
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->createABSSourceInstance('with-ts.csv');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
-        $options = $this->getSimpleImportOptions($file->getHeader());
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'out.csv_2Cols',
+            $file->getHeader()
+        );
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -95,8 +99,12 @@ class ExportTest extends SnowflakeImportExportBaseTest
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->createABSSourceInstance('with-ts.csv');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
-        $options = $this->getSimpleImportOptions($file->getHeader());
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'out.csv_2Cols',
+            $file->getHeader()
+        );
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -138,16 +146,6 @@ class ExportTest extends SnowflakeImportExportBaseTest
         return new CsvFile($actual);
     }
 
-    private function getBlobContent(
-        string $blob
-    ): string {
-        $content = stream_get_contents($this->getBlobResource($blob));
-        if ($content === false) {
-            throw new \Exception();
-        }
-        return $content;
-    }
-
     public function assertCsvFilesSame(CsvFile $expected, CsvFile $actual): void
     {
         $this->assertArrayEqualsSorted(
@@ -158,13 +156,27 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
     }
 
+    private function getBlobContent(
+        string $blob
+    ): string {
+        $content = stream_get_contents($this->getBlobResource($blob));
+        if ($content === false) {
+            throw new \Exception();
+        }
+        return $content;
+    }
+
     public function testExportSimpleWithQuery(): void
     {
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $source = $this->createABSSourceInstance('tw_accounts.csv');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3');
-        $options = $this->getSimpleImportOptions($file->getHeader());
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'accounts-3',
+            $file->getHeader()
+        );
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,

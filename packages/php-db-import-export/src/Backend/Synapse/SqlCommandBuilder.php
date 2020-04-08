@@ -79,7 +79,6 @@ class SqlCommandBuilder
 
     public function getDedupCommand(
         Table $destination,
-        ImportOptions $importOptions,
         array $primaryKeys,
         string $stagingTableName,
         string $tempTableName
@@ -99,8 +98,8 @@ class SqlCommandBuilder
             . 'FROM %s.%s'
             . ') AS a '
             . 'WHERE a."_row_number_" = 1',
-            $this->getColumnsString($importOptions->getColumns(), ',', 'a'),
-            $this->getColumnsString($importOptions->getColumns(), ', '),
+            $this->getColumnsString($destination->getColumnsNames(), ',', 'a'),
+            $this->getColumnsString($destination->getColumnsNames(), ', '),
             $pkSql,
             $pkSql,
             $this->platform->quoteSingleIdentifier($destination->getSchema()),
@@ -111,7 +110,7 @@ class SqlCommandBuilder
             'INSERT INTO %s.%s (%s) %s',
             $this->platform->quoteSingleIdentifier($destination->getSchema()),
             $this->platform->quoteSingleIdentifier($tempTableName),
-            $this->getColumnsString($importOptions->getColumns()),
+            $this->getColumnsString($destination->getColumnsNames()),
             $depudeSql
         );
     }
@@ -188,17 +187,17 @@ class SqlCommandBuilder
         string $timestamp
     ): string {
 
-        $insColumns = $importOptions->getColumns();
+        $insColumns = $destination->getColumnsNames();
         $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $insColumns, true)
             && $importOptions->useTimestamp();
 
         if ($useTimestamp) {
-            $insColumns = array_merge($importOptions->getColumns(), [Importer::TIMESTAMP_COLUMN_NAME]);
+            $insColumns = array_merge($destination->getColumnsNames(), [Importer::TIMESTAMP_COLUMN_NAME]);
         }
 
         $columnsSetSql = [];
 
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($destination->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSetSql[] = sprintf(
                     'NULLIF(%s, \'\')',
@@ -330,7 +329,7 @@ EOT
     ): string {
         $dest = $destination->getQuotedTableWithScheme();
         $columnsSet = [];
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($destination->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = NULLIF([src].%s, \'\')',
@@ -364,7 +363,7 @@ EOT
                     $this->platform->quoteSingleIdentifier($columnName)
                 );
             },
-            $importOptions->getColumns()
+            $destination->getColumnsNames()
         );
 
         return sprintf(

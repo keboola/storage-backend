@@ -39,10 +39,8 @@ class SqlCommandBuilderTest extends TestCase
 
     public function testGetDedupCommand(): void
     {
-        $options = $this->getDummyImportOptions();
         $sql = $this->getInstance()->getDedupCommand(
             $this->getDummyTableDestination(),
-            $options,
             [
                 'pk1',
                 'pk2',
@@ -59,19 +57,18 @@ class SqlCommandBuilderTest extends TestCase
 
     private function getDummyImportOptions(): ImportOptions
     {
-        return new ImportOptions([], ['col1', 'col2']);
+        return new ImportOptions([]);
     }
 
     private function getDummyTableDestination(): Table
     {
-        return new Table('schema', 'table');
+        return new Table('schema', 'table', ['col1', 'col2']);
     }
 
     public function testGetDedupCommandNoPrimaryKeys(): void
     {
         $sql = $this->getInstance()->getDedupCommand(
             $this->getDummyTableDestination(),
-            $this->getDummyImportOptions(),
             [],
             'stagingTable',
             'tempTable'
@@ -117,10 +114,7 @@ class SqlCommandBuilderTest extends TestCase
         );
 
         // converver values
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ]);
+        $options = new ImportOptions(['col1']);
         $sql = $this->getInstance()->getInsertAllIntoTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
@@ -133,10 +127,7 @@ class SqlCommandBuilderTest extends TestCase
         );
 
         // use timestamp
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, true);
+        $options = new ImportOptions(['col1'], false, true);
         $sql = $this->getInstance()->getInsertAllIntoTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
@@ -156,10 +147,7 @@ class SqlCommandBuilderTest extends TestCase
 
     public function testGetInsertFromStagingToTargetTableCommand(): void
     {
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, false);
+        $options = new ImportOptions(['col1'], false, false);
         $sql = $this->getInstance()->getInsertFromStagingToTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
@@ -171,10 +159,7 @@ class SqlCommandBuilderTest extends TestCase
             'INSERT INTO "schema"."table" ("col1", "col2") SELECT IFF("src"."col1" = \'\', NULL, "col1"),COALESCE("src"."col2", \'\') FROM "schema"."stagingTable" AS "src"',
             $sql
         );
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, true);
+        $options = new ImportOptions(['col1'], false, true);
         $sql = $this->getInstance()->getInsertFromStagingToTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
@@ -223,10 +208,7 @@ class SqlCommandBuilderTest extends TestCase
         );
 
         // converver values
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ]);
+        $options = new ImportOptions(['col1']);
         $sql = $this->getInstance()->getUpdateWithPkCommand(
             $this->getDummyTableDestination(),
             $options,
@@ -241,10 +223,7 @@ class SqlCommandBuilderTest extends TestCase
         );
 
         // use timestamp
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, true);
+        $options = new ImportOptions(['col1'], false, true);
         $sql = $this->getInstance()->getUpdateWithPkCommand(
             $this->getDummyTableDestination(),
             $options,

@@ -14,9 +14,9 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 {
     public function testCopyInvalidSourceDataShouldThrowException(): void
     {
-        $options = $this->getSimpleImportOptions(['c1', 'c2']);
+        $options = $this->getSimpleImportOptions();
         $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'names');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
+        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols', ['c1', 'c2']);
 
         self::expectException(Exception::class);
         self::expectExceptionCode(Exception::COLUMNS_COUNT_NOT_MATCH);
@@ -29,12 +29,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
     public function testImportShouldNotFailOnColumnNameRowNumber(): void
     {
-        $options = $this->getSimpleImportOptions([
-            'id',
-            'row_number',
-        ]);
+        $options = $this->getSimpleImportOptions();
         $source = $this->createABSSourceInstance('column-name-row-number.csv');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'column-name-row-number');
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'column-name-row-number',
+            [
+                'id',
+                'row_number',
+            ]
+        );
 
         $result = (new Importer($this->connection))->importTable(
             $source,
@@ -47,9 +51,13 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     public function testInvalidManifestImport(): void
     {
         $initialFile = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $options = $this->getSimpleImportOptions($initialFile->getHeader());
+        $options = $this->getSimpleImportOptions();
         $source = $this->createABSSourceInstance('02_tw_accounts.csv.invalid.manifest', true);
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3');
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'accounts-3',
+            $initialFile->getHeader()
+        );
 
         self::expectException(Exception::class);
         self::expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);
@@ -62,12 +70,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
     public function testMoreColumnsShouldThrowException(): void
     {
-        $options = $this->getSimpleImportOptions([
-            'first',
-            'second',
-        ]);
+        $options = $this->getSimpleImportOptions();
         $source = $this->createABSSourceInstance('tw_accounts.csv', false);
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'out.csv_2Cols',
+            [
+                'first',
+                'second',
+            ]
+        );
 
         self::expectException(Exception::class);
         self::expectExceptionCode(Exception::COLUMNS_COUNT_NOT_MATCH);
@@ -148,13 +160,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify', [
+            'id',
+            'name',
+            'price',
+        ]);
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -201,13 +216,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify', [
+            'id',
+            'name',
+            'price',
+        ]);
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -256,13 +274,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -326,13 +347,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -379,13 +403,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = $this->createABSSourceInstance('nullify.csv');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -419,13 +446,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = $this->createABSSourceInstance('nullify.csv');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,

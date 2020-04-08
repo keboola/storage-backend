@@ -34,10 +34,10 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
         $tests = [];
         $tests[] = [
             $this->createABSSourceInstance('tw_accounts.csv', false),
-            $this->getSimpleImportOptions($accountColumns),
+            $this->getSimpleImportOptions(),
             $this->createABSSourceInstance('tw_accounts.increment.csv', false),
             $this->getSimpleIncrementalImportOptions($accountColumns),
-            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3', $accountColumns),
             $expectedAccountsRows,
             4,
         ];
@@ -45,7 +45,6 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->createABSSourceInstance('tw_accounts.csv', false),
             new ImportOptions(
                 [],
-                $accountColumns,
                 false,
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
@@ -53,21 +52,20 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->createABSSourceInstance('tw_accounts.increment.csv', false),
             new ImportOptions(
                 [],
-                $accountColumns,
                 true, // incremental
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-bez-ts'),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-bez-ts', $accountColumns),
             $expectedAccountsRows,
             4,
         ];
         $tests[] = [
             $this->createABSSourceInstance('multi-pk.csv', false),
-            $this->getSimpleImportOptions($multiPkColumns),
+            $this->getSimpleImportOptions(),
             $this->createABSSourceInstance('multi-pk.increment.csv', false),
-            $this->getSimpleIncrementalImportOptions($multiPkColumns),
-            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'multi-pk'),
+            $this->getSimpleIncrementalImportOptions(),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'multi-pk', $multiPkColumns),
             $expectedMultiPkRows,
             3,
         ];

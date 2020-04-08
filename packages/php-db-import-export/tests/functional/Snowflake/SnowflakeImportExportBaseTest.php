@@ -39,7 +39,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             $this->assertNotContains('_timestamp', $tableColumns);
         }
 
-        if (!in_array('_timestamp', $options->getColumns())) {
+        if (!in_array('_timestamp', $table->getColumnsNames())) {
             $tableColumns = array_filter($tableColumns, function ($column) {
                 return $column !== '_timestamp';
             });

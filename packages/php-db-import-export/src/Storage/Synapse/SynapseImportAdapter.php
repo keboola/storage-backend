@@ -31,20 +31,18 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
-        if (!$destination instanceof Table) {
+        if (!$source instanceof Storage\Synapse\Table) {
             return false;
         }
-
-        if (!$source instanceof Table && !$source instanceof SelectSource) {
+        if (!$destination instanceof Storage\Synapse\Table) {
             return false;
         }
-
         return true;
     }
 
     /**
-     * @param Table|SelectSource $source
-     * @param Table $destination
+     * @param Storage\Synapse\Table $source
+     * @param Storage\Synapse\Table $destination
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
@@ -54,7 +52,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->platform->quoteSingleIdentifier($column);
-        }, $importOptions->getColumns());
+        }, $destination->getColumnsNames());
 
         $sql = sprintf(
             'INSERT INTO %s.%s (%s)',
@@ -63,22 +61,14 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             implode(', ', $quotedColumns)
         );
 
-        if ($source instanceof Table) {
-            $sql .= sprintf(
-                ' SELECT %s FROM %s.%s',
-                implode(', ', $quotedColumns),
-                $this->platform->quoteSingleIdentifier($source->getSchema()),
-                $this->platform->quoteSingleIdentifier($source->getTableName())
-            );
-            $this->connection->exec($sql);
-        } elseif ($source instanceof SelectSource) {
-            $sql .= ' ' . $source->getFromStatement();
-            $this->connection->executeQuery(
-                $sql,
-                $source->getQueryBindings(),
-                $source->getDataTypes()
-            );
-        }
+        $sql .= sprintf(
+            ' SELECT %s FROM %s.%s',
+            implode(', ', $quotedColumns),
+            $this->platform->quoteSingleIdentifier($source->getSchema()),
+            $this->platform->quoteSingleIdentifier($source->getTableName())
+        );
+
+        $this->connection->exec($sql);
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),

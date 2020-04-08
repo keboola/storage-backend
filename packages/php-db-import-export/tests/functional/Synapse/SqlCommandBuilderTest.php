@@ -73,7 +73,6 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
 
         $sql = $this->qb->getDedupCommand(
             $this->getDummyTableDestination(),
-            $this->getDummyImportOptions(),
             [
                 'pk1',
                 'pk2',
@@ -143,12 +142,12 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
 
     private function getDummyTableDestination(): Table
     {
-        return new Table(self::TEST_SCHEMA, self::TEST_TABLE);
+        return new Table(self::TEST_SCHEMA, self::TEST_TABLE, ['col1', 'col2']);
     }
 
     private function getDummyImportOptions(): ImportOptions
     {
-        return new ImportOptions([], ['col1', 'col2']);
+        return new ImportOptions([]);
     }
 
     public function testGetDeleteOldItemsCommand(): void
@@ -357,10 +356,7 @@ EOT
         $this->createStagingTableWithData(true);
 
         // convert col1 to null
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ]);
+        $options = new ImportOptions(['col1']);
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
@@ -411,10 +407,7 @@ EOT
         $this->createStagingTableWithData(true);
 
         // use timestamp
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, true);
+        $options = new ImportOptions(['col1'], false, true);
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
             $this->getDummyTableDestination(),
             $options,
@@ -684,10 +677,7 @@ EOT
             ],
         ], $result);
 
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ]);
+        $options = new ImportOptions(['col1']);
 
         // converver values
         $sql = $this->qb->getUpdateWithPkCommand(
@@ -767,10 +757,7 @@ EOT
         ], $result);
 
         // use timestamp
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, true);
+        $options = new ImportOptions(['col1'], false, true);
         $sql = $this->qb->getUpdateWithPkCommand(
             $this->getDummyTableDestination(),
             $options,

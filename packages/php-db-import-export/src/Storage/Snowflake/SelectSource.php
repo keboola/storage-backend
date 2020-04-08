@@ -27,7 +27,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
 
     public function getFromStatement(): string
     {
-        return sprintf('(%s)', $this->getQuery());
+        return sprintf('%s', $this->getQuery());
     }
 
     public function getQuery(): string

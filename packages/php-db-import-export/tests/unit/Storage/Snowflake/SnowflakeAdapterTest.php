@@ -13,7 +13,7 @@ use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
-class SnowflakeImportAdapterTest extends BaseTestCase
+class SnowflakeAdapterTest extends BaseTestCase
 {
     use MockConnectionTrait;
     use ABSSourceTrait;
@@ -28,13 +28,6 @@ class SnowflakeImportAdapterTest extends BaseTestCase
         $this->assertTrue(
             SnowflakeImportAdapter::isSupported(
                 $snowflakeTable,
-                $snowflakeTable
-            )
-        );
-
-        $this->assertTrue(
-            SnowflakeImportAdapter::isSupported(
-                $snowflakeSelectSource,
                 $snowflakeTable
             )
         );
@@ -82,44 +75,8 @@ class SnowflakeImportAdapterTest extends BaseTestCase
                 ]
             );
 
-        $destination = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ImportOptions([], ['col1', 'col2']);
-        $adapter = new SnowflakeImportAdapter($conn);
-        $count = $adapter->runCopyCommand(
-            $source,
-            $destination,
-            $options,
-            'stagingTable'
-        );
-
-        $this->assertEquals(10, $count);
-    }
-
-
-    public function testGetCopyCommandsSelectSource(): void
-    {
-        /** @var Storage\Snowflake\SelectSource|MockObject $source */
-        $source = $source = self::createMock(Storage\Snowflake\SelectSource::class);
-        $source->expects(self::once())->method('getFromStatement')->willReturn('SELECT * FROM table.schema');
-        $source->expects(self::once())->method('getQueryBindings')->willReturn(['bind1'=>1]);
-
-        $conn = $this->mockConnection();
-        $conn->expects($this->once())->method('query')->with(
-            'INSERT INTO "schema"."stagingTable" ("col1", "col2") SELECT * FROM table.schema',
-            ['bind1'=>1]
-        );
-        $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS "count" FROM "schema"."stagingTable"')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
-
-        $destination = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ImportOptions([], ['col1', 'col2']);
+        $destination = new Storage\Snowflake\Table('schema', 'table', ['col1', 'col2']);
+        $options = new ImportOptions([]);
         $adapter = new SnowflakeImportAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,

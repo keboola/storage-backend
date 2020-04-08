@@ -37,8 +37,8 @@ class OtherImportTest extends SynapseBaseTestCase
         $this->expectExceptionMessage('CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.');
         (new \Keboola\Db\ImportExport\Backend\Synapse\Importer($this->connection))->importTable(
             $this->createABSSourceInstanceFromCsv('raw.rs.csv', new CsvOptions("\t", '', '\\')),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
-            $this->getSimpleImportOptions($escapingHeader)
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            $this->getSimpleImportOptions()
         );
     }
 
@@ -46,9 +46,9 @@ class OtherImportTest extends SynapseBaseTestCase
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
-        $options = $this->getSimpleImportOptions(['c1', 'c2']);
+        $options = $this->getSimpleImportOptions();
         $source = new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, 'names');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
+        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols', ['c1', 'c2']);
 
         $this->expectException(Exception::class);
         $this->expectExceptionCode(Exception::COLUMNS_COUNT_NOT_MATCH);
@@ -63,12 +63,16 @@ class OtherImportTest extends SynapseBaseTestCase
     {
         $this->initTables([self::TABLE_COLUMN_NAME_ROW_NUMBER]);
 
-        $options = $this->getSimpleImportOptions([
-            'id',
-            'row_number',
-        ]);
+        $options = $this->getSimpleImportOptions();
         $source = $this->createABSSourceInstance('column-name-row-number.csv');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'column-name-row-number');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'column-name-row-number',
+            [
+                'id',
+                'row_number',
+            ]
+        );
 
         $result = (new Importer($this->connection))->importTable(
             $source,
@@ -83,9 +87,13 @@ class OtherImportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_ACCOUNTS_3]);
 
         $initialFile = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $options = $this->getSimpleImportOptions($initialFile->getHeader());
+        $options = $this->getSimpleImportOptions();
         $source = $this->createABSSourceInstance('02_tw_accounts.csv.invalid.manifest', true);
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'accounts-3',
+            $initialFile->getHeader()
+        );
 
         $this->expectException(Exception::class);
         $this->expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);
@@ -144,12 +152,16 @@ class OtherImportTest extends SynapseBaseTestCase
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
-        $options = $this->getSimpleImportOptions([
-            'first',
-            'second',
-        ]);
+        $options = $this->getSimpleImportOptions();
         $source = $this->createABSSourceInstance('tw_accounts.csv', false);
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'out.csv_2Cols',
+            [
+                'first',
+                'second',
+            ]
+        );
 
         $this->expectException(Exception::class);
         $this->expectExceptionCode(Exception::COLUMNS_COUNT_NOT_MATCH);
@@ -165,11 +177,11 @@ class OtherImportTest extends SynapseBaseTestCase
     public function testNullifyCopy(): void
     {
         $this->connection->query(sprintf(
-            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
+            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC)',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
-            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
+            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC)',
             self::SYNAPSE_SOURCE_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -183,13 +195,16 @@ class OtherImportTest extends SynapseBaseTestCase
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -198,7 +213,7 @@ class OtherImportTest extends SynapseBaseTestCase
         );
 
         $importedData = $this->connection->fetchAll(sprintf(
-            'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
+            'SELECT [id], [NAME], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->assertCount(2, $importedData);
@@ -210,7 +225,7 @@ class OtherImportTest extends SynapseBaseTestCase
     public function testNullifyCopyIncremental(): void
     {
         $this->connection->query(sprintf(
-            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
+            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC)',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -218,7 +233,7 @@ class OtherImportTest extends SynapseBaseTestCase
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
-            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
+            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC)',
             self::SYNAPSE_SOURCE_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -232,13 +247,12 @@ class OtherImportTest extends SynapseBaseTestCase
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'nullify', ['id', 'name', 'price']);
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -247,7 +261,7 @@ class OtherImportTest extends SynapseBaseTestCase
         );
 
         $importedData = $this->connection->fetchAll(sprintf(
-            'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
+            'SELECT [id], [NAME], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->assertCount(3, $importedData);
@@ -261,7 +275,7 @@ class OtherImportTest extends SynapseBaseTestCase
     {
         $this->connection->query(sprintf(
         // phpcs:ignore
-            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
+            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -270,7 +284,7 @@ class OtherImportTest extends SynapseBaseTestCase
         ));
         $this->connection->query(sprintf(
         // phpcs:ignore
-            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000) NOT NULL, [name] nvarchar(4000) NOT NULL, [price] nvarchar(4000) NOT NULL, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
+            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000) NOT NULL, [NAME] nvarchar(4000) NOT NULL, [price] nvarchar(4000) NOT NULL, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
             self::SYNAPSE_SOURCE_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -288,13 +302,16 @@ class OtherImportTest extends SynapseBaseTestCase
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -303,7 +320,7 @@ class OtherImportTest extends SynapseBaseTestCase
         );
 
         $importedData = $this->connection->fetchAll(sprintf(
-            'SELECT [id], [name], [price] FROM [%s].[nullify]',
+            'SELECT [id], [NAME], [price] FROM [%s].[nullify]',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $expectedData = [
@@ -332,7 +349,7 @@ class OtherImportTest extends SynapseBaseTestCase
     {
         $this->connection->query(sprintf(
         // phpcs:ignore
-            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
+            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -341,7 +358,7 @@ class OtherImportTest extends SynapseBaseTestCase
         ));
         $this->connection->query(sprintf(
         // phpcs:ignore
-            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000) NOT NULL, [name] nvarchar(4000) NOT NULL, [price] nvarchar(4000) NOT NULL, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
+            'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000) NOT NULL, [NAME] nvarchar(4000) NOT NULL, [price] nvarchar(4000) NOT NULL, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
             self::SYNAPSE_SOURCE_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -359,13 +376,16 @@ class OtherImportTest extends SynapseBaseTestCase
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -374,7 +394,7 @@ class OtherImportTest extends SynapseBaseTestCase
         );
 
         $importedData = $this->connection->fetchAll(sprintf(
-            'SELECT [id], [name], [price] FROM [%s].[nullify]',
+            'SELECT [id], [NAME], [price] FROM [%s].[nullify]',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $expectedData = [
@@ -402,19 +422,22 @@ class OtherImportTest extends SynapseBaseTestCase
     public function testNullifyCsv(): void
     {
         $this->connection->query(sprintf(
-            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
+            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC)',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = $this->createABSSourceInstance('nullify.csv');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -423,7 +446,7 @@ class OtherImportTest extends SynapseBaseTestCase
         );
 
         $importedData = $this->connection->fetchAll(sprintf(
-            'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
+            'SELECT [id], [NAME], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->assertCount(3, $importedData);
@@ -434,7 +457,7 @@ class OtherImportTest extends SynapseBaseTestCase
     public function testNullifyCsvIncremental(): void
     {
         $this->connection->query(sprintf(
-            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
+            'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [NAME] nvarchar(4000), [price] NUMERIC)',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->connection->query(sprintf(
@@ -444,13 +467,16 @@ class OtherImportTest extends SynapseBaseTestCase
 
         $options = new ImportOptions(
             ['name', 'price'], //convert empty values
-            ['id', 'name', 'price'],
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = $this->createABSSourceInstance('nullify.csv');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'nullify',
+            ['id', 'name', 'price']
+        );
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -458,7 +484,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
         $importedData = $this->connection->fetchAll(sprintf(
-            'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
+            'SELECT [id], [NAME], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             self::SYNAPSE_DEST_SCHEMA_NAME
         ));
         $this->assertCount(4, $importedData);

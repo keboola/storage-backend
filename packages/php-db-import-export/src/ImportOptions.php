@@ -15,9 +15,6 @@ class ImportOptions
     /** @var array */
     private $convertEmptyValuesToNull = [];
 
-    /** @var array */
-    private $columns = [];
-
     /** @var bool */
     private $isIncremental;
 
@@ -26,21 +23,14 @@ class ImportOptions
 
     public function __construct(
         array $convertEmptyValuesToNull = [],
-        array $columns = [],
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0
     ) {
         $this->useTimestamp = $useTimestamp;
         $this->convertEmptyValuesToNull = $convertEmptyValuesToNull;
-        $this->columns = $columns;
         $this->isIncremental = $isIncremental;
         $this->numberOfIgnoredLines = $numberOfIgnoredLines;
-    }
-
-    public function getColumns(): array
-    {
-        return $this->columns;
     }
 
     public function getConvertEmptyValuesToNull(): array

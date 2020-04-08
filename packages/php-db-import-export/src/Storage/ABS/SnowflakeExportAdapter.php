@@ -39,9 +39,21 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptions $exportOptions
     ): void {
+        if (!$source instanceof Storage\SqlSourceInterface) {
+            throw new \Exception(sprintf(
+                'Source "%s" must implement "%s".',
+                get_class($source),
+                Storage\SqlSourceInterface::class
+            ));
+        }
+
+        $compression = $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'";
+
+        $from = $source->getFromStatement();
+
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
-FROM %s
+FROM (%s)
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
 FILE_FORMAT = (
     TYPE = \'CSV\'
@@ -53,9 +65,9 @@ FILE_FORMAT = (
 MAX_FILE_SIZE=50000000',
             $destination->getContainerUrl(BaseFile::PROTOCOL_AZURE),
             $destination->getFilePath(),
-            $source->getFromStatement(),
+            $from,
             $destination->getSasToken(),
-            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'"
+            $compression
         );
 
         $this->connection->fetchAll($sql, $source->getQueryBindings());

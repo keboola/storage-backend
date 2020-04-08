@@ -26,20 +26,18 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
-        if (!$destination instanceof Table) {
+        if (!$source instanceof Storage\Snowflake\Table) {
             return false;
         }
-
-        if (!$source instanceof Table && !$source instanceof SelectSource) {
+        if (!$destination instanceof Storage\Snowflake\Table) {
             return false;
         }
-
         return true;
     }
 
     /**
-     * @param Table|SelectSource $source
-     * @param Table $destination
+     * @param Storage\Snowflake\Table $source
+     * @param Storage\Snowflake\Table $destination
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
@@ -49,7 +47,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->connection->quoteIdentifier($column);
-        }, $importOptions->getColumns());
+        }, $destination->getColumnsNames());
 
         $sql = sprintf(
             'INSERT INTO %s.%s (%s)',
@@ -58,18 +56,14 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             implode(', ', $quotedColumns)
         );
 
-        if ($source instanceof Table) {
-            $sql .= sprintf(
-                ' SELECT %s FROM %s.%s',
-                implode(', ', $quotedColumns),
-                $this->connection->quoteIdentifier($source->getSchema()),
-                $this->connection->quoteIdentifier($source->getTableName())
-            );
-            $this->connection->query($sql);
-        } elseif ($source instanceof SelectSource) {
-            $sql .= ' ' . $source->getFromStatement();
-            $this->connection->query($sql, $source->getQueryBindings());
-        }
+        $sql .= sprintf(
+            ' SELECT %s FROM %s.%s',
+            implode(', ', $quotedColumns),
+            $this->connection->quoteIdentifier($source->getSchema()),
+            $this->connection->quoteIdentifier($source->getTableName())
+        );
+
+        $this->connection->query($sql);
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),

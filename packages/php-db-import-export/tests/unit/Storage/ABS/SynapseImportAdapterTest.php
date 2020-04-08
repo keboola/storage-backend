@@ -135,7 +135,7 @@ EOT
             );
 
         $destination = new Storage\Synapse\Table('schema', 'table');
-        $options = new ImportOptions([], [], false, false, 1);
+        $options = new ImportOptions([], false, false, 1);
         $adapter = new SynapseImportAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,

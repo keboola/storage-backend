@@ -25,4 +25,11 @@ class TableTest extends TestCase
         self::assertEquals([], $source->getQueryBindings());
         self::assertEquals('SELECT * FROM [schema].[table]', $source->getFromStatement());
     }
+
+    public function testColumns(): void
+    {
+        $source = new Storage\Synapse\Table('schema', 'table', ['col1', 'col2']);
+        self::assertEquals(['col1', 'col2'], $source->getColumnsNames());
+        self::assertEquals('SELECT [col1], [col2] FROM [schema].[table]', $source->getFromStatement());
+    }
 }

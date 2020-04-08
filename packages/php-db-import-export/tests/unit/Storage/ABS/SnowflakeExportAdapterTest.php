@@ -24,7 +24,7 @@ class SnowflakeExportAdapterTest extends BaseTestCase
         $conn->expects(self::once())->method('fetchAll')->with(
             <<<EOT
 COPY INTO 'containerUrl' 
-FROM "schema"."table"
+FROM (SELECT * FROM "schema"."table")
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (
     TYPE = 'CSV'
@@ -61,7 +61,7 @@ EOT
         $conn->expects(self::once())->method('fetchAll')->with(
             <<<EOT
 COPY INTO 'containerUrl' 
-FROM "schema"."table"
+FROM (SELECT * FROM "schema"."table")
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (
     TYPE = 'CSV'

@@ -57,12 +57,12 @@ class Importer implements ImporterInterface
         $adapter = $this->getAdapter($source, $destination);
 
         $this->importState = new ImportState(BackendHelper::generateStagingTableName());
-        $this->validateColumns($options, $destination);
+        $this->validateColumns($destination);
 
         $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
             $destination->getSchema(),
             $this->importState->getStagingTableName(),
-            $options->getColumns()
+            $destination->getColumnsNames()
         ));
 
         try {
@@ -82,7 +82,7 @@ class Importer implements ImporterInterface
             } else {
                 $this->doNonIncrementalLoad($options, $destination, $primaryKeys);
             }
-            $this->importState->setImportedColumns($options->getColumns());
+            $this->importState->setImportedColumns($destination->getColumnsNames());
         } finally {
             $this->runQuery(
                 $this->sqlBuilder->getDropCommand($destination->getSchema(), $this->importState->getStagingTableName())
@@ -93,10 +93,9 @@ class Importer implements ImporterInterface
     }
 
     private function validateColumns(
-        ImportOptions $importOptions,
         Storage\Snowflake\Table $destination
     ): void {
-        if (count($importOptions->getColumns()) === 0) {
+        if (count($destination->getColumnsNames()) === 0) {
             throw new Exception(
                 'No columns found in CSV file.',
                 Exception::NO_COLUMNS
@@ -108,7 +107,7 @@ class Importer implements ImporterInterface
             $destination->getTableName()
         );
 
-        $moreColumns = array_diff($importOptions->getColumns(), $tableColumns);
+        $moreColumns = array_diff($destination->getColumnsNames(), $tableColumns);
         if (!empty($moreColumns)) {
             throw new Exception(
                 'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),
@@ -216,13 +215,12 @@ class Importer implements ImporterInterface
         $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
             $destination->getSchema(),
             $tempTableName,
-            $importOptions->getColumns()
+            $destination->getColumnsNames()
         ));
 
         $this->runQuery(
             $this->sqlBuilder->getDedupCommand(
                 $destination,
-                $importOptions,
                 $primaryKeys,
                 $this->importState->getStagingTableName(),
                 $tempTableName

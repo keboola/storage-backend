@@ -40,7 +40,6 @@ class SqlCommandBuilder
 
     public function getDedupCommand(
         Table $destination,
-        ImportOptions $importOptions,
         array $primaryKeys,
         string $stagingTableName,
         string $tempTableName
@@ -60,8 +59,8 @@ class SqlCommandBuilder
             . 'FROM %s.%s'
             . ') AS a '
             . 'WHERE a."_row_number_" = 1',
-            ColumnsHelper::getColumnsString($importOptions->getColumns(), ',', 'a'),
-            ColumnsHelper::getColumnsString($importOptions->getColumns(), ', '),
+            ColumnsHelper::getColumnsString($destination->getColumnsNames(), ',', 'a'),
+            ColumnsHelper::getColumnsString($destination->getColumnsNames(), ', '),
             $pkSql,
             $pkSql,
             QuoteHelper::quoteIdentifier($destination->getSchema()),
@@ -72,7 +71,7 @@ class SqlCommandBuilder
             'INSERT INTO %s.%s (%s) %s',
             QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($tempTableName),
-            ColumnsHelper::getColumnsString($importOptions->getColumns()),
+            ColumnsHelper::getColumnsString($destination->getColumnsNames()),
             $depudeSql
         );
     }
@@ -138,15 +137,15 @@ class SqlCommandBuilder
                 QuoteHelper::quoteIdentifier($column),
                 QuoteHelper::quoteIdentifier($column)
             );
-        }, $importOptions->getColumns()));
+        }, $destination->getColumnsNames()));
 
-        if (in_array(Importer::TIMESTAMP_COLUMN_NAME, $importOptions->getColumns())
+        if (in_array(Importer::TIMESTAMP_COLUMN_NAME, $destination->getColumnsNames())
             || $importOptions->useTimestamp() === false
         ) {
             return sprintf(
                 'INSERT INTO %s (%s) (SELECT %s FROM %s.%s)',
                 $destination->getQuotedTableWithScheme(),
-                ColumnsHelper::getColumnsString($importOptions->getColumns()),
+                ColumnsHelper::getColumnsString($destination->getColumnsNames()),
                 $columnsSetSqlSelect,
                 QuoteHelper::quoteIdentifier($destination->getSchema()),
                 QuoteHelper::quoteIdentifier($stagingTableName)
@@ -156,7 +155,7 @@ class SqlCommandBuilder
         return sprintf(
             'INSERT INTO %s (%s, "%s") (SELECT %s, \'%s\' FROM %s.%s)',
             $destination->getQuotedTableWithScheme(),
-            ColumnsHelper::getColumnsString($importOptions->getColumns()),
+            ColumnsHelper::getColumnsString($destination->getColumnsNames()),
             Importer::TIMESTAMP_COLUMN_NAME,
             $columnsSetSqlSelect,
             DateTimeHelper::getNowFormatted(),
@@ -172,14 +171,14 @@ class SqlCommandBuilder
         string $timestampValue
     ): string {
         if ($importOptions->useTimestamp()) {
-            $insColumns = array_merge($importOptions->getColumns(), [Importer::TIMESTAMP_COLUMN_NAME]);
+            $insColumns = array_merge($destination->getColumnsNames(), [Importer::TIMESTAMP_COLUMN_NAME]);
         } else {
-            $insColumns = $importOptions->getColumns();
+            $insColumns = $destination->getColumnsNames();
         }
 
         $columnsSetSql = [];
 
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($destination->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull())) {
                 $columnsSetSql[] = sprintf(
                     'IFF("src".%s = \'\', NULL, %s)',
@@ -250,7 +249,7 @@ class SqlCommandBuilder
         string $timestamp
     ): string {
         $columnsSet = [];
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($destination->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = IFF("src".%s = \'\', NULL, "src".%s)',
@@ -284,7 +283,7 @@ class SqlCommandBuilder
                     QuoteHelper::quoteIdentifier($columnName)
                 );
             },
-            $importOptions->getColumns()
+            $destination->getColumnsNames()
         );
 
         return sprintf(
