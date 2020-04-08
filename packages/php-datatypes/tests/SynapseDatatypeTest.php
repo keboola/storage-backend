@@ -19,6 +19,7 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
 
             ['real', 'notANumber'],
             ['real', '0'],
+            ['real', '10'],
             ['real', '54'],
 
             ['decimal', 'notANumber'],
@@ -197,9 +198,19 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
                 ['length' => '35,2'],
                 $type . '(35,2)',
             ];
+            $tests[] = [
+                $type,
+                ['length' => '35,2', 'default' => '(10.00)'],
+                $type . '(35,2) DEFAULT (10.00)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '35,2', 'default' => '(10.00)', 'nullable' => false],
+                $type . '(35,2) NOT NULL DEFAULT (10.00)',
+            ];
         }
 
-        foreach (['float', 'real'] as $type) {
+        foreach (['float'] as $type) {
             $tests[] = [
                 $type,
                 ['length' => ''],
@@ -214,6 +225,11 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
                 $type,
                 ['length' => '1'],
                 $type . '(1)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '1', 'default' => '5'],
+                $type . '(1) DEFAULT 5',
             ];
         }
 
@@ -232,6 +248,11 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
                 $type,
                 ['length' => '1000'],
                 $type . '(1000)',
+            ];
+            $tests[] = [
+                $type,
+                ['length' => '1', 'default' => '\'some string\''],
+                $type . '(1) DEFAULT \'some string\'',
             ];
         }
 
@@ -268,6 +289,11 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['length' => ''],
             'datetime2',
         ];
+        $tests[] = [
+            'datetime2',
+            ['length' => '', 'default'=>'NOW()'],
+            'datetime2 DEFAULT NOW()',
+        ];
 
         return $tests;
     }
@@ -299,10 +325,6 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['float', '53'],
 
             ['real', null],
-            ['real', ''],
-            ['real', '1'],
-            ['real', '42'],
-            ['real', '53'],
 
             ['decimal', null],
             ['decimal', ''],

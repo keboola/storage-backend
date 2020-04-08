@@ -71,6 +71,7 @@ class Synapse extends Common
      */
     const TYPES_WITHOUT_LENGTH = [
         Synapse::TYPE_DATETIME,
+        Synapse::TYPE_REAL,
         Synapse::TYPE_SMALLDATETIME,
         Synapse::TYPE_DATE,
         Synapse::TYPE_MONEY,
@@ -119,6 +120,9 @@ class Synapse extends Common
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
+        if ($this->getDefault() !== null) {
+            $definition .= ' DEFAULT ' . $this->getDefault();
+        }
         return $definition;
     }
 
@@ -133,7 +137,6 @@ class Synapse extends Common
     {
         switch (strtolower($this->getType())) {
             case self::TYPE_FLOAT:
-            case self::TYPE_REAL:
                 return self::MAX_LENGTH_FLOAT;
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
@@ -195,7 +198,6 @@ class Synapse extends Common
         $valid = true;
         switch (strtolower($type)) {
             case self::TYPE_FLOAT:
-            case self::TYPE_REAL:
                 if ($this->isEmpty($length)) {
                     break;
                 }
