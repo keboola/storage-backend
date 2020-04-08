@@ -96,6 +96,50 @@ class OtherImportTest extends SynapseBaseTestCase
         );
     }
 
+    public function testIncrementalImportFromTable(): void
+    {
+        $this->initTables([self::TABLE_OUT_CSV_2COLS]);
+        $fetchSQL = sprintf(
+            'SELECT [col1], [col2] FROM [%s].[%s]',
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            self::TABLE_OUT_CSV_2COLS
+        );
+
+        $source = new Storage\Synapse\SelectSource(
+            sprintf('SELECT * FROM [%s].[%s]', self::SYNAPSE_SOURCE_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
+            []
+        );
+        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS);
+        $options = $this->getSimpleImportOptions([
+            'col1',
+            'col2',
+        ]);
+
+        (new Importer($this->connection))->importTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $importedData = $this->connection->fetchAll($fetchSQL);
+
+        $this->assertCount(2, $importedData);
+
+        $this->connection->exec(sprintf('INSERT INTO [%s].[out.csv_2Cols] VALUES
+                (\'e\', \'f\');
+        ', self::SYNAPSE_SOURCE_SCHEMA_NAME));
+
+        (new Importer($this->connection))->importTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $importedData = $this->connection->fetchAll($fetchSQL);
+
+        $this->assertCount(3, $importedData);
+    }
+
     public function testMoreColumnsShouldThrowException(): void
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);

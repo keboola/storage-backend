@@ -80,6 +80,49 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         );
     }
 
+    public function testIncrementalImportFromTable(): void
+    {
+        $fetchSQL = sprintf(
+            'SELECT "col1", "col2" FROM "%s"."%s"',
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'out.csv_2Cols'
+        );
+
+        $source = new Storage\Snowflake\SelectSource(
+            sprintf('SELECT * FROM "%s"."%s"', self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'out.csv_2Cols'),
+            []
+        );
+        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
+        $options = $this->getSimpleImportOptions([
+            'col1',
+            'col2',
+        ]);
+
+        (new Importer($this->connection))->importTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $importedData = $this->connection->fetchAll($fetchSQL);
+
+        $this->assertCount(2, $importedData);
+
+        $this->connection->query(sprintf('INSERT INTO "%s"."out.csv_2Cols" VALUES
+                (\'e\', \'f\');
+        ', self::SNOWFLAKE_SOURCE_SCHEMA_NAME));
+
+        (new Importer($this->connection))->importTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $importedData = $this->connection->fetchAll($fetchSQL);
+
+        $this->assertCount(3, $importedData);
+    }
+
     public function testNullifyCopy(): void
     {
         $this->connection->query(sprintf(
