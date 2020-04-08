@@ -36,7 +36,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->createABSSourceInstance('tw_accounts.csv', false),
             $this->getSimpleImportOptions(),
             $this->createABSSourceInstance('tw_accounts.increment.csv', false),
-            $this->getSimpleIncrementalImportOptions($accountColumns),
+            $this->getSimpleIncrementalImportOptions(),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3', $accountColumns),
             $expectedAccountsRows,
             4,
