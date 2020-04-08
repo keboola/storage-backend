@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Column;
 
-use Keboola\Datatype\Definition\Synapse;
+use Keboola\Datatype\Definition\DefinitionInterface;
 
 interface ColumnInterface
 {
@@ -12,7 +12,7 @@ interface ColumnInterface
 
     public function getColumnName(): string;
 
-    public function getColumnDefinition(): Synapse;
+    public function getColumnDefinition(): DefinitionInterface;
 
     /**
      * Will return generic definition for columns used in keboola environment

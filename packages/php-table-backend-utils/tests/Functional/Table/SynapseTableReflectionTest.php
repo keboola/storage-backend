@@ -437,6 +437,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $definitions = $ref->getColumnsDefinitions();
         $this->assertCount(1, $definitions);
 
+        /** @var SynapseColumn $definition */
         $definition = $definitions->getIterator()->current();
 
         $this->assertEquals(

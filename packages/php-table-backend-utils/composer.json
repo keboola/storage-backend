@@ -5,7 +5,7 @@
     "require": {
         "php": "^7.1",
         "doctrine/dbal": "^2.9",
-        "keboola/php-datatypes": "dev-zajca-synapse-fix",
+        "keboola/php-datatypes": "^4.7",
         "keboola/common-exceptions": "^1"
     },
     "require-dev": {

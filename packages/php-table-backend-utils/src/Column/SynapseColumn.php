@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Column;
 
+use Keboola\Datatype\Definition\DefinitionInterface;
 use Keboola\Datatype\Definition\Synapse;
 
 final class SynapseColumn implements ColumnInterface
@@ -84,6 +85,9 @@ final class SynapseColumn implements ColumnInterface
         return new self($dbResponse['column_name'], $definition);
     }
 
+    /**
+     * @return SynapseColumn
+     */
     public static function createGenericColumn(string $columnName): ColumnInterface
     {
         $definition = new Synapse(
@@ -106,7 +110,10 @@ final class SynapseColumn implements ColumnInterface
         return $this->columnName;
     }
 
-    public function getColumnDefinition(): Synapse
+    /**
+     * @return Synapse
+     */
+    public function getColumnDefinition(): DefinitionInterface
     {
         return $this->columnDefinition;
     }
