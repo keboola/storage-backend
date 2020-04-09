@@ -42,43 +42,43 @@ class IncrementalImportTest extends SynapseBaseTestCase
 
         $tests = [];
         $tests[] = [
-            $this->createABSSourceInstance('tw_accounts.csv', false),
+            $this->createABSSourceInstance('tw_accounts.csv', $accountColumns, false),
             $this->getSimpleImportOptions(),
-            $this->createABSSourceInstance('tw_accounts.increment.csv', false),
+            $this->createABSSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
             $this->getSimpleIncrementalImportOptions(),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3', $accountColumns),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3'),
             $expectedAccountsRows,
             4,
             [self::TABLE_ACCOUNTS_3],
             true,
         ];
         $tests[] = [
-            $this->createABSSourceInstance('tw_accounts.csv', false),
+            $this->createABSSourceInstance('tw_accounts.csv', $accountColumns, false),
             new ImportOptions(
                 [],
                 false,
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            $this->createABSSourceInstance('tw_accounts.increment.csv', false),
+            $this->createABSSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
             new ImportOptions(
                 [],
                 true, // incremental
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-bez-ts', $accountColumns),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-bez-ts'),
             $expectedAccountsRows,
             4,
             [self::TABLE_ACCOUNTS_BEZ_TS],
             true,
         ];
         $tests[] = [
-            $this->createABSSourceInstance('multi-pk.csv', false),
+            $this->createABSSourceInstance('multi-pk.csv', $multiPkColumns, false),
             $this->getSimpleImportOptions(),
-            $this->createABSSourceInstance('multi-pk.increment.csv', false),
+            $this->createABSSourceInstance('multi-pk.increment.csv', $multiPkColumns, false),
             $this->getSimpleIncrementalImportOptions(),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'multi-pk', $multiPkColumns),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'multi-pk'),
             $expectedMultiPkRows,
             3,
             [self::TABLE_MULTI_PK],

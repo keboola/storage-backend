@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\SqlCommandBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use PHPUnit\Framework\TestCase;
 
 class SqlCommandBuilderTest extends TestCase
@@ -40,6 +41,7 @@ class SqlCommandBuilderTest extends TestCase
     public function testGetDedupCommand(): void
     {
         $sql = $this->getInstance()->getDedupCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             [
                 'pk1',
@@ -60,14 +62,25 @@ class SqlCommandBuilderTest extends TestCase
         return new ImportOptions([]);
     }
 
+    private function getDummySource(): SourceInterface
+    {
+        return new class implements SourceInterface {
+            public function getColumnsNames(): array
+            {
+                return ['col1', 'col2'];
+            }
+        };
+    }
+
     private function getDummyTableDestination(): Table
     {
-        return new Table('schema', 'table', ['col1', 'col2']);
+        return new Table('schema', 'table');
     }
 
     public function testGetDedupCommandNoPrimaryKeys(): void
     {
         $sql = $this->getInstance()->getDedupCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             [],
             'stagingTable',
@@ -103,6 +116,7 @@ class SqlCommandBuilderTest extends TestCase
     {
         // no convert values no timestamp
         $sql = $this->getInstance()->getInsertAllIntoTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
             'staging table'
@@ -116,6 +130,7 @@ class SqlCommandBuilderTest extends TestCase
         // converver values
         $options = new ImportOptions(['col1']);
         $sql = $this->getInstance()->getInsertAllIntoTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             'staging table'
@@ -129,6 +144,7 @@ class SqlCommandBuilderTest extends TestCase
         // use timestamp
         $options = new ImportOptions(['col1'], false, true);
         $sql = $this->getInstance()->getInsertAllIntoTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             'staging table'
@@ -149,6 +165,7 @@ class SqlCommandBuilderTest extends TestCase
     {
         $options = new ImportOptions(['col1'], false, false);
         $sql = $this->getInstance()->getInsertFromStagingToTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             'stagingTable',
@@ -161,6 +178,7 @@ class SqlCommandBuilderTest extends TestCase
         );
         $options = new ImportOptions(['col1'], false, true);
         $sql = $this->getInstance()->getInsertFromStagingToTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             'stagingTable',
@@ -195,6 +213,7 @@ class SqlCommandBuilderTest extends TestCase
     {
         // no convert values no timestamp
         $sql = $this->getInstance()->getUpdateWithPkCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
             'staging table',
@@ -210,6 +229,7 @@ class SqlCommandBuilderTest extends TestCase
         // converver values
         $options = new ImportOptions(['col1']);
         $sql = $this->getInstance()->getUpdateWithPkCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             'staging table',
@@ -225,6 +245,7 @@ class SqlCommandBuilderTest extends TestCase
         // use timestamp
         $options = new ImportOptions(['col1'], false, true);
         $sql = $this->getInstance()->getUpdateWithPkCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             'staging table',

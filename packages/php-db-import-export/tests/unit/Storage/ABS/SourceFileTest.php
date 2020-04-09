@@ -19,6 +19,7 @@ class SourceFileTest extends BaseTestCase
         self::assertInstanceOf(Storage\ABS\BaseFile::class, $source);
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('file.csv', $source->getFilePath());
+        self::assertEquals([], $source->getColumnsNames());
     }
 
     public function testGetManifestEntries(): void
@@ -30,7 +31,7 @@ class SourceFileTest extends BaseTestCase
 
     public function testGetManifestEntriesIncremental(): void
     {
-        $source = $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', true);
+        $source = $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', [], true);
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
     }
@@ -46,7 +47,7 @@ class SourceFileTest extends BaseTestCase
 
     public function testGetManifestEntriesNotExistingManifestEntry(): void
     {
-        $source = $this->createABSSourceInstance('02_tw_accounts.csv.invalid.manifest', true);
+        $source = $this->createABSSourceInstance('02_tw_accounts.csv.invalid.manifest', [], true);
 
         $this->expectException(Exception::class);
         $this->expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);

@@ -15,8 +15,8 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     public function testCopyInvalidSourceDataShouldThrowException(): void
     {
         $options = $this->getSimpleImportOptions();
-        $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'names');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols', ['c1', 'c2']);
+        $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'names', ['c1', 'c2']);
+        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
 
         self::expectException(Exception::class);
         self::expectExceptionCode(Exception::COLUMNS_COUNT_NOT_MATCH);
@@ -30,14 +30,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     public function testImportShouldNotFailOnColumnNameRowNumber(): void
     {
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance('column-name-row-number.csv');
-        $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            'column-name-row-number',
+        $source = $this->createABSSourceInstance(
+            'column-name-row-number.csv',
             [
                 'id',
                 'row_number',
             ]
+        );
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'column-name-row-number'
         );
 
         $result = (new Importer($this->connection))->importTable(
@@ -52,11 +54,14 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $initialFile = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance('02_tw_accounts.csv.invalid.manifest', true);
+        $source = $this->createABSSourceInstance(
+            '02_tw_accounts.csv.invalid.manifest',
+            $initialFile->getHeader(),
+            true
+        );
         $destination = new Storage\Snowflake\Table(
             self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            'accounts-3',
-            $initialFile->getHeader()
+            'accounts-3'
         );
 
         self::expectException(Exception::class);
@@ -71,14 +76,17 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     public function testMoreColumnsShouldThrowException(): void
     {
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance('tw_accounts.csv', false);
-        $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            'out.csv_2Cols',
+        $source = $this->createABSSourceInstance(
+            'tw_accounts.csv',
             [
                 'first',
                 'second',
-            ]
+            ],
+            false
+        );
+        $destination = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            'out.csv_2Cols'
         );
 
         self::expectException(Exception::class);
@@ -102,13 +110,14 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $source = new Storage\Snowflake\SelectSource(
             sprintf('SELECT * FROM "%s"."%s"', self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'out.csv_2Cols'),
-            []
+            [],
+            [
+                'col1',
+                'col2',
+            ]
         );
         $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
-        $options = $this->getSimpleImportOptions([
-            'col1',
-            'col2',
-        ]);
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,

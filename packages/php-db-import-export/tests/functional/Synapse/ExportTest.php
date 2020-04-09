@@ -56,8 +56,8 @@ class ExportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->createABSSourceInstance('with-ts.csv');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols', $file->getHeader());
+        $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
+        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
         $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
@@ -105,8 +105,8 @@ class ExportTest extends SynapseBaseTestCase
 
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->createABSSourceInstance('with-ts.csv');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols', $file->getHeader());
+        $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
+        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
         $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
@@ -175,8 +175,8 @@ class ExportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_ACCOUNTS_3]);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->createABSSourceInstance('tw_accounts.csv');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3', $file->getHeader());
+        $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
+        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3');
         $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
@@ -232,8 +232,8 @@ class ExportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_ACCOUNTS_3]);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->createABSSourceInstance('tw_accounts.csv');
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3', $file->getHeader());
+        $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
+        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3');
         $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(

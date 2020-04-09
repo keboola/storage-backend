@@ -88,11 +88,14 @@ class OtherImportTest extends SynapseBaseTestCase
 
         $initialFile = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance('02_tw_accounts.csv.invalid.manifest', true);
+        $source = $this->createABSSourceInstance(
+            '02_tw_accounts.csv.invalid.manifest',
+            $initialFile->getHeader(),
+            true
+        );
         $destination = new Storage\Synapse\Table(
             self::SYNAPSE_DEST_SCHEMA_NAME,
-            'accounts-3',
-            $initialFile->getHeader()
+            'accounts-3'
         );
 
         $this->expectException(Exception::class);
@@ -115,13 +118,14 @@ class OtherImportTest extends SynapseBaseTestCase
 
         $source = new Storage\Synapse\SelectSource(
             sprintf('SELECT * FROM [%s].[%s]', self::SYNAPSE_SOURCE_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
-            []
+            [],
+            [
+                'col1',
+                'col2',
+            ]
         );
         $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS);
-        $options = $this->getSimpleImportOptions([
-            'col1',
-            'col2',
-        ]);
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -153,14 +157,17 @@ class OtherImportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance('tw_accounts.csv', false);
-        $destination = new Storage\Synapse\Table(
-            self::SYNAPSE_DEST_SCHEMA_NAME,
-            'out.csv_2Cols',
+        $source = $this->createABSSourceInstance(
+            'tw_accounts.csv',
             [
                 'first',
                 'second',
-            ]
+            ],
+            false
+        );
+        $destination = new Storage\Synapse\Table(
+            self::SYNAPSE_DEST_SCHEMA_NAME,
+            'out.csv_2Cols'
         );
 
         $this->expectException(Exception::class);

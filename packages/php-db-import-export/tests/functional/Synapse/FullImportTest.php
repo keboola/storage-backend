@@ -60,8 +60,8 @@ class FullImportTest extends SynapseBaseTestCase
 
         // full imports
         $tests[] = [
-            $this->createABSSourceInstance('sliced/2cols-large/2cols-large.csvmanifest', true),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            $this->createABSSourceInstance('sliced/2cols-large/2cols-large.csvmanifest', $escapingHeader, true),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedLargeSlicedManifest,
             1501,
@@ -69,8 +69,8 @@ class FullImportTest extends SynapseBaseTestCase
         ];
 
         $tests[] = [
-            $this->createABSSourceInstance('empty.manifest', true),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            $this->createABSSourceInstance('empty.manifest', $escapingHeader, true),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             [],
             0,
@@ -78,8 +78,8 @@ class FullImportTest extends SynapseBaseTestCase
         ];
 
         $tests[] = [
-            $this->createABSSourceInstance('lemma.csv'),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_LEMMA, $lemmaHeader),
+            $this->createABSSourceInstance('lemma.csv', $lemmaHeader),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_LEMMA),
             $this->getSimpleImportOptions(),
             $expectedLemma,
             5,
@@ -87,8 +87,8 @@ class FullImportTest extends SynapseBaseTestCase
         ];
 
         $tests[] = [
-            $this->createABSSourceInstance('standard-with-enclosures.csv'),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            $this->createABSSourceInstance('standard-with-enclosures.csv', $escapingHeader),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
             $this->getSimpleImportOptions(),
             $expectedEscaping,
             7,
@@ -96,8 +96,8 @@ class FullImportTest extends SynapseBaseTestCase
         ];
 
         $tests[] = [
-            $this->createABSSourceInstance('gzipped-standard-with-enclosures.csv.gz'),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            $this->createABSSourceInstance('gzipped-standard-with-enclosures.csv.gz', $escapingHeader),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
             $this->getSimpleImportOptions(),
             $expectedEscaping,
             7,
@@ -107,9 +107,10 @@ class FullImportTest extends SynapseBaseTestCase
         $tests[] = [
             $this->createABSSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
-                new CsvOptions("\t")
+                new CsvOptions("\t"),
+                $escapingHeader
             ),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
             $this->getSimpleImportOptions(),
             $expectedEscaping,
             7,
@@ -126,11 +127,13 @@ class FullImportTest extends SynapseBaseTestCase
 //        ];
 
         $tests[] = [
-            $this->createABSSourceInstance('tw_accounts.changedColumnsOrder.csv'),
+            $this->createABSSourceInstance(
+                'tw_accounts.changedColumnsOrder.csv',
+                $accountChangedColumnsOrderHeader
+            ),
             new Storage\Synapse\Table(
                 self::SYNAPSE_DEST_SCHEMA_NAME,
-                self::TABLE_ACCOUNTS_3,
-                $accountChangedColumnsOrderHeader
+                self::TABLE_ACCOUNTS_3
             ),
             $this->getSimpleImportOptions(),
             $expectedAccounts,
@@ -139,8 +142,8 @@ class FullImportTest extends SynapseBaseTestCase
             true,
         ];
         $tests[] = [
-            $this->createABSSourceInstance('tw_accounts.csv'),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_ACCOUNTS_3, $accountsHeader),
+            $this->createABSSourceInstance('tw_accounts.csv', $accountsHeader),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_ACCOUNTS_3),
             $this->getSimpleImportOptions(),
             $expectedAccounts,
             3,
@@ -149,8 +152,8 @@ class FullImportTest extends SynapseBaseTestCase
         ];
         // manifests
         $tests[] = [
-            $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', true),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_ACCOUNTS_3, $accountsHeader),
+            $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', $accountsHeader, true),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_ACCOUNTS_3),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
@@ -159,8 +162,8 @@ class FullImportTest extends SynapseBaseTestCase
         ];
 
         $tests[] = [
-            $this->createABSSourceInstance('sliced/accounts-gzip/accounts-gzip.csvmanifest', true),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_ACCOUNTS_3, $accountsHeader),
+            $this->createABSSourceInstance('sliced/accounts-gzip/accounts-gzip.csvmanifest', $accountsHeader, true),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_ACCOUNTS_3),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
@@ -170,8 +173,8 @@ class FullImportTest extends SynapseBaseTestCase
 
         // reserved words
         $tests[] = [
-            $this->createABSSourceInstance('reserved-words.csv', false),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_TABLE, ['column', 'table']),
+            $this->createABSSourceInstance('reserved-words.csv', ['column', 'table'], false),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_TABLE),
             $this->getSimpleImportOptions(),
             [['table', 'column']],
             1,
@@ -179,15 +182,18 @@ class FullImportTest extends SynapseBaseTestCase
         ];
         // import table with _timestamp columns - used by snapshots
         $tests[] = [
-            $this->createABSSourceInstance('with-ts.csv', false),
-            new Storage\Synapse\Table(
-                self::SYNAPSE_DEST_SCHEMA_NAME,
-                self::TABLE_OUT_CSV_2COLS,
+            $this->createABSSourceInstance(
+                'with-ts.csv',
                 [
                     'col1',
                     'col2',
                     '_timestamp',
-                ]
+                ],
+                false
+            ),
+            new Storage\Synapse\Table(
+                self::SYNAPSE_DEST_SCHEMA_NAME,
+                self::TABLE_OUT_CSV_2COLS
             ),
             $this->getSimpleImportOptions(),
             [
@@ -199,11 +205,14 @@ class FullImportTest extends SynapseBaseTestCase
         ];
         // test creating table without _timestamp column
         $tests[] = [
-            $this->createABSSourceInstance('standard-with-enclosures.csv', false),
+            $this->createABSSourceInstance(
+                'standard-with-enclosures.csv',
+                $escapingHeader,
+                false
+            ),
             new Storage\Synapse\Table(
                 self::SYNAPSE_DEST_SCHEMA_NAME,
-                self::TABLE_OUT_NO_TIMESTAMP_TABLE,
-                $escapingHeader
+                self::TABLE_OUT_NO_TIMESTAMP_TABLE
             ),
             new ImportOptions(
                 [],
@@ -217,17 +226,16 @@ class FullImportTest extends SynapseBaseTestCase
         ];
         // copy from table
         $tests[] = [
-            new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
-            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
             $this->getSimpleImportOptions(),
             [['a', 'b'], ['c', 'd']],
             2,
             [self::TABLE_OUT_CSV_2COLS],
         ];
         $tests[] = [
-            new Storage\Synapse\Table(self::SYNAPSE_SOURCE_SCHEMA_NAME, 'types'),
             new Storage\Synapse\Table(
-                self::SYNAPSE_DEST_SCHEMA_NAME,
+                self::SYNAPSE_SOURCE_SCHEMA_NAME,
                 'types',
                 [
                     'charCol',
@@ -235,6 +243,10 @@ class FullImportTest extends SynapseBaseTestCase
                     'floatCol',
                     'boolCol',
                 ]
+            ),
+            new Storage\Synapse\Table(
+                self::SYNAPSE_DEST_SCHEMA_NAME,
+                'types'
             ),
             $this->getSimpleImportOptions(),
             [['a', '10.5', '0.3', '1']],

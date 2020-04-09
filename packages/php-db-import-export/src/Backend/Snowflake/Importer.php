@@ -57,12 +57,12 @@ class Importer implements ImporterInterface
         $adapter = $this->getAdapter($source, $destination);
 
         $this->importState = new ImportState(BackendHelper::generateStagingTableName());
-        $this->validateColumns($destination);
+        $this->validateColumns($source, $destination);
 
         $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
             $destination->getSchema(),
             $this->importState->getStagingTableName(),
-            $destination->getColumnsNames()
+            $source->getColumnsNames()
         ));
 
         try {
@@ -78,11 +78,11 @@ class Importer implements ImporterInterface
                 $destination->getTableName()
             );
             if ($options->isIncremental()) {
-                $this->doIncrementalLoad($options, $destination, $primaryKeys);
+                $this->doIncrementalLoad($options, $source, $destination, $primaryKeys);
             } else {
-                $this->doNonIncrementalLoad($options, $destination, $primaryKeys);
+                $this->doNonIncrementalLoad($options, $source, $destination, $primaryKeys);
             }
-            $this->importState->setImportedColumns($destination->getColumnsNames());
+            $this->importState->setImportedColumns($source->getColumnsNames());
         } finally {
             $this->runQuery(
                 $this->sqlBuilder->getDropCommand($destination->getSchema(), $this->importState->getStagingTableName())
@@ -93,9 +93,10 @@ class Importer implements ImporterInterface
     }
 
     private function validateColumns(
+        Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination
     ): void {
-        if (count($destination->getColumnsNames()) === 0) {
+        if (count($source->getColumnsNames()) === 0) {
             throw new Exception(
                 'No columns found in CSV file.',
                 Exception::NO_COLUMNS
@@ -107,7 +108,7 @@ class Importer implements ImporterInterface
             $destination->getTableName()
         );
 
-        $moreColumns = array_diff($destination->getColumnsNames(), $tableColumns);
+        $moreColumns = array_diff($source->getColumnsNames(), $tableColumns);
         if (!empty($moreColumns)) {
             throw new Exception(
                 'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),
@@ -129,12 +130,9 @@ class Importer implements ImporterInterface
         }
     }
 
-    /**
-     * @param Storage\Snowflake\Table $destination
-     */
     private function importToStagingTable(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination,
+        Storage\Snowflake\Table $destination,
         ImportOptions $importOptions,
         SnowflakeImportAdapterInterface $adapter
     ): void {
@@ -158,6 +156,7 @@ class Importer implements ImporterInterface
 
     private function doIncrementalLoad(
         ImportOptions $importOptions,
+        Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
         array $primaryKeys
     ): void {
@@ -168,6 +167,7 @@ class Importer implements ImporterInterface
         if (!empty($primaryKeys)) {
             $this->runQuery(
                 $this->sqlBuilder->getUpdateWithPkCommand(
+                    $source,
                     $destination,
                     $importOptions,
                     $this->importState->getStagingTableName(),
@@ -185,11 +185,12 @@ class Importer implements ImporterInterface
                 'deleteUpdatedRowsFromStaging'
             );
             $this->importState->startTimer('dedupStaging');
-            $this->dedup($importOptions, $destination, $primaryKeys);
+            $this->dedup($source, $destination, $primaryKeys);
             $this->importState->stopTimer('dedupStaging');
         }
         $this->runQuery(
             $this->sqlBuilder->getInsertFromStagingToTargetTableCommand(
+                $source,
                 $destination,
                 $importOptions,
                 $this->importState->getStagingTableName(),
@@ -203,11 +204,10 @@ class Importer implements ImporterInterface
     }
 
     /**
-     * @param ImportOptions $importOptions
-     * @param array $primaryKeys
+     * @param string[] $primaryKeys
      */
     private function dedup(
-        ImportOptions $importOptions,
+        Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
         array $primaryKeys
     ): void {
@@ -215,11 +215,12 @@ class Importer implements ImporterInterface
         $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
             $destination->getSchema(),
             $tempTableName,
-            $destination->getColumnsNames()
+            $source->getColumnsNames()
         ));
 
         $this->runQuery(
             $this->sqlBuilder->getDedupCommand(
+                $source,
                 $destination,
                 $primaryKeys,
                 $this->importState->getStagingTableName(),
@@ -243,12 +244,13 @@ class Importer implements ImporterInterface
 
     private function doNonIncrementalLoad(
         ImportOptions $importOptions,
+        Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
         array $primaryKeys
     ): void {
         if (!empty($primaryKeys)) {
             $this->importState->startTimer('dedup');
-            $this->dedup($importOptions, $destination, $primaryKeys);
+            $this->dedup($source, $destination, $primaryKeys);
             $this->importState->stopTimer('dedup');
         }
         $this->runQuery(
@@ -262,6 +264,7 @@ class Importer implements ImporterInterface
         );
         $this->runQuery(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                $source,
                 $destination,
                 $importOptions,
                 $this->importState->getStagingTableName()
