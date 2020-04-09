@@ -13,8 +13,6 @@ use Keboola\TableBackendUtils\QueryBuilderException;
 
 class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 {
-    public const MAX_TABLE_COLUMNS = 1024;
-
     /** @var SQLServer2012Platform|AbstractPlatform */
     private $platform;
 
@@ -29,7 +27,6 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         ColumnCollection $columns
     ): string {
         $this->assertTemporaryTable($tableName);
-        $this->assertTableColumnsCount($columns);
 
         $columnsSql = [];
         foreach ($columns as $column) {
@@ -61,24 +58,12 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         }
     }
 
-    private function assertTableColumnsCount(ColumnCollection $columns): void
-    {
-        if (count($columns) > self::MAX_TABLE_COLUMNS) {
-            throw new QueryBuilderException(
-                sprintf('Too many columns. Maximum is %s columns.', self::MAX_TABLE_COLUMNS),
-                QueryBuilderException::STRING_CODE_TO_MANY_COLUMNS
-            );
-        }
-    }
-
     public function getCreateTableCommand(
         string $schemaName,
         string $tableName,
         ColumnCollection $columns,
         array $primaryKeys = []
     ): string {
-        $this->assertTableColumnsCount($columns);
-
         $columnsSql = [];
         foreach ($columns as $column) {
             if ($column->getColumnName() === ColumnInterface::TIMESTAMP_COLUMN_NAME) {

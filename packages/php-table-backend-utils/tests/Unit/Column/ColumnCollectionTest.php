@@ -6,6 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column;
 
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\QueryBuilderException;
 use PHPUnit\Framework\TestCase;
 
 class ColumnCollectionTest extends TestCase
@@ -18,6 +19,18 @@ class ColumnCollectionTest extends TestCase
         ]);
 
         $this->assertIsIterable($collection);
+    }
+
+    public function testTooMuchColumns(): void
+    {
+        $cols = [];
+        for ($i = 0; $i < 1026; $i++) {
+            $cols[] = SynapseColumn::createGenericColumn('name' . $i);
+        }
+
+        $this->expectException(QueryBuilderException::class);
+        $this->expectExceptionMessage('Too many columns. Maximum is 1024 columns.');
+        new ColumnCollection($cols);
     }
 
     public function testCount(): void

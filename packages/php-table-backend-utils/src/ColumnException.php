@@ -7,9 +7,9 @@ namespace Keboola\TableBackendUtils;
 use Keboola\CommonExceptions\ApplicationExceptionInterface;
 use RuntimeException;
 
-class QueryBuilderException extends RuntimeException implements ApplicationExceptionInterface
+class ColumnException extends RuntimeException implements ApplicationExceptionInterface
 {
-    public const STRING_CODE_INVALID_TEMP_TABLE = 'invalidTempTable';
+    public const STRING_CODE_TO_MANY_COLUMNS = 'tooManyColumns';
 
     /**
      * @var string

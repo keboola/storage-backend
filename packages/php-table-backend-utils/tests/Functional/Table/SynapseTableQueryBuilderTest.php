@@ -54,19 +54,6 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
     }
 
-    public function testGetCreateTableCommandTooMuchColumns(): void
-    {
-        $cols = [];
-        for ($i = 0; $i < 1026; $i++) {
-            $cols[] = SynapseColumn::createGenericColumn('name' . $i);
-        }
-
-        $qb = new SynapseTableQueryBuilder($this->connection);
-        $this->expectException(QueryBuilderException::class);
-        $this->expectExceptionMessage('Too many columns. Maximum is 1024 columns.');
-        $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnCollection($cols));
-    }
-
     public function testGetCreateTableCommand(): void
     {
         $this->createTestSchema();
