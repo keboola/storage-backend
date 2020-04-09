@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
@@ -269,6 +270,7 @@ EOT
      * @param int|string $sortKey
      */
     protected function assertTableEqualsExpected(
+        SourceInterface $source,
         Table $table,
         ImportOptions $options,
         array $expected,
@@ -283,7 +285,7 @@ EOT
             $this->assertNotContains('_timestamp', $tableColumns);
         }
 
-        if (!in_array('_timestamp', $table->getColumnsNames())) {
+        if (!in_array('_timestamp', $source->getColumnsNames())) {
             $tableColumns = array_filter($tableColumns, function ($column) {
                 return $column !== '_timestamp';
             });

@@ -8,6 +8,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
@@ -25,6 +26,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
      * @param int|string $sortKey
      */
     protected function assertTableEqualsExpected(
+        SourceInterface $source,
         Table $table,
         ImportOptions $options,
         array $expected,
@@ -39,7 +41,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             $this->assertNotContains('_timestamp', $tableColumns);
         }
 
-        if (!in_array('_timestamp', $table->getColumnsNames())) {
+        if (!in_array('_timestamp', $source->getColumnsNames())) {
             $tableColumns = array_filter($tableColumns, function ($column) {
                 return $column !== '_timestamp';
             });

@@ -287,6 +287,7 @@ class FullImportTest extends SynapseBaseTestCase
         }
 
         $this->assertTableEqualsExpected(
+            $source,
             $destination,
             $options,
             $expected,

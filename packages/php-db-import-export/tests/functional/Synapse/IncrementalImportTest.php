@@ -123,6 +123,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
         }
 
         $this->assertTableEqualsExpected(
+            $initialSource,
             $destination,
             $incrementalOptions,
             $expected,

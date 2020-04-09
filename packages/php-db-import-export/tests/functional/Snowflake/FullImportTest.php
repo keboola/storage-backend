@@ -234,6 +234,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
         $this->assertTableEqualsExpected(
+            $source,
             $destination,
             $options,
             $expected,

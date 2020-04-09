@@ -99,6 +99,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
         $this->assertTableEqualsExpected(
+            $initialSource,
             $destination,
             $incrementalOptions,
             $expected,
