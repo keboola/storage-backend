@@ -47,10 +47,11 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 
     private function assertTemporaryTable(string $tableName): void
     {
-        if (strpos($tableName, '#') !== 0) {
+        if (strpos($tableName, '#') !== 0 || $tableName === '#') {
             throw new QueryBuilderException(
                 sprintf(
-                    'Staging table must start with "#" table name "%s" supplied.',
+                // phpcs:ignore
+                    'Temporary table name invalid, temporary table name must start with "#" a not be empty "%s" supplied.',
                     $tableName
                 ),
                 QueryBuilderException::STRING_CODE_INVALID_TEMP_TABLE

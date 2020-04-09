@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Table;
 
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Driver\PDOException;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
@@ -165,13 +164,10 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
 
     private function createTestTable(): void
     {
-        $table = [
-            sprintf('[%s].[%s]', self::TEST_SCHEMA, self::TEST_TABLE),
-            sprintf('[%s].[%s]', self::TEST_SCHEMA, self::TEST_TABLE_2),
-        ];
-        foreach ($table as $t) {
+        foreach ([self::TEST_TABLE, self::TEST_TABLE_2] as $t) {
+            $schema = self::TEST_SCHEMA;
             $this->connection->exec(<<<EOT
-CREATE TABLE $t (
+CREATE TABLE [$schema].[$t] (
     id int NOT NULL
 )  
 WITH
@@ -235,7 +231,7 @@ EOT
         );
     }
 
-    public function testGetTruncateTableCommand(): void
+    public function testGetTruncateTableCommandTempTable(): void
     {
         $this->createTestSchema();
         $this->createCreateTempTableCommandWithData();
@@ -249,6 +245,47 @@ EOT
         $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(
             'TRUNCATE TABLE [utils-test_qb-schema].[#stagingTable]',
+            $sql
+        );
+        $this->connection->exec($sql);
+
+        $this->assertEquals(0, $ref->getRowsCount());
+        $this->assertEquals(3, $ref2->getRowsCount());
+    }
+
+
+    public function testGetTruncateTableCommand(): void
+    {
+        $this->createTestSchema();
+        $this->createTestTable();
+
+        foreach ([self::TEST_TABLE, self::TEST_TABLE_2] as $t) {
+            $this->connection->exec(sprintf(
+                'INSERT INTO [%s].[%s]([id]) VALUES (1)',
+                self::TEST_SCHEMA,
+                $t
+            ));
+            $this->connection->exec(sprintf(
+                'INSERT INTO [%s].[%s]([id]) VALUES (2)',
+                self::TEST_SCHEMA,
+                $t
+            ));
+            $this->connection->exec(sprintf(
+                'INSERT INTO [%s].[%s]([id]) VALUES (3)',
+                self::TEST_SCHEMA,
+                $t
+            ));
+        }
+
+        $ref = $this->getSynapseTableReflection(self::TEST_SCHEMA, self::TEST_TABLE);
+        $ref2 = $this->getSynapseTableReflection(self::TEST_SCHEMA, self::TEST_TABLE_2);
+        $this->assertEquals(3, $ref->getRowsCount());
+        $this->assertEquals(3, $ref2->getRowsCount());
+
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+        $this->assertEquals(
+            'TRUNCATE TABLE [utils-test_qb-schema].[utils-test_test]',
             $sql
         );
         $this->connection->exec($sql);
