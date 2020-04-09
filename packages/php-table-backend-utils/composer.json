@@ -9,7 +9,6 @@
         "keboola/common-exceptions": "^1"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master",
         "php-parallel-lint/php-parallel-lint": "^1",
         "keboola/coding-standard": "^9",
         "phpstan/phpstan-phpunit": "^0.12",
