@@ -28,6 +28,9 @@ final class ColumnCollection implements IteratorAggregate, Countable
         $this->columns = $columns;
     }
 
+    /**
+     * @param ColumnInterface[] $columns
+     */
     private function assertTableColumnsCount(array $columns): void
     {
         if (count($columns) > self::MAX_TABLE_COLUMNS) {

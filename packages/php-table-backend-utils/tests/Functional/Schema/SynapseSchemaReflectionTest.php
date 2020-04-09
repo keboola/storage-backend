@@ -16,17 +16,20 @@ use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 class SynapseSchemaReflectionTest extends SynapseBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'ref-schema-schema';
+    public const TEST_SCHEMA_2 = self::TESTS_PREFIX . 'ref-schema-schema2';
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->dropAllWithinSchema(self::TEST_SCHEMA);
+        $this->dropAllWithinSchema(self::TEST_SCHEMA_2);
         $this->createTestSchema();
     }
 
     protected function createTestSchema(): void
     {
         $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
     }
 
     public function testGetTablesNames(): void
@@ -36,6 +39,7 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $this->assertEmpty($tables);
 
         $qb = new SynapseTableQueryBuilder($this->connection);
+        // init tables in testing schema
         $this->connection->exec($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',
@@ -43,6 +47,17 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         ));
         $this->connection->exec($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
+            'table2',
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
+        ));
+        // init tables in testing schema 2
+        $this->connection->exec($qb->getCreateTableCommand(
+            self::TEST_SCHEMA_2,
+            'table1',
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
+        ));
+        $this->connection->exec($qb->getCreateTableCommand(
+            self::TEST_SCHEMA_2,
             'table2',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
@@ -68,6 +83,7 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
 
+        // init view in testing schema
         $this->connection->exec(sprintf(
             'CREATE VIEW [%s].[view1] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA,
@@ -76,6 +92,18 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $this->connection->exec(sprintf(
             'CREATE VIEW [%s].[view2] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA,
+            self::TEST_SCHEMA
+        ));
+
+        // init view in testing schema 2
+        $this->connection->exec(sprintf(
+            'CREATE VIEW [%s].[view1] AS SELECT [col1] FROM [%s].[table1]',
+            self::TEST_SCHEMA_2,
+            self::TEST_SCHEMA
+        ));
+        $this->connection->exec(sprintf(
+            'CREATE VIEW [%s].[view2] AS SELECT [col1] FROM [%s].[table1]',
+            self::TEST_SCHEMA_2,
             self::TEST_SCHEMA
         ));
 

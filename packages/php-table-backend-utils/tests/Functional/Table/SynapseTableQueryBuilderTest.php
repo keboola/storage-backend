@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Table;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Driver\PDOException;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
-use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
@@ -19,13 +20,17 @@ use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 class SynapseTableQueryBuilderTest extends SynapseBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'qb-schema';
+    public const TEST_SCHEMA_2 = self::TESTS_PREFIX . 'qb-schema2';
     public const TEST_STAGING_TABLE = '#stagingTable';
+    public const TEST_STAGING_TABLE_2 = '#stagingTable2';
     public const TEST_TABLE = self::TESTS_PREFIX . 'test';
+    public const TEST_TABLE_2 = self::TESTS_PREFIX . 'test2';
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->dropAllWithinSchema(self::TEST_SCHEMA);
+        $this->dropAllWithinSchema(self::TEST_SCHEMA_2);
     }
 
     public function testGetCreateTempTableCommand(): void
@@ -47,11 +52,15 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             $sql
         );
         $this->connection->exec($sql);
+        // try to create same table
+        $this->expectException(DBALException::class);
+        $this->connection->exec($sql);
     }
 
     private function createTestSchema(): void
     {
         $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
     }
 
     public function testGetCreateTableCommand(): void
@@ -72,6 +81,9 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $ref = $this->getSynapseTableReflection();
         $this->assertNotNull($ref->getObjectId());
         $this->assertEqualsCanonicalizing(['col1', 'col2'], $ref->getColumnsNames());
+
+        $this->expectException(DBALException::class);
+        $this->connection->exec($sql);
     }
 
     private function getSynapseTableReflection(
@@ -143,6 +155,9 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
 
         $this->connection->exec($sql);
 
+        $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TEST_TABLE_2);
+        $this->assertNotNull($ref->getObjectId());
+
         $ref = $this->getSynapseTableReflection();
         $this->expectException(ReflectionException::class);
         $ref->getObjectId();
@@ -150,9 +165,13 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
 
     private function createTestTable(): void
     {
-        $table = sprintf('[%s].[%s]', self::TEST_SCHEMA, self::TEST_TABLE);
-        $this->connection->exec(<<<EOT
-CREATE TABLE $table (  
+        $table = [
+            sprintf('[%s].[%s]', self::TEST_SCHEMA, self::TEST_TABLE),
+            sprintf('[%s].[%s]', self::TEST_SCHEMA, self::TEST_TABLE_2),
+        ];
+        foreach ($table as $t) {
+            $this->connection->exec(<<<EOT
+CREATE TABLE $t (
     id int NOT NULL
 )  
 WITH
@@ -161,7 +180,8 @@ WITH
       CLUSTERED COLUMNSTORE INDEX  
     ) 
 EOT
-        );
+            );
+        }
     }
 
     public function testGetRenameTableCommand(): void
@@ -221,7 +241,9 @@ EOT
         $this->createCreateTempTableCommandWithData();
 
         $ref = $this->getSynapseTableReflection(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $ref2 = $this->getSynapseTableReflection(self::TEST_SCHEMA, self::TEST_STAGING_TABLE_2);
         $this->assertEquals(3, $ref->getRowsCount());
+        $this->assertEquals(3, $ref2->getRowsCount());
 
         $qb = new SynapseTableQueryBuilder($this->connection);
         $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
@@ -232,50 +254,53 @@ EOT
         $this->connection->exec($sql);
 
         $this->assertEquals(0, $ref->getRowsCount());
+        $this->assertEquals(3, $ref2->getRowsCount());
     }
 
     private function createCreateTempTableCommandWithData(bool $includeEmptyValues = false): void
     {
-        $this->connection->exec($this->tableQb->getCreateTempTableCommand(
-            self::TEST_SCHEMA,
-            self::TEST_STAGING_TABLE,
-            new ColumnCollection([
-                SynapseColumn::createGenericColumn('pk1'),
-                SynapseColumn::createGenericColumn('pk2'),
-                SynapseColumn::createGenericColumn('col1'),
-                SynapseColumn::createGenericColumn('col2'),
-            ])
-        ));
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
+        foreach ([self::TEST_STAGING_TABLE, self::TEST_STAGING_TABLE_2] as $t) {
+            $this->connection->exec($this->tableQb->getCreateTempTableCommand(
                 self::TEST_SCHEMA,
-                self::TEST_STAGING_TABLE
-            )
-        );
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
-                self::TEST_SCHEMA,
-                self::TEST_STAGING_TABLE
-            )
-        );
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
-                self::TEST_SCHEMA,
-                self::TEST_STAGING_TABLE
-            )
-        );
-
-        if ($includeEmptyValues) {
+                $t,
+                new ColumnCollection([
+                    SynapseColumn::createGenericColumn('pk1'),
+                    SynapseColumn::createGenericColumn('pk2'),
+                    SynapseColumn::createGenericColumn('col1'),
+                    SynapseColumn::createGenericColumn('col2'),
+                ])
+            ));
             $this->connection->exec(
                 sprintf(
-                    'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'\',NULL)',
+                    'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                     self::TEST_SCHEMA,
-                    self::TEST_STAGING_TABLE
+                    $t
                 )
             );
+            $this->connection->exec(
+                sprintf(
+                    'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
+                    self::TEST_SCHEMA,
+                    $t
+                )
+            );
+            $this->connection->exec(
+                sprintf(
+                    'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
+                    self::TEST_SCHEMA,
+                    $t
+                )
+            );
+
+            if ($includeEmptyValues) {
+                $this->connection->exec(
+                    sprintf(
+                        'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'\',NULL)',
+                        self::TEST_SCHEMA,
+                        $t
+                    )
+                );
+            }
         }
     }
 }
