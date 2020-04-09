@@ -56,10 +56,7 @@ class SnowflakeAdapterTest extends BaseTestCase
 
     public function testGetCopyCommands(): void
     {
-        /** @var Storage\Snowflake\Table|MockObject $source */
-        $source = self::createMock(Storage\Snowflake\Table::class);
-        $source->expects(self::once())->method('getSchema')->willReturn('schema');
-        $source->expects(self::once())->method('getTableName')->willReturn('table');
+        $source = new Storage\Snowflake\Table('schema', 'table', ['col1', 'col2']);
 
         $conn = $this->mockConnection();
         $conn->expects($this->once())->method('query')->with(

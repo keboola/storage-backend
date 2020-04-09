@@ -173,12 +173,16 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
-        $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'nullify_src');
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify', [
-            'id',
-            'name',
-            'price',
-        ]);
+        $source = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
+            'nullify_src',
+            [
+                'id',
+                'name',
+                'price',
+            ]
+        );
+        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -287,11 +291,14 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
-        $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'nullify_src');
+        $source = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
+            'nullify_src',
+            ['id', 'name', 'price']
+        );
         $destination = new Storage\Snowflake\Table(
             self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            'nullify',
-            ['id', 'name', 'price']
+            'nullify'
         );
 
         (new Importer($this->connection))->importTable(
@@ -360,11 +367,14 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
-        $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'nullify_src');
+        $source = new Storage\Snowflake\Table(
+            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
+            'nullify_src',
+            ['id', 'name', 'price']
+        );
         $destination = new Storage\Snowflake\Table(
             self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            'nullify',
-            ['id', 'name', 'price']
+            'nullify'
         );
 
         (new Importer($this->connection))->importTable(
@@ -416,11 +426,10 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
-        $source = $this->createABSSourceInstance('nullify.csv');
+        $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Snowflake\Table(
             self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            'nullify',
-            ['id', 'name', 'price']
+            'nullify'
         );
 
         (new Importer($this->connection))->importTable(
@@ -459,11 +468,10 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
-        $source = $this->createABSSourceInstance('nullify.csv');
+        $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Snowflake\Table(
             self::SNOWFLAKE_DEST_SCHEMA_NAME,
-            'nullify',
-            ['id', 'name', 'price']
+            'nullify'
         );
 
         (new Importer($this->connection))->importTable(

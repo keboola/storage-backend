@@ -57,17 +57,15 @@ class SynapseAdapterTest extends BaseTestCase
 
     public function testGetCopyCommands(): void
     {
-        /** @var Storage\Synapse\Table|MockObject $source */
-        $source = self::createMock(Storage\Synapse\Table::class);
-        $source->expects(self::once())->method('getSchema')->willReturn('schema');
-        $source->expects(self::once())->method('getTableName')->willReturn('table');
+        $source = new Storage\Synapse\Table('test_schema', 'test_table', ['col1', 'col2']);
 
         $conn = $this->mockConnection();
         $conn->expects($this->once())->method('exec')->with(
-            'INSERT INTO [schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [schema].[table]'
+        // phpcs:ignore
+            'INSERT INTO [test_schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [test_schema].[test_table]'
         );
         $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
             ->willReturn(
                 [
                     [
@@ -76,7 +74,46 @@ class SynapseAdapterTest extends BaseTestCase
                 ]
             );
 
-        $destination = new Storage\Synapse\Table('schema', 'table', ['col1', 'col2']);
+        $destination = new Storage\Synapse\Table('test_schema', 'test_table', ['col1', 'col2']);
+        $options = new ImportOptions([]);
+        $adapter = new SynapseImportAdapter($conn);
+        $count = $adapter->runCopyCommand(
+            $source,
+            $destination,
+            $options,
+            'stagingTable'
+        );
+
+        $this->assertEquals(10, $count);
+    }
+
+    public function testGetCopyCommandsSelectSource(): void
+    {
+        $source = new Storage\Synapse\SelectSource(
+            'SELECT * FROM [test_schema].[test_table]',
+            ['val'],
+            [1],
+            ['col1','col2']
+        );
+
+        $conn = $this->mockConnection();
+        $conn->expects($this->once())->method('executeQuery')->with(
+        // phpcs:ignore
+            'INSERT INTO [test_schema].[stagingTable] ([col1], [col2]) SELECT * FROM [test_schema].[test_table]',
+            ['val'],
+            [1]
+        );
+        $conn->expects($this->once())->method('fetchAll')
+            ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
+            ->willReturn(
+                [
+                    [
+                        'count' => 10,
+                    ],
+                ]
+            );
+
+        $destination = new Storage\Synapse\Table('test_schema', 'test_table', ['col1', 'col2']);
         $options = new ImportOptions([]);
         $adapter = new SynapseImportAdapter($conn);
         $count = $adapter->runCopyCommand(

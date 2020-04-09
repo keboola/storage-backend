@@ -26,18 +26,20 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
-        if (!$source instanceof Storage\Snowflake\Table) {
+        if (!$destination instanceof Table) {
             return false;
         }
-        if (!$destination instanceof Storage\Snowflake\Table) {
+
+        if (!$source instanceof Table && !$source instanceof SelectSource) {
             return false;
         }
+
         return true;
     }
 
     /**
-     * @param Storage\Snowflake\Table $source
-     * @param Storage\Snowflake\Table $destination
+     * @param Table|SelectSource $source
+     * @param Table $destination
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
@@ -47,23 +49,20 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->connection->quoteIdentifier($column);
-        }, $destination->getColumnsNames());
+        }, $source->getColumnsNames());
 
         $sql = sprintf(
-            'INSERT INTO %s.%s (%s)',
+            'INSERT INTO %s.%s (%s) %s',
             $this->connection->quoteIdentifier($destination->getSchema()),
             $this->connection->quoteIdentifier($stagingTableName),
-            implode(', ', $quotedColumns)
-        );
-
-        $sql .= sprintf(
-            ' SELECT %s FROM %s.%s',
             implode(', ', $quotedColumns),
-            $this->connection->quoteIdentifier($source->getSchema()),
-            $this->connection->quoteIdentifier($source->getTableName())
+            $source->getFromStatement()
         );
 
-        $this->connection->query($sql);
+        $this->connection->query(
+            $sql,
+            $source instanceof SelectSource ? $source->getQueryBindings() : []
+        );
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),
