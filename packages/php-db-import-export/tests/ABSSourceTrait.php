@@ -23,7 +23,8 @@ trait ABSSourceTrait
             'azureCredentials',
             'absAccount',
             new CsvOptions(),
-            $isSliced
+            $isSliced,
+            []
         );
     }
 
@@ -41,14 +42,16 @@ trait ABSSourceTrait
 
     protected function createABSSourceInstance(
         string $filePath,
+        array $columns = [],
         bool $isSliced = false
     ): Storage\ABS\SourceFile {
-        return $this->createABSSourceInstanceFromCsv($filePath, new CsvOptions(), $isSliced);
+        return $this->createABSSourceInstanceFromCsv($filePath, new CsvOptions(), $columns, $isSliced);
     }
 
     protected function createABSSourceInstanceFromCsv(
         string $filePath,
         CsvOptions $options,
+        array $columns = [],
         bool $isSliced = false
     ): Storage\ABS\SourceFile {
         return new Storage\ABS\SourceFile(
@@ -57,7 +60,8 @@ trait ABSSourceTrait
             $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
             (string) getenv('ABS_ACCOUNT_NAME'),
             $options,
-            $isSliced
+            $isSliced,
+            $columns
         );
     }
 

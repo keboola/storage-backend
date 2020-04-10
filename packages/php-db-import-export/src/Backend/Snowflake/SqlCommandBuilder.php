@@ -9,6 +9,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 
 class SqlCommandBuilder
 {
@@ -39,8 +40,8 @@ class SqlCommandBuilder
     }
 
     public function getDedupCommand(
+        SourceInterface $source,
         Table $destination,
-        ImportOptions $importOptions,
         array $primaryKeys,
         string $stagingTableName,
         string $tempTableName
@@ -60,8 +61,8 @@ class SqlCommandBuilder
             . 'FROM %s.%s'
             . ') AS a '
             . 'WHERE a."_row_number_" = 1',
-            ColumnsHelper::getColumnsString($importOptions->getColumns(), ',', 'a'),
-            ColumnsHelper::getColumnsString($importOptions->getColumns(), ', '),
+            ColumnsHelper::getColumnsString($source->getColumnsNames(), ',', 'a'),
+            ColumnsHelper::getColumnsString($source->getColumnsNames(), ', '),
             $pkSql,
             $pkSql,
             QuoteHelper::quoteIdentifier($destination->getSchema()),
@@ -72,7 +73,7 @@ class SqlCommandBuilder
             'INSERT INTO %s.%s (%s) %s',
             QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($tempTableName),
-            ColumnsHelper::getColumnsString($importOptions->getColumns()),
+            ColumnsHelper::getColumnsString($source->getColumnsNames()),
             $depudeSql
         );
     }
@@ -118,6 +119,7 @@ class SqlCommandBuilder
     }
 
     public function getInsertAllIntoTargetTableCommand(
+        SourceInterface $source,
         Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName
@@ -138,15 +140,15 @@ class SqlCommandBuilder
                 QuoteHelper::quoteIdentifier($column),
                 QuoteHelper::quoteIdentifier($column)
             );
-        }, $importOptions->getColumns()));
+        }, $source->getColumnsNames()));
 
-        if (in_array(Importer::TIMESTAMP_COLUMN_NAME, $importOptions->getColumns())
+        if (in_array(Importer::TIMESTAMP_COLUMN_NAME, $source->getColumnsNames())
             || $importOptions->useTimestamp() === false
         ) {
             return sprintf(
                 'INSERT INTO %s (%s) (SELECT %s FROM %s.%s)',
                 $destination->getQuotedTableWithScheme(),
-                ColumnsHelper::getColumnsString($importOptions->getColumns()),
+                ColumnsHelper::getColumnsString($source->getColumnsNames()),
                 $columnsSetSqlSelect,
                 QuoteHelper::quoteIdentifier($destination->getSchema()),
                 QuoteHelper::quoteIdentifier($stagingTableName)
@@ -156,7 +158,7 @@ class SqlCommandBuilder
         return sprintf(
             'INSERT INTO %s (%s, "%s") (SELECT %s, \'%s\' FROM %s.%s)',
             $destination->getQuotedTableWithScheme(),
-            ColumnsHelper::getColumnsString($importOptions->getColumns()),
+            ColumnsHelper::getColumnsString($source->getColumnsNames()),
             Importer::TIMESTAMP_COLUMN_NAME,
             $columnsSetSqlSelect,
             DateTimeHelper::getNowFormatted(),
@@ -166,20 +168,21 @@ class SqlCommandBuilder
     }
 
     public function getInsertFromStagingToTargetTableCommand(
+        SourceInterface $source,
         Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName,
         string $timestampValue
     ): string {
         if ($importOptions->useTimestamp()) {
-            $insColumns = array_merge($importOptions->getColumns(), [Importer::TIMESTAMP_COLUMN_NAME]);
+            $insColumns = array_merge($source->getColumnsNames(), [Importer::TIMESTAMP_COLUMN_NAME]);
         } else {
-            $insColumns = $importOptions->getColumns();
+            $insColumns = $source->getColumnsNames();
         }
 
         $columnsSetSql = [];
 
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($source->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull())) {
                 $columnsSetSql[] = sprintf(
                     'IFF("src".%s = \'\', NULL, %s)',
@@ -243,6 +246,7 @@ class SqlCommandBuilder
     }
 
     public function getUpdateWithPkCommand(
+        SourceInterface $source,
         Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName,
@@ -250,7 +254,7 @@ class SqlCommandBuilder
         string $timestamp
     ): string {
         $columnsSet = [];
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($source->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = IFF("src".%s = \'\', NULL, "src".%s)',
@@ -284,7 +288,7 @@ class SqlCommandBuilder
                     QuoteHelper::quoteIdentifier($columnName)
                 );
             },
-            $importOptions->getColumns()
+            $source->getColumnsNames()
         );
 
         return sprintf(

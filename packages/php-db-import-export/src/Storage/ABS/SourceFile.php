@@ -6,11 +6,6 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
-use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
-use Keboola\Db\ImportExport\Backend\ImporterInterface;
-use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
-use Keboola\Db\ImportExport\Backend\Synapse\Importer as SynapseImporter;
-use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
@@ -18,15 +13,14 @@ use MicrosoftAzure\Storage\Common\Internal\Resources;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isSliced;
 
-    /**
-     * @var CsvOptions
-     */
+    /** @var CsvOptions */
     private $csvOptions;
+
+    /** @var string[] */
+    private $columnsNames;
 
     public function __construct(
         string $container,
@@ -34,11 +28,13 @@ class SourceFile extends BaseFile implements SourceInterface
         string $sasToken,
         string $accountName,
         CsvOptions $csvOptions,
-        bool $isSliced
+        bool $isSliced,
+        array $columnsNames = []
     ) {
         parent::__construct($container, $filePath, $sasToken, $accountName);
         $this->isSliced = $isSliced;
         $this->csvOptions = $csvOptions;
+        $this->columnsNames = $columnsNames;
     }
 
     public function getCsvOptions(): CsvOptions
@@ -97,5 +93,13 @@ class SourceFile extends BaseFile implements SourceInterface
                     return str_replace('azure://', 'https://', $entry['url']);
             }
         }, $manifest['entries']);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getColumnsNames(): array
+    {
+        return $this->columnsNames;
     }
 }

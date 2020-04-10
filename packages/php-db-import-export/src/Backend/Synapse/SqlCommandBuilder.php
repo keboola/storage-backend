@@ -8,8 +8,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Exception;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 
 class SqlCommandBuilder
@@ -78,8 +78,8 @@ class SqlCommandBuilder
     }
 
     public function getDedupCommand(
+        SourceInterface $source,
         Table $destination,
-        ImportOptions $importOptions,
         array $primaryKeys,
         string $stagingTableName,
         string $tempTableName
@@ -99,8 +99,8 @@ class SqlCommandBuilder
             . 'FROM %s.%s'
             . ') AS a '
             . 'WHERE a."_row_number_" = 1',
-            $this->getColumnsString($importOptions->getColumns(), ',', 'a'),
-            $this->getColumnsString($importOptions->getColumns(), ', '),
+            $this->getColumnsString($source->getColumnsNames(), ',', 'a'),
+            $this->getColumnsString($source->getColumnsNames(), ', '),
             $pkSql,
             $pkSql,
             $this->platform->quoteSingleIdentifier($destination->getSchema()),
@@ -111,7 +111,7 @@ class SqlCommandBuilder
             'INSERT INTO %s.%s (%s) %s',
             $this->platform->quoteSingleIdentifier($destination->getSchema()),
             $this->platform->quoteSingleIdentifier($tempTableName),
-            $this->getColumnsString($importOptions->getColumns()),
+            $this->getColumnsString($source->getColumnsNames()),
             $depudeSql
         );
     }
@@ -182,23 +182,24 @@ class SqlCommandBuilder
     }
 
     public function getInsertAllIntoTargetTableCommand(
+        SourceInterface $source,
         Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName,
         string $timestamp
     ): string {
 
-        $insColumns = $importOptions->getColumns();
+        $insColumns = $source->getColumnsNames();
         $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $insColumns, true)
             && $importOptions->useTimestamp();
 
         if ($useTimestamp) {
-            $insColumns = array_merge($importOptions->getColumns(), [Importer::TIMESTAMP_COLUMN_NAME]);
+            $insColumns = array_merge($source->getColumnsNames(), [Importer::TIMESTAMP_COLUMN_NAME]);
         }
 
         $columnsSetSql = [];
 
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($source->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSetSql[] = sprintf(
                     'NULLIF(%s, \'\')',
@@ -322,6 +323,7 @@ EOT
     }
 
     public function getUpdateWithPkCommand(
+        SourceInterface $source,
         Table $destination,
         ImportOptions $importOptions,
         string $stagingTableName,
@@ -330,7 +332,7 @@ EOT
     ): string {
         $dest = $destination->getQuotedTableWithScheme();
         $columnsSet = [];
-        foreach ($importOptions->getColumns() as $columnName) {
+        foreach ($source->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = NULLIF([src].%s, \'\')',
@@ -364,7 +366,7 @@ EOT
                     $this->platform->quoteSingleIdentifier($columnName)
                 );
             },
-            $importOptions->getColumns()
+            $source->getColumnsNames()
         );
 
         return sprintf(

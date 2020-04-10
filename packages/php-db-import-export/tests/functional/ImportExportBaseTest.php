@@ -104,12 +104,10 @@ abstract class ImportExportBaseTest extends TestCase
     }
 
     protected function getSimpleImportOptions(
-        array $header,
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): ImportOptions {
         return new ImportOptions(
             [],
-            $header,
             false,
             true,
             $skipLines
@@ -117,12 +115,10 @@ abstract class ImportExportBaseTest extends TestCase
     }
 
     protected function getSimpleIncrementalImportOptions(
-        array $header,
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): ImportOptions {
         return new ImportOptions(
             [],
-            $header,
             true,
             true,
             $skipLines

@@ -56,9 +56,9 @@ class ExportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->createABSSourceInstance('with-ts.csv');
+        $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
-        $options = $this->getSimpleImportOptions($file->getHeader());
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -105,9 +105,9 @@ class ExportTest extends SynapseBaseTestCase
 
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->createABSSourceInstance('with-ts.csv');
+        $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
-        $options = $this->getSimpleImportOptions($file->getHeader());
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -148,14 +148,36 @@ class ExportTest extends SynapseBaseTestCase
         $this->assertCsvFilesCountSliced([$expected], $actualContent);
     }
 
+    private function getCsvFileFromBlob(
+        string $filePath,
+        string $tmpName = 'tmp.csv'
+    ): CsvFile {
+        $content = $this->getBlobContent($filePath);
+        $tmp = new Temp();
+        $tmp->initRunFolder();
+        $actual = $tmp->getTmpFolder() . $tmpName;
+        file_put_contents($actual, $content);
+        return new CsvFile($actual);
+    }
+
+    private function getBlobContent(
+        string $blob
+    ): string {
+        $content = stream_get_contents($this->getBlobResource($blob));
+        if ($content === false) {
+            throw new \Exception();
+        }
+        return $content;
+    }
+
     public function testExportSimpleWithQuery(): void
     {
         $this->initTables([self::TABLE_ACCOUNTS_3]);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->createABSSourceInstance('tw_accounts.csv');
+        $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
         $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3');
-        $options = $this->getSimpleImportOptions($file->getHeader());
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -210,9 +232,9 @@ class ExportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_ACCOUNTS_3]);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->createABSSourceInstance('tw_accounts.csv');
+        $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
         $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3');
-        $options = $this->getSimpleImportOptions($file->getHeader());
+        $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -260,27 +282,5 @@ class ExportTest extends SynapseBaseTestCase
 
         // where limits from 3 to 2
         $this->assertCount(2, $actualContent);
-    }
-
-    private function getCsvFileFromBlob(
-        string $filePath,
-        string $tmpName = 'tmp.csv'
-    ): CsvFile {
-        $content = $this->getBlobContent($filePath);
-        $tmp = new Temp();
-        $tmp->initRunFolder();
-        $actual = $tmp->getTmpFolder() . $tmpName;
-        file_put_contents($actual, $content);
-        return new CsvFile($actual);
-    }
-
-    private function getBlobContent(
-        string $blob
-    ): string {
-        $content = stream_get_contents($this->getBlobResource($blob));
-        if ($content === false) {
-            throw new \Exception();
-        }
-        return $content;
     }
 }
