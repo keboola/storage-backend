@@ -54,30 +54,20 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->platform->quoteSingleIdentifier($column);
-        }, $importOptions->getColumns());
+        }, $source->getColumnsNames());
 
         $sql = sprintf(
-            'INSERT INTO %s.%s (%s)',
+            'INSERT INTO %s.%s (%s) %s',
             $this->platform->quoteSingleIdentifier($destination->getSchema()),
             $this->platform->quoteSingleIdentifier($stagingTableName),
-            implode(', ', $quotedColumns)
+            implode(', ', $quotedColumns),
+            $source->getFromStatement()
         );
 
-        if ($source instanceof Table) {
-            $sql .= sprintf(
-                ' SELECT %s FROM %s.%s',
-                implode(', ', $quotedColumns),
-                $this->platform->quoteSingleIdentifier($source->getSchema()),
-                $this->platform->quoteSingleIdentifier($source->getTableName())
-            );
+        if ($source instanceof SelectSource) {
+            $this->connection->executeQuery($sql, $source->getQueryBindings(), $source->getDataTypes());
+        } else {
             $this->connection->exec($sql);
-        } elseif ($source instanceof SelectSource) {
-            $sql .= ' ' . $source->getFromStatement();
-            $this->connection->executeQuery(
-                $sql,
-                $source->getQueryBindings(),
-                $source->getDataTypes()
-            );
         }
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(

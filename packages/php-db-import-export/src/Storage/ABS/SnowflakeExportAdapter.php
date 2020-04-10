@@ -41,7 +41,7 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
     ): void {
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
-FROM %s
+FROM (%s)
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
 FILE_FORMAT = (
     TYPE = \'CSV\'

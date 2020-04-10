@@ -7,7 +7,9 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 use DateTime;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
+use PHP_CodeSniffer\Reports\Source;
 
 class SqlCommandBuilderTest extends SynapseBaseTestCase
 {
@@ -72,8 +74,8 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         $this->connection->exec($sql);
 
         $sql = $this->qb->getDedupCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
-            $this->getDummyImportOptions(),
             [
                 'pk1',
                 'pk2',
@@ -141,6 +143,16 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         }
     }
 
+    private function getDummySource(): SourceInterface
+    {
+        return new class implements SourceInterface {
+            public function getColumnsNames(): array
+            {
+                return ['col1', 'col2'];
+            }
+        };
+    }
+
     private function getDummyTableDestination(): Table
     {
         return new Table(self::TEST_SCHEMA, self::TEST_TABLE);
@@ -148,7 +160,7 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
 
     private function getDummyImportOptions(): ImportOptions
     {
-        return new ImportOptions([], ['col1', 'col2']);
+        return new ImportOptions([]);
     }
 
     public function testGetDeleteOldItemsCommand(): void
@@ -278,6 +290,7 @@ EOT
 
         // no convert values no timestamp
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
             self::TEST_STAGING_TABLE,
@@ -357,11 +370,9 @@ EOT
         $this->createStagingTableWithData(true);
 
         // convert col1 to null
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ]);
+        $options = new ImportOptions(['col1']);
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             self::TEST_STAGING_TABLE,
@@ -411,11 +422,9 @@ EOT
         $this->createStagingTableWithData(true);
 
         // use timestamp
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, true);
+        $options = new ImportOptions(['col1'], false, true);
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             self::TEST_STAGING_TABLE,
@@ -620,6 +629,7 @@ EOT
 
         // no convert values no timestamp
         $sql = $this->qb->getUpdateWithPkCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
             self::TEST_STAGING_TABLE,
@@ -684,13 +694,11 @@ EOT
             ],
         ], $result);
 
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ]);
+        $options = new ImportOptions(['col1']);
 
         // converver values
         $sql = $this->qb->getUpdateWithPkCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             self::TEST_STAGING_TABLE,
@@ -767,11 +775,9 @@ EOT
         ], $result);
 
         // use timestamp
-        $options = new ImportOptions(['col1'], [
-            'col1',
-            'col2',
-        ], false, true);
+        $options = new ImportOptions(['col1'], false, true);
         $sql = $this->qb->getUpdateWithPkCommand(
+            $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
             self::TEST_STAGING_TABLE,

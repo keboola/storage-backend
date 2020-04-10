@@ -13,7 +13,6 @@ class ImportOptionsTest extends TestCase
     {
         $options = new ImportOptions();
 
-        self::assertSame([], $options->getColumns());
         self::assertSame([], $options->getConvertEmptyValuesToNull());
         self::assertFalse($options->isIncremental());
         self::assertFalse($options->useTimestamp());

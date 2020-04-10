@@ -6,4 +6,8 @@ namespace Keboola\Db\ImportExport\Storage;
 
 interface SourceInterface
 {
+    /**
+     * @return string[]
+     */
+    public function getColumnsNames(): array;
 }

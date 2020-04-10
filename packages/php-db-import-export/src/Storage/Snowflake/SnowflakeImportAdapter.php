@@ -49,27 +49,20 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->connection->quoteIdentifier($column);
-        }, $importOptions->getColumns());
+        }, $source->getColumnsNames());
 
         $sql = sprintf(
-            'INSERT INTO %s.%s (%s)',
+            'INSERT INTO %s.%s (%s) %s',
             $this->connection->quoteIdentifier($destination->getSchema()),
             $this->connection->quoteIdentifier($stagingTableName),
-            implode(', ', $quotedColumns)
+            implode(', ', $quotedColumns),
+            $source->getFromStatement()
         );
 
-        if ($source instanceof Table) {
-            $sql .= sprintf(
-                ' SELECT %s FROM %s.%s',
-                implode(', ', $quotedColumns),
-                $this->connection->quoteIdentifier($source->getSchema()),
-                $this->connection->quoteIdentifier($source->getTableName())
-            );
-            $this->connection->query($sql);
-        } elseif ($source instanceof SelectSource) {
-            $sql .= ' ' . $source->getFromStatement();
-            $this->connection->query($sql, $source->getQueryBindings());
-        }
+        $this->connection->query(
+            $sql,
+            $source instanceof SelectSource ? $source->getQueryBindings() : []
+        );
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),
