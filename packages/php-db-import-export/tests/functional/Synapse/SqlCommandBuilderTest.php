@@ -601,6 +601,27 @@ EOT
         $this->assertEquals(0, (int) $response);
     }
 
+    public function testGetTruncateTableWithDeleteCommand(): void
+    {
+        $this->createTestSchema();
+        $this->createStagingTableWithData();
+
+        $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $response = $this->connection->fetchColumn($sql);
+        $this->assertEquals(3, (int) $response);
+
+        $sql = $this->qb->getTruncateTableWithDeleteCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $this->assertEquals(
+            'DELETE FROM [import-export-test_schema].[#stagingTable]',
+            $sql
+        );
+        $this->connection->exec($sql);
+
+        $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $response = $this->connection->fetchColumn($sql);
+        $this->assertEquals(0, (int) $response);
+    }
+
     public function testGetUpdateWithPkCommand(): void
     {
         $this->createTestSchema();
