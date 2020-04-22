@@ -25,4 +25,6 @@ interface TableReflectionInterface
     public function getTableStats(): TableStatsInterface;
 
     public function isTemporary(): bool;
+
+    public function getDependentViews(): array;
 }

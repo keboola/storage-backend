@@ -20,6 +20,8 @@ class SynapseTableReflectionTest extends SynapseBaseCase
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'ref-table-schema';
     // tables
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'ref';
+    //views
+    public const VIEW_GENERIC = self::TESTS_PREFIX . 'ref-view';
 
     protected function setUp(): void
     {
@@ -526,5 +528,37 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, '#table_defs');
         $this->expectException(ReflectionException::class);
         $ref->{$operation}();
+    }
+
+    public function testGetDependentViews(): void
+    {
+        $this->initTable();
+
+        $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        $this->assertCount(0, $ref->getDependentViews());
+
+        $this->initView(self::VIEW_GENERIC, self::TABLE_GENERIC);
+
+        $dependentViews = $ref->getDependentViews();
+        $this->assertCount(1, $dependentViews);
+
+        $this->assertSame([
+            'schema_name' => self::TEST_SCHEMA,
+            'name' => self::VIEW_GENERIC,
+        ], $dependentViews[0]);
+    }
+
+    private function initView(string $viewName, string $parentName): void
+    {
+        $this->connection->exec(
+            sprintf(
+                'CREATE VIEW [%s].[%s] AS SELECT * FROM [%s].[%s];',
+                self::TEST_SCHEMA,
+                $viewName,
+                self::TEST_SCHEMA,
+                $parentName
+            )
+        );
     }
 }
