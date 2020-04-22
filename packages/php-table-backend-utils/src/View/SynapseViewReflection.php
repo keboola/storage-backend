@@ -42,7 +42,13 @@ final class SynapseViewReflection implements ViewReflectionInterface
             WHERE
                 rel.referenced_id = object_id(N%s)
 EOT;
-        return $this->connection->fetchAll(sprintf(
+        /**
+         * @var array{
+         *  schema_name: string,
+         *  name: string
+         * }[] $views
+         */
+        $views = $this->connection->fetchAll(sprintf(
             $sql,
             $this->connection->quote(sprintf(
                 '%s.%s',
@@ -50,5 +56,7 @@ EOT;
                 $this->platform->quoteSingleIdentifier($this->viewName)
             ))
         ));
+
+        return $views;
     }
 }

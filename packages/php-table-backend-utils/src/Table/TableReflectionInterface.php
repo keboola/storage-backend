@@ -26,5 +26,11 @@ interface TableReflectionInterface
 
     public function isTemporary(): bool;
 
+    /**
+     * @return array{
+     *  schema_name: string,
+     *  name: string
+     * }[]
+     */
     public function getDependentViews(): array;
 }
