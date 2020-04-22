@@ -36,7 +36,7 @@ class SynapseBaseTestCase extends ImportExportBaseTest
     protected $qb;
 
     /** @var SQLServer2012Platform|AbstractPlatform */
-    private $platform;
+    protected $platform;
 
     protected function dropAllWithinSchema(string $schema): void
     {

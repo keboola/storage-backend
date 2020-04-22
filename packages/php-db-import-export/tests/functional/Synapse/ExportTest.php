@@ -184,12 +184,19 @@ class ExportTest extends SynapseBaseTestCase
             $destination,
             $options
         );
+        $cols = implode(', ', array_map(function ($column) {
+            return sprintf(
+                'REPLACE(%s, \'"\', \'""\') AS %s',
+                $this->platform->quoteSingleIdentifier($column),
+                $this->platform->quoteSingleIdentifier($column)
+            );
+        }, $file->getHeader()));
 
         // export
         // query needed otherwise timestamp is downloaded
         $query = sprintf(
             'SELECT %s FROM %s',
-            $this->qb->getColumnsString($file->getHeader()),
+            $cols,
             $destination->getQuotedTableWithScheme()
         );
         $source = new Storage\Synapse\SelectSource($query);
@@ -220,9 +227,6 @@ class ExportTest extends SynapseBaseTestCase
             CsvOptions::DEFAULT_ENCLOSURE,
             CsvOptions::DEFAULT_ESCAPED_BY,
             1 // skip header
-        );
-        $this->markTestIncomplete(
-            'Skip assertion due to UTF-8 COPY INTO error in synapse.'
         );
         $this->assertCsvFilesSameSliced([$expected], $actualContent);
     }
