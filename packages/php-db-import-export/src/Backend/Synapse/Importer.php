@@ -160,6 +160,9 @@ class Importer implements ImporterInterface
     ): void {
         $timestampValue = DateTimeHelper::getNowFormatted();
 
+        // create temp table now, it cannot be run in transaction
+        $tempTableName = $this->createTempTableForDedup($source, $destination);
+
         $this->runQuery(
             $this->sqlBuilder->getBeginTransaction()
         );
@@ -183,16 +186,9 @@ class Importer implements ImporterInterface
                 ),
                 'deleteUpdatedRowsFromStaging'
             );
-            // dedup cannot run in transaction as it calls CREATE TABLE
-            $this->runQuery(
-                $this->sqlBuilder->getCommitTransaction()
-            );
             $this->importState->startTimer('dedupStaging');
-            $this->dedup($source, $destination, $primaryKeys);
+            $this->dedup($source, $destination, $primaryKeys, $tempTableName);
             $this->importState->stopTimer('dedupStaging');
-            $this->runQuery(
-                $this->sqlBuilder->getBeginTransaction()
-            );
         }
         $this->runQuery(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
@@ -215,15 +211,9 @@ class Importer implements ImporterInterface
     private function dedup(
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination,
-        array $primaryKeys
+        array $primaryKeys,
+        string $tempTableName
     ): void {
-        $tempTableName = BackendHelper::generateTempTableName();
-        $this->runQuery($this->sqlBuilder->getCreateTempTableCommand(
-            $destination->getSchema(),
-            $tempTableName,
-            $source->getColumnsNames()
-        ));
-
         $this->runQuery(
             $this->sqlBuilder->getDedupCommand(
                 $source,
@@ -235,7 +225,7 @@ class Importer implements ImporterInterface
         );
 
         $this->runQuery(
-            $this->sqlBuilder->getTruncateTableCommand(
+            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destination->getSchema(),
                 $this->importState->getStagingTableName()
             )
@@ -256,21 +246,23 @@ class Importer implements ImporterInterface
         Storage\Synapse\Table $destination,
         array $primaryKeys
     ): void {
+        $tempTableName = $this->createTempTableForDedup($source, $destination);
+
+        $this->runQuery(
+            $this->sqlBuilder->getBeginTransaction()
+        );
+
         if (!empty($primaryKeys)) {
             $this->importState->startTimer('dedup');
-            $this->dedup($source, $destination, $primaryKeys);
+            $this->dedup($source, $destination, $primaryKeys, $tempTableName);
             $this->importState->stopTimer('dedup');
         }
 
         $this->runQuery(
-            $this->sqlBuilder->getTruncateTableCommand(
+            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destination->getSchema(),
                 $destination->getTableName()
             )
-        );
-
-        $this->runQuery(
-            $this->sqlBuilder->getBeginTransaction()
         );
 
         $this->runQuery(
@@ -333,5 +325,19 @@ class Importer implements ImporterInterface
         }
 
         return $adapterForUse;
+    }
+
+    private function createTempTableForDedup(
+        Storage\SourceInterface $source,
+        Storage\Synapse\Table $destination
+    ): string {
+        // create temp table now, it cannot be run in transaction
+        $tempTableName = BackendHelper::generateTempTableName();
+        $this->runQuery($this->sqlBuilder->getCreateTempTableCommand(
+            $destination->getSchema(),
+            $tempTableName,
+            $source->getColumnsNames()
+        ));
+        return $tempTableName;
     }
 }

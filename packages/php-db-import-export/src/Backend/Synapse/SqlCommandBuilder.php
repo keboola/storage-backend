@@ -322,6 +322,17 @@ EOT
         );
     }
 
+    public function getTruncateTableWithDeleteCommand(
+        string $schema,
+        string $tableName
+    ): string {
+        return sprintf(
+            'DELETE FROM %s.%s',
+            $this->platform->quoteSingleIdentifier($schema),
+            $this->platform->quoteSingleIdentifier($tableName)
+        );
+    }
+
     public function getUpdateWithPkCommand(
         SourceInterface $source,
         Table $destination,
