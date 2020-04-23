@@ -59,14 +59,14 @@ class FullImportTest extends SynapseBaseTestCase
         $tests = [];
 
         // full imports
-//        yield 'large manifest' => [
-//            $this->createABSSourceInstance('sliced/2cols-large/2cols-large.csvmanifest', $escapingHeader, true),
-//            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
-//            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
-//            $expectedLargeSlicedManifest,
-//            1501,
-//            [self::TABLE_OUT_CSV_2COLS],
-//        ];
+        yield 'large manifest' => [
+            $this->createABSSourceInstance('sliced/2cols-large/2cols-large.csvmanifest', $escapingHeader, true),
+            new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, self::TABLE_OUT_CSV_2COLS),
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $expectedLargeSlicedManifest,
+            1501,
+            [self::TABLE_OUT_CSV_2COLS],
+        ];
 
         yield 'empty manifest' => [
             $this->createABSSourceInstance('empty.manifest', $escapingHeader, true),
