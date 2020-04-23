@@ -28,6 +28,7 @@ interface TableReflectionInterface
     public function getPrimaryKeysNames(): array;
     public function getTableStats(): TableStatsInterface;
     public function isTemporary(): bool;
+    public function getDependentViews(): array;
 }
 ```
 
@@ -77,6 +78,16 @@ interface ColumnInterface
     public function getColumnName(): string;
     public function getColumnDefinition(): Keboola\Datatype\Definition\DefinitionInterface;
     public static function createGenericColumn(string $columnName): self;
+}
+```
+
+### Keboola\TableBackendUtils\View\ViewReflectionInterface
+
+Function to retrieve information's about view:
+```php
+interface ViewReflectionInterface
+{
+    public function getDependentViews(): array;
 }
 ```
 
