@@ -91,6 +91,15 @@ interface ViewReflectionInterface
 }
 ```
 
+### Keboola\TableBackendUtils\Auth\UserReflectionInterface
+
+```php
+interface UserReflectionInterface
+{
+    public function endAllSessions(): void;
+    public function getAllSessionIds(): array;
+}
+```
 
 ## Development
 
