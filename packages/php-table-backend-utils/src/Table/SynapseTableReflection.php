@@ -214,29 +214,33 @@ EOT
      */
     public function getDependentViews(): array
     {
-        $sql = <<<EOT
-            SELECT schema_name(o.schema_id) schema_name, o.name
-            FROM sys.sql_expression_dependencies rel
-            JOIN sys.views o ON rel.referencing_id = o.object_id
-            WHERE
-                rel.referenced_id = object_id(N%s)
-EOT;
+        $sql = 'SELECT * FROM INFORMATION_SCHEMA.VIEWS';
+        $views = $this->connection->fetchAll($sql);
+
+        $objectNameWithSchema = sprintf(
+            '%s.%s',
+            $this->platform->quoteSingleIdentifier($this->schemaName),
+            $this->platform->quoteSingleIdentifier($this->tableName)
+        );
 
         /**
          * @var array{
          *  schema_name: string,
          *  name: string
-         * }[] $views
+         * }[] $dependencies
          */
-        $views = $this->connection->fetchAll(sprintf(
-            $sql,
-            $this->connection->quote(sprintf(
-                '%s.%s',
-                $this->platform->quoteSingleIdentifier($this->schemaName),
-                $this->platform->quoteSingleIdentifier($this->tableName)
-            ))
-        ));
+        $dependencies = [];
+        foreach ($views as $view) {
+            if (strpos($view['VIEW_DEFINITION'], $objectNameWithSchema) === false) {
+                continue;
+            }
 
-        return $views;
+            $dependencies[] = [
+                'schema_name' => $view['TABLE_SCHEMA'],
+                'name' => $view['TABLE_NAME'],
+            ];
+        }
+
+        return $dependencies;
     }
 }
