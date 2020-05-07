@@ -4,28 +4,22 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Column;
 
-use Countable;
-use Generator;
-use IteratorAggregate;
+use Keboola\TableBackendUtils\Collection;
 use Keboola\TableBackendUtils\ColumnException;
 
 /**
- * @implements \IteratorAggregate<ColumnInterface>
+ * @extends Collection<ColumnInterface>
  */
-final class ColumnCollection implements IteratorAggregate, Countable
+final class ColumnCollection extends Collection
 {
     public const MAX_TABLE_COLUMNS = 1024;
-
-    /** @var ColumnInterface[] */
-    private $columns;
-
     /**
      * @param ColumnInterface[] $columns
      */
     public function __construct(array $columns)
     {
         $this->assertTableColumnsCount($columns);
-        $this->columns = $columns;
+        parent::__construct($columns);
     }
 
     /**
@@ -39,20 +33,5 @@ final class ColumnCollection implements IteratorAggregate, Countable
                 ColumnException::STRING_CODE_TO_MANY_COLUMNS
             );
         }
-    }
-
-    /**
-     * @return Generator<ColumnInterface>
-     */
-    public function getIterator(): Generator
-    {
-        foreach ($this->columns as $col) {
-            yield $col;
-        }
-    }
-
-    public function count(): int
-    {
-        return count($this->columns);
     }
 }

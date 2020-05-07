@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Column;
 
 use Keboola\Datatype\Definition\DefinitionInterface;
+use Keboola\TableBackendUtils\CollectionItemInterface;
 
-interface ColumnInterface
+interface ColumnInterface extends CollectionItemInterface
 {
     public const TIMESTAMP_COLUMN_NAME = '_timestamp';
 

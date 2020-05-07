@@ -10,6 +10,7 @@ use RuntimeException;
 class QueryBuilderException extends RuntimeException implements ApplicationExceptionInterface
 {
     public const STRING_CODE_INVALID_TEMP_TABLE = 'invalidTempTable';
+    public const STRING_CODE_NOT_ALLOWED_GRANT = 'grantNotAllowed';
 
     /**
      * @var string

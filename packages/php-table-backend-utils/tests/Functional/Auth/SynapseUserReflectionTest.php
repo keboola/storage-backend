@@ -10,8 +10,8 @@ use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
 class SynapseUserReflectionTest extends SynapseBaseCase
 {
-    private const LOGIN_PREFIX = 'UTILS_TEST_AUTH_LOGIN_';
-    private const LOGIN_PASSWORD = 'Str0ngPassword!';
+    protected const LOGIN_PREFIX = 'UTILS_TEST_AUTH_LOGIN_';
+    protected const LOGIN_PASSWORD = 'Str0ngPassword!';
 
     /**
      * @var string
@@ -20,55 +20,12 @@ class SynapseUserReflectionTest extends SynapseBaseCase
      * deleted and created it has no access to db :/
      * there is some time to propagate these changes and test are too fast
      */
-    private $currentLogin;
+    protected $currentLogin;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $masterDb = $this->getMasterDbConnection();
-
-        // drop all users
-        $users = $this->connection->fetchAll(sprintf(
-            'SELECT [name] FROM [sys].[sysusers] WHERE [name] LIKE N%s',
-            $this->connection->quote(self::LOGIN_PREFIX . '%')
-        ));
-        foreach ($users as $user) {
-            $this->connection->exec(sprintf(
-                'DROP USER %s',
-                $this->platform->quoteSingleIdentifier($user['name'])
-            ));
-        }
-
-        // drop all logins
-        $logins = $masterDb->fetchAll(sprintf(
-            'SELECT [name] FROM [sys].[sql_logins] WHERE [name] LIKE N%s',
-            $masterDb->quote(self::LOGIN_PREFIX . '%')
-        ));
-        foreach ($logins as $login) {
-            $masterDb->exec(sprintf(
-                'DROP LOGIN %s',
-                $this->platform->quoteSingleIdentifier($login['name'])
-            ));
-        }
-
-        // set random user name
-        $this->currentLogin = self::LOGIN_PREFIX . bin2hex(random_bytes(2));
-        $loginQuoted = $this->platform->quoteSingleIdentifier($this->currentLogin);
-
-        // create login in master
-        $masterDb->exec(sprintf(
-            'CREATE LOGIN %s WITH PASSWORD = %s',
-            $loginQuoted,
-            $masterDb->quote(self::LOGIN_PASSWORD)
-        ));
-        $masterDb->close();
-
-        // create user
-        $this->connection->exec(sprintf(
-            'CREATE USER %s FOR LOGIN %s',
-            $loginQuoted,
-            $loginQuoted
-        ));
+        $this->setUpUser();
     }
 
     public function getMasterDbConnection(): \Doctrine\DBAL\Connection
@@ -104,7 +61,7 @@ class SynapseUserReflectionTest extends SynapseBaseCase
         $dbUser->fetchAll('SELECT * FROM sys.tables');
     }
 
-    public function getTestLoginConnection(): \Doctrine\DBAL\Connection
+    protected function getTestLoginConnection(): \Doctrine\DBAL\Connection
     {
         return \Doctrine\DBAL\DriverManager::getConnection([
             'user' => $this->currentLogin,
@@ -114,5 +71,53 @@ class SynapseUserReflectionTest extends SynapseBaseCase
             'port' => 1433,
             'driver' => 'pdo_sqlsrv',
         ]);
+    }
+
+    protected function setUpUser(): void
+    {
+        $masterDb = $this->getMasterDbConnection();
+
+        // drop all users
+        $users = $this->connection->fetchAll(sprintf(
+            'SELECT [name] FROM [sys].[sysusers] WHERE [name] LIKE N%s AND [issqluser] = 1',
+            $this->connection->quote(static::LOGIN_PREFIX . '%')
+        ));
+        foreach ($users as $user) {
+            $this->connection->exec(sprintf(
+                'DROP USER %s',
+                $this->platform->quoteSingleIdentifier($user['name'])
+            ));
+        }
+
+        // drop all logins
+        $logins = $masterDb->fetchAll(sprintf(
+            'SELECT [name] FROM [sys].[sql_logins] WHERE [name] LIKE N%s',
+            $masterDb->quote(static::LOGIN_PREFIX . '%')
+        ));
+        foreach ($logins as $login) {
+            $masterDb->exec(sprintf(
+                'DROP LOGIN %s',
+                $this->platform->quoteSingleIdentifier($login['name'])
+            ));
+        }
+
+        // set random user name
+        $this->currentLogin = static::LOGIN_PREFIX . bin2hex(random_bytes(2));
+        $loginQuoted = $this->platform->quoteSingleIdentifier($this->currentLogin);
+
+        // create login in master
+        $masterDb->exec(sprintf(
+            'CREATE LOGIN %s WITH PASSWORD = %s',
+            $loginQuoted,
+            $masterDb->quote(self::LOGIN_PASSWORD)
+        ));
+        $masterDb->close();
+
+        // create user
+        $this->connection->exec(sprintf(
+            'CREATE USER %s FOR LOGIN %s',
+            $loginQuoted,
+            $loginQuoted
+        ));
     }
 }
