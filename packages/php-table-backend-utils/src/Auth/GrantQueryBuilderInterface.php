@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Auth;
 
 use Keboola\TableBackendUtils\Auth\Grant\GrantOptionsInterface;
-use Keboola\TableBackendUtils\Auth\Grant\RevokeOptions;
+use Keboola\TableBackendUtils\Auth\Grant\RevokeOptionsInterface;
 
 interface GrantQueryBuilderInterface
 {
@@ -30,6 +30,6 @@ interface GrantQueryBuilderInterface
         ?string $grantSubject,
         array $grantOnTargetPath,
         string $to,
-        ?RevokeOptions $options
+        ?RevokeOptionsInterface $options
     ): string;
 }

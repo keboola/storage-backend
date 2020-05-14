@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Auth\Grant;
 
-interface RevokeOptions
+interface RevokeOptionsInterface
 {
 }
