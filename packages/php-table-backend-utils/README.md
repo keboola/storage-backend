@@ -5,7 +5,9 @@ Common stuff for table backends (Snowflake|Synapse|Redshift) shared between apps
 
 ## Interfaces
 
-### Keboola\TableBackendUtils\Schema\SchemaReflectionInterface
+### Schema
+
+#### Keboola\TableBackendUtils\Schema\SchemaReflectionInterface
 
 Function to retrieve information's about schema:
 ```php
@@ -16,7 +18,9 @@ interface SchemaReflectionInterface
 }
 ```
 
-### Keboola\TableBackendUtils\Table\TableReflectionInterface
+### Table
+
+#### Keboola\TableBackendUtils\Table\TableReflectionInterface
 
 Function to retrieve information's about table:
 ```php
@@ -32,7 +36,7 @@ interface TableReflectionInterface
 }
 ```
 
-### Keboola\TableBackendUtils\Table\TableQueryBuilderInterface
+#### Keboola\TableBackendUtils\Table\TableQueryBuilderInterface
 
 Queries to work with table:
 
@@ -57,7 +61,7 @@ interface TableQueryBuilderInterface
 }
 ```
 
-### Keboola\TableBackendUtils\Table\TableStatsInterface
+#### Keboola\TableBackendUtils\Table\TableStatsInterface
 
 Table statistics
 
@@ -69,7 +73,9 @@ interface TableStatsInterface
 }
 ```
 
-### Keboola\TableBackendUtils\Column\ColumnInterface
+### Column
+
+#### Keboola\TableBackendUtils\Column\ColumnInterface
 
 Table column definition:
 ```php
@@ -81,7 +87,9 @@ interface ColumnInterface
 }
 ```
 
-### Keboola\TableBackendUtils\View\ViewReflectionInterface
+### View
+
+#### Keboola\TableBackendUtils\View\ViewReflectionInterface
 
 Function to retrieve information's about view:
 ```php
@@ -91,13 +99,38 @@ interface ViewReflectionInterface
 }
 ```
 
-### Keboola\TableBackendUtils\Auth\UserReflectionInterface
+### Auth
+
+#### Keboola\TableBackendUtils\Auth\UserReflectionInterface
 
 ```php
 interface UserReflectionInterface
 {
     public function endAllSessions(): void;
     public function getAllSessionIds(): array;
+}
+```
+
+#### Keboola\TableBackendUtils\Auth\GrantQueryBuilderInterface
+
+```php
+interface GrantQueryBuilderInterface
+{
+    public function getGrantSql(
+        array $permissions,
+        ?string $grantSubject,
+        array $grantOnTargetPath,
+        string $to,
+        ?GrantOptionsInterface $options
+    ): string;
+
+    public function getRevokeSql(
+        array $permissions,
+        ?string $grantSubject,
+        array $grantOnTargetPath,
+        string $to,
+        ?RevokeOptionsInterface $options
+    ): string;
 }
 ```
 
