@@ -231,7 +231,9 @@ EOT
          */
         $dependencies = [];
         foreach ($views as $view) {
-            if (strpos($view['VIEW_DEFINITION'], $objectNameWithSchema) === false) {
+            if ($view['VIEW_DEFINITION'] === null
+                || strpos($view['VIEW_DEFINITION'], $objectNameWithSchema) === false
+            ) {
                 continue;
             }
 
