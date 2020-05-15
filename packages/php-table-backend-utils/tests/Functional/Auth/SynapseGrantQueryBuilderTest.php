@@ -73,7 +73,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 
     protected function setUp(): void
     {
-        SynapseBaseCase::setUp();
+        parent::setUp();
         $this->dropAllWithinSchema(self::TEST_SCHEMA);
         $this->dropRoles(self::LOGIN_PREFIX);
         $this->setUpUser(self::LOGIN_PREFIX);
