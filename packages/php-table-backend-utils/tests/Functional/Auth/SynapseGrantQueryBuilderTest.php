@@ -10,9 +10,8 @@ use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOptions;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\Permission;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\RevokeOptions;
 use Keboola\TableBackendUtils\Auth\SynapseGrantQueryBuilder;
-use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
-class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
+class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 {
     private const LOGIN_PREFIX = 'UTILS_TEST_GRANT_LOGIN_';
     private const TEST_SCHEMA = 'UTILS_TEST_GRANT_SCHEMA';
