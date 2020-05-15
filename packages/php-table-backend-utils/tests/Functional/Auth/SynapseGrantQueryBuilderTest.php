@@ -14,16 +14,70 @@ use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
 class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
 {
-    protected const LOGIN_PREFIX = 'UTILS_TEST_GRANT_LOGIN_';
+    private const LOGIN_PREFIX = 'UTILS_TEST_GRANT_LOGIN_';
     private const TEST_SCHEMA = 'UTILS_TEST_GRANT_SCHEMA';
     private const TEST_TABLE = 'UTILS_TEST_GRANT_TABLE';
+    // permissions groups
+    private const TEST_GRANTS_WITHOUT_ON = [
+        Permission::GRANT_ALTER_ANY_EXTERNAL_DATA_SOURCE,
+        Permission::GRANT_ALTER_ANY_EXTERNAL_FILE_FORMAT,
+        Permission::GRANT_ADMINISTER_DATABASE_BULK_OPERATIONS,
+        Permission::GRANT_CONTROL,
+        Permission::GRANT_ALTER,
+        Permission::GRANT_VIEW_DEFINITION,
+        Permission::GRANT_TAKE_OWNERSHIP,
+        Permission::GRANT_ALTER_ANY_DATASPACE,
+        Permission::GRANT_ALTER_ANY_ROLE,
+        Permission::GRANT_ALTER_ANY_SCHEMA,
+        Permission::GRANT_ALTER_ANY_USER,
+        Permission::GRANT_BACKUP_DATABASE,
+        Permission::GRANT_CREATE_PROCEDURE,
+        Permission::GRANT_CREATE_ROLE,
+        Permission::GRANT_CREATE_SCHEMA,
+        Permission::GRANT_CREATE_TABLE,
+        Permission::GRANT_CREATE_VIEW,
+        Permission::GRANT_SHOWPLAN,
+        Permission::GRANT_DELETE,
+        Permission::GRANT_EXECUTE,
+        Permission::GRANT_INSERT,
+        Permission::GRANT_SELECT,
+        Permission::GRANT_UPDATE,
+        Permission::GRANT_REFERENCES,
+    ];
+    private const TEST_GRANTS_ON_SCHEMA = [
+        Permission::GRANT_CONTROL,
+        Permission::GRANT_ALTER,
+        Permission::GRANT_VIEW_DEFINITION,
+        Permission::GRANT_TAKE_OWNERSHIP,
+        Permission::GRANT_DELETE,
+        Permission::GRANT_EXECUTE,
+        Permission::GRANT_INSERT,
+        Permission::GRANT_SELECT,
+        Permission::GRANT_UPDATE,
+        Permission::GRANT_REFERENCES,
+    ];
+    private const TEST_GRANTS_ON_USER = [
+        Permission::GRANT_CONTROL,
+        Permission::GRANT_ALTER,
+        Permission::GRANT_VIEW_DEFINITION,
+    ];
+    private const TEST_GRANTS_ON_TABLE = [
+        Permission::GRANT_CONTROL,
+        Permission::GRANT_ALTER,
+        Permission::GRANT_VIEW_DEFINITION,
+        Permission::GRANT_TAKE_OWNERSHIP,
+        Permission::GRANT_INSERT,
+        Permission::GRANT_SELECT,
+        Permission::GRANT_UPDATE,
+        Permission::GRANT_REFERENCES,
+    ];
 
     protected function setUp(): void
     {
         SynapseBaseCase::setUp();
         $this->dropAllWithinSchema(self::TEST_SCHEMA);
-        $this->dropRoles();
-        $this->setUpUser();
+        $this->dropRoles(self::LOGIN_PREFIX);
+        $this->setUpUser(self::LOGIN_PREFIX);
 
         $this->connection->exec(sprintf(
             'CREATE ROLE %s',
@@ -43,21 +97,6 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ));
     }
 
-    protected function dropRoles(): void
-    {
-        // drop all roles
-        $roles = $this->connection->fetchAll(sprintf(
-            'SELECT [name] FROM [sys].[sysusers] WHERE [name] LIKE N%s AND [issqlrole] = 1',
-            $this->connection->quote(self::LOGIN_PREFIX . '%')
-        ));
-        foreach ($roles as $role) {
-            $this->connection->exec(sprintf(
-                'DROP ROLE %s',
-                $this->platform->quoteSingleIdentifier($role['name'])
-            ));
-        }
-    }
-
     /**
      * @return Generator<array{
      *     array<Permission::GRANT_*>,
@@ -71,38 +110,12 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
      */
     public function grantDataProvider(): Generator
     {
-        $grantsWithoutOn = [
-            Permission::GRANT_ALTER_ANY_EXTERNAL_DATA_SOURCE,
-            Permission::GRANT_ALTER_ANY_EXTERNAL_FILE_FORMAT,
-            Permission::GRANT_ADMINISTER_DATABASE_BULK_OPERATIONS,
-            Permission::GRANT_CONTROL,
-            Permission::GRANT_ALTER,
-            Permission::GRANT_VIEW_DEFINITION,
-            Permission::GRANT_TAKE_OWNERSHIP,
-            Permission::GRANT_ALTER_ANY_DATASPACE,
-            Permission::GRANT_ALTER_ANY_ROLE,
-            Permission::GRANT_ALTER_ANY_SCHEMA,
-            Permission::GRANT_ALTER_ANY_USER,
-            Permission::GRANT_BACKUP_DATABASE,
-            Permission::GRANT_CREATE_PROCEDURE,
-            Permission::GRANT_CREATE_ROLE,
-            Permission::GRANT_CREATE_SCHEMA,
-            Permission::GRANT_CREATE_TABLE,
-            Permission::GRANT_CREATE_VIEW,
-            Permission::GRANT_SHOWPLAN,
-            Permission::GRANT_DELETE,
-            Permission::GRANT_EXECUTE,
-            Permission::GRANT_INSERT,
-            Permission::GRANT_SELECT,
-            Permission::GRANT_UPDATE,
-            Permission::GRANT_REFERENCES,
-        ];
         yield 'grant without on to user' => [
-            $grantsWithoutOn,
+            self::TEST_GRANTS_WITHOUT_ON,
             null,
             [],
             false,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT ALTER ANY EXTERNAL DATA SOURCE, ALTER ANY EXTERNAL FILE FORMAT, ADMINISTER DATABASE BULK OPERATIONS, CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, ALTER ANY DATASPACE, ALTER ANY ROLE, ALTER ANY SCHEMA, ALTER ANY USER, BACKUP DATABASE, CREATE PROCEDURE, CREATE ROLE, CREATE SCHEMA, CREATE TABLE, CREATE VIEW, SHOWPLAN, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES TO [%s]',
@@ -111,11 +124,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant without on to user with grant option' => [
-            $grantsWithoutOn,
+            self::TEST_GRANTS_WITHOUT_ON,
             null,
             [],
             false,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT ALTER ANY EXTERNAL DATA SOURCE, ALTER ANY EXTERNAL FILE FORMAT, ADMINISTER DATABASE BULK OPERATIONS, CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, ALTER ANY DATASPACE, ALTER ANY ROLE, ALTER ANY SCHEMA, ALTER ANY USER, BACKUP DATABASE, CREATE PROCEDURE, CREATE ROLE, CREATE SCHEMA, CREATE TABLE, CREATE VIEW, SHOWPLAN, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES TO [%s] WITH GRANT OPTION',
@@ -124,11 +137,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant without on to role' => [
-            $grantsWithoutOn,
+            self::TEST_GRANTS_WITHOUT_ON,
             null,
             [],
             false,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT ALTER ANY EXTERNAL DATA SOURCE, ALTER ANY EXTERNAL FILE FORMAT, ADMINISTER DATABASE BULK OPERATIONS, CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, ALTER ANY DATASPACE, ALTER ANY ROLE, ALTER ANY SCHEMA, ALTER ANY USER, BACKUP DATABASE, CREATE PROCEDURE, CREATE ROLE, CREATE SCHEMA, CREATE TABLE, CREATE VIEW, SHOWPLAN, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES TO [%s_ROLE]',
@@ -137,11 +150,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant without on to role with grant option' => [
-            $grantsWithoutOn,
+            self::TEST_GRANTS_WITHOUT_ON,
             null,
             [],
             false,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT ALTER ANY EXTERNAL DATA SOURCE, ALTER ANY EXTERNAL FILE FORMAT, ADMINISTER DATABASE BULK OPERATIONS, CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, ALTER ANY DATASPACE, ALTER ANY ROLE, ALTER ANY SCHEMA, ALTER ANY USER, BACKUP DATABASE, CREATE PROCEDURE, CREATE ROLE, CREATE SCHEMA, CREATE TABLE, CREATE VIEW, SHOWPLAN, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES TO [%s_ROLE] WITH GRANT OPTION',
@@ -149,25 +162,12 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
             'REVOKE ',
         ];
 
-        $grantsOnSchema = [
-            Permission::GRANT_CONTROL,
-            Permission::GRANT_ALTER,
-            Permission::GRANT_VIEW_DEFINITION,
-            Permission::GRANT_TAKE_OWNERSHIP,
-            Permission::GRANT_DELETE,
-            Permission::GRANT_EXECUTE,
-            Permission::GRANT_INSERT,
-            Permission::GRANT_SELECT,
-            Permission::GRANT_UPDATE,
-            Permission::GRANT_REFERENCES,
-        ];
-
         yield 'grant on schema to user' => [
-            $grantsOnSchema,
+            self::TEST_GRANTS_ON_SCHEMA,
             GrantOn::ON_SCHEMA,
             [self::TEST_SCHEMA],
             false,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES ON SCHEMA::[UTILS_TEST_GRANT_SCHEMA] TO [%s]',
@@ -176,11 +176,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant on schema to user with grant option' => [
-            $grantsOnSchema,
+            self::TEST_GRANTS_ON_SCHEMA,
             GrantOn::ON_SCHEMA,
             [self::TEST_SCHEMA],
             false,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES ON SCHEMA::[UTILS_TEST_GRANT_SCHEMA] TO [%s] WITH GRANT OPTION',
@@ -189,11 +189,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant on schema to role' => [
-            $grantsOnSchema,
+            self::TEST_GRANTS_ON_SCHEMA,
             GrantOn::ON_SCHEMA,
             [self::TEST_SCHEMA],
             false,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES ON SCHEMA::[UTILS_TEST_GRANT_SCHEMA] TO [%s_ROLE]',
@@ -202,11 +202,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant on schema to role with grant option' => [
-            $grantsOnSchema,
+            self::TEST_GRANTS_ON_SCHEMA,
             GrantOn::ON_SCHEMA,
             [self::TEST_SCHEMA],
             false,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, DELETE, EXECUTE, INSERT, SELECT, UPDATE, REFERENCES ON SCHEMA::[UTILS_TEST_GRANT_SCHEMA] TO [%s_ROLE] WITH GRANT OPTION',
@@ -214,18 +214,12 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
             'REVOKE ',
         ];
 
-        $grantsOnUser = [
-            Permission::GRANT_CONTROL,
-            Permission::GRANT_ALTER,
-            Permission::GRANT_VIEW_DEFINITION,
-        ];
-
         yield 'grant on user to user' => [
-            $grantsOnUser,
+            self::TEST_GRANTS_ON_USER,
             GrantOn::ON_USER,
             [],
             true,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION ON USER::[%s] TO [%s]',
@@ -234,11 +228,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant on user to user with grant option' => [
-            $grantsOnUser,
+            self::TEST_GRANTS_ON_USER,
             GrantOn::ON_USER,
             [],
             true,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION ON USER::[%s] TO [%s] WITH GRANT OPTION',
@@ -247,11 +241,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant on user to role' => [
-            $grantsOnUser,
+            self::TEST_GRANTS_ON_USER,
             GrantOn::ON_USER,
             [],
             true,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION ON USER::[%s] TO [%s_ROLE]',
@@ -260,11 +254,11 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
         ];
 
         yield 'grant on user to role with grant option' => [
-            $grantsOnUser,
+            self::TEST_GRANTS_ON_USER,
             GrantOn::ON_USER,
             [],
             true,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION ON USER::[%s] TO [%s_ROLE] WITH GRANT OPTION',
@@ -272,25 +266,15 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
             'REVOKE ',
         ];
 
-        $grantsOnTable = [
-            Permission::GRANT_CONTROL,
-            Permission::GRANT_ALTER,
-            Permission::GRANT_VIEW_DEFINITION,
-            Permission::GRANT_TAKE_OWNERSHIP,
-            Permission::GRANT_INSERT,
-            Permission::GRANT_SELECT,
-            Permission::GRANT_UPDATE,
-            Permission::GRANT_REFERENCES,
-        ];
         yield 'grant on table' => [
-            $grantsOnTable,
+            self::TEST_GRANTS_ON_TABLE,
             GrantOn::ON_OBJECT,
             [
                 self::TEST_SCHEMA,
                 self::TEST_TABLE,
             ],
             false,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, INSERT, SELECT, UPDATE, REFERENCES ON OBJECT::[UTILS_TEST_GRANT_SCHEMA].[UTILS_TEST_GRANT_TABLE] TO [%s]',
@@ -298,14 +282,14 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
             'REVOKE CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, INSERT, SELECT, UPDATE, REFERENCES ON OBJECT::[UTILS_TEST_GRANT_SCHEMA].[UTILS_TEST_GRANT_TABLE] FROM [%s]',
         ];
         yield 'grant on table to role' => [
-            $grantsOnTable,
+            self::TEST_GRANTS_ON_TABLE,
             GrantOn::ON_OBJECT,
             [
                 self::TEST_SCHEMA,
                 self::TEST_TABLE,
             ],
             false,
-            false,
+            GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, INSERT, SELECT, UPDATE, REFERENCES ON OBJECT::[UTILS_TEST_GRANT_SCHEMA].[UTILS_TEST_GRANT_TABLE] TO [%s_ROLE]',
@@ -313,14 +297,14 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
             'REVOKE CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, INSERT, SELECT, UPDATE, REFERENCES ON OBJECT::[UTILS_TEST_GRANT_SCHEMA].[UTILS_TEST_GRANT_TABLE] FROM [%s_ROLE]',
         ];
         yield 'grant on table with grant option' => [
-            $grantsOnTable,
+            self::TEST_GRANTS_ON_TABLE,
             GrantOn::ON_OBJECT,
             [
                 self::TEST_SCHEMA,
                 self::TEST_TABLE,
             ],
             false,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             false,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, INSERT, SELECT, UPDATE, REFERENCES ON OBJECT::[UTILS_TEST_GRANT_SCHEMA].[UTILS_TEST_GRANT_TABLE] TO [%s] WITH GRANT OPTION',
@@ -328,14 +312,14 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
             'REVOKE ',
         ];
         yield 'grant on table to role with grant option' => [
-            $grantsOnTable,
+            self::TEST_GRANTS_ON_TABLE,
             GrantOn::ON_OBJECT,
             [
                 self::TEST_SCHEMA,
                 self::TEST_TABLE,
             ],
             false,
-            true,
+            GrantOptions::OPTION_ALLOW_GRANT_OPTION,
             true,
             // phpcs:ignore
             'GRANT CONTROL, ALTER, VIEW DEFINITION, TAKE OWNERSHIP, INSERT, SELECT, UPDATE, REFERENCES ON OBJECT::[UTILS_TEST_GRANT_SCHEMA].[UTILS_TEST_GRANT_TABLE] TO [%s_ROLE] WITH GRANT OPTION',
@@ -391,7 +375,7 @@ class SynapseGrantQueryBuilderTest extends SynapseUserReflectionTest
             $options
         );
         $this->connection->exec($sql);
-        $this->assertSame(sprintf($expectedRevoke.' CASCADE', $this->currentLogin, $this->currentLogin), $sql);
+        $this->assertSame(sprintf($expectedRevoke . ' CASCADE', $this->currentLogin, $this->currentLogin), $sql);
 
         // revoke without cascade
         $options = new RevokeOptions($allowGrantOption, false);

@@ -15,7 +15,10 @@ class RevokeOptionsTest extends TestCase
         $this->assertFalse($optionsDefault->isAllowGrantOption());
         $this->assertFalse($optionsDefault->isCascade());
 
-        $options = new RevokeOptions(false, true);
+        $options = new RevokeOptions(
+            RevokeOptions::OPTION_DONT_REVOKE_CASCADE,
+            RevokeOptions::OPTION_REVOKE_CASCADE
+        );
         $this->assertTrue($options->isCascade());
     }
 
@@ -23,6 +26,6 @@ class RevokeOptionsTest extends TestCase
     {
         $this->expectException(\Throwable::class);
         $this->expectExceptionMessage('Revoking grant option is not supported on Synapse.');
-        new RevokeOptions(true);
+        new RevokeOptions(RevokeOptions::OPTION_REVOKE_CASCADE);
     }
 }

@@ -8,10 +8,16 @@ use Keboola\TableBackendUtils\Auth\Grant\GrantOptionsInterface;
 
 final class GrantOptions implements GrantOptionsInterface
 {
+    public const OPTION_ALLOW_GRANT_OPTION = true;
+    public const OPTION_DONT_ALLOW_GRANT_OPTION = false;
+
     /** @var bool */
     private $allowGrantOption;
 
-    public function __construct(bool $allowGrantOption = false)
+    /**
+     * @param self::OPTION_ALLOW_GRANT_OPTION|self::OPTION_DONT_ALLOW_GRANT_OPTION $allowGrantOption
+     */
+    public function __construct(bool $allowGrantOption = self::OPTION_DONT_ALLOW_GRANT_OPTION)
     {
         $this->allowGrantOption = $allowGrantOption;
     }

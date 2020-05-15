@@ -14,7 +14,10 @@ class GrantOptionsTest extends TestCase
         $optionsDefault = new GrantOptions();
         $this->assertFalse($optionsDefault->isAllowGrantOption());
 
-        $optionsDontAllowGrant = new GrantOptions(true);
+        $optionsDontAllowGrant = new GrantOptions(GrantOptions::OPTION_ALLOW_GRANT_OPTION);
         $this->assertTrue($optionsDontAllowGrant->isAllowGrantOption());
+
+        $optionsDontAllowGrant = new GrantOptions(GrantOptions::OPTION_DONT_ALLOW_GRANT_OPTION);
+        $this->assertFalse($optionsDontAllowGrant->isAllowGrantOption());
     }
 }
