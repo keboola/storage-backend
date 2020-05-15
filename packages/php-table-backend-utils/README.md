@@ -5,6 +5,18 @@ Common stuff for table backends (Snowflake|Synapse|Redshift) shared between apps
 
 ## Interfaces
 
+### Database
+
+#### Keboola\TableBackendUtils\Database\DatabaseReflectionInterface
+
+```php
+interface DatabaseReflectionInterface
+{
+    public function getUsersNames(?string $like = null): array;
+    public function getRolesNames(?string $like = null): array;
+}
+```
+
 ### Schema
 
 #### Keboola\TableBackendUtils\Schema\SchemaReflectionInterface
