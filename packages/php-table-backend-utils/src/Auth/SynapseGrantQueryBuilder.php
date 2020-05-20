@@ -26,7 +26,8 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
     /**
      * @param GrantOptions $options
      */
-    public function getGrantSql(GrantOptionsInterface $options): string {
+    public function getGrantSql(GrantOptionsInterface $options): string
+    {
         $on = $this->getOnStatement($options->getSubject(), $options->getOnTargetPath());
 
         $with = '';
@@ -46,7 +47,8 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
     /**
      * @param RevokeOptions $options
      */
-    public function getRevokeSql(RevokeOptionsInterface $options): string {
+    public function getRevokeSql(RevokeOptionsInterface $options): string
+    {
         $on = $this->getOnStatement($options->getSubject(), $options->getOnTargetPath());
 
         $with = '';
