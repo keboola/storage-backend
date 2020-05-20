@@ -347,16 +347,19 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
         if ($useCurrentLoginOnEndPath === true) {
             $grantOnTargetPath[] = $this->currentLogin;
         }
-        $options = new GrantOptions($allowGrantOption);
+
+        $grantTo = $this->currentLogin . ($grantToRole === true ? '_ROLE' : '');
+
+        $options = (new GrantOptions(
+            $permissions,
+            $grantTo
+        ))
+            ->setOnTargetPath($grantOnTargetPath)
+            ->grantOnSubject($grantSubject)
+            ->setAllowGrantOption($allowGrantOption);
 
         $qb = new SynapseGrantQueryBuilder($this->connection);
-        $sql = $qb->getGrantSql(
-            $permissions,
-            $grantSubject,
-            $grantOnTargetPath,
-            $this->currentLogin . ($grantToRole === true ? '_ROLE' : ''),
-            $options
-        );
+        $sql = $qb->getGrantSql($options);
         $this->connection->exec($sql);
         $this->assertSame(sprintf($expectedGrant, $this->currentLogin, $this->currentLogin), $sql);
 
@@ -364,27 +367,23 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
             $this->markTestIncomplete('Revoking grant options doesn\'t work on Synapse.');
         }
 
-        // revoke with cascade
-        $options = new RevokeOptions($allowGrantOption, true);
-        $sql = $qb->getRevokeSql(
+        $options = (new RevokeOptions(
             $permissions,
-            $grantSubject,
-            $grantOnTargetPath,
-            $this->currentLogin . ($grantToRole === true ? '_ROLE' : ''),
-            $options
-        );
+            $grantTo
+        ))
+            ->setOnTargetPath($grantOnTargetPath)
+            ->revokeOnSubject($grantSubject)
+            ->revokeGrantOption($allowGrantOption)
+            ->revokeInCascade(true);
+
+        // revoke with cascade
+        $sql = $qb->getRevokeSql($options);
         $this->connection->exec($sql);
         $this->assertSame(sprintf($expectedRevoke . ' CASCADE', $this->currentLogin, $this->currentLogin), $sql);
 
         // revoke without cascade
-        $options = new RevokeOptions($allowGrantOption, false);
-        $sql = $qb->getRevokeSql(
-            $permissions,
-            $grantSubject,
-            $grantOnTargetPath,
-            $this->currentLogin . ($grantToRole === true ? '_ROLE' : ''),
-            $options
-        );
+        $options->revokeInCascade(false);
+        $sql = $qb->getRevokeSql($options);
         $this->connection->exec($sql);
         $this->assertSame(sprintf($expectedRevoke, $this->currentLogin, $this->currentLogin), $sql);
     }

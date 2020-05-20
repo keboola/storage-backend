@@ -13,38 +13,111 @@ final class RevokeOptions implements RevokeOptionsInterface
     public const OPTION_REVOKE_CASCADE = true;
     public const OPTION_DONT_REVOKE_CASCADE = false;
 
-    /** @var bool */
-    private $allowGrantOption;
+    /** @var bool|self::OPTION_REVOKE_GRANT_OPTION|self::OPTION_DONT_REVOKE_GRANT_OPTION */
+    private $revokeGrantOption = self::OPTION_DONT_REVOKE_GRANT_OPTION;
 
-    /** @var bool */
-    private $isCascade;
+    /** @var bool|self::OPTION_REVOKE_CASCADE|self::OPTION_DONT_REVOKE_CASCADE */
+    private $isCascade = self::OPTION_DONT_REVOKE_CASCADE;
+
+    /** @var array<Permission::GRANT_*> */
+    private $permissions;
+
+    /** @var string */
+    private $revokeFrom;
+
+    /** @var string[] */
+    private $revokeOnTargetPath = [];
+
+    /** @var null|GrantOn::ON_* */
+    private $subject;
 
     /**
-     * parameter $allowGrantOption is kept here and on first place
-     * because missing this doesn't make much sense, and could be expected
-     * that removing grant option will appear in future version of synapse
-     *
-     * @param self::OPTION_REVOKE_GRANT_OPTION|self::OPTION_DONT_REVOKE_GRANT_OPTION $allowGrantOption
-     * @param self::OPTION_REVOKE_CASCADE|self::OPTION_DONT_REVOKE_CASCADE $isCascade
+     * @param array<Permission::GRANT_*> $permissions
      */
-    public function __construct(
-        bool $allowGrantOption = self::OPTION_DONT_REVOKE_GRANT_OPTION,
-        bool $isCascade = self::OPTION_DONT_REVOKE_CASCADE
-    ) {
-        if ($allowGrantOption === true) {
-            throw new \Exception('Revoking grant option is not supported on Synapse.');
-        }
-        $this->allowGrantOption = $allowGrantOption;
-        $this->isCascade = $isCascade;
-    }
-
-    public function isAllowGrantOption(): bool
+    public function __construct(array $permissions, string $revokeFrom)
     {
-        return $this->allowGrantOption;
+        $this->permissions = $permissions;
+        $this->revokeFrom = $revokeFrom;
     }
 
-    public function isCascade(): bool
+    public function isGrantOptionRevoked(): bool
+    {
+        return $this->revokeGrantOption;
+    }
+
+    public function isRevokedInCascade(): bool
     {
         return $this->isCascade;
+    }
+
+    /**
+     * @param self::OPTION_REVOKE_CASCADE|self::OPTION_DONT_REVOKE_CASCADE $isCascade
+     */
+    public function revokeInCascade(bool $isCascade): self
+    {
+        $this->isCascade = $isCascade;
+        return $this;
+    }
+
+    /**
+     * @param self::OPTION_REVOKE_GRANT_OPTION|self::OPTION_DONT_REVOKE_GRANT_OPTION $revoke
+     *
+     * parameter $revokeGrantOption is kept here and on first place
+     * because missing this doesn't make much sense, and could be expected
+     * that removing grant option will appear in future version of synapse
+     */
+    public function revokeGrantOption(bool $revoke): self
+    {
+        if ($revoke === self::OPTION_REVOKE_GRANT_OPTION) {
+            throw new \Exception('Revoking grant option is not supported on Synapse.');
+        }
+
+        $this->revokeGrantOption = $revoke;
+
+        return $this;
+    }
+
+    /**
+     * @param null|GrantOn::ON_* $subject
+     */
+    public function revokeOnSubject(?string $subject): self
+    {
+        $this->subject = $subject;
+        return $this;
+    }
+
+    public function getPermissions(): array
+    {
+        return $this->permissions;
+    }
+
+    /**
+     * @return null|GrantOn::ON_*
+     */
+    public function getSubject(): ?string
+    {
+        return $this->subject;
+    }
+
+    /**
+     * @param string[] $revokeOnTargetPath
+     */
+    public function setOnTargetPath(array $revokeOnTargetPath): self
+    {
+        $this->revokeOnTargetPath = $revokeOnTargetPath;
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getOnTargetPath(): array
+    {
+        return $this->revokeOnTargetPath;
+    }
+
+    public function getRevokeFrom(): string
+    {
+        return $this->revokeFrom;
     }
 }

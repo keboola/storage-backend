@@ -11,7 +11,6 @@ use Keboola\TableBackendUtils\Auth\Grant\GrantOptionsInterface;
 use Keboola\TableBackendUtils\Auth\Grant\RevokeOptionsInterface;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOn;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOptions;
-use Keboola\TableBackendUtils\Auth\Grant\Synapse\Permission;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\RevokeOptions;
 
 class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
@@ -25,30 +24,47 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
     }
 
     /**
-     * @param array<Permission::GRANT_*> $permissions
-     * @param null|GrantOn::ON_* $grantSubject
-     * @param string[] $grantOnTargetPath
-     * @param GrantOptions|null $options
+     * @param GrantOptions $options
      */
-    public function getGrantSql(
-        array $permissions,
-        ?string $grantSubject,
-        array $grantOnTargetPath,
-        string $to,
-        ?GrantOptionsInterface $options
-    ): string {
-        $on = $this->getOnStatement($grantSubject, $grantOnTargetPath);
+    public function getGrantSql(GrantOptionsInterface $options): string {
+        $on = $this->getOnStatement($options->getSubject(), $options->getOnTargetPath());
 
         $with = '';
-        if ($options !== null && $options->isAllowGrantOption() === true) {
+        if ($options->isAllowGrantOption() === true) {
             $with = ' WITH GRANT OPTION';
         }
 
         return sprintf(
             'GRANT %s%s TO %s%s',
-            implode(', ', $permissions),
+            implode(', ', $options->getPermissions()),
             $on,
-            $this->platform->quoteSingleIdentifier($to),
+            $this->platform->quoteSingleIdentifier($options->getGrantTo()),
+            $with
+        );
+    }
+
+    /**
+     * @param RevokeOptions $options
+     */
+    public function getRevokeSql(RevokeOptionsInterface $options): string {
+        $on = $this->getOnStatement($options->getSubject(), $options->getOnTargetPath());
+
+        $with = '';
+        if ($options->isRevokedInCascade() === true) {
+            $with = ' CASCADE';
+        }
+
+        $permissions = implode(', ', $options->getPermissions());
+
+        if ($options->isGrantOptionRevoked() === true) {
+            $permissions = 'GRANT OPTION FOR '.$permissions;
+        }
+
+        return sprintf(
+            'REVOKE %s%s FROM %s%s',
+            $permissions,
+            $on,
+            $this->platform->quoteSingleIdentifier($options->getRevokeFrom()),
             $with
         );
     }
@@ -62,41 +78,6 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
         return array_map(function (string $pathPart) {
             return $this->platform->quoteSingleIdentifier($pathPart);
         }, $onTargetPath);
-    }
-
-    /**
-     * @param array<Permission::GRANT_*> $permissions
-     * @param null|GrantOn::ON_* $grantSubject
-     * @param string[] $grantOnTargetPath
-     * @param RevokeOptions|null $options
-     */
-    public function getRevokeSql(
-        array $permissions,
-        ?string $grantSubject,
-        array $grantOnTargetPath,
-        string $to,
-        ?RevokeOptionsInterface $options
-    ): string {
-        $on = $this->getOnStatement($grantSubject, $grantOnTargetPath);
-
-        $with = '';
-        if ($options !== null && $options->isCascade() === true) {
-            $with = ' CASCADE';
-        }
-
-        $permissions = implode(', ', $permissions);
-
-        if ($options !== null && $options->isAllowGrantOption() === true) {
-            $permissions = 'GRANT OPTION FOR '.$permissions;
-        }
-
-        return sprintf(
-            'REVOKE %s%s FROM %s%s',
-            $permissions,
-            $on,
-            $this->platform->quoteSingleIdentifier($to),
-            $with
-        );
     }
 
     /**
