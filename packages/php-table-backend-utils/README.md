@@ -128,21 +128,9 @@ interface UserReflectionInterface
 ```php
 interface GrantQueryBuilderInterface
 {
-    public function getGrantSql(
-        array $permissions,
-        ?string $grantSubject,
-        array $grantOnTargetPath,
-        string $to,
-        ?GrantOptionsInterface $options
-    ): string;
+    public function getGrantSql(GrantOptionsInterface $options): string;
 
-    public function getRevokeSql(
-        array $permissions,
-        ?string $grantSubject,
-        array $grantOnTargetPath,
-        string $to,
-        ?RevokeOptionsInterface $options
-    ): string;
+    public function getRevokeSql(RevokeOptionsInterface $options): string;
 }
 ```
 
