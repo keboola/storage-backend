@@ -549,6 +549,31 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         ], $dependentViews[0]);
     }
 
+    public function testGetTableStats(): void
+    {
+        $this->initTable();
+        $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        $stats1 = $ref->getTableStats();
+        $this->assertEquals(0, $stats1->getRowsCount());
+        $this->assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
+
+        $this->connection->exec(sprintf(
+            'INSERT INTO [%s].[%s] VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC
+        ));
+        $this->connection->exec(sprintf(
+            'INSERT INTO [%s].[%s] VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC
+        ));
+
+        $stats2 = $ref->getTableStats();
+        $this->assertEquals(2, $stats2->getRowsCount());
+        $this->assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
+    }
+
     private function initView(string $viewName, string $parentName): void
     {
         $this->connection->exec(

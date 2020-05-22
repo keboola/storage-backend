@@ -5,8 +5,9 @@
     "require": {
         "php": "^7.1",
         "doctrine/dbal": "^2.9",
+        "keboola/common-exceptions": "^1",
         "keboola/php-datatypes": "^4.7",
-        "keboola/common-exceptions": "^1"
+        "keboola/php-utils": "^4.1"
     },
     "require-dev": {
         "php-parallel-lint/php-parallel-lint": "^1",

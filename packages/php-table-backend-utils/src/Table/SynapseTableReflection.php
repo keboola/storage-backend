@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\ReflectionException;
+use function Keboola\Utils\returnBytes;
 
 final class SynapseTableReflection implements TableReflectionInterface
 {
@@ -198,7 +199,13 @@ EOT
             $this->platform->quoteSingleIdentifier($this->tableName)
         ));
 
-        return new TableStats((int) $info['data'], (int) $info['rows']);
+        return new TableStats(
+            (int) returnBytes(
+                // removes all whitespaces and unit(bytes)
+                preg_replace('/[B\s]+/ui', '', $info['data'])
+            ),
+            (int) $info['rows']
+        );
     }
 
     public function isTemporary(): bool
