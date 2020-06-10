@@ -242,7 +242,7 @@ class Synapse extends Common
                 if ($this->isEmpty($length)) {
                     break;
                 }
-                if ($length === 'max') {
+                if (strtoupper((string) $length) === 'MAX') {
                     break;
                 }
                 if (!is_numeric($length)) {
@@ -272,7 +272,7 @@ class Synapse extends Common
                 if ($this->isEmpty($length)) {
                     break;
                 }
-                if ($length === 'max') {
+                if (strtoupper((string) $length) === 'MAX') {
                     break;
                 }
                 if (!is_numeric($length)) {

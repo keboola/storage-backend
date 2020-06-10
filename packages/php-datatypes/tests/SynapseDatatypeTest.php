@@ -341,6 +341,7 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['nvarchar', null],
             ['nvarchar', ''],
             ['nvarchar', 'max'],
+            ['nvarchar', 'MAX'],
             ['nvarchar', '1'],
             ['nvarchar', '4000'],
 
@@ -352,12 +353,14 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
             ['varchar', null],
             ['varchar', ''],
             ['varchar', 'max'],
+            ['varchar', 'MAX'],
             ['varchar', '1'],
             ['varchar', '8000'],
 
             ['varbinary', null],
             ['varbinary', ''],
             ['varbinary', 'max'],
+            ['varbinary', 'MAX'],
             ['varbinary', '1'],
             ['varbinary', '8000'],
 
