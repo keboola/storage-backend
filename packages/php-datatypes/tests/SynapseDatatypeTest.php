@@ -1,6 +1,6 @@
 <?php
 
-namespace Keboola\DataypeTest;
+namespace Keboola\DatatypeTest;
 
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
@@ -97,31 +97,31 @@ class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
         foreach (Synapse::TYPES as $type) {
             $basetype = (new Synapse($type))->getBasetype();
             switch ($type) {
-                case 'bigint':
-                case 'int':
-                case 'smallint':
-                case 'tinyint':
+                case 'BIGINT':
+                case 'INT':
+                case 'SMALLINT':
+                case 'TINYINT':
                     $this->assertEquals(BaseType::INTEGER, $basetype);
                     break;
-                case 'decimal':
-                case 'numeric':
+                case 'DECIMAL':
+                case 'NUMERIC':
                     $this->assertEquals(BaseType::NUMERIC, $basetype);
                     break;
-                case 'float':
-                case 'real':
+                case 'FLOAT':
+                case 'REAL':
                     $this->assertEquals(BaseType::FLOAT, $basetype);
                     break;
-                case 'bit':
+                case 'BIT':
                     $this->assertEquals(BaseType::BOOLEAN, $basetype);
                     break;
-                case 'date':
+                case 'DATE':
                     $this->assertEquals(BaseType::DATE, $basetype);
                     break;
-                case 'datetimeoffset':
-                case 'datetime':
-                case 'datetime2':
-                case 'smalldatetime':
-                case 'time':
+                case 'DATETIMEOFFSET':
+                case 'DATETIME':
+                case 'DATETIME2':
+                case 'SMALLDATETIME':
+                case 'TIME':
                     $this->assertEquals(BaseType::TIMESTAMP, $basetype);
                     break;
                 default:

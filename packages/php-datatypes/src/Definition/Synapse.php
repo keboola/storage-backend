@@ -14,30 +14,30 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
  */
 class Synapse extends Common
 {
-    const TYPE_DECIMAL = 'decimal';
-    const TYPE_NUMERIC = 'numeric';
-    const TYPE_FLOAT = 'float';
-    const TYPE_REAL = 'real';
-    const TYPE_MONEY = 'money';
-    const TYPE_SMALLMONEY = 'smallmoney';
-    const TYPE_BIGINT = 'bigint';
-    const TYPE_INT = 'int';
-    const TYPE_SMALLINT = 'smallint';
-    const TYPE_TINYINT = 'tinyint';
-    const TYPE_BIT = 'bit';
-    const TYPE_NVARCHAR = 'nvarchar';
-    const TYPE_NCHAR = 'nchar';
-    const TYPE_VARCHAR = 'varchar';
-    const TYPE_CHAR = 'char';
-    const TYPE_VARBINARY = 'varbinary';
-    const TYPE_BINARY = 'binary';
-    const TYPE_UNIQUEIDENTIFIER = 'uniqueidentifier';
-    const TYPE_DATETIMEOFFSET = 'datetimeoffset';
-    const TYPE_DATETIME2 = 'datetime2';
-    const TYPE_DATETIME = 'datetime';
-    const TYPE_SMALLDATETIME = 'smalldatetime';
-    const TYPE_DATE = 'date';
-    const TYPE_TIME = 'time';
+    const TYPE_DECIMAL = 'DECIMAL';
+    const TYPE_NUMERIC = 'NUMERIC';
+    const TYPE_FLOAT = 'FLOAT';
+    const TYPE_REAL = 'REAL';
+    const TYPE_MONEY = 'MONEY';
+    const TYPE_SMALLMONEY = 'SMALLMONEY';
+    const TYPE_BIGINT = 'BIGINT';
+    const TYPE_INT = 'INT';
+    const TYPE_SMALLINT = 'SMALLINT';
+    const TYPE_TINYINT = 'TINYINT';
+    const TYPE_BIT = 'BIT';
+    const TYPE_NVARCHAR = 'NVARCHAR';
+    const TYPE_NCHAR = 'NCHAR';
+    const TYPE_VARCHAR = 'VARCHAR';
+    const TYPE_CHAR = 'CHAR';
+    const TYPE_VARBINARY = 'VARBINARY';
+    const TYPE_BINARY = 'BINARY';
+    const TYPE_UNIQUEIDENTIFIER = 'UNIQUEIDENTIFIER';
+    const TYPE_DATETIMEOFFSET = 'DATETIMEOFFSET';
+    const TYPE_DATETIME2 = 'DATETIME2';
+    const TYPE_DATETIME = 'DATETIME';
+    const TYPE_SMALLDATETIME = 'SMALLDATETIME';
+    const TYPE_DATE = 'DATE';
+    const TYPE_TIME = 'TIME';
 
     const TYPES = [
         self::TYPE_DECIMAL, self::TYPE_NUMERIC,
@@ -135,7 +135,7 @@ class Synapse extends Common
      */
     private function getDefaultLength()
     {
-        switch (strtolower($this->getType())) {
+        switch (strtoupper($this->getType())) {
             case self::TYPE_FLOAT:
                 return self::MAX_LENGTH_FLOAT;
             case self::TYPE_DECIMAL:
@@ -182,7 +182,7 @@ class Synapse extends Common
      */
     private function validateType($type)
     {
-        if (!in_array(strtolower($type), $this::TYPES, true)) {
+        if (!in_array(strtoupper($type), $this::TYPES, true)) {
             throw new InvalidTypeException(sprintf('"%s" is not a valid type', $type));
         }
     }
@@ -196,7 +196,7 @@ class Synapse extends Common
     private function validateLength($type, $length = null)
     {
         $valid = true;
-        switch (strtolower($type)) {
+        switch (strtoupper($type)) {
             case self::TYPE_FLOAT:
                 if ($this->isEmpty($length)) {
                     break;
@@ -330,7 +330,7 @@ class Synapse extends Common
      */
     public function getBasetype()
     {
-        switch (strtolower($this->type)) {
+        switch (strtoupper($this->type)) {
             case self::TYPE_INT:
             case self::TYPE_BIGINT:
             case self::TYPE_SMALLINT:
