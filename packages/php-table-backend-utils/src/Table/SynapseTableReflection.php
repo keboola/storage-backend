@@ -53,12 +53,12 @@ final class SynapseTableReflection implements TableReflectionInterface
         $tableId = $this->getObjectId();
 
         $columns = $this->connection->fetchAll(sprintf(
-            'SELECT [NAME] FROM sys.columns WHERE object_id = %s ',
+            'SELECT [name] FROM [sys].[columns] WHERE [object_id] = %s ORDER BY [column_id]',
             $this->connection->quote($tableId)
         ));
 
         return array_map(static function ($column) {
-            return $column['NAME'];
+            return $column['name'];
         }, $columns);
     }
 
@@ -120,7 +120,9 @@ SELECT
 FROM sys.columns AS c
 JOIN sys.types AS t ON t.user_type_id = c.user_type_id
 LEFT JOIN sys.default_constraints AS d ON c.default_object_id = d.object_id
-WHERE c.object_id = '$tableId';
+WHERE c.object_id = '$tableId'
+ORDER BY c.column_id
+;
 EOT;
 
         /** @var array{
@@ -169,6 +171,7 @@ SELECT COL_NAME(ic.OBJECT_ID,ic.column_id) AS column_name
     FROM sys.indexes AS i INNER JOIN
         sys.index_columns AS ic ON i.OBJECT_ID = ic.OBJECT_ID AND i.index_id = ic.index_id
     WHERE i.is_primary_key = 1 AND i.OBJECT_ID = '$tableId'
+    ORDER BY ic.index_column_id
 EOT
         );
 

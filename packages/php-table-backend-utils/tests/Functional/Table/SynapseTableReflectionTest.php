@@ -77,11 +77,11 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         $this->assertEmpty($ref->getPrimaryKeysNames());
         $this->connection->exec(sprintf(
-            'ALTER TABLE [%s].[%s] add CONSTRAINT PK_1 PRIMARY KEY NONCLUSTERED (int_def) NOT ENFORCED',
+            'ALTER TABLE [%s].[%s] add CONSTRAINT [PK_1] PRIMARY KEY NONCLUSTERED ([_time], [int_def]) NOT ENFORCED',
             self::TEST_SCHEMA,
             self::TABLE_GENERIC
         ));
-        $this->assertSame(['int_def'], $ref->getPrimaryKeysNames());
+        $this->assertSame(['_time', 'int_def'], $ref->getPrimaryKeysNames());
     }
 
     public function testGetRowsCount(): void
@@ -410,6 +410,28 @@ class SynapseTableReflectionTest extends SynapseBaseCase
             '7',
             false,
         ];
+    }
+
+    public function testGetTableColumnsDefinitionsOrder(): void
+    {
+        $sql = sprintf(
+            'CREATE TABLE [%s].[%s] ([col] VARCHAR(50) NOT NULL, [_time] DATE DEFAULT NULL)',
+            self::TEST_SCHEMA,
+            'table_defs'
+        );
+
+        $this->connection->exec($sql);
+        $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, 'table_defs');
+
+        /** @var SynapseColumn[] $definitions */
+        $definitions = iterator_to_array($ref->getColumnsDefinitions());
+        $this->assertCount(2, $definitions);
+
+        $col1 = $definitions[0];
+        $this->assertSame('col', $col1->getColumnName());
+
+        $col2 = $definitions[1];
+        $this->assertSame('_time', $col2->getColumnName());
     }
 
     /**
