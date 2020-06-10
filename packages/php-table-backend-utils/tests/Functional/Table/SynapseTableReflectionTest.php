@@ -116,296 +116,304 @@ class SynapseTableReflectionTest extends SynapseBaseCase
     {
         yield 'INT NOT NULL DEFAULT 0' => [
             'int NOT NULL DEFAULT ((0))',
+            'INT NOT NULL DEFAULT 0',
+            'INT',
+            '0',
+            null,
+            false,
+        ];
+        yield 'INT DEFAULT NULL' => [
             'int NOT NULL DEFAULT ((0))',
-            'int',
-            '((0))',
+            'INT NOT NULL DEFAULT 0',
+            'INT',
+            '0',
             null,
             false,
         ];
         yield 'nvarchar(1000) NOT NULL DEFAULT (\'\')' => [
             'nvarchar(1000) NOT NULL DEFAULT (\'\')',
-            'nvarchar(1000) NOT NULL DEFAULT (\'\')',
-            'nvarchar',
-            '(\'\')',
+            'NVARCHAR(1000) NOT NULL DEFAULT \'\'',
+            'NVARCHAR',
+            '\'\'',
             '1000',
             false,
         ];
         yield 'NUMERIC(10,5) DEFAULT ((1.00))' => [
             'numeric(10,5) DEFAULT ((1.00))',
-            'numeric(10,5) DEFAULT ((1.00))',
-            'numeric',
-            '((1.00))',
+            'NUMERIC(10,5) DEFAULT 1.00',
+            'NUMERIC',
+            '1.00',
             '10,5',
             false,
         ];
         yield 'float' => [
             'float',
-            'float(53)',
-            'float',
+            'FLOAT(53)',
+            'FLOAT',
             null,
             '53',
             false,
         ];
         yield 'float(1)' => [
-            'float(1)',
-            'real',
-            'real',
+            'FLOAT(1)',
+            'REAL',
+            'REAL',
             null,
             null,
             false,
         ];
         yield 'float(20)' => [
             'float(20)',
-            'real',
-            'real',
+            'REAL',
+            'REAL',
             null,
             null,
             false,
         ];
         yield 'float(53)' => [
             'float(53)',
-            'float(53)',
-            'float',
+            'FLOAT(53)',
+            'FLOAT',
             null,
             '53',
             false,
         ];
         yield 'nvarchar' => [
             'nvarchar',
-            'nvarchar(1)',
-            'nvarchar',
+            'NVARCHAR(1)',
+            'NVARCHAR',
             null,
             '1',
             false,
         ];
         yield 'nvarchar(1)' => [
             'nvarchar(1)',
-            'nvarchar(1)',
-            'nvarchar',
+            'NVARCHAR(1)',
+            'NVARCHAR',
             null,
             '1',
             false,
         ];
         yield 'nvarchar(4000)' => [
             'nvarchar(4000)',
-            'nvarchar(4000)',
-            'nvarchar',
+            'NVARCHAR(4000)',
+            'NVARCHAR',
             null,
             '4000',
             false,
         ];
         yield 'nvarchar(max)' => [
             'nvarchar(max)',
-            'nvarchar(max)',
-            'nvarchar',
+            'NVARCHAR(MAX)',
+            'NVARCHAR',
             null,
-            'max',
+            'MAX',
             true,
         ];
         yield 'nchar' => [
             'nchar',
-            'nchar(1)',
-            'nchar',
+            'NCHAR(1)',
+            'NCHAR',
             null,
             '1',
             false,
         ];
         yield 'nchar(1)' => [
             'nchar(1)',
-            'nchar(1)',
-            'nchar',
+            'NCHAR(1)',
+            'NCHAR',
             null,
             '1',
             false,
         ];
         yield 'nchar(4000)' => [
             'nchar(4000)',
-            'nchar(4000)',
-            'nchar',
+            'NCHAR(4000)',
+            'NCHAR',
             null,
             '4000',
             false,
         ];
         yield 'varchar' => [
             'varchar',
-            'varchar(1)',
-            'varchar',
+            'VARCHAR(1)',
+            'VARCHAR',
             null,
             '1',
             false,
         ];
         yield 'varchar(1)' => [
             'varchar(1)',
-            'varchar(1)',
-            'varchar',
+            'VARCHAR(1)',
+            'VARCHAR',
             null,
             '1',
             false,
         ];
         yield 'varchar(8000)' => [
             'varchar(8000)',
-            'varchar(8000)',
-            'varchar',
+            'VARCHAR(8000)',
+            'VARCHAR',
             null,
             '8000',
             false,
         ];
         yield 'varchar(max)' => [
             'varchar(max)',
-            'varchar(max)',
-            'varchar',
+            'VARCHAR(MAX)',
+            'VARCHAR',
             null,
-            'max',
+            'MAX',
             true,
         ];
         yield 'char' => [
             'char',
-            'char(1)',
-            'char',
+            'CHAR(1)',
+            'CHAR',
             null,
             '1',
             false,
         ];
         yield 'char(1)' => [
             'char(1)',
-            'char(1)',
-            'char',
+            'CHAR(1)',
+            'CHAR',
             null,
             '1',
             false,
         ];
         yield 'char(4000)' => [
             'char(4000)',
-            'char(4000)',
-            'char',
+            'CHAR(4000)',
+            'CHAR',
             null,
             '4000',
             false,
         ];
         yield 'varbinary' => [
             'varbinary',
-            'varbinary(1)',
-            'varbinary',
+            'VARBINARY(1)',
+            'VARBINARY',
             null,
             '1',
             false,
         ];
         yield 'varbinary(1)' => [
             'varbinary(1)',
-            'varbinary(1)',
-            'varbinary',
+            'VARBINARY(1)',
+            'VARBINARY',
             null,
             '1',
             false,
         ];
         yield 'varbinary(8000)' => [
             'varbinary(8000)',
-            'varbinary(8000)',
-            'varbinary',
+            'VARBINARY(8000)',
+            'VARBINARY',
             null,
             '8000',
             false,
         ];
         yield 'varbinary(max)' => [
             'varbinary(max)',
-            'varbinary(max)',
-            'varbinary',
+            'VARBINARY(MAX)',
+            'VARBINARY',
             null,
-            'max',
+            'MAX',
             true,
         ];
         yield 'binary' => [
             'binary',
-            'binary(1)',
-            'binary',
+            'BINARY(1)',
+            'BINARY',
             null,
             '1',
             false,
         ];
         yield 'binary(1)' => [
             'binary(1)',
-            'binary(1)',
-            'binary',
+            'BINARY(1)',
+            'BINARY',
             null,
             '1',
             false,
         ];
         yield 'binary(8000)' => [
             'binary(8000)',
-            'binary(8000)',
-            'binary',
+            'BINARY(8000)',
+            'BINARY',
             null,
             '8000',
             false,
         ];
         yield 'datetimeoffset' => [
             'datetimeoffset',
-            'datetimeoffset(7)',
-            'datetimeoffset',
+            'DATETIMEOFFSET(7)',
+            'DATETIMEOFFSET',
             null,
             '7',
             false,
         ];
         yield 'datetimeoffset(0)' => [
             'datetimeoffset(0)',
-            'datetimeoffset(0)',
-            'datetimeoffset',
+            'DATETIMEOFFSET(0)',
+            'DATETIMEOFFSET',
             null,
             '0',
             false,
         ];
         yield 'datetimeoffset(7)' => [
             'datetimeoffset(7)',
-            'datetimeoffset(7)',
-            'datetimeoffset',
+            'DATETIMEOFFSET(7)',
+            'DATETIMEOFFSET',
             null,
             '7',
             false,
         ];
         yield 'datetime2' => [
             'datetime2',
-            'datetime2(7)',
-            'datetime2',
+            'DATETIME2(7)',
+            'DATETIME2',
             null,
             '7',
             false,
         ];
         yield 'datetime2(0)' => [
             'datetime2(0)',
-            'datetime2(0)',
-            'datetime2',
+            'DATETIME2(0)',
+            'DATETIME2',
             null,
             '0',
             false,
         ];
         yield 'datetime2(7)' => [
             'datetime2(7)',
-            'datetime2(7)',
-            'datetime2',
+            'DATETIME2(7)',
+            'DATETIME2',
             null,
             '7',
             false,
         ];
         yield 'time' => [
             'time',
-            'time(7)',
-            'time',
+            'TIME(7)',
+            'TIME',
             null,
             '7',
             false,
         ];
         yield 'time(0)' => [
             'time(0)',
-            'time(0)',
-            'time',
+            'TIME(0)',
+            'TIME',
             null,
             '0',
             false,
         ];
         yield 'time(7)' => [
             'time(7)',
-            'time(7)',
-            'time',
+            'TIME(7)',
+            'TIME',
             null,
             '7',
             false,

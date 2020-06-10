@@ -34,8 +34,9 @@ final class SynapseColumn implements ColumnInterface
      */
     public static function createFromDB(array $dbResponse): self
     {
-        $type = $dbResponse['column_type'];
+        $type = strtoupper($dbResponse['column_type']);
         $length = $dbResponse['column_length'];
+        $default = $dbResponse['column_default'];
         if ($dbResponse['column_length'] === 'null') {
             $length = null;
         }
@@ -44,7 +45,7 @@ final class SynapseColumn implements ColumnInterface
                 Synapse::TYPE_NVARCHAR,
                 Synapse::TYPE_VARBINARY,
             ], true)) {
-            $length = 'max';
+            $length = 'MAX';
         } elseif (in_array($type, [
             Synapse::TYPE_NCHAR,
             Synapse::TYPE_NVARCHAR,
@@ -53,11 +54,11 @@ final class SynapseColumn implements ColumnInterface
             $length = (string) ((int) $length / 2);
         }
 
-        if (in_array($dbResponse['column_type'], Synapse::TYPES_WITH_COMPLEX_LENGTH, true)) {
+        if (in_array($type, Synapse::TYPES_WITH_COMPLEX_LENGTH, true)) {
             // types with complex definition precision and scale (1,0)
             $length = $dbResponse['column_precision'] . ',' . $dbResponse['column_scale'];
         }
-        if (in_array($dbResponse['column_type'], Synapse::TYPES_WITHOUT_LENGTH, true)) {
+        if (in_array($type, Synapse::TYPES_WITHOUT_LENGTH, true)) {
             // types with no length definition
             $length = null;
         }
@@ -73,12 +74,24 @@ final class SynapseColumn implements ColumnInterface
             $length = $dbResponse['column_scale'];
         }
 
+        if (isset($default)) {
+            $default = preg_replace(
+                '/^\((.+)\)$/',
+                '\\1',
+                preg_replace(
+                    '/^\(\((.+)\)\)$/',
+                    '\\1',
+                    $default
+                )
+            );
+        }
+
         $definition = new Synapse(
             $type,
             [
                 'nullable' => strtolower($dbResponse['column_is_nullable']) === '1',
                 'length' => $length,
-                'default' => $dbResponse['column_default'],
+                'default' => $default,
             ]
         );
 
