@@ -68,7 +68,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         $columnsSql = [];
         foreach ($columns as $column) {
             if ($column->getColumnName() === ColumnInterface::TIMESTAMP_COLUMN_NAME) {
-                $columnsSql[] = sprintf('[%s] datetime2', ColumnInterface::TIMESTAMP_COLUMN_NAME);
+                $columnsSql[] = sprintf('[%s] DATETIME2', ColumnInterface::TIMESTAMP_COLUMN_NAME);
                 continue;
             }
             $columnsSql[] = sprintf(

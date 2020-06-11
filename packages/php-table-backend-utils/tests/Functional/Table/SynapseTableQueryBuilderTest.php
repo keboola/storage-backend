@@ -47,7 +47,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
 
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [utils-test_qb-schema].[#utils-test_test] ([col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\') WITH (HEAP, LOCATION = USER_DB)',
+            'CREATE TABLE [utils-test_qb-schema].[#utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\') WITH (HEAP, LOCATION = USER_DB)',
             $sql
         );
         $this->connection->exec($sql);
@@ -73,7 +73,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnCollection($cols));
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\')',
+            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\')',
             $sql
         );
         $this->connection->exec($sql);
@@ -104,7 +104,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnCollection($cols));
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\', [_timestamp] datetime2)',
+            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\', [_timestamp] DATETIME2)',
             $sql
         );
         $this->connection->exec($sql);
@@ -131,7 +131,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([pk1] int, [col1] nvarchar(4000) NOT NULL DEFAULT \'\', [col2] nvarchar(4000) NOT NULL DEFAULT \'\', [_timestamp] datetime2, PRIMARY KEY NONCLUSTERED([pk1],[col1]) NOT ENFORCED)',
+            'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([pk1] INT, [col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\', [_timestamp] DATETIME2, PRIMARY KEY NONCLUSTERED([pk1],[col1]) NOT ENFORCED)',
             $sql
         );
         $this->connection->exec($sql);
