@@ -6,7 +6,7 @@
         "php": "^7.1",
         "doctrine/dbal": "^2.9",
         "keboola/common-exceptions": "^1",
-        "keboola/php-datatypes": "^4.7",
+        "keboola/php-datatypes": "4.7.*",
         "keboola/php-utils": "^4.1"
     },
     "require-dev": {
