@@ -78,7 +78,7 @@ final class SynapseColumn implements ColumnInterface
             $default = preg_replace(
                 '/^\((.+)\)$/',
                 '\\1',
-                preg_replace(
+                (string) preg_replace(
                     '/^\(\((.+)\)\)$/',
                     '\\1',
                     $default
