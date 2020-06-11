@@ -22,11 +22,11 @@ class SynapseColumnTest extends TestCase
             'column_length' => 'whatever',
             'column_scale' => 'whatever',
             'column_is_nullable' => 'true',
-            'column_default' => 'NOW()',
+            'column_default' => '(NOW())',
         ]);
         $this->assertEquals('myCol', $col->getColumnName());
-        $this->assertEquals('datetime NOT NULL DEFAULT NOW()', $col->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals('datetime', $col->getColumnDefinition()->getType());
+        $this->assertEquals('DATETIME NOT NULL DEFAULT NOW()', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('DATETIME', $col->getColumnDefinition()->getType());
         $this->assertEquals('NOW()', $col->getColumnDefinition()->getDefault());
         $this->assertEquals(null, $col->getColumnDefinition()->getLength());
     }
@@ -43,8 +43,8 @@ class SynapseColumnTest extends TestCase
             'column_default' => null,
         ]);
         $this->assertEquals('myCol', $col->getColumnName());
-        $this->assertEquals('nvarchar(2000) NOT NULL', $col->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals('nvarchar', $col->getColumnDefinition()->getType());
+        $this->assertEquals('NVARCHAR(2000) NOT NULL', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR', $col->getColumnDefinition()->getType());
         $this->assertEquals('', $col->getColumnDefinition()->getDefault());
         $this->assertEquals('2000', $col->getColumnDefinition()->getLength());
     }
@@ -58,11 +58,11 @@ class SynapseColumnTest extends TestCase
             'column_length' => 'whatever',
             'column_scale' => '10',
             'column_is_nullable' => 'true',
-            'column_default' => '1',
+            'column_default' => '((1))',
         ]);
         $this->assertEquals('myCol', $col->getColumnName());
-        $this->assertEquals('decimal(20,10) NOT NULL DEFAULT 1', $col->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals('decimal', $col->getColumnDefinition()->getType());
+        $this->assertEquals('DECIMAL(20,10) NOT NULL DEFAULT 1', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('DECIMAL', $col->getColumnDefinition()->getType());
         $this->assertEquals('1', $col->getColumnDefinition()->getDefault());
         $this->assertEquals('20,10', $col->getColumnDefinition()->getLength());
     }
@@ -71,8 +71,8 @@ class SynapseColumnTest extends TestCase
     {
         $col = SynapseColumn::createGenericColumn('myCol');
         $this->assertEquals('myCol', $col->getColumnName());
-        $this->assertEquals('nvarchar(4000) NOT NULL DEFAULT \'\'', $col->getColumnDefinition()->getSQLDefinition());
-        $this->assertEquals('nvarchar', $col->getColumnDefinition()->getType());
+        $this->assertEquals('NVARCHAR(4000) NOT NULL DEFAULT \'\'', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('NVARCHAR', $col->getColumnDefinition()->getType());
         $this->assertEquals('\'\'', $col->getColumnDefinition()->getDefault());
         $this->assertEquals('4000', $col->getColumnDefinition()->getLength());
     }
