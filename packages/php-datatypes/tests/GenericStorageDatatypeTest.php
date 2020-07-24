@@ -2,6 +2,7 @@
 
 namespace Keboola\DataypeTest;
 
+use Keboola\Datatype\Definition\Common;
 use Keboola\Datatype\Definition\GenericStorage;
 
 class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
@@ -45,25 +46,25 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
         foreach ($datatypeMetadata as $md) {
             $this->assertArrayHasKey("key", $md);
             $this->assertArrayHasKey("value", $md);
-            if ($md["key"] === "KBC.datatype.format") {
+            if ($md["key"] === Common::KBC_METADATA_KEY_FORMAT) {
                 $this->assertEquals("Y-m-d", $md["value"]);
             }
-            if ($md["key"] === "KBC.datatype.default") {
+            if ($md["key"] === Common::KBC_METADATA_KEY_DEFAULT) {
                 $this->assertEquals("1970-01-01", $md["value"]);
             }
-            if ($md["key"] === "KBC.datatype.type") {
+            if ($md["key"] === Common::KBC_METADATA_KEY_TYPE) {
                 $this->assertEquals("DATE", $md["value"]);
             }
-            if ($md["key"] === "KBC.datatype.nullable") {
+            if ($md["key"] === Common::KBC_METADATA_KEY_NULLABLE) {
                 $this->assertEquals(false, $md["value"]);
             }
-            if ($md["key"] === "KBC.datatype.basetype") {
+            if ($md["key"] === Common::KBC_METADATA_KEY_BASETYPE) {
                 $this->assertEquals("DATE", $md["value"]);
             }
         }
         $datatype = new GenericStorage("VARCHAR");
         foreach ($datatype->toMetadata() as $md) {
-            if ($md['key'] === 'KBC.datatype.format') {
+            if ($md['key'] === Common::KBC_METADATA_KEY_FORMAT) {
                 $this->fail("if format not specified, should not be included in metadata");
             }
         }
@@ -118,7 +119,7 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
 
         $hasDefaultMetadata = false;
         foreach ($datatype->toMetadata() as $metadatum) {
-            if ($metadatum['key'] === "KBC.datatype.default" && $metadatum['value'] === "0") {
+            if ($metadatum['key'] === Common::KBC_METADATA_KEY_DEFAULT && $metadatum['value'] === "0") {
                 $hasDefaultMetadata = true;
             }
         }
@@ -131,7 +132,7 @@ class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
 
         $hasDefaultMetadata = false;
         foreach ($datatype->toMetadata() as $metadatum) {
-            if ($metadatum['key'] === "KBC.datatype.default" && $metadatum['value'] === '') {
+            if ($metadatum['key'] === Common::KBC_METADATA_KEY_DEFAULT && $metadatum['value'] === '') {
                 $hasDefaultMetadata = true;
             }
         }

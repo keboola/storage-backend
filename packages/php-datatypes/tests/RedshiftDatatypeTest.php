@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\DataypeTest;
 
+use Keboola\Datatype\Definition\Common;
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
@@ -181,7 +182,7 @@ class RedshiftDatatypeTest extends \PHPUnit_Framework_TestCase
         $hasCompression = false;
         foreach ($md as $mdat) {
             $this->assertArrayHasKey("key", $mdat);
-            if ($mdat["key"] === "KBC.datatype.compression") {
+            if ($mdat["key"] === Common::KBC_METADATA_KEY_COMPRESSION) {
                 $this->assertEquals("ZSTD", $mdat["value"]);
                 $hasCompression = true;
             }

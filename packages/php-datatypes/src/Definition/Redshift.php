@@ -312,7 +312,7 @@ class Redshift extends Common
         $metadata = parent::toMetadata();
         if ($this->getCompression()) {
             $metadata[] = [
-                "key" => "KBC.datatype.compression",
+                "key" => Common::KBC_METADATA_KEY_COMPRESSION,
                 "value" => $this->getCompression()
             ];
         }

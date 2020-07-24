@@ -4,6 +4,14 @@ namespace Keboola\Datatype\Definition;
 
 abstract class Common
 {
+    const KBC_METADATA_KEY_TYPE = "KBC.datatype.type";
+    const KBC_METADATA_KEY_NULLABLE = "KBC.datatype.nullable";
+    const KBC_METADATA_KEY_BASETYPE = "KBC.datatype.basetype";
+    const KBC_METADATA_KEY_LENGTH = "KBC.datatype.length";
+    const KBC_METADATA_KEY_DEFAULT = "KBC.datatype.default";
+
+    const KBC_METADATA_KEY_COMPRESSION = "KBC.datatype.compression";
+    const KBC_METADATA_KEY_FORMAT = "KBC.datatype.format";
 
     /**
      * @var string
@@ -99,25 +107,25 @@ abstract class Common
     {
         $metadata = [
             [
-                "key" => "KBC.datatype.type",
+                "key" => self::KBC_METADATA_KEY_TYPE,
                 "value" => $this->getType(),
             ],[
-                "key" => "KBC.datatype.nullable",
+                "key" => self::KBC_METADATA_KEY_NULLABLE,
                 "value" => $this->isNullable()
             ],[
-                "key" => "KBC.datatype.basetype",
+                "key" => self::KBC_METADATA_KEY_BASETYPE,
                 "value" => $this->getBasetype()
             ]
         ];
         if ($this->getLength()) {
             $metadata[] = [
-                "key" => "KBC.datatype.length",
+                "key" => self::KBC_METADATA_KEY_LENGTH,
                 "value" => $this->getLength()
             ];
         }
         if (!is_null($this->getDefault())) {
             $metadata[] = [
-                "key" => "KBC.datatype.default",
+                "key" => self::KBC_METADATA_KEY_DEFAULT,
                 "value" => $this->getDefault()
             ];
         }
