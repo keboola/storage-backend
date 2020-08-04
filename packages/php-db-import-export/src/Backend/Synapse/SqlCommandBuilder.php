@@ -57,10 +57,10 @@ class SqlCommandBuilder
     ): string {
         $this->assertStagingTable($tableName);
         $columnsSql = array_map(function ($column) {
-            return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
+            return sprintf('%s nvarchar(max)', $this->platform->quoteSingleIdentifier($column));
         }, $columns);
         return sprintf(
-            'CREATE TABLE %s.%s (%s) WITH (LOCATION = USER_DB)',
+            'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
             $this->platform->quoteSingleIdentifier($schema),
             $this->platform->quoteSingleIdentifier($tableName),
             implode(', ', $columnsSql)
