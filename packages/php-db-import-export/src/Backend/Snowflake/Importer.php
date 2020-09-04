@@ -11,7 +11,7 @@ use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
-use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 class Importer implements ImporterInterface
@@ -52,7 +52,7 @@ class Importer implements ImporterInterface
     public function importTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptions $options
+        ImportOptionsInterface $options
     ): Result {
         $adapter = $this->getAdapter($source, $destination);
 
@@ -133,7 +133,7 @@ class Importer implements ImporterInterface
     private function importToStagingTable(
         Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         SnowflakeImportAdapterInterface $adapter
     ): void {
         try {
@@ -155,7 +155,7 @@ class Importer implements ImporterInterface
     }
 
     private function doIncrementalLoad(
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
         array $primaryKeys
@@ -243,7 +243,7 @@ class Importer implements ImporterInterface
     }
 
     private function doNonIncrementalLoad(
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
         array $primaryKeys

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend;
 
-use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 interface BackendImportAdapterInterface
@@ -20,7 +20,7 @@ interface BackendImportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName
     ): int;
 }

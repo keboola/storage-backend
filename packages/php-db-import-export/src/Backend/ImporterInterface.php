@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend;
 
 use Keboola\Db\Import\Result;
-use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 interface ImporterInterface
@@ -15,7 +15,7 @@ interface ImporterInterface
     public function importTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptions $options
+        ImportOptionsInterface $options
     ): Result;
 
     public function setAdapters(array $adapters): void;

@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
-use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
@@ -47,7 +47,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName
     ): int {
         $sql = $this->getCopyCommand($source, $destination, $importOptions, $stagingTableName);
@@ -67,7 +67,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     private function getCopyCommand(
         Storage\ABS\SourceFile $source,
         Storage\Synapse\Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName
     ): ?string {
         $sasToken = $source->getSasToken();

@@ -9,8 +9,8 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SqlCommandBuilder;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
@@ -45,7 +45,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName
     ): int {
         $commands = $this->getCommands($source, $destination, $importOptions, $stagingTableName);
@@ -65,7 +65,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     private function getCommands(
         Storage\ABS\SourceFile $source,
         Storage\Snowflake\Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName
     ): array {
         $filesToImport = $source->getManifestEntries();
@@ -101,7 +101,7 @@ FILES = (%s)',
     }
 
     private function getCsvCopyCommandOptions(
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         CsvOptions $csvOptions
     ): array {
         $options = [

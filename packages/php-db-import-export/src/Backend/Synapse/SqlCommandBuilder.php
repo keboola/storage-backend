@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Exception;
-use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 
@@ -184,7 +184,7 @@ class SqlCommandBuilder
     public function getInsertAllIntoTargetTableCommand(
         SourceInterface $source,
         Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName,
         string $timestamp
     ): string {
@@ -336,7 +336,7 @@ EOT
     public function getUpdateWithPkCommand(
         SourceInterface $source,
         Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName,
         array $primaryKeys,
         string $timestamp

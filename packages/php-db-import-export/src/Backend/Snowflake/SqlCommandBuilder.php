@@ -7,7 +7,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
-use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 
@@ -121,7 +121,7 @@ class SqlCommandBuilder
     public function getInsertAllIntoTargetTableCommand(
         SourceInterface $source,
         Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName
     ): string {
         $columnsSetSqlSelect = implode(', ', array_map(function ($column) use (
@@ -170,7 +170,7 @@ class SqlCommandBuilder
     public function getInsertFromStagingToTargetTableCommand(
         SourceInterface $source,
         Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName,
         string $timestampValue
     ): string {
@@ -248,7 +248,7 @@ class SqlCommandBuilder
     public function getUpdateWithPkCommand(
         SourceInterface $source,
         Table $destination,
-        ImportOptions $importOptions,
+        ImportOptionsInterface $importOptions,
         string $stagingTableName,
         array $primaryKeys,
         string $timestamp
