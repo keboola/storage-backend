@@ -7,7 +7,7 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\Synapse\PolyBaseCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportAdapterInterface;
-use Keboola\Db\ImportExport\ExportOptions;
+use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 class SynapseExportAdapter implements SynapseExportAdapterInterface
@@ -42,7 +42,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptions $exportOptions
+        ExportOptionsInterface $exportOptions
     ): void {
         $compression = $exportOptions->isCompressed() ?
             ',DATA_COMPRESSION = \'org.apache.hadoop.io.compress.GzipCodec\'' :

@@ -6,7 +6,7 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeExportAdapterInterface;
-use Keboola\Db\ImportExport\ExportOptions;
+use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
@@ -37,7 +37,7 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptions $exportOptions
+        ExportOptionsInterface $exportOptions
     ): void {
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
