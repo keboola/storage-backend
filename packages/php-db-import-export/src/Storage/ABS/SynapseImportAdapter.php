@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Synapse\SynapseImportOptions;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
@@ -43,6 +44,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     /**
      * @param Storage\ABS\SourceFile $source
      * @param Storage\Synapse\Table $destination
+     * @param SynapseImportOptions $importOptions
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
@@ -67,12 +69,27 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     private function getCopyCommand(
         Storage\ABS\SourceFile $source,
         Storage\Synapse\Table $destination,
-        ImportOptionsInterface $importOptions,
+        SynapseImportOptions $importOptions,
         string $stagingTableName
     ): ?string {
-        $sasToken = $source->getSasToken();
+
         $destinationSchema = $this->platform->quoteSingleIdentifier($destination->getSchema());
         $destinationTable = $this->platform->quoteSingleIdentifier($stagingTableName);
+
+        switch ($importOptions->getImportCredentialsType()) {
+            case SynapseImportOptions::CREDENTIALS_SAS:
+                $sasToken = $source->getSasToken();
+                $credentials = sprintf('IDENTITY=\'Shared Access Signature\', SECRET=\'?%s\'', $sasToken);
+                break;
+            case SynapseImportOptions::CREDENTIALS_MANAGED_IDENTITY:
+                $credentials = 'IDENTITY=\'Managed Identity\'';
+                break;
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'Unknown Synapse import credentials type "%s".',
+                    $importOptions->getImportCredentialsType()
+                ));
+        }
 
         $fieldDelimiter = $this->connection->quote($source->getCsvOptions()->getDelimiter());
         $firstRow = '';
@@ -98,7 +115,7 @@ COPY INTO $destinationSchema.$destinationTable
 FROM $entries
 WITH (
     FILE_TYPE='CSV',
-    CREDENTIAL=(IDENTITY='Shared Access Signature', SECRET='?$sasToken'),
+    CREDENTIAL=($credentials),
     FIELDQUOTE=$enclosure,
     FIELDTERMINATOR=$fieldDelimiter,
     ENCODING = 'UTF8',
