@@ -58,14 +58,49 @@ createServer(){
 
     echo "Firewall rule set."
 
+# get id of synapse server
+    local SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID=$(runCliCmd "az ad sp list \
+      --display-name ${SYNAPSE_SQL_SERVER_NAME} \
+      --query "[].objectId" \
+      --output tsv")
+
+    echo "Synapse principal objectId: ${SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID}."
+
+# get id of file storage
+    local FILE_STORAGE_RESOURCE_ID=$(runCliCmd "az resource show \
+      -g ${AZURE_RESOURCE_GROUP} \
+      --resource-type "Microsoft.Storage/storageAccounts" \
+      -n ${ABS_ACCOUNT_NAME} \
+      --query "id" \
+      --output tsv")
+
+    echo "File storage resource id: ${FILE_STORAGE_RESOURCE_ID}."
+
+    runCliCmd "az role assignment create \
+      --assignee ${SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID} \
+      --role \"Storage Blob Data Contributor\" \
+      --scope ${FILE_STORAGE_RESOURCE_ID}"
+
+    echo "MI role created."
+
 #    Set vars for php app
     export SYNAPSE_UID=keboola
     export SYNAPSE_PWD=${SYNAPSE_SERVER_PASSWORD}
     export SYNAPSE_DATABASE=${SYNAPSE_DW_SERVER_NAME}
     export SYNAPSE_SERVER=${SYNAPSE_SQL_SERVER_NAME}.database.windows.net
+# set vars for next run of script
+    export SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID=${SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID}
+    export FILE_STORAGE_RESOURCE_ID=${FILE_STORAGE_RESOURCE_ID}
 }
 
 deleteServer(){
+    runCliCmd "az role assignment delete \
+      --assignee ${SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID} \
+      --role \"Storage Blob Data Contributor\" \
+      --scope ${FILE_STORAGE_RESOURCE_ID}"
+
+  echo "Synapse MI role deleted."
+
     local output=$(runCliCmd "az sql dw delete -y \
   --resource-group ${AZURE_RESOURCE_GROUP} \
   --name ${SYNAPSE_DW_SERVER_NAME} \
