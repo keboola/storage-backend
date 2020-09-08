@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
+use Keboola\Db\ImportExport\Synapse\SynapseImportOptions;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class SynapseBaseTestCase extends ImportExportBaseTest
@@ -72,6 +73,24 @@ EOT
         }
     }
 
+    public function getSourceSchemaName(): string
+    {
+        return self::SYNAPSE_SOURCE_SCHEMA_NAME
+            . '-'
+            . getenv('CREDENTIALS_IMPORT_TYPE')
+            . '-'
+            . getenv('CREDENTIALS_EXPORT_TYPE');
+    }
+
+    public function getDestinationSchemaName(): string
+    {
+        return self::SYNAPSE_DEST_SCHEMA_NAME
+            .'-'
+            . getenv('CREDENTIALS_IMPORT_TYPE')
+            .'-'
+            . getenv('CREDENTIALS_EXPORT_TYPE');
+    }
+
     protected function initTables(array $tables): void
     {
         foreach ($tables as $table) {
@@ -91,33 +110,33 @@ EOT
           [lemma] nvarchar(4000) NOT NULL DEFAULT \'\',
           [lemmaIndex] nvarchar(4000) NOT NULL DEFAULT \'\',
           [_timestamp] datetime2
-        );', self::SYNAPSE_DEST_SCHEMA_NAME));
+        );', $this->getDestinationSchemaName()));
                 break;
             case self::TABLE_OUT_CSV_2COLS:
                 $this->connection->exec(sprintf('CREATE TABLE [%s].[out.csv_2Cols] (
           [col1] nvarchar(4000) NOT NULL DEFAULT \'\',
           [col2] nvarchar(4000) NOT NULL DEFAULT \'\',
           [_timestamp] datetime2
-        );', self::SYNAPSE_DEST_SCHEMA_NAME));
+        );', $this->getDestinationSchemaName()));
 
                 $this->connection->exec(sprintf(
                     'INSERT INTO [%s].[out.csv_2Cols] VALUES
                   (\'x\', \'y\', \'%s\');',
-                    self::SYNAPSE_DEST_SCHEMA_NAME,
+                    $this->getDestinationSchemaName(),
                     $now
                 ));
 
                 $this->connection->exec(sprintf('CREATE TABLE [%s].[out.csv_2Cols] (
           [col1] nvarchar(4000) NOT NULL DEFAULT \'\',
           [col2] nvarchar(4000) NOT NULL DEFAULT \'\'
-        );', self::SYNAPSE_SOURCE_SCHEMA_NAME));
+        );', $this->getSourceSchemaName()));
 
                 $this->connection->exec(sprintf('INSERT INTO [%s].[out.csv_2Cols] VALUES
                 (\'a\', \'b\');
-        ', self::SYNAPSE_SOURCE_SCHEMA_NAME));
+        ', $this->getSourceSchemaName()));
                 $this->connection->exec(sprintf('INSERT INTO [%s].[out.csv_2Cols] VALUES
                 (\'c\', \'d\');
-        ', self::SYNAPSE_SOURCE_SCHEMA_NAME));
+        ', $this->getSourceSchemaName()));
                 break;
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->exec(sprintf(
@@ -137,7 +156,7 @@ EOT
                 [_timestamp] datetime2,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             )',
-                    self::SYNAPSE_DEST_SCHEMA_NAME
+                    $this->getDestinationSchemaName()
                 ));
                 break;
             case self::TABLE_ACCOUNTS_BEZ_TS:
@@ -157,7 +176,7 @@ EOT
                 [idApp] nvarchar(4000) NOT NULL,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             )',
-                    self::SYNAPSE_DEST_SCHEMA_NAME
+                    $this->getDestinationSchemaName()
                 ));
                 break;
             case self::TABLE_TABLE:
@@ -167,7 +186,7 @@ EOT
               [table] nvarchar(4000) NOT NULL DEFAULT \'\',
               [_timestamp] datetime2
             );',
-                    self::SYNAPSE_DEST_SCHEMA_NAME
+                    $this->getDestinationSchemaName()
                 ));
                 break;
             case self::TABLE_TYPES:
@@ -179,7 +198,7 @@ EOT
               [boolCol] nvarchar(4000) NOT NULL,
               [_timestamp] datetime2
             );',
-                    self::SYNAPSE_DEST_SCHEMA_NAME
+                    $this->getDestinationSchemaName()
                 ));
 
                 $this->connection->exec(sprintf(
@@ -189,13 +208,13 @@ EOT
               [floatCol] float NOT NULL,
               [boolCol] tinyint NOT NULL
             );',
-                    self::SYNAPSE_SOURCE_SCHEMA_NAME
+                    $this->getSourceSchemaName()
                 ));
                 $this->connection->exec(sprintf(
                     'INSERT INTO [%s].[types] VALUES 
               (\'a\', \'10.5\', \'0.3\', 1)
            ;',
-                    self::SYNAPSE_SOURCE_SCHEMA_NAME
+                    $this->getSourceSchemaName()
                 ));
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
@@ -204,7 +223,7 @@ EOT
               [col1] nvarchar(4000) NOT NULL DEFAULT \'\',
               [col2] nvarchar(4000) NOT NULL DEFAULT \'\'
             );',
-                    self::SYNAPSE_DEST_SCHEMA_NAME
+                    $this->getDestinationSchemaName()
                 ));
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
@@ -215,7 +234,7 @@ EOT
               [_timestamp] datetime2,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             );',
-                    self::SYNAPSE_DEST_SCHEMA_NAME
+                    $this->getDestinationSchemaName()
                 ));
                 break;
             case self::TABLE_MULTI_PK:
@@ -229,7 +248,7 @@ EOT
             [_timestamp] datetime2,
             PRIMARY KEY NONCLUSTERED("VisitID","Value","MenuItem") NOT ENFORCED
             );',
-                    self::SYNAPSE_DEST_SCHEMA_NAME
+                    $this->getDestinationSchemaName()
                 ));
                 break;
         }
@@ -272,7 +291,7 @@ EOT
     protected function assertTableEqualsExpected(
         SourceInterface $source,
         Table $table,
-        ImportOptions $options,
+        SynapseImportOptions $options,
         array $expected,
         $sortKey,
         string $message = 'Imported tables are not the same as expected'
@@ -312,6 +331,30 @@ EOT
             $queryResult,
             $sortKey,
             $message
+        );
+    }
+
+    protected function getSynapseImportOptions(
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+    ): SynapseImportOptions {
+        return new SynapseImportOptions(
+            [],
+            false,
+            true,
+            $skipLines,
+            getenv('CREDENTIALS_IMPORT_TYPE')
+        );
+    }
+
+    protected function getSynapseIncrementalImportOptions(
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+    ): SynapseImportOptions {
+        return new SynapseImportOptions(
+            [],
+            true,
+            true,
+            $skipLines,
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
     }
 }
