@@ -66,6 +66,15 @@ CREATE MASTER KEY;
 ```
 this will create master key for polybase.
 
+##### Managed Identity
+
+Managed Identity is required when using ABS in vnet.
+[docs](https://docs.microsoft.com/en-us/azure/azure-sql/database/vnet-service-endpoint-rule-overview#impact-of-using-vnet-service-endpoints-with-azure-storage)
+How to setup and use Managed Identity is described in [docs](https://docs.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/quickstart-bulk-load-copy-tsql-examples#c-managed-identity)
+
+> TLDR;
+> In IAM of ABS add role assignment "Blob Storage Data {Reader or Contributor}" to your Synapse server principal
+
 ### Tests
 
 Run tests with following command.
