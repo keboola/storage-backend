@@ -6,7 +6,7 @@ namespace Keboola\Db\ImportExport;
 
 use Keboola\Db\ImportExport\Backend\BackendHelper;
 
-class ExportOptions
+class ExportOptions implements ExportOptionsInterface
 {
     /**
      * @var bool

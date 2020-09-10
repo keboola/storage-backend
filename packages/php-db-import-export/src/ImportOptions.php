@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport;
 
-class ImportOptions
+class ImportOptions implements ImportOptionsInterface
 {
     public const SKIP_NO_LINE = 0;
     public const SKIP_FIRST_LINE = 1;

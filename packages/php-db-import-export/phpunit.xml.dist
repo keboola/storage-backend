@@ -18,6 +18,11 @@
             <directory>tests/functional/Synapse</directory>
         </testsuite>
 
+        <testsuite name="synapse-mi">
+            <directory>tests/functional/Synapse</directory>
+            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
+        </testsuite>
+
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>

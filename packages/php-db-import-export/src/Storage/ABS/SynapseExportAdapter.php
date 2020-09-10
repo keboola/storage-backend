@@ -7,8 +7,9 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\Synapse\PolyBaseCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportAdapterInterface;
-use Keboola\Db\ImportExport\ExportOptions;
+use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
 
 class SynapseExportAdapter implements SynapseExportAdapterInterface
 {
@@ -38,11 +39,12 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
     /**
      * @param Storage\SqlSourceInterface $source
      * @param Storage\ABS\DestinationFile $destination
+     * @param SynapseExportOptions $exportOptions
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptions $exportOptions
+        ExportOptionsInterface $exportOptions
     ): void {
         $compression = $exportOptions->isCompressed() ?
             ',DATA_COMPRESSION = \'org.apache.hadoop.io.compress.GzipCodec\'' :
@@ -50,7 +52,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         //https://docs.microsoft.com/en-us/sql/t-sql/statements/create-external-file-format-transact-sql?view=azure-sqldw-latest#arguments
         $dateFormat = 'yyyy-MM-dd HH:mm:ss';
         $exportId = $exportOptions->getExportId();
-        $sasToken = $destination->getBlobMasterKey();
+        $blobMasterKey = $destination->getBlobMasterKey();
         $containerUrl = $destination->getPolyBaseUrl();
         $credentialsId = $exportId . '_StorageCredential';
         $dataSourceId = $exportId . '_StorageSource';
@@ -60,7 +62,11 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
 
         $exception = null;
         try {
-            $sql = $this->polyBase->getCredentialsQuery($credentialsId, $sasToken);
+            $sql = $this->polyBase->getCredentialsQuery(
+                $credentialsId,
+                $exportOptions->getExportCredentialsType(),
+                $blobMasterKey
+            );
             $this->connection->exec($sql);
 
             $sql = $this->polyBase->getDataSourceQuery($dataSourceId, $containerUrl, $credentialsId);

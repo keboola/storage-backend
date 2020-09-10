@@ -6,10 +6,9 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
 use DateTime;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
-use PHP_CodeSniffer\Reports\Source;
+use Keboola\Db\ImportExport\Synapse\SynapseImportOptions;
 
 class SqlCommandBuilderTest extends SynapseBaseTestCase
 {
@@ -158,9 +157,9 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         return new Table(self::TEST_SCHEMA, self::TEST_TABLE);
     }
 
-    private function getDummyImportOptions(): ImportOptions
+    private function getDummyImportOptions(): SynapseImportOptions
     {
-        return new ImportOptions([]);
+        return new SynapseImportOptions([]);
     }
 
     public function testGetDeleteOldItemsCommand(): void
@@ -370,7 +369,7 @@ EOT
         $this->createStagingTableWithData(true);
 
         // convert col1 to null
-        $options = new ImportOptions(['col1']);
+        $options = new SynapseImportOptions(['col1']);
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
             $this->getDummySource(),
             $this->getDummyTableDestination(),
@@ -422,7 +421,7 @@ EOT
         $this->createStagingTableWithData(true);
 
         // use timestamp
-        $options = new ImportOptions(['col1'], false, true);
+        $options = new SynapseImportOptions(['col1'], false, true);
         $sql = $this->qb->getInsertAllIntoTargetTableCommand(
             $this->getDummySource(),
             $this->getDummyTableDestination(),
@@ -715,7 +714,7 @@ EOT
             ],
         ], $result);
 
-        $options = new ImportOptions(['col1']);
+        $options = new SynapseImportOptions(['col1']);
 
         // converver values
         $sql = $this->qb->getUpdateWithPkCommand(
@@ -796,7 +795,7 @@ EOT
         ], $result);
 
         // use timestamp
-        $options = new ImportOptions(['col1'], false, true);
+        $options = new SynapseImportOptions(['col1'], false, true);
         $sql = $this->qb->getUpdateWithPkCommand(
             $this->getDummySource(),
             $this->getDummyTableDestination(),

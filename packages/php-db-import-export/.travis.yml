@@ -36,6 +36,7 @@ script:
     travis_wait 60 parallel -j12 --linebuffer docker-compose run production composer :::
     tests-snowflake
     tests-synapse
+    tests-synapse-mi
 after_script:
   # delete synapse
   - bash ./provisioning/synapse/synapse.sh -d

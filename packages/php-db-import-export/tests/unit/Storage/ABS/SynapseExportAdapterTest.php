@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\ExportOptions;
+use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
 use PHPUnit\Framework\MockObject\MockObject;
 use Keboola\Db\ImportExport\Storage;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
@@ -126,14 +127,15 @@ EOT
     }
 
     /**
-     * @return ExportOptions|MockObject
+     * @return SynapseExportOptions|MockObject
      */
-    private function getOptionsMock(bool $compressed)
+    private function getOptionsMock(bool $compressed, string $credentialsType = 'MASTER_KEY')
     {
-        /** @var ExportOptions|MockObject $destination */
-        $options = $this->createMock(ExportOptions::class);
+        /** @var SynapseExportOptions|MockObject $destination */
+        $options = $this->createMock(SynapseExportOptions::class);
         $options->expects($this->once())->method('isCompressed')->willReturn($compressed);
         $options->expects($this->once())->method('getExportId')->willReturn('random_export_id');
+        $options->expects($this->once())->method('getExportCredentialsType')->willReturn($credentialsType);
         return $options;
     }
 
@@ -324,6 +326,102 @@ WITH
         USE_TYPE_DEFAULT = FALSE
     )
     ,DATA_COMPRESSION = 'org.apache.hadoop.io.compress.GzipCodec'
+);
+EOT
+                ,
+            ],
+            [
+                <<<EOT
+DROP EXTERNAL TABLE [random_export_id_StorageExternalTable]
+EOT
+                ,
+            ],
+            [
+                <<<EOT
+DROP EXTERNAL FILE FORMAT [random_export_id_StorageFileFormat]
+EOT
+                ,
+            ],
+            [
+                <<<EOT
+DROP EXTERNAL DATA SOURCE [random_export_id_StorageSource]
+EOT
+                ,
+            ],
+            [
+                <<<EOT
+DROP DATABASE SCOPED CREDENTIAL [random_export_id_StorageCredential]
+EOT
+                ,
+            ]
+        );
+
+        $source = new Storage\Synapse\Table('schema', 'table');
+        $adapter = new Storage\ABS\SynapseExportAdapter($conn);
+        $adapter->runCopyCommand(
+            $source,
+            $destination,
+            $options
+        );
+    }
+
+
+    public function testRunCopyCommandManagedIdentity(): void
+    {
+        $destination = $this->getDestinationMock();
+        $options = $this->getOptionsMock(false, 'MANAGED_IDENTITY');
+        $conn = $this->getConnectionMock();
+
+        $conn->expects($this->once())->method('executeQuery')->with(
+            <<<EOT
+CREATE EXTERNAL TABLE [random_export_id_StorageExternalTable]
+WITH 
+(
+    LOCATION='/path/to/export',
+    DATA_SOURCE = [random_export_id_StorageSource],
+    FILE_FORMAT = [random_export_id_StorageFileFormat]
+)
+AS
+SELECT * FROM [schema].[table]
+EOT
+        );
+
+        $conn->expects($this->exactly(7))->method('exec')->withConsecutive(
+            [
+                <<<EOT
+CREATE DATABASE SCOPED CREDENTIAL [random_export_id_StorageCredential]
+WITH
+    IDENTITY = 'Managed Service Identity'
+;
+EOT
+                ,
+            ],
+            [
+                <<<EOT
+CREATE EXTERNAL DATA SOURCE [random_export_id_StorageSource]
+WITH 
+(
+    TYPE = HADOOP,
+    LOCATION = 'wasbs://container@account.blob.core.windows.net/',
+    CREDENTIAL = [random_export_id_StorageCredential]
+);
+EOT
+                ,
+            ],
+            [
+                <<<EOT
+CREATE EXTERNAL FILE FORMAT [random_export_id_StorageFileFormat]
+WITH
+(
+    FORMAT_TYPE = DelimitedText,
+    FORMAT_OPTIONS 
+    (
+        FIELD_TERMINATOR = ',',
+        STRING_DELIMITER = '"',
+        DATE_FORMAT = 'yyyy-MM-dd HH:mm:ss',
+        USE_TYPE_DEFAULT = FALSE
+    )
+    
 );
 EOT
                 ,

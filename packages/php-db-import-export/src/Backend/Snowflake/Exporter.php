@@ -7,7 +7,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake;
 use Exception;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ExporterInterface;
-use Keboola\Db\ImportExport\ExportOptions;
+use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 class Exporter implements ExporterInterface
@@ -34,7 +34,7 @@ class Exporter implements ExporterInterface
     public function exportTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptions $options
+        ExportOptionsInterface $options
     ): void {
         $adapter = $this->getAdapter($source, $destination);
         $adapter->runCopyCommand($source, $destination, $options);

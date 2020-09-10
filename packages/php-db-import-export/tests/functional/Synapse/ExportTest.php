@@ -8,8 +8,8 @@ use Keboola\CsvOptions\CsvOptions;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Synapse\Exporter;
 use Keboola\Db\ImportExport\Backend\Synapse\Importer;
-use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
@@ -17,6 +17,15 @@ use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 class ExportTest extends SynapseBaseTestCase
 {
     private const EXPORT_BLOB_DIR = 'synapse_test_export';
+
+    public function getExportBlobDir(): string
+    {
+        return self::EXPORT_BLOB_DIR
+            . '-'
+            . getenv('CREDENTIALS_IMPORT_TYPE')
+            . '-'
+            . getenv('CREDENTIALS_EXPORT_TYPE');
+    }
 
     /**
      * @var BlobRestProxy
@@ -34,15 +43,15 @@ class ExportTest extends SynapseBaseTestCase
         $this->blobClient = BlobRestProxy::createBlobService($connectionString);
         // delete blobs from EXPORT_BLOB_DIR
         $listOptions = new ListBlobsOptions();
-        $listOptions->setPrefix(self::EXPORT_BLOB_DIR);
+        $listOptions->setPrefix($this->getExportBlobDir());
         $blobs = $this->blobClient->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions);
         foreach ($blobs->getBlobs() as $blob) {
             $this->blobClient->deleteBlob((string) getenv('ABS_CONTAINER_NAME'), $blob->getName());
         }
-        $this->dropAllWithinSchema(self::SYNAPSE_DEST_SCHEMA_NAME);
-        $this->dropAllWithinSchema(self::SYNAPSE_SOURCE_SCHEMA_NAME);
-        $this->connection->exec(sprintf('CREATE SCHEMA [%s]', self::SYNAPSE_DEST_SCHEMA_NAME));
-        $this->connection->exec(sprintf('CREATE SCHEMA [%s]', self::SYNAPSE_SOURCE_SCHEMA_NAME));
+        $this->dropAllWithinSchema($this->getDestinationSchemaName());
+        $this->dropAllWithinSchema($this->getSourceSchemaName());
+        $this->connection->exec(sprintf('CREATE SCHEMA [%s]', $this->getDestinationSchemaName()));
+        $this->connection->exec(sprintf('CREATE SCHEMA [%s]', $this->getSourceSchemaName()));
     }
 
     public function tearDown(): void
@@ -57,8 +66,8 @@ class ExportTest extends SynapseBaseTestCase
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
-        $options = $this->getSimpleImportOptions();
+        $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'out.csv_2Cols');
+        $options = $this->getSynapseImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -68,8 +77,8 @@ class ExportTest extends SynapseBaseTestCase
 
         // export
         $source = $destination;
-        $options = new ExportOptions(true);
-        $destinationBlob = self::EXPORT_BLOB_DIR . '/gz_test/';
+        $options = new SynapseExportOptions(true);
+        $destinationBlob = $this->getExportBlobDir() . '/gz_test/';
         $destination = $this->createABSSourceDestinationInstance($destinationBlob);
 
         (new Exporter($this->connection))->exportTable(
@@ -106,8 +115,8 @@ class ExportTest extends SynapseBaseTestCase
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
-        $options = $this->getSimpleImportOptions();
+        $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'out.csv_2Cols');
+        $options = $this->getSynapseImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -117,8 +126,8 @@ class ExportTest extends SynapseBaseTestCase
 
         // export
         $source = $destination;
-        $options = new ExportOptions();
-        $destinationBlob = self::EXPORT_BLOB_DIR . '/ts_test/';
+        $options = new SynapseExportOptions();
+        $destinationBlob = $this->getExportBlobDir() . '/ts_test/';
         $destination = $this->createABSSourceDestinationInstance($destinationBlob);
 
         (new Exporter($this->connection))->exportTable(
@@ -176,8 +185,8 @@ class ExportTest extends SynapseBaseTestCase
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3');
-        $options = $this->getSimpleImportOptions();
+        $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'accounts-3');
+        $options = $this->getSynapseImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -200,9 +209,9 @@ class ExportTest extends SynapseBaseTestCase
             $destination->getQuotedTableWithScheme()
         );
         $source = new Storage\Synapse\SelectSource($query);
-        $options = new ExportOptions();
-        $destinationBlob = self::EXPORT_BLOB_DIR . '/tw_test/';
-        $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/tw_test');
+        $options = new SynapseExportOptions();
+        $destinationBlob = $this->getExportBlobDir() . '/tw_test/';
+        $destination = $this->createABSSourceDestinationInstance($this->getExportBlobDir() . '/tw_test');
 
         (new Exporter($this->connection))->exportTable(
             $source,
@@ -237,8 +246,8 @@ class ExportTest extends SynapseBaseTestCase
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
-        $destination = new Storage\Synapse\Table(self::SYNAPSE_DEST_SCHEMA_NAME, 'accounts-3');
-        $options = $this->getSimpleImportOptions();
+        $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'accounts-3');
+        $options = $this->getSynapseImportOptions();
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -254,9 +263,9 @@ class ExportTest extends SynapseBaseTestCase
             $destination->getQuotedTableWithScheme()
         );
         $source = new Storage\Synapse\SelectSource($query, [15]);
-        $options = new ExportOptions();
-        $destinationBlob = self::EXPORT_BLOB_DIR . '/tw_test/';
-        $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/tw_test');
+        $options = new SynapseExportOptions();
+        $destinationBlob = $this->getExportBlobDir() . '/tw_test/';
+        $destination = $this->createABSSourceDestinationInstance($this->getExportBlobDir() . '/tw_test');
 
         (new Exporter($this->connection))->exportTable(
             $source,

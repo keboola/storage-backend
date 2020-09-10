@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
 
 class PolyBaseCommandBuilder
 {
@@ -23,18 +24,36 @@ class PolyBaseCommandBuilder
         $this->platform = $connection->getDatabasePlatform();
     }
 
-    public function getCredentialsQuery(string $credentialsId, string $sasToken): string
-    {
+    public function getCredentialsQuery(
+        string $credentialsId,
+        string $exportCredentialsType,
+        ?string $blobMasterKey = null
+    ): string {
         $credentialsId = $this->platform->quoteSingleIdentifier($credentialsId);
-        $sasToken = $this->connection->quote($sasToken);
+        $blobMasterKey = $this->connection->quote($blobMasterKey);
 
-        return <<< EOT
+        switch ($exportCredentialsType) {
+            case SynapseExportOptions::CREDENTIALS_MANAGED_IDENTITY:
+                return <<< EOT
+CREATE DATABASE SCOPED CREDENTIAL $credentialsId
+WITH
+    IDENTITY = 'Managed Service Identity'
+;
+EOT;
+            case SynapseExportOptions::CREDENTIALS_MASTER_KEY:
+                return <<< EOT
 CREATE DATABASE SCOPED CREDENTIAL $credentialsId
 WITH
     IDENTITY = 'user',
-    SECRET = $sasToken
+    SECRET = $blobMasterKey
 ;
 EOT;
+            default:
+                throw new \InvalidArgumentException(sprintf(
+                    'Unknown Synapse export credentials type "%s".',
+                    $exportCredentialsType
+                ));
+        }
     }
 
     public function getDataSourceQuery(

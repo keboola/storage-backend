@@ -29,6 +29,9 @@
                 "administratorLogin": "[parameters('administratorLogin')]",
                 "administratorLoginPassword": "[parameters('administratorPassword')]"
             },
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "resources": [
                 {
                     "type": "databases",
