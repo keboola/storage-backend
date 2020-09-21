@@ -8,7 +8,7 @@ use DateTime;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
-use Keboola\Db\ImportExport\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 
 class SqlCommandBuilderTest extends SynapseBaseTestCase
 {

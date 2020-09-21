@@ -8,7 +8,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Synapse\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 
 class IncrementalImportTest extends SynapseBaseTestCase
 {

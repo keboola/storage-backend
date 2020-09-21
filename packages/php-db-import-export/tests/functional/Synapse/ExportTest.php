@@ -9,7 +9,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Synapse\Exporter;
 use Keboola\Db\ImportExport\Backend\Synapse\Importer;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;

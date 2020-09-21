@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Synapse;
+namespace Keboola\Db\ImportExport\Backend\Synapse;
 
 use Keboola\Db\ImportExport\ImportOptions;
 

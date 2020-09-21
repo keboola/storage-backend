@@ -9,7 +9,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\PolyBaseCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 
 class SynapseExportAdapter implements SynapseExportAdapterInterface
 {

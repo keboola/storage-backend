@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\ExportOptions;
-use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 use PHPUnit\Framework\MockObject\MockObject;
 use Keboola\Db\ImportExport\Storage;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
