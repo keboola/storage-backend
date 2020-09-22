@@ -7,8 +7,8 @@ namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOSqlsrv;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
+use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
 use PHPUnit\Framework\MockObject\MockObject;
 use Keboola\Db\ImportExport\Storage;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
@@ -111,19 +111,9 @@ EOT
         );
     }
 
-    /**
-     * @return Storage\ABS\DestinationFile|MockObject
-     */
-    private function getDestinationMock()
+    private function getDestinationMock(): DestinationFile
     {
-        /** @var Storage\ABS\DestinationFile|MockObject $destination */
-        $destination = $this->createMock(Storage\ABS\DestinationFile::class);
-        $destination->expects($this->once())->method('getFilePath')->willReturn('/path/to/export');
-        $destination->expects($this->once())->method('getBlobMasterKey')->willReturn('masterKey');
-        $destination->expects($this->once())->method('getPolyBaseUrl')->willReturn(
-            'wasbs://container@account.blob.core.windows.net/'
-        );
-        return $destination;
+        return new DestinationFile('container', '/path/to/export', 'sasToken', 'account', 'masterKey');
     }
 
     /**
@@ -135,7 +125,7 @@ EOT
         $options = $this->createMock(SynapseExportOptions::class);
         $options->expects($this->once())->method('isCompressed')->willReturn($compressed);
         $options->expects($this->once())->method('getExportId')->willReturn('random_export_id');
-        $options->expects($this->once())->method('getExportCredentialsType')->willReturn($credentialsType);
+        $options->expects($this->exactly(2))->method('getExportCredentialsType')->willReturn($credentialsType);
         return $options;
     }
 
@@ -365,7 +355,6 @@ EOT
         );
     }
 
-
     public function testRunCopyCommandManagedIdentity(): void
     {
         $destination = $this->getDestinationMock();
@@ -402,7 +391,7 @@ CREATE EXTERNAL DATA SOURCE [random_export_id_StorageSource]
 WITH 
 (
     TYPE = HADOOP,
-    LOCATION = 'wasbs://container@account.blob.core.windows.net/',
+    LOCATION = 'abfss://container@account.dfs.core.windows.net/',
     CREDENTIAL = [random_export_id_StorageCredential]
 );
 EOT
