@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
+
 abstract class BaseFile
 {
     public const PROTOCOL_AZURE = 'azure';
@@ -60,8 +62,15 @@ abstract class BaseFile
         );
     }
 
-    public function getPolyBaseUrl(): string
+    public function getPolyBaseUrl(string $credentialsType): string
     {
+        if ($credentialsType === SynapseExportOptions::CREDENTIALS_MANAGED_IDENTITY) {
+            return sprintf(
+                'abfss://%s@%s.dfs.core.windows.net/',
+                $this->container,
+                $this->accountName
+            );
+        }
         return sprintf(
             'wasbs://%s@%s.blob.core.windows.net/',
             $this->container,

@@ -53,7 +53,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         $dateFormat = 'yyyy-MM-dd HH:mm:ss';
         $exportId = $exportOptions->getExportId();
         $blobMasterKey = $destination->getBlobMasterKey();
-        $containerUrl = $destination->getPolyBaseUrl();
+        $containerUrl = $destination->getPolyBaseUrl($exportOptions->getExportCredentialsType());
         $credentialsId = $exportId . '_StorageCredential';
         $dataSourceId = $exportId . '_StorageSource';
         $fileFormatId = $exportId . '_StorageFileFormat';
