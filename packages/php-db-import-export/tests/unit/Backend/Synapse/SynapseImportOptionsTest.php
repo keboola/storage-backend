@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse;
 
-use Keboola\Db\ImportExport\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use PHPUnit\Framework\TestCase;
 
 class SynapseImportOptionsTest extends TestCase

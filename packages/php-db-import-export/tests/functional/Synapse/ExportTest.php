@@ -9,7 +9,7 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Synapse\Exporter;
 use Keboola\Db\ImportExport\Backend\Synapse\Importer;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
@@ -77,7 +77,7 @@ class ExportTest extends SynapseBaseTestCase
 
         // export
         $source = $destination;
-        $options = new SynapseExportOptions(true);
+        $options = new SynapseExportOptions(true, getenv('CREDENTIALS_EXPORT_TYPE'));
         $destinationBlob = $this->getExportBlobDir() . '/gz_test/';
         $destination = $this->createABSSourceDestinationInstance($destinationBlob);
 
@@ -126,7 +126,7 @@ class ExportTest extends SynapseBaseTestCase
 
         // export
         $source = $destination;
-        $options = new SynapseExportOptions();
+        $options = new SynapseExportOptions(false, getenv('CREDENTIALS_EXPORT_TYPE'));
         $destinationBlob = $this->getExportBlobDir() . '/ts_test/';
         $destination = $this->createABSSourceDestinationInstance($destinationBlob);
 
@@ -209,7 +209,7 @@ class ExportTest extends SynapseBaseTestCase
             $destination->getQuotedTableWithScheme()
         );
         $source = new Storage\Synapse\SelectSource($query);
-        $options = new SynapseExportOptions();
+        $options = new SynapseExportOptions(false, getenv('CREDENTIALS_EXPORT_TYPE'));
         $destinationBlob = $this->getExportBlobDir() . '/tw_test/';
         $destination = $this->createABSSourceDestinationInstance($this->getExportBlobDir() . '/tw_test');
 
@@ -263,7 +263,7 @@ class ExportTest extends SynapseBaseTestCase
             $destination->getQuotedTableWithScheme()
         );
         $source = new Storage\Synapse\SelectSource($query, [15]);
-        $options = new SynapseExportOptions();
+        $options = new SynapseExportOptions(false, getenv('CREDENTIALS_EXPORT_TYPE'));
         $destinationBlob = $this->getExportBlobDir() . '/tw_test/';
         $destination = $this->createABSSourceDestinationInstance($this->getExportBlobDir() . '/tw_test');
 

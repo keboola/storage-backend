@@ -10,7 +10,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
 {

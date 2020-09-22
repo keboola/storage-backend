@@ -9,7 +9,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\PolyBaseCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Synapse\SynapseExportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 
 class SynapseExportAdapter implements SynapseExportAdapterInterface
 {
@@ -53,7 +53,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         $dateFormat = 'yyyy-MM-dd HH:mm:ss';
         $exportId = $exportOptions->getExportId();
         $blobMasterKey = $destination->getBlobMasterKey();
-        $containerUrl = $destination->getPolyBaseUrl();
+        $containerUrl = $destination->getPolyBaseUrl($exportOptions->getExportCredentialsType());
         $credentialsId = $exportId . '_StorageCredential';
         $dataSourceId = $exportId . '_StorageSource';
         $fileFormatId = $exportId . '_StorageFileFormat';
