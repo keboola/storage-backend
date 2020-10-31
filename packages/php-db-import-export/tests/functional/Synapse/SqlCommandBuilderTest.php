@@ -30,7 +30,7 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         $this->dropAllWithinSchema(self::TEST_SCHEMA);
     }
 
-    public function testGetCreateStagingTableCommand(): void
+    public function testGetCreateStagingTableCommandHEAP(): void
     {
         $this->createTestSchema();
         $sql = $this->qb->getCreateTempTableCommand(
@@ -39,12 +39,41 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             [
                 'col1',
                 'col2',
-            ]
+            ],
+            new SynapseImportOptions()
         );
 
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB)',
+            $sql
+        );
+        $this->connection->exec($sql);
+    }
+
+    public function testGetCreateStagingTableCommandCOLUMNSTORE(): void
+    {
+        $this->createTestSchema();
+        $sql = $this->qb->getCreateTempTableCommand(
+            self::TEST_SCHEMA,
+            '#' . self::TEST_TABLE,
+            [
+                'col1',
+                'col2',
+            ],
+            new SynapseImportOptions(
+                [],
+                false,
+                false,
+                0,
+                SynapseImportOptions::CREDENTIALS_SAS,
+                SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
+            )
+        );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED COLUMNSTORE INDEX)',
             $sql
         );
         $this->connection->exec($sql);
@@ -68,7 +97,8 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 'pk2',
                 'col1',
                 'col2',
-            ]
+            ],
+            new SynapseImportOptions()
         );
         $this->connection->exec($sql);
 
@@ -107,7 +137,8 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 'pk2',
                 'col1',
                 'col2',
-            ]
+            ],
+            new SynapseImportOptions()
         ));
         $this->connection->exec(
             sprintf(
@@ -167,18 +198,18 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         $this->createTestSchema();
         $table = self::TEST_TABLE_IN_SCHEMA;
         $this->connection->exec(<<<EOT
-CREATE TABLE $table (  
+CREATE TABLE $table (
     [id] INT PRIMARY KEY NONCLUSTERED NOT ENFORCED,
     [pk1] nvarchar(4000),
     [pk2] nvarchar(4000),
     [col1] nvarchar(4000),
     [col2] nvarchar(4000)
-)  
+)
 WITH
     (
-      PARTITION ( id RANGE LEFT FOR VALUES ( )),  
-      CLUSTERED COLUMNSTORE INDEX  
-    ) 
+      PARTITION ( id RANGE LEFT FOR VALUES ( )),
+      CLUSTERED COLUMNSTORE INDEX
+    )
 EOT
         );
         $this->connection->exec(
@@ -196,7 +227,8 @@ EOT
                 'pk2',
                 'col1',
                 'col2',
-            ]
+            ],
+            new SynapseImportOptions()
         ));
         $this->connection->exec(
             sprintf(
@@ -269,14 +301,14 @@ EOT
     {
         $table = self::TEST_TABLE_IN_SCHEMA;
         $this->connection->exec(<<<EOT
-CREATE TABLE $table (  
+CREATE TABLE $table (
     id int NOT NULL
-)  
+)
 WITH
     (
-      PARTITION ( id RANGE LEFT FOR VALUES ( )),  
-      CLUSTERED COLUMNSTORE INDEX  
-    ) 
+      PARTITION ( id RANGE LEFT FOR VALUES ( )),
+      CLUSTERED COLUMNSTORE INDEX
+    )
 EOT
         );
     }
@@ -347,17 +379,17 @@ EOT
         }
 
         $this->connection->exec(<<<EOT
-CREATE TABLE $table (  
+CREATE TABLE $table (
     $idDeclaration,
     col1 varchar,
     col2 varchar
     $timestampDeclaration
-)  
+)
 WITH
     (
-      PARTITION ( id RANGE LEFT FOR VALUES ( )),  
-      CLUSTERED COLUMNSTORE INDEX  
-    ) 
+      PARTITION ( id RANGE LEFT FOR VALUES ( )),
+      CLUSTERED COLUMNSTORE INDEX
+    )
 EOT
         );
     }

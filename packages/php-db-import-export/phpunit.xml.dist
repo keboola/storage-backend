@@ -23,6 +23,11 @@
             <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
         </testsuite>
 
+        <testsuite name="synapse-real-temp-table">
+            <directory>tests/functional/Synapse</directory>
+            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
+        </testsuite>
+
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>

@@ -37,6 +37,7 @@ script:
     tests-snowflake
     tests-synapse
     tests-synapse-mi
+    tests-synapse-real-temp-table
 after_script:
   # delete synapse
   - bash ./provisioning/synapse/synapse.sh -d

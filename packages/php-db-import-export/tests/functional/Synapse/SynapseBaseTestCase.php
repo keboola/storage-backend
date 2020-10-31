@@ -79,7 +79,9 @@ EOT
             . '-'
             . getenv('CREDENTIALS_IMPORT_TYPE')
             . '-'
-            . getenv('CREDENTIALS_EXPORT_TYPE');
+            . getenv('CREDENTIALS_EXPORT_TYPE')
+            . '-'
+            . getenv('TEMP_TABLE_TYPE');
     }
 
     public function getDestinationSchemaName(): string
@@ -88,7 +90,9 @@ EOT
             .'-'
             . getenv('CREDENTIALS_IMPORT_TYPE')
             .'-'
-            . getenv('CREDENTIALS_EXPORT_TYPE');
+            . getenv('CREDENTIALS_EXPORT_TYPE')
+            . '-'
+            . getenv('TEMP_TABLE_TYPE');
     }
 
     protected function initTables(array $tables): void
@@ -211,7 +215,7 @@ EOT
                     $this->getSourceSchemaName()
                 ));
                 $this->connection->exec(sprintf(
-                    'INSERT INTO [%s].[types] VALUES 
+                    'INSERT INTO [%s].[types] VALUES
               (\'a\', \'10.5\', \'0.3\', 1)
            ;',
                     $this->getSourceSchemaName()
@@ -342,7 +346,8 @@ EOT
             false,
             true,
             $skipLines,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
     }
 
@@ -354,7 +359,8 @@ EOT
             true,
             true,
             $skipLines,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
     }
 }

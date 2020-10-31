@@ -209,7 +209,8 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(
@@ -261,7 +262,8 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'nullify');
@@ -390,7 +392,8 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(
@@ -442,7 +445,8 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(
@@ -481,7 +485,8 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(

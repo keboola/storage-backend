@@ -24,7 +24,9 @@ class ExportTest extends SynapseBaseTestCase
             . '-'
             . getenv('CREDENTIALS_IMPORT_TYPE')
             . '-'
-            . getenv('CREDENTIALS_EXPORT_TYPE');
+            . getenv('CREDENTIALS_EXPORT_TYPE')
+            . '-'
+            . getenv('TEMP_TABLE_TYPE');
     }
 
     /**

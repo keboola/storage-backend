@@ -53,18 +53,35 @@ class SqlCommandBuilder
     public function getCreateTempTableCommand(
         string $schema,
         string $tableName,
-        array $columns
+        array $columns,
+        SynapseImportOptions $options
     ): string {
         $this->assertStagingTable($tableName);
-        $columnsSql = array_map(function ($column) {
-            return sprintf('%s nvarchar(max)', $this->platform->quoteSingleIdentifier($column));
-        }, $columns);
-        return sprintf(
-            'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
-            $this->platform->quoteSingleIdentifier($schema),
-            $this->platform->quoteSingleIdentifier($tableName),
-            implode(', ', $columnsSql)
-        );
+
+        switch ($options->getTempTableType()) {
+            case SynapseImportOptions::TEMP_TABLE_HEAP:
+                $columnsSql = array_map(function ($column) {
+                    return sprintf('%s nvarchar(max)', $this->platform->quoteSingleIdentifier($column));
+                }, $columns);
+                return sprintf(
+                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
+                    $this->platform->quoteSingleIdentifier($schema),
+                    $this->platform->quoteSingleIdentifier($tableName),
+                    implode(', ', $columnsSql)
+                );
+            case SynapseImportOptions::TEMP_TABLE_COLUMNSTORE:
+                $columnsSql = array_map(function ($column) {
+                    return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
+                }, $columns);
+                return sprintf(
+                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED COLUMNSTORE INDEX)',
+                    $this->platform->quoteSingleIdentifier($schema),
+                    $this->platform->quoteSingleIdentifier($tableName),
+                    implode(', ', $columnsSql)
+                );
+        }
+
+        throw new \LogicException(sprintf('Unknown temp table type "%s".', $options->getTempTableType()));
     }
 
     private function assertStagingTable(string $tableName): void
