@@ -92,9 +92,26 @@ class AbsLoader
         }
     }
 
+    private function generateLongCol(): void
+    {
+        $file = self::BASE_DIR . 'long_col.csv';
+        file_put_contents(
+            $file,
+            "\"col1\",\"col2\"\n"
+        );
+        $fp = fopen($file, 'ab');
+        fwrite($fp, '"');
+        for ($i = 0; $i <= 8000; $i++) {
+            fwrite($fp, 'a');
+        }
+        fwrite($fp, '","b"');
+        fclose($fp);
+    }
+
     public function load(): void
     {
         $this->generateLargeSliced();
+        $this->generateLongCol();
         $this->generateManifests();
 
         echo "Creating blobs ...\n";
