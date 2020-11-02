@@ -13,6 +13,7 @@ class SynapseImportOptions extends ImportOptions
 
     public const TEMP_TABLE_HEAP = 'HEAP';
     public const TEMP_TABLE_COLUMNSTORE = 'COLUMNSTORE';
+    public const TEMP_TABLE_CLUSTERED_INDEX = 'CLUSTERED_INDEX';
 
     /** @var string */
     private $importCredentialsType;

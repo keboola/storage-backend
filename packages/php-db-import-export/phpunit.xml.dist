@@ -23,7 +23,12 @@
             <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
         </testsuite>
 
-        <testsuite name="synapse-real-temp-table">
+        <testsuite name="tests-synapse-columnstoretemp">
+            <directory>tests/functional/Synapse</directory>
+            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
+        </testsuite>
+
+        <testsuite name="tests-synapse-clusterdindextemp">
             <directory>tests/functional/Synapse</directory>
             <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
         </testsuite>

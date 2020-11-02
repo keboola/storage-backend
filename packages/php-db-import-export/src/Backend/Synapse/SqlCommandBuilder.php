@@ -79,6 +79,20 @@ class SqlCommandBuilder
                     $this->platform->quoteSingleIdentifier($tableName),
                     implode(', ', $columnsSql)
                 );
+            case SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX:
+                $columnsSql = array_map(function ($column) {
+                    return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
+                }, $columns);
+                $columnsIndex = array_map(function ($column) {
+                    return sprintf('%s', $this->platform->quoteSingleIdentifier($column));
+                }, $columns);
+                return sprintf(
+                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED INDEX(%s))',
+                    $this->platform->quoteSingleIdentifier($schema),
+                    $this->platform->quoteSingleIdentifier($tableName),
+                    implode(', ', $columnsSql),
+                    implode(', ', $columnsIndex)
+                );
         }
 
         throw new \LogicException(sprintf('Unknown temp table type "%s".', $options->getTempTableType()));

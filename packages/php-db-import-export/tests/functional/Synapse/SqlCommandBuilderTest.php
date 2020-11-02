@@ -79,6 +79,34 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         $this->connection->exec($sql);
     }
 
+    public function testGetCreateStagingTableCommandCLUSTEREDINDEX(): void
+    {
+        $this->createTestSchema();
+        $sql = $this->qb->getCreateTempTableCommand(
+            self::TEST_SCHEMA,
+            '#' . self::TEST_TABLE,
+            [
+                'col1',
+                'col2',
+            ],
+            new SynapseImportOptions(
+                [],
+                false,
+                false,
+                0,
+                SynapseImportOptions::CREDENTIALS_SAS,
+                SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
+            )
+        );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED INDEX([col1], [col2]))',
+            $sql
+        );
+        $this->connection->exec($sql);
+    }
+
     protected function createTestSchema(): void
     {
         $this->connection->exec(sprintf('CREATE SCHEMA %s', self::TEST_SCHEMA_QUOTED));

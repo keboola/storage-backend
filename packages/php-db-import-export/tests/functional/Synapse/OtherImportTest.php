@@ -514,7 +514,9 @@ class OtherImportTest extends SynapseBaseTestCase
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE) {
+        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
+        ) {
             $this->expectException(DBALException::class);
             $this->expectExceptionMessage(
                 '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
