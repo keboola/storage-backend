@@ -42,7 +42,8 @@
             "@tests-snowflake",
             "@tests-synapse",
             "@tests-synapse-mi",
-            "@tests-synapse-real-temp-table"
+            "@tests-synapse-columnstoretemp",
+            "@tests-synapse-clusterdindextemp"
         ],
         "tests": [
             "@tests-unit",
