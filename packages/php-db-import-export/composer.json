@@ -36,7 +36,7 @@
         "tests-snowflake": "phpunit --colors=always --testsuite snowflake",
         "tests-synapse": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP phpunit --colors=always --testsuite synapse",
         "tests-synapse-columnstoretemp": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=COLUMNSTORE phpunit --colors=always --testsuite tests-synapse-columnstoretemp",
-        "tests-synapse-heap4000": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP4000 phpunit --colors=always --testsuite tests-synapse-columnstoretemp",
+        "tests-synapse-heap4000temp": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP4000 phpunit --colors=always --testsuite tests-synapse-heap4000temp",
         "tests-synapse-clusterdindextemp": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=CLUSTERED_INDEX phpunit --colors=always --testsuite tests-synapse-clusterdindextemp",
         "tests-synapse-mi": "CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY TEMP_TABLE_TYPE=HEAP phpunit --colors=always --testsuite synapse-mi",
         "tests-functional": [
@@ -45,7 +45,7 @@
             "@tests-synapse-mi",
             "@tests-synapse-columnstoretemp",
             "@tests-synapse-clusterdindextemp",
-            "@tests-synapse-heap4000"
+            "@tests-synapse-heap4000temp"
         ],
         "tests": [
             "@tests-unit",
