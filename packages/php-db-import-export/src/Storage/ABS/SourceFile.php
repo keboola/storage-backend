@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Storage\SourceInterface;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
+use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddlewareFactory;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
@@ -56,6 +57,7 @@ class SourceFile extends BaseFile implements SourceInterface
         $blobClient = BlobRestProxy::createBlobService(
             $SASConnectionString
         );
+        $blobClient->pushMiddleware(RetryMiddlewareFactory::create());
 
         if (!$this->isSliced) {
             // this is temporary solution copy into is not failing when blob not exists
