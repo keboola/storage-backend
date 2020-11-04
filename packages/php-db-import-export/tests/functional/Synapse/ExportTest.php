@@ -13,6 +13,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
+use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddlewareFactory;
 
 class ExportTest extends SynapseBaseTestCase
 {
@@ -42,7 +43,9 @@ class ExportTest extends SynapseBaseTestCase
             (string) getenv('ABS_ACCOUNT_NAME'),
             (string) getenv('ABS_ACCOUNT_KEY')
         );
-        $this->blobClient = BlobRestProxy::createBlobService($connectionString);
+        $blobClient = BlobRestProxy::createBlobService($connectionString);
+        $blobClient->pushMiddleware(RetryMiddlewareFactory::create());
+        $this->blobClient = $blobClient;
         // delete blobs from EXPORT_BLOB_DIR
         $listOptions = new ListBlobsOptions();
         $listOptions->setPrefix($this->getExportBlobDir());
