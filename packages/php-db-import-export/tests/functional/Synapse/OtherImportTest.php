@@ -510,12 +510,13 @@ class OtherImportTest extends SynapseBaseTestCase
         $this->assertTrue($importedData[3]['name'] === null);
     }
 
-    public function testLongColumnImport(): void
+    public function testLongColumnImport6k(): void
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
         if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
         ) {
             $this->expectException(DBALException::class);
             $this->expectExceptionMessage(
@@ -524,7 +525,49 @@ class OtherImportTest extends SynapseBaseTestCase
         }
 
         (new \Keboola\Db\ImportExport\Backend\Synapse\Importer($this->connection))->importTable(
-            $this->createABSSourceInstanceFromCsv('long_col.csv', new CsvOptions(), [
+            $this->createABSSourceInstanceFromCsv('long_col_6k.csv', new CsvOptions(), [
+                'col1',
+                'col2',
+            ]),
+            $table = new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS, [
+                'col1',
+                'col2',
+            ]),
+            $this->getSynapseImportOptions()
+        );
+
+        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP) {
+            $sql = sprintf(
+                'SELECT [col1],[col2] FROM %s',
+                $table->getQuotedTableWithScheme()
+            );
+            $queryResult = array_map(function ($row) {
+                return array_map(function ($column) {
+                    return $column;
+                }, array_values($row));
+            }, $this->connection->fetchAll($sql));
+
+            $this->assertEquals(4000, strlen($queryResult[0][0]));
+        }
+    }
+
+
+    public function testLongColumnImport10k(): void
+    {
+        $this->initTables([self::TABLE_OUT_CSV_2COLS]);
+
+        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
+        ) {
+            $this->expectException(DBALException::class);
+            $this->expectExceptionMessage(
+                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+            );
+        }
+
+        (new \Keboola\Db\ImportExport\Backend\Synapse\Importer($this->connection))->importTable(
+            $this->createABSSourceInstanceFromCsv('long_col_10k.csv', new CsvOptions(), [
                 'col1',
                 'col2',
             ]),

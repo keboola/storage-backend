@@ -12,6 +12,7 @@ class SynapseImportOptions extends ImportOptions
     public const CREDENTIALS_SAS = 'SAS';
 
     public const TEMP_TABLE_HEAP = 'HEAP';
+    public const TEMP_TABLE_HEAP_4000 = 'HEAP4000';
     public const TEMP_TABLE_COLUMNSTORE = 'COLUMNSTORE';
     public const TEMP_TABLE_CLUSTERED_INDEX = 'CLUSTERED_INDEX';
 

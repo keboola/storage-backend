@@ -69,6 +69,16 @@ class SqlCommandBuilder
                     $this->platform->quoteSingleIdentifier($tableName),
                     implode(', ', $columnsSql)
                 );
+            case SynapseImportOptions::TEMP_TABLE_HEAP_4000:
+                $columnsSql = array_map(function ($column) {
+                    return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
+                }, $columns);
+                return sprintf(
+                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
+                    $this->platform->quoteSingleIdentifier($schema),
+                    $this->platform->quoteSingleIdentifier($tableName),
+                    implode(', ', $columnsSql)
+                );
             case SynapseImportOptions::TEMP_TABLE_COLUMNSTORE:
                 $columnsSql = array_map(function ($column) {
                     return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));

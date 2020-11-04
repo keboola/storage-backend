@@ -94,14 +94,27 @@ class AbsLoader
 
     private function generateLongCol(): void
     {
-        $file = self::BASE_DIR . 'long_col.csv';
+        $file = self::BASE_DIR . 'long_col_6k.csv';
         file_put_contents(
             $file,
             "\"col1\",\"col2\"\n"
         );
         $fp = fopen($file, 'ab');
         fwrite($fp, '"');
-        for ($i = 0; $i <= 8000; $i++) {
+        for ($i = 0; $i <= 6000; $i++) {
+            fwrite($fp, 'a');
+        }
+        fwrite($fp, '","b"');
+        fclose($fp);
+
+        $file = self::BASE_DIR . 'long_col_10k.csv';
+        file_put_contents(
+            $file,
+            "\"col1\",\"col2\"\n"
+        );
+        $fp = fopen($file, 'ab');
+        fwrite($fp, '"');
+        for ($i = 0; $i <= 10000; $i++) {
             fwrite($fp, 'a');
         }
         fwrite($fp, '","b"');

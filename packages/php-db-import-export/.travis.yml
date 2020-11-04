@@ -39,6 +39,7 @@ script:
     tests-synapse-mi
     tests-synapse-columnstoretemp
     tests-synapse-clusterdindextemp
+    tests-synapse-heap4000
 after_script:
   # delete synapse
   - bash ./provisioning/synapse/synapse.sh -d
