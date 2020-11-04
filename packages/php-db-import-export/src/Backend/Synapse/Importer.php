@@ -57,6 +57,14 @@ class Importer implements ImporterInterface
     ): Result {
         $adapter = $this->getAdapter($source, $destination);
 
+        if (!$options instanceof SynapseImportOptions) {
+            throw new \Exception(sprintf(
+                'Synapse imported expect $options to be instance of "%s", "%s" given.',
+                SynapseImportOptions::class,
+                get_class($options)
+            ));
+        }
+
         if ($source instanceof Storage\ABS\SourceFile
             && $source->getCsvOptions()->getEnclosure() === ''
         ) {
