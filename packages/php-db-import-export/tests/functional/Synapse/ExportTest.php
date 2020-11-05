@@ -21,13 +21,13 @@ class ExportTest extends SynapseBaseTestCase
 
     public function getExportBlobDir(): string
     {
-        return self::EXPORT_BLOB_DIR
+        return md5(self::EXPORT_BLOB_DIR
             . '-'
             . getenv('CREDENTIALS_IMPORT_TYPE')
             . '-'
             . getenv('CREDENTIALS_EXPORT_TYPE')
             . '-'
-            . getenv('TEMP_TABLE_TYPE');
+            . getenv('TEMP_TABLE_TYPE'));
     }
 
     /**
