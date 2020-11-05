@@ -216,7 +216,8 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 false, // don't use timestamp
                 ImportOptions::SKIP_FIRST_LINE,
-                getenv('CREDENTIALS_IMPORT_TYPE')
+                getenv('CREDENTIALS_IMPORT_TYPE'),
+                getenv('TEMP_TABLE_TYPE')
             ),
             $expectedEscaping,
             7,

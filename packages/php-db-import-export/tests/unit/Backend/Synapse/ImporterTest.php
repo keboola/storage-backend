@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse;
 
 use Keboola\Db\ImportExport\Backend\Synapse\Importer;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
 use Keboola\Db\ImportExport\Storage;
@@ -28,7 +29,7 @@ class ImporterTest extends TestCase
             'More than one suitable adapter found for Synapse importer with source: "Keboola\Db\ImportExport\Storage\ABS\SourceFile", destination "Keboola\Db\ImportExport\Storage\Synapse\Table".'
         );
         $this->expectException(\Throwable::class);
-        $importer->importTable($source, $destination, new ImportOptions());
+        $importer->importTable($source, $destination, new SynapseImportOptions());
     }
 
     public function testGetAdapterNoAdapter(): void
@@ -47,7 +48,7 @@ class ImporterTest extends TestCase
             'No suitable adapter found for Synapse importer with source: "Keboola\Db\ImportExport\Storage\ABS\SourceFile", destination "Keboola\Db\ImportExport\Storage\Synapse\Table".'
         );
         $this->expectException(\Throwable::class);
-        $importer->importTable($source, $destination, new ImportOptions());
+        $importer->importTable($source, $destination, new SynapseImportOptions());
     }
 
     public function testGetAdapterInvalidAdapter(): void
@@ -63,6 +64,6 @@ class ImporterTest extends TestCase
             'Each Synapse import adapter must implement "Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface".'
         );
         $this->expectException(\Throwable::class);
-        $importer->importTable($source, $destination, new ImportOptions());
+        $importer->importTable($source, $destination, new SynapseImportOptions());
     }
 }

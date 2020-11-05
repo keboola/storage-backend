@@ -48,6 +48,7 @@ class Importer implements ImporterInterface
 
     /**
      * @param Storage\Synapse\Table $destination
+     * @param SynapseImportOptions $options
      */
     public function importTable(
         Storage\SourceInterface $source,
@@ -55,6 +56,14 @@ class Importer implements ImporterInterface
         ImportOptionsInterface $options
     ): Result {
         $adapter = $this->getAdapter($source, $destination);
+
+        if (!$options instanceof SynapseImportOptions) {
+            throw new \Exception(sprintf(
+                'Synapse imported expect $options to be instance of "%s", "%s" given.',
+                SynapseImportOptions::class,
+                get_class($options)
+            ));
+        }
 
         if ($source instanceof Storage\ABS\SourceFile
             && $source->getCsvOptions()->getEnclosure() === ''
@@ -70,7 +79,8 @@ class Importer implements ImporterInterface
         $this->runQuery($this->sqlBuilder->getCreateTempTableCommand(
             $destination->getSchema(),
             $this->importState->getStagingTableName(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
+            $options
         ));
 
         try {
@@ -153,7 +163,7 @@ class Importer implements ImporterInterface
     }
 
     private function doIncrementalLoad(
-        ImportOptionsInterface $importOptions,
+        SynapseImportOptions $importOptions,
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination,
         array $primaryKeys
@@ -161,7 +171,7 @@ class Importer implements ImporterInterface
         $timestampValue = DateTimeHelper::getNowFormatted();
 
         // create temp table now, it cannot be run in transaction
-        $tempTableName = $this->createTempTableForDedup($source, $destination);
+        $tempTableName = $this->createTempTableForDedup($source, $destination, $importOptions);
 
         $this->runQuery(
             $this->sqlBuilder->getBeginTransaction()
@@ -241,12 +251,12 @@ class Importer implements ImporterInterface
     }
 
     private function doNonIncrementalLoad(
-        ImportOptionsInterface $importOptions,
+        SynapseImportOptions $importOptions,
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination,
         array $primaryKeys
     ): void {
-        $tempTableName = $this->createTempTableForDedup($source, $destination);
+        $tempTableName = $this->createTempTableForDedup($source, $destination, $importOptions);
 
         $this->runQuery(
             $this->sqlBuilder->getBeginTransaction()
@@ -329,14 +339,16 @@ class Importer implements ImporterInterface
 
     private function createTempTableForDedup(
         Storage\SourceInterface $source,
-        Storage\Synapse\Table $destination
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions
     ): string {
         // create temp table now, it cannot be run in transaction
         $tempTableName = BackendHelper::generateTempTableName();
         $this->runQuery($this->sqlBuilder->getCreateTempTableCommand(
             $destination->getSchema(),
             $tempTableName,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
+            $importOptions
         ));
         return $tempTableName;
     }

@@ -37,6 +37,9 @@ script:
     tests-snowflake
     tests-synapse
     tests-synapse-mi
+    tests-synapse-columnstoretemp
+    tests-synapse-clusterdindextemp
+    tests-synapse-heap4000temp
 after_script:
   # delete synapse
   - bash ./provisioning/synapse/synapse.sh -d

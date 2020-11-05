@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
+use Doctrine\DBAL\DBALException;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
@@ -209,7 +210,8 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(
@@ -261,7 +263,8 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'nullify');
@@ -390,7 +393,8 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(
@@ -442,7 +446,8 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(
@@ -481,7 +486,8 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE')
         );
         $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Synapse\Table(
@@ -502,5 +508,88 @@ class OtherImportTest extends SynapseBaseTestCase
         $this->assertTrue($importedData[1]['name'] === null);
         $this->assertTrue($importedData[2]['price'] === null);
         $this->assertTrue($importedData[3]['name'] === null);
+    }
+
+    public function testLongColumnImport6k(): void
+    {
+        $this->initTables([self::TABLE_OUT_CSV_2COLS]);
+
+        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
+        ) {
+            $this->expectException(DBALException::class);
+            $this->expectExceptionMessage(
+                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+            );
+        }
+
+        (new \Keboola\Db\ImportExport\Backend\Synapse\Importer($this->connection))->importTable(
+            $this->createABSSourceInstanceFromCsv('long_col_6k.csv', new CsvOptions(), [
+                'col1',
+                'col2',
+            ]),
+            $table = new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS, [
+                'col1',
+                'col2',
+            ]),
+            $this->getSynapseImportOptions()
+        );
+
+        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP) {
+            $sql = sprintf(
+                'SELECT [col1],[col2] FROM %s',
+                $table->getQuotedTableWithScheme()
+            );
+            $queryResult = array_map(function ($row) {
+                return array_map(function ($column) {
+                    return $column;
+                }, array_values($row));
+            }, $this->connection->fetchAll($sql));
+
+            $this->assertEquals(4000, strlen($queryResult[0][0]));
+        }
+    }
+
+
+    public function testLongColumnImport10k(): void
+    {
+        $this->initTables([self::TABLE_OUT_CSV_2COLS]);
+
+        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
+            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
+        ) {
+            $this->expectException(DBALException::class);
+            $this->expectExceptionMessage(
+                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+            );
+        }
+
+        (new \Keboola\Db\ImportExport\Backend\Synapse\Importer($this->connection))->importTable(
+            $this->createABSSourceInstanceFromCsv('long_col_10k.csv', new CsvOptions(), [
+                'col1',
+                'col2',
+            ]),
+            $table = new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS, [
+                'col1',
+                'col2',
+            ]),
+            $this->getSynapseImportOptions()
+        );
+
+        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP) {
+            $sql = sprintf(
+                'SELECT [col1],[col2] FROM %s',
+                $table->getQuotedTableWithScheme()
+            );
+            $queryResult = array_map(function ($row) {
+                return array_map(function ($column) {
+                    return $column;
+                }, array_values($row));
+            }, $this->connection->fetchAll($sql));
+
+            $this->assertEquals(4000, strlen($queryResult[0][0]));
+        }
     }
 }
