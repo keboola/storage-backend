@@ -51,6 +51,28 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         try {
             new MySQL("NUMERIC", ["length" => $length]);
+            new MySQL('NUMERIC', [
+                'length' => [
+                    'numeric_precision' => '38',
+                    'numeric_scale' => '0'
+                ]
+            ]);
+            new MySQL('NUMERIC', [
+                'length' => [
+                    'numeric_precision' => '38',
+                    'numeric_scale' => '38'
+                ]
+            ]);
+            new MySQL('NUMERIC', [
+                'length' => [
+                    'numeric_precision' => '38'
+                ]
+            ]);
+            new MySQL('NUMERIC', [
+                'length' => [
+                    'numeric_scale' => '38'
+                ]
+            ]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
@@ -109,6 +131,11 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
         new MySQL("varchar", ["length" => "1"]);
         new MySQL("VARCHAR", ["length" => "1"]);
         new MySQL("VARCHAR", ["length" => "4294967295"]);
+        new MySQL('VARCHAR', [
+            'length' => [
+                'character_maximum' => '16777216'
+            ]
+        ]);
     }
 
     public function testValidFixedCharacterLengths()
