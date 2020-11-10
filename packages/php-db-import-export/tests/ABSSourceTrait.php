@@ -52,7 +52,8 @@ trait ABSSourceTrait
         string $filePath,
         CsvOptions $options,
         array $columns = [],
-        bool $isSliced = false
+        bool $isSliced = false,
+        string $type = Storage\ABS\BaseFile::TYPE_FILE
     ): Storage\ABS\SourceFile {
         return new Storage\ABS\SourceFile(
             (string) getenv('ABS_CONTAINER_NAME'),
@@ -61,7 +62,8 @@ trait ABSSourceTrait
             (string) getenv('ABS_ACCOUNT_NAME'),
             $options,
             $isSliced,
-            $columns
+            $columns,
+            $type
         );
     }
 
