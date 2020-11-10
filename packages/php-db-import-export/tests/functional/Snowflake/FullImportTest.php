@@ -145,6 +145,20 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             3,
         ];
 
+        // folder
+        $tests[] = [
+            $this->createABSSourceInstance(
+                'sliced_accounts_no_manifest/',
+                $accountsHeader,
+                true,
+                Storage\ABS\BaseFile::TYPE_FOLDER
+            ),
+            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $expectedAccounts,
+            3,
+        ];
+
         // reserved words
         $tests[] = [
             $this->createABSSourceInstance('reserved-words.csv', ['column', 'table'], false),

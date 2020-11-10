@@ -43,9 +43,16 @@ trait ABSSourceTrait
     protected function createABSSourceInstance(
         string $filePath,
         array $columns = [],
-        bool $isSliced = false
+        bool $isSliced = false,
+        string $type = Storage\ABS\BaseFile::TYPE_FILE
     ): Storage\ABS\SourceFile {
-        return $this->createABSSourceInstanceFromCsv($filePath, new CsvOptions(), $columns, $isSliced);
+        return $this->createABSSourceInstanceFromCsv(
+            $filePath,
+            new CsvOptions(),
+            $columns,
+            $isSliced,
+            $type
+        );
     }
 
     protected function createABSSourceInstanceFromCsv(
