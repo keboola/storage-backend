@@ -142,7 +142,7 @@ class Snowflake extends Common
                     break;
                 }
                 $parts = explode(",", $length);
-                if (count($parts) > 2 || count($parts) < 1) {
+                if (!in_array(count($parts), [1, 2])) {
                     $valid = false;
                     break;
                 }

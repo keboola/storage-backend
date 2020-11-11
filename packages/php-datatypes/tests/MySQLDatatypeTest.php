@@ -41,6 +41,28 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
         new MySQL("NUMERIC", ["length" => "65,0"]);
         new MySQL("NUMERIC", ["length" => "65"]);
         new MySQL("NUMERIC", ["length" => "10,10"]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '38',
+                'numeric_scale' => '0'
+            ]
+        ]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '20',
+                'numeric_scale' => '20'
+            ]
+        ]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '20'
+            ]
+        ]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_scale' => '20'
+            ]
+        ]);
     }
 
     /**
@@ -109,6 +131,11 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
         new MySQL("varchar", ["length" => "1"]);
         new MySQL("VARCHAR", ["length" => "1"]);
         new MySQL("VARCHAR", ["length" => "4294967295"]);
+        new MySQL('VARCHAR', [
+            'length' => [
+                'character_maximum' => '16777216'
+            ]
+        ]);
     }
 
     public function testValidFixedCharacterLengths()

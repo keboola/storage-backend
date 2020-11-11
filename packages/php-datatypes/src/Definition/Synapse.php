@@ -216,8 +216,7 @@ class Synapse extends Common
                     break;
                 }
                 $parts = explode(',', $length);
-                $countParts = count($parts);
-                if ($countParts > 2 || $countParts < 1) {
+                if (!in_array(count($parts), [1, 2])) {
                     $valid = false;
                     break;
                 }
