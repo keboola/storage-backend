@@ -41,6 +41,28 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
         new MySQL("NUMERIC", ["length" => "65,0"]);
         new MySQL("NUMERIC", ["length" => "65"]);
         new MySQL("NUMERIC", ["length" => "10,10"]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '38',
+                'numeric_scale' => '0'
+            ]
+        ]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '20',
+                'numeric_scale' => '20'
+            ]
+        ]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_precision' => '20'
+            ]
+        ]);
+        new MySQL('NUMERIC', [
+            'length' => [
+                'numeric_scale' => '20'
+            ]
+        ]);
     }
 
     /**
@@ -51,28 +73,6 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
     {
         try {
             new MySQL("NUMERIC", ["length" => $length]);
-            new MySQL('NUMERIC', [
-                'length' => [
-                    'numeric_precision' => '38',
-                    'numeric_scale' => '0'
-                ]
-            ]);
-            new MySQL('NUMERIC', [
-                'length' => [
-                    'numeric_precision' => '38',
-                    'numeric_scale' => '38'
-                ]
-            ]);
-            new MySQL('NUMERIC', [
-                'length' => [
-                    'numeric_precision' => '38'
-                ]
-            ]);
-            new MySQL('NUMERIC', [
-                'length' => [
-                    'numeric_scale' => '38'
-                ]
-            ]);
             $this->fail("Exception not caught");
         } catch (\Exception $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
