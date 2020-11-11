@@ -147,20 +147,6 @@ class MySQL extends Common
                     break;
                 }
                 break;
-
-            case "TEXT":
-                if (is_null($length) || $length == "") {
-                    break;
-                }
-                if (!is_numeric($length)) {
-                    $valid = false;
-                    break;
-                }
-                if ((int)$length <= 0 || (int)$length > 16777216) {
-                    $valid = false;
-                    break;
-                }
-                break;
             case "VARCHAR":
                 if (is_null($length) || $length == "" || !is_numeric($length)) {
                     $valid = false;
