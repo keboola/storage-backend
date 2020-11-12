@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
-use MicrosoftAzure\Storage\Blob\Models\Blob;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
 class SourceDirectory extends SourceFile
@@ -21,10 +20,12 @@ class SourceDirectory extends SourceFile
         }
         $options = new ListBlobsOptions();
         $options->setPrefix($path);
-        $result = $blobClient->listBlobs($this->container, $options);
-        $entries = array_map(function (Blob $blob) {
-            return $blob->getUrl();
-        }, $result->getBlobs());
+        $blobIterator = new BlobIterator($blobClient, $this->container, $options);
+
+        $entries = [];
+        foreach ($blobIterator as $blob) {
+            $entries[] = $blob->getUrl();
+        }
 
         return $this->transformManifestEntries($entries, $protocol, $blobClient);
     }
