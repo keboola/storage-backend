@@ -30,32 +30,6 @@ class SourceFileTest extends BaseTestCase
         self::assertCount(1, $entries);
     }
 
-    public function testGetManifestEntriesFolder(): void
-    {
-        $source = $this->createABSSourceInstanceFromCsv(
-            'sliced_accounts_no_manifest',
-            new CsvOptions(),
-            [],
-            true,
-            true
-        );
-        $entries = $source->getManifestEntries();
-        self::assertCount(2, $entries);
-    }
-
-    public function testGetManifestEntriesFolderWithTrailingSlash(): void
-    {
-        $source = $this->createABSSourceInstanceFromCsv(
-            'sliced_accounts_no_manifest/',
-            new CsvOptions(),
-            [],
-            true,
-            true
-        );
-        $entries = $source->getManifestEntries();
-        self::assertCount(2, $entries);
-    }
-
     public function testGetManifestEntriesIncremental(): void
     {
         $source = $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', [], true);
