@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
-use _HumbugBoxbfaeed0746fa\Symfony\Component\Console\Helper\Table;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Snowflake\Exporter;
@@ -15,7 +14,6 @@ use Keboola\Db\ImportExport\Storage;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
-use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddlewareFactory;
 
 class ExportTest extends SnowflakeImportExportBaseTest
 {
@@ -35,7 +33,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
             (string) getenv('ABS_ACCOUNT_KEY')
         );
         $this->blobClient = BlobRestProxy::createBlobService($connectionString);
-        $this->blobClient->pushMiddleware(RetryMiddlewareFactory::create());
+        $this->blobClient->pushMiddleware(Storage\ABS\RetryFactory::createRetryMiddleware());
         // delete blobs from EXPORT_BLOB_DIR
         $listOptions = new ListBlobsOptions();
         $listOptions->setPrefix(self::EXPORT_BLOB_DIR);

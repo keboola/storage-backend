@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\Db\ImportExport\Storage\ABS\BlobIterator;
+use Keboola\Db\ImportExport\Storage\ABS\RetryFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddlewareFactory;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
@@ -78,7 +78,7 @@ class BlobIteratorTest extends BaseTestCase
         $blobClient = BlobRestProxy::createBlobService(
             $SASConnectionString
         );
-        $blobClient->pushMiddleware(RetryMiddlewareFactory::create());
+        $blobClient->pushMiddleware(RetryFactory::createRetryMiddleware());
 
         return $blobClient;
     }

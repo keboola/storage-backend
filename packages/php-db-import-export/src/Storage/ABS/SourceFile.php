@@ -98,7 +98,7 @@ class SourceFile extends BaseFile implements SourceInterface
         $blobClient = BlobRestProxy::createBlobService(
             $SASConnectionString
         );
-        $blobClient->pushMiddleware(RetryMiddlewareFactory::create());
+        $blobClient->pushMiddleware(RetryFactory::createRetryMiddleware());
         return $blobClient;
     }
 

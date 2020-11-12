@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
-use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage;
 use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
