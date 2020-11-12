@@ -11,9 +11,6 @@ abstract class BaseFile
     public const PROTOCOL_AZURE = 'azure';
     public const PROTOCOL_HTTPS = 'https';
 
-    public const TYPE_FOLDER = 'folder';
-    public const TYPE_FILE = 'file';
-
     /**
      * @var string
      */

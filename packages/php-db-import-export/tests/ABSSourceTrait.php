@@ -44,14 +44,14 @@ trait ABSSourceTrait
         string $filePath,
         array $columns = [],
         bool $isSliced = false,
-        string $type = Storage\ABS\BaseFile::TYPE_FILE
+        bool $isDirectory = false
     ): Storage\ABS\SourceFile {
         return $this->createABSSourceInstanceFromCsv(
             $filePath,
             new CsvOptions(),
             $columns,
             $isSliced,
-            $type
+            $isDirectory
         );
     }
 
@@ -60,17 +60,21 @@ trait ABSSourceTrait
         CsvOptions $options,
         array $columns = [],
         bool $isSliced = false,
-        string $type = Storage\ABS\BaseFile::TYPE_FILE
+        bool $isDirectory = false
     ): Storage\ABS\SourceFile {
-        return new Storage\ABS\SourceFile(
+        if ($isDirectory) {
+            $class = Storage\ABS\SourceDirectory::class;
+        } else {
+            $class = Storage\ABS\SourceFile::class;
+        }
+        return new $class(
             (string) getenv('ABS_CONTAINER_NAME'),
             $filePath,
             $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
             (string) getenv('ABS_ACCOUNT_NAME'),
             $options,
             $isSliced,
-            $columns,
-            $type
+            $columns
         );
     }
 

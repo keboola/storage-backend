@@ -151,7 +151,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                 'sliced_accounts_no_manifest/',
                 $accountsHeader,
                 true,
-                Storage\ABS\BaseFile::TYPE_FOLDER
+                true
             ),
             new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),

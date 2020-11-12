@@ -174,7 +174,7 @@ class FullImportTest extends SynapseBaseTestCase
                 'sliced_accounts_no_manifest/',
                 $accountsHeader,
                 true,
-                Storage\ABS\BaseFile::TYPE_FOLDER
+                true
             ),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),

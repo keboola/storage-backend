@@ -37,7 +37,7 @@ class SourceFileTest extends BaseTestCase
             new CsvOptions(),
             [],
             true,
-            Storage\ABS\BaseFile::TYPE_FOLDER
+            true
         );
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
@@ -50,7 +50,7 @@ class SourceFileTest extends BaseTestCase
             new CsvOptions(),
             [],
             true,
-            Storage\ABS\BaseFile::TYPE_FOLDER
+            true
         );
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
