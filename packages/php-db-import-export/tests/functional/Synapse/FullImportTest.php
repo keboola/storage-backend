@@ -168,6 +168,21 @@ class FullImportTest extends SynapseBaseTestCase
             [self::TABLE_ACCOUNTS_3],
         ];
 
+        // folder
+        yield 'accounts sliced folder import' => [
+            $this->createABSSourceInstance(
+                'sliced_accounts_no_manifest/',
+                $accountsHeader,
+                true,
+                true
+            ),
+            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
+            $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
+            $expectedAccounts,
+            3,
+            [self::TABLE_ACCOUNTS_3],
+        ];
+
         // reserved words
         yield 'reserved words' => [
             $this->createABSSourceInstance('reserved-words.csv', ['column', 'table'], false),
