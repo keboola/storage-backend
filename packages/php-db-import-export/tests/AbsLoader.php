@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExport;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
+use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddlewareFactory;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use function \GuzzleHttp\json_encode as guzzle_json_encode;
@@ -73,6 +74,7 @@ class AbsLoader
         if ($this->blobService === null) {
             echo "Creating blob service \n";
             $this->blobService = BlobRestProxy::createBlobService($this->connectionString);
+            $this->blobService->pushMiddleware(RetryMiddlewareFactory::create());
         }
         return $this->blobService;
     }
