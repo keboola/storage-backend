@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\Exporter;
 use Keboola\Db\ImportExport\Backend\Synapse\Importer;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
+use Keboola\FileStorage\Abs\ClientFactory;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
@@ -42,9 +43,9 @@ class ExportTest extends SynapseBaseTestCase
             (string) getenv('ABS_ACCOUNT_NAME'),
             (string) getenv('ABS_ACCOUNT_KEY')
         );
-        $blobClient = BlobRestProxy::createBlobService($connectionString);
-        $blobClient->pushMiddleware(Storage\ABS\RetryFactory::createRetryMiddleware());
-        $this->blobClient = $blobClient;
+        $this->blobClient = ClientFactory::createClientFromConnectionString(
+            $connectionString
+        );
         // delete blobs from EXPORT_BLOB_DIR
         $listOptions = new ListBlobsOptions();
         $listOptions->setPrefix($this->getExportBlobDir());
