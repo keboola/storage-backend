@@ -7,10 +7,10 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\FileStorage\Abs\ClientFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use MicrosoftAzure\Storage\Common\Middlewares\RetryMiddlewareFactory;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
@@ -95,11 +95,9 @@ class SourceFile extends BaseFile implements SourceInterface
             $this->sasToken
         );
 
-        $blobClient = BlobRestProxy::createBlobService(
+        return ClientFactory::createClientFromConnectionString(
             $SASConnectionString
         );
-        $blobClient->pushMiddleware(RetryFactory::createRetryMiddleware());
-        return $blobClient;
     }
 
     protected function transformManifestEntries(

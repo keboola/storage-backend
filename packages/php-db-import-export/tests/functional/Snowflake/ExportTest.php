@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\FileStorage\Abs\ClientFactory;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
@@ -32,8 +33,9 @@ class ExportTest extends SnowflakeImportExportBaseTest
             (string) getenv('ABS_ACCOUNT_NAME'),
             (string) getenv('ABS_ACCOUNT_KEY')
         );
-        $this->blobClient = BlobRestProxy::createBlobService($connectionString);
-        $this->blobClient->pushMiddleware(Storage\ABS\RetryFactory::createRetryMiddleware());
+        $this->blobClient = ClientFactory::createClientFromConnectionString(
+            $connectionString
+        );
         // delete blobs from EXPORT_BLOB_DIR
         $listOptions = new ListBlobsOptions();
         $listOptions->setPrefix(self::EXPORT_BLOB_DIR);
