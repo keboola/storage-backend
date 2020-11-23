@@ -199,6 +199,7 @@ class Importer implements ImporterInterface
             $this->importState->startTimer('dedupStaging');
             $this->dedup($source, $destination, $primaryKeys, $tempTableName);
             $this->importState->stopTimer('dedupStaging');
+            $this->importState->overwriteStagingTableName($tempTableName);
         }
         $this->runQuery(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
@@ -266,6 +267,7 @@ class Importer implements ImporterInterface
             $this->importState->startTimer('dedup');
             $this->dedup($source, $destination, $primaryKeys, $tempTableName);
             $this->importState->stopTimer('dedup');
+            $this->importState->overwriteStagingTableName($tempTableName);
         }
 
         $this->runQuery(
