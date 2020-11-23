@@ -241,14 +241,6 @@ class Importer implements ImporterInterface
                 $this->importState->getStagingTableName()
             )
         );
-
-        $this->runQuery(
-            $this->sqlBuilder->getCopyTableCommand(
-                $destination->getSchema(),
-                $tempTableName,
-                $this->importState->getStagingTableName()
-            )
-        );
     }
 
     private function doNonIncrementalLoad(
