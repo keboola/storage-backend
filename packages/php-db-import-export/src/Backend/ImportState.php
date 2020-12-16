@@ -49,6 +49,11 @@ class ImportState
         return $this->stagingTableName;
     }
 
+    public function overwriteStagingTableName(string $stagingTableName): void
+    {
+        $this->stagingTableName = $stagingTableName;
+    }
+
     public function setImportedColumns(array $importedColumns): void
     {
         $this->importedColumns = $importedColumns;
