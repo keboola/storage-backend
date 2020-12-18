@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Provisioning;
 
-use Keboola\Provisioning\Azure\AzCli;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,6 +14,7 @@ final class DeploySynapse extends BaseCmd
     private const OPTION_AZURE_RESOURCE_GROUP = 'resourceGroup';
     private const OPTION_SYNAPSE_SERVER_NAME = 'serverName';
 
+    /** @var string */
     protected static $defaultName = 'app:deploy:synapse';
 
     protected function configure(): void

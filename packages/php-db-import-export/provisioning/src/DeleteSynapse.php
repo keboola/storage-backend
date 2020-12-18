@@ -16,13 +16,19 @@ final class DeleteSynapse extends BaseCmd
     private const OPTION_SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID = 'synapseServicePrincipalObjectId';
     private const OPTION_SYNAPSE_SQL_SERVER_NAME = 'synapseSqlServerName';
 
+    /** @var string */
     protected static $defaultName = 'app:delete:synapse';
 
     protected function configure(): void
     {
         $this
             ->setDescription('Deploy Synapse server and other resources');
-
+        $this
+            ->addOption(
+                self::OPTION_AZURE_RESOURCE_GROUP,
+                null,
+                InputOption::VALUE_REQUIRED
+            );
         $this
             ->addOption(
                 self::OPTION_SYNAPSE_DW_SERVER_NAME,

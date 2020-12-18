@@ -33,6 +33,7 @@ stages:
               sudo apt-get -y install parallel php-cli
               curl -sS https://getcomposer.org/installer -o composer-setup.php
               sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+              rm composer-setup.php
               docker -v
               docker-compose  -v
               parallel --version

@@ -36,6 +36,7 @@ final class AzCli
     public function runAuthorizedCmd(string $cmd): string
     {
         $volume = __DIR__ . '/../../../';
+        // phpcs:disable
         $cmd = <<< EOT
     docker run --volume $volume:/keboola \
         -e AZURE_SERVICE_PRINCIPAL_PASSWORD=$this->azureServicePrincipalPassword \
@@ -44,6 +45,7 @@ final class AzCli
         quay.io/keboola/azure-cli \
         sh -c 'az login --service-principal -u \$AZURE_SERVICE_PRINCIPAL -p \$AZURE_SERVICE_PRINCIPAL_PASSWORD --tenant \$AZURE_SERVICE_PRINCIPAL_TENANT >> /dev/null && $cmd'
 EOT;
+        // phpcs:enable
 
         $process = Process::fromShellCommandline($cmd);
         $process->setTimeout(3600);

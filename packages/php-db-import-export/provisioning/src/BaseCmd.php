@@ -71,6 +71,9 @@ abstract class BaseCmd extends Command
         ];
     }
 
+    /**
+     * @param mixed $optionValue
+     */
     protected function assertOption(string $optionName, $optionValue): void
     {
         if (is_string($optionValue)) {
