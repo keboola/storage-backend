@@ -75,6 +75,7 @@ stages:
               docker-compose build --pull production
             displayName: 'Build project images'
           - script: |
+              docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
               phplint \
               phpcs \
@@ -116,6 +117,7 @@ stages:
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
           - script: |
+              docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
               tests-snowflake \
               tests-synapse \
