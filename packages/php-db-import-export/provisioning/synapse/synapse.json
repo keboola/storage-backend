@@ -48,8 +48,7 @@
                         "collation": "SQL_Latin1_General_CP1_CI_AS",
                         "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
                         "readScale": "Disabled",
-                        "readReplicaCount": 0,
-                        "storageAccountType": "GRS"
+                        "readReplicaCount": 0
                     },
                     "dependsOn": [
                         "[variables('sqlServerName')]"

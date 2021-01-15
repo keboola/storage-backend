@@ -1,0 +1,156 @@
+trigger:
+  - main
+
+resources:
+  - repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  ABS_ACCOUNT_NAME: ciimportexportlib
+  ABS_CONTAINER_NAME: testing
+  AZURE_RESOURCE_GROUP: ci-import-export-lib
+  AZURE_SERVICE_PRINCIPAL: http://ci-import-export-lib
+  AZURE_SERVICE_PRINCIPAL_TENANT: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
+  SNOWFLAKE_DATABASE: KEBOOLA_DB_IMPORT_EXPORT
+  SNOWFLAKE_HOST: kebooladev.snowflakecomputing.com
+  SNOWFLAKE_PORT: 443
+  SNOWFLAKE_USER: KEBOOLA_DB_IMPORT_EXPORT
+  SNOWFLAKE_WAREHOUSE: DEV
+  SYNAPSE_SERVER_NAME: ci-testing-php-db-import-export
+
+
+stages:
+  - stage: Build
+    displayName: Build and test
+    jobs:
+      - job: Build
+        timeoutInMinutes: 100
+        displayName: Build
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - checkout: self
+          - script: |
+              sudo apt-get -y install parallel php-cli
+              curl -sS https://getcomposer.org/installer -o composer-setup.php
+              sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+              rm composer-setup.php
+              docker -v
+              docker-compose  -v
+              parallel --version
+              php --version
+              composer --version
+              docker pull quay.io/keboola/azure-cli
+              docker network create php-db-import-export_default
+              cd provisioning && composer install
+            displayName: 'Prepare environment'
+          - script: |
+              php ./provisioning/cli.php app:deploy:synapse \
+              --serverName $SYNAPSE_SERVER_NAME \
+              --resourceGroup $AZURE_RESOURCE_GROUP \
+              --principalTenant $AZURE_SERVICE_PRINCIPAL_TENANT \
+              --principalName $AZURE_SERVICE_PRINCIPAL \
+              --principalPassword $AZURE_SERVICE_PRINCIPAL_PASSWORD \
+              --absAccountName $ABS_ACCOUNT_NAME
+              source ./provisioning/env_export
+            displayName: 'Deploy resources'
+            env:
+              ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
+              ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
+              AZURE_RESOURCE_GROUP: $(AZURE_RESOURCE_GROUP)
+              AZURE_SERVICE_PRINCIPAL: $(AZURE_SERVICE_PRINCIPAL)
+              AZURE_SERVICE_PRINCIPAL_TENANT: $(AZURE_SERVICE_PRINCIPAL_TENANT)
+              SYNAPSE_SERVER_NAME: $(SYNAPSE_SERVER_NAME)
+              AZURE_SERVICE_PRINCIPAL_PASSWORD: $(AZURE_SERVICE_PRINCIPAL_PASSWORD)
+          - script: |
+              docker-compose build --pull production
+            displayName: 'Build project images'
+          - script: |
+              docker-compose run production php -v
+              parallel -j12 --linebuffer docker-compose run production composer ::: \
+              phplint \
+              phpcs \
+              phpstan \
+              loadAbs \
+              init-synapse
+            displayName: 'Lint and prepare enviroment'
+            env:
+              ABS_ACCOUNT_KEY: $(ABS_ACCOUNT_KEY)
+              ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
+              ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
+              SNOWFLAKE_DATABASE: $(SNOWFLAKE_DATABASE)
+              SNOWFLAKE_HOST: $(SNOWFLAKE_HOST)
+              SNOWFLAKE_PASSWORD: $(SNOWFLAKE_PASSWORD)
+              SNOWFLAKE_PORT: $(SNOWFLAKE_PORT)
+              SNOWFLAKE_USER: $(SNOWFLAKE_USER)
+              SNOWFLAKE_WAREHOUSE: $(SNOWFLAKE_WAREHOUSE)
+              SYNAPSE_SERVER_NAME: $(SYNAPSE_SERVER_NAME)
+              SYNAPSE_UID: $(SYNAPSE_UID)
+              SYNAPSE_PWD: $(SYNAPSE_PWD)
+              SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
+              SYNAPSE_SERVER: $(SYNAPSE_SERVER)
+          - script: |
+              docker-compose run production composer tests-unit
+            displayName: 'Unit tests'
+            env:
+              ABS_ACCOUNT_KEY: $(ABS_ACCOUNT_KEY)
+              ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
+              ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
+              SNOWFLAKE_DATABASE: $(SNOWFLAKE_DATABASE)
+              SNOWFLAKE_HOST: $(SNOWFLAKE_HOST)
+              SNOWFLAKE_PASSWORD: $(SNOWFLAKE_PASSWORD)
+              SNOWFLAKE_PORT: $(SNOWFLAKE_PORT)
+              SNOWFLAKE_USER: $(SNOWFLAKE_USER)
+              SNOWFLAKE_WAREHOUSE: $(SNOWFLAKE_WAREHOUSE)
+              SYNAPSE_SERVER_NAME: $(SYNAPSE_SERVER_NAME)
+              SYNAPSE_UID: $(SYNAPSE_UID)
+              SYNAPSE_PWD: $(SYNAPSE_PWD)
+              SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
+              SYNAPSE_SERVER: $(SYNAPSE_SERVER)
+          - script: |
+              docker-compose run production php -v
+              parallel -j12 --linebuffer docker-compose run production composer ::: \
+              tests-snowflake \
+              tests-synapse \
+              tests-synapse-mi \
+              tests-synapse-columnstoretemp \
+              tests-synapse-clusterdindextemp \
+              tests-synapse-heap4000temp
+            displayName: 'Functional tests'
+            env:
+              ABS_ACCOUNT_KEY: $(ABS_ACCOUNT_KEY)
+              ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
+              ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
+              SNOWFLAKE_DATABASE: $(SNOWFLAKE_DATABASE)
+              SNOWFLAKE_HOST: $(SNOWFLAKE_HOST)
+              SNOWFLAKE_PASSWORD: $(SNOWFLAKE_PASSWORD)
+              SNOWFLAKE_PORT: $(SNOWFLAKE_PORT)
+              SNOWFLAKE_USER: $(SNOWFLAKE_USER)
+              SNOWFLAKE_WAREHOUSE: $(SNOWFLAKE_WAREHOUSE)
+              SYNAPSE_SERVER_NAME: $(SYNAPSE_SERVER_NAME)
+              SYNAPSE_UID: $(SYNAPSE_UID)
+              SYNAPSE_PWD: $(SYNAPSE_PWD)
+              SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
+              SYNAPSE_SERVER: $(SYNAPSE_SERVER)
+          - script: |
+              php ./provisioning/cli.php app:delete:synapse \
+              --resourceGroup $AZURE_RESOURCE_GROUP \
+              --fileStorageResourceId $FILE_STORAGE_RESOURCE_ID \
+              --synapseDwServerName $SYNAPSE_DW_SERVER_NAME \
+              --synapseServicePrincipalObjectId $SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID \
+              --synapseSqlServerName $SYNAPSE_SQL_SERVER_NAME \
+              --principalTenant $AZURE_SERVICE_PRINCIPAL_TENANT \
+              --principalName $AZURE_SERVICE_PRINCIPAL \
+              --principalPassword $AZURE_SERVICE_PRINCIPAL_PASSWORD
+            displayName: 'Clean up'
+            condition: 'always()'
+            env:
+              AZURE_RESOURCE_GROUP: $(AZURE_RESOURCE_GROUP)
+              AZURE_SERVICE_PRINCIPAL: $(AZURE_SERVICE_PRINCIPAL)
+              AZURE_SERVICE_PRINCIPAL_PASSWORD: $(AZURE_SERVICE_PRINCIPAL_PASSWORD)
+              AZURE_SERVICE_PRINCIPAL_TENANT: $(AZURE_SERVICE_PRINCIPAL_TENANT)
+              SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID: $(SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID)
+              FILE_STORAGE_RESOURCE_ID: $(FILE_STORAGE_RESOURCE_ID)
+              SYNAPSE_SQL_SERVER_NAME: $(SYNAPSE_SQL_SERVER_NAME)
+              SYNAPSE_DW_SERVER_NAME: $(SYNAPSE_DW_SERVER_NAME)
+              SYNAPSE_RESOURCE_ID: $(SYNAPSE_RESOURCE_ID)
