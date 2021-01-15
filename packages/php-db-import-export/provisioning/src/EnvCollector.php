@@ -21,6 +21,10 @@ final class EnvCollector
         if (!$fs->exists($this->envFile)) {
             $fs->touch($this->envFile);
         }
-        $fs->appendToFile($this->envFile, sprintf('echo "##vso[task.setvariable variable=%s]%s"' . PHP_EOL, $name, $value));
+        $fs->appendToFile($this->envFile, sprintf(
+            'echo "##vso[task.setvariable variable=%s]%s"' . PHP_EOL,
+            $name,
+            $value
+        ));
     }
 }
