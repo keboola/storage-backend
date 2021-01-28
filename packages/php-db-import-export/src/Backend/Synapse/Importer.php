@@ -10,6 +10,7 @@ use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
+use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\Helper\BackendHelper;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -54,22 +55,9 @@ class Importer implements ImporterInterface
         ImportOptionsInterface $options
     ): Result {
         $adapter = $this->getAdapter($source, $destination);
-
-        if (!$options instanceof SynapseImportOptions) {
-            throw new \Exception(sprintf(
-                'Synapse imported expect $options to be instance of "%s", "%s" given.',
-                SynapseImportOptions::class,
-                get_class($options)
-            ));
-        }
-
-        if ($source instanceof Storage\ABS\SourceFile
-            && $source->getCsvOptions()->getEnclosure() === ''
-        ) {
-            throw new \Exception(
-                'CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.'
-            );
-        }
+        Assert::assertSynapseImportOptions($options);
+        Assert::assertIsSynapseTableDestination($destination);
+        Assert::assertValidSource($source);
 
         $this->importState = new ImportState(BackendHelper::generateTempTableName());
         $this->validateColumns($source, $destination);
