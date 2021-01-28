@@ -17,5 +17,6 @@ class SelectSourceTest extends TestCase
         $this->assertEquals('SELECT * FROM "SCHEMA"."TABLE"', $source->getQuery());
         $this->assertSame(['prop' => 1], $source->getQueryBindings());
         $this->assertSame(['col1'], $source->getColumnsNames());
+        $this->assertNull($source->getPrimaryKeysNames());
     }
 }

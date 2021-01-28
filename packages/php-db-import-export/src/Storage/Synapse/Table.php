@@ -23,15 +23,24 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     /** @var string[] */
     private $columnsNames;
 
+    /** @var string[]|null */
+    private $primaryKeysNames;
+
     /**
      * @param string[] $columns
+     * @param string[]|null $primaryKeysNames
      */
-    public function __construct(string $schema, string $tableName, array $columns = [])
-    {
+    public function __construct(
+        string $schema,
+        string $tableName,
+        array $columns = [],
+        ?array $primaryKeysNames = null
+    ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
         $this->platform = new SQLServerPlatform();
         $this->columnsNames = $columns;
+        $this->primaryKeysNames = $primaryKeysNames;
     }
 
     public function getFromStatement(): string
@@ -65,6 +74,16 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         );
     }
 
+    public function getPrimaryKeysNames(): ?array
+    {
+        return $this->primaryKeysNames;
+    }
+
+    public function getQueryBindings(): array
+    {
+        return [];
+    }
+
     public function getSchema(): string
     {
         return $this->schema;
@@ -73,10 +92,5 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     public function getTableName(): string
     {
         return $this->tableName;
-    }
-
-    public function getQueryBindings(): array
-    {
-        return [];
     }
 }

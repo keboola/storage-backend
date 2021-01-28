@@ -20,14 +20,23 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     /** @var string[] */
     private $columnsNames;
 
+    /** @var string[]|null */
+    private $primaryKeysNames;
+
     /**
      * @param string[] $columnsNames
+     * @param string[]|null $primaryKeysNames
      */
-    public function __construct(string $schema, string $tableName, array $columnsNames = [])
-    {
+    public function __construct(
+        string $schema,
+        string $tableName,
+        array $columnsNames = [],
+        ?array $primaryKeysNames = null
+    ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
         $this->columnsNames = $columnsNames;
+        $this->primaryKeysNames = $primaryKeysNames;
     }
 
     public function getFromStatement(): string
@@ -67,6 +76,16 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return $this->tableName;
     }
 
+    public function getPrimaryKeysNames(): ?array
+    {
+        return $this->primaryKeysNames;
+    }
+
+    public function getQueryBindings(): array
+    {
+        return [];
+    }
+
     public function getQuotedTableWithScheme(): string
     {
         return sprintf(
@@ -74,10 +93,5 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             QuoteHelper::quoteIdentifier($this->schema),
             QuoteHelper::quoteIdentifier($this->tableName)
         );
-    }
-
-    public function getQueryBindings(): array
-    {
-        return [];
     }
 }

@@ -20,6 +20,7 @@ class SourceFileTest extends BaseTestCase
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('file.csv', $source->getFilePath());
         self::assertEquals([], $source->getColumnsNames());
+        self::assertNull($source->getPrimaryKeysNames());
     }
 
     public function testGetManifestEntries(): void

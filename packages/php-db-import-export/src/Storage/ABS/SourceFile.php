@@ -23,6 +23,9 @@ class SourceFile extends BaseFile implements SourceInterface
     /** @var string[] */
     private $columnsNames;
 
+    /** @var string[]|null */
+    private $primaryKeysNames;
+
     public function __construct(
         string $container,
         string $filePath,
@@ -30,12 +33,14 @@ class SourceFile extends BaseFile implements SourceInterface
         string $accountName,
         CsvOptions $csvOptions,
         bool $isSliced,
-        array $columnsNames = []
+        array $columnsNames = [],
+        ?array $primaryKeysNames = null
     ) {
         parent::__construct($container, $filePath, $sasToken, $accountName);
         $this->isSliced = $isSliced;
         $this->csvOptions = $csvOptions;
         $this->columnsNames = $columnsNames;
+        $this->primaryKeysNames = $primaryKeysNames;
     }
 
     /**
@@ -123,5 +128,13 @@ class SourceFile extends BaseFile implements SourceInterface
                     return str_replace('azure://', 'https://', $entryUrl);
             }
         }, $entries);
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getPrimaryKeysNames(): ?array
+    {
+        return $this->primaryKeysNames;
     }
 }

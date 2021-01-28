@@ -26,6 +26,7 @@ class TableTest extends TestCase
         self::assertEquals([], $source->getQueryBindings());
         self::assertEquals([], $source->getColumnsNames());
         self::assertEquals('SELECT * FROM "schema"."table"', $source->getFromStatement());
+        self::assertNull($source->getPrimaryKeysNames());
     }
 
     public function testColumns(): void

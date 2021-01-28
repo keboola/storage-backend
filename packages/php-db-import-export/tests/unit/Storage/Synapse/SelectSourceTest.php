@@ -18,5 +18,6 @@ class SelectSourceTest extends TestCase
         $this->assertSame(['prop' => 1], $source->getQueryBindings());
         $this->assertSame([], $source->getDataTypes());
         $this->assertSame(['col1'], $source->getColumnsNames());
+        $this->assertNull($source->getPrimaryKeysNames());
     }
 }

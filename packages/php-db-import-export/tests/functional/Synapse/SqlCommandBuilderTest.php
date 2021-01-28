@@ -236,6 +236,11 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             {
                 return ['col1', 'col2'];
             }
+
+            public function getPrimaryKeysNames(): ?array
+            {
+                return [];
+            }
         };
     }
 
