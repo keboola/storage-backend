@@ -75,8 +75,20 @@ class SynapseTableReflectionTest extends SynapseBaseCase
 
     public function testGetTableObjectIdWithDots(): void
     {
-        $schemaName = self::TEST_SCHEMA . '\.\.dots';
-        $table = self::TABLE_GENERIC . '\.\.dots';
+        $schemaName = self::TEST_SCHEMA . '..dots';
+        $table = self::TABLE_GENERIC . '..dots';
+        $this->dropAllWithinSchema($schemaName);
+        $this->createTestSchema($schemaName);
+        $this->initTable($schemaName, $table);
+
+        $ref = new SynapseTableReflection($this->connection, $schemaName, $table);
+        $this->assertNotNull($ref->getObjectId());
+    }
+
+    public function testGetTempTableObjectIdWithDots(): void
+    {
+        $schemaName = self::TEST_SCHEMA . '..dots';
+        $table = '#'.self::TABLE_GENERIC . '..dots';
         $this->dropAllWithinSchema($schemaName);
         $this->createTestSchema($schemaName);
         $this->initTable($schemaName, $table);
