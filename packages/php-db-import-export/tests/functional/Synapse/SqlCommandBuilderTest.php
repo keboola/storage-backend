@@ -565,46 +565,6 @@ EOT
         $this->assertNotFalse($expectedFalse);
     }
 
-    public function testGetTableColumns(): void
-    {
-        $this->createTestSchema();
-        $this->createTestTableWithColumns();
-
-        $response = $this->qb->getTableColumns(self::TEST_SCHEMA, self::TEST_TABLE);
-
-        $this->assertCount(3, $response);
-        $this->assertEqualsCanonicalizing(['id', 'col1', 'col2'], $response);
-    }
-
-    public function testGetTableColumnsCommand(): void
-    {
-        $this->createTestSchema();
-        $this->createTestTableWithColumns();
-
-        /** @var string $tableId */
-        $tableId = $this->connection->fetchColumn(
-            $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
-        );
-
-        $sql = $this->qb->getTableColumnsCommand($tableId);
-        $this->assertStringStartsWith(
-            'SELECT [NAME] FROM sys.all_columns WHERE object_id = \'',
-            $sql
-        );
-
-        $response = $this->connection->fetchAll($sql);
-
-        $this->assertCount(3, $response);
-        $this->assertEqualsCanonicalizing(
-            [
-                ['name' => 'id'],
-                ['name' => 'col1'],
-                ['name' => 'col2'],
-            ],
-            $response
-        );
-    }
-
     public function testGetTableItemsCountCommand(): void
     {
         $this->createTestSchema();

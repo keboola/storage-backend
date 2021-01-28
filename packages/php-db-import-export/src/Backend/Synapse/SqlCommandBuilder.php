@@ -282,39 +282,12 @@ class SqlCommandBuilder
         );
     }
 
-    public function getTableColumns(string $schemaName, string $tableName): array
-    {
-        /** @var string|false $objectId */
-        $objectId = $this->connection->fetchColumn(
-            $this->getTableObjectIdCommand($schemaName, $tableName)
-        );
-
-        if ($objectId === false) {
-            throw new Exception(sprintf('Table %s.%s does not exist.', $schemaName, $tableName));
-        }
-
-        $result = $this->connection->fetchAll(
-            $this->getTableColumnsCommand($objectId)
-        );
-        return array_map(static function ($column) {
-            return $column['NAME'];
-        }, $result);
-    }
-
     public function getTableObjectIdCommand(string $schemaName, string $tableName): string
     {
         return sprintf(
             'SELECT [object_id] FROM sys.tables WHERE schema_name(schema_id) = %s AND NAME = %s',
             $this->connection->quote($schemaName),
             $this->connection->quote($tableName)
-        );
-    }
-
-    public function getTableColumnsCommand(string $tableObjectId): string
-    {
-        return sprintf(
-            'SELECT [NAME] FROM sys.all_columns WHERE object_id = %s',
-            $this->connection->quote($tableObjectId)
         );
     }
 

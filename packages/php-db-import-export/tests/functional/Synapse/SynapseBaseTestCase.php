@@ -12,6 +12,7 @@ use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class SynapseBaseTestCase extends ImportExportBaseTest
@@ -300,7 +301,11 @@ EOT
         $sortKey,
         string $message = 'Imported tables are not the same as expected'
     ): void {
-        $tableColumns = $this->qb->getTableColumns($table->getSchema(), $table->getTableName());
+        $tableColumns = (new SynapseTableReflection(
+            $this->connection,
+            $table->getSchema(),
+            $table->getTableName()
+        ))->getColumnsNames();
 
         if ($options->useTimestamp()) {
             $this->assertContains('_timestamp', $tableColumns);

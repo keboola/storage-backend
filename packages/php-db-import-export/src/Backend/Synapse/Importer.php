@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Db\Import\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
@@ -14,6 +13,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\Helper\BackendHelper;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
 class Importer implements ImporterInterface
 {
@@ -60,12 +60,13 @@ class Importer implements ImporterInterface
         Assert::assertValidSource($source);
 
         $this->importState = new ImportState(BackendHelper::generateTempTableName());
-        $this->validateColumns($source, $destination);
+        $destinationOptions = $this->getDestinationOptions($source, $destination);
+        Assert::assertColumns($source, $destinationOptions);
 
         $this->runQuery($this->sqlBuilder->getCreateTempTableCommand(
             $destination->getSchema(),
             $this->importState->getStagingTableName(),
-            $source->getColumnsNames(),
+            $source->getColumnsNames(), // using provided columns to maintain order in source
             $options
         ));
 
@@ -91,29 +92,28 @@ class Importer implements ImporterInterface
         return $this->importState->getResult();
     }
 
-    private function validateColumns(
+    private function getDestinationOptions(
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination
-    ): void {
-        if (count($source->getColumnsNames()) === 0) {
-            throw new Exception(
-                'No columns found in CSV file.',
-                Exception::NO_COLUMNS
-            );
-        }
-
-        $tableColumns = $this->sqlBuilder->getTableColumns(
+    ): DestinationTableOptions {
+        $tableRef = new SynapseTableReflection(
+            $this->connection,
             $destination->getSchema(),
             $destination->getTableName()
         );
 
-        $moreColumns = array_diff($source->getColumnsNames(), $tableColumns);
-        if (!empty($moreColumns)) {
-            throw new Exception(
-                'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),
-                Exception::COLUMNS_COUNT_NOT_MATCH
-            );
+        $primaryKeysDefinition = DestinationTableOptions::PRIMARY_KEYS_DEFINITION_METADATA;
+        $primaryKeys = $source->getPrimaryKeysNames();
+        if ($primaryKeys === null) {
+            $primaryKeysDefinition = DestinationTableOptions::PRIMARY_KEYS_DEFINITION_DB;
+            $primaryKeys = $tableRef->getPrimaryKeysNames();
         }
+
+        return new DestinationTableOptions(
+            $tableRef->getColumnsNames(),
+            $primaryKeys,
+            $primaryKeysDefinition
+        );
     }
 
     private function runQuery(string $query, ?string $timerName = null): void
