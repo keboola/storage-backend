@@ -44,14 +44,16 @@ trait ABSSourceTrait
         string $filePath,
         array $columns = [],
         bool $isSliced = false,
-        bool $isDirectory = false
+        bool $isDirectory = false,
+        ?array $primaryKeys = null
     ): Storage\ABS\SourceFile {
         return $this->createABSSourceInstanceFromCsv(
             $filePath,
             new CsvOptions(),
             $columns,
             $isSliced,
-            $isDirectory
+            $isDirectory,
+            $primaryKeys
         );
     }
 
@@ -60,7 +62,8 @@ trait ABSSourceTrait
         CsvOptions $options,
         array $columns = [],
         bool $isSliced = false,
-        bool $isDirectory = false
+        bool $isDirectory = false,
+        ?array $primaryKeys = null
     ): Storage\ABS\SourceFile {
         if ($isDirectory) {
             $class = Storage\ABS\SourceDirectory::class;
@@ -74,7 +77,8 @@ trait ABSSourceTrait
             (string) getenv('ABS_ACCOUNT_NAME'),
             $options,
             $isSliced,
-            $columns
+            $columns,
+            $primaryKeys
         );
     }
 
