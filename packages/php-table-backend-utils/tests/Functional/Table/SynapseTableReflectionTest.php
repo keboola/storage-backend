@@ -13,7 +13,7 @@ use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
 /**
  * @covers SynapseTableReflection
- * @uses ColumnCollection
+ * @uses   ColumnCollection
  */
 class SynapseTableReflectionTest extends SynapseBaseCase
 {
@@ -30,9 +30,9 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->createTestSchema();
     }
 
-    protected function createTestSchema(): void
+    protected function createTestSchema(string $schemaName = self::TEST_SCHEMA): void
     {
-        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->exec($this->schemaQb->getCreateSchemaCommand($schemaName));
     }
 
     public function testGetTableColumnsNames(): void
@@ -48,8 +48,10 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         ], $ref->getColumnsNames());
     }
 
-    protected function initTable(): void
-    {
+    protected function initTable(
+        string $schema = self::TEST_SCHEMA,
+        string $table = self::TABLE_GENERIC
+    ): void {
         $this->connection->exec(
             sprintf(
                 'CREATE TABLE [%s].[%s] (
@@ -58,8 +60,8 @@ class SynapseTableReflectionTest extends SynapseBaseCase
           [num_def] NUMERIC(10,5) DEFAULT ((1.00)),
           [_time] datetime2 NOT NULL DEFAULT \'2020-02-01 00:00:00\'
         );',
-                self::TEST_SCHEMA,
-                self::TABLE_GENERIC
+                $schema,
+                $table
             )
         );
     }
@@ -71,13 +73,25 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->assertNotNull($ref->getObjectId());
     }
 
+    public function testGetTableObjectIdWithDots(): void
+    {
+        $schemaName = self::TEST_SCHEMA . '\.\.dots';
+        $table = self::TABLE_GENERIC . '\.\.dots';
+        $this->dropAllWithinSchema($schemaName);
+        $this->createTestSchema($schemaName);
+        $this->initTable($schemaName, $table);
+
+        $ref = new SynapseTableReflection($this->connection, $schemaName, $table);
+        $this->assertNotNull($ref->getObjectId());
+    }
+
     public function testGetPrimaryKeysNames(): void
     {
         $this->initTable();
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         $this->assertEmpty($ref->getPrimaryKeysNames());
         $this->connection->exec(sprintf(
-            'ALTER TABLE [%s].[%s] add CONSTRAINT [PK_1] PRIMARY KEY NONCLUSTERED ([_time], [int_def]) NOT ENFORCED',
+            'ALTER TABLE [%s].[%s] ADD CONSTRAINT [PK_1] PRIMARY KEY NONCLUSTERED ([_time], [int_def]) NOT ENFORCED',
             self::TEST_SCHEMA,
             self::TABLE_GENERIC
         ));

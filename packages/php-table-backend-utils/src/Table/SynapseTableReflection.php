@@ -79,7 +79,11 @@ final class SynapseTableReflection implements TableReflectionInterface
         if ($this->isTemporary) {
             $object = $this->connection->quote('tempdb..' . $this->tableName);
         } else {
-            $object = $this->connection->quote($this->schemaName . '.' . $this->tableName);
+            $object = $this->connection->quote(
+                $this->platform->quoteSingleIdentifier($this->schemaName)
+                . '.' .
+                $this->platform->quoteSingleIdentifier($this->tableName)
+            );
         }
 
         /** @var string|null $objectId */
