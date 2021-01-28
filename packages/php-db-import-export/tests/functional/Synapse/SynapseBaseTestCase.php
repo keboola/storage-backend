@@ -77,23 +77,27 @@ EOT
     public function getSourceSchemaName(): string
     {
         return self::SYNAPSE_SOURCE_SCHEMA_NAME
-            . '-'
-            . getenv('CREDENTIALS_IMPORT_TYPE')
-            . '-'
-            . getenv('CREDENTIALS_EXPORT_TYPE')
-            . '-'
-            . getenv('TEMP_TABLE_TYPE');
+        . '-'
+        . getenv('CREDENTIALS_IMPORT_TYPE')
+        . '-'
+        . getenv('CREDENTIALS_EXPORT_TYPE')
+        . '-'
+        . getenv('TEMP_TABLE_TYPE')
+        . '-'
+        . (getenv('PREDEFINED_PK') === 'true' ? 'PK_PREDEFINED' : 'PK_NOT_SET');
     }
 
     public function getDestinationSchemaName(): string
     {
         return self::SYNAPSE_DEST_SCHEMA_NAME
-            .'-'
-            . getenv('CREDENTIALS_IMPORT_TYPE')
-            .'-'
-            . getenv('CREDENTIALS_EXPORT_TYPE')
-            . '-'
-            . getenv('TEMP_TABLE_TYPE');
+        . '-'
+        . getenv('CREDENTIALS_IMPORT_TYPE')
+        . '-'
+        . getenv('CREDENTIALS_EXPORT_TYPE')
+        . '-'
+        . getenv('TEMP_TABLE_TYPE')
+        . '-'
+        . (getenv('PREDEFINED_PK') === 'true' ? 'PK_PREDEFINED' : 'PK_NOT_SET');
     }
 
     protected function initTables(array $tables): void

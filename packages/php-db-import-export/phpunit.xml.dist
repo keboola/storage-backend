@@ -38,6 +38,11 @@
             <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
         </testsuite>
 
+        <testsuite name="tests-synapse-optimized">
+            <directory>tests/functional/Synapse</directory>
+            <exclude>tests/functional/Synapse/ExportTest.php</exclude>
+        </testsuite>
+
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>
