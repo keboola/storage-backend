@@ -77,14 +77,10 @@ class Importer implements ImporterInterface
         try {
             //import files to staging table
             $this->importToStagingTable($source, $destination, $options, $adapter);
-            $primaryKeys = $this->sqlBuilder->getTablePrimaryKey(
-                $destination->getSchema(),
-                $destination->getTableName()
-            );
             if ($options->isIncremental()) {
-                $this->doIncrementalLoad($options, $source, $destination, $primaryKeys);
+                $this->doIncrementalLoad($options, $source, $destination, $destinationOptions->getPrimaryKeys());
             } else {
-                $this->doNonIncrementalLoad($options, $source, $destination, $primaryKeys);
+                $this->doNonIncrementalLoad($options, $source, $destination, $destinationOptions);
             }
             $this->importState->setImportedColumns($source->getColumnsNames());
         } finally {
@@ -241,7 +237,98 @@ class Importer implements ImporterInterface
         SynapseImportOptions $importOptions,
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination,
-        array $primaryKeys
+        DestinationTableOptions $destinationOptions
+    ): void {
+        if (!empty($destinationOptions->getPrimaryKeys())) {
+            if ($importOptions->useOptimizedDedup()) {
+                $this->doFullLoadWithDedup(
+                    $source,
+                    $destination,
+                    $importOptions,
+                    $destinationOptions
+                );
+            } else {
+                $this->doLegacyFullLoadWithDedup(
+                    $source,
+                    $destination,
+                    $importOptions,
+                    $destinationOptions
+                );
+            }
+            return;
+        }
+
+        $this->doLoadFullWithoutDedup(
+            $source,
+            $destination,
+            $importOptions
+        );
+    }
+
+    private function doFullLoadWithDedup(
+        Storage\SourceInterface $source,
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions,
+        DestinationTableOptions $destinationOptions
+    ): void {
+        $this->runQuery(
+            $this->sqlBuilder->getDropCommand(
+                $destination->getSchema(),
+                $destination->getTableName()
+            )
+        );
+
+        $this->importState->startTimer('CTAS_dedup');
+        $this->runQuery(
+            $this->sqlBuilder->getCtasDedupCommand(
+                $source,
+                $destination,
+                $destinationOptions->getPrimaryKeys(),
+                $this->importState->getStagingTableName(),
+                $importOptions,
+                DateTimeHelper::getNowFormatted(),
+                $destinationOptions->getColumnNamesInOrder()
+            )
+        );
+        $this->importState->stopTimer('CTAS_dedup');
+    }
+
+    private function doLoadFullWithoutDedup(
+        Storage\SourceInterface $source,
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions
+    ): void {
+        $this->runQuery(
+            $this->sqlBuilder->getBeginTransaction()
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+                $destination->getSchema(),
+                $destination->getTableName()
+            )
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                $source,
+                $destination,
+                $importOptions,
+                $this->importState->getStagingTableName(),
+                DateTimeHelper::getNowFormatted()
+            ),
+            'copyFromStagingToTarget'
+        );
+        $this->runQuery(
+            $this->sqlBuilder->getCommitTransaction()
+        );
+    }
+
+    private function doLegacyFullLoadWithDedup(
+        Storage\SourceInterface $source,
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions,
+        DestinationTableOptions $destinationOptions
     ): void {
         $tempTableName = $this->createTempTableForDedup($source, $destination, $importOptions);
 
@@ -249,9 +336,9 @@ class Importer implements ImporterInterface
             $this->sqlBuilder->getBeginTransaction()
         );
 
-        if (!empty($primaryKeys)) {
+        if (!empty($destinationOptions->getPrimaryKeys())) {
             $this->importState->startTimer('dedup');
-            $this->dedup($source, $destination, $primaryKeys, $tempTableName);
+            $this->dedup($source, $destination, $destinationOptions->getPrimaryKeys(), $tempTableName);
             $this->importState->stopTimer('dedup');
             $this->importState->overwriteStagingTableName($tempTableName);
         }

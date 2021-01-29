@@ -157,6 +157,76 @@ class SqlCommandBuilder
         );
     }
 
+    public function getCtasDedupCommand(
+        SourceInterface $source,
+        Table $destination,
+        array $primaryKeys,
+        string $stagingTableName,
+        ImportOptionsInterface $importOptions,
+        string $timestamp,
+        array $columnsInOrder
+    ): string {
+        if (empty($primaryKeys)) {
+            return '';
+        }
+
+        $pkSql = $this->getColumnsString(
+            $primaryKeys,
+            ','
+        );
+
+        $timestampColIndex = array_search(Importer::TIMESTAMP_COLUMN_NAME, $columnsInOrder, true);
+        if ($timestampColIndex !== false) {
+            // remove timestamp column if exists in ordered columns
+            unset($columnsInOrder[$timestampColIndex]);
+        }
+
+        $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $source->getColumnsNames(), true)
+            && $importOptions->useTimestamp();
+
+        $createTableColumns = $this->getColumnsString($columnsInOrder, ',', 'a');
+        if ($useTimestamp) {
+            $createTableColumns .= ', ' . $this->connection->quote($timestamp) . ' AS [_timestamp]';
+        }
+
+        $columnsSetSql = [];
+        foreach ($source->getColumnsNames() as $columnName) {
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+                $columnsSetSql[] = sprintf(
+                    'CAST(NULLIF(%s, \'\') as nvarchar(4000)) AS %s',
+                    $this->platform->quoteSingleIdentifier($columnName),
+                    $this->platform->quoteSingleIdentifier($columnName)
+                );
+            } else {
+                $columnsSetSql[] = sprintf(
+                    'CAST(COALESCE(%s, \'\') as nvarchar(4000)) AS %s',
+                    $this->platform->quoteSingleIdentifier($columnName),
+                    $this->platform->quoteSingleIdentifier($columnName)
+                );
+            }
+        }
+
+        $depudeSql = sprintf(
+            'SELECT %s FROM ('
+            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
+            . 'FROM %s.%s'
+            . ') AS a '
+            . 'WHERE a."_row_number_" = 1',
+            $createTableColumns,
+            implode(',', $columnsSetSql),
+            $pkSql,
+            $pkSql,
+            $this->platform->quoteSingleIdentifier($destination->getSchema()),
+            $this->platform->quoteSingleIdentifier($stagingTableName)
+        );
+
+        return sprintf(
+            'CREATE TABLE %s WITH (DISTRIBUTION = ROUND_ROBIN) AS %s',
+            $destination->getQuotedTableWithScheme(),
+            $depudeSql
+        );
+    }
+
     public function getColumnsString(
         array $columns,
         string $delimiter = ', ',
@@ -229,7 +299,6 @@ class SqlCommandBuilder
         string $stagingTableName,
         string $timestamp
     ): string {
-
         $insColumns = $source->getColumnsNames();
         $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $insColumns, true)
             && $importOptions->useTimestamp();
