@@ -50,7 +50,7 @@ final class Assert
     {
         if (!$options instanceof SynapseImportOptions) {
             throw new \Exception(sprintf(
-                'Synapse imported expect $options to be instance of "%s", "%s" given.',
+                'Synapse importer expect $options to be instance of "%s", "%s" given.',
                 SynapseImportOptions::class,
                 get_class($options)
             ));
