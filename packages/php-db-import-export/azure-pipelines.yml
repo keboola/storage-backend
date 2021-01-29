@@ -112,7 +112,8 @@ stages:
               tests-synapse-mi \
               tests-synapse-columnstoretemp \
               tests-synapse-clusterdindextemp \
-              tests-synapse-heap4000temp
+              tests-synapse-heap4000temp \
+              tests-synapse-optimized
             displayName: 'Functional tests'
             env:
               BUILD_PREFIX: $(tag)
