@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
+/**
+ * @internal
+ */
 final class DestinationTableOptions
 {
-    public const PRIMARY_KEYS_DEFINITION_METADATA = 'METADATA';
-    public const PRIMARY_KEYS_DEFINITION_DB = 'DB';
-
     /** @var String[] */
     private $columnNamesInOrder;
 
     /** @var String[] */
     private $primaryKeys;
-
-    /** @var string */
-    private $primaryKeysDefinition;
 
     /**
      * @param String[] $columnNamesInOrder
@@ -24,17 +21,10 @@ final class DestinationTableOptions
      */
     public function __construct(
         array $columnNamesInOrder,
-        array $primaryKeys,
-        string $primaryKeysDefinition
+        array $primaryKeys
     ) {
         $this->columnNamesInOrder = $columnNamesInOrder;
         $this->primaryKeys = $primaryKeys;
-        $this->primaryKeysDefinition = $primaryKeysDefinition;
-    }
-
-    public function isPrimaryKeyFromMetadata(): bool
-    {
-        return $this->primaryKeysDefinition === self::PRIMARY_KEYS_DEFINITION_METADATA;
     }
 
     public function getColumnNamesInOrder(): array

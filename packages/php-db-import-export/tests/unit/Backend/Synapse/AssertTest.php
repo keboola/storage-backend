@@ -33,8 +33,7 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
-                [],
-                DestinationTableOptions::PRIMARY_KEYS_DEFINITION_METADATA
+                []
             )
         );
     }
@@ -57,8 +56,7 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
-                [],
-                DestinationTableOptions::PRIMARY_KEYS_DEFINITION_METADATA
+                []
             )
         );
     }
@@ -81,8 +79,7 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
-                [],
-                DestinationTableOptions::PRIMARY_KEYS_DEFINITION_METADATA
+                []
             )
         );
     }

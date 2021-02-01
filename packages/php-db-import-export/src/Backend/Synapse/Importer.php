@@ -60,7 +60,11 @@ class Importer implements ImporterInterface
         Assert::assertValidSource($source);
 
         $this->importState = new ImportState(BackendHelper::generateTempTableName());
-        $destinationOptions = $this->getDestinationOptions($source, $destination);
+        $destinationOptions = $this->getDestinationOptions(
+            $source,
+            $destination,
+            $options
+        );
         Assert::assertColumns($source, $destinationOptions);
 
         $this->runQuery($this->sqlBuilder->getCreateTempTableCommand(
@@ -94,7 +98,8 @@ class Importer implements ImporterInterface
 
     private function getDestinationOptions(
         Storage\SourceInterface $source,
-        Storage\Synapse\Table $destination
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions
     ): DestinationTableOptions {
         $tableRef = new SynapseTableReflection(
             $this->connection,
@@ -102,17 +107,20 @@ class Importer implements ImporterInterface
             $destination->getTableName()
         );
 
-        $primaryKeysDefinition = DestinationTableOptions::PRIMARY_KEYS_DEFINITION_METADATA;
-        $primaryKeys = $source->getPrimaryKeysNames();
-        if ($primaryKeys === null) {
-            $primaryKeysDefinition = DestinationTableOptions::PRIMARY_KEYS_DEFINITION_DB;
+        if ($importOptions->useOptimizedDedup()) {
+            $primaryKeys = $source->getPrimaryKeysNames();
+            if ($primaryKeys === null) {
+                throw new \Exception(sprintf(
+                    'Deduplication using CTAS query expects primary keys to be predefined.'
+                ));
+            }
+        } else {
             $primaryKeys = $tableRef->getPrimaryKeysNames();
         }
 
         return new DestinationTableOptions(
             $tableRef->getColumnsNames(),
-            $primaryKeys,
-            $primaryKeysDefinition
+            $primaryKeys
         );
     }
 

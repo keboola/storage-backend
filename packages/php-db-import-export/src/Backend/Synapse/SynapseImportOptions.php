@@ -16,11 +16,17 @@ class SynapseImportOptions extends ImportOptions
     public const TEMP_TABLE_COLUMNSTORE = 'COLUMNSTORE';
     public const TEMP_TABLE_CLUSTERED_INDEX = 'CLUSTERED_INDEX';
 
+    public const DEDUP_TYPE_CTAS = 'CTAS';
+    public const DEDUP_TYPE_TMP_TABLE = 'TMP_TABLE';
+
     /** @var string */
     private $importCredentialsType;
 
     /** @var string */
     private $tempTableType;
+
+    /** @var string */
+    private $dedupType;
 
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -28,7 +34,8 @@ class SynapseImportOptions extends ImportOptions
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
         string $importCredentialsType = self::CREDENTIALS_SAS,
-        string $tempTableType = self::TEMP_TABLE_HEAP
+        string $tempTableType = self::TEMP_TABLE_HEAP,
+        string $dedupType = self::DEDUP_TYPE_TMP_TABLE
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -38,6 +45,7 @@ class SynapseImportOptions extends ImportOptions
         );
         $this->importCredentialsType = $importCredentialsType;
         $this->tempTableType = $tempTableType;
+        $this->dedupType = $dedupType;
     }
 
     public function getImportCredentialsType(): string
@@ -48,5 +56,10 @@ class SynapseImportOptions extends ImportOptions
     public function getTempTableType(): string
     {
         return $this->tempTableType;
+    }
+
+    public function useOptimizedDedup(): bool
+    {
+        return $this->dedupType === self::DEDUP_TYPE_CTAS;
     }
 }
