@@ -279,4 +279,25 @@ SELECT distribution_policy_desc
 EOT
         );
     }
+
+    /**
+     * @return string[]
+     */
+    public function getTableDistributionColumnsNames(): array
+    {
+        $tableId = $this->getObjectId();
+
+        $result = $this->connection->fetchAll(
+            <<< EOT
+SELECT c.name
+FROM sys.pdw_column_distribution_properties AS dp
+     INNER JOIN sys.columns AS c ON dp.column_id = c.column_id
+WHERE dp.distribution_ordinal = 1 AND dp.OBJECT_ID = '$tableId' AND c.object_id = '$tableId'
+EOT
+        );
+
+        return array_map(static function ($item) {
+            return $item['name'];
+        }, $result);
+    }
 }

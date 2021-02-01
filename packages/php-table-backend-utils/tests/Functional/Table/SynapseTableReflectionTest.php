@@ -673,6 +673,54 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         self::assertEquals($expectedDistribution, $ref->getTableDistribution());
     }
 
+    /**
+     * @return Generator<array{
+     *     string,
+     *     string[],
+     * }>
+     */
+    public function tableDistributionColumnsProvider(): \Generator
+    {
+        yield 'ROUND_ROBIN' => [
+            'DISTRIBUTION = ROUND_ROBIN',
+            [],
+        ];
+        yield 'HASH' => [
+            'DISTRIBUTION = HASH (int_def)',
+            ['int_def'],
+        ];
+        yield 'REPLICATE' => [
+            'DISTRIBUTION = REPLICATE',
+            [],
+        ];
+    }
+
+    /**
+     * @dataProvider tableDistributionColumnsProvider
+     * @param string[] $expectedDistributionKeys
+     */
+    public function testGetTableDistributionColumnsNames(string $with, array $expectedDistributionKeys): void
+    {
+        $this->connection->exec(
+            sprintf(
+                'CREATE TABLE [%s].[%s] (
+          [int_def] INT,
+          [other_int] INT,
+          [other_varchar] varchar
+        )
+        WITH(%s)
+        ;',
+                self::TEST_SCHEMA,
+                self::TABLE_GENERIC,
+                $with
+            )
+        );
+        $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertEquals($expectedDistributionKeys, $ref->getTableDistributionColumnsNames());
+    }
+
+
+
     private function initView(string $viewName, string $parentName): void
     {
         $this->connection->exec(
