@@ -36,7 +36,7 @@
     "scripts": {
         "tests-unit": "phpunit --colors=always --testsuite unit",
         "tests-snowflake": "phpunit --colors=always --testsuite snowflake",
-        "tests-synapse": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP phpunit --colors=always --testsuite synapse",
+        "tests-synapse": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP DEDUP_TYPE=CTAS phpunit --colors=always --testsuite synapse",
         "tests-synapse-optimized": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP DEDUP_TYPE=CTAS phpunit --colors=always --testsuite tests-synapse-optimized",
         "tests-synapse-columnstoretemp": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=COLUMNSTORE DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite tests-synapse-columnstoretemp",
         "tests-synapse-heap4000temp": "CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP4000 DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite tests-synapse-heap4000temp",
