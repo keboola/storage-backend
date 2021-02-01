@@ -84,7 +84,7 @@ EOT
         . '-'
         . getenv('TEMP_TABLE_TYPE')
         . '-'
-        . (getenv('PREDEFINED_PK') === 'true' ? 'PK_PREDEFINED' : 'PK_NOT_SET');
+        . getenv('DEDUP_TYPE');
     }
 
     public function getDestinationSchemaName(): string
@@ -97,7 +97,7 @@ EOT
         . '-'
         . getenv('TEMP_TABLE_TYPE')
         . '-'
-        . (getenv('PREDEFINED_PK') === 'true' ? 'PK_PREDEFINED' : 'PK_NOT_SET');
+        . getenv('DEDUP_TYPE');
     }
 
     protected function initTables(array $tables): void
@@ -348,15 +348,20 @@ EOT
     }
 
     protected function getSynapseImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
+        ?string $dedupType = null
     ): SynapseImportOptions {
+        if ($dedupType === null) {
+            $dedupType = getenv('DEDUP_TYPE');
+        }
         return new SynapseImportOptions(
             [],
             false,
             true,
             $skipLines,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            $dedupType
         );
     }
 
@@ -369,7 +374,8 @@ EOT
             true,
             $skipLines,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
     }
 }

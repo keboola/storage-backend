@@ -106,7 +106,13 @@ class FullImportTest extends SynapseBaseTestCase
         ];
 
         yield 'standard with enclosures' => [
-            $this->createABSSourceInstance('standard-with-enclosures.csv', $escapingHeader),
+            $this->createABSSourceInstance(
+                'standard-with-enclosures.csv',
+                $escapingHeader,
+                false,
+                false,
+                []
+            ),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
             $this->getSynapseImportOptions(),
             $expectedEscaping,
@@ -116,7 +122,7 @@ class FullImportTest extends SynapseBaseTestCase
 
         yield 'gzipped standard with enclosure' => [
             $this->createABSSourceInstance(
-                'standard-with-enclosures.csv',
+                'gzipped-standard-with-enclosures.csv.gz',
                 $escapingHeader,
                 false,
                 false,
@@ -151,7 +157,7 @@ class FullImportTest extends SynapseBaseTestCase
                 $accountChangedColumnsOrderHeader,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             new Storage\Synapse\Table(
                 $this->getDestinationSchemaName(),
@@ -168,7 +174,7 @@ class FullImportTest extends SynapseBaseTestCase
                 $accountsHeader,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
             $this->getSynapseImportOptions(),
@@ -183,7 +189,7 @@ class FullImportTest extends SynapseBaseTestCase
                 $accountsHeader,
                 true,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -198,7 +204,7 @@ class FullImportTest extends SynapseBaseTestCase
                 $accountsHeader,
                 true,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -214,7 +220,7 @@ class FullImportTest extends SynapseBaseTestCase
                 $accountsHeader,
                 true,
                 true,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -292,7 +298,10 @@ class FullImportTest extends SynapseBaseTestCase
         yield 'copy from table' => [
             new Storage\Synapse\Table($this->getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
-            $this->getSynapseImportOptions(),
+            $this->getSynapseImportOptions(
+                ImportOptions::SKIP_FIRST_LINE,
+                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE
+            ),
             [['a', 'b'], ['c', 'd']],
             2,
             [self::TABLE_OUT_CSV_2COLS],
@@ -312,7 +321,10 @@ class FullImportTest extends SynapseBaseTestCase
                 $this->getDestinationSchemaName(),
                 'types'
             ),
-            $this->getSynapseImportOptions(),
+            $this->getSynapseImportOptions(
+                ImportOptions::SKIP_FIRST_LINE,
+                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE
+            ),
             [['a', '10.5', '0.3', '1']],
             1,
             [self::TABLE_TYPES],

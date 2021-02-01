@@ -48,7 +48,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             $this->getSynapseImportOptions(),
             $this->createABSSourceInstance(
@@ -56,7 +56,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             $this->getSynapseIncrementalImportOptions(),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), 'accounts-3'),
@@ -70,7 +70,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             new SynapseImportOptions(
                 [],
@@ -78,14 +78,15 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
                 getenv('CREDENTIALS_IMPORT_TYPE'),
-                getenv('TEMP_TABLE_TYPE')
+                getenv('TEMP_TABLE_TYPE'),
+                getenv('DEDUP_TYPE')
             ),
             $this->createABSSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['id'] : null
+                ['id']
             ),
             new SynapseImportOptions(
                 [],
@@ -93,7 +94,8 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
                 getenv('CREDENTIALS_IMPORT_TYPE'),
-                getenv('TEMP_TABLE_TYPE')
+                getenv('TEMP_TABLE_TYPE'),
+                getenv('DEDUP_TYPE')
             ),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), 'accounts-bez-ts'),
             $expectedAccountsRows,
@@ -106,7 +108,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['VisitID', 'Value', 'MenuItem'] : null
+                ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getSynapseImportOptions(),
             $this->createABSSourceInstance(
@@ -114,7 +116,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                getenv('PREDEFINED_PK') === 'true' ? ['VisitID', 'Value', 'MenuItem'] : null
+                ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getSynapseIncrementalImportOptions(),
             new Storage\Synapse\Table($this->getDestinationSchemaName(), 'multi-pk'),
