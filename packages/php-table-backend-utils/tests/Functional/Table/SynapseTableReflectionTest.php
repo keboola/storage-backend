@@ -630,6 +630,49 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
     }
 
+    /**
+     * @return Generator<array{
+     *     string,
+     *     string,
+     * }>
+     */
+    public function tableDistributionProvider(): \Generator
+    {
+        yield 'ROUND_ROBIN' => [
+            'DISTRIBUTION = ROUND_ROBIN',
+            'ROUND_ROBIN',
+        ];
+        yield 'HASH' => [
+            'DISTRIBUTION = HASH (int_def)',
+            'HASH',
+        ];
+        yield 'REPLICATE' => [
+            'DISTRIBUTION = REPLICATE',
+            'REPLICATE',
+        ];
+    }
+
+    /**
+     * @dataProvider tableDistributionProvider
+     */
+    public function testGetTableDistribution(string $with, string $expectedDistribution): void
+    {
+        $this->connection->exec(
+            sprintf(
+                'CREATE TABLE [%s].[%s] (
+          [int_def] INT
+        )
+        WITH(%s)
+        ;',
+                self::TEST_SCHEMA,
+                self::TABLE_GENERIC,
+                $with
+            )
+        );
+        $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertEquals($expectedDistribution, $ref->getTableDistribution());
+    }
+
     private function initView(string $viewName, string $parentName): void
     {
         $this->connection->exec(

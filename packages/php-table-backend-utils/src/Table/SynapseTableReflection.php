@@ -262,4 +262,21 @@ EOT
 
         return $dependencies;
     }
+
+    /**
+     * @return 'ROUND_ROBIN'|'HASH'|'REPLICATE'
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getTableDistribution(): string
+    {
+        $tableId = $this->getObjectId();
+
+        return $this->connection->fetchColumn(
+            <<< EOT
+SELECT distribution_policy_desc
+    FROM sys.pdw_table_distribution_properties AS dp
+    WHERE dp.OBJECT_ID = '$tableId'
+EOT
+        );
+    }
 }
