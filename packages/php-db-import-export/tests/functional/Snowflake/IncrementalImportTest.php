@@ -37,7 +37,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->getSimpleImportOptions(),
             $this->createABSSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
             $this->getSimpleIncrementalImportOptions(),
-            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-3'),
+            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
             $expectedAccountsRows,
             4,
         ];
@@ -56,7 +56,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'accounts-bez-ts'),
+            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-bez-ts'),
             $expectedAccountsRows,
             4,
         ];
@@ -65,7 +65,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->getSimpleImportOptions(),
             $this->createABSSourceInstance('multi-pk.increment.csv', $multiPkColumns, false),
             $this->getSimpleIncrementalImportOptions(),
-            new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'multi-pk'),
+            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'multi-pk'),
             $expectedMultiPkRows,
             3,
         ];

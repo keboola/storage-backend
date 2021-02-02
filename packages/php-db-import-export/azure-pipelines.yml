@@ -115,6 +115,7 @@ stages:
               tests-synapse-heap4000temp
             displayName: 'Functional tests'
             env:
+              BUILD_PREFIX: $(tag)
               ABS_ACCOUNT_KEY: $(ABS_ACCOUNT_KEY)
               ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
               ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
