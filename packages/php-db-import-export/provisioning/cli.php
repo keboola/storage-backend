@@ -5,13 +5,13 @@ declare(strict_types=1);
 
 require __DIR__.'/vendor/autoload.php';
 
-use Keboola\Provisioning\DeleteSynapse;
-use Keboola\Provisioning\DeploySynapse;
+use Keboola\Provisioning\Delete;
+use Keboola\Provisioning\Deploy;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-$application->add(new DeploySynapse());
-$application->add(new DeleteSynapse());
+$application->add(new Deploy());
+$application->add(new Delete());
 
 $application->run();

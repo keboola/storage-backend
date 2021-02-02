@@ -8,11 +8,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class DeploySynapse extends BaseCmd
+final class Deploy extends BaseCmd
 {
-    private const OPTION_ABS_ACCOUNT_NAME = 'absAccountName';
     private const OPTION_AZURE_RESOURCE_GROUP = 'resourceGroup';
-    private const OPTION_SYNAPSE_SERVER_NAME = 'serverName';
+    private const OPTION_SERVER_NAME = 'serverName';
 
     /** @var string */
     protected static $defaultName = 'app:deploy:synapse';
@@ -24,19 +23,13 @@ final class DeploySynapse extends BaseCmd
 
         $this
             ->addOption(
-                self::OPTION_SYNAPSE_SERVER_NAME,
+                self::OPTION_SERVER_NAME,
                 null,
                 InputOption::VALUE_REQUIRED
             );
         $this
             ->addOption(
                 self::OPTION_AZURE_RESOURCE_GROUP,
-                null,
-                InputOption::VALUE_REQUIRED
-            );
-        $this
-            ->addOption(
-                self::OPTION_ABS_ACCOUNT_NAME,
                 null,
                 InputOption::VALUE_REQUIRED
             );
@@ -47,23 +40,47 @@ final class DeploySynapse extends BaseCmd
     {
         $cli = $this->getCli($input);
         $env = new EnvCollector();
-        $serverName = $input->getOption(self::OPTION_SYNAPSE_SERVER_NAME);
-        $this->assertOption(self::OPTION_SYNAPSE_SERVER_NAME, $serverName);
+        $serverName = $input->getOption(self::OPTION_SERVER_NAME);
+        $this->assertOption(self::OPTION_SERVER_NAME, $serverName);
         $resourceGroup = $input->getOption(self::OPTION_AZURE_RESOURCE_GROUP);
         $this->assertOption(self::OPTION_AZURE_RESOURCE_GROUP, $resourceGroup);
-        $absAccountName = $input->getOption(self::OPTION_ABS_ACCOUNT_NAME);
-        $this->assertOption(self::OPTION_ABS_ACCOUNT_NAME, $absAccountName);
 
         $serverPassword = $this->runCmdSingleLineOutput('openssl rand -base64 32');
         $suffix = $this->runCmdSingleLineOutput('openssl rand -hex 5');
-        $deploymentName = sprintf('%s_%s', $serverName, $suffix);
+        $blobDeploymentName = sprintf('ABS_%s_%s', $serverName, $suffix);
+        $synapseDeploymentName = sprintf('Synapse_%s_%s', $serverName, $suffix);
+
+        $output->writeln([
+            'Start blob storage deploy',
+        ]);
+        $outBlobDeploy = $cli->runAuthorizedCmd(<<< EOT
+az group deployment create \
+  --name $blobDeploymentName \
+  --resource-group $resourceGroup \
+  --template-file /keboola/provisioning/ABS/template.json \
+  --output json \
+  --parameters \
+    suffix=$suffix
+EOT
+        );
+        $outBlobDeploy = $this->getDeploymentResult($outBlobDeploy);
+        $storageAccountName = $outBlobDeploy['properties']['outputs']['storageAccountName']['value'];
+        $storageAccountKey = $outBlobDeploy['properties']['outputs']['storageAccountKey']['value'];
+
+        $output->writeln([
+            'Blob storage deployed',
+            'ABS_ACCOUNT_NAME: ' . $storageAccountName,
+            'ABS_ACCOUNT_KEY: ' . $storageAccountKey,
+        ]);
+        $env->addEnv('ABS_ACCOUNT_NAME', $storageAccountName);
+        $env->addEnv('ABS_ACCOUNT_KEY', $storageAccountKey);
 
         $output->writeln([
             'Start Synapse server deploy',
         ]);
         $outSynapseDeploy = $cli->runAuthorizedCmd(<<< EOT
 az group deployment create \
-  --name $deploymentName \
+  --name $synapseDeploymentName \
   --resource-group $resourceGroup \
   --template-file /keboola/provisioning/synapse/synapse.json \
   --output json \
@@ -76,8 +93,7 @@ az group deployment create \
 EOT
         );
 
-        $outSynapseDeploy = trim(preg_replace('/\s+/', ' ', $outSynapseDeploy));
-        $outSynapseDeploy = json_decode($outSynapseDeploy, true);
+        $outSynapseDeploy = $this->getDeploymentResult($outSynapseDeploy);
         $synapseSqlServerName = $outSynapseDeploy['properties']['outputs']['sqlServerName']['value'];
         $synapseDwServerName = $outSynapseDeploy['properties']['outputs']['warehouseName']['value'];
         $synapseResourceId = $outSynapseDeploy['properties']['outputs']['warehouseResourceId']['value'];
@@ -132,7 +148,7 @@ EOT
 az resource show \
       -g $resourceGroup \
       --resource-type "Microsoft.Storage/storageAccounts" \
-      -n $absAccountName \
+      -n $storageAccountName \
       --query "id" \
       --output tsv
 EOT
@@ -158,5 +174,15 @@ EOT
         $env->addEnv('FILE_STORAGE_RESOURCE_ID', $fileStorageResourceId);
 
         return 0;
+    }
+
+    /**
+     * @param string $outDeployment
+     * @return array<mixed>
+     */
+    protected function getDeploymentResult(string $outDeployment): array
+    {
+        $outDeployment = trim(preg_replace('/\s+/', ' ', $outDeployment));
+        return json_decode($outDeployment, true);
     }
 }
