@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse;
 
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
+use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use PHPUnit\Framework\TestCase;
@@ -100,13 +102,13 @@ class AssertTest extends TestCase
         Assert::assertIsSynapseTableDestination(new DestinationFile('', '', '', ''));
     }
 
-    public function testAssertSynapseImportOptions(): void
+    public function testAssertSynapseImportOptionsPass(): void
     {
         $this->expectNotToPerformAssertions();
         Assert::assertSynapseImportOptions(new SynapseImportOptions());
     }
 
-    public function testAssertValidSource(): void
+    public function testAssertSynapseImportOptionsFail(): void
     {
         $this->expectException(\Throwable::class);
         $this->expectExceptionMessage(
@@ -114,5 +116,42 @@ class AssertTest extends TestCase
             'Synapse importer expect $options to be instance of "Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions", "Keboola\Db\ImportExport\ImportOptions" given.'
         );
         Assert::assertSynapseImportOptions(new ImportOptions());
+    }
+
+    public function testAssertValidSourcePass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertValidSource(new SourceFile(
+            '',
+            '',
+            '',
+            '',
+            new CsvOptions(),
+            false
+        ));
+        Assert::assertValidSource(new Table(
+            '',
+            ''
+        ));
+    }
+
+    public function testAssertValidSourceFail(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+        // phpcs:ignore
+            'CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.'
+        );
+        Assert::assertValidSource(new SourceFile(
+            '',
+            '',
+            '',
+            '',
+            new CsvOptions(
+                CsvOptions::DEFAULT_DELIMITER,
+                ''
+            ),
+            false
+        ));
     }
 }
