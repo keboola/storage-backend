@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "suffix": {
+            "type": "string"
+        },
         "administratorLogin": {
             "type": "string"
         },
@@ -16,8 +19,8 @@
         }
     },
     "variables": {
-        "sqlServerName": "[concat(parameters('warehouseName'), '-sql-', uniqueString(resourceGroup().id))]",
-        "warehouseName": "[concat(parameters('warehouseName'), '-db-', uniqueString(resourceGroup().id))]"
+        "sqlServerName": "[concat(parameters('warehouseName'), '-sql-', uniqueString(resourceGroup().id), parameters('suffix'))]",
+        "warehouseName": "[concat(parameters('warehouseName'), '-db-', uniqueString(resourceGroup().id), parameters('suffix'))]"
     },
     "resources": [
         {

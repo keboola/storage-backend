@@ -55,7 +55,8 @@ final class DeploySynapse extends BaseCmd
         $this->assertOption(self::OPTION_ABS_ACCOUNT_NAME, $absAccountName);
 
         $serverPassword = $this->runCmdSingleLineOutput('openssl rand -base64 32');
-        $deploymentName = sprintf('%s_%s', $serverName, $this->runCmdSingleLineOutput('openssl rand -hex 5'));
+        $suffix = $this->runCmdSingleLineOutput('openssl rand -hex 5');
+        $deploymentName = sprintf('%s_%s', $serverName, $suffix);
 
         $output->writeln([
             'Start Synapse server deploy',
@@ -70,6 +71,7 @@ az group deployment create \
     administratorLogin=keboola \
     administratorPassword=$serverPassword \
     warehouseName=$serverName \
+    suffix=$suffix \
     warehouseCapacity=900
 EOT
         );
