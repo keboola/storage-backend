@@ -183,7 +183,7 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         $this->assertCount(2, $result);
     }
 
-    private function createStagingTableWithData(bool $includeEmptyValues = false, ?string $timestamp = null): void
+    private function createStagingTableWithData(bool $includeEmptyValues = false): void
     {
         $columns = [
             'pk1',
@@ -191,9 +191,7 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             'col1',
             'col2',
         ];
-        if ($timestamp !== null) {
-            $columns[] = '_timestamp';
-        }
+
         $this->connection->exec($this->qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
@@ -202,36 +200,32 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         ));
         $this->connection->exec(
             sprintf(
-                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\'%s)',
+                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE,
-                $timestamp ?? ''
+                self::TEST_STAGING_TABLE
             )
         );
         $this->connection->exec(
             sprintf(
-                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\'%s)',
+                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE,
-                $timestamp ?? ''
+                self::TEST_STAGING_TABLE
             )
         );
         $this->connection->exec(
             sprintf(
-                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\'%s)',
+                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE,
-                $timestamp ?? ''
+                self::TEST_STAGING_TABLE
             )
         );
 
         if ($includeEmptyValues) {
             $this->connection->exec(
                 sprintf(
-                    'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'\',NULL%s)',
+                    'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'\',NULL)',
                     self::TEST_SCHEMA_QUOTED,
-                    self::TEST_STAGING_TABLE,
-                    $timestamp ?? ''
+                    self::TEST_STAGING_TABLE
                 )
             );
         }
