@@ -59,36 +59,55 @@ class SqlCommandBuilder
     ): string {
         $this->assertStagingTable($tableName);
 
+        $distributionSql = sprintf(
+            'DISTRIBUTION=%s',
+            $destinationTableOptions->getDistribution()
+        );
+
+        if ($destinationTableOptions->getDistribution() === DestinationTableOptions::TABLE_DISTRIBUTION_HASH) {
+            if (count($destinationTableOptions->getDistributionColumnsNames()) !== 1) {
+                throw new \LogicException('HASH table distribution must have one distribution key specified.');
+            }
+            $distributionSql = sprintf(
+                '%s(%s)',
+                $distributionSql,
+                $this->platform->quoteSingleIdentifier($destinationTableOptions->getDistributionColumnsNames()[0])
+            );
+        }
+
         switch ($options->getTempTableType()) {
             case SynapseImportOptions::TEMP_TABLE_HEAP:
                 $columnsSql = array_map(function ($column) {
                     return sprintf('%s nvarchar(max)', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
+                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB, %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql)
+                    implode(', ', $columnsSql),
+                    $distributionSql
                 );
             case SynapseImportOptions::TEMP_TABLE_HEAP_4000:
                 $columnsSql = array_map(function ($column) {
                     return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
+                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB, %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql)
+                    implode(', ', $columnsSql),
+                    $distributionSql
                 );
             case SynapseImportOptions::TEMP_TABLE_COLUMNSTORE:
                 $columnsSql = array_map(function ($column) {
                     return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED COLUMNSTORE INDEX)',
+                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED COLUMNSTORE INDEX, %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql)
+                    implode(', ', $columnsSql),
+                    $distributionSql
                 );
             case SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX:
                 $columnsSql = array_map(function ($column) {
@@ -98,11 +117,12 @@ class SqlCommandBuilder
                     return sprintf('%s', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED INDEX(%s))',
+                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED INDEX(%s), %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
                     implode(', ', $columnsSql),
-                    implode(', ', $columnsIndex)
+                    implode(', ', $columnsIndex),
+                    $distributionSql
                 );
         }
 

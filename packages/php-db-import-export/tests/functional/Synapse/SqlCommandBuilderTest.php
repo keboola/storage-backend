@@ -31,33 +31,82 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         $this->dropAllWithinSchema(self::TEST_SCHEMA);
     }
 
-    public function testGetCreateStagingTableCommandHEAP(): void
+    public function createTempTableCommandProvider(): \Generator
     {
-        $this->createTestSchema();
-        $sql = $this->qb->getCreateTempTableCommand(
-            self::TEST_SCHEMA,
-            '#' . self::TEST_TABLE,
-            [
-                'col1',
-                'col2',
-            ],
-            new SynapseImportOptions(),
-            new DestinationTableOptions(
-                [],
-                []
-            )
-        );
+        yield 'TEMP_TABLE_COLUMNSTORE ROUND_ROBIN' => [
+            'COLUMNSTORE',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION=ROUND_ROBIN)',
+        ];
 
-        $this->assertEquals(
+        yield 'TEMP_TABLE_COLUMNSTORE HASH' => [
+            'COLUMNSTORE',
+            'HASH',
+            ['col1'],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION=HASH([col1]))',
+        ];
+
+        yield 'TEMP_TABLE_HEAP ROUND_ROBIN' => [
+            'HEAP',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=ROUND_ROBIN)',
+        ];
+// Columns with large object types are not supported as distribution columns.
+//        yield 'TEMP_TABLE_HEAP HASH' => [
+//            'HEAP',
+//            'HASH',
+//            ['col1'],
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB)',
-            $sql
-        );
-        $this->connection->exec($sql);
+//            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=HASH([col1]))',
+//        ];
+
+        yield 'TEMP_TABLE_HEAP_4000 ROUND_ROBIN' => [
+            'HEAP4000',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=ROUND_ROBIN)',
+        ];
+
+        yield 'TEMP_TABLE_HEAP_4000 HASH' => [
+            'HEAP4000',
+            'HASH',
+            ['col1'],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=HASH([col1]))',
+        ];
+
+        yield 'TEMP_TABLE_CLUSTERED_INDEX ROUND_ROBIN' => [
+            'CLUSTERED_INDEX',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED INDEX([col1], [col2]), DISTRIBUTION=ROUND_ROBIN)',
+        ];
+
+        yield 'TEMP_TABLE_CLUSTERED_INDEX HASH' => [
+            'CLUSTERED_INDEX',
+            'HASH',
+            ['col1'],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED INDEX([col1], [col2]), DISTRIBUTION=HASH([col1]))',
+        ];
     }
 
-    public function testGetCreateStagingTableCommandCOLUMNSTORE(): void
-    {
+    /**
+     * @dataProvider createTempTableCommandProvider
+     */
+    public function testGetCreateTempTableCommand(
+        string $tableType,
+        string $tableDistributionType,
+        array $distributionColumnsNames,
+        string $expectedSql
+    ): void {
         $this->createTestSchema();
         $sql = $this->qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
@@ -72,81 +121,18 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 false,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
+                $tableType
             ),
             new DestinationTableOptions(
                 [],
-                []
+                [],
+                $tableDistributionType,
+                $distributionColumnsNames
             )
         );
 
-        $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED COLUMNSTORE INDEX)',
-            $sql
-        );
-        $this->connection->exec($sql);
-    }
-
-    public function testGetCreateStagingTableCommandCLUSTEREDINDEX(): void
-    {
-        $this->createTestSchema();
-        $sql = $this->qb->getCreateTempTableCommand(
-            self::TEST_SCHEMA,
-            '#' . self::TEST_TABLE,
-            [
-                'col1',
-                'col2',
-            ],
-            new SynapseImportOptions(
-                [],
-                false,
-                false,
-                0,
-                SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
-            ),
-            new DestinationTableOptions(
-                [],
-                []
-            )
-        );
-
-        $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED INDEX([col1], [col2]))',
-            $sql
-        );
-        $this->connection->exec($sql);
-    }
-
-    public function testGetCreateStagingTableCommandHEAP4000(): void
-    {
-        $this->createTestSchema();
-        $sql = $this->qb->getCreateTempTableCommand(
-            self::TEST_SCHEMA,
-            '#' . self::TEST_TABLE,
-            [
-                'col1',
-                'col2',
-            ],
-            new SynapseImportOptions(
-                [],
-                false,
-                false,
-                0,
-                SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP_4000
-            ),
-            new DestinationTableOptions(
-                [],
-                []
-            )
-        );
-
-        $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (HEAP, LOCATION = USER_DB)',
+        self::assertEquals(
+            $expectedSql,
             $sql
         );
         $this->connection->exec($sql);
