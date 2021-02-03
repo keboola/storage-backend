@@ -23,11 +23,7 @@ class ExportTest extends SynapseBaseTestCase
     {
         return md5(self::EXPORT_BLOB_DIR
             . '-'
-            . getenv('CREDENTIALS_IMPORT_TYPE')
-            . '-'
-            . getenv('CREDENTIALS_EXPORT_TYPE')
-            . '-'
-            . getenv('TEMP_TABLE_TYPE'));
+            . getenv('SUITE'));
     }
 
     /**

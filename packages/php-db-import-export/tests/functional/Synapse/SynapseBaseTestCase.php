@@ -78,26 +78,14 @@ EOT
     {
         return self::SYNAPSE_SOURCE_SCHEMA_NAME
         . '-'
-        . getenv('CREDENTIALS_IMPORT_TYPE')
-        . '-'
-        . getenv('CREDENTIALS_EXPORT_TYPE')
-        . '-'
-        . getenv('TEMP_TABLE_TYPE')
-        . '-'
-        . getenv('DEDUP_TYPE');
+        . getenv('SUITE');
     }
 
     public function getDestinationSchemaName(): string
     {
         return self::SYNAPSE_DEST_SCHEMA_NAME
         . '-'
-        . getenv('CREDENTIALS_IMPORT_TYPE')
-        . '-'
-        . getenv('CREDENTIALS_EXPORT_TYPE')
-        . '-'
-        . getenv('TEMP_TABLE_TYPE')
-        . '-'
-        . getenv('DEDUP_TYPE');
+        . getenv('SUITE');
     }
 
     protected function initTables(array $tables): void
