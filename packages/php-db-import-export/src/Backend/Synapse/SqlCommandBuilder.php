@@ -292,6 +292,22 @@ class SqlCommandBuilder
         );
     }
 
+    public function getDropTableIfExistsCommand(
+        string $schema,
+        string $tableName
+    ): string {
+        $table = sprintf(
+            '%s.%s',
+            $this->platform->quoteSingleIdentifier($schema),
+            $this->platform->quoteSingleIdentifier($tableName)
+        );
+        return sprintf(
+            'IF OBJECT_ID (N\'%s\', N\'U\') IS NOT NULL DROP TABLE %s',
+            $table,
+            $table
+        );
+    }
+
     public function getInsertAllIntoTargetTableCommand(
         SourceInterface $source,
         Table $destination,

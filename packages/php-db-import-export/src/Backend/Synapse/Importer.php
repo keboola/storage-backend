@@ -21,6 +21,8 @@ class Importer implements ImporterInterface
         Storage\ABS\SynapseImportAdapter::class,
         Storage\Synapse\SynapseImportAdapter::class,
     ];
+    private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
+    private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
     /** @var string[] */
     private $adapters = self::DEFAULT_ADAPTERS;
@@ -84,8 +86,23 @@ class Importer implements ImporterInterface
             }
             $this->importState->setImportedColumns($source->getColumnsNames());
         } finally {
+            // drop staging table
             $this->runQuery(
                 $this->sqlBuilder->getDropCommand($destination->getSchema(), $this->importState->getStagingTableName())
+            );
+            // drop optimized load tmp table if exists
+            $this->runQuery(
+                $this->sqlBuilder->getDropTableIfExistsCommand(
+                    $destination->getSchema(),
+                    $destination->getTableName().self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
+                )
+            );
+            // drop optimized load rename table if exists
+            $this->runQuery(
+                $this->sqlBuilder->getDropTableIfExistsCommand(
+                    $destination->getSchema(),
+                    $destination->getTableName().self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
+                )
             );
         }
 
@@ -273,7 +290,7 @@ class Importer implements ImporterInterface
     ): void {
         $tmpDestination = new Storage\Synapse\Table(
             $destination->getSchema(),
-            $destination->getTableName() . '_tmp'
+            $destination->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
         );
 
         $this->importState->startTimer('CTAS_dedup');
@@ -292,7 +309,7 @@ class Importer implements ImporterInterface
 
         $tmpDestinationToRemove = new Storage\Synapse\Table(
             $destination->getSchema(),
-            $destination->getTableName() . '_tmp_rename'
+            $destination->getTableName() . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
         );
 
         $this->runQuery(

@@ -374,10 +374,44 @@ EOT
 
         $this->connection->exec($sql);
 
+        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
+    }
+
+    private function assertTableNotExists(string $schemaName, string $tableName): void
+    {
         $tableId = $this->connection->fetchColumn(
-            $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
+            $this->qb->getTableObjectIdCommand($schemaName, $tableName)
         );
-        $this->assertFalse($tableId);
+        self::assertFalse($tableId);
+    }
+
+    public function testGetDropTableIfExistsCommand(): void
+    {
+        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
+
+        // try to drop not existing table
+        $sql = $this->qb->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+        $this->assertEquals(
+        // phpcs:ignore
+            'IF OBJECT_ID (N\'[import-export-test_schema].[import-export-test_test]\', N\'U\') IS NOT NULL DROP TABLE [import-export-test_schema].[import-export-test_test]',
+            $sql
+        );
+        $this->connection->exec($sql);
+
+        // create table
+        $this->createTestSchema();
+        $this->createTestTable();
+
+        // try to drop not existing table
+        $sql = $this->qb->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+        $this->assertEquals(
+        // phpcs:ignore
+            'IF OBJECT_ID (N\'[import-export-test_schema].[import-export-test_test]\', N\'U\') IS NOT NULL DROP TABLE [import-export-test_schema].[import-export-test_test]',
+            $sql
+        );
+        $this->connection->exec($sql);
+
+        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
     }
 
     protected function createTestTable(): void
