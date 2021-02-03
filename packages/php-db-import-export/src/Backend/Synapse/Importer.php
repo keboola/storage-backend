@@ -271,18 +271,16 @@ class Importer implements ImporterInterface
         SynapseImportOptions $importOptions,
         DestinationTableOptions $destinationOptions
     ): void {
-        $this->runQuery(
-            $this->sqlBuilder->getDropCommand(
-                $destination->getSchema(),
-                $destination->getTableName()
-            )
+        $tmpDestination = new Storage\Synapse\Table(
+            $destination->getSchema(),
+            $destination->getTableName() . '_tmp'
         );
 
         $this->importState->startTimer('CTAS_dedup');
         $this->runQuery(
             $this->sqlBuilder->getCtasDedupCommand(
                 $source,
-                $destination,
+                $tmpDestination,
                 $destinationOptions->getPrimaryKeys(),
                 $this->importState->getStagingTableName(),
                 $importOptions,
@@ -291,6 +289,34 @@ class Importer implements ImporterInterface
             )
         );
         $this->importState->stopTimer('CTAS_dedup');
+
+        $tmpDestinationToRemove = new Storage\Synapse\Table(
+            $destination->getSchema(),
+            $destination->getTableName() . '_tmp_rename'
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getRenameTableCommand(
+                $destination->getSchema(),
+                $destination->getTableName(),
+                $tmpDestinationToRemove->getTableName()
+            )
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getRenameTableCommand(
+                $tmpDestination->getSchema(),
+                $tmpDestination->getTableName(),
+                $destination->getTableName()
+            )
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getDropCommand(
+                $tmpDestinationToRemove->getSchema(),
+                $tmpDestinationToRemove->getTableName()
+            )
+        );
     }
 
     private function doLoadFullWithoutDedup(
