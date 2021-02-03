@@ -133,7 +133,9 @@ class Importer implements ImporterInterface
 
         return new DestinationTableOptions(
             $tableRef->getColumnsNames(),
-            $primaryKeys
+            $primaryKeys,
+            $tableRef->getTableDistribution(),
+            $tableRef->getTableDistributionColumnsNames()
         );
     }
 

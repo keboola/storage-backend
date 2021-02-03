@@ -13,6 +13,7 @@ use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use PHPUnit\Framework\TestCase;
 use Keboola\Db\Import\Exception;
 
@@ -35,6 +36,8 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
+                [],
+                'ROUND_ROBIN',
                 []
             )
         );
@@ -58,6 +61,8 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
+                [],
+                'ROUND_ROBIN',
                 []
             )
         );
@@ -81,6 +86,8 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
+                [],
+                'ROUND_ROBIN',
                 []
             )
         );
