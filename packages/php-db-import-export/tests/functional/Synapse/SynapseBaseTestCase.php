@@ -100,14 +100,22 @@ EOT
         $currentDate = new \DateTime('now', new \DateTimeZone('UTC'));
         $now = $currentDate->format('Y-m-d H:i:s');
 
+        $tableDistribution = 'ROUND_ROBIN';
+        if (getenv('TABLE_DISTRIBUTION') !== false) {
+            $tableDistribution = getenv('TABLE_DISTRIBUTION');
+        }
+
         switch ($tableName) {
             case self::TABLE_OUT_LEMMA:
-                $this->connection->exec(sprintf('CREATE TABLE [%s].[out.lemma] (
+                $this->connection->exec(sprintf(
+                    'CREATE TABLE [%s].[out.lemma] (
           [ts] nvarchar(4000) NOT NULL DEFAULT \'\',
           [lemma] nvarchar(4000) NOT NULL DEFAULT \'\',
           [lemmaIndex] nvarchar(4000) NOT NULL DEFAULT \'\',
           [_timestamp] datetime2
-        );', $this->getDestinationSchemaName()));
+        );',
+                    $this->getDestinationSchemaName()
+                ));
                 break;
             case self::TABLE_OUT_CSV_2COLS:
                 $this->connection->exec(sprintf('CREATE TABLE [%s].[out.csv_2Cols] (
@@ -152,8 +160,9 @@ EOT
                 [idApp] nvarchar(4000) NOT NULL,
                 [_timestamp] datetime2,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
-            )',
-                    $this->getDestinationSchemaName()
+            ) WITH (DISTRIBUTION=%s)',
+                    $this->getDestinationSchemaName(),
+                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
                 ));
                 break;
             case self::TABLE_ACCOUNTS_BEZ_TS:
@@ -172,8 +181,9 @@ EOT
                 [oauthSecret] nvarchar(4000) NOT NULL,
                 [idApp] nvarchar(4000) NOT NULL,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
-            )',
-                    $this->getDestinationSchemaName()
+            ) WITH (DISTRIBUTION=%s)',
+                    $this->getDestinationSchemaName(),
+                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
                 ));
                 break;
             case self::TABLE_TABLE:
@@ -230,8 +240,9 @@ EOT
               [row_number] nvarchar(4000) NOT NULL,
               [_timestamp] datetime2,
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
-            );',
-                    $this->getDestinationSchemaName()
+           ) WITH (DISTRIBUTION=%s)',
+                    $this->getDestinationSchemaName(),
+                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
                 ));
                 break;
             case self::TABLE_MULTI_PK:
