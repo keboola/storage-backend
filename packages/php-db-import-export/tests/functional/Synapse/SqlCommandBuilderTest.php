@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
 use DateTime;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
+use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
@@ -40,7 +41,11 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 'col1',
                 'col2',
             ],
-            new SynapseImportOptions()
+            new SynapseImportOptions(),
+            new DestinationTableOptions(
+                [],
+                []
+            )
         );
 
         $this->assertEquals(
@@ -68,6 +73,10 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
                 SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
+            ),
+            new DestinationTableOptions(
+                [],
+                []
             )
         );
 
@@ -96,6 +105,10 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
                 SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
+            ),
+            new DestinationTableOptions(
+                [],
+                []
             )
         );
 
@@ -124,6 +137,10 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
                 SynapseImportOptions::TEMP_TABLE_HEAP_4000
+            ),
+            new DestinationTableOptions(
+                [],
+                []
             )
         );
 
@@ -154,7 +171,11 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 'col1',
                 'col2',
             ],
-            new SynapseImportOptions()
+            new SynapseImportOptions(),
+            new DestinationTableOptions(
+                [],
+                []
+            )
         );
         $this->connection->exec($sql);
 
@@ -196,7 +217,11 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
             $columns,
-            new SynapseImportOptions()
+            new SynapseImportOptions(),
+            new DestinationTableOptions(
+                [],
+                []
+            )
         ));
         $this->connection->exec(
             sprintf(
@@ -311,7 +336,11 @@ EOT
                 'col1',
                 'col2',
             ],
-            new SynapseImportOptions()
+            new SynapseImportOptions(),
+            new DestinationTableOptions(
+                [],
+                []
+            )
         ));
         $this->connection->exec(
             sprintf(

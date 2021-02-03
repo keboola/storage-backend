@@ -54,7 +54,8 @@ class SqlCommandBuilder
         string $schema,
         string $tableName,
         array $columns,
-        SynapseImportOptions $options
+        SynapseImportOptions $options,
+        DestinationTableOptions $destinationTableOptions
     ): string {
         $this->assertStagingTable($tableName);
 
