@@ -15,8 +15,8 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     public function testCopyInvalidSourceDataShouldThrowException(): void
     {
         $options = $this->getSimpleImportOptions();
-        $source = new Storage\Snowflake\Table(self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'names', ['c1', 'c2']);
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
+        $source = new Storage\Snowflake\Table($this->getSourceSchemaName(), 'names', ['c1', 'c2']);
+        $destination = new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols');
 
         self::expectException(Exception::class);
         self::expectExceptionCode(Exception::COLUMNS_COUNT_NOT_MATCH);
@@ -38,7 +38,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             ]
         );
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'column-name-row-number'
         );
 
@@ -60,7 +60,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             true
         );
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'accounts-3'
         );
 
@@ -85,7 +85,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false
         );
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'out.csv_2Cols'
         );
 
@@ -104,19 +104,19 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $fetchSQL = sprintf(
             'SELECT "col1", "col2" FROM "%s"."%s"',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'out.csv_2Cols'
         );
 
         $source = new Storage\Snowflake\SelectSource(
-            sprintf('SELECT * FROM "%s"."%s"', self::SNOWFLAKE_SOURCE_SCHEMA_NAME, 'out.csv_2Cols'),
+            sprintf('SELECT * FROM "%s"."%s"', $this->getSourceSchemaName(), 'out.csv_2Cols'),
             [],
             [
                 'col1',
                 'col2',
             ]
         );
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'out.csv_2Cols');
+        $destination = new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols');
         $options = $this->getSimpleImportOptions();
 
         (new Importer($this->connection))->importTable(
@@ -131,7 +131,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $this->connection->query(sprintf('INSERT INTO "%s"."out.csv_2Cols" VALUES
                 (\'e\', \'f\');
-        ', self::SNOWFLAKE_SOURCE_SCHEMA_NAME));
+        ', $this->getSourceSchemaName()));
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -148,23 +148,23 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify"',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify_src" ',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify_src" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC)',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify_src" VALUES(\'1\', \'\', NULL), (\'2\', NULL, 500)',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
 
         $options = new ImportOptions(
@@ -174,7 +174,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
+            $this->getSourceSchemaName(),
             'nullify_src',
             [
                 'id',
@@ -182,7 +182,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
                 'price',
             ]
         );
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'nullify');
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -192,7 +192,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $importedData = $this->connection->fetchAll(sprintf(
             'SELECT "id", "name", "price" FROM "%s"."nullify" ORDER BY "id" ASC',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->assertCount(2, $importedData);
         $this->assertTrue($importedData[0]['name'] === null);
@@ -204,27 +204,27 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify" ',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify" VALUES(\'4\', NULL, 50)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify_src" ',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify_src" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC)',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify_src" VALUES(\'1\', \'\', NULL), (\'2\', NULL, 500)',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
 
         $options = new ImportOptions(
@@ -234,7 +234,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
+            $this->getSourceSchemaName(),
             'nullify_src',
             [
                 'id',
@@ -242,7 +242,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
                 'price',
             ]
         );
-        $destination = new Storage\Snowflake\Table(self::SNOWFLAKE_DEST_SCHEMA_NAME, 'nullify');
+        $destination = new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'nullify');
 
         (new Importer($this->connection))->importTable(
             $source,
@@ -252,7 +252,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $importedData = $this->connection->fetchAll(sprintf(
             'SELECT "id", "name", "price" FROM "%s"."nullify" ORDER BY "id" ASC',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->assertCount(3, $importedData);
         $this->assertTrue($importedData[0]['name'] === null);
@@ -265,28 +265,28 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify" ',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC, PRIMARY KEY("id"))',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify" VALUES(\'4\', \'3\', 2)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify_src" ',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
         // phpcs:ignore
             'CREATE TABLE "%s"."nullify_src" ("id" VARCHAR NOT NULL, "name" VARCHAR NOT NULL, "price" VARCHAR NOT NULL, PRIMARY KEY("id"))',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify_src" VALUES(\'1\', \'\', \'\'), (\'2\', \'\', \'500\'), (\'4\', \'\', \'\')',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
 
         $options = new ImportOptions(
@@ -296,12 +296,12 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
+            $this->getSourceSchemaName(),
             'nullify_src',
             ['id', 'name', 'price']
         );
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'nullify'
         );
 
@@ -313,7 +313,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $importedData = $this->connection->fetchAll(sprintf(
             'SELECT "id", "name", "price" FROM "%s"."nullify"',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $expectedData = [
             [
@@ -341,28 +341,28 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify" ',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC, PRIMARY KEY("id"))',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify" VALUES(\'4\', NULL, NULL)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify_src" ',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
         // phpcs:ignore
             'CREATE TABLE "%s"."nullify_src" ("id" VARCHAR NOT NULL, "name" VARCHAR NOT NULL, "price" VARCHAR NOT NULL, PRIMARY KEY("id"))',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify_src" VALUES(\'1\', \'\', \'\'), (\'2\', \'\', \'500\'), (\'4\', \'\', \'500\')',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
 
         $options = new ImportOptions(
@@ -372,12 +372,12 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             ImportOptions::SKIP_FIRST_LINE
         );
         $source = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
+            $this->getSourceSchemaName(),
             'nullify_src',
             ['id', 'name', 'price']
         );
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'nullify'
         );
 
@@ -389,7 +389,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $importedData = $this->connection->fetchAll(sprintf(
             'SELECT "id", "name", "price" FROM "%s"."nullify"',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $expectedData = [
             [
@@ -417,11 +417,11 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify" ',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $options = new ImportOptions(
@@ -432,7 +432,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         );
         $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'nullify'
         );
 
@@ -444,7 +444,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
 
         $importedData = $this->connection->fetchAll(sprintf(
             'SELECT "id", "name", "price" FROM "%s"."nullify" ORDER BY "id" ASC',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->assertCount(3, $importedData);
         $this->assertTrue($importedData[1]['name'] === null);
@@ -455,15 +455,15 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $this->connection->query(sprintf(
             'DROP TABLE IF EXISTS "%s"."nullify" ',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."nullify" ("id" VARCHAR, "name" VARCHAR, "price" NUMERIC)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."nullify" VALUES(\'4\', NULL, 50)',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $options = new ImportOptions(
@@ -474,7 +474,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         );
         $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'nullify'
         );
 
@@ -485,7 +485,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         );
         $importedData = $this->connection->fetchAll(sprintf(
             'SELECT "id", "name", "price" FROM "%s"."nullify" ORDER BY "id" ASC',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
         $this->assertCount(4, $importedData);
         $this->assertTrue($importedData[1]['name'] === null);

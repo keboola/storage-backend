@@ -134,8 +134,8 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         $now = $currentDate->format('Y-m-d H:i:s');
 
         foreach ([
-                self::SNOWFLAKE_SOURCE_SCHEMA_NAME,
-                self::SNOWFLAKE_DEST_SCHEMA_NAME,
+                $this->getSourceSchemaName(),
+                $this->getDestinationSchemaName(),
             ] as $schema
         ) {
             $this->connection->query(sprintf('DROP SCHEMA IF EXISTS "%s"', $schema));
@@ -147,29 +147,29 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
           "lemma" VARCHAR NOT NULL DEFAULT \'\',
           "lemmaIndex" VARCHAR NOT NULL DEFAULT \'\',
           "_timestamp" TIMESTAMP_NTZ
-        );', self::SNOWFLAKE_DEST_SCHEMA_NAME));
+        );', $this->getDestinationSchemaName()));
 
         $this->connection->query(sprintf('CREATE TABLE "%s"."out.csv_2Cols" (
           "col1" VARCHAR NOT NULL DEFAULT \'\',
           "col2" VARCHAR NOT NULL DEFAULT \'\',
           "_timestamp" TIMESTAMP_NTZ
-        );', self::SNOWFLAKE_DEST_SCHEMA_NAME));
+        );', $this->getDestinationSchemaName()));
 
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."out.csv_2Cols" VALUES
                   (\'x\', \'y\', \'%s\');',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             $now
         ));
 
         $this->connection->query(sprintf('CREATE TABLE "%s"."out.csv_2Cols" (
           "col1" VARCHAR NOT NULL DEFAULT \'\',
           "col2" VARCHAR NOT NULL DEFAULT \'\'
-        );', self::SNOWFLAKE_SOURCE_SCHEMA_NAME));
+        );', $this->getSourceSchemaName()));
 
         $this->connection->query(sprintf('INSERT INTO "%s"."out.csv_2Cols" VALUES
                 (\'a\', \'b\'), (\'c\', \'d\');
-        ', self::SNOWFLAKE_SOURCE_SCHEMA_NAME));
+        ', $this->getSourceSchemaName()));
 
         $this->connection->query(sprintf(
             'CREATE TABLE "%s"."accounts-3" (
@@ -188,7 +188,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
                 "_timestamp" TIMESTAMP_NTZ,
                 PRIMARY KEY("id")
             )',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $this->connection->query(sprintf(
@@ -207,7 +207,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
                 "idApp" varchar(65535) NOT NULL,
                 PRIMARY KEY("id")
             )',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $this->connection->query(sprintf(
@@ -216,7 +216,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "table" varchar(65535) NOT NULL DEFAULT \'\',
               "_timestamp" TIMESTAMP_NTZ
             );',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $this->connection->query(sprintf(
@@ -227,7 +227,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "boolCol" varchar NOT NULL,
               "_timestamp" TIMESTAMP_NTZ
             );',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $this->connection->query(sprintf(
@@ -237,14 +237,14 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "floatCol" float NOT NULL,
               "boolCol" boolean NOT NULL
             );',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
 
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."types" VALUES 
               (\'a\', \'10.5\', \'0.3\', TRUE)
            ;',
-            self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            $this->getSourceSchemaName()
         ));
 
         $this->connection->query(sprintf(
@@ -252,7 +252,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "col1" VARCHAR NOT NULL DEFAULT \'\',
               "col2" VARCHAR NOT NULL DEFAULT \'\'
             );',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $this->connection->query(sprintf(
@@ -262,7 +262,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "_timestamp" TIMESTAMP_NTZ,
               PRIMARY KEY("id")
             );',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
 
         $this->connection->query(sprintf(
@@ -275,7 +275,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             "_timestamp" TIMESTAMP_NTZ,
             PRIMARY KEY("VisitID","Value","MenuItem")
             );',
-            self::SNOWFLAKE_DEST_SCHEMA_NAME
+            $this->getDestinationSchemaName()
         ));
     }
 
@@ -306,5 +306,29 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
     {
         parent::tearDown();
         unset($this->connection);
+    }
+
+    public function getSourceSchemaName(): string
+    {
+        $buildPrefix = '';
+        if (getenv('BUILD_PREFIX') !== false) {
+            $buildPrefix = getenv('BUILD_PREFIX');
+        }
+
+        return self::SNOWFLAKE_SOURCE_SCHEMA_NAME
+            . '-'
+            . $buildPrefix;
+    }
+
+    public function getDestinationSchemaName(): string
+    {
+        $buildPrefix = '';
+        if (getenv('BUILD_PREFIX') !== false) {
+            $buildPrefix = getenv('BUILD_PREFIX');
+        }
+
+        return self::SNOWFLAKE_DEST_SCHEMA_NAME
+            . '-'
+            . $buildPrefix;
     }
 }

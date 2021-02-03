@@ -57,7 +57,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'out.csv_2Cols'
         );
         $options = $this->getSimpleImportOptions();
@@ -101,7 +101,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'out.csv_2Cols'
         );
         $options = $this->getSimpleImportOptions();
@@ -172,7 +172,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
-            self::SNOWFLAKE_DEST_SCHEMA_NAME,
+            $this->getDestinationSchemaName(),
             'accounts-3'
         );
         $options = $this->getSimpleImportOptions();
