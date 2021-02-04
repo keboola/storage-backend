@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Exception;
+use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
@@ -57,7 +58,8 @@ class SqlCommandBuilder
         SynapseImportOptions $options,
         DestinationTableOptions $destinationTableOptions
     ): string {
-        $this->assertStagingTable($tableName);
+        Assert::assertStagingTable($tableName);
+        Assert::assertHashDistribution($destinationTableOptions);
 
         $distributionSql = sprintf(
             'DISTRIBUTION=%s',
@@ -65,9 +67,6 @@ class SqlCommandBuilder
         );
 
         if ($destinationTableOptions->getDistribution() === DestinationTableOptions::TABLE_DISTRIBUTION_HASH) {
-            if (count($destinationTableOptions->getDistributionColumnsNames()) !== 1) {
-                throw new \LogicException('HASH table distribution must have one distribution key specified.');
-            }
             $distributionSql = sprintf(
                 '%s(%s)',
                 $distributionSql,
@@ -127,16 +126,6 @@ class SqlCommandBuilder
         }
 
         throw new \LogicException(sprintf('Unknown temp table type "%s".', $options->getTempTableType()));
-    }
-
-    private function assertStagingTable(string $tableName): void
-    {
-        if ($tableName[0] !== '#') {
-            throw new Exception(sprintf(
-                'Staging table must start with "#" table name "%s" supplied',
-                $tableName
-            ));
-        }
     }
 
     public function getDedupCommand(

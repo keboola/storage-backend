@@ -161,4 +161,58 @@ class AssertTest extends TestCase
             false
         ));
     }
+
+    public function testAssertHashDistributionFailNoHashKey(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'HASH table distribution must have one distribution key specified.'
+        );
+        Assert::assertHashDistribution(new DestinationTableOptions(
+            [],
+            [],
+            'HASH',
+            []
+        ));
+    }
+
+    public function testAssertHashDistributionFailMoreThanOneHashKey(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'HASH table distribution must have one distribution key specified.'
+        );
+        Assert::assertHashDistribution(new DestinationTableOptions(
+            [],
+            [],
+            'HASH',
+            ['id', 'name']
+        ));
+    }
+
+    public function testAssertHashDistributionPass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertHashDistribution(new DestinationTableOptions(
+            [],
+            [],
+            'HASH',
+            ['id']
+        ));
+    }
+
+    public function testAssertStagingTableFail(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'Staging table must start with "#" table name "normalNotTempTable" supplied.'
+        );
+        Assert::assertStagingTable('normalNotTempTable');
+    }
+
+    public function testAssertStagingTablePass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertStagingTable('#tempTableWithSharp');
+    }
 }

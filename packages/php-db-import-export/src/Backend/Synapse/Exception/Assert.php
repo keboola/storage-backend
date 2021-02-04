@@ -67,4 +67,23 @@ final class Assert
             );
         }
     }
+
+    public static function assertHashDistribution(DestinationTableOptions $destinationTableOptions): void
+    {
+        if ($destinationTableOptions->getDistribution() === DestinationTableOptions::TABLE_DISTRIBUTION_HASH
+            && count($destinationTableOptions->getDistributionColumnsNames()) !== 1
+        ) {
+            throw new \LogicException('HASH table distribution must have one distribution key specified.');
+        }
+    }
+
+    public static function assertStagingTable(string $tableName): void
+    {
+        if ($tableName[0] !== '#') {
+            throw new Exception(sprintf(
+                'Staging table must start with "#" table name "%s" supplied.',
+                $tableName
+            ));
+        }
+    }
 }
