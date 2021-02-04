@@ -61,18 +61,7 @@ class SqlCommandBuilder
         Assert::assertStagingTable($tableName);
         Assert::assertHashDistribution($destinationTableOptions);
 
-        $distributionSql = sprintf(
-            'DISTRIBUTION=%s',
-            $destinationTableOptions->getDistribution()
-        );
-
-        if ($destinationTableOptions->getDistribution() === DestinationTableOptions::TABLE_DISTRIBUTION_HASH) {
-            $distributionSql = sprintf(
-                '%s(%s)',
-                $distributionSql,
-                $this->platform->quoteSingleIdentifier($destinationTableOptions->getDistributionColumnsNames()[0])
-            );
-        }
+        $distributionSql = $this->getSqlDistributionPart($destinationTableOptions);
 
         switch ($options->getTempTableType()) {
             case SynapseImportOptions::TEMP_TABLE_HEAP:
@@ -170,22 +159,28 @@ class SqlCommandBuilder
     public function getCtasDedupCommand(
         SourceInterface $source,
         Table $destination,
-        array $primaryKeys,
         string $stagingTableName,
         ImportOptionsInterface $importOptions,
         string $timestamp,
-        array $columnsInOrder
+        DestinationTableOptions $destinationTableOptions
     ): string {
-        if (empty($primaryKeys)) {
+        if (empty($destinationTableOptions->getPrimaryKeys())) {
             return '';
         }
+        Assert::assertHashDistribution($destinationTableOptions);
+        $distributionSql = $this->getSqlDistributionPart($destinationTableOptions);
 
         $pkSql = $this->getColumnsString(
-            $primaryKeys,
+            $destinationTableOptions->getPrimaryKeys(),
             ','
         );
 
-        $timestampColIndex = array_search(Importer::TIMESTAMP_COLUMN_NAME, $columnsInOrder, true);
+        $columnsInOrder = $destinationTableOptions->getColumnNamesInOrder();
+        $timestampColIndex = array_search(
+            Importer::TIMESTAMP_COLUMN_NAME,
+            $columnsInOrder,
+            true
+        );
         if ($timestampColIndex !== false) {
             // remove timestamp column if exists in ordered columns
             unset($columnsInOrder[$timestampColIndex]);
@@ -231,8 +226,9 @@ class SqlCommandBuilder
         );
 
         return sprintf(
-            'CREATE TABLE %s WITH (DISTRIBUTION = ROUND_ROBIN) AS %s',
+            'CREATE TABLE %s WITH (%s) AS %s',
             $destination->getQuotedTableWithScheme(),
+            $distributionSql,
             $depudeSql
         );
     }
@@ -375,6 +371,23 @@ class SqlCommandBuilder
             $this->platform->quoteSingleIdentifier($sourceTableName),
             $this->platform->quoteSingleIdentifier($targetTable)
         );
+    }
+
+    private function getSqlDistributionPart(DestinationTableOptions $destinationTableOptions): string
+    {
+        $distributionSql = sprintf(
+            'DISTRIBUTION=%s',
+            $destinationTableOptions->getDistribution()
+        );
+
+        if ($destinationTableOptions->getDistribution() === DestinationTableOptions::TABLE_DISTRIBUTION_HASH) {
+            $distributionSql = sprintf(
+                '%s(%s)',
+                $distributionSql,
+                $this->platform->quoteSingleIdentifier($destinationTableOptions->getDistributionColumnsNames()[0])
+            );
+        }
+        return $distributionSql;
     }
 
     public function getTableObjectIdCommand(string $schemaName, string $tableName): string

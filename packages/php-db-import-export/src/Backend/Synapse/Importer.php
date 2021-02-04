@@ -318,11 +318,10 @@ class Importer implements ImporterInterface
             $this->sqlBuilder->getCtasDedupCommand(
                 $source,
                 $tmpDestination,
-                $destinationOptions->getPrimaryKeys(),
                 $this->importState->getStagingTableName(),
                 $importOptions,
                 DateTimeHelper::getNowFormatted(),
-                $destinationOptions->getColumnNamesInOrder()
+                $destinationOptions
             )
         );
         $this->importState->stopTimer('CTAS_dedup');
