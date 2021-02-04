@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Storage;
 
 interface ImporterInterface
 {
+    public const TIMESTAMP_COLUMN_NAME = '_timestamp';
     public const SLICED_FILES_CHUNK_SIZE = 1000;
 
     public function importTable(

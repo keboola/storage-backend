@@ -5,23 +5,24 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Db\Import\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
+use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\Helper\BackendHelper;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
 class Importer implements ImporterInterface
 {
-    public const TIMESTAMP_COLUMN_NAME = '_timestamp';
-
     public const DEFAULT_ADAPTERS = [
         Storage\ABS\SynapseImportAdapter::class,
         Storage\Synapse\SynapseImportAdapter::class,
     ];
+    private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
+    private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
     /** @var string[] */
     private $adapters = self::DEFAULT_ADAPTERS;
@@ -56,78 +57,84 @@ class Importer implements ImporterInterface
         ImportOptionsInterface $options
     ): Result {
         $adapter = $this->getAdapter($source, $destination);
-
-        if (!$options instanceof SynapseImportOptions) {
-            throw new \Exception(sprintf(
-                'Synapse imported expect $options to be instance of "%s", "%s" given.',
-                SynapseImportOptions::class,
-                get_class($options)
-            ));
-        }
-
-        if ($source instanceof Storage\ABS\SourceFile
-            && $source->getCsvOptions()->getEnclosure() === ''
-        ) {
-            throw new \Exception(
-                'CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.'
-            );
-        }
+        Assert::assertSynapseImportOptions($options);
+        Assert::assertIsSynapseTableDestination($destination);
+        Assert::assertValidSource($source);
 
         $this->importState = new ImportState(BackendHelper::generateTempTableName());
-        $this->validateColumns($source, $destination);
+        $destinationOptions = $this->getDestinationOptions(
+            $source,
+            $destination,
+            $options
+        );
+        Assert::assertColumns($source, $destinationOptions);
 
         $this->runQuery($this->sqlBuilder->getCreateTempTableCommand(
             $destination->getSchema(),
             $this->importState->getStagingTableName(),
-            $source->getColumnsNames(),
+            $source->getColumnsNames(), // using provided columns to maintain order in source
             $options
         ));
 
         try {
             //import files to staging table
             $this->importToStagingTable($source, $destination, $options, $adapter);
-            $primaryKeys = $this->sqlBuilder->getTablePrimaryKey(
-                $destination->getSchema(),
-                $destination->getTableName()
-            );
             if ($options->isIncremental()) {
-                $this->doIncrementalLoad($options, $source, $destination, $primaryKeys);
+                $this->doIncrementalLoad($options, $source, $destination, $destinationOptions->getPrimaryKeys());
             } else {
-                $this->doNonIncrementalLoad($options, $source, $destination, $primaryKeys);
+                $this->doNonIncrementalLoad($options, $source, $destination, $destinationOptions);
             }
             $this->importState->setImportedColumns($source->getColumnsNames());
         } finally {
+            // drop staging table
             $this->runQuery(
                 $this->sqlBuilder->getDropCommand($destination->getSchema(), $this->importState->getStagingTableName())
+            );
+            // drop optimized load tmp table if exists
+            $this->runQuery(
+                $this->sqlBuilder->getDropTableIfExistsCommand(
+                    $destination->getSchema(),
+                    $destination->getTableName().self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
+                )
+            );
+            // drop optimized load rename table if exists
+            $this->runQuery(
+                $this->sqlBuilder->getDropTableIfExistsCommand(
+                    $destination->getSchema(),
+                    $destination->getTableName().self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
+                )
             );
         }
 
         return $this->importState->getResult();
     }
 
-    private function validateColumns(
+    private function getDestinationOptions(
         Storage\SourceInterface $source,
-        Storage\Synapse\Table $destination
-    ): void {
-        if (count($source->getColumnsNames()) === 0) {
-            throw new Exception(
-                'No columns found in CSV file.',
-                Exception::NO_COLUMNS
-            );
-        }
-
-        $tableColumns = $this->sqlBuilder->getTableColumns(
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions
+    ): DestinationTableOptions {
+        $tableRef = new SynapseTableReflection(
+            $this->connection,
             $destination->getSchema(),
             $destination->getTableName()
         );
 
-        $moreColumns = array_diff($source->getColumnsNames(), $tableColumns);
-        if (!empty($moreColumns)) {
-            throw new Exception(
-                'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),
-                Exception::COLUMNS_COUNT_NOT_MATCH
-            );
+        if ($importOptions->useOptimizedDedup()) {
+            $primaryKeys = $source->getPrimaryKeysNames();
+            if ($primaryKeys === null) {
+                throw new \Exception(sprintf(
+                    'Deduplication using CTAS query expects primary keys to be predefined.'
+                ));
+            }
+        } else {
+            $primaryKeys = $tableRef->getPrimaryKeysNames();
         }
+
+        return new DestinationTableOptions(
+            $tableRef->getColumnsNames(),
+            $primaryKeys
+        );
     }
 
     private function runQuery(string $query, ?string $timerName = null): void
@@ -247,7 +254,124 @@ class Importer implements ImporterInterface
         SynapseImportOptions $importOptions,
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination,
-        array $primaryKeys
+        DestinationTableOptions $destinationOptions
+    ): void {
+        if (!empty($destinationOptions->getPrimaryKeys())) {
+            if ($importOptions->useOptimizedDedup()) {
+                $this->doFullLoadWithDedup(
+                    $source,
+                    $destination,
+                    $importOptions,
+                    $destinationOptions
+                );
+            } else {
+                $this->doLegacyFullLoadWithDedup(
+                    $source,
+                    $destination,
+                    $importOptions,
+                    $destinationOptions
+                );
+            }
+            return;
+        }
+
+        $this->doLoadFullWithoutDedup(
+            $source,
+            $destination,
+            $importOptions
+        );
+    }
+
+    private function doFullLoadWithDedup(
+        Storage\SourceInterface $source,
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions,
+        DestinationTableOptions $destinationOptions
+    ): void {
+        $tmpDestination = new Storage\Synapse\Table(
+            $destination->getSchema(),
+            $destination->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
+        );
+
+        $this->importState->startTimer('CTAS_dedup');
+        $this->runQuery(
+            $this->sqlBuilder->getCtasDedupCommand(
+                $source,
+                $tmpDestination,
+                $destinationOptions->getPrimaryKeys(),
+                $this->importState->getStagingTableName(),
+                $importOptions,
+                DateTimeHelper::getNowFormatted(),
+                $destinationOptions->getColumnNamesInOrder()
+            )
+        );
+        $this->importState->stopTimer('CTAS_dedup');
+
+        $tmpDestinationToRemove = new Storage\Synapse\Table(
+            $destination->getSchema(),
+            $destination->getTableName() . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getRenameTableCommand(
+                $destination->getSchema(),
+                $destination->getTableName(),
+                $tmpDestinationToRemove->getTableName()
+            )
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getRenameTableCommand(
+                $tmpDestination->getSchema(),
+                $tmpDestination->getTableName(),
+                $destination->getTableName()
+            )
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getDropCommand(
+                $tmpDestinationToRemove->getSchema(),
+                $tmpDestinationToRemove->getTableName()
+            )
+        );
+    }
+
+    private function doLoadFullWithoutDedup(
+        Storage\SourceInterface $source,
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions
+    ): void {
+        $this->runQuery(
+            $this->sqlBuilder->getBeginTransaction()
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+                $destination->getSchema(),
+                $destination->getTableName()
+            )
+        );
+
+        $this->runQuery(
+            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                $source,
+                $destination,
+                $importOptions,
+                $this->importState->getStagingTableName(),
+                DateTimeHelper::getNowFormatted()
+            ),
+            'copyFromStagingToTarget'
+        );
+        $this->runQuery(
+            $this->sqlBuilder->getCommitTransaction()
+        );
+    }
+
+    private function doLegacyFullLoadWithDedup(
+        Storage\SourceInterface $source,
+        Storage\Synapse\Table $destination,
+        SynapseImportOptions $importOptions,
+        DestinationTableOptions $destinationOptions
     ): void {
         $tempTableName = $this->createTempTableForDedup($source, $destination, $importOptions);
 
@@ -255,9 +379,9 @@ class Importer implements ImporterInterface
             $this->sqlBuilder->getBeginTransaction()
         );
 
-        if (!empty($primaryKeys)) {
+        if (!empty($destinationOptions->getPrimaryKeys())) {
             $this->importState->startTimer('dedup');
-            $this->dedup($source, $destination, $primaryKeys, $tempTableName);
+            $this->dedup($source, $destination, $destinationOptions->getPrimaryKeys(), $tempTableName);
             $this->importState->stopTimer('dedup');
             $this->importState->overwriteStagingTableName($tempTableName);
         }

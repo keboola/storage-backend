@@ -38,6 +38,12 @@
             <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
         </testsuite>
 
+        <testsuite name="tests-synapse-heap4000temp-optimized">
+            <directory>tests/functional/Synapse</directory>
+            <exclude>tests/functional/Synapse/ExportTest.php</exclude>
+            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
+        </testsuite>
+
         <testsuite name="unit">
             <directory>tests/unit</directory>
         </testsuite>

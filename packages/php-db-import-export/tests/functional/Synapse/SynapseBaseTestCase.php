@@ -12,6 +12,7 @@ use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class SynapseBaseTestCase extends ImportExportBaseTest
@@ -76,23 +77,27 @@ EOT
     public function getSourceSchemaName(): string
     {
         return self::SYNAPSE_SOURCE_SCHEMA_NAME
-            . '-'
-            . getenv('CREDENTIALS_IMPORT_TYPE')
-            . '-'
-            . getenv('CREDENTIALS_EXPORT_TYPE')
-            . '-'
-            . getenv('TEMP_TABLE_TYPE');
+        . '-'
+        . getenv('CREDENTIALS_IMPORT_TYPE')
+        . '-'
+        . getenv('CREDENTIALS_EXPORT_TYPE')
+        . '-'
+        . getenv('TEMP_TABLE_TYPE')
+        . '-'
+        . getenv('DEDUP_TYPE');
     }
 
     public function getDestinationSchemaName(): string
     {
         return self::SYNAPSE_DEST_SCHEMA_NAME
-            .'-'
-            . getenv('CREDENTIALS_IMPORT_TYPE')
-            .'-'
-            . getenv('CREDENTIALS_EXPORT_TYPE')
-            . '-'
-            . getenv('TEMP_TABLE_TYPE');
+        . '-'
+        . getenv('CREDENTIALS_IMPORT_TYPE')
+        . '-'
+        . getenv('CREDENTIALS_EXPORT_TYPE')
+        . '-'
+        . getenv('TEMP_TABLE_TYPE')
+        . '-'
+        . getenv('DEDUP_TYPE');
     }
 
     protected function initTables(array $tables): void
@@ -300,7 +305,11 @@ EOT
         $sortKey,
         string $message = 'Imported tables are not the same as expected'
     ): void {
-        $tableColumns = $this->qb->getTableColumns($table->getSchema(), $table->getTableName());
+        $tableColumns = (new SynapseTableReflection(
+            $this->connection,
+            $table->getSchema(),
+            $table->getTableName()
+        ))->getColumnsNames();
 
         if ($options->useTimestamp()) {
             $this->assertContains('_timestamp', $tableColumns);
@@ -339,15 +348,20 @@ EOT
     }
 
     protected function getSynapseImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
+        ?string $dedupType = null
     ): SynapseImportOptions {
+        if ($dedupType === null) {
+            $dedupType = getenv('DEDUP_TYPE');
+        }
         return new SynapseImportOptions(
             [],
             false,
             true,
             $skipLines,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            $dedupType
         );
     }
 
@@ -360,7 +374,8 @@ EOT
             true,
             $skipLines,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
     }
 }

@@ -185,15 +185,17 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
 
     private function createStagingTableWithData(bool $includeEmptyValues = false): void
     {
+        $columns = [
+            'pk1',
+            'pk2',
+            'col1',
+            'col2',
+        ];
+
         $this->connection->exec($this->qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
-            [
-                'pk1',
-                'pk2',
-                'col1',
-                'col2',
-            ],
+            $columns,
             new SynapseImportOptions()
         ));
         $this->connection->exec(
@@ -229,12 +231,37 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         }
     }
 
-    private function getDummySource(): SourceInterface
+    private function getDummySource(bool $includePK = false, bool $includeTimestamp = false): SourceInterface
     {
-        return new class implements SourceInterface {
+        return new class($includePK, $includeTimestamp) implements SourceInterface {
+            /** @var bool */
+            private $includePK;
+
+            /** @var bool */
+            private $includeTimestamp;
+
+            public function __construct(bool $includePK, bool $includeTimestamp)
+            {
+                $this->includePK = $includePK;
+                $this->includeTimestamp = $includeTimestamp;
+            }
+
             public function getColumnsNames(): array
             {
-                return ['col1', 'col2'];
+                $columns = ['col1', 'col2'];
+                if ($this->includePK === true) {
+                    $columns = ['pk1', 'pk2', 'col1', 'col2'];
+                }
+                if ($this->includeTimestamp === true) {
+                    $columns[] = '_timestamp';
+                }
+
+                return $columns;
+            }
+
+            public function getPrimaryKeysNames(): ?array
+            {
+                return [];
             }
         };
     }
@@ -347,10 +374,44 @@ EOT
 
         $this->connection->exec($sql);
 
+        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
+    }
+
+    private function assertTableNotExists(string $schemaName, string $tableName): void
+    {
         $tableId = $this->connection->fetchColumn(
-            $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
+            $this->qb->getTableObjectIdCommand($schemaName, $tableName)
         );
-        $this->assertFalse($tableId);
+        self::assertFalse($tableId);
+    }
+
+    public function testGetDropTableIfExistsCommand(): void
+    {
+        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
+
+        // try to drop not existing table
+        $sql = $this->qb->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+        $this->assertEquals(
+        // phpcs:ignore
+            'IF OBJECT_ID (N\'[import-export-test_schema].[import-export-test_test]\', N\'U\') IS NOT NULL DROP TABLE [import-export-test_schema].[import-export-test_test]',
+            $sql
+        );
+        $this->connection->exec($sql);
+
+        // create table
+        $this->createTestSchema();
+        $this->createTestTable();
+
+        // try to drop not existing table
+        $sql = $this->qb->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
+        $this->assertEquals(
+        // phpcs:ignore
+            'IF OBJECT_ID (N\'[import-export-test_schema].[import-export-test_test]\', N\'U\') IS NOT NULL DROP TABLE [import-export-test_schema].[import-export-test_test]',
+            $sql
+        );
+        $this->connection->exec($sql);
+
+        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
     }
 
     protected function createTestTable(): void
@@ -563,46 +624,6 @@ EOT
         );
 
         $this->assertNotFalse($expectedFalse);
-    }
-
-    public function testGetTableColumns(): void
-    {
-        $this->createTestSchema();
-        $this->createTestTableWithColumns();
-
-        $response = $this->qb->getTableColumns(self::TEST_SCHEMA, self::TEST_TABLE);
-
-        $this->assertCount(3, $response);
-        $this->assertEqualsCanonicalizing(['id', 'col1', 'col2'], $response);
-    }
-
-    public function testGetTableColumnsCommand(): void
-    {
-        $this->createTestSchema();
-        $this->createTestTableWithColumns();
-
-        /** @var string $tableId */
-        $tableId = $this->connection->fetchColumn(
-            $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
-        );
-
-        $sql = $this->qb->getTableColumnsCommand($tableId);
-        $this->assertStringStartsWith(
-            'SELECT [NAME] FROM sys.all_columns WHERE object_id = \'',
-            $sql
-        );
-
-        $response = $this->connection->fetchAll($sql);
-
-        $this->assertCount(3, $response);
-        $this->assertEqualsCanonicalizing(
-            [
-                ['name' => 'id'],
-                ['name' => 'col1'],
-                ['name' => 'col2'],
-            ],
-            $response
-        );
     }
 
     public function testGetTableItemsCountCommand(): void
@@ -940,5 +961,130 @@ EOT
         $this->connection->exec(
             $this->qb->getCommitTransaction()
         );
+    }
+
+    public function testGetCtasDedupCommandWithTimestampNullConvert(): void
+    {
+        $this->createTestSchema();
+        $this->createStagingTableWithData(true);
+
+        // use timestamp
+        $options = new SynapseImportOptions(
+            ['col1'],
+            false,
+            true
+        );
+        $sql = $this->qb->getCtasDedupCommand(
+            $this->getDummySource(true),
+            $this->getDummyTableDestination(),
+            ['pk1', 'pk2'],
+            self::TEST_STAGING_TABLE,
+            $options,
+            '2020-01-01 00:00:00',
+            ['pk1', 'pk2', 'col1', 'col2']
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION = ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            $sql
+        );
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(2, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        foreach ($result as $item) {
+            $this->assertArrayHasKey('pk1', $item);
+            $this->assertArrayHasKey('pk2', $item);
+            $this->assertArrayHasKey('col1', $item);
+            $this->assertArrayHasKey('col2', $item);
+            $this->assertArrayHasKey('_timestamp', $item);
+        }
+    }
+
+    public function testGetCtasDedupCommandNoTimestampNullConvert(): void
+    {
+        $this->createTestSchema();
+        $this->createStagingTableWithData(true);
+
+        // use timestamp
+        $options = new SynapseImportOptions(
+            ['col1'],
+            false,
+            false
+        );
+        $sql = $this->qb->getCtasDedupCommand(
+            $this->getDummySource(true),
+            $this->getDummyTableDestination(),
+            ['pk1', 'pk2'],
+            self::TEST_STAGING_TABLE,
+            $options,
+            '2020-01-01 00:00:00',
+            ['pk1', 'pk2', 'col1', 'col2']
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION = ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            $sql
+        );
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(2, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        foreach ($result as $item) {
+            $this->assertArrayHasKey('pk1', $item);
+            $this->assertArrayHasKey('pk2', $item);
+            $this->assertArrayHasKey('col1', $item);
+            $this->assertArrayHasKey('col2', $item);
+        }
+    }
+
+    public function testGetCtasDedupCommandWithTimestampInSource(): void
+    {
+        $this->createTestSchema();
+        $this->createStagingTableWithData(true);
+
+        // use timestamp
+        $options = new SynapseImportOptions(
+            [],
+            false,
+            true
+        );
+        $sql = $this->qb->getCtasDedupCommand(
+            $this->getDummySource(true),
+            $this->getDummyTableDestination(),
+            ['pk1', 'pk2'],
+            self::TEST_STAGING_TABLE,
+            $options,
+            '2020-01-01 00:00:00',
+            ['pk1', 'pk2', 'col1', 'col2', '_timestamp']
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION = ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(COALESCE([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            $sql
+        );
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(2, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        foreach ($result as $item) {
+            $this->assertArrayHasKey('pk1', $item);
+            $this->assertArrayHasKey('pk2', $item);
+            $this->assertArrayHasKey('col1', $item);
+            $this->assertArrayHasKey('col2', $item);
+            $this->assertArrayHasKey('_timestamp', $item);
+        }
     }
 }

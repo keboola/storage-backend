@@ -69,6 +69,11 @@ class SqlCommandBuilderTest extends TestCase
             {
                 return ['col1', 'col2'];
             }
+
+            public function getPrimaryKeysNames(): ?array
+            {
+                return [];
+            }
         };
     }
 

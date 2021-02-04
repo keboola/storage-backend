@@ -21,19 +21,35 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     /** @var string[] */
     private $columnsNames;
 
+    /** @var string[]|null */
+    private $primaryKeysNames;
+
     /**
      * @param string[] $columnsNames
+     * @param string[]|null $primaryKeysNames
      */
     public function __construct(
         string $query,
         array $queryBindings = [],
         array $dataTypes = [],
-        array $columnsNames = []
+        array $columnsNames = [],
+        ?array $primaryKeysNames = null
     ) {
         $this->query = $query;
         $this->queryBindings = $queryBindings;
         $this->dataTypes = $dataTypes;
         $this->columnsNames = $columnsNames;
+        $this->primaryKeysNames = $primaryKeysNames;
+    }
+
+    public function getColumnsNames(): array
+    {
+        return $this->columnsNames;
+    }
+
+    public function getDataTypes(): array
+    {
+        return $this->dataTypes;
     }
 
     public function getFromStatement(): string
@@ -46,18 +62,13 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         return $this->query;
     }
 
+    public function getPrimaryKeysNames(): ?array
+    {
+        return $this->primaryKeysNames;
+    }
+
     public function getQueryBindings(): array
     {
         return $this->queryBindings;
-    }
-
-    public function getDataTypes(): array
-    {
-        return $this->dataTypes;
-    }
-
-    public function getColumnsNames(): array
-    {
-        return $this->columnsNames;
     }
 }

@@ -157,6 +157,76 @@ class SqlCommandBuilder
         );
     }
 
+    public function getCtasDedupCommand(
+        SourceInterface $source,
+        Table $destination,
+        array $primaryKeys,
+        string $stagingTableName,
+        ImportOptionsInterface $importOptions,
+        string $timestamp,
+        array $columnsInOrder
+    ): string {
+        if (empty($primaryKeys)) {
+            return '';
+        }
+
+        $pkSql = $this->getColumnsString(
+            $primaryKeys,
+            ','
+        );
+
+        $timestampColIndex = array_search(Importer::TIMESTAMP_COLUMN_NAME, $columnsInOrder, true);
+        if ($timestampColIndex !== false) {
+            // remove timestamp column if exists in ordered columns
+            unset($columnsInOrder[$timestampColIndex]);
+        }
+
+        $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $source->getColumnsNames(), true)
+            && $importOptions->useTimestamp();
+
+        $createTableColumns = $this->getColumnsString($columnsInOrder, ',', 'a');
+        if ($useTimestamp) {
+            $createTableColumns .= ', ' . $this->connection->quote($timestamp) . ' AS [_timestamp]';
+        }
+
+        $columnsSetSql = [];
+        foreach ($source->getColumnsNames() as $columnName) {
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+                $columnsSetSql[] = sprintf(
+                    'CAST(NULLIF(%s, \'\') as nvarchar(4000)) AS %s',
+                    $this->platform->quoteSingleIdentifier($columnName),
+                    $this->platform->quoteSingleIdentifier($columnName)
+                );
+            } else {
+                $columnsSetSql[] = sprintf(
+                    'CAST(COALESCE(%s, \'\') as nvarchar(4000)) AS %s',
+                    $this->platform->quoteSingleIdentifier($columnName),
+                    $this->platform->quoteSingleIdentifier($columnName)
+                );
+            }
+        }
+
+        $depudeSql = sprintf(
+            'SELECT %s FROM ('
+            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
+            . 'FROM %s.%s'
+            . ') AS a '
+            . 'WHERE a."_row_number_" = 1',
+            $createTableColumns,
+            implode(',', $columnsSetSql),
+            $pkSql,
+            $pkSql,
+            $this->platform->quoteSingleIdentifier($destination->getSchema()),
+            $this->platform->quoteSingleIdentifier($stagingTableName)
+        );
+
+        return sprintf(
+            'CREATE TABLE %s WITH (DISTRIBUTION = ROUND_ROBIN) AS %s',
+            $destination->getQuotedTableWithScheme(),
+            $depudeSql
+        );
+    }
+
     public function getColumnsString(
         array $columns,
         string $delimiter = ', ',
@@ -222,6 +292,22 @@ class SqlCommandBuilder
         );
     }
 
+    public function getDropTableIfExistsCommand(
+        string $schema,
+        string $tableName
+    ): string {
+        $table = sprintf(
+            '%s.%s',
+            $this->platform->quoteSingleIdentifier($schema),
+            $this->platform->quoteSingleIdentifier($tableName)
+        );
+        return sprintf(
+            'IF OBJECT_ID (N\'%s\', N\'U\') IS NOT NULL DROP TABLE %s',
+            $table,
+            $table
+        );
+    }
+
     public function getInsertAllIntoTargetTableCommand(
         SourceInterface $source,
         Table $destination,
@@ -229,7 +315,6 @@ class SqlCommandBuilder
         string $stagingTableName,
         string $timestamp
     ): string {
-
         $insColumns = $source->getColumnsNames();
         $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $insColumns, true)
             && $importOptions->useTimestamp();
@@ -282,39 +367,12 @@ class SqlCommandBuilder
         );
     }
 
-    public function getTableColumns(string $schemaName, string $tableName): array
-    {
-        /** @var string|false $objectId */
-        $objectId = $this->connection->fetchColumn(
-            $this->getTableObjectIdCommand($schemaName, $tableName)
-        );
-
-        if ($objectId === false) {
-            throw new Exception(sprintf('Table %s.%s does not exist.', $schemaName, $tableName));
-        }
-
-        $result = $this->connection->fetchAll(
-            $this->getTableColumnsCommand($objectId)
-        );
-        return array_map(static function ($column) {
-            return $column['NAME'];
-        }, $result);
-    }
-
     public function getTableObjectIdCommand(string $schemaName, string $tableName): string
     {
         return sprintf(
             'SELECT [object_id] FROM sys.tables WHERE schema_name(schema_id) = %s AND NAME = %s',
             $this->connection->quote($schemaName),
             $this->connection->quote($tableName)
-        );
-    }
-
-    public function getTableColumnsCommand(string $tableObjectId): string
-    {
-        return sprintf(
-            'SELECT [NAME] FROM sys.all_columns WHERE object_id = %s',
-            $this->connection->quote($tableObjectId)
         );
     }
 

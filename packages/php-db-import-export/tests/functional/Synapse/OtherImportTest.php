@@ -49,7 +49,12 @@ class OtherImportTest extends SynapseBaseTestCase
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
         $options = $this->getSynapseImportOptions();
-        $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'names', ['c1', 'c2']);
+        $source = new Storage\Synapse\Table(
+            $this->getSourceSchemaName(),
+            'names',
+            ['c1', 'c2'],
+            []
+        );
         $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'out.csv_2Cols');
 
         $this->expectException(Exception::class);
@@ -71,7 +76,10 @@ class OtherImportTest extends SynapseBaseTestCase
             [
                 'id',
                 'row_number',
-            ]
+            ],
+            false,
+            false,
+            []
         );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
@@ -95,7 +103,9 @@ class OtherImportTest extends SynapseBaseTestCase
         $source = $this->createABSSourceInstance(
             '02_tw_accounts.csv.invalid.manifest',
             $initialFile->getHeader(),
-            true
+            true,
+            false,
+            ['id']
         );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
@@ -127,7 +137,8 @@ class OtherImportTest extends SynapseBaseTestCase
             [
                 'col1',
                 'col2',
-            ]
+            ],
+            []
         );
         $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS);
         $options = $this->getSynapseImportOptions();
@@ -168,7 +179,9 @@ class OtherImportTest extends SynapseBaseTestCase
                 'first',
                 'second',
             ],
-            false
+            false,
+            false,
+            ['id']
         );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
@@ -211,9 +224,15 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
-        $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
+        $source = new Storage\Synapse\Table(
+            $this->getSourceSchemaName(),
+            'nullify_src',
+            ['id', 'name', 'price'],
+            []
+        );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
             'nullify'
@@ -264,9 +283,15 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
-        $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
+        $source = new Storage\Synapse\Table(
+            $this->getSourceSchemaName(),
+            'nullify_src',
+            ['id', 'name', 'price'],
+            []
+        );
         $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), 'nullify');
 
         (new Importer($this->connection))->importTable(
@@ -319,9 +344,17 @@ class OtherImportTest extends SynapseBaseTestCase
             ['name', 'price'], //convert empty values
             true, // incremetal
             false,
-            ImportOptions::SKIP_FIRST_LINE
+            SynapseImportOptions::SKIP_FIRST_LINE,
+            getenv('CREDENTIALS_IMPORT_TYPE'),
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
-        $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
+        $source = new Storage\Synapse\Table(
+            $this->getSourceSchemaName(),
+            'nullify_src',
+            ['id', 'name', 'price'],
+            ['id']
+        );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
             'nullify'
@@ -394,9 +427,15 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
-        $source = new Storage\Synapse\Table($this->getSourceSchemaName(), 'nullify_src', ['id', 'name', 'price']);
+        $source = new Storage\Synapse\Table(
+            $this->getSourceSchemaName(),
+            'nullify_src',
+            ['id', 'name', 'price'],
+            ['id']
+        );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
             'nullify'
@@ -447,9 +486,16 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
-        $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
+        $source = $this->createABSSourceInstance(
+            'nullify.csv',
+            ['id', 'name', 'price'],
+            false,
+            false,
+            []
+        );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
             'nullify'
@@ -487,9 +533,16 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            getenv('TEMP_TABLE_TYPE')
+            getenv('TEMP_TABLE_TYPE'),
+            getenv('DEDUP_TYPE')
         );
-        $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
+        $source = $this->createABSSourceInstance(
+            'nullify.csv',
+            ['id', 'name', 'price'],
+            false,
+            false,
+            []
+        );
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
             'nullify'
@@ -525,10 +578,17 @@ class OtherImportTest extends SynapseBaseTestCase
         }
 
         (new \Keboola\Db\ImportExport\Backend\Synapse\Importer($this->connection))->importTable(
-            $this->createABSSourceInstanceFromCsv('long_col_6k.csv', new CsvOptions(), [
-                'col1',
-                'col2',
-            ]),
+            $this->createABSSourceInstanceFromCsv(
+                'long_col_6k.csv',
+                new CsvOptions(),
+                [
+                    'col1',
+                    'col2',
+                ],
+                false,
+                false,
+                []
+            ),
             $table = new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS, [
                 'col1',
                 'col2',
@@ -567,10 +627,17 @@ class OtherImportTest extends SynapseBaseTestCase
         }
 
         (new \Keboola\Db\ImportExport\Backend\Synapse\Importer($this->connection))->importTable(
-            $this->createABSSourceInstanceFromCsv('long_col_10k.csv', new CsvOptions(), [
-                'col1',
-                'col2',
-            ]),
+            $this->createABSSourceInstanceFromCsv(
+                'long_col_10k.csv',
+                new CsvOptions(),
+                [
+                    'col1',
+                    'col2',
+                ],
+                false,
+                false,
+                []
+            ),
             $table = new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS, [
                 'col1',
                 'col2',
