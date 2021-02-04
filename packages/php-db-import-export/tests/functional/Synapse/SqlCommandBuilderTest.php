@@ -767,7 +767,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = COALESCE([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
+            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
             $sql
         );
         $this->connection->exec($sql);
@@ -836,7 +836,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = NULLIF([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
+            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
             $sql
         );
         $this->connection->exec($sql);
@@ -916,7 +916,7 @@ EOT
 
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col1] = NULLIF([src].[col1], \'\'), [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar), \'\') != COALESCE([src].[col2], \'\')) ',
+            'UPDATE [import-export-test_schema].[import-export-test_test] SET [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test_schema].[#stagingTable] AS [src] WHERE [import-export-test_schema].[import-export-test_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col1] AS varchar(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test_schema].[import-export-test_test].[col2] AS varchar(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
             $sql
         );
         $this->connection->exec($sql);

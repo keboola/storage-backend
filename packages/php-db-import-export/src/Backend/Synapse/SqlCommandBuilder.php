@@ -443,6 +443,10 @@ EOT
         $dest = $destination->getQuotedTableWithScheme();
         $columnsSet = [];
         foreach ($source->getColumnsNames() as $columnName) {
+            if (in_array($columnName, $primaryKeys, true)) {
+                // primary keys are not updated
+                continue;
+            }
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = NULLIF([src].%s, \'\')',
@@ -470,7 +474,7 @@ EOT
         $columnsComparisionSql = array_map(
             function ($columnName) use ($dest) {
                 return sprintf(
-                    'COALESCE(CAST(%s.%s AS varchar), \'\') != COALESCE([src].%s, \'\')',
+                    'COALESCE(CAST(%s.%s AS varchar(4000)), \'\') != COALESCE([src].%s, \'\')',
                     $dest,
                     $this->platform->quoteSingleIdentifier($columnName),
                     $this->platform->quoteSingleIdentifier($columnName)
