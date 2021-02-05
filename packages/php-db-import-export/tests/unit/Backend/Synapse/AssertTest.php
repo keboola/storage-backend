@@ -8,6 +8,7 @@ use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\TableDistribution;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
@@ -35,7 +36,11 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
-                []
+                [],
+                new TableDistribution(
+                    'ROUND_ROBIN',
+                    []
+                )
             )
         );
     }
@@ -58,7 +63,11 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
-                []
+                [],
+                new TableDistribution(
+                    'ROUND_ROBIN',
+                    []
+                )
             )
         );
     }
@@ -81,7 +90,11 @@ class AssertTest extends TestCase
             },
             new DestinationTableOptions(
                 ['id', 'name'],
-                []
+                [],
+                new TableDistribution(
+                    'ROUND_ROBIN',
+                    []
+                )
             )
         );
     }
@@ -153,5 +166,61 @@ class AssertTest extends TestCase
             ),
             false
         ));
+    }
+
+    public function testAssertHashDistributionFailNoHashKey(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'HASH table distribution must have one distribution key specified.'
+        );
+        Assert::assertValidHashDistribution('HASH', []);
+    }
+
+    public function testAssertHashDistributionFailMoreThanOneHashKey(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'HASH table distribution must have one distribution key specified.'
+        );
+        Assert::assertValidHashDistribution('HASH', ['id', 'name']);
+    }
+
+    public function testAssertHashDistributionPass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertValidHashDistribution('HASH', ['id']);
+    }
+
+    public function testAssertTableDistributionFail(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'Unknown table distribution "UNKNOWN" specified.'
+        );
+        Assert::assertTableDistribution('UNKNOWN');
+    }
+
+    public function testAssertTableDistributionPass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertTableDistribution('HASH');
+        Assert::assertTableDistribution('ROUND_ROBIN');
+        Assert::assertTableDistribution('REPLICATE');
+    }
+
+    public function testAssertStagingTableFail(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'Staging table must start with "#" table name "normalNotTempTable" supplied.'
+        );
+        Assert::assertStagingTable('normalNotTempTable');
+    }
+
+    public function testAssertStagingTablePass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertStagingTable('#tempTableWithSharp');
     }
 }

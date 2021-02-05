@@ -6,6 +6,8 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
 use DateTime;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
+use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\TableDistribution;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
@@ -30,29 +32,82 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
         $this->dropAllWithinSchema(self::TEST_SCHEMA);
     }
 
-    public function testGetCreateStagingTableCommandHEAP(): void
+    public function createTempTableCommandProvider(): \Generator
     {
-        $this->createTestSchema();
-        $sql = $this->qb->getCreateTempTableCommand(
-            self::TEST_SCHEMA,
-            '#' . self::TEST_TABLE,
-            [
-                'col1',
-                'col2',
-            ],
-            new SynapseImportOptions()
-        );
+        yield 'TEMP_TABLE_COLUMNSTORE ROUND_ROBIN' => [
+            'COLUMNSTORE',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION=ROUND_ROBIN)',
+        ];
 
-        $this->assertEquals(
+        yield 'TEMP_TABLE_COLUMNSTORE HASH' => [
+            'COLUMNSTORE',
+            'HASH',
+            ['col1'],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED COLUMNSTORE INDEX, DISTRIBUTION=HASH([col1]))',
+        ];
+
+        yield 'TEMP_TABLE_HEAP ROUND_ROBIN' => [
+            'HEAP',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=ROUND_ROBIN)',
+        ];
+// Columns with large object types are not supported as distribution columns.
+//        yield 'TEMP_TABLE_HEAP HASH' => [
+//            'HEAP',
+//            'HASH',
+//            ['col1'],
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB)',
-            $sql
-        );
-        $this->connection->exec($sql);
+//            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(max), [col2] nvarchar(max)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=HASH([col1]))',
+//        ];
+
+        yield 'TEMP_TABLE_HEAP_4000 ROUND_ROBIN' => [
+            'HEAP4000',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=ROUND_ROBIN)',
+        ];
+
+        yield 'TEMP_TABLE_HEAP_4000 HASH' => [
+            'HEAP4000',
+            'HASH',
+            ['col1'],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (HEAP, LOCATION = USER_DB, DISTRIBUTION=HASH([col1]))',
+        ];
+
+        yield 'TEMP_TABLE_CLUSTERED_INDEX ROUND_ROBIN' => [
+            'CLUSTERED_INDEX',
+            'ROUND_ROBIN',
+            [],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED INDEX([col1], [col2]), DISTRIBUTION=ROUND_ROBIN)',
+        ];
+
+        yield 'TEMP_TABLE_CLUSTERED_INDEX HASH' => [
+            'CLUSTERED_INDEX',
+            'HASH',
+            ['col1'],
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED INDEX([col1], [col2]), DISTRIBUTION=HASH([col1]))',
+        ];
     }
 
-    public function testGetCreateStagingTableCommandCOLUMNSTORE(): void
-    {
+    /**
+     * @dataProvider createTempTableCommandProvider
+     */
+    public function testGetCreateTempTableCommand(
+        string $tableType,
+        string $tableDistributionType,
+        array $distributionColumnsNames,
+        string $expectedSql
+    ): void {
         $this->createTestSchema();
         $sql = $this->qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
@@ -67,69 +122,20 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 false,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
-            )
-        );
-
-        $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED COLUMNSTORE INDEX)',
-            $sql
-        );
-        $this->connection->exec($sql);
-    }
-
-    public function testGetCreateStagingTableCommandCLUSTEREDINDEX(): void
-    {
-        $this->createTestSchema();
-        $sql = $this->qb->getCreateTempTableCommand(
-            self::TEST_SCHEMA,
-            '#' . self::TEST_TABLE,
-            [
-                'col1',
-                'col2',
-            ],
-            new SynapseImportOptions(
+                $tableType
+            ),
+            new DestinationTableOptions(
                 [],
-                false,
-                false,
-                0,
-                SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
-            )
-        );
-
-        $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (CLUSTERED INDEX([col1], [col2]))',
-            $sql
-        );
-        $this->connection->exec($sql);
-    }
-
-    public function testGetCreateStagingTableCommandHEAP4000(): void
-    {
-        $this->createTestSchema();
-        $sql = $this->qb->getCreateTempTableCommand(
-            self::TEST_SCHEMA,
-            '#' . self::TEST_TABLE,
-            [
-                'col1',
-                'col2',
-            ],
-            new SynapseImportOptions(
                 [],
-                false,
-                false,
-                0,
-                SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP_4000
+                new TableDistribution(
+                    $tableDistributionType,
+                    $distributionColumnsNames
+                )
             )
         );
 
-        $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[#import-export-test_test] ([col1] nvarchar(4000), [col2] nvarchar(4000)) WITH (HEAP, LOCATION = USER_DB)',
+        self::assertEquals(
+            $expectedSql,
             $sql
         );
         $this->connection->exec($sql);
@@ -154,7 +160,12 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
                 'col1',
                 'col2',
             ],
-            new SynapseImportOptions()
+            new SynapseImportOptions(),
+            new DestinationTableOptions(
+                [],
+                [],
+                new TableDistribution()
+            )
         );
         $this->connection->exec($sql);
 
@@ -196,7 +207,12 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
             $columns,
-            new SynapseImportOptions()
+            new SynapseImportOptions(),
+            new DestinationTableOptions(
+                [],
+                [],
+                new TableDistribution()
+            )
         ));
         $this->connection->exec(
             sprintf(
@@ -311,7 +327,12 @@ EOT
                 'col1',
                 'col2',
             ],
-            new SynapseImportOptions()
+            new SynapseImportOptions(),
+            new DestinationTableOptions(
+                [],
+                [],
+                new TableDistribution()
+            )
         ));
         $this->connection->exec(
             sprintf(
@@ -963,6 +984,54 @@ EOT
         );
     }
 
+    public function testGetCtasDedupCommandWithHashDistribution(): void
+    {
+        $this->createTestSchema();
+        $this->createStagingTableWithData(true);
+
+        // use timestamp
+        $options = new SynapseImportOptions(
+            ['col1'],
+            false,
+            true
+        );
+        $sql = $this->qb->getCtasDedupCommand(
+            $this->getDummySource(true),
+            $this->getDummyTableDestination(),
+            self::TEST_STAGING_TABLE,
+            $options,
+            '2020-01-01 00:00:00',
+            new DestinationTableOptions(
+                ['pk1', 'pk2', 'col1', 'col2'],
+                ['pk1', 'pk2'],
+                new TableDistribution(
+                    TableDistribution::TABLE_DISTRIBUTION_HASH,
+                    ['pk1']
+                )
+            )
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=HASH([pk1])) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            $sql
+        );
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(2, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        foreach ($result as $item) {
+            $this->assertArrayHasKey('pk1', $item);
+            $this->assertArrayHasKey('pk2', $item);
+            $this->assertArrayHasKey('col1', $item);
+            $this->assertArrayHasKey('col2', $item);
+            $this->assertArrayHasKey('_timestamp', $item);
+        }
+    }
+
     public function testGetCtasDedupCommandWithTimestampNullConvert(): void
     {
         $this->createTestSchema();
@@ -977,15 +1046,18 @@ EOT
         $sql = $this->qb->getCtasDedupCommand(
             $this->getDummySource(true),
             $this->getDummyTableDestination(),
-            ['pk1', 'pk2'],
             self::TEST_STAGING_TABLE,
             $options,
             '2020-01-01 00:00:00',
-            ['pk1', 'pk2', 'col1', 'col2']
+            new DestinationTableOptions(
+                ['pk1', 'pk2', 'col1', 'col2'],
+                ['pk1', 'pk2'],
+                new TableDistribution()
+            )
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION = ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $out = $this->connection->exec($sql);
@@ -1019,15 +1091,18 @@ EOT
         $sql = $this->qb->getCtasDedupCommand(
             $this->getDummySource(true),
             $this->getDummyTableDestination(),
-            ['pk1', 'pk2'],
             self::TEST_STAGING_TABLE,
             $options,
             '2020-01-01 00:00:00',
-            ['pk1', 'pk2', 'col1', 'col2']
+            new DestinationTableOptions(
+                ['pk1', 'pk2', 'col1', 'col2'],
+                ['pk1', 'pk2'],
+                new TableDistribution()
+            )
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION = ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $out = $this->connection->exec($sql);
@@ -1060,15 +1135,18 @@ EOT
         $sql = $this->qb->getCtasDedupCommand(
             $this->getDummySource(true),
             $this->getDummyTableDestination(),
-            ['pk1', 'pk2'],
             self::TEST_STAGING_TABLE,
             $options,
             '2020-01-01 00:00:00',
-            ['pk1', 'pk2', 'col1', 'col2', '_timestamp']
+            new DestinationTableOptions(
+                ['pk1', 'pk2', 'col1', 'col2', '_timestamp'],
+                ['pk1', 'pk2'],
+                new TableDistribution()
+            )
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION = ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(COALESCE([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(COALESCE([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $out = $this->connection->exec($sql);

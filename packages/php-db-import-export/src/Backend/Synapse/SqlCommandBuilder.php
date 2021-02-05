@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Exception;
+use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
@@ -54,9 +55,12 @@ class SqlCommandBuilder
         string $schema,
         string $tableName,
         array $columns,
-        SynapseImportOptions $options
+        SynapseImportOptions $options,
+        DestinationTableOptions $destinationTableOptions
     ): string {
-        $this->assertStagingTable($tableName);
+        Assert::assertStagingTable($tableName);
+
+        $distributionSql = $this->getSqlDistributionPart($destinationTableOptions);
 
         switch ($options->getTempTableType()) {
             case SynapseImportOptions::TEMP_TABLE_HEAP:
@@ -64,30 +68,33 @@ class SqlCommandBuilder
                     return sprintf('%s nvarchar(max)', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
+                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB, %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql)
+                    implode(', ', $columnsSql),
+                    $distributionSql
                 );
             case SynapseImportOptions::TEMP_TABLE_HEAP_4000:
                 $columnsSql = array_map(function ($column) {
                     return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
+                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB, %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql)
+                    implode(', ', $columnsSql),
+                    $distributionSql
                 );
             case SynapseImportOptions::TEMP_TABLE_COLUMNSTORE:
                 $columnsSql = array_map(function ($column) {
                     return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED COLUMNSTORE INDEX)',
+                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED COLUMNSTORE INDEX, %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql)
+                    implode(', ', $columnsSql),
+                    $distributionSql
                 );
             case SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX:
                 $columnsSql = array_map(function ($column) {
@@ -97,25 +104,16 @@ class SqlCommandBuilder
                     return sprintf('%s', $this->platform->quoteSingleIdentifier($column));
                 }, $columns);
                 return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED INDEX(%s))',
+                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED INDEX(%s), %s)',
                     $this->platform->quoteSingleIdentifier($schema),
                     $this->platform->quoteSingleIdentifier($tableName),
                     implode(', ', $columnsSql),
-                    implode(', ', $columnsIndex)
+                    implode(', ', $columnsIndex),
+                    $distributionSql
                 );
         }
 
         throw new \LogicException(sprintf('Unknown temp table type "%s".', $options->getTempTableType()));
-    }
-
-    private function assertStagingTable(string $tableName): void
-    {
-        if ($tableName[0] !== '#') {
-            throw new Exception(sprintf(
-                'Staging table must start with "#" table name "%s" supplied',
-                $tableName
-            ));
-        }
     }
 
     public function getDedupCommand(
@@ -160,22 +158,27 @@ class SqlCommandBuilder
     public function getCtasDedupCommand(
         SourceInterface $source,
         Table $destination,
-        array $primaryKeys,
         string $stagingTableName,
         ImportOptionsInterface $importOptions,
         string $timestamp,
-        array $columnsInOrder
+        DestinationTableOptions $destinationTableOptions
     ): string {
-        if (empty($primaryKeys)) {
+        if (empty($destinationTableOptions->getPrimaryKeys())) {
             return '';
         }
+        $distributionSql = $this->getSqlDistributionPart($destinationTableOptions);
 
         $pkSql = $this->getColumnsString(
-            $primaryKeys,
+            $destinationTableOptions->getPrimaryKeys(),
             ','
         );
 
-        $timestampColIndex = array_search(Importer::TIMESTAMP_COLUMN_NAME, $columnsInOrder, true);
+        $columnsInOrder = $destinationTableOptions->getColumnNamesInOrder();
+        $timestampColIndex = array_search(
+            Importer::TIMESTAMP_COLUMN_NAME,
+            $columnsInOrder,
+            true
+        );
         if ($timestampColIndex !== false) {
             // remove timestamp column if exists in ordered columns
             unset($columnsInOrder[$timestampColIndex]);
@@ -221,8 +224,9 @@ class SqlCommandBuilder
         );
 
         return sprintf(
-            'CREATE TABLE %s WITH (DISTRIBUTION = ROUND_ROBIN) AS %s',
+            'CREATE TABLE %s WITH (%s) AS %s',
             $destination->getQuotedTableWithScheme(),
+            $distributionSql,
             $depudeSql
         );
     }
@@ -365,6 +369,25 @@ class SqlCommandBuilder
             $this->platform->quoteSingleIdentifier($sourceTableName),
             $this->platform->quoteSingleIdentifier($targetTable)
         );
+    }
+
+    private function getSqlDistributionPart(DestinationTableOptions $destinationTableOptions): string
+    {
+        $distributionSql = sprintf(
+            'DISTRIBUTION=%s',
+            $destinationTableOptions->getDistribution()->getDistributionName()
+        );
+
+        if ($destinationTableOptions->getDistribution()->isHashDistribution()) {
+            $distributionSql = sprintf(
+                '%s(%s)',
+                $distributionSql,
+                $this->platform->quoteSingleIdentifier(
+                    $destinationTableOptions->getDistribution()->getDistributionColumnsNames()[0]
+                )
+            );
+        }
+        return $distributionSql;
     }
 
     public function getTableObjectIdCommand(string $schemaName, string $tableName): string

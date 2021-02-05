@@ -73,16 +73,28 @@ class Importer implements ImporterInterface
             $destination->getSchema(),
             $this->importState->getStagingTableName(),
             $source->getColumnsNames(), // using provided columns to maintain order in source
-            $options
+            $options,
+            $destinationOptions
         ));
 
         try {
             //import files to staging table
             $this->importToStagingTable($source, $destination, $options, $adapter);
             if ($options->isIncremental()) {
-                $this->doIncrementalLoad($options, $source, $destination, $destinationOptions->getPrimaryKeys());
+                $this->doIncrementalLoad(
+                    $options,
+                    $source,
+                    $destination,
+                    $destinationOptions->getPrimaryKeys(),
+                    $destinationOptions
+                );
             } else {
-                $this->doNonIncrementalLoad($options, $source, $destination, $destinationOptions);
+                $this->doNonIncrementalLoad(
+                    $options,
+                    $source,
+                    $destination,
+                    $destinationOptions
+                );
             }
             $this->importState->setImportedColumns($source->getColumnsNames());
         } finally {
@@ -133,7 +145,11 @@ class Importer implements ImporterInterface
 
         return new DestinationTableOptions(
             $tableRef->getColumnsNames(),
-            $primaryKeys
+            $primaryKeys,
+            new TableDistribution(
+                $tableRef->getTableDistribution(),
+                $tableRef->getTableDistributionColumnsNames()
+            )
         );
     }
 
@@ -173,12 +189,18 @@ class Importer implements ImporterInterface
         SynapseImportOptions $importOptions,
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination,
-        array $primaryKeys
+        array $primaryKeys,
+        DestinationTableOptions $destinationTableOptions
     ): void {
         $timestampValue = DateTimeHelper::getNowFormatted();
 
         // create temp table now, it cannot be run in transaction
-        $tempTableName = $this->createTempTableForDedup($source, $destination, $importOptions);
+        $tempTableName = $this->createTempTableForDedup(
+            $source,
+            $destination,
+            $importOptions,
+            $destinationTableOptions
+        );
 
         $this->runQuery(
             $this->sqlBuilder->getBeginTransaction()
@@ -298,11 +320,10 @@ class Importer implements ImporterInterface
             $this->sqlBuilder->getCtasDedupCommand(
                 $source,
                 $tmpDestination,
-                $destinationOptions->getPrimaryKeys(),
                 $this->importState->getStagingTableName(),
                 $importOptions,
                 DateTimeHelper::getNowFormatted(),
-                $destinationOptions->getColumnNamesInOrder()
+                $destinationOptions
             )
         );
         $this->importState->stopTimer('CTAS_dedup');
@@ -373,7 +394,12 @@ class Importer implements ImporterInterface
         SynapseImportOptions $importOptions,
         DestinationTableOptions $destinationOptions
     ): void {
-        $tempTableName = $this->createTempTableForDedup($source, $destination, $importOptions);
+        $tempTableName = $this->createTempTableForDedup(
+            $source,
+            $destination,
+            $importOptions,
+            $destinationOptions
+        );
 
         $this->runQuery(
             $this->sqlBuilder->getBeginTransaction()
@@ -458,7 +484,8 @@ class Importer implements ImporterInterface
     private function createTempTableForDedup(
         Storage\SourceInterface $source,
         Storage\Synapse\Table $destination,
-        SynapseImportOptions $importOptions
+        SynapseImportOptions $importOptions,
+        DestinationTableOptions $destinationTableOptions
     ): string {
         // create temp table now, it cannot be run in transaction
         $tempTableName = BackendHelper::generateTempTableName();
@@ -466,7 +493,8 @@ class Importer implements ImporterInterface
             $destination->getSchema(),
             $tempTableName,
             $source->getColumnsNames(),
-            $importOptions
+            $importOptions,
+            $destinationTableOptions
         ));
         return $tempTableName;
     }
