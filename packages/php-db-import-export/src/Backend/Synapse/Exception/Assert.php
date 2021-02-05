@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Synapse\Exception;
 
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\TableDistribution;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
@@ -68,12 +69,32 @@ final class Assert
         }
     }
 
-    public static function assertHashDistribution(DestinationTableOptions $destinationTableOptions): void
-    {
-        if ($destinationTableOptions->getDistribution()->isHashDistribution()
-            && count($destinationTableOptions->getDistribution()->getDistributionColumnsNames()) !== 1
+    /**
+     * @param string $tableDistributionName
+     * @param string[] $hashDistributionColumnsNames
+     */
+    public static function assertValidHashDistribution(
+        string $tableDistributionName,
+        array $hashDistributionColumnsNames
+    ): void {
+        if ($tableDistributionName === TableDistribution::TABLE_DISTRIBUTION_HASH
+            && count($hashDistributionColumnsNames) !== 1
         ) {
             throw new \LogicException('HASH table distribution must have one distribution key specified.');
+        }
+    }
+
+    public static function assertTableDistribution(string $tableDistributionName): void
+    {
+        if (!in_array($tableDistributionName, [
+            TableDistribution::TABLE_DISTRIBUTION_HASH,
+            TableDistribution::TABLE_DISTRIBUTION_ROUND_ROBIN,
+            TableDistribution::TABLE_DISTRIBUTION_REPLICATE,
+        ], true)) {
+            throw new \LogicException(sprintf(
+                'Unknown table distribution "%s" specified.',
+                $tableDistributionName
+            ));
         }
     }
 

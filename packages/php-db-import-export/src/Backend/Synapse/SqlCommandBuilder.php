@@ -59,7 +59,6 @@ class SqlCommandBuilder
         DestinationTableOptions $destinationTableOptions
     ): string {
         Assert::assertStagingTable($tableName);
-        Assert::assertHashDistribution($destinationTableOptions);
 
         $distributionSql = $this->getSqlDistributionPart($destinationTableOptions);
 
@@ -167,7 +166,6 @@ class SqlCommandBuilder
         if (empty($destinationTableOptions->getPrimaryKeys())) {
             return '';
         }
-        Assert::assertHashDistribution($destinationTableOptions);
         $distributionSql = $this->getSqlDistributionPart($destinationTableOptions);
 
         $pkSql = $this->getColumnsString(

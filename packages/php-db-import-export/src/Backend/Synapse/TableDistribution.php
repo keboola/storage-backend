@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
+use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
+
 /**
  * @internal
  * @todo should be moved to utils
@@ -11,6 +13,7 @@ namespace Keboola\Db\ImportExport\Backend\Synapse;
 final class TableDistribution
 {
     public const TABLE_DISTRIBUTION_HASH = 'HASH';
+    public const TABLE_DISTRIBUTION_REPLICATE = 'REPLICATE';
     public const TABLE_DISTRIBUTION_ROUND_ROBIN = 'ROUND_ROBIN';
 
     /** @var string */
@@ -26,6 +29,9 @@ final class TableDistribution
         string $distributionName = self::TABLE_DISTRIBUTION_ROUND_ROBIN,
         array $distributionColumnsNames = []
     ) {
+        Assert::assertTableDistribution($distributionName);
+        Assert::assertValidHashDistribution($distributionName, $distributionColumnsNames);
+
         $this->distributionName = $distributionName;
         $this->distributionColumnsNames = $distributionColumnsNames;
     }

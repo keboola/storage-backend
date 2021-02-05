@@ -174,14 +174,7 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage(
             'HASH table distribution must have one distribution key specified.'
         );
-        Assert::assertHashDistribution(new DestinationTableOptions(
-            [],
-            [],
-            new TableDistribution(
-                'HASH',
-                []
-            )
-        ));
+        Assert::assertValidHashDistribution('HASH', []);
     }
 
     public function testAssertHashDistributionFailMoreThanOneHashKey(): void
@@ -190,27 +183,30 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage(
             'HASH table distribution must have one distribution key specified.'
         );
-        Assert::assertHashDistribution(new DestinationTableOptions(
-            [],
-            [],
-            new TableDistribution(
-                'HASH',
-                ['id', 'name']
-            )
-        ));
+        Assert::assertValidHashDistribution('HASH', ['id', 'name']);
     }
 
     public function testAssertHashDistributionPass(): void
     {
         $this->expectNotToPerformAssertions();
-        Assert::assertHashDistribution(new DestinationTableOptions(
-            [],
-            [],
-            new TableDistribution(
-                'HASH',
-                ['id']
-            )
-        ));
+        Assert::assertValidHashDistribution('HASH', ['id']);
+    }
+
+    public function testAssertTableDistributionFail(): void
+    {
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage(
+            'Unknown table distribution "UNKNOWN" specified.'
+        );
+        Assert::assertTableDistribution('UNKNOWN');
+    }
+
+    public function testAssertTableDistributionPass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertTableDistribution('HASH');
+        Assert::assertTableDistribution('ROUND_ROBIN');
+        Assert::assertTableDistribution('REPLICATE');
     }
 
     public function testAssertStagingTableFail(): void
