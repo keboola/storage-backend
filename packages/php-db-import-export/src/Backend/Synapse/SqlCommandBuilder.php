@@ -377,14 +377,16 @@ class SqlCommandBuilder
     {
         $distributionSql = sprintf(
             'DISTRIBUTION=%s',
-            $destinationTableOptions->getDistribution()
+            $destinationTableOptions->getDistribution()->getDistributionName()
         );
 
-        if ($destinationTableOptions->getDistribution() === DestinationTableOptions::TABLE_DISTRIBUTION_HASH) {
+        if ($destinationTableOptions->getDistribution()->isHashDistribution()) {
             $distributionSql = sprintf(
                 '%s(%s)',
                 $distributionSql,
-                $this->platform->quoteSingleIdentifier($destinationTableOptions->getDistributionColumnsNames()[0])
+                $this->platform->quoteSingleIdentifier(
+                    $destinationTableOptions->getDistribution()->getDistributionColumnsNames()[0]
+                )
             );
         }
         return $distributionSql;

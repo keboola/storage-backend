@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 use DateTime;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\TableDistribution;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
@@ -126,8 +127,10 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             new DestinationTableOptions(
                 [],
                 [],
-                $tableDistributionType,
-                $distributionColumnsNames
+                new TableDistribution(
+                    $tableDistributionType,
+                    $distributionColumnsNames
+                )
             )
         );
 
@@ -160,7 +163,8 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             new SynapseImportOptions(),
             new DestinationTableOptions(
                 [],
-                []
+                [],
+                new TableDistribution()
             )
         );
         $this->connection->exec($sql);
@@ -206,7 +210,8 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             new SynapseImportOptions(),
             new DestinationTableOptions(
                 [],
-                []
+                [],
+                new TableDistribution()
             )
         ));
         $this->connection->exec(
@@ -325,7 +330,8 @@ EOT
             new SynapseImportOptions(),
             new DestinationTableOptions(
                 [],
-                []
+                [],
+                new TableDistribution()
             )
         ));
         $this->connection->exec(
@@ -998,8 +1004,10 @@ EOT
             new DestinationTableOptions(
                 ['pk1', 'pk2', 'col1', 'col2'],
                 ['pk1', 'pk2'],
-                DestinationTableOptions::TABLE_DISTRIBUTION_HASH,
-                ['pk1']
+                new TableDistribution(
+                    TableDistribution::TABLE_DISTRIBUTION_HASH,
+                    ['pk1']
+                )
             )
         );
         $this->assertEquals(
@@ -1043,7 +1051,8 @@ EOT
             '2020-01-01 00:00:00',
             new DestinationTableOptions(
                 ['pk1', 'pk2', 'col1', 'col2'],
-                ['pk1', 'pk2']
+                ['pk1', 'pk2'],
+                new TableDistribution()
             )
         );
         $this->assertEquals(
@@ -1087,7 +1096,8 @@ EOT
             '2020-01-01 00:00:00',
             new DestinationTableOptions(
                 ['pk1', 'pk2', 'col1', 'col2'],
-                ['pk1', 'pk2']
+                ['pk1', 'pk2'],
+                new TableDistribution()
             )
         );
         $this->assertEquals(
@@ -1130,7 +1140,8 @@ EOT
             '2020-01-01 00:00:00',
             new DestinationTableOptions(
                 ['pk1', 'pk2', 'col1', 'col2', '_timestamp'],
-                ['pk1', 'pk2']
+                ['pk1', 'pk2'],
+                new TableDistribution()
             )
         );
         $this->assertEquals(

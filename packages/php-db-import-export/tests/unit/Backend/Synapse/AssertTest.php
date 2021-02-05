@@ -8,12 +8,12 @@ use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\TableDistribution;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
-use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use PHPUnit\Framework\TestCase;
 use Keboola\Db\Import\Exception;
 
@@ -37,8 +37,10 @@ class AssertTest extends TestCase
             new DestinationTableOptions(
                 ['id', 'name'],
                 [],
-                'ROUND_ROBIN',
-                []
+                new TableDistribution(
+                    'ROUND_ROBIN',
+                    []
+                )
             )
         );
     }
@@ -62,8 +64,10 @@ class AssertTest extends TestCase
             new DestinationTableOptions(
                 ['id', 'name'],
                 [],
-                'ROUND_ROBIN',
-                []
+                new TableDistribution(
+                    'ROUND_ROBIN',
+                    []
+                )
             )
         );
     }
@@ -87,8 +91,10 @@ class AssertTest extends TestCase
             new DestinationTableOptions(
                 ['id', 'name'],
                 [],
-                'ROUND_ROBIN',
-                []
+                new TableDistribution(
+                    'ROUND_ROBIN',
+                    []
+                )
             )
         );
     }
@@ -171,8 +177,10 @@ class AssertTest extends TestCase
         Assert::assertHashDistribution(new DestinationTableOptions(
             [],
             [],
-            'HASH',
-            []
+            new TableDistribution(
+                'HASH',
+                []
+            )
         ));
     }
 
@@ -185,8 +193,10 @@ class AssertTest extends TestCase
         Assert::assertHashDistribution(new DestinationTableOptions(
             [],
             [],
-            'HASH',
-            ['id', 'name']
+            new TableDistribution(
+                'HASH',
+                ['id', 'name']
+            )
         ));
     }
 
@@ -196,8 +206,10 @@ class AssertTest extends TestCase
         Assert::assertHashDistribution(new DestinationTableOptions(
             [],
             [],
-            'HASH',
-            ['id']
+            new TableDistribution(
+                'HASH',
+                ['id']
+            )
         ));
     }
 

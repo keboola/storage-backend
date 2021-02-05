@@ -70,8 +70,8 @@ final class Assert
 
     public static function assertHashDistribution(DestinationTableOptions $destinationTableOptions): void
     {
-        if ($destinationTableOptions->getDistribution() === DestinationTableOptions::TABLE_DISTRIBUTION_HASH
-            && count($destinationTableOptions->getDistributionColumnsNames()) !== 1
+        if ($destinationTableOptions->getDistribution()->isHashDistribution()
+            && count($destinationTableOptions->getDistribution()->getDistributionColumnsNames()) !== 1
         ) {
             throw new \LogicException('HASH table distribution must have one distribution key specified.');
         }
