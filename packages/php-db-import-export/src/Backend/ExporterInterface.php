@@ -13,7 +13,7 @@ interface ExporterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $options
-    ): void;
+    ): array;
 
     public function setAdapters(array $adapters): void;
 }

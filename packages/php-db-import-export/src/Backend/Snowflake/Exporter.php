@@ -35,9 +35,9 @@ class Exporter implements ExporterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $options
-    ): void {
+    ): array {
         $adapter = $this->getAdapter($source, $destination);
-        $adapter->runCopyCommand($source, $destination, $options);
+        return $adapter->runCopyCommand($source, $destination, $options);
     }
 
     private function getAdapter(
