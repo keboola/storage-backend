@@ -43,11 +43,12 @@ EOT
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions();
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
-        $adapter->runCopyCommand(
+
+        $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
             $options
-        );
+        ));
     }
 
     public function testGetCopyCommandCompressed(): void
@@ -81,11 +82,12 @@ EOT
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions(true);
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
-        $adapter->runCopyCommand(
+
+        $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
             $options
-        );
+        ));
     }
 
     public function testGetCopyCommandQuery(): void
@@ -119,10 +121,11 @@ EOT
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
         $options = new ExportOptions();
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
-        $adapter->runCopyCommand(
+
+        $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
             $options
-        );
+        ));
     }
 }

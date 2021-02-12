@@ -18,5 +18,5 @@ interface BackendExportAdapterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions
-    ): void;
+    ): array;
 }

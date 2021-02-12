@@ -45,7 +45,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions
-    ): void {
+    ): array {
         $compression = $exportOptions->isCompressed() ?
             ',DATA_COMPRESSION = \'org.apache.hadoop.io.compress.GzipCodec\'' :
             '';
@@ -105,5 +105,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         if ($exception !== null) {
             throw $exception;
         }
+
+        return [];
     }
 }

@@ -104,11 +104,12 @@ EOT
 
         $source = new Storage\Synapse\SelectSource('SELECT * FROM "schema"."table" WHERE id = ?', [1]);
         $adapter = new Storage\ABS\SynapseExportAdapter($conn);
-        $adapter->runCopyCommand(
+
+        $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
             $options
-        );
+        ));
     }
 
     private function getDestinationMock(): DestinationFile
@@ -252,11 +253,12 @@ EOT
 
         $source = new Storage\Synapse\Table('schema', 'table');
         $adapter = new Storage\ABS\SynapseExportAdapter($conn);
-        $adapter->runCopyCommand(
+
+        $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
             $options
-        );
+        ));
     }
 
     public function testRunCopyCommandCompressed(): void
@@ -348,11 +350,12 @@ EOT
 
         $source = new Storage\Synapse\Table('schema', 'table');
         $adapter = new Storage\ABS\SynapseExportAdapter($conn);
-        $adapter->runCopyCommand(
+
+        $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
             $options
-        );
+        ));
     }
 
     public function testRunCopyCommandManagedIdentity(): void
@@ -443,10 +446,11 @@ EOT
 
         $source = new Storage\Synapse\Table('schema', 'table');
         $adapter = new Storage\ABS\SynapseExportAdapter($conn);
-        $adapter->runCopyCommand(
+
+        $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
             $options
-        );
+        ));
     }
 }

@@ -38,7 +38,7 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions
-    ): void {
+    ): array {
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
 FROM (%s)
@@ -59,6 +59,6 @@ DETAILED_OUTPUT = TRUE',
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'"
         );
 
-        $this->connection->fetchAll($sql, $source->getQueryBindings());
+        return $this->connection->fetchAll($sql, $source->getQueryBindings());
     }
 }
