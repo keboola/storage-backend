@@ -14,6 +14,14 @@ class SnowflakeExportAdapterTest extends BaseTestCase
 {
     public function testGetCopyCommand(): void
     {
+        $expectedCopyResult = [
+            [
+                'FILE_NAME' => 'containerUrl',
+                'FILE_SIZE' => '0',
+                'ROW_COUNT' => '123',
+            ],
+        ];
+
         /** @var Storage\ABS\DestinationFile|MockObject $destination */
         $destination = self::createMock(Storage\ABS\DestinationFile::class);
         $destination->expects(self::once())->method('getContainerUrl')->willReturn('containerUrl');
@@ -38,21 +46,32 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             []
-        );
+        )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions();
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
 
-        $this->assertIsArray($adapter->runCopyCommand(
-            $source,
-            $destination,
-            $options
-        ));
+        $this->assertSame(
+            $expectedCopyResult,
+            $adapter->runCopyCommand(
+                $source,
+                $destination,
+                $options
+            )
+        );
     }
 
     public function testGetCopyCommandCompressed(): void
     {
+        $expectedCopyResult = [
+            [
+                'FILE_NAME' => 'containerUrl',
+                'FILE_SIZE' => '0',
+                'ROW_COUNT' => '123',
+            ],
+        ];
+
         /** @var Storage\ABS\DestinationFile|MockObject $destination */
         $destination = self::createMock(Storage\ABS\DestinationFile::class);
         $destination->expects(self::once())->method('getContainerUrl')->willReturn('containerUrl');
@@ -77,21 +96,32 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             []
-        );
+        )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions(true);
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
 
-        $this->assertIsArray($adapter->runCopyCommand(
-            $source,
-            $destination,
-            $options
-        ));
+        $this->assertSame(
+            $expectedCopyResult,
+            $adapter->runCopyCommand(
+                $source,
+                $destination,
+                $options
+            )
+        );
     }
 
     public function testGetCopyCommandQuery(): void
     {
+        $expectedCopyResult = [
+            [
+                'FILE_NAME' => 'containerUrl',
+                'FILE_SIZE' => '0',
+                'ROW_COUNT' => '123',
+            ],
+        ];
+
         /** @var Storage\ABS\DestinationFile|MockObject $destination */
         $destination = self::createMock(Storage\ABS\DestinationFile::class);
         $destination->expects(self::once())->method('getContainerUrl')->willReturn('containerUrl');
@@ -116,16 +146,19 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             []
-        );
+        )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
         $options = new ExportOptions();
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
 
-        $this->assertIsArray($adapter->runCopyCommand(
-            $source,
-            $destination,
-            $options
-        ));
+        $this->assertSame(
+            $expectedCopyResult,
+            $adapter->runCopyCommand(
+                $source,
+                $destination,
+                $options
+            )
+        );
     }
 }
