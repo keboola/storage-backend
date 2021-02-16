@@ -73,11 +73,22 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $options = new ExportOptions(true);
         $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/gz_test');
 
-        (new Exporter($this->connection))->exportTable(
+        $result = (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
             $options
         );
+
+        $this->assertCount(1, $result);
+        $slice = reset($result);
+
+        $this->assertArrayHasKey('FILE_NAME', $slice);
+        $this->assertArrayHasKey('FILE_SIZE', $slice);
+        $this->assertArrayHasKey('ROW_COUNT', $slice);
+
+        $this->assertSame('gz_test_0_0_0.csv.gz', $slice['FILE_NAME']);
+        $this->assertNotEmpty($slice['FILE_SIZE']);
+        $this->assertSame(2, (int) $slice['ROW_COUNT']);
 
         $resource = $this->getBlobResource($destination->getFilePath() . '_0_0_0.csv.gz');
         // this not failing is sign that table was exported successfully
@@ -117,11 +128,22 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $options = new ExportOptions();
         $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/ts_test');
 
-        (new Exporter($this->connection))->exportTable(
+        $result = (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
             $options
         );
+
+        $this->assertCount(1, $result);
+        $slice = reset($result);
+
+        $this->assertArrayHasKey('FILE_NAME', $slice);
+        $this->assertArrayHasKey('FILE_SIZE', $slice);
+        $this->assertArrayHasKey('ROW_COUNT', $slice);
+
+        $this->assertSame('ts_test_0_0_0.csv', $slice['FILE_NAME']);
+        $this->assertNotEmpty($slice['FILE_SIZE']);
+        $this->assertSame(2, (int) $slice['ROW_COUNT']);
 
         $actual = $this->getCsvFileFromBlob($destination->getFilePath() . '_0_0_0.csv');
         $expected = new CsvFile(
@@ -194,11 +216,22 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $options = new ExportOptions();
         $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/tw_test');
 
-        (new Exporter($this->connection))->exportTable(
+        $result = (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
             $options
         );
+
+        $this->assertCount(1, $result);
+        $slice = reset($result);
+
+        $this->assertArrayHasKey('FILE_NAME', $slice);
+        $this->assertArrayHasKey('FILE_SIZE', $slice);
+        $this->assertArrayHasKey('ROW_COUNT', $slice);
+
+        $this->assertSame('tw_test_0_0_0.csv', $slice['FILE_NAME']);
+        $this->assertNotEmpty($slice['FILE_SIZE']);
+        $this->assertSame(3, (int) $slice['ROW_COUNT']);
 
         $actual = $this->getCsvFileFromBlob($destination->getFilePath() . '_0_0_0.csv');
         $expected = new CsvFile(
