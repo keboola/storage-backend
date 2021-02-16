@@ -161,7 +161,8 @@ class SqlCommandBuilder
         string $stagingTableName,
         ImportOptionsInterface $importOptions,
         string $timestamp,
-        DestinationTableOptions $destinationTableOptions
+        DestinationTableOptions $destinationTableOptions,
+        bool $skipCasting = false
     ): string {
         if (empty($destinationTableOptions->getPrimaryKeys())) {
             return '';
@@ -195,15 +196,35 @@ class SqlCommandBuilder
         $columnsSetSql = [];
         foreach ($source->getColumnsNames() as $columnName) {
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+                $colSql = sprintf(
+                    'NULLIF(%s, \'\')',
+                    $this->platform->quoteSingleIdentifier($columnName)
+                );
+                if ($skipCasting === false) {
+                    $colSql = sprintf(
+                        'CAST(%s as nvarchar(4000))',
+                        $colSql
+                    );
+                }
                 $columnsSetSql[] = sprintf(
-                    'CAST(NULLIF(%s, \'\') as nvarchar(4000)) AS %s',
-                    $this->platform->quoteSingleIdentifier($columnName),
+                    '%s AS %s',
+                    $colSql,
                     $this->platform->quoteSingleIdentifier($columnName)
                 );
             } else {
+                $colSql = sprintf(
+                    'COALESCE(%s, \'\')',
+                    $this->platform->quoteSingleIdentifier($columnName)
+                );
+                if ($skipCasting === false) {
+                    $colSql = sprintf(
+                        'CAST(%s as nvarchar(4000))',
+                        $colSql
+                    );
+                }
                 $columnsSetSql[] = sprintf(
-                    'CAST(COALESCE(%s, \'\') as nvarchar(4000)) AS %s',
-                    $this->platform->quoteSingleIdentifier($columnName),
+                    '%s AS %s',
+                    $colSql,
                     $this->platform->quoteSingleIdentifier($columnName)
                 );
             }
