@@ -316,6 +316,7 @@ class Importer implements ImporterInterface
         );
 
         $this->importState->startTimer('CTAS_dedup');
+        $skipCasting = !$source instanceof Storage\SqlSourceInterface;
         $this->runQuery(
             $this->sqlBuilder->getCtasDedupCommand(
                 $source,
@@ -323,7 +324,8 @@ class Importer implements ImporterInterface
                 $this->importState->getStagingTableName(),
                 $importOptions,
                 DateTimeHelper::getNowFormatted(),
-                $destinationOptions
+                $destinationOptions,
+                $skipCasting
             )
         );
         $this->importState->stopTimer('CTAS_dedup');

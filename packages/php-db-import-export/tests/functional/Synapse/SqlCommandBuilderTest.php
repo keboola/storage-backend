@@ -207,7 +207,14 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
             $columns,
-            new SynapseImportOptions(),
+            new SynapseImportOptions(
+                [],
+                $isIncremental = false,
+                $useTimestamp = false,
+                $numberOfIgnoredLines = 0,
+                SynapseImportOptions::CREDENTIALS_SAS,
+                SynapseImportOptions::TEMP_TABLE_HEAP_4000
+            ),
             new DestinationTableOptions(
                 [],
                 [],
@@ -1103,6 +1110,51 @@ EOT
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            $sql
+        );
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(2, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        foreach ($result as $item) {
+            $this->assertArrayHasKey('pk1', $item);
+            $this->assertArrayHasKey('pk2', $item);
+            $this->assertArrayHasKey('col1', $item);
+            $this->assertArrayHasKey('col2', $item);
+        }
+    }
+
+    public function testGetCtasDedupCommandNoTimestampSkipCasting(): void
+    {
+        $this->createTestSchema();
+        $this->createStagingTableWithData(true);
+
+        // use timestamp
+        $options = new SynapseImportOptions(
+            ['col1'],
+            false,
+            false
+        );
+        $sql = $this->qb->getCtasDedupCommand(
+            $this->getDummySource(true),
+            $this->getDummyTableDestination(),
+            self::TEST_STAGING_TABLE,
+            $options,
+            '2020-01-01 00:00:00',
+            new DestinationTableOptions(
+                ['pk1', 'pk2', 'col1', 'col2'],
+                ['pk1', 'pk2'],
+                new TableDistribution()
+            ),
+            true
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT COALESCE([pk1], \'\') AS [pk1],COALESCE([pk2], \'\') AS [pk2],NULLIF([col1], \'\') AS [col1],COALESCE([col2], \'\') AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $out = $this->connection->exec($sql);
