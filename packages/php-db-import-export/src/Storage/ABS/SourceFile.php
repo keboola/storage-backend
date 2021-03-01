@@ -7,7 +7,11 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Abs\ClientFactory;
+use Keboola\FileStorage\Abs\LineEnding\LineEndingDetector;
+use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
+use Keboola\FileStorage\Path\RelativePath;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
@@ -152,5 +156,24 @@ class SourceFile extends BaseFile implements SourceInterface
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
+    }
+
+    /**
+     * @return StringLineEndingDetectorHelper::EOL_*
+     */
+    public function getLineEnding(): string
+    {
+        $client = $this->getBlobClient();
+        $detector = LineEndingDetector::createForClient($client);
+
+        if (!$this->isSliced) {
+            $file = RelativePath::createFromRootAndPath(new AbsProvider(), $this->container, $this->filePath);
+        } else {
+            $manifest = $this->downloadAndParseManifest($client);
+            $blobPath = $this->getBlobPath($manifest['entries'][0]['url']);
+            $file = RelativePath::createFromRootAndPath(new AbsProvider(), $this->container, $blobPath);
+        }
+
+        return $detector->getLineEnding($file);
     }
 }

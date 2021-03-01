@@ -54,6 +54,7 @@ class SynapseImportAdapterTest extends BaseTestCase
         $source->expects($this->any())->method('getCsvOptions')->willReturn(new CsvOptions());
         $source->expects($this->once())->method('getManifestEntries')->willReturn(['https://url']);
         $source->expects($this->once())->method('getSasToken')->willReturn('sasToken');
+        $source->expects($this->once())->method('getLineEnding')->willReturn('lf');
 
         $conn = $this->mockConnection();
         $conn->expects($this->once())->method('exec')->with(
@@ -67,6 +68,57 @@ WITH (
     FIELDTERMINATOR=',',
     ENCODING = 'UTF8',
     ROWTERMINATOR='0x0A',
+    IDENTITY_INSERT = 'OFF'
+    
+)
+EOT
+        );
+
+        $conn->expects($this->once())->method('fetchAll')
+            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(
+                [
+                    [
+                        'count' => 10,
+                    ],
+                ]
+            );
+
+        $destination = new Storage\Synapse\Table('schema', 'table');
+        $options = new SynapseImportOptions();
+        $adapter = new SynapseImportAdapter($conn);
+        $count = $adapter->runCopyCommand(
+            $source,
+            $destination,
+            $options,
+            'stagingTable'
+        );
+
+        $this->assertEquals(10, $count);
+    }
+
+
+    public function testGetCopyCommandsWindowsLineEnding(): void
+    {
+        /** @var Storage\ABS\SourceFile|MockObject $source */
+        $source = $this->createMock(Storage\ABS\SourceFile::class);
+        $source->expects($this->any())->method('getCsvOptions')->willReturn(new CsvOptions());
+        $source->expects($this->once())->method('getManifestEntries')->willReturn(['https://url']);
+        $source->expects($this->once())->method('getSasToken')->willReturn('sasToken');
+        $source->expects($this->once())->method('getLineEnding')->willReturn('crlf');
+
+        $conn = $this->mockConnection();
+        $conn->expects($this->once())->method('exec')->with(
+            <<<EOT
+COPY INTO [schema].[stagingTable]
+FROM 'https://url'
+WITH (
+    FILE_TYPE='CSV',
+    CREDENTIAL=(IDENTITY='Shared Access Signature', SECRET='?sasToken'),
+    FIELDQUOTE='\"',
+    FIELDTERMINATOR=',',
+    ENCODING = 'UTF8',
+    
     IDENTITY_INSERT = 'OFF'
     
 )
@@ -115,7 +167,7 @@ WITH (
     FIELDQUOTE='\"',
     FIELDTERMINATOR=',',
     ENCODING = 'UTF8',
-    ROWTERMINATOR='0x0A',
+    
     IDENTITY_INSERT = 'OFF'
     ,FIRSTROW=2
 )
@@ -163,7 +215,7 @@ WITH (
     FIELDQUOTE='\"',
     FIELDTERMINATOR=',',
     ENCODING = 'UTF8',
-    ROWTERMINATOR='0x0A',
+    
     IDENTITY_INSERT = 'OFF'
     
 )
