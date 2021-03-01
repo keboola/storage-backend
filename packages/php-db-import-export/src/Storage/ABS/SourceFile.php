@@ -43,6 +43,31 @@ class SourceFile extends BaseFile implements SourceInterface
         $this->primaryKeysNames = $primaryKeysNames;
     }
 
+    private function getBlobPath(string $entryUrl): string
+    {
+        return explode(sprintf('blob.core.windows.net/%s/', $this->container), $entryUrl)[1];
+    }
+
+    /**
+     * @param BlobRestProxy $blobClient
+     * @return mixed
+     * @throws Exception
+     */
+    private function downloadAndParseManifest(BlobRestProxy $blobClient)
+    {
+        try {
+            $manifestBlob = $blobClient->getBlob($this->container, $this->filePath);
+        } catch (ServiceException $e) {
+            throw new Exception(
+                'Load error: manifest file was not found.',
+                Exception::MANDATORY_FILE_NOT_FOUND,
+                $e
+            );
+        }
+        $manifest = \GuzzleHttp\json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
+        return $manifest;
+    }
+
     /**
      * @return string[]
      */
@@ -72,16 +97,7 @@ class SourceFile extends BaseFile implements SourceInterface
             return [$this->getContainerUrl($protocol) . $this->filePath];
         }
 
-        try {
-            $manifestBlob = $blobClient->getBlob($this->container, $this->filePath);
-        } catch (ServiceException $e) {
-            throw new Exception(
-                'Load error: manifest file was not found.',
-                Exception::MANDATORY_FILE_NOT_FOUND,
-                $e
-            );
-        }
-        $manifest = \GuzzleHttp\json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
+        $manifest = $this->downloadAndParseManifest($blobClient);
         $entries = array_map(function (array $entry) {
             return $entry['url'];
         }, $manifest['entries']);
@@ -113,7 +129,7 @@ class SourceFile extends BaseFile implements SourceInterface
         return array_map(function ($entryUrl) use ($protocol, $blobClient) {
             // this is temporary solution copy into is not failing when blob not exists
             try {
-                $blobPath = explode(sprintf('blob.core.windows.net/%s/', $this->container), $entryUrl)[1];
+                $blobPath = $this->getBlobPath($entryUrl);
                 $blobClient->getBlob($this->container, $blobPath);
             } catch (ServiceException $e) {
                 throw new Exception('Load error: ' . $e->getErrorText(), Exception::MANDATORY_FILE_NOT_FOUND, $e);
