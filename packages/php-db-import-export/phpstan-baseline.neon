@@ -231,11 +231,6 @@ parameters:
 			path: src/Storage/ABS/SnowflakeImportAdapter.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\ABS\\\\SourceDirectory\\:\\:getManifestEntries\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storage/ABS/SourceDirectory.php
-
-		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\ABS\\\\SourceFile\\:\\:__construct\\(\\) has parameter \\$columnsNames with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storage/ABS/SourceFile.php

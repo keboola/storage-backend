@@ -72,4 +72,10 @@ class SourceFileTest extends BaseTestCase
         $source = $this->createABSSourceInstance('04_tw_accounts.csv.gz');
         self::assertSame('lf', $source->getLineEnding());
     }
+
+    public function testGetLineEndingEmptyManifest(): void
+    {
+        $source = $this->createABSSourceInstance('empty.manifest', [], true);
+        self::assertSame('lf', $source->getLineEnding());
+    }
 }

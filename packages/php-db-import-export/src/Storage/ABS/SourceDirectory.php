@@ -4,15 +4,39 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
+use Keboola\FileStorage\Abs\AbsProvider;
+use Keboola\FileStorage\Abs\LineEnding\LineEndingDetector;
+use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
+use Keboola\FileStorage\Path\RelativePath;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
 class SourceDirectory extends SourceFile
 {
-    public function getManifestEntries(
-        string $protocol = self::PROTOCOL_AZURE
-    ): array {
-        $blobClient = $this->getBlobClient();
+    /**
+     * @return StringLineEndingDetectorHelper::EOL_*
+     */
+    public function getLineEnding(): string
+    {
+        $client = $this->getBlobClient();
+        $detector = LineEndingDetector::createForClient($client);
 
+        $iterator = $this->getEntriesInFolder($client);
+        if ($iterator->valid() === false) {
+            return StringLineEndingDetectorHelper::EOL_UNIX;
+        }
+        $blob = $iterator->current();
+        $file = RelativePath::createFromRootAndPath(
+            new AbsProvider(),
+            $this->container,
+            $this->getBlobPath($blob->getUrl())
+        );
+
+        return $detector->getLineEnding($file);
+    }
+
+    private function getEntriesInFolder(BlobRestProxy $blobClient): BlobIterator
+    {
         $path = $this->filePath;
         if (substr($path, -1) !== '/') {
             // add trailing slash if not set to list only blobs in folder
@@ -20,10 +44,19 @@ class SourceDirectory extends SourceFile
         }
         $options = new ListBlobsOptions();
         $options->setPrefix($path);
-        $blobIterator = new BlobIterator($blobClient, $this->container, $options);
+        return new BlobIterator($blobClient, $this->container, $options);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getManifestEntries(
+        string $protocol = self::PROTOCOL_AZURE
+    ): array {
+        $blobClient = $this->getBlobClient();
 
         $entries = [];
-        foreach ($blobIterator as $blob) {
+        foreach ($this->getEntriesInFolder($blobClient) as $blob) {
             $entries[] = $blob->getUrl();
         }
 

@@ -47,7 +47,7 @@ class SourceFile extends BaseFile implements SourceInterface
         $this->primaryKeysNames = $primaryKeysNames;
     }
 
-    private function getBlobPath(string $entryUrl): string
+    protected function getBlobPath(string $entryUrl): string
     {
         return explode(sprintf('blob.core.windows.net/%s/', $this->container), $entryUrl)[1];
     }
@@ -170,6 +170,9 @@ class SourceFile extends BaseFile implements SourceInterface
             $file = RelativePath::createFromRootAndPath(new AbsProvider(), $this->container, $this->filePath);
         } else {
             $manifest = $this->downloadAndParseManifest($client);
+            if (count($manifest['entries']) === 0) {
+                return StringLineEndingDetectorHelper::EOL_UNIX;
+            }
             $blobPath = $this->getBlobPath($manifest['entries'][0]['url']);
             $file = RelativePath::createFromRootAndPath(new AbsProvider(), $this->container, $blobPath);
         }
