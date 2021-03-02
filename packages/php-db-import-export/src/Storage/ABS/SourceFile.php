@@ -6,6 +6,8 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Storage\FileNotFoundException;
+use Keboola\Db\ImportExport\Storage\ManifestNotFoundException;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Abs\ClientFactory;
@@ -62,14 +64,9 @@ class SourceFile extends BaseFile implements SourceInterface
         try {
             $manifestBlob = $blobClient->getBlob($this->container, $this->filePath);
         } catch (ServiceException $e) {
-            throw new Exception(
-                'Load error: manifest file was not found.',
-                Exception::MANDATORY_FILE_NOT_FOUND,
-                $e
-            );
+            throw new ManifestNotFoundException($e);
         }
-        $manifest = \GuzzleHttp\json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
-        return $manifest;
+        return \GuzzleHttp\json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
     }
 
     /**
@@ -95,7 +92,7 @@ class SourceFile extends BaseFile implements SourceInterface
             try {
                 $blobClient->getBlob($this->container, $this->filePath);
             } catch (ServiceException $e) {
-                throw new Exception('Load error: ' . $e->getErrorText(), Exception::MANDATORY_FILE_NOT_FOUND, $e);
+                throw FileNotFoundException::createFromServiceException($e);
             }
 
             return [$this->getContainerUrl($protocol) . $this->filePath];
@@ -177,6 +174,10 @@ class SourceFile extends BaseFile implements SourceInterface
             $file = RelativePath::createFromRootAndPath(new AbsProvider(), $this->container, $blobPath);
         }
 
-        return $detector->getLineEnding($file);
+        try {
+            return $detector->getLineEnding($file);
+        } catch (\Keboola\FileStorage\FileNotFoundException $e) {
+            throw FileNotFoundException::createFromFileNotFoundException($e);
+        }
     }
 }

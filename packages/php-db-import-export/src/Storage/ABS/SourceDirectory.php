@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
+use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Abs\LineEnding\LineEndingDetector;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
@@ -32,7 +33,11 @@ class SourceDirectory extends SourceFile
             $this->getBlobPath($blob->getUrl())
         );
 
-        return $detector->getLineEnding($file);
+        try {
+            return $detector->getLineEnding($file);
+        } catch (\Keboola\FileStorage\FileNotFoundException $e) {
+            throw FileNotFoundException::createFromFileNotFoundException($e);
+        }
     }
 
     private function getEntriesInFolder(BlobRestProxy $blobClient): BlobIterator
