@@ -57,8 +57,6 @@ class FullImportTest extends SynapseBaseTestCase
             $expectedLargeSlicedManifest[] = ['a', 'b'];
         }
 
-        $tests = [];
-
         // full imports
         yield 'large manifest' => [
             $this->createABSSourceInstance(
@@ -171,6 +169,20 @@ class FullImportTest extends SynapseBaseTestCase
         yield 'accounts' => [
             $this->createABSSourceInstance(
                 'tw_accounts.csv',
+                $accountsHeader,
+                false,
+                false,
+                ['id']
+            ),
+            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
+            $this->getSynapseImportOptions(),
+            $expectedAccounts,
+            3,
+            [self::TABLE_ACCOUNTS_3],
+        ];
+        yield 'accounts crlf' => [
+            $this->createABSSourceInstance(
+                'tw_accounts.crlf.csv',
                 $accountsHeader,
                 false,
                 false,
@@ -329,8 +341,6 @@ class FullImportTest extends SynapseBaseTestCase
             1,
             [self::TABLE_TYPES],
         ];
-
-        return $tests;
     }
 
     /**

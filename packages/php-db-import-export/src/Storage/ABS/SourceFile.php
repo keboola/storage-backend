@@ -6,8 +6,14 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Storage\FileNotFoundException;
+use Keboola\Db\ImportExport\Storage\ManifestNotFoundException;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Abs\ClientFactory;
+use Keboola\FileStorage\Abs\LineEnding\LineEndingDetector;
+use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
+use Keboola\FileStorage\Path\RelativePath;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
@@ -43,6 +49,26 @@ class SourceFile extends BaseFile implements SourceInterface
         $this->primaryKeysNames = $primaryKeysNames;
     }
 
+    protected function getBlobPath(string $entryUrl): string
+    {
+        return explode(sprintf('blob.core.windows.net/%s/', $this->container), $entryUrl)[1];
+    }
+
+    /**
+     * @param BlobRestProxy $blobClient
+     * @return mixed
+     * @throws Exception
+     */
+    private function downloadAndParseManifest(BlobRestProxy $blobClient)
+    {
+        try {
+            $manifestBlob = $blobClient->getBlob($this->container, $this->filePath);
+        } catch (ServiceException $e) {
+            throw new ManifestNotFoundException($e);
+        }
+        return \GuzzleHttp\json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
+    }
+
     /**
      * @return string[]
      */
@@ -66,22 +92,13 @@ class SourceFile extends BaseFile implements SourceInterface
             try {
                 $blobClient->getBlob($this->container, $this->filePath);
             } catch (ServiceException $e) {
-                throw new Exception('Load error: ' . $e->getErrorText(), Exception::MANDATORY_FILE_NOT_FOUND, $e);
+                throw FileNotFoundException::createFromServiceException($e);
             }
 
             return [$this->getContainerUrl($protocol) . $this->filePath];
         }
 
-        try {
-            $manifestBlob = $blobClient->getBlob($this->container, $this->filePath);
-        } catch (ServiceException $e) {
-            throw new Exception(
-                'Load error: manifest file was not found.',
-                Exception::MANDATORY_FILE_NOT_FOUND,
-                $e
-            );
-        }
-        $manifest = \GuzzleHttp\json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
+        $manifest = $this->downloadAndParseManifest($blobClient);
         $entries = array_map(function (array $entry) {
             return $entry['url'];
         }, $manifest['entries']);
@@ -113,7 +130,7 @@ class SourceFile extends BaseFile implements SourceInterface
         return array_map(function ($entryUrl) use ($protocol, $blobClient) {
             // this is temporary solution copy into is not failing when blob not exists
             try {
-                $blobPath = explode(sprintf('blob.core.windows.net/%s/', $this->container), $entryUrl)[1];
+                $blobPath = $this->getBlobPath($entryUrl);
                 $blobClient->getBlob($this->container, $blobPath);
             } catch (ServiceException $e) {
                 throw new Exception('Load error: ' . $e->getErrorText(), Exception::MANDATORY_FILE_NOT_FOUND, $e);
@@ -136,5 +153,31 @@ class SourceFile extends BaseFile implements SourceInterface
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
+    }
+
+    /**
+     * @return StringLineEndingDetectorHelper::EOL_*
+     */
+    public function getLineEnding(): string
+    {
+        $client = $this->getBlobClient();
+        $detector = LineEndingDetector::createForClient($client);
+
+        if (!$this->isSliced) {
+            $file = RelativePath::createFromRootAndPath(new AbsProvider(), $this->container, $this->filePath);
+        } else {
+            $manifest = $this->downloadAndParseManifest($client);
+            if (count($manifest['entries']) === 0) {
+                return StringLineEndingDetectorHelper::EOL_UNIX;
+            }
+            $blobPath = $this->getBlobPath($manifest['entries'][0]['url']);
+            $file = RelativePath::createFromRootAndPath(new AbsProvider(), $this->container, $blobPath);
+        }
+
+        try {
+            return $detector->getLineEnding($file);
+        } catch (\Keboola\FileStorage\FileNotFoundException $e) {
+            throw FileNotFoundException::createFromFileNotFoundException($e);
+        }
     }
 }

@@ -54,4 +54,34 @@ class SourceFileTest extends BaseTestCase
         $this->expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);
         $source->getManifestEntries();
     }
+
+    public function testGetLineEndingSliced(): void
+    {
+        $source = $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', [], true);
+        self::assertSame('lf', $source->getLineEnding());
+    }
+
+    public function testGetLineEndingSingle(): void
+    {
+        $source = $this->createABSSourceInstance('file.csv');
+        self::assertSame('lf', $source->getLineEnding());
+    }
+
+    public function testGetLineEndingSingleCrlf(): void
+    {
+        $source = $this->createABSSourceInstance('tw_accounts.crlf.csv');
+        self::assertSame('crlf', $source->getLineEnding());
+    }
+
+    public function testGetLineEndingCompressed(): void
+    {
+        $source = $this->createABSSourceInstance('04_tw_accounts.csv.gz');
+        self::assertSame('lf', $source->getLineEnding());
+    }
+
+    public function testGetLineEndingEmptyManifest(): void
+    {
+        $source = $this->createABSSourceInstance('empty.manifest', [], true);
+        self::assertSame('lf', $source->getLineEnding());
+    }
 }
