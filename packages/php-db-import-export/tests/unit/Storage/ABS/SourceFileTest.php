@@ -67,6 +67,12 @@ class SourceFileTest extends BaseTestCase
         self::assertSame('lf', $source->getLineEnding());
     }
 
+    public function testGetLineEndingSingleCrlf(): void
+    {
+        $source = $this->createABSSourceInstance('tw_accounts.crlf.csv');
+        self::assertSame('crlf', $source->getLineEnding());
+    }
+
     public function testGetLineEndingCompressed(): void
     {
         $source = $this->createABSSourceInstance('04_tw_accounts.csv.gz');
