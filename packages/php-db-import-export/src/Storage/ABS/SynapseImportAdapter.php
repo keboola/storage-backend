@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
@@ -91,6 +92,11 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
                 ));
         }
 
+        $rowTerminator = '';
+        if ($source->getLineEnding() === StringLineEndingDetectorHelper::EOL_UNIX) {
+            $rowTerminator = 'ROWTERMINATOR=\'0x0A\',';
+        }
+
         $fieldDelimiter = $this->connection->quote($source->getCsvOptions()->getDelimiter());
         $firstRow = '';
         if ($importOptions->getNumberOfIgnoredLines() !== 0) {
@@ -119,7 +125,7 @@ WITH (
     FIELDQUOTE=$enclosure,
     FIELDTERMINATOR=$fieldDelimiter,
     ENCODING = 'UTF8',
-    ROWTERMINATOR='0x0A',
+    $rowTerminator
     IDENTITY_INSERT = 'OFF'
     $firstRow
 )

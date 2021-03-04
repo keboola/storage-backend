@@ -39,4 +39,16 @@ class SourceDirectoryTest extends BaseTestCase
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
     }
+
+    public function testGetLineEnding(): void
+    {
+        $source = $this->createABSSourceInstanceFromCsv(
+            'sliced_accounts_no_manifest/',
+            new CsvOptions(),
+            [],
+            true,
+            true
+        );
+        self::assertEquals('lf', $source->getLineEnding());
+    }
 }
