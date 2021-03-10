@@ -68,7 +68,7 @@ stages:
               phplint \
               phpcs \
               phpstan \
-              loadAbs \
+              load-data \
               init-synapse
             displayName: 'Lint and prepare enviroment'
             env:

@@ -62,13 +62,17 @@
         "phpcs": "phpcs -n --ignore=*/vendor/* --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=*/vendor/*  --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor --exclude provisioning .",
-        "loadAbs": "php ./tests/loadAbs.php",
+        "loadAbs": "php ./tests/StubLoader/loader.php abs",
+        "loadS3": "php ./tests/StubLoader/loader.php s3",
         "init-synapse": "php ./tests/InitSynapse.php",
+        "load-data": [
+            "@loadAbs",
+            "@loadS3"
+        ],
         "build": [
             "@phplint",
             "@phpcs",
             "@phpstan",
-            "@loadAbs",
             "@tests-unit"
         ],
         "ci": [
