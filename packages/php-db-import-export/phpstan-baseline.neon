@@ -221,16 +221,6 @@ parameters:
 			path: src/Storage/ABS/SnowflakeExportAdapter.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\ABS\\\\SnowflakeImportAdapter\\:\\:getCommands\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storage/ABS/SnowflakeImportAdapter.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\ABS\\\\SnowflakeImportAdapter\\:\\:getCsvCopyCommandOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storage/ABS/SnowflakeImportAdapter.php
-
-		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\ABS\\\\SourceFile\\:\\:__construct\\(\\) has parameter \\$columnsNames with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storage/ABS/SourceFile.php
@@ -603,17 +593,17 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
 			count: 6
-			path: tests/AbsLoader.php
+			path: tests/StubLoader/AbsLoader.php
 
 		-
 			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
 			count: 2
-			path: tests/AbsLoader.php
+			path: tests/StubLoader/AbsLoader.php
 
 		-
-			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlob\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, string\\|false given\\.$#"
+			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlobAsync\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, string\\|false given\\.$#"
 			count: 1
-			path: tests/AbsLoader.php
+			path: tests/StubLoader/AbsLoader.php
 
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ExportTest\\:\\:getCsvFileFromBlob\\(\\) return type has no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
