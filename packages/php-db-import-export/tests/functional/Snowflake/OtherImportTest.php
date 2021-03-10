@@ -30,7 +30,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     public function testImportShouldNotFailOnColumnNameRowNumber(): void
     {
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance(
+        $source = $this->getSourceInstance(
             'column-name-row-number.csv',
             [
                 'id',
@@ -54,7 +54,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     {
         $initialFile = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance(
+        $source = $this->getSourceInstance(
             '02_tw_accounts.csv.invalid.manifest',
             $initialFile->getHeader(),
             true
@@ -64,8 +64,12 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             'accounts-3'
         );
 
-        self::expectException(Exception::class);
-        self::expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);
+        $this->expectException(Exception::class);
+        if (getenv('STORAGE_TYPE') === self::STORAGE_S3) {
+            $this->expectExceptionCode(Exception::INVALID_SOURCE_DATA);
+        } else {
+            $this->expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);
+        }
         (new Importer($this->connection))->importTable(
             $source,
             $destination,
@@ -76,7 +80,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
     public function testMoreColumnsShouldThrowException(): void
     {
         $options = $this->getSimpleImportOptions();
-        $source = $this->createABSSourceInstance(
+        $source = $this->getSourceInstance(
             'tw_accounts.csv',
             [
                 'first',
@@ -430,7 +434,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
-        $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
+        $source = $this->getSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'nullify'
@@ -472,7 +476,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             false,
             ImportOptions::SKIP_FIRST_LINE
         );
-        $source = $this->createABSSourceInstance('nullify.csv', ['id', 'name', 'price']);
+        $source = $this->getSourceInstance('nullify.csv', ['id', 'name', 'price']);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'nullify'
