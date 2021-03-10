@@ -326,7 +326,9 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
 
         return self::SNOWFLAKE_SOURCE_SCHEMA_NAME
             . '-'
-            . $buildPrefix;
+            . $buildPrefix
+            . '-'
+            . getenv('SUITE');
     }
 
     public function getDestinationSchemaName(): string
@@ -338,7 +340,9 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
 
         return self::SNOWFLAKE_DEST_SCHEMA_NAME
             . '-'
-            . $buildPrefix;
+            . $buildPrefix
+            . '-'
+            . getenv('SUITE');
     }
 
     /**
