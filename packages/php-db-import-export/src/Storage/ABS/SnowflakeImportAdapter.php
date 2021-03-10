@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
-use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\CopyCommandCsvOptionsHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
@@ -62,6 +62,9 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
         return (int) $rows[0]['count'];
     }
 
+    /**
+     * @return string[]
+     */
     private function getCommands(
         Storage\ABS\SourceFile $source,
         Storage\Snowflake\Table $destination,
@@ -93,31 +96,16 @@ FILES = (%s)',
                 $this->connection->quoteIdentifier($stagingTableName),
                 QuoteHelper::quote($source->getContainerUrl(BaseFile::PROTOCOL_AZURE)),
                 $source->getSasToken(),
-                implode(' ', $this->getCsvCopyCommandOptions($importOptions, $source->getCsvOptions())),
+                implode(
+                    ' ',
+                    CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
+                        $importOptions,
+                        $source->getCsvOptions()
+                    )
+                ),
                 implode(', ', $quotedFiles)
             );
         }
         return $commands;
-    }
-
-    private function getCsvCopyCommandOptions(
-        ImportOptionsInterface $importOptions,
-        CsvOptions $csvOptions
-    ): array {
-        $options = [
-            sprintf('FIELD_DELIMITER = %s', QuoteHelper::quote($csvOptions->getDelimiter())),
-        ];
-
-        if ($importOptions->getNumberOfIgnoredLines() > 0) {
-            $options[] = sprintf('SKIP_HEADER = %d', $importOptions->getNumberOfIgnoredLines());
-        }
-
-        if ($csvOptions->getEnclosure()) {
-            $options[] = sprintf('FIELD_OPTIONALLY_ENCLOSED_BY = %s', QuoteHelper::quote($csvOptions->getEnclosure()));
-            $options[] = 'ESCAPE_UNENCLOSED_FIELD = NONE';
-        } elseif ($csvOptions->getEscapedBy()) {
-            $options[] = sprintf('ESCAPE_UNENCLOSED_FIELD = %s', QuoteHelper::quote($csvOptions->getEscapedBy()));
-        }
-        return $options;
     }
 }
