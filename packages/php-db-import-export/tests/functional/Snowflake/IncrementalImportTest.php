@@ -33,23 +33,23 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
 
         $tests = [];
         $tests[] = [
-            $this->createABSSourceInstance('tw_accounts.csv', $accountColumns, false),
+            $this->getSourceInstance('tw_accounts.csv', $accountColumns, false),
             $this->getSimpleImportOptions(),
-            $this->createABSSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
+            $this->getSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
             $this->getSimpleIncrementalImportOptions(),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
             $expectedAccountsRows,
             4,
         ];
         $tests[] = [
-            $this->createABSSourceInstance('tw_accounts.csv', $accountColumns, false),
+            $this->getSourceInstance('tw_accounts.csv', $accountColumns, false),
             new ImportOptions(
                 [],
                 false,
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            $this->createABSSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
+            $this->getSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
             new ImportOptions(
                 [],
                 true, // incremental
@@ -61,9 +61,9 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             4,
         ];
         $tests[] = [
-            $this->createABSSourceInstance('multi-pk.csv', $multiPkColumns, false),
+            $this->getSourceInstance('multi-pk.csv', $multiPkColumns, false),
             $this->getSimpleImportOptions(),
-            $this->createABSSourceInstance('multi-pk.increment.csv', $multiPkColumns, false),
+            $this->getSourceInstance('multi-pk.increment.csv', $multiPkColumns, false),
             $this->getSimpleIncrementalImportOptions(),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'multi-pk'),
             $expectedMultiPkRows,

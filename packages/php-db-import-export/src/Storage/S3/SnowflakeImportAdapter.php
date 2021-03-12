@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Storage\ABS;
+namespace Keboola\Db\ImportExport\Storage\S3;
 
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\CopyCommandCsvOptionsHelper;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SqlCommandBuilder;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
@@ -29,17 +29,18 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
-        if (!$source instanceof Storage\ABS\SourceFile) {
+        if (!$source instanceof Storage\S3\SourceFile) {
             return false;
         }
         if (!$destination instanceof Storage\Snowflake\Table) {
             return false;
         }
+
         return true;
     }
 
     /**
-     * @param Storage\ABS\SourceFile $source
+     * @param Storage\S3\SourceFile $source
      * @param Storage\Snowflake\Table $destination
      */
     public function runCopyCommand(
@@ -66,7 +67,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
      * @return string[]
      */
     private function getCommands(
-        Storage\ABS\SourceFile $source,
+        Storage\S3\SourceFile $source,
         Storage\Snowflake\Table $destination,
         ImportOptionsInterface $importOptions,
         string $stagingTableName
@@ -77,32 +78,29 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             $quotedFiles = array_map(
                 static function ($entry) use ($source) {
                     return QuoteHelper::quote(
-                        strtr(
-                            $entry,
-                            [$source->getContainerUrl(BaseFile::PROTOCOL_AZURE) => '']
-                        )
+                        strtr($entry, [$source->getS3Prefix() . '/' => ''])
                     );
                 },
                 $entries
             );
 
             $commands[] = sprintf(
-                'COPY INTO %s.%s 
-FROM %s
-CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
+                'COPY INTO %s.%s
+FROM %s 
+CREDENTIALS = (AWS_KEY_ID = %s AWS_SECRET_KEY = %s)
+REGION = %s
 FILE_FORMAT = (TYPE=CSV %s)
 FILES = (%s)',
                 $this->connection->quoteIdentifier($destination->getSchema()),
                 $this->connection->quoteIdentifier($stagingTableName),
-                QuoteHelper::quote($source->getContainerUrl(BaseFile::PROTOCOL_AZURE)),
-                $source->getSasToken(),
-                implode(
-                    ' ',
-                    CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
-                        $importOptions,
-                        $source->getCsvOptions()
-                    )
-                ),
+                QuoteHelper::quote($source->getS3Prefix()),
+                QuoteHelper::quote($source->getKey()),
+                QuoteHelper::quote($source->getSecret()),
+                QuoteHelper::quote($source->getRegion()),
+                implode(' ', CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
+                    $importOptions,
+                    $source->getCsvOptions()
+                )),
                 implode(', ', $quotedFiles)
             );
         }

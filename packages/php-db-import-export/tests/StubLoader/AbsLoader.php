@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport;
+namespace Tests\Keboola\Db\ImportExport\StubLoader;
 
 use Keboola\FileStorage\Abs\ClientFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
@@ -12,10 +12,8 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use function \GuzzleHttp\json_encode as guzzle_json_encode;
 
-class AbsLoader
+class AbsLoader extends BaseStubLoader
 {
-    private const BASE_DIR = __DIR__ . '/data/';
-
     /**
      * @var string
      */
@@ -133,10 +131,10 @@ class AbsLoader
         echo "Creating blobs ...\n";
         //UPLOAD ALL FILES TO ABS
         $files = (new Finder())->in(self::BASE_DIR)->files();
-
+        $promises = [];
         /** @var \Symfony\Component\Finder\SplFileInfo $file */
         foreach ($files as $file) {
-            $this->getBlobService()->createBlockBlob(
+            $promises[] = $this->getBlobService()->createBlockBlobAsync(
                 $this->containerName,
                 strtr($file->getPathname(), [self::BASE_DIR => '']),
                 $file->getContents()
@@ -144,7 +142,7 @@ class AbsLoader
         }
 
         // invalid manifest
-        $this->getBlobService()->createBlockBlob(
+        $promises[] = $this->getBlobService()->createBlockBlobAsync(
             $this->containerName,
             '02_tw_accounts.csv.invalid.manifest',
             json_encode([
@@ -162,18 +160,11 @@ class AbsLoader
             ])
         );
 
-        echo "ABS load complete \n";
-    }
-
-    private function generateLargeSliced(): void
-    {
-        for ($i = 0; $i <= 1500; $i++) {
-            $sliceName = sprintf('sliced.csv_%d', $i);
-            file_put_contents(
-                self::BASE_DIR . 'sliced/2cols-large/' . $sliceName,
-                "\"a\",\"b\"\n"
-            );
+        foreach ($promises as $promise) {
+            $promise->wait();
         }
+
+        echo "ABS load complete \n";
     }
 
     private function generateManifests(): void

@@ -68,13 +68,17 @@ stages:
               phplint \
               phpcs \
               phpstan \
-              loadAbs \
+              load-data \
               init-synapse
             displayName: 'Lint and prepare enviroment'
             env:
               ABS_ACCOUNT_KEY: $(ABS_ACCOUNT_KEY)
               ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
               ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
+              AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+              AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+              AWS_S3_BUCKET: $(AWS_S3_BUCKET)
+              AWS_REGION: $(AWS_REGION)
               SNOWFLAKE_DATABASE: $(SNOWFLAKE_DATABASE)
               SNOWFLAKE_HOST: $(SNOWFLAKE_HOST)
               SNOWFLAKE_PASSWORD: $(SNOWFLAKE_PASSWORD)
@@ -93,6 +97,10 @@ stages:
               ABS_ACCOUNT_KEY: $(ABS_ACCOUNT_KEY)
               ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
               ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
+              AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+              AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+              AWS_S3_BUCKET: $(AWS_S3_BUCKET)
+              AWS_REGION: $(AWS_REGION)
               SNOWFLAKE_DATABASE: $(SNOWFLAKE_DATABASE)
               SNOWFLAKE_HOST: $(SNOWFLAKE_HOST)
               SNOWFLAKE_PASSWORD: $(SNOWFLAKE_PASSWORD)
@@ -107,7 +115,9 @@ stages:
           - script: |
               docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
-              tests-snowflake \
+              tests-storage \
+              tests-snowflake-abs \
+              tests-snowflake-s3 \
               tests-synapse \
               tests-synapse-mi \
               tests-synapse-columnstoretemp \
@@ -122,6 +132,10 @@ stages:
               ABS_ACCOUNT_KEY: $(ABS_ACCOUNT_KEY)
               ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
               ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
+              AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+              AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+              AWS_S3_BUCKET: $(AWS_S3_BUCKET)
+              AWS_REGION: $(AWS_REGION)
               SNOWFLAKE_DATABASE: $(SNOWFLAKE_DATABASE)
               SNOWFLAKE_HOST: $(SNOWFLAKE_HOST)
               SNOWFLAKE_PASSWORD: $(SNOWFLAKE_PASSWORD)
