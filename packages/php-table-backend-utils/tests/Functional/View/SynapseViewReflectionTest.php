@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\View;
 
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
+use Keboola\TableBackendUtils\View\InvalidViewDefinitionException;
 use Keboola\TableBackendUtils\View\SynapseViewReflection;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
@@ -78,5 +80,88 @@ class SynapseViewReflectionTest extends SynapseBaseCase
                 $parentName
             )
         );
+    }
+
+    public function testGetViewDefinition(): void
+    {
+        $this->initTable();
+        $this->initView(self::VIEW_GENERIC, self::TABLE_GENERIC);
+        $viewRef = new SynapseViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        self::assertEquals(
+        // phpcs:disable
+            <<< EOT
+CREATE VIEW [utils-test_ref-table-schema].[utils-test_ref-view]\r\nAS SELECT * FROM [utils-test_ref-table-schema].[utils-test_ref];
+EOT
+            // phpcs:enable
+            ,
+            $viewRef->getViewDefinition()
+        );
+    }
+
+    public function testGetViewDefinitionCannotBeObtained(): void
+    {
+        $this->initHugeView();
+        $viewRef = new SynapseViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        $this->expectException(InvalidViewDefinitionException::class);
+        // phpcs:ignore
+        $this->expectExceptionMessage('Definition of view "utils-test_ref-view" in schema "utils-test_ref-table-schema"cannot be obtained from Synapse or it\'s invalid.');
+        $viewRef->getViewDefinition();
+    }
+
+    private function initHugeView(): void
+    {
+        $cols = [];
+        $colsNames = [];
+        for ($i = 0; $i < 150; $i++) {
+            $colsName = sprintf('my_most_favourite_long_int_col%d', $i);
+            $colsNames[] = $colsName;
+            $cols[] = sprintf(
+                '[%s] INT NOT NULL DEFAULT 0',
+                $colsName
+            );
+        }
+
+        $this->connection->exec(sprintf(
+            'CREATE TABLE [%s].[%s] (%s);',
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC,
+            implode(',', $cols)
+        ));
+        $this->connection->exec(sprintf(
+            'CREATE VIEW [%s].[%s] AS SELECT %s FROM [%s].[%s];',
+            self::TEST_SCHEMA,
+            self::VIEW_GENERIC,
+            implode(',', $colsNames),
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC
+        ));
+    }
+
+    public function testRefreshView(): void
+    {
+        $this->initTable();
+        $this->initView(self::VIEW_GENERIC, self::TABLE_GENERIC);
+        // add new column
+        $this->connection->exec(sprintf(
+            'ALTER TABLE [%s].[%s] ADD [xxx] varchar NULL;',
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC
+        ));
+        $tableRef = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        self::assertCount(4, $tableRef->getColumnsNames());
+        $viewRef = new SynapseViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        $viewRef->refreshView();
+        $tableRef = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        self::assertCount(5, $tableRef->getColumnsNames());
+    }
+
+    public function testRefreshViewViewDefinitionCannotBeObtained(): void
+    {
+        $this->initHugeView();
+        $viewRef = new SynapseViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        $this->expectException(InvalidViewDefinitionException::class);
+        // phpcs:ignore
+        $this->expectExceptionMessage('Definition of view "utils-test_ref-view" in schema "utils-test_ref-table-schema"cannot be obtained from Synapse or it\'s invalid.');
+        $viewRef->refreshView();
     }
 }
