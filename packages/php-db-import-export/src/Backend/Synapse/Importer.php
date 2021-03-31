@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
@@ -97,6 +99,18 @@ class Importer implements ImporterInterface
                 );
             }
             $this->importState->setImportedColumns($source->getColumnsNames());
+        } catch (DBALException $e) {
+            if (strpos($e->getMessage(), '[SQL Server]Bulk load') !== false) {
+                // could be
+                // - Bulk load data conversion error (when cell has more than 4000chars)
+                // - Bulk load failed due to (parsing err in CSV)
+                // - possibly something else
+                throw new Exception(
+                    $e->getMessage(),
+                    Exception::UNKNOWN_ERROR
+                );
+            }
+            throw $e;
         } finally {
             // drop staging table
             $this->runQuery(
