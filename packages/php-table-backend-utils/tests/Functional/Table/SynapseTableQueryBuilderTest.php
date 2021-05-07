@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\ReflectionException;
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
@@ -138,6 +139,186 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $ref = $this->getSynapseTableReflection();
         $this->assertNotNull($ref->getObjectId());
         $this->assertEqualsCanonicalizing(['pk1', 'col1', 'col2', '_timestamp'], $ref->getColumnsNames());
+    }
+
+    /**
+     * @return \Generator<string, array<int, string|bool>>
+     */
+    public function createTableTestSqlProvider(): \Generator
+    {
+        $schema = self::TEST_SCHEMA;
+        $tableName = 'createTableTest';
+
+        yield 'multiple columns' => [
+            <<<EOT
+CREATE TABLE [$schema].[$tableName] (
+          [int_def] INT NOT NULL DEFAULT 0,
+          [var_def] nvarchar(1000) NOT NULL DEFAULT (''),
+          [num_def] NUMERIC(10,5) DEFAULT ((1.00)),
+          [_time] datetime2 NOT NULL DEFAULT '2020-02-01 00:00:00'
+)  
+WITH
+    (
+      CLUSTERED COLUMNSTORE INDEX,
+      DISTRIBUTION = ROUND_ROBIN
+    ) 
+EOT
+            ,
+        ];
+
+        yield 'hash distribution' => [
+            <<<EOT
+CREATE TABLE [$schema].[$tableName] (
+    id int NOT NULL
+)
+WITH
+    (
+      CLUSTERED COLUMNSTORE INDEX,
+      DISTRIBUTION = HASH(id)
+    )
+EOT
+            ,
+        ];
+
+        yield 'single primary key' => [
+            <<<EOT
+CREATE TABLE [$schema].[$tableName] (
+    id int NOT NULL,
+    PRIMARY KEY NONCLUSTERED(id) NOT ENFORCED
+)
+WITH
+    (
+      CLUSTERED COLUMNSTORE INDEX,
+      DISTRIBUTION = HASH(id)
+    )
+EOT
+            ,
+        ];
+
+        yield 'multiple primary keys' => [
+            <<<EOT
+CREATE TABLE [$schema].[$tableName] (
+    id int NOT NULL,
+    id2 int NOT NULL,
+    PRIMARY KEY NONCLUSTERED(id, id2) NOT ENFORCED
+)
+WITH
+    (
+      CLUSTERED COLUMNSTORE INDEX,
+      DISTRIBUTION = HASH(id)
+    )
+EOT
+            ,
+        ];
+
+        yield 'multiple primary keys, don\'t create PK' => [
+            <<<EOT
+CREATE TABLE [$schema].[$tableName] (
+    id int NOT NULL,
+    id2 int NOT NULL,
+    PRIMARY KEY NONCLUSTERED(id, id2) NOT ENFORCED
+)
+WITH
+    (
+      CLUSTERED COLUMNSTORE INDEX,
+      DISTRIBUTION = HASH(id)
+    )
+EOT
+            ,
+            false,
+        ];
+    }
+
+    /**
+     * @dataProvider createTableTestSqlProvider
+     */
+    public function testGetCreateTableCommandFromDefinition(string $sql, bool $definePrimaryKeys = true): void
+    {
+        $this->createTestSchema();
+
+        $schema = self::TEST_SCHEMA;
+        $tableName = 'createTableTest';
+        $this->connection->exec($sql);
+        // get table definition
+        $ref = new SynapseTableReflection($this->connection, $schema, $tableName);
+        $definitionSource = $ref->getTableDefinition();
+        $qb = new SynapseTableQueryBuilder($this->connection);
+        // drop source table
+        $sql = $qb->getDropTableCommand($schema, $tableName);
+        $this->connection->exec($sql);
+        // create table from definition
+        $sql = $qb->getCreateTableCommandFromDefinition(
+            $definitionSource,
+            $definePrimaryKeys
+        );
+        $this->connection->exec($sql);
+
+        $ref = new SynapseTableReflection($this->connection, $schema, $tableName);
+        $definitionCreated = $ref->getTableDefinition();
+
+        $this->assertDefinitionsSame(
+            $definitionSource,
+            $definitionCreated,
+            $definePrimaryKeys
+        );
+    }
+
+    private function assertDefinitionsSame(
+        SynapseTableDefinition $expectedDefinition,
+        SynapseTableDefinition $actualDefinition,
+        bool $expectPrimaryKeys = true
+    ): void {
+        if ($expectPrimaryKeys === true) {
+            self::assertCount(
+                count($expectedDefinition->getPrimaryKeysNames()),
+                $actualDefinition->getPrimaryKeysNames()
+            );
+            self::assertSame(
+                $expectedDefinition->getPrimaryKeysNames(),
+                $actualDefinition->getPrimaryKeysNames()
+            );
+        } else {
+            self::assertCount(0, $actualDefinition->getPrimaryKeysNames());
+        }
+        self::assertCount(
+            count($expectedDefinition->getColumnsNames()),
+            $actualDefinition->getColumnsNames()
+        );
+        self::assertSame($expectedDefinition->getColumnsNames(), $actualDefinition->getColumnsNames());
+        self::assertSame($expectedDefinition->isTemporary(), $actualDefinition->isTemporary());
+        self::assertSame(
+            $expectedDefinition->getTableDistribution()->getDistributionColumnsNames(),
+            $actualDefinition->getTableDistribution()->getDistributionColumnsNames()
+        );
+        self::assertSame(
+            $expectedDefinition->getTableDistribution()->getDistributionName(),
+            $actualDefinition->getTableDistribution()->getDistributionName()
+        );
+        self::assertSame(
+            $expectedDefinition->getTableIndex()->getIndexType(),
+            $actualDefinition->getTableIndex()->getIndexType()
+        );
+        self::assertSame(
+            $expectedDefinition->getTableIndex()->getIndexedColumnsNames(),
+            $actualDefinition->getTableIndex()->getIndexedColumnsNames()
+        );
+        self::assertCount(
+            count($expectedDefinition->getColumnsDefinitions()),
+            $actualDefinition->getColumnsDefinitions()
+        );
+        /** @var SynapseColumn[] $actualColumns */
+        $actualColumns = iterator_to_array($actualDefinition->getColumnsDefinitions());
+        /**
+         * @var int $key
+         * @var SynapseColumn $expectedColumn
+         */
+        foreach (iterator_to_array($expectedDefinition->getColumnsDefinitions()) as $key => $expectedColumn) {
+            self::assertSame($expectedColumn->getColumnName(), $actualColumns[$key]->getColumnName());
+            self::assertSame(
+                $expectedColumn->getColumnDefinition()->getSQLDefinition(),
+                $actualColumns[$key]->getColumnDefinition()->getSQLDefinition()
+            );
+        }
     }
 
     public function testGetDropCommand(): void

@@ -299,6 +299,9 @@ EOT
         }, $result);
     }
 
+    /**
+     * @return SynapseTableDefinition
+     */
     public function getTableDefinition(): TableDefinitionInterface
     {
         return new SynapseTableDefinition(
