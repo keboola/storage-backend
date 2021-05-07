@@ -33,4 +33,6 @@ interface TableReflectionInterface
      * }[]
      */
     public function getDependentViews(): array;
+
+    public function getTableDefinition(): TableDefinitionInterface;
 }

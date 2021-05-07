@@ -299,6 +299,25 @@ EOT
         }, $result);
     }
 
+    public function getTableDefinition(): TableDefinitionInterface
+    {
+        return new SynapseTableDefinition(
+            $this->schemaName,
+            $this->tableName,
+            $this->isTemporary(),
+            $this->getColumnsDefinitions(),
+            $this->getPrimaryKeysNames(),
+            new TableDistributionDefinition(
+                $this->getTableDistribution(),
+                $this->getTableDistributionColumnsNames()
+            ),
+            new TableIndexDefinition(
+                $this->getTableIndexType(),
+                []
+            )
+        );
+    }
+
     /**
      * @return TableIndexDefinition::TABLE_INDEX_TYPE_*
      */
