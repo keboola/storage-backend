@@ -297,4 +297,12 @@ EOT
             return $item['name'];
         }, $result);
     }
+
+    /**
+     * @return TableIndexDefinition::TABLE_INDEX_TYPE_*
+     */
+    public function getTableIndexType(): string
+    {
+        return TableIndexDefinition::TABLE_INDEX_TYPE_CCI;
+    }
 }
