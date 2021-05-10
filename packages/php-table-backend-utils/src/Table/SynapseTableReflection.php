@@ -319,6 +319,7 @@ EOT
     }
 
     /**
+     * @todo find the way how to get right index from synapse
      * @return TableIndexDefinition::TABLE_INDEX_TYPE_*
      */
     public function getTableIndexType(): string

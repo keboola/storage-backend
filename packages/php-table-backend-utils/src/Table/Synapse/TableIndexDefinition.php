@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Table\Synapse;
 
-/**
- * @todo this class is missing validation for CLUSTERED INDEX now, but this is not yet used
- */
 final class TableIndexDefinition
 {
     public const TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX = 'CLUSTERED COLUMNSTORE INDEX';

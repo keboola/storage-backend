@@ -24,6 +24,7 @@ final class Assert
      */
     public static function assertValidClusteredIndex(string $indexName, array $indexedColumnsNames): void
     {
+        // @todo: properly validate clustered index
     }
 
     /**
