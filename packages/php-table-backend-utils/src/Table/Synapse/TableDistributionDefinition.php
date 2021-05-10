@@ -10,6 +10,12 @@ final class TableDistributionDefinition
     public const TABLE_DISTRIBUTION_REPLICATE = 'REPLICATE';
     public const TABLE_DISTRIBUTION_ROUND_ROBIN = 'ROUND_ROBIN';
 
+    public const AVAILABLE_TABLE_DISTRIBUTIONS = [
+        self::TABLE_DISTRIBUTION_HASH,
+        self::TABLE_DISTRIBUTION_REPLICATE,
+        self::TABLE_DISTRIBUTION_ROUND_ROBIN,
+    ];
+
     /** @var string */
     private $distributionName;
 

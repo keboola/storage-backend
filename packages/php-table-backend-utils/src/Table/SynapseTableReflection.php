@@ -323,6 +323,6 @@ EOT
      */
     public function getTableIndexType(): string
     {
-        return TableIndexDefinition::TABLE_INDEX_TYPE_CCI;
+        return TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX;
     }
 }

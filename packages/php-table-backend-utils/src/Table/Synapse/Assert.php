@@ -10,14 +10,11 @@ final class Assert
 {
     public static function assertTableIndex(string $indexName): void
     {
-        if (!in_array($indexName, [
-            TableIndexDefinition::TABLE_INDEX_TYPE_CCI,
-            TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            TableIndexDefinition::TABLE_INDEX_TYPE_CI,
-        ], true)) {
+        if (!in_array($indexName, TableIndexDefinition::AVAILABLE_TABLE_INDEXES, true)) {
             throw new LogicException(sprintf(
-                'Unknown table index type: "%s" specified.',
-                $indexName
+                'Unknown table index type: "%s" specified. Available types are %s.',
+                $indexName,
+                implode('|', TableIndexDefinition::AVAILABLE_TABLE_INDEXES)
             ));
         }
     }
@@ -46,14 +43,11 @@ final class Assert
 
     public static function assertTableDistribution(string $tableDistributionName): void
     {
-        if (!in_array($tableDistributionName, [
-            TableDistributionDefinition::TABLE_DISTRIBUTION_HASH,
-            TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE,
-        ], true)) {
+        if (!in_array($tableDistributionName, TableDistributionDefinition::AVAILABLE_TABLE_DISTRIBUTIONS, true)) {
             throw new LogicException(sprintf(
-                'Unknown table distribution: "%s" specified.',
-                $tableDistributionName
+                'Unknown table distribution: "%s" specified. Available distributions are %s.',
+                $tableDistributionName,
+                implode('|', TableDistributionDefinition::AVAILABLE_TABLE_DISTRIBUTIONS)
             ));
         }
     }

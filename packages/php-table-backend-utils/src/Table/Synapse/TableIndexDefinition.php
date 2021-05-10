@@ -9,9 +9,15 @@ namespace Keboola\TableBackendUtils\Table\Synapse;
  */
 final class TableIndexDefinition
 {
-    public const TABLE_INDEX_TYPE_CCI = 'CLUSTERED COLUMNSTORE INDEX';
+    public const TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX = 'CLUSTERED COLUMNSTORE INDEX';
     public const TABLE_INDEX_TYPE_HEAP = 'HEAP';
-    public const TABLE_INDEX_TYPE_CI = 'CLUSTERED INDEX';
+    public const TABLE_INDEX_TYPE_CLUSTERED_INDEX = 'CLUSTERED INDEX';
+
+    public const AVAILABLE_TABLE_INDEXES = [
+        self::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX,
+        self::TABLE_INDEX_TYPE_HEAP,
+        self::TABLE_INDEX_TYPE_CLUSTERED_INDEX,
+    ];
 
     /** @var self::TABLE_INDEX_TYPE_* */
     private $indexType;

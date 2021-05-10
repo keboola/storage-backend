@@ -29,7 +29,7 @@ class SynapseTableDefinitionTest extends TestCase
             $columns,
             ['pk1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CCI)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
         );
         self::assertSame('schema', $definition->getSchemaName());
         self::assertSame('tableName', $definition->getTableName());

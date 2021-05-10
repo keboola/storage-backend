@@ -32,7 +32,8 @@ class AssertTest extends TestCase
     public function testAssertInvalidTableIndex(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Unknown table index type: "Invalid index" specified.');
+        // phpcs:ignore
+        $this->expectExceptionMessage('Unknown table index type: "Invalid index" specified. Available types are CLUSTERED COLUMNSTORE INDEX|HEAP|CLUSTERED INDEX.');
         Assert::assertTableIndex('Invalid index');
     }
 
@@ -58,7 +59,8 @@ class AssertTest extends TestCase
     public function testAssertInvalidTableDistribution(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Unknown table distribution: "Invalid index" specified.');
+        // phpcs:ignore
+        $this->expectExceptionMessage('Unknown table distribution: "Invalid index" specified. Available distributions are HASH|REPLICATE|ROUND_ROBIN.');
         Assert::assertTableDistribution('Invalid index');
     }
 
