@@ -242,7 +242,7 @@ EOT
         // get table definition
         $ref = new SynapseTableReflection($this->connection, $schema, $tableName);
         $definitionSource = $ref->getTableDefinition();
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         // drop source table
         $sql = $qb->getDropTableCommand($schema, $tableName);
         $this->connection->exec($sql);

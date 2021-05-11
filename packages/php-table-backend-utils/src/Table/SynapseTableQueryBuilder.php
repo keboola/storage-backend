@@ -101,7 +101,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         foreach ($definition->getColumnsDefinitions() as $column) {
             $columnsSql[] = sprintf(
                 '%s %s',
-                $this->platform->quoteSingleIdentifier($column->getColumnName()),
+                SynapseQuote::quoteSingleIdentifier($column->getColumnName()),
                 $column->getColumnDefinition()->getSQLDefinition()
             );
         }
@@ -109,7 +109,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         $primaryKeySql = '';
         if ($definePrimaryKeys === true && count($definition->getPrimaryKeysNames()) !== 0) {
             $quotedPrimaryKeys = array_map(function ($columnName) {
-                return $this->platform->quoteSingleIdentifier($columnName);
+                return SynapseQuote::quoteSingleIdentifier($columnName);
             }, $definition->getPrimaryKeysNames());
             $primaryKeySql = sprintf(
                 ', PRIMARY KEY NONCLUSTERED(%s) NOT ENFORCED',
@@ -118,7 +118,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         }
         if ($definition->getTableDistribution()->isHashDistribution()) {
             $quotedColumns = array_map(function ($columnName) {
-                return $this->platform->quoteSingleIdentifier($columnName);
+                return SynapseQuote::quoteSingleIdentifier($columnName);
             }, $definition->getTableDistribution()->getDistributionColumnsNames());
             $distributionSql = sprintf(
                 'DISTRIBUTION = %s(%s)',
@@ -133,7 +133,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         }
         if ($definition->getTableIndex()->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
             $quotedColumns = array_map(function ($columnName) {
-                return $this->platform->quoteSingleIdentifier($columnName);
+                return SynapseQuote::quoteSingleIdentifier($columnName);
             }, $definition->getTableIndex()->getIndexedColumnsNames());
             $indexSql = sprintf(
                 '%s(%s)',
@@ -146,8 +146,8 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 
         return sprintf(
             'CREATE TABLE %s.%s (%s%s) WITH (%s,%s)',
-            $this->platform->quoteSingleIdentifier($definition->getSchemaName()),
-            $this->platform->quoteSingleIdentifier($definition->getTableName()),
+            SynapseQuote::quoteSingleIdentifier($definition->getSchemaName()),
+            SynapseQuote::quoteSingleIdentifier($definition->getTableName()),
             implode(', ', $columnsSql),
             $primaryKeySql,
             $distributionSql,
