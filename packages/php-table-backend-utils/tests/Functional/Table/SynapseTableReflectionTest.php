@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Table;
 use Generator;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
@@ -19,7 +20,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'ref-table-schema';
     // tables
-    public const TABLE_GENERIC = self::TESTS_PREFIX . 'ref';
+    public const TABLE_GENERIC = self::TESTS_PREFIX . 're[]f';
     //views
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'ref-view';
 
@@ -54,14 +55,14 @@ class SynapseTableReflectionTest extends SynapseBaseCase
     ): void {
         $this->connection->exec(
             sprintf(
-                'CREATE TABLE [%s].[%s] (
+                'CREATE TABLE %s.%s (
           [int_def] INT NOT NULL DEFAULT 0,
           [var_def] nvarchar(1000) NOT NULL DEFAULT (\'\'),
           [num_def] NUMERIC(10,5) DEFAULT ((1.00)),
           [_time] datetime2 NOT NULL DEFAULT \'2020-02-01 00:00:00\'
         );',
-                $schema,
-                $table
+                SynapseQuote::quoteSingleIdentifier($schema),
+                SynapseQuote::quoteSingleIdentifier($table)
             )
         );
     }
@@ -103,9 +104,9 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         $this->assertEmpty($ref->getPrimaryKeysNames());
         $this->connection->exec(sprintf(
-            'ALTER TABLE [%s].[%s] ADD CONSTRAINT [PK_1] PRIMARY KEY NONCLUSTERED ([_time], [int_def]) NOT ENFORCED',
-            self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            'ALTER TABLE %s.%s ADD CONSTRAINT [PK_1] PRIMARY KEY NONCLUSTERED ([_time], [int_def]) NOT ENFORCED',
+            SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
         $this->assertSame(['_time', 'int_def'], $ref->getPrimaryKeysNames());
     }
@@ -116,14 +117,14 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         $this->assertEquals(0, $ref->getRowsCount());
         $this->connection->exec(sprintf(
-            'INSERT INTO [%s].[%s] VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
-            self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
+            SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
         $this->connection->exec(sprintf(
-            'INSERT INTO [%s].[%s] VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
-            self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
+            SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
         $this->assertEquals(2, $ref->getRowsCount());
     }
@@ -615,14 +616,14 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
 
         $this->connection->exec(sprintf(
-            'INSERT INTO [%s].[%s] VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
-            self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
+            SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
         $this->connection->exec(sprintf(
-            'INSERT INTO [%s].[%s] VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
-            self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
+            SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
 
         $stats2 = $ref->getTableStats();
@@ -659,13 +660,13 @@ class SynapseTableReflectionTest extends SynapseBaseCase
     {
         $this->connection->exec(
             sprintf(
-                'CREATE TABLE [%s].[%s] (
+                'CREATE TABLE %s.%s (
           [int_def] INT
         )
         WITH(%s)
         ;',
-                self::TEST_SCHEMA,
-                self::TABLE_GENERIC,
+                SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
                 $with
             )
         );
@@ -703,15 +704,15 @@ class SynapseTableReflectionTest extends SynapseBaseCase
     {
         $this->connection->exec(
             sprintf(
-                'CREATE TABLE [%s].[%s] (
+                'CREATE TABLE %s.%s (
           [int_def] INT,
           [other_int] INT,
           [other_varchar] varchar
         )
         WITH(%s)
         ;',
-                self::TEST_SCHEMA,
-                self::TABLE_GENERIC,
+                SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
                 $with
             )
         );
@@ -719,17 +720,15 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         self::assertEquals($expectedDistributionKeys, $ref->getTableDistributionColumnsNames());
     }
 
-
-
     private function initView(string $viewName, string $parentName): void
     {
         $this->connection->exec(
             sprintf(
-                'CREATE VIEW [%s].[%s] AS SELECT * FROM [%s].[%s];',
-                self::TEST_SCHEMA,
-                $viewName,
-                self::TEST_SCHEMA,
-                $parentName
+                'CREATE VIEW %s.%s AS SELECT * FROM %s.%s;',
+                SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SynapseQuote::quoteSingleIdentifier($viewName),
+                SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SynapseQuote::quoteSingleIdentifier($parentName)
             )
         );
     }
