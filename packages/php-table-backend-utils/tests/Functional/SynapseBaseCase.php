@@ -63,8 +63,8 @@ class SynapseBaseCase extends TestCase
         parent::setUp();
         $this->connection = $this->getSynapseConnection();
         $this->platform = $this->connection->getDatabasePlatform();
-        $this->schemaQb = new SynapseSchemaQueryBuilder($this->connection);
-        $this->tableQb = new SynapseTableQueryBuilder($this->connection);
+        $this->schemaQb = new SynapseSchemaQueryBuilder();
+        $this->tableQb = new SynapseTableQueryBuilder();
     }
 
     private function getSynapseConnection(): Connection

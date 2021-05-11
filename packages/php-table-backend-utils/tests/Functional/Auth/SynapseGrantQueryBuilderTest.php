@@ -358,7 +358,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
             ->grantOnSubject($grantSubject)
             ->setAllowGrantOption($allowGrantOption);
 
-        $qb = new SynapseGrantQueryBuilder($this->connection);
+        $qb = new SynapseGrantQueryBuilder();
         $sql = $qb->getGrantSql($options);
         $this->connection->exec($sql);
         $this->assertSame(sprintf($expectedGrant, $this->currentLogin, $this->currentLogin), $sql);

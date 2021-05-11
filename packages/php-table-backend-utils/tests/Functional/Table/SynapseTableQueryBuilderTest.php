@@ -35,7 +35,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
     public function testGetCreateTempTableCommand(): void
     {
         $this->createTestSchema();
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#' . self::TEST_TABLE,
@@ -69,7 +69,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             SynapseColumn::createGenericColumn('col1'),
             SynapseColumn::createGenericColumn('col2'),
         ];
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnCollection($cols));
         $this->assertEquals(
         // phpcs:ignore
@@ -100,7 +100,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             SynapseColumn::createGenericColumn('col2'),
             new SynapseColumn('_timestamp', new Synapse(Synapse::TYPE_DATETIME2)),
         ];
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getCreateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, new ColumnCollection($cols));
         $this->assertEquals(
         // phpcs:ignore
@@ -122,7 +122,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             SynapseColumn::createGenericColumn('col2'),
             new SynapseColumn('_timestamp', new Synapse(Synapse::TYPE_DATETIME2)),
         ];
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             self::TEST_TABLE,
@@ -144,7 +144,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
     {
         $this->createTestSchema();
         $this->createTestTable();
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getDropTableCommand(self::TEST_SCHEMA, self::TEST_TABLE);
 
         $this->assertEquals(
@@ -185,7 +185,7 @@ EOT
         $renameTo = 'newTable';
         $this->createTestSchema();
         $this->createTestTableWithColumns();
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getRenameTableCommand(self::TEST_SCHEMA, self::TEST_TABLE, $renameTo);
 
         $this->assertEquals(
@@ -241,7 +241,7 @@ EOT
         $this->assertEquals(3, $ref->getRowsCount());
         $this->assertEquals(3, $ref2->getRowsCount());
 
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(
             'TRUNCATE TABLE [utils-test_qb-schema].[#stagingTable]',
@@ -282,7 +282,7 @@ EOT
         $this->assertEquals(3, $ref->getRowsCount());
         $this->assertEquals(3, $ref2->getRowsCount());
 
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE);
         $this->assertEquals(
             'TRUNCATE TABLE [utils-test_qb-schema].[utils-test_test]',

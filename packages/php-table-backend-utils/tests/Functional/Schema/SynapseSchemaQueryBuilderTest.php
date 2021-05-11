@@ -24,7 +24,7 @@ class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
 
     public function testGetCreateSchemaCommand(): void
     {
-        $qb = new SynapseSchemaQueryBuilder($this->connection);
+        $qb = new SynapseSchemaQueryBuilder();
         $schemas = $this->getSchemaFromDatabase();
         $this->assertEmpty($schemas);
 
@@ -55,7 +55,7 @@ class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
 
     public function testGetDropSchemaCommand(): void
     {
-        $qb = new SynapseSchemaQueryBuilder($this->connection);
+        $qb = new SynapseSchemaQueryBuilder();
 
         $this->connection->exec($qb->getCreateSchemaCommand(self::TEST_SCHEMA));
         $this->connection->exec($qb->getCreateSchemaCommand(self::TEST_SCHEMA_2));

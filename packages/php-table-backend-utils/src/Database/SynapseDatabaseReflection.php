@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Database;
 
 use Doctrine\DBAL\Connection;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseDatabaseReflection implements DatabaseReflectionInterface
 {
@@ -25,7 +26,7 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $where = sprintf(
                 ' WHERE [name] LIKE N%s AND [issqluser] = 1',
-                $this->connection->quote($like)
+                SynapseQuote::quote($like)
             );
         }
         $users = $this->connection->fetchAll(sprintf(
@@ -47,7 +48,7 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $where = sprintf(
                 ' WHERE [name] LIKE N%s AND [issqlrole] = 1',
-                $this->connection->quote($like)
+                SynapseQuote::quote($like)
             );
         }
 

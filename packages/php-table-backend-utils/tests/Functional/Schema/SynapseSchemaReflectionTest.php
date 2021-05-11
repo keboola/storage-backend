@@ -38,7 +38,7 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $tables = $ref->getTablesNames();
         $this->assertEmpty($tables);
 
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         // init tables in testing schema
         $this->connection->exec($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
@@ -76,7 +76,7 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $tables = $ref->getViewsNames();
         $this->assertEmpty($tables);
 
-        $qb = new SynapseTableQueryBuilder($this->connection);
+        $qb = new SynapseTableQueryBuilder();
         $this->connection->exec($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Auth;
 
 use Doctrine\DBAL\Connection;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 class SynapseUserReflection implements UserReflectionInterface
 {
@@ -27,7 +28,7 @@ class SynapseUserReflection implements UserReflectionInterface
         foreach ($ids as $id) {
             $this->connection->exec(sprintf(
                 'KILL %s;',
-                $this->connection->quote($id)
+                SynapseQuote::quote($id)
             ));
         }
     }
@@ -46,7 +47,7 @@ SELECT c.session_id AS id
 EOD;
         /** @var string[]|false $sessions */
         $sessions = $this->connection->fetchArray(
-            sprintf($sql, $this->connection->quote($this->userName))
+            sprintf($sql, SynapseQuote::quote($this->userName))
         );
 
         if ($sessions === false) {

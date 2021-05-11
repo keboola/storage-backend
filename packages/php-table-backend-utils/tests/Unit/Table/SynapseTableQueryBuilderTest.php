@@ -19,12 +19,7 @@ class SynapseTableQueryBuilderTest extends TestCase
 
     public function testGetCreateTempTableCommandNotTemporary(): void
     {
-        $connMock = $this->createMock(Connection::class);
-        $connMock->expects($this->once())->method('getDatabasePlatform')->willReturn(
-            $this->createMock(SQLServer2012Platform::class)
-        );
-
-        $qb = new SynapseTableQueryBuilder($connMock);
+        $qb = new SynapseTableQueryBuilder();
         $this->expectException(QueryBuilderException::class);
         // phpcs:ignore
         $this->expectExceptionMessage('Temporary table name invalid, temporary table name must start with "#" a not be empty "table" supplied.');
@@ -33,12 +28,7 @@ class SynapseTableQueryBuilderTest extends TestCase
 
     public function testGetCreateTempTableCommandNotValidName(): void
     {
-        $connMock = $this->createMock(Connection::class);
-        $connMock->expects($this->once())->method('getDatabasePlatform')->willReturn(
-            $this->createMock(SQLServer2012Platform::class)
-        );
-
-        $qb = new SynapseTableQueryBuilder($connMock);
+        $qb = new SynapseTableQueryBuilder();
         $this->expectException(QueryBuilderException::class);
         // phpcs:ignore
         $this->expectExceptionMessage('Temporary table name invalid, temporary table name must start with "#" a not be empty "#" supplied.');

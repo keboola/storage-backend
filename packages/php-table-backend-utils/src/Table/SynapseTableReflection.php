@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\ReflectionException;
 use function Keboola\Utils\returnBytes;
 
@@ -29,9 +30,6 @@ final class SynapseTableReflection implements TableReflectionInterface
     /** @var bool */
     private $isTemporary;
 
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    private $platform;
-
     public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
         // temporary tables starts with #
@@ -39,7 +37,6 @@ final class SynapseTableReflection implements TableReflectionInterface
         $this->tableName = $tableName;
         $this->schemaName = $schemaName;
         $this->connection = $connection;
-        $this->platform = $connection->getDatabasePlatform();
     }
 
     /**
@@ -54,7 +51,7 @@ final class SynapseTableReflection implements TableReflectionInterface
 
         $columns = $this->connection->fetchAll(sprintf(
             'SELECT [name] FROM [sys].[columns] WHERE [object_id] = %s ORDER BY [column_id]',
-            $this->connection->quote($tableId)
+            SynapseQuote::quote($tableId)
         ));
 
         return array_map(static function ($column) {
@@ -77,15 +74,15 @@ final class SynapseTableReflection implements TableReflectionInterface
         }
 
         if ($this->isTemporary) {
-            $object = $this->connection->quote(
+            $object = SynapseQuote::quote(
                 'tempdb..'
-                . $this->platform->quoteSingleIdentifier($this->tableName)
+                . SynapseQuote::quoteSingleIdentifier($this->tableName)
             );
         } else {
-            $object = $this->connection->quote(
-                $this->platform->quoteSingleIdentifier($this->schemaName)
+            $object = SynapseQuote::quote(
+                SynapseQuote::quoteSingleIdentifier($this->schemaName)
                 . '.' .
-                $this->platform->quoteSingleIdentifier($this->tableName)
+                SynapseQuote::quoteSingleIdentifier($this->tableName)
             );
         }
 
@@ -154,8 +151,8 @@ EOT;
     {
         $count = $this->connection->fetchColumn(sprintf(
             'SELECT COUNT(*) AS [count] FROM %s.%s',
-            $this->platform->quoteSingleIdentifier($this->schemaName),
-            $this->platform->quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->schemaName),
+            SynapseQuote::quoteSingleIdentifier($this->tableName)
         ));
 
         return (int) $count;
@@ -205,8 +202,8 @@ EOT
          */
         $info = $this->connection->fetchAssoc(sprintf(
             'EXEC sp_spaceused \'%s.%s\'',
-            $this->platform->quoteSingleIdentifier($this->schemaName),
-            $this->platform->quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->schemaName),
+            SynapseQuote::quoteSingleIdentifier($this->tableName)
         ));
 
         return new TableStats(
@@ -236,8 +233,8 @@ EOT
 
         $objectNameWithSchema = sprintf(
             '%s.%s',
-            $this->platform->quoteSingleIdentifier($this->schemaName),
-            $this->platform->quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->schemaName),
+            SynapseQuote::quoteSingleIdentifier($this->tableName)
         );
 
         /**

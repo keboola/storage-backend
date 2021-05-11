@@ -9,17 +9,11 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\QueryBuilderException;
 
 class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 {
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    private $platform;
-
-    public function __construct(Connection $connection)
-    {
-        $this->platform = $connection->getDatabasePlatform();
-    }
 
     public function getCreateTempTableCommand(
         string $schemaName,
@@ -32,15 +26,15 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         foreach ($columns as $column) {
             $columnsSql[] = sprintf(
                 '%s %s',
-                $this->platform->quoteSingleIdentifier($column->getColumnName()),
+                SynapseQuote::quoteSingleIdentifier($column->getColumnName()),
                 $column->getColumnDefinition()->getSQLDefinition()
             );
         }
 
         return sprintf(
             'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
-            $this->platform->quoteSingleIdentifier($schemaName),
-            $this->platform->quoteSingleIdentifier($tableName),
+            SynapseQuote::quoteSingleIdentifier($schemaName),
+            SynapseQuote::quoteSingleIdentifier($tableName),
             implode(', ', $columnsSql)
         );
     }
@@ -73,7 +67,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             }
             $columnsSql[] = sprintf(
                 '%s %s',
-                $this->platform->quoteSingleIdentifier($column->getColumnName()),
+                SynapseQuote::quoteSingleIdentifier($column->getColumnName()),
                 $column->getColumnDefinition()->getSQLDefinition()
             );
         }
@@ -81,7 +75,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         $primaryKeySql = '';
         if (!empty($primaryKeys)) {
             $quotedPrimaryKeys = array_map(function ($columnName) {
-                return $this->platform->quoteSingleIdentifier($columnName);
+                return SynapseQuote::quoteSingleIdentifier($columnName);
             }, $primaryKeys);
             $primaryKeySql = sprintf(
                 ', PRIMARY KEY NONCLUSTERED(%s) NOT ENFORCED',
@@ -91,8 +85,8 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 
         return sprintf(
             'CREATE TABLE %s.%s (%s%s)',
-            $this->platform->quoteSingleIdentifier($schemaName),
-            $this->platform->quoteSingleIdentifier($tableName),
+            SynapseQuote::quoteSingleIdentifier($schemaName),
+            SynapseQuote::quoteSingleIdentifier($tableName),
             implode(', ', $columnsSql),
             $primaryKeySql
         );
@@ -104,8 +98,8 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     ): string {
         return sprintf(
             'DROP TABLE %s.%s',
-            $this->platform->quoteSingleIdentifier($schemaName),
-            $this->platform->quoteSingleIdentifier($tableName)
+            SynapseQuote::quoteSingleIdentifier($schemaName),
+            SynapseQuote::quoteSingleIdentifier($tableName)
         );
     }
 
@@ -116,9 +110,9 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     ): string {
         return sprintf(
             'RENAME OBJECT %s.%s TO %s',
-            $this->platform->quoteSingleIdentifier($schemaName),
-            $this->platform->quoteSingleIdentifier($sourceTableName),
-            $this->platform->quoteSingleIdentifier($newTableName)
+            SynapseQuote::quoteSingleIdentifier($schemaName),
+            SynapseQuote::quoteSingleIdentifier($sourceTableName),
+            SynapseQuote::quoteSingleIdentifier($newTableName)
         );
     }
 
@@ -128,8 +122,8 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     ): string {
         return sprintf(
             'TRUNCATE TABLE %s.%s',
-            $this->platform->quoteSingleIdentifier($schemaName),
-            $this->platform->quoteSingleIdentifier($tableName)
+            SynapseQuote::quoteSingleIdentifier($schemaName),
+            SynapseQuote::quoteSingleIdentifier($tableName)
         );
     }
 }

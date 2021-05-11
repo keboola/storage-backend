@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseViewReflection implements ViewReflectionInterface
 {
@@ -20,15 +21,11 @@ final class SynapseViewReflection implements ViewReflectionInterface
     /** @var string */
     private $viewName;
 
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    private $platform;
-
     public function __construct(Connection $connection, string $schemaName, string $viewName)
     {
         $this->viewName = $viewName;
         $this->schemaName = $schemaName;
         $this->connection = $connection;
-        $this->platform = $connection->getDatabasePlatform();
     }
 
     public function getDependentViews(): array
@@ -38,8 +35,8 @@ final class SynapseViewReflection implements ViewReflectionInterface
 
         $objectNameWithSchema = sprintf(
             '%s.%s',
-            $this->platform->quoteSingleIdentifier($this->schemaName),
-            $this->platform->quoteSingleIdentifier($this->viewName)
+            SynapseQuote::quoteSingleIdentifier($this->schemaName),
+            SynapseQuote::quoteSingleIdentifier($this->viewName)
         );
 
         /**
@@ -72,8 +69,8 @@ final class SynapseViewReflection implements ViewReflectionInterface
     {
         $sql = sprintf(
             'SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s',
-            $this->connection->quote($this->schemaName),
-            $this->connection->quote($this->viewName)
+            SynapseQuote::quote($this->schemaName),
+            SynapseQuote::quote($this->viewName)
         );
 
         $definition = $this->connection->fetchColumn($sql);
@@ -96,8 +93,8 @@ final class SynapseViewReflection implements ViewReflectionInterface
 
         $objectNameWithSchema = sprintf(
             '%s.%s',
-            $this->platform->quoteSingleIdentifier($this->schemaName),
-            $this->platform->quoteSingleIdentifier($this->viewName)
+            SynapseQuote::quoteSingleIdentifier($this->schemaName),
+            SynapseQuote::quoteSingleIdentifier($this->viewName)
         );
 
         $this->connection->exec(sprintf('DROP VIEW %s', $objectNameWithSchema));

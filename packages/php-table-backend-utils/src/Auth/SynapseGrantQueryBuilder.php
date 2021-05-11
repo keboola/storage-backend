@@ -4,24 +4,15 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Auth;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\TableBackendUtils\Auth\Grant\GrantOptionsInterface;
 use Keboola\TableBackendUtils\Auth\Grant\RevokeOptionsInterface;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOn;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOptions;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\RevokeOptions;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
 {
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    private $platform;
-
-    public function __construct(Connection $connection)
-    {
-        $this->platform = $connection->getDatabasePlatform();
-    }
 
     /**
      * @param GrantOptions $options
@@ -39,7 +30,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
             'GRANT %s%s TO %s%s',
             implode(', ', $options->getPermissions()),
             $on,
-            $this->platform->quoteSingleIdentifier($options->getGrantTo()),
+            SynapseQuote::quoteSingleIdentifier($options->getGrantTo()),
             $with
         );
     }
@@ -66,7 +57,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
             'REVOKE %s%s FROM %s%s',
             $permissions,
             $on,
-            $this->platform->quoteSingleIdentifier($options->getRevokeFrom()),
+            SynapseQuote::quoteSingleIdentifier($options->getRevokeFrom()),
             $with
         );
     }
@@ -78,7 +69,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
     private function getQuotedTargetPath(array $onTargetPath): array
     {
         return array_map(function (string $pathPart) {
-            return $this->platform->quoteSingleIdentifier($pathPart);
+            return SynapseQuote::quoteSingleIdentifier($pathPart);
         }, $onTargetPath);
     }
 

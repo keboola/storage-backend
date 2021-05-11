@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Schema;
 
 use Doctrine\DBAL\Connection;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseSchemaReflection implements SchemaReflectionInterface
 {
@@ -22,7 +23,7 @@ final class SynapseSchemaReflection implements SchemaReflectionInterface
 
     public function getTablesNames(): array
     {
-        $schema = $this->connection->quote($this->schemaName);
+        $schema = SynapseQuote::quote($this->schemaName);
         $tables = $this->connection->fetchAll(
             <<< EOT
 SELECT name
@@ -39,7 +40,7 @@ EOT
 
     public function getViewsNames(): array
     {
-        $schema = $this->connection->quote($this->schemaName);
+        $schema = SynapseQuote::quote($this->schemaName);
         $tables = $this->connection->fetchAll(
             <<< EOT
 SELECT name
