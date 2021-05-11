@@ -45,13 +45,17 @@ class SynapseQuoteTest extends TestCase
             'valueToQuote',
             '[valueToQuote]',
         ];
+        yield 'simple2' => [
+            'abc[]def',
+            '[abc[]]def]',
+        ];
         yield 'with escaping char' => [
             'value\'To\'Quote',
             '[value\'To\'Quote]',
         ];
         yield 'complex' => [
             'va[l.u]e\']To\'[Q][uo.t[]e',
-            '[va[l.u][e\'][To\'[Q][[uo.t[][e]',
+            '[va[l.u]]e\']]To\'[Q]][uo.t[]]e]',
         ];
     }
 

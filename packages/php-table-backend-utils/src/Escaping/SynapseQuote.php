@@ -13,6 +13,6 @@ class SynapseQuote implements QuoteInterface
 
     public static function quoteSingleIdentifier(string $str): string
     {
-        return '[' . str_replace(']', '][', $str) . ']';
+        return '[' . str_replace(']', ']]', $str) . ']';
     }
 }
