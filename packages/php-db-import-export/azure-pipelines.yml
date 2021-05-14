@@ -125,7 +125,8 @@ stages:
               tests-synapse-heap4000temp \
               tests-synapse-heap4000temp-hash \
               tests-synapse-heap4000temp-optimized \
-              tests-synapse-heap4000temp-optimized-hash
+              tests-synapse-heap4000temp-optimized-hash \
+              tests-synapse-next
             displayName: 'Functional tests'
             env:
               BUILD_PREFIX: $(tag)
