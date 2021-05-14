@@ -4,20 +4,18 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend;
 
-use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
-interface ImporterInterface
+interface ToStageImporterInterface
 {
     public const TIMESTAMP_COLUMN_NAME = '_timestamp';
     public const SLICED_FILES_CHUNK_SIZE = 1000;
 
-    public function importTable(
+    public function importToStagingTable(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination,
+        TableDefinitionInterface $destinationDefinition,
         ImportOptionsInterface $options
-    ): Result;
-
-    public function setAdapters(array $adapters): void;
+    ): ImportState;
 }

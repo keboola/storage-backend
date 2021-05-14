@@ -6,18 +6,17 @@ namespace Keboola\Db\ImportExport\Backend;
 
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
-use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
-interface ImporterInterface
+interface ToFinalTableImporterInterface
 {
     public const TIMESTAMP_COLUMN_NAME = '_timestamp';
     public const SLICED_FILES_CHUNK_SIZE = 1000;
 
-    public function importTable(
-        Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination,
-        ImportOptionsInterface $options
+    public function importToTable(
+        TableDefinitionInterface $stagingTableDefinition,
+        TableDefinitionInterface $destinationTableDefinition,
+        ImportOptionsInterface $options,
+        ImportState $state
     ): Result;
-
-    public function setAdapters(array $adapters): void;
 }
