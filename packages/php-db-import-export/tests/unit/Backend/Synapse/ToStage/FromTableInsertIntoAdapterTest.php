@@ -2,86 +2,54 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportUnit\Storage\Synapse;
+namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\ToStage;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\FromTableInsertIntoAdapter;
 use Keboola\Db\ImportExport\Storage;
-use PHPUnit\Framework\MockObject\MockObject;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
+use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
-class SynapseAdapterTest extends BaseTestCase
+class FromTableInsertIntoAdapterTest extends BaseTestCase
 {
-    use ABSSourceTrait;
     use MockConnectionTrait;
-
-    public function testIsSupported(): void
-    {
-        $absSource = $this->createDummyABSSourceInstance('');
-        $snowflakeTable = new Storage\Snowflake\Table('', '');
-        $snowflakeSelectSource = new Storage\Snowflake\SelectSource('', []);
-        $synapseTable = new Storage\Synapse\Table('', '');
-
-        $this->assertTrue(
-            SynapseImportAdapter::isSupported(
-                $synapseTable,
-                $synapseTable
-            )
-        );
-
-        $this->assertFalse(
-            SynapseImportAdapter::isSupported(
-                $snowflakeSelectSource,
-                $snowflakeTable
-            )
-        );
-
-        $this->assertFalse(
-            SynapseImportAdapter::isSupported(
-                $absSource,
-                $snowflakeTable
-            )
-        );
-
-        $this->assertFalse(
-            SynapseImportAdapter::isSupported(
-                $snowflakeTable,
-                $synapseTable
-            )
-        );
-    }
 
     public function testGetCopyCommands(): void
     {
         $source = new Storage\Synapse\Table('test_schema', 'test_table', ['col1', 'col2']);
 
         $conn = $this->mockConnection();
-        $conn->expects($this->once())->method('exec')->with(
+        $conn->expects($this->once())->method('executeStatement')->with(
         // phpcs:ignore
             'INSERT INTO [test_schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [test_schema].[test_table]'
         );
-        $conn->expects($this->once())->method('fetchAll')
+        $conn->expects($this->once())->method('fetchColumn')
             ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+            ->willReturn(10);
 
-        $destination = new Storage\Synapse\Table('test_schema', 'test_table', ['col1', 'col2']);
-        $options = new ImportOptions([]);
-        $adapter = new SynapseImportAdapter($conn);
+        $destination = new SynapseTableDefinition(
+            'test_schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([
+                SynapseColumn::createGenericColumn('col1'),
+                SynapseColumn::createGenericColumn('col2'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $options = new SynapseImportOptions([]);
+        $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options,
-            'stagingTable'
+            $options
         );
 
         $this->assertEquals(10, $count);
@@ -103,24 +71,28 @@ class SynapseAdapterTest extends BaseTestCase
             ['val'],
             [1]
         );
-        $conn->expects($this->once())->method('fetchAll')
+        $conn->expects($this->once())->method('fetchColumn')
             ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+            ->willReturn(10);
 
-        $destination = new Storage\Synapse\Table('test_schema', 'test_table', ['col1', 'col2']);
-        $options = new ImportOptions([]);
-        $adapter = new SynapseImportAdapter($conn);
+        $destination = new SynapseTableDefinition(
+            'test_schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([
+                SynapseColumn::createGenericColumn('col1'),
+                SynapseColumn::createGenericColumn('col2'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $options = new SynapseImportOptions([]);
+        $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options,
-            'stagingTable'
+            $options
         );
 
         $this->assertEquals(10, $count);
