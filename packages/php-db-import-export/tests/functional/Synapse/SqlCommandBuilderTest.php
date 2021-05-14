@@ -100,6 +100,7 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
     }
 
     /**
+     * @param SynapseImportOptions::TEMP_TABLE_* $tableType
      * @dataProvider createTempTableCommandProvider
      */
     public function testGetCreateTempTableCommand(

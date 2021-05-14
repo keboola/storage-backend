@@ -19,6 +19,9 @@ class SynapseImportOptions extends ImportOptions
     public const DEDUP_TYPE_CTAS = 'CTAS';
     public const DEDUP_TYPE_TMP_TABLE = 'TMP_TABLE';
 
+    public const TABLE_TYPES_CAST = 'TABLE_HAS_TYPES_DEFINED';
+    public const TABLE_TYPES_PRESERVE = 'TABLE_TYPES_PRESERVE';
+
     /** @var string */
     private $importCredentialsType;
 
@@ -28,6 +31,19 @@ class SynapseImportOptions extends ImportOptions
     /** @var string */
     private $dedupType;
 
+    /** @var self::TABLE_TYPES_* */
+    private $castValueTypes;
+
+    /**
+     * @param string[] $convertEmptyValuesToNull
+     * @param bool $isIncremental
+     * @param bool $useTimestamp
+     * @param int $numberOfIgnoredLines
+     * @param self::CREDENTIALS_* $importCredentialsType
+     * @param self::TEMP_TABLE_* $tempTableType @deprecated staging table is created by user
+     * @param self::DEDUP_TYPE_* $dedupType @deprecated CTAS is always used
+     * @param self::TABLE_TYPES_* $castValueTypes
+     */
     public function __construct(
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,
@@ -35,7 +51,8 @@ class SynapseImportOptions extends ImportOptions
         int $numberOfIgnoredLines = 0,
         string $importCredentialsType = self::CREDENTIALS_SAS,
         string $tempTableType = self::TEMP_TABLE_HEAP,
-        string $dedupType = self::DEDUP_TYPE_TMP_TABLE
+        string $dedupType = self::DEDUP_TYPE_TMP_TABLE,
+        string $castValueTypes = self::TABLE_TYPES_PRESERVE
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -46,6 +63,7 @@ class SynapseImportOptions extends ImportOptions
         $this->importCredentialsType = $importCredentialsType;
         $this->tempTableType = $tempTableType;
         $this->dedupType = $dedupType;
+        $this->castValueTypes = $castValueTypes;
     }
 
     public function getImportCredentialsType(): string
@@ -61,5 +79,10 @@ class SynapseImportOptions extends ImportOptions
     public function useOptimizedDedup(): bool
     {
         return $this->dedupType === self::DEDUP_TYPE_CTAS;
+    }
+
+    public function getCastValueTypes(): bool
+    {
+        return $this->castValueTypes === self::TABLE_TYPES_CAST;
     }
 }

@@ -186,11 +186,6 @@ parameters:
 			path: src/Backend/Synapse/SqlCommandBuilder.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions\\:\\:__construct\\(\\) has parameter \\$convertEmptyValuesToNull with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SynapseImportOptions.php
-
-		-
 			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\ImportOptions\\:\\:\\$convertEmptyValuesToNull type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/ImportOptions.php
@@ -656,16 +651,6 @@ parameters:
 			path: tests/functional/Synapse/FullImportTest.php
 
 		-
-			message: "#^Parameter \\#5 \\$importCredentialsType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$tempTableType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/functional/Synapse/FullImportTest.php
@@ -681,21 +666,6 @@ parameters:
 			path: tests/functional/Synapse/IncrementalImportTest.php
 
 		-
-			message: "#^Parameter \\#5 \\$importCredentialsType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 2
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$tempTableType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 2
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#7 \\$dedupType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 2
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/functional/Synapse/IncrementalImportTest.php
@@ -704,21 +674,6 @@ parameters:
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$tablesToInit with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#5 \\$importCredentialsType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 6
-			path: tests/functional/Synapse/OtherImportTest.php
-
-		-
-			message: "#^Parameter \\#6 \\$tempTableType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 6
-			path: tests/functional/Synapse/OtherImportTest.php
-
-		-
-			message: "#^Parameter \\#7 \\$dedupType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 6
-			path: tests/functional/Synapse/OtherImportTest.php
 
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SqlCommandBuilderTest\\:\\:createTempTableCommandProvider\\(\\) return type has no value type specified in iterable type Generator\\.$#"
@@ -738,21 +693,6 @@ parameters:
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SynapseBaseTestCase\\:\\:assertTableEqualsExpected\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
 			count: 1
-			path: tests/functional/Synapse/SynapseBaseTestCase.php
-
-		-
-			message: "#^Parameter \\#5 \\$importCredentialsType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 2
-			path: tests/functional/Synapse/SynapseBaseTestCase.php
-
-		-
-			message: "#^Parameter \\#6 \\$tempTableType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 2
-			path: tests/functional/Synapse/SynapseBaseTestCase.php
-
-		-
-			message: "#^Parameter \\#7 \\$dedupType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseImportOptions constructor expects string, string\\|false given\\.$#"
-			count: 2
 			path: tests/functional/Synapse/SynapseBaseTestCase.php
 
 		-
