@@ -2,50 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
+namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\ToStage;
 
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\ImportExport\Storage\ABS\SynapseImportAdapter;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\FromABSCopyIntoAdapter;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
+use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
-class SynapseImportAdapterTest extends BaseTestCase
+class FromABSCopyIntoAdapterTest extends BaseTestCase
 {
-    use ABSSourceTrait;
     use MockConnectionTrait;
-
-    public function testIsSupported(): void
-    {
-        $absSource = $this->createDummyABSSourceInstance('');
-        $snowflakeTable = new Storage\Snowflake\Table('', '');
-        $snowflakeSelectSource = new Storage\Snowflake\SelectSource('', []);
-        $synapseTable = new Storage\Synapse\Table('', '');
-
-        $this->assertTrue(
-            SynapseImportAdapter::isSupported(
-                $absSource,
-                $synapseTable
-            )
-        );
-
-        $this->assertFalse(
-            SynapseImportAdapter::isSupported(
-                $snowflakeSelectSource,
-                $snowflakeTable
-            )
-        );
-
-        $this->assertFalse(
-            SynapseImportAdapter::isSupported(
-                $absSource,
-                $snowflakeTable
-            )
-        );
-    }
 
     public function testGetCopyCommands(): void
     {
@@ -57,14 +30,14 @@ class SynapseImportAdapterTest extends BaseTestCase
         $source->expects($this->once())->method('getLineEnding')->willReturn('lf');
 
         $conn = $this->mockConnection();
-        $conn->expects($this->once())->method('exec')->with(
+        $conn->expects($this->once())->method('executeStatement')->with(
             <<<EOT
 COPY INTO [schema].[stagingTable]
 FROM 'https://url'
 WITH (
     FILE_TYPE='CSV',
     CREDENTIAL=(IDENTITY='Shared Access Signature', SECRET='?sasToken'),
-    FIELDQUOTE='\"',
+    FIELDQUOTE='"',
     FIELDTERMINATOR=',',
     ENCODING = 'UTF8',
     ROWTERMINATOR='0x0A',
@@ -74,29 +47,29 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchAll')
+        $conn->expects($this->once())->method('fetchColumn')
             ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+            ->willReturn(10);
 
-        $destination = new Storage\Synapse\Table('schema', 'table');
+        $destination = new SynapseTableDefinition(
+            'schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
         $options = new SynapseImportOptions();
-        $adapter = new SynapseImportAdapter($conn);
+        $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options,
-            'stagingTable'
+            $options
         );
 
         $this->assertEquals(10, $count);
     }
-
 
     public function testGetCopyCommandsWindowsLineEnding(): void
     {
@@ -108,14 +81,14 @@ EOT
         $source->expects($this->once())->method('getLineEnding')->willReturn('crlf');
 
         $conn = $this->mockConnection();
-        $conn->expects($this->once())->method('exec')->with(
+        $conn->expects($this->once())->method('executeStatement')->with(
             <<<EOT
 COPY INTO [schema].[stagingTable]
 FROM 'https://url'
 WITH (
     FILE_TYPE='CSV',
     CREDENTIAL=(IDENTITY='Shared Access Signature', SECRET='?sasToken'),
-    FIELDQUOTE='\"',
+    FIELDQUOTE='"',
     FIELDTERMINATOR=',',
     ENCODING = 'UTF8',
     
@@ -125,24 +98,25 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchAll')
+        $conn->expects($this->once())->method('fetchColumn')
             ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+            ->willReturn(10);
 
-        $destination = new Storage\Synapse\Table('schema', 'table');
+        $destination = new SynapseTableDefinition(
+            'schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
         $options = new SynapseImportOptions();
-        $adapter = new SynapseImportAdapter($conn);
+        $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options,
-            'stagingTable'
+            $options
         );
 
         $this->assertEquals(10, $count);
@@ -157,14 +131,14 @@ EOT
         $source->expects($this->once())->method('getSasToken')->willReturn('sasToken');
 
         $conn = $this->mockConnection();
-        $conn->expects($this->once())->method('exec')->with(
+        $conn->expects($this->once())->method('executeStatement')->with(
             <<<EOT
 COPY INTO [schema].[stagingTable]
 FROM 'https://url'
 WITH (
     FILE_TYPE='CSV',
     CREDENTIAL=(IDENTITY='Shared Access Signature', SECRET='?sasToken'),
-    FIELDQUOTE='\"',
+    FIELDQUOTE='"',
     FIELDTERMINATOR=',',
     ENCODING = 'UTF8',
     
@@ -173,29 +147,29 @@ WITH (
 )
 EOT
         );
-        $conn->expects($this->once())->method('fetchAll')
+        $conn->expects($this->once())->method('fetchColumn')
             ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+            ->willReturn(10);
 
-        $destination = new Storage\Synapse\Table('schema', 'table');
+        $destination = new SynapseTableDefinition(
+            'schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
         $options = new SynapseImportOptions([], false, false, 1);
-        $adapter = new SynapseImportAdapter($conn);
+        $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options,
-            'stagingTable'
+            $options
         );
 
         $this->assertEquals(10, $count);
     }
-
 
     public function testGetCopyCommandsManagedIdentity(): void
     {
@@ -205,14 +179,14 @@ EOT
         $source->expects($this->once())->method('getManifestEntries')->willReturn(['https://url']);
 
         $conn = $this->mockConnection();
-        $conn->expects($this->once())->method('exec')->with(
+        $conn->expects($this->once())->method('executeStatement')->with(
             <<<EOT
 COPY INTO [schema].[stagingTable]
 FROM 'https://url'
 WITH (
     FILE_TYPE='CSV',
     CREDENTIAL=(IDENTITY='Managed Identity'),
-    FIELDQUOTE='\"',
+    FIELDQUOTE='"',
     FIELDTERMINATOR=',',
     ENCODING = 'UTF8',
     
@@ -222,17 +196,19 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchAll')
+        $conn->expects($this->once())->method('fetchColumn')
             ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+            ->willReturn(10);
 
-        $destination = new Storage\Synapse\Table('schema', 'table');
+        $destination = new SynapseTableDefinition(
+            'schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
         $options = new SynapseImportOptions(
             [],
             false,
@@ -240,12 +216,11 @@ EOT
             SynapseImportOptions::SKIP_NO_LINE,
             SynapseImportOptions::CREDENTIALS_MANAGED_IDENTITY
         );
-        $adapter = new SynapseImportAdapter($conn);
+        $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options,
-            'stagingTable'
+            $options
         );
 
         $this->assertEquals(10, $count);

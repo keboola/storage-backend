@@ -2,80 +2,66 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Storage\ABS;
+namespace Keboola\Db\ImportExport\Backend\Synapse\ToStage;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
-use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
-use Keboola\Db\ImportExport\ImportOptionsInterface;
-use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
+use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
-class SynapseImportAdapter implements SynapseImportAdapterInterface
+class FromABSCopyIntoAdapter implements CopyAdapterInterface
 {
     /** @var Connection */
     private $connection;
 
-    /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
-    private $platform;
-
-    /** @var SqlCommandBuilder */
-    private $sqlBuilder;
-
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->platform = $connection->getDatabasePlatform();
-        $this->sqlBuilder = new SqlCommandBuilder($this->connection);
-    }
-
-    public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
-    {
-        if (!$source instanceof Storage\ABS\SourceFile) {
-            return false;
-        }
-        if (!$destination instanceof Storage\Synapse\Table) {
-            return false;
-        }
-        return true;
     }
 
     /**
-     * @param Storage\ABS\SourceFile $source
-     * @param Storage\Synapse\Table $destination
+     * @param SourceFile $source
+     * @param SynapseTableDefinition $destination
      * @param SynapseImportOptions $importOptions
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination,
-        ImportOptionsInterface $importOptions,
-        string $stagingTableName
+        TableDefinitionInterface $destination,
+        ImportOptionsInterface $importOptions
     ): int {
-        $sql = $this->getCopyCommand($source, $destination, $importOptions, $stagingTableName);
+        assert($source instanceof SourceFile);
+        assert($destination instanceof SynapseTableDefinition);
+        assert($importOptions instanceof SynapseImportOptions);
+
+        $sql = $this->getCopyCommand($source, $destination, $importOptions);
 
         if ($sql !== null) {
-            $this->connection->exec($sql);
+            $this->connection->executeStatement($sql);
         }
 
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
-            $destination->getSchema(),
-            $stagingTableName
-        ));
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
 
-        return (int) $rows[0]['count'];
+        return $ref->getRowsCount();
     }
 
     private function getCopyCommand(
         Storage\ABS\SourceFile $source,
-        Storage\Synapse\Table $destination,
-        SynapseImportOptions $importOptions,
-        string $stagingTableName
+        SynapseTableDefinition $destination,
+        SynapseImportOptions $importOptions
     ): ?string {
-
-        $destinationSchema = $this->platform->quoteSingleIdentifier($destination->getSchema());
-        $destinationTable = $this->platform->quoteSingleIdentifier($stagingTableName);
+        $destinationSchema = SynapseQuote::quoteSingleIdentifier($destination->getSchemaName());
+        $destinationTable = SynapseQuote::quoteSingleIdentifier($destination->getTableName());
 
         switch ($importOptions->getImportCredentialsType()) {
             case SynapseImportOptions::CREDENTIALS_SAS:
@@ -97,12 +83,12 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             $rowTerminator = 'ROWTERMINATOR=\'0x0A\',';
         }
 
-        $fieldDelimiter = $this->connection->quote($source->getCsvOptions()->getDelimiter());
+        $fieldDelimiter = SynapseQuote::quote($source->getCsvOptions()->getDelimiter());
         $firstRow = '';
         if ($importOptions->getNumberOfIgnoredLines() !== 0) {
             $firstRow = sprintf(',FIRSTROW=%s', $importOptions->getNumberOfIgnoredLines() + 1);
         }
-        $enclosure = $this->connection->quote($source->getCsvOptions()->getEnclosure());
+        $enclosure = SynapseQuote::quote($source->getCsvOptions()->getEnclosure());
 
         $entries = $source->getManifestEntries(SourceFile::PROTOCOL_HTTPS);
 
@@ -111,7 +97,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
         }
 
         $entries = array_map(function ($entry) {
-            return $this->connection->quote($entry);
+            return SynapseQuote::quote($entry);
         }, $entries);
 
         $entries = implode(', ', $entries);
