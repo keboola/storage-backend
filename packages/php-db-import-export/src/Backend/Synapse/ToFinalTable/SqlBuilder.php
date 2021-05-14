@@ -4,29 +4,12 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Exception;
-use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 
 class SqlCommandBuilder
 {
-    /** @var Connection */
-    private $connection;
-
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    private $platform;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-        $this->platform = $connection->getDatabasePlatform();
-    }
-
     public function getBeginTransaction(): string
     {
         return 'BEGIN TRANSACTION';
@@ -35,85 +18,6 @@ class SqlCommandBuilder
     public function getCommitTransaction(): string
     {
         return 'COMMIT';
-    }
-
-    public function getCopyTableCommand(
-        string $schema,
-        string $sourceTable,
-        string $destinationTable
-    ): string {
-        return sprintf(
-            'INSERT INTO %s.%s SELECT * FROM %s.%s',
-            $this->platform->quoteSingleIdentifier($schema),
-            $this->platform->quoteSingleIdentifier($destinationTable),
-            $this->platform->quoteSingleIdentifier($schema),
-            $this->platform->quoteSingleIdentifier($sourceTable)
-        );
-    }
-
-    public function getCreateTempTableCommand(
-        string $schema,
-        string $tableName,
-        array $columns,
-        SynapseImportOptions $options,
-        DestinationTableOptions $destinationTableOptions
-    ): string {
-        Assert::assertStagingTable($tableName);
-
-        $distributionSql = $this->getSqlDistributionPart($destinationTableOptions);
-
-        switch ($options->getTempTableType()) {
-            case SynapseImportOptions::TEMP_TABLE_HEAP:
-                $columnsSql = array_map(function ($column) {
-                    return sprintf('%s nvarchar(max)', $this->platform->quoteSingleIdentifier($column));
-                }, $columns);
-                return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB, %s)',
-                    $this->platform->quoteSingleIdentifier($schema),
-                    $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql),
-                    $distributionSql
-                );
-            case SynapseImportOptions::TEMP_TABLE_HEAP_4000:
-                $columnsSql = array_map(function ($column) {
-                    return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
-                }, $columns);
-                return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB, %s)',
-                    $this->platform->quoteSingleIdentifier($schema),
-                    $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql),
-                    $distributionSql
-                );
-            case SynapseImportOptions::TEMP_TABLE_COLUMNSTORE:
-                $columnsSql = array_map(function ($column) {
-                    return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
-                }, $columns);
-                return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED COLUMNSTORE INDEX, %s)',
-                    $this->platform->quoteSingleIdentifier($schema),
-                    $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql),
-                    $distributionSql
-                );
-            case SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX:
-                $columnsSql = array_map(function ($column) {
-                    return sprintf('%s nvarchar(4000)', $this->platform->quoteSingleIdentifier($column));
-                }, $columns);
-                $columnsIndex = array_map(function ($column) {
-                    return sprintf('%s', $this->platform->quoteSingleIdentifier($column));
-                }, $columns);
-                return sprintf(
-                    'CREATE TABLE %s.%s (%s) WITH (CLUSTERED INDEX(%s), %s)',
-                    $this->platform->quoteSingleIdentifier($schema),
-                    $this->platform->quoteSingleIdentifier($tableName),
-                    implode(', ', $columnsSql),
-                    implode(', ', $columnsIndex),
-                    $distributionSql
-                );
-        }
-
-        throw new \LogicException(sprintf('Unknown temp table type "%s".', $options->getTempTableType()));
     }
 
     public function getDedupCommand(
@@ -409,60 +313,6 @@ class SqlCommandBuilder
             );
         }
         return $distributionSql;
-    }
-
-    public function getTableObjectIdCommand(string $schemaName, string $tableName): string
-    {
-        return sprintf(
-            'SELECT [object_id] FROM sys.tables WHERE schema_name(schema_id) = %s AND NAME = %s',
-            $this->connection->quote($schemaName),
-            $this->connection->quote($tableName)
-        );
-    }
-
-    public function getTableItemsCountCommand(string $schema, string $table): string
-    {
-        return sprintf(
-            'SELECT COUNT(*) AS [count] FROM %s.%s',
-            $this->platform->quoteSingleIdentifier($schema),
-            $this->platform->quoteSingleIdentifier($table)
-        );
-    }
-
-    public function getTablePrimaryKey(string $schemaName, string $tableName): array
-    {
-        /** @var string|false $objectId */
-        $objectId = $this->connection->fetchColumn(
-            $this->getTableObjectIdCommand($schemaName, $tableName)
-        );
-
-        if ($objectId === false) {
-            throw new Exception(sprintf('Table %s.%s does not exist.', $schemaName, $tableName));
-        }
-
-        $result = $this->connection->fetchAll(
-            <<< EOT
-SELECT COL_NAME(ic.OBJECT_ID,ic.column_id) AS ColumnName
-    FROM sys.indexes AS i INNER JOIN
-        sys.index_columns AS ic ON i.OBJECT_ID = ic.OBJECT_ID AND i.index_id = ic.index_id
-    WHERE i.is_primary_key = 1 AND i.OBJECT_ID = '$objectId'
-EOT
-        );
-
-        return array_map(static function ($item) {
-            return $item['ColumnName'];
-        }, $result);
-    }
-
-    public function getTruncateTableCommand(
-        string $schema,
-        string $tableName
-    ): string {
-        return sprintf(
-            'TRUNCATE TABLE %s.%s',
-            $this->platform->quoteSingleIdentifier($schema),
-            $this->platform->quoteSingleIdentifier($tableName)
-        );
     }
 
     public function getTruncateTableWithDeleteCommand(
