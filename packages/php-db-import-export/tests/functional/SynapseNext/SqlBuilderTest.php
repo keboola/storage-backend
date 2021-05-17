@@ -864,18 +864,14 @@ EOT
         }
     }
 
-    /**
-     * hpcs:disable SlevomatCodingStandard.TypeHints.TypeHintDeclaration
-     * @doesNotPerformAssertions
-     */
     public function testTransaction(): void
     {
         $this->createTestSchema();
         $this->createTestTable();
 
-        $this->connection->exec(
-            $this->getBuilder()->getBeginTransaction()
-        );
+        $sql = $this->getBuilder()->getBeginTransaction();
+        self::assertSame('BEGIN TRANSACTION', $sql);
+        $this->connection->exec($sql);
 
         $this->connection->exec(
             sprintf(
@@ -884,9 +880,9 @@ EOT
             )
         );
 
-        $this->connection->exec(
-            $this->getBuilder()->getCommitTransaction()
-        );
+        $sql = $this->getBuilder()->getCommitTransaction();
+        self::assertSame('COMMIT', $sql);
+        $this->connection->exec($sql);
     }
 
     /**
