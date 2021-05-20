@@ -1016,7 +1016,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=HASH([pk1])) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=HASH([pk1])) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $out = $this->connection->exec($sql);
@@ -1061,7 +1061,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $out = $this->connection->exec($sql);
@@ -1195,7 +1195,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2], \'2020-01-01 00:00:00\' AS [_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(COALESCE([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test_schema].[import-export-test_test] WITH (DISTRIBUTION=ROUND_ROBIN) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as nvarchar(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as nvarchar(4000)) AS [pk2],CAST(COALESCE([col1], \'\') as nvarchar(4000)) AS [col1],CAST(COALESCE([col2], \'\') as nvarchar(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $out = $this->connection->exec($sql);

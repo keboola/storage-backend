@@ -8,10 +8,13 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Exception;
+use Keboola\Datatype\Definition\Synapse;
+use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 class SqlCommandBuilder
 {
@@ -188,10 +191,10 @@ class SqlCommandBuilder
         $useTimestamp = !in_array(Importer::TIMESTAMP_COLUMN_NAME, $source->getColumnsNames(), true)
             && $importOptions->useTimestamp();
 
-        $createTableColumns = $this->getColumnsString($columnsInOrder, ',', 'a');
         if ($useTimestamp) {
-            $createTableColumns .= ', ' . $this->connection->quote($timestamp) . ' AS [_timestamp]';
+            $columnsInOrder[] = ImporterInterface::TIMESTAMP_COLUMN_NAME;
         }
+        $createTableColumns = $this->getColumnsString($columnsInOrder, ',', 'a');
 
         $columnsSetSql = [];
         foreach ($source->getColumnsNames() as $columnName) {
@@ -228,6 +231,15 @@ class SqlCommandBuilder
                     $this->platform->quoteSingleIdentifier($columnName)
                 );
             }
+        }
+
+        if ($useTimestamp) {
+            $columnsSetSql[] = sprintf(
+                'CAST(%s as %s) AS %s',
+                SynapseQuote::quote($timestamp),
+                Synapse::TYPE_DATETIME2,
+                SynapseQuote::quoteSingleIdentifier(ImporterInterface::TIMESTAMP_COLUMN_NAME)
+            );
         }
 
         $depudeSql = sprintf(
