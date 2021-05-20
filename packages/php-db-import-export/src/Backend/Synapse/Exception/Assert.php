@@ -13,6 +13,7 @@ use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\Db\Import\Exception;
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 
 final class Assert
 {
@@ -28,6 +29,26 @@ final class Assert
         }
 
         $moreColumns = array_diff($source->getColumnsNames(), $destinationTableOptions->getColumnNamesInOrder());
+        if (!empty($moreColumns)) {
+            throw new Exception(
+                'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),
+                Exception::COLUMNS_COUNT_NOT_MATCH
+            );
+        }
+    }
+
+    public static function assertColumnsOnTableDefinition(
+        SourceInterface $source,
+        SynapseTableDefinition $destinationDefinition
+    ): void {
+        if (count($source->getColumnsNames()) === 0) {
+            throw new Exception(
+                'No columns found in CSV file.',
+                Exception::NO_COLUMNS
+            );
+        }
+
+        $moreColumns = array_diff($source->getColumnsNames(), $destinationDefinition->getColumnsNames());
         if (!empty($moreColumns)) {
             throw new Exception(
                 'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),

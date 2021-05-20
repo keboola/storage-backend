@@ -142,7 +142,6 @@ class OtherImportTest extends SynapseBaseTestCase
         );
         $destination = new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS);
         $options = $this->getSynapseImportOptions();
-
         (new Importer($this->connection))->importTable(
             $source,
             $destination,
@@ -223,8 +222,11 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE,
+            // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('TEMP_TABLE_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('DEDUP_TYPE')
         );
         $source = new Storage\Synapse\Table(
@@ -282,8 +284,11 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
+            // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('TEMP_TABLE_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('DEDUP_TYPE')
         );
         $source = new Storage\Synapse\Table(
@@ -345,8 +350,11 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             SynapseImportOptions::SKIP_FIRST_LINE,
+            // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('TEMP_TABLE_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('DEDUP_TYPE')
         );
         $source = new Storage\Synapse\Table(
@@ -426,8 +434,11 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
+            // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('TEMP_TABLE_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('DEDUP_TYPE')
         );
         $source = new Storage\Synapse\Table(
@@ -485,8 +496,11 @@ class OtherImportTest extends SynapseBaseTestCase
             false,
             false,
             ImportOptions::SKIP_FIRST_LINE,
+            // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('TEMP_TABLE_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('DEDUP_TYPE')
         );
         $source = $this->createABSSourceInstance(
@@ -532,8 +546,11 @@ class OtherImportTest extends SynapseBaseTestCase
             true, // incremetal
             false,
             ImportOptions::SKIP_FIRST_LINE,
+            // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('TEMP_TABLE_TYPE'),
+            // @phpstan-ignore-next-line
             getenv('DEDUP_TYPE')
         );
         $source = $this->createABSSourceInstance(

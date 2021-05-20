@@ -2,15 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
+namespace Tests\Keboola\Db\ImportExportFunctional\SynapseNext;
 
 use Keboola\Csv\CsvFile;
-use Keboola\Db\ImportExport\Backend\Synapse\Importer;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\IncrementalImporter;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
-class IncrementalImportTest extends SynapseBaseTestCase
+class IncrementalImportNoTypesTest extends SynapseBaseTestCase
 {
     protected function setUp(): void
     {
@@ -21,7 +27,10 @@ class IncrementalImportTest extends SynapseBaseTestCase
         $this->connection->exec(sprintf('CREATE SCHEMA [%s]', $this->getSourceSchemaName()));
     }
 
-    public function incrementalImportData(): array
+    /**
+     * @return \Generator<string, array<mixed>>
+     */
+    public function incrementalImportData(): \Generator
     {
         // accounts
         $expectationAccountsFile = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts.increment.csv');
@@ -42,7 +51,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
         $tests = [];
-        $tests[] = [
+        yield 'simple' => [
             $this->createABSSourceInstance(
                 'tw_accounts.csv',
                 $accountColumns,
@@ -59,12 +68,12 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 ['id']
             ),
             $this->getSynapseIncrementalImportOptions(),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), 'accounts-3'),
+            [$this->getDestinationSchemaName(), 'accounts-3'],
             $expectedAccountsRows,
             4,
             [self::TABLE_ACCOUNTS_3],
         ];
-        $tests[] = [
+        yield 'simple no timestamp' => [
             $this->createABSSourceInstance(
                 'tw_accounts.csv',
                 $accountColumns,
@@ -103,12 +112,12 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 // @phpstan-ignore-next-line
                 getenv('DEDUP_TYPE')
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), 'accounts-bez-ts'),
+            [$this->getDestinationSchemaName(), 'accounts-bez-ts'],
             $expectedAccountsRows,
             4,
             [self::TABLE_ACCOUNTS_BEZ_TS],
         ];
-        $tests[] = [
+        yield 'multi pk' => [
             $this->createABSSourceInstance(
                 'multi-pk.csv',
                 $multiPkColumns,
@@ -125,7 +134,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getSynapseIncrementalImportOptions(),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), 'multi-pk'),
+            [$this->getDestinationSchemaName(), 'multi-pk'],
             $expectedMultiPkRows,
             3,
             [self::TABLE_MULTI_PK],
@@ -135,36 +144,95 @@ class IncrementalImportTest extends SynapseBaseTestCase
 
     /**
      * @dataProvider  incrementalImportData
-     * @param Storage\Synapse\Table $destination
+     * @param array<string,string> $table
+     * @param array<mixed> $expected
+     * @param string[] $tablesToInit
      */
     public function testIncrementalImport(
-        Storage\SourceInterface $initialSource,
-        SynapseImportOptions $initialOptions,
+        Storage\SourceInterface $fullLoadSource,
+        SynapseImportOptions $fullLoadOptions,
         Storage\SourceInterface $incrementalSource,
         SynapseImportOptions $incrementalOptions,
-        Storage\DestinationInterface $destination,
+        array $table,
         array $expected,
         int $expectedImportedRowCount,
-        array $tablesToInit,
-        bool $isSkipped = false
+        array $tablesToInit
     ): void {
         $this->initTables($tablesToInit);
 
-        (new Importer($this->connection))->importTable(
-            $initialSource,
+        [$schemaName, $tableName] = $table;
+        $destination = (new SynapseTableReflection(
+            $this->connection,
+            $schemaName,
+            $tableName
+        ))->getTableDefinition();
+
+        $toStageImporter = new ToStageImporter($this->connection);
+        $fullImporter = new FullImporter($this->connection);
+        $incrementalImporter = new IncrementalImporter($this->connection);
+
+        $fullLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $initialOptions
+            $fullLoadSource->getColumnsNames()
+        );
+        $incrementalLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            $incrementalSource->getColumnsNames()
         );
 
-        $result = (new Importer($this->connection))->importTable(
-            $incrementalSource,
-            $destination,
-            $incrementalOptions
-        );
+        try {
+            // full load
+            $qb = new SynapseTableQueryBuilder();
+            $this->connection->executeStatement(
+                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable)
+            );
+
+            $importState = $toStageImporter->importToStagingTable(
+                $fullLoadSource,
+                $fullLoadStagingTable,
+                $fullLoadOptions
+            );
+            $fullImporter->importToTable(
+                $fullLoadStagingTable,
+                $destination,
+                $fullLoadOptions,
+                $importState
+            );
+            // incremental load
+            $qb = new SynapseTableQueryBuilder();
+            $this->connection->executeStatement(
+                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable)
+            );
+            $importState = $toStageImporter->importToStagingTable(
+                $incrementalSource,
+                $incrementalLoadStagingTable,
+                $incrementalOptions
+            );
+            $result = $incrementalImporter->importToTable(
+                $incrementalLoadStagingTable,
+                $destination,
+                $incrementalOptions,
+                $importState
+            );
+        } finally {
+            $this->connection->executeStatement(
+                (new SqlBuilder())->getDropTableIfExistsCommand(
+                    $fullLoadStagingTable->getSchemaName(),
+                    $fullLoadStagingTable->getTableName()
+                )
+            );
+            $this->connection->executeStatement(
+                (new SqlBuilder())->getDropTableIfExistsCommand(
+                    $incrementalLoadStagingTable->getSchemaName(),
+                    $incrementalLoadStagingTable->getTableName()
+                )
+            );
+        }
+
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-        $this->assertTableEqualsExpected(
-            $initialSource,
+        $this->assertSynapseTableEqualsExpected(
+            $fullLoadSource,
             $destination,
             $incrementalOptions,
             $expected,

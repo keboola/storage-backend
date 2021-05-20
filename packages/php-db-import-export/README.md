@@ -117,6 +117,8 @@ docker-compose run --rm dev composer ci
 
 ### Usage
 
+#### Snowflake
+
 ABS -> Snowflake `import/load`
 ```php
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
@@ -166,6 +168,67 @@ $exportOptions = new ExportOptions(...);
     $absDestinationFile,
     $exportOptions
 );
+```
+
+#### Synapse next (experimental)
+
+Import to Synapse
+
+```php
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
+use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\IncrementalImporter;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
+use Doctrine\DBAL\Connection;
+
+$importSource = new Storage\ABS\SourceFile(...);
+// or
+$importSource = new Storage\Synapse\Table(...);
+// or
+$importSource = new Storage\Synapse\SelectSource(...);
+
+$destinationTable = new SynapseTableDefinition(...);
+$options = new SynapseImportOptions(...);
+$synapseConnection = new Connection(...);
+
+$stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+    $destinationTable,
+    $importSource->getColumnsNames()
+);
+$qb = new SynapseTableQueryBuilder($synapseConnection);
+$synapseConnection->executeStatement(
+    $qb->getCreateTableCommandFromDefinition($stagingTable)
+);
+$toStageImporter = new ToStageImporter($synapseConnection);
+$toFinalTableImporter = new IncrementalImporter($synapseConnection);
+// or
+$toFinalTableImporter = new FullImporter($synapseConnection);
+try {
+    $importState = $toStageImporter->importToStagingTable(
+        $importSource,
+        $stagingTable,
+        $options
+    );
+    $result = $toFinalTableImporter->importToTable(
+        $stagingTable,
+        $destinationTable,
+        $options,
+        $importState
+    );
+} finally {
+    $synapseConnection->executeStatement(
+        (new SqlBuilder())->getDropTableIfExistsCommand(
+            $stagingTable->getSchemaName(),
+            $stagingTable->getTableName()
+        )
+    );    
+}
+
 ```
 
 ### Internals/Extending

@@ -14,11 +14,108 @@ use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
+use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use PHPUnit\Framework\TestCase;
 use Keboola\Db\Import\Exception;
 
 class AssertTest extends TestCase
 {
+    public function testAssertColumnsOnTableDefinitionPass(): void
+    {
+        $this->expectNotToPerformAssertions();
+        Assert::assertColumnsOnTableDefinition(
+            new class implements SourceInterface {
+                public function getColumnsNames(): array
+                {
+                    return ['name', 'id'];
+                }
+
+                public function getPrimaryKeysNames(): ?array
+                {
+                    return null;
+                }
+            },
+            new SynapseTableDefinition(
+                '',
+                '',
+                true,
+                new ColumnCollection([
+                    SynapseColumn::createGenericColumn('id'),
+                    SynapseColumn::createGenericColumn('name'),
+                ]),
+                [],
+                new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            )
+        );
+    }
+
+    public function testAssertColumnsOnTableDefinitionNoColumnsFail(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('No columns found in CSV file.');
+        Assert::assertColumnsOnTableDefinition(
+            new class implements SourceInterface {
+                public function getColumnsNames(): array
+                {
+                    return [];
+                }
+
+                public function getPrimaryKeysNames(): ?array
+                {
+                    return null;
+                }
+            },
+            new SynapseTableDefinition(
+                '',
+                '',
+                true,
+                new ColumnCollection([
+                    SynapseColumn::createGenericColumn('id'),
+                    SynapseColumn::createGenericColumn('name'),
+                ]),
+                [],
+                new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            )
+        );
+    }
+
+    public function testAssertColumnsOnTableDefinitionNoColumnsNotMatch(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Columns doest not match. Non existing columns: unexpected');
+        Assert::assertColumnsOnTableDefinition(
+            new class implements SourceInterface {
+                public function getColumnsNames(): array
+                {
+                    return ['name', 'id', 'unexpected'];
+                }
+
+                public function getPrimaryKeysNames(): ?array
+                {
+                    return null;
+                }
+            },
+            new SynapseTableDefinition(
+                '',
+                '',
+                true,
+                new ColumnCollection([
+                    SynapseColumn::createGenericColumn('id'),
+                    SynapseColumn::createGenericColumn('name'),
+                ]),
+                [],
+                new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            )
+        );
+    }
+
     public function testAssertColumnsPass(): void
     {
         $this->expectNotToPerformAssertions();
