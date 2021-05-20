@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable;
 
 use Keboola\Datatype\Definition\BaseType;
+use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
@@ -107,10 +108,10 @@ class SqlBuilder
         );
         $useTimestamp = $timestampNotInColumns && $importOptions->useTimestamp();
 
-        $createTableColumns = $this->getColumnsString($columnsInOrder, ',', 'a');
         if ($useTimestamp) {
-            $createTableColumns .= ', ' . SynapseQuote::quote($timestamp) . ' AS [_timestamp]';
+            $columnsInOrder[] = ToStageImporterInterface::TIMESTAMP_COLUMN_NAME;
         }
+        $createTableColumns = $this->getColumnsString($columnsInOrder, ',', 'a');
 
         $columnsSetSql = [];
         /** @var SynapseColumn $column */
@@ -142,6 +143,9 @@ class SqlBuilder
                     'COALESCE(%s, \'\')',
                     SynapseQuote::quoteSingleIdentifier($column->getColumnName())
                 );
+                if ($column->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
+                    $colSql = SynapseQuote::quoteSingleIdentifier($column->getColumnName());
+                }
                 if ($importOptions->getCastValueTypes()) {
                     $colSql = sprintf(
                         'CAST(%s as %s)',
@@ -155,6 +159,15 @@ class SqlBuilder
                     SynapseQuote::quoteSingleIdentifier($column->getColumnName())
                 );
             }
+        }
+
+        if ($useTimestamp) {
+            $columnsSetSql[] = sprintf(
+                'CAST(%s as %s) AS %s',
+                SynapseQuote::quote($timestamp),
+                Synapse::TYPE_DATETIME2,
+                SynapseQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME)
+            );
         }
 
         $depudeSql = sprintf(
