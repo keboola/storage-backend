@@ -143,9 +143,6 @@ class SqlBuilder
                     'COALESCE(%s, \'\')',
                     SynapseQuote::quoteSingleIdentifier($column->getColumnName())
                 );
-                if ($column->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
-                    $colSql = SynapseQuote::quoteSingleIdentifier($column->getColumnName());
-                }
                 if ($importOptions->getCastValueTypes()) {
                     $colSql = sprintf(
                         'CAST(%s as %s)',
