@@ -152,7 +152,7 @@ EOT;
     public function getRowsCount(): int
     {
         $count = $this->connection->fetchColumn(sprintf(
-            'SELECT COUNT(*) AS [count] FROM %s.%s',
+            'SELECT COUNT_BIG(*) AS [count] FROM %s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
             SynapseQuote::quoteSingleIdentifier($this->tableName)
         ));
