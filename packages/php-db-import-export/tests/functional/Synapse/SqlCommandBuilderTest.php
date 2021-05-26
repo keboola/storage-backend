@@ -658,28 +658,6 @@ EOT
         $this->assertNotFalse($expectedFalse);
     }
 
-    public function testGetTableItemsCountCommand(): void
-    {
-        $this->createTestSchema();
-        $this->createStagingTableWithData();
-        $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
-        $this->assertEquals(
-            'SELECT COUNT(*) AS [count] FROM [import-export-test_schema].[#stagingTable]',
-            $sql
-        );
-        $response = $this->connection->fetchColumn($sql);
-
-        $this->assertEquals(3, (int) $response);
-
-        $response = $this->connection->fetchAll($sql);
-
-        $this->assertSame([
-            [
-                'count' => '3',
-            ],
-        ], $response);
-    }
-
     public function testGetTableObjectIdCommand(): void
     {
         $this->createTestSchema();
@@ -725,9 +703,12 @@ EOT
         $this->createTestSchema();
         $this->createStagingTableWithData();
 
-        $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
-        $response = $this->connection->fetchColumn($sql);
-        $this->assertEquals(3, (int) $response);
+        $rowCount = (new SynapseTableReflection(
+            $this->connection,
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE
+        ))->getRowsCount();
+        $this->assertEquals(3, $rowCount);
 
         $sql = $this->qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(
@@ -736,9 +717,12 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
-        $response = $this->connection->fetchColumn($sql);
-        $this->assertEquals(0, (int) $response);
+        $rowCount = (new SynapseTableReflection(
+            $this->connection,
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE
+        ))->getRowsCount();
+        $this->assertEquals(0, $rowCount);
     }
 
     public function testGetTruncateTableWithDeleteCommand(): void
@@ -746,9 +730,12 @@ EOT
         $this->createTestSchema();
         $this->createStagingTableWithData();
 
-        $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
-        $response = $this->connection->fetchColumn($sql);
-        $this->assertEquals(3, (int) $response);
+        $rowCount = (new SynapseTableReflection(
+            $this->connection,
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE
+        ))->getRowsCount();
+        $this->assertEquals(3, $rowCount);
 
         $sql = $this->qb->getTruncateTableWithDeleteCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(
@@ -757,9 +744,12 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $sql = $this->qb->getTableItemsCountCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
-        $response = $this->connection->fetchColumn($sql);
-        $this->assertEquals(0, (int) $response);
+        $rowCount = (new SynapseTableReflection(
+            $this->connection,
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE
+        ))->getRowsCount();
+        $this->assertEquals(0, $rowCount);
     }
 
     public function testGetUpdateWithPkCommand(): void

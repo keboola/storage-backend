@@ -432,15 +432,6 @@ class SqlCommandBuilder
         );
     }
 
-    public function getTableItemsCountCommand(string $schema, string $table): string
-    {
-        return sprintf(
-            'SELECT COUNT(*) AS [count] FROM %s.%s',
-            $this->platform->quoteSingleIdentifier($schema),
-            $this->platform->quoteSingleIdentifier($table)
-        );
-    }
-
     public function getTablePrimaryKey(string $schemaName, string $tableName): array
     {
         /** @var string|false $objectId */

@@ -65,7 +65,7 @@ class SynapseAdapterTest extends BaseTestCase
             'INSERT INTO [test_schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [test_schema].[test_table]'
         );
         $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
             ->willReturn(
                 [
                     [
@@ -104,7 +104,7 @@ class SynapseAdapterTest extends BaseTestCase
             [1]
         );
         $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
             ->willReturn(
                 [
                     [

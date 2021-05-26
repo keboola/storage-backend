@@ -29,7 +29,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             'INSERT INTO [test_schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [test_schema].[test_table]'
         );
         $conn->expects($this->once())->method('fetchColumn')
-            ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
             ->willReturn(10);
 
         $destination = new SynapseTableDefinition(
@@ -72,7 +72,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             [1]
         );
         $conn->expects($this->once())->method('fetchColumn')
-            ->with('SELECT COUNT(*) AS [count] FROM [test_schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
             ->willReturn(10);
 
         $destination = new SynapseTableDefinition(
