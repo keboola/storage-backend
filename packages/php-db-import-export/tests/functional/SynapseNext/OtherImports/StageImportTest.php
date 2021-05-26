@@ -157,7 +157,7 @@ class StageImportTest extends SynapseBaseTestCase
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
         ) {
-            $this->expectException(SynapseException::class);
+            $this->expectException(Exception::class);
             $this->expectExceptionMessage(
                 '[SQL Server]Bulk load data conversion error'
             );
@@ -217,7 +217,7 @@ class StageImportTest extends SynapseBaseTestCase
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
         ) {
-            $this->expectException(SynapseException::class);
+            $this->expectException(Exception::class);
             $this->expectExceptionMessage(
                 '[SQL Server]Bulk load data conversion error'
             );
