@@ -589,7 +589,7 @@ class OtherImportTest extends SynapseBaseTestCase
         ) {
             $this->expectException(Exception::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
 
@@ -638,7 +638,7 @@ class OtherImportTest extends SynapseBaseTestCase
         ) {
             $this->expectException(Exception::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
 

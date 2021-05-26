@@ -159,7 +159,7 @@ class StageImportTest extends SynapseBaseTestCase
         ) {
             $this->expectException(SynapseException::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
 
@@ -219,7 +219,7 @@ class StageImportTest extends SynapseBaseTestCase
         ) {
             $this->expectException(SynapseException::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
         $importer = new ToStageImporter($this->connection);
