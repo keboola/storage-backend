@@ -103,15 +103,9 @@ class SynapseAdapterTest extends BaseTestCase
             ['val'],
             [1]
         );
-        $conn->expects($this->once())->method('fetchAll')
+        $conn->expects($this->once())->method('fetchColumn')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+            ->willReturn(10);
 
         $destination = new Storage\Synapse\Table('test_schema', 'test_table', ['col1', 'col2']);
         $options = new ImportOptions([]);
