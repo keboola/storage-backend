@@ -99,18 +99,8 @@ class Importer implements ImporterInterface
                 );
             }
             $this->importState->setImportedColumns($source->getColumnsNames());
-        } catch (DBALException $e) {
-            if (strpos($e->getMessage(), '[SQL Server]Bulk load') !== false) {
-                // could be
-                // - Bulk load data conversion error (when cell has more than 4000chars)
-                // - Bulk load failed due to (parsing err in CSV)
-                // - possibly something else
-                throw new Exception(
-                    $e->getMessage(),
-                    Exception::UNKNOWN_ERROR
-                );
-            }
-            throw $e;
+        } catch (\Doctrine\DBAL\Exception $e) {
+            throw SynapseException::covertException($e);
         } finally {
             // drop staging table
             $this->runQuery(
