@@ -12,6 +12,7 @@ use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
@@ -21,14 +22,10 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
     private $platform;
 
-    /** @var SqlCommandBuilder */
-    private $sqlBuilder;
-
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
         $this->platform = $connection->getDatabasePlatform();
-        $this->sqlBuilder = new SqlCommandBuilder($this->connection);
     }
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -59,12 +56,11 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             $this->connection->exec($sql);
         }
 
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+        return (new SynapseTableReflection(
+            $this->connection,
             $destination->getSchema(),
             $stagingTableName
-        ));
-
-        return (int) $rows[0]['count'];
+        ))->getRowsCount();
     }
 
     private function getCopyCommand(

@@ -74,15 +74,9 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+        $conn->expects($this->once())->method('fetchColumn')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(10);
 
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new SynapseImportOptions();
@@ -125,15 +119,9 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+        $conn->expects($this->once())->method('fetchColumn')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(10);
 
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new SynapseImportOptions();
@@ -173,15 +161,9 @@ WITH (
 )
 EOT
         );
-        $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+        $conn->expects($this->once())->method('fetchColumn')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(10);
 
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new SynapseImportOptions([], false, false, 1);
@@ -222,15 +204,9 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchAll')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
-            ->willReturn(
-                [
-                    [
-                        'count' => 10,
-                    ],
-                ]
-            );
+        $conn->expects($this->once())->method('fetchColumn')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
+            ->willReturn(10);
 
         $destination = new Storage\Synapse\Table('schema', 'table');
         $options = new SynapseImportOptions(

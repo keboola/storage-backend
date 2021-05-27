@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
@@ -19,14 +20,10 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
     /** @var Connection */
     private $connection;
 
-    /** @var SqlCommandBuilder */
-    private $sqlBuilder;
-
     public function __construct(Connection $connection)
     {
         $this->platform = $connection->getDatabasePlatform();
         $this->connection = $connection;
-        $this->sqlBuilder = new SqlCommandBuilder($this->connection);
     }
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -70,11 +67,10 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             $this->connection->exec($sql);
         }
 
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+        return (new SynapseTableReflection(
+            $this->connection,
             $destination->getSchema(),
             $stagingTableName
-        ));
-
-        return (int) $rows[0]['count'];
+        ))->getRowsCount();
     }
 }

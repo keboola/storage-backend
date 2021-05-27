@@ -48,7 +48,7 @@ EOT
         );
 
         $conn->expects($this->once())->method('fetchColumn')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 
         $destination = new SynapseTableDefinition(
@@ -99,7 +99,7 @@ EOT
         );
 
         $conn->expects($this->once())->method('fetchColumn')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 
         $destination = new SynapseTableDefinition(
@@ -148,7 +148,7 @@ WITH (
 EOT
         );
         $conn->expects($this->once())->method('fetchColumn')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 
         $destination = new SynapseTableDefinition(
@@ -197,7 +197,7 @@ EOT
         );
 
         $conn->expects($this->once())->method('fetchColumn')
-            ->with('SELECT COUNT(*) AS [count] FROM [schema].[stagingTable]')
+            ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 
         $destination = new SynapseTableDefinition(

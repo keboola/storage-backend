@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
-use Doctrine\DBAL\DBALException;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
@@ -588,9 +587,9 @@ class OtherImportTest extends SynapseBaseTestCase
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
         ) {
-            $this->expectException(DBALException::class);
+            $this->expectException(Exception::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
 
@@ -637,9 +636,9 @@ class OtherImportTest extends SynapseBaseTestCase
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
         ) {
-            $this->expectException(DBALException::class);
+            $this->expectException(Exception::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
 

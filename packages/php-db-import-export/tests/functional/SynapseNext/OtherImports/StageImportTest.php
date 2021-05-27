@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\SynapseNext\OtherImports;
 
-use Doctrine\DBAL\DBALException;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseException;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Storage;
@@ -157,9 +157,9 @@ class StageImportTest extends SynapseBaseTestCase
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
         ) {
-            $this->expectException(DBALException::class);
+            $this->expectException(Exception::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
 
@@ -217,9 +217,9 @@ class StageImportTest extends SynapseBaseTestCase
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
             || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
         ) {
-            $this->expectException(DBALException::class);
+            $this->expectException(Exception::class);
             $this->expectExceptionMessage(
-                '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Bulk load data conversion error'
+                '[SQL Server]Bulk load data conversion error'
             );
         }
         $importer = new ToStageImporter($this->connection);
@@ -266,5 +266,95 @@ class StageImportTest extends SynapseBaseTestCase
 
             $this->assertEquals(4000, strlen($queryResult[0][0]));
         }
+    }
+
+    public function testCopyIntoInvalidTypes(): void
+    {
+        $this->initTables([self::TABLE_TYPES]);
+
+        $source = $this->createABSSourceInstance(
+            'typed_table.invalid-types.csv',
+            [
+                'charCol',
+                'numCol',
+                'floatCol',
+                'boolCol',
+            ],
+            false,
+            false,
+            []
+        );
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $this->getSourceSchemaName(),
+            self::TABLE_TYPES
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new SynapseTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            '[SQL Server]Bulk load data conversion error'
+        );
+        $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $this->getSynapseImportOptions()
+        );
+    }
+
+    public function testInsertIntoInvalidTypes(): void
+    {
+        $this->initTables([self::TABLE_TYPES]);
+
+        $source = new Storage\Synapse\Table(
+            $this->getDestinationSchemaName(),
+            self::TABLE_TYPES,
+            [
+                'charCol',
+                'numCol',
+                'floatCol',
+                'boolCol',
+            ]
+        );
+        $this->connection->exec(sprintf(
+            'INSERT INTO [%s].[types] VALUES
+              (\'a\', \'test\', \'test\', 1, \'\')
+           ;',
+            $this->getDestinationSchemaName()
+        ));
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $this->getSourceSchemaName(),
+            self::TABLE_TYPES
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new SynapseTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            '[SQL Server]Error converting data type'
+        );
+        $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $this->getSynapseImportOptions()
+        );
     }
 }

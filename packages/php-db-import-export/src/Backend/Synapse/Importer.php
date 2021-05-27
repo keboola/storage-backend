@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
@@ -97,6 +99,8 @@ class Importer implements ImporterInterface
                 );
             }
             $this->importState->setImportedColumns($source->getColumnsNames());
+        } catch (\Doctrine\DBAL\Exception $e) {
+            throw SynapseException::covertException($e);
         } finally {
             // drop staging table
             $this->runQuery(

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseException;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -48,13 +49,17 @@ final class ToStageImporter implements ToStageImporterInterface
         $adapter = $this->getAdapter($source);
 
         $state->startTimer(self::TIMER_TABLE_IMPORT);
-        $state->addImportedRowsCount(
-            $adapter->runCopyCommand(
-                $source,
-                $destinationDefinition,
-                $options
-            )
-        );
+        try {
+            $state->addImportedRowsCount(
+                $adapter->runCopyCommand(
+                    $source,
+                    $destinationDefinition,
+                    $options
+                )
+            );
+        } catch (\Doctrine\DBAL\Exception $e) {
+            throw SynapseException::covertException($e);
+        }
         $state->stopTimer(self::TIMER_TABLE_IMPORT);
 
         return $state;
