@@ -79,6 +79,27 @@ RUN mkdir -p ~/.gnupg \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
 
+# Teradata
+ADD https://teradata-drivers-driverss3bucket-8b7jbdmserup.s3.amazonaws.com/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/tdodbc.deb
+RUN dpkg -i /tmp/tdodbc.deb
+
+COPY docker/teradata/odbc.ini /etc/odbc_td.ini
+RUN cat /etc/odbc_td.ini >> /etc/odbc.ini
+RUN rm /etc/odbc_td.ini
+
+COPY docker/teradata/odbcinst.ini /etc/odbcinst_td.ini
+RUN cat /etc/odbcinst_td.ini >> /etc/odbcinst.ini
+RUN rm /etc/odbcinst_td.ini
+
+RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
+ && docker-php-ext-install pdo_odbc
+
+ENV ODBCHOME = /opt/teradata/client/ODBC_64/
+ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
+ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
+ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
+
+
 ## Composer - deps always cached unless changed
 # First copy only composer files
 COPY composer.* /code/
