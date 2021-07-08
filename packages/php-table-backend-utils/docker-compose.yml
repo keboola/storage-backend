@@ -16,6 +16,10 @@ services:
       - SYNAPSE_PWD
       - SYNAPSE_DATABASE
       - SYNAPSE_SERVER
+      - TERADATA_HOST
+      - TERADATA_PORT
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
   dev: &dev
     <<: *prod
     image: keboola/php-db-import-export

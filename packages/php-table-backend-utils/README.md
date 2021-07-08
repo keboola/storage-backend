@@ -176,6 +176,9 @@ docker-compose run --rm dev composer phplint
 #phpcs
 docker-compose run --rm dev composer phpcs
 
+#phpcbf
+docker-compose run --rm dev composer phpcbf
+
 #phpstan
 docker-compose run --rm dev composer phpstan
 ```
