@@ -1,3 +1,8 @@
+FROM quay.io/keboola/aws-cli
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_ACCESS_KEY_ID
+RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/tdodbc.deb
+
 FROM php:7.1-cli
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
@@ -80,7 +85,7 @@ RUN mkdir -p ~/.gnupg \
     && dpkg -i /tmp/snowflake-odbc.deb
 
 # Teradata
-ADD https://teradata-drivers-driverss3bucket-8b7jbdmserup.s3.amazonaws.com/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/tdodbc.deb
+COPY --from=0 /tmp/tdodbc.deb /tmp/tdodbc.deb
 RUN dpkg -i /tmp/tdodbc.deb
 
 COPY docker/teradata/odbc.ini /etc/odbc_td.ini
