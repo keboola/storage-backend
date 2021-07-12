@@ -22,8 +22,6 @@ class TeradataDatabaseTest extends TeradataBaseCase
     protected function setUp(): void
     {
         parent::setUp();
-//        $this->dropAllWithinSchema(self::TEST_SCHEMA);
-//        $this->dropAllWithinSchema(self::TEST_SCHEMA_2);
     }
 
     public function testGetDatabase(): void

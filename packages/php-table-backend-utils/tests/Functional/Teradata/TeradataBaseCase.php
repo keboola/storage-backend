@@ -21,36 +21,6 @@ class TeradataBaseCase extends TestCase
     /** @var TeradataPlatform|AbstractPlatform */
     protected $platform;
 
-    protected function dropAllWithinSchema(string $schema): void
-    {
-//        TODO
-//        $ref = new SynapseSchemaReflection($this->connection, $schema);
-//        $tables = $ref->getTablesNames();
-//
-//        foreach ($tables as $table) {
-//            $this->connection->exec(
-//                $this->tableQb->getDropTableCommand($schema, $table)
-//            );
-//        }
-//
-//        $ref = new SynapseSchemaReflection($this->connection, $schema);
-//        $views = $ref->getViewsNames();
-//
-//        foreach ($views as $view) {
-//            $this->connection->exec(sprintf('DROP VIEW [%s].[%s]', $schema, $view));
-//        }
-//
-//        $schemas = $this->connection->fetchAll(
-//            sprintf(
-//                'SELECT name FROM sys.schemas WHERE name = \'%s\'',
-//                $schema
-//            )
-//        );
-//
-//        foreach ($schemas as $item) {
-//            $this->connection->exec($this->schemaQb->getDropSchemaCommand($item['name']));
-//        }
-    }
 
     protected function setUp(): void
     {
