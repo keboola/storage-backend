@@ -35,6 +35,7 @@ class TeradataBaseCase extends TestCase
             'host' => getenv('TERADATA_HOST'),
             'user' => getenv('TERADATA_USERNAME'),
             'password' => getenv('TERADATA_PASSWORD'),
+            'port' => getenv('TERADATA_PORT'),
             'dbname' => '',
         ]);
     }

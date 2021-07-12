@@ -150,6 +150,29 @@ SYNAPSE_DATABASE=synapse_db
 SYNAPSE_SERVER=<synapse>.database.windows.net
 ```
 
+#### Teradata
+
+Prepare Teradata servers on AWS/Azure and set following properties. See 
+
+set up env variables:
+```bash
+TERADATA_HOST=
+TERADATA_PORT=1025
+TERADATA_USERNAME=
+TERADATA_PASSWORD=
+```
+
+#### AWS
+
+In order to download TD odbc driver, create a user who can access S3 bucket with the driver package. 
+
+set up env variables:
+```bash
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+```
+
+
 ### Tests
 
 Run tests with following command.
@@ -188,4 +211,18 @@ docker-compose run --rm dev composer phpstan
 This command will run all checks load fixtures and run tests
 ```bash
 docker-compose run --rm dev composer ci
+```
+
+
+## Teradata connection
+
+You can use following method to get connection to Teradata for your queries
+```php
+\Keboola\TableBackendUtils\Connection\Teradata\TeradataBaseConnection::getBaseConnection([
+            'host' => getenv('TERADATA_HOST'),
+            'user' => getenv('TERADATA_USERNAME'),
+            'password' => getenv('TERADATA_PASSWORD'),
+            'port' => getenv('TERADATA_PORT'),
+            'dbname' => '',
+        ]);
 ```

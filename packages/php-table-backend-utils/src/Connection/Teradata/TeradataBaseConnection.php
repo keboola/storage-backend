@@ -11,14 +11,18 @@ use Throwable;
 class TeradataBaseConnection
 {
     /**
-     * @param array<string, string|false> $params
+     * @param $params array{
+     *     host:string,
+     *     user:string,
+     *     password:string,
+     *     port:int,
+     * }
      * @return Connection
      * @throws Exception
      */
     public static function getBaseConnection(array $params): Connection
     {
         $params = array_merge($params, [
-            'port' => getenv('TERADATA_PORT'),
             'driverClass' => TeradataDriver::class,
         ]);
 
