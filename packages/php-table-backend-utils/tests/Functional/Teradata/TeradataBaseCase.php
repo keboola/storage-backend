@@ -9,11 +9,12 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataPlatform;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
+use Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection;
 use PHPUnit\Framework\TestCase;
 
 class TeradataBaseCase extends TestCase
 {
-    public const TESTS_PREFIX = 'utils-test_';
+    public const TESTS_PREFIX = 'utilsTestX_';
 
     /** @var Connection */
     protected $connection;
@@ -21,12 +22,32 @@ class TeradataBaseCase extends TestCase
     /** @var TeradataPlatform|AbstractPlatform */
     protected $platform;
 
-
     protected function setUp(): void
     {
         parent::setUp();
         $this->connection = $this->getTeradataConnection();
         $this->platform = $this->connection->getDatabasePlatform();
+    }
+
+    protected function cleanDatabase(string $dbname): void
+    {
+        $ref = new TeradataSchemaReflection($this->connection, $dbname);
+        if (!$ref->dbExists()) {
+            return;
+        }
+
+        // delete all objects in the DB
+        $this->connection->executeQuery(sprintf('DELETE DATABASE %s ALL', $dbname));
+        // drop the empty db
+        $this->connection->executeQuery(sprintf('DROP DATABASE %s', $dbname));
+    }
+
+    public function createDatabase(string $dbName): void
+    {
+        $this->connection->executeQuery(sprintf('
+CREATE DATABASE %s AS
+       PERM = 1e9;
+       ', $dbName));
     }
 
     private function getTeradataConnection(): Connection

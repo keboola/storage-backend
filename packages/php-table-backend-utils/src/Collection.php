@@ -40,4 +40,16 @@ class Collection implements IteratorAggregate, Countable
     {
         return count($this->items);
     }
+
+    /**
+     * @param array<mixed> $data
+     * @param string $key
+     * @return array<mixed>
+     */
+    public static function extractByKey(array $data, string $key): array
+    {
+        return array_map(static function ($record) use ($key) {
+            return trim($record[$key]);
+        }, $data);
+    }
 }
