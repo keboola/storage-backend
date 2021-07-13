@@ -9,7 +9,7 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 /**
  * Class Teradata
  *
- * https://docs.teradata.com/r/WurHmDcDf31smikPbo9Mcw/dDla3MlDTqMudFBri0z~fA
+ * https://docs.teradata.com/r/Ri8d7iL59tIPr1FZNKPLMw/TQAE5zgqV8pvyhrySc7ZVg
  */
 class Teradata extends Common
 {
@@ -28,10 +28,11 @@ class Teradata extends Common
     const TYPE_REAL = 'REAL';
     const TYPE_SMALLINT = 'SMALLINT';
     const TYPE_TIME = 'TIME';
-    const TYPE_TIME_ZONE = 'TIME WITH TIME ZONE';
+    const TYPE_TIME_WITH_ZONE = 'TIME WITH TIME ZONE';
     const TYPE_TIMESTAMP = 'TIMESTAMP';
-    const TYPE_TIMESTAMP_ZONE = 'TIMESTAMP WITH TIME ZONE';
+    const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP WITH TIME ZONE';
     const TYPE_CHAR = 'CHAR';
+    const TYPE_LONG_VARCHAR = 'LONG VARCHAR';
     const TYPE_CLOB = 'CLOB';
     const TYPE_VARCHAR = 'VARCHAR';
     const TYPE_PERIOD = 'PERIOD';
@@ -40,6 +41,7 @@ class Teradata extends Common
 // TODO arrays
 // TODO complex periods
 // TODO varying 
+// TODO long varchar
 
     /**
      * Types with precision and scale
@@ -65,35 +67,63 @@ class Teradata extends Common
         self::TYPE_CLOB,
         self::TYPE_LONG_VARCHAR,
     ];
-
+//https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/6CYL2QcAvXykzEc8mG__Xg
     const TYPE_CODE_TO_TYPE = [
-'++' => self::TD_ANYTYPE,
-'I8' => self::BIGINT,
-'BO' => self::BLOB,
-'BF' => self::BYTE,
-'I1' => self::BYTEINT,
-'CF' => self::CHARACTER,
-'CO' => self::CLOB,
-'D' => self::DECIMAL, // could be also NUMERIC 'D' => 'NUMERIC,
-'DA' => self::DATE,
-'F' => self::FLOAT, // 'DOUBLE PRECISION DOUBLE PRECISION, FLOAT, and REAL are different names for the same data type.,
-'I' => self::INTEGER,
-'N' => self::NUMBER,
-'PD' => self::PERIOD,
-'I2' => self::SMALLINT,
-'AT' => self::TIME,
-'TS' => self::TIMESTAMP,
-'TZ' => self::TYPE_TIME_ZONE,
-'SZ' => self::TIMESTAMP_TIME_ZONE,
-//'UT' => self::USER‑DEFINED TYPE ,
-'XM' => self::XML,
-];
-
+//        '++' => self::TYPE_TD_ANYTYPE,
+        'I8' => self::TYPE_BIGINT,
+        'BO' => self::TYPE_BLOB,
+        'BF' => self::TYPE_BYTE,
+        'I1' => self::TYPE_BYTEINT,
+        'CF' => self::TYPE_CHAR,
+        'CO' => self::TYPE_CLOB,
+        'D' => self::TYPE_DECIMAL,
+        // could be also NUMERIC 'D' => 'NUMERIC,
+        'DA' => self::TYPE_DATE,
+        'F' => self::TYPE_FLOAT,
+        // 'DOUBLE PRECISION DOUBLE PRECISION, FLOAT, and REAL are different names for the same data type.,
+        'I' => self::TYPE_INTEGER,
+        'N' => self::TYPE_NUMBER,
+        'PD' => self::TYPE_PERIOD,
+        'I2' => self::TYPE_SMALLINT,
+        'AT' => self::TYPE_TIME,
+        'TS' => self::TYPE_TIMESTAMP,
+        'TZ' => self::TYPE_TIME_WITH_ZONE,
+        'SZ' => self::TYPE_TIMESTAMP_WITH_ZONE,
+//          'UT' => self::TYPE_USER‑DEFINED TYPE ,
+//        'XM' => self::TYPE_XML,
+    ];
+    const TYPES = [
+        self::TYPE_BLOB,
+        self::TYPE_BYTE,
+        self::TYPE_VARBYTE,
+        self::TYPE_BIGINT,
+        self::TYPE_BYTEINT,
+        self::TYPE_DATE,
+        self::TYPE_DECIMAL,
+        self::TYPE_DOUBLE_PRECISION,
+        self::TYPE_FLOAT,
+        self::TYPE_INTEGER,
+        self::TYPE_NUMBER,
+        self::TYPE_NUMERIC,
+        self::TYPE_REAL,
+        self::TYPE_SMALLINT,
+        self::TYPE_TIME,
+        self::TYPE_TIME_WITH_ZONE,
+        self::TYPE_TIMESTAMP,
+        self::TYPE_TIMESTAMP_WITH_ZONE,
+        self::TYPE_CHAR,
+        self::TYPE_LONG_VARCHAR,
+        self::TYPE_CLOB,
+        self::TYPE_VARCHAR,
+        self::TYPE_PERIOD,
+    ];
 // TODO intervals
 // TODO User-defined Type
 // TODO arrays
 // TODO complex periods
 // TODO varying (byte, character)
+// TODO xml, json...
+// TODO anytype
 
     /**
      * @param string $type
@@ -113,9 +143,9 @@ class Teradata extends Common
         parent::__construct($type, $options);
     }
 
-    public static function convertCodeToType(string $code): string
+    public static function convertCodeToType($code)
     {
-        if(!in_array($code, self::TYPE_CODE_TO_TYPE)){
+        if (!array_key_exists($code, self::TYPE_CODE_TO_TYPE)) {
             throw new \Exception("Type code {$code} is not supported");
         }
 
