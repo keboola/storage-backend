@@ -28,15 +28,18 @@ class Teradata extends Common
     const TYPE_REAL = 'REAL';
     const TYPE_SMALLINT = 'SMALLINT';
     const TYPE_TIME = 'TIME';
+    const TYPE_TIME_ZONE = 'TIME WITH TIME ZONE';
     const TYPE_TIMESTAMP = 'TIMESTAMP';
+    const TYPE_TIMESTAMP_ZONE = 'TIMESTAMP WITH TIME ZONE';
     const TYPE_CHAR = 'CHAR';
     const TYPE_CLOB = 'CLOB';
-    const TYPE_CHAR_VARYING = 'CHAR VARYING';
-    const TYPE_LONG_VARCHAR = 'LONG VARCHAR';
     const TYPE_VARCHAR = 'VARCHAR';
     const TYPE_PERIOD = 'PERIOD';
 // TODO intervals
 // TODO User-defined Type
+// TODO arrays
+// TODO complex periods
+// TODO varying 
 
     /**
      * Types with precision and scale
@@ -63,6 +66,35 @@ class Teradata extends Common
         self::TYPE_LONG_VARCHAR,
     ];
 
+    const TYPE_CODE_TO_TYPE = [
+'++' => self::TD_ANYTYPE,
+'I8' => self::BIGINT,
+'BO' => self::BLOB,
+'BF' => self::BYTE,
+'I1' => self::BYTEINT,
+'CF' => self::CHARACTER,
+'CO' => self::CLOB,
+'D' => self::DECIMAL, // could be also NUMERIC 'D' => 'NUMERIC,
+'DA' => self::DATE,
+'F' => self::FLOAT, // 'DOUBLE PRECISION DOUBLE PRECISION, FLOAT, and REAL are different names for the same data type.,
+'I' => self::INTEGER,
+'N' => self::NUMBER,
+'PD' => self::PERIOD,
+'I2' => self::SMALLINT,
+'AT' => self::TIME,
+'TS' => self::TIMESTAMP,
+'TZ' => self::TYPE_TIME_ZONE,
+'SZ' => self::TIMESTAMP_TIME_ZONE,
+//'UT' => self::USER‑DEFINED TYPE ,
+'XM' => self::XML,
+];
+
+// TODO intervals
+// TODO User-defined Type
+// TODO arrays
+// TODO complex periods
+// TODO varying (byte, character)
+
     /**
      * @param string $type
      * @param array $options -- length, nullable, default
@@ -79,6 +111,15 @@ class Teradata extends Common
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
+    }
+
+    public static function convertCodeToType(string $code): string
+    {
+        if(!in_array($code, self::TYPE_CODE_TO_TYPE)){
+            throw new \Exception("Type code {$code} is not supported");
+        }
+
+        return self::TYPE_CODE_TO_TYPE[$code];
     }
 
     /**
