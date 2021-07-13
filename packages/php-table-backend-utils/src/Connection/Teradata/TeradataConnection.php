@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Exception;
 use Throwable;
 
-class TeradataBaseConnection
+class TeradataConnection
 {
     /**
      * @param $params array{
@@ -20,7 +20,7 @@ class TeradataBaseConnection
      * @return Connection
      * @throws Exception
      */
-    public static function getBaseConnection(array $params): Connection
+    public static function getConnection(array $params): Connection
     {
         $params = array_merge($params, [
             'driverClass' => TeradataDriver::class,

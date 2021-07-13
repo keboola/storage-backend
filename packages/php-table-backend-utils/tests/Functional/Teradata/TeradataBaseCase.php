@@ -6,7 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Teradata;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Keboola\TableBackendUtils\Connection\Teradata\TeradataBaseConnection;
+use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataPlatform;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use PHPUnit\Framework\TestCase;
@@ -31,7 +31,7 @@ class TeradataBaseCase extends TestCase
 
     private function getTeradataConnection(): Connection
     {
-        return TeradataBaseConnection::getBaseConnection([
+        return TeradataConnection::getConnection([
             'host' => getenv('TERADATA_HOST'),
             'user' => getenv('TERADATA_USERNAME'),
             'password' => getenv('TERADATA_PASSWORD'),
