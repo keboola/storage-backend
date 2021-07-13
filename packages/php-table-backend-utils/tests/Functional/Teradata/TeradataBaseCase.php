@@ -121,4 +121,16 @@ CREATE DATABASE %s AS
             TeradataQuote::quoteSingleIdentifier($roleName)
         ));
     }
+
+    protected function insertRowToTable($dbName, $tableName, $id, $firstName, $lastName)
+    {
+        $this->connection->executeQuery(sprintf(
+            'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+            TeradataQuote::quoteSingleIdentifier($dbName),
+            TeradataQuote::quoteSingleIdentifier($tableName),
+            $id,
+            TeradataQuote::quote($firstName),
+            TeradataQuote::quote($lastName)
+        ));
+    }
 }

@@ -80,14 +80,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             [2, 'pepik', 'knedla'],
         ];
         foreach ($data as $item) {
-            $this->connection->executeQuery(sprintf(
-                'INSERT INTO %s.%s VALUES (%d, %s, %s)',
-                TeradataQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-                $item[0],
-                TeradataQuote::quote($item[1]),
-                TeradataQuote::quote($item[2])
-            ));
+            $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, ...$item);
         }
         self::assertEquals(2, $ref->getRowsCount());
     }
@@ -161,5 +154,23 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             4, // length
             false, // nullable
         ];
+    }
+
+    public function testGetTableStats(): void
+    {
+        $this->initTable();
+        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+
+        $stats1 = $ref->getTableStats();
+        self::assertEquals(0, $stats1->getRowsCount());
+        self::assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
+
+        $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
+        $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 2, 'karel', 'motycka');
+
+
+        $stats2 = $ref->getTableStats();
+        self::assertEquals(2, $stats2->getRowsCount());
+        self::assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
     }
 }

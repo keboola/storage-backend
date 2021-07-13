@@ -102,8 +102,16 @@ final class TeradataTableReflection implements TableReflectionInterface
 
     public function getTableStats(): TableStatsInterface
     {
-//        TODO
-        return new TableStats(1, 1);
+        $sql = sprintf('
+SELECT CURRENTPERM FROM DBC.ALLSPACE
+WHERE  DATABASENAME = %s AND TABLENAME = %s 
+',
+            TeradataQuote::quote($this->dbName),
+            TeradataQuote::quote($this->tableName)
+        );
+        $result = $this->connection->fetchOne($sql);
+
+        return new TableStats((int) $result, $this->getRowsCount());
     }
 
     public function isTemporary(): bool
