@@ -86,18 +86,17 @@ RUN mkdir -p ~/.gnupg \
 
 # Teradata
 COPY --from=0 /tmp/tdodbc.deb /tmp/tdodbc.deb
-RUN dpkg -i /tmp/tdodbc.deb
+COPY docker/teradata/odbc.ini /tmp/odbc_td.ini
+COPY docker/teradata/odbcinst.ini /tmp/odbcinst_td.ini
 
-COPY docker/teradata/odbc.ini /etc/odbc_td.ini
-RUN cat /etc/odbc_td.ini >> /etc/odbc.ini
-RUN rm /etc/odbc_td.ini
-
-COPY docker/teradata/odbcinst.ini /etc/odbcinst_td.ini
-RUN cat /etc/odbcinst_td.ini >> /etc/odbcinst.ini
-RUN rm /etc/odbcinst_td.ini
-
-RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
- && docker-php-ext-install pdo_odbc
+RUN dpkg -i /tmp/tdodbc.deb \
+    && cat /tmp/odbc_td.ini >> /etc/odbc.ini \
+    && cat /tmp/odbcinst_td.ini >> /etc/odbcinst.ini \
+    && rm /tmp/odbc_td.ini \
+    && rm /tmp/odbcinst_td.ini \
+    && rm /tmp/tdodbc.deb \
+    && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
+    && docker-php-ext-install pdo_odbc
 
 ENV ODBCHOME = /opt/teradata/client/ODBC_64/
 ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
