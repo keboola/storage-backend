@@ -40,12 +40,10 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
     public function getUsersNames(?string $like = null): array
     {
         // build escaped list of system users
-        $where = sprintf('U.UserName NOT IN (%s)', implode(', ', array_map(
-            static function ($item) {
-                return TeradataQuote::quote($item);
-            },
-            self::$excludedUsers
-        )));
+        $where = sprintf(
+            'U.UserName NOT IN (%s)',
+            TeradataQuote::quoteAndImplode(self::$excludedUsers)
+        );
 
         // add LIKE
         if ($like !== null) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Table\Teradata;
 
 use Generator;
+use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
@@ -55,7 +56,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
      CHECKSUM = DEFAULT,
      DEFAULT MERGEBLOCKRATIO
      (
-      "id" INTEGER,
+      "id" INTEGER NOT NULL,
       "first_name" VARCHAR(100),
       "last_name" VARCHAR(100)
      );',
@@ -67,7 +68,16 @@ class TeradataTableReflectionTest extends TeradataBaseCase
 
     public function testGetPrimaryKeysNames(): void
     {
-//        TODO
+        $this->initTable();
+        $this->connection->executeQuery(
+            sprintf(
+                'ALTER TABLE %s.%s ADD PRIMARY KEY (id)',
+                self::TEST_DATABASE,
+                self::TABLE_GENERIC
+            )
+        );
+        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        self::assertEquals(['id'], $ref->getPrimaryKeysNames());
     }
 
     public function testGetRowsCount(): void
@@ -95,7 +105,6 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ?string $expectedDefault,
         ?string $expectedLength,
         ?string $expectedNullable
-
     ): void {
         $tableName = 'table_defs';
         $sql = sprintf(
@@ -115,31 +124,32 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         $this->connection->executeQuery($sql);
         $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, $tableName);
         /** @var TeradataColumn $column */
+        /** @var Teradata $definition */
         $column = $ref->getColumnsDefinitions()->getIterator()->current();
         $definition = $column->getColumnDefinition();
-        self::assertEquals($definition->getLength(), $expectedLength);
-        self::assertEquals($definition->getDefault(), $expectedDefault);
-        self::assertEquals($definition->getType(), $expectedType);
-        self::assertEquals($definition->isNullable(), $expectedNullable);
+        self::assertEquals($expectedLength, $definition->getLength());
+        self::assertEquals($expectedDefault, $definition->getDefault());
+        self::assertEquals($expectedType, $definition->getType());
+        self::assertEquals($expectedNullable, $definition->isNullable());
+        self::assertEquals($expectedSqlDefinition, $definition->getSQLDefinition());
     }
 
-    /* @return Generator<array
-     * {
+    /**
+     * @return Generator<array{
      *     string,
      *     string,
      *     string,
-     *     ?string,
-     *     ?string,
+     *     ?mixed,
+     *     ?integer,
      *     bool
      * }>
      */
-    public
-    function tableColsDataProvider(): Generator
+    public function tableColsDataProvider(): Generator
     {
         // TODO add more scenarios
         yield 'INTEGER' => [
             'INTEGER',
-            'INT NOT NULL DEFAULT 0',
+            'INTEGER',
             'INTEGER', // type
             null, // default
             4, // length
@@ -148,11 +158,19 @@ class TeradataTableReflectionTest extends TeradataBaseCase
 
         yield 'INTEGER NOT NULL DEFAULT' => [
             'INTEGER NOT NULL DEFAULT 5',
-            'INT NOT NULL DEFAULT 0',
+            'INTEGER NOT NULL DEFAULT 5',
             'INTEGER', // type
             5, // default
             4, // length
             false, // nullable
+        ];
+        yield 'CHAR WITH LENGTH' => [
+            'CHAR(20)',
+            'CHAR(20)',
+            'CHAR', // type
+            null, // default
+            20, // length
+            true, // nullable
         ];
     }
 
@@ -167,7 +185,6 @@ class TeradataTableReflectionTest extends TeradataBaseCase
 
         $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
         $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 2, 'karel', 'motycka');
-
 
         $stats2 = $ref->getTableStats();
         self::assertEquals(2, $stats2->getRowsCount());

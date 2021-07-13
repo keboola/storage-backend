@@ -122,8 +122,13 @@ CREATE DATABASE %s AS
         ));
     }
 
-    protected function insertRowToTable($dbName, $tableName, $id, $firstName, $lastName)
-    {
+    protected function insertRowToTable(
+        string $dbName,
+        string $tableName,
+        int $id,
+        string $firstName,
+        string $lastName
+    ): void {
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
             TeradataQuote::quoteSingleIdentifier($dbName),
