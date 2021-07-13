@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Table\Teradata;
 
 use Doctrine\DBAL\Connection;
+use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Collection;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
@@ -56,8 +58,29 @@ final class TeradataTableReflection implements TableReflectionInterface
 
     public function getColumnsDefinitions(): ColumnCollection
     {
-//        TODO
-        return new ColumnCollection([]);
+        $columns = $this->connection->fetchAllAssociative(
+            sprintf(
+                'HELP TABLE %s.%s',
+                TeradataQuote::quoteSingleIdentifier($this->dbName),
+                TeradataQuote::quoteSingleIdentifier($this->tableName)
+            )
+        );
+
+        $columns = array_map(static function ($col) {
+            $colName = trim($col['Column Name']);
+            $colType = trim($col['Type']);
+            return new TeradataColumn($colName,
+                new Teradata(
+                    Teradata::convertCodeToType($colType),
+                    [
+                        'length' => $col['Max Length'],
+                        'nullable' => $col['Nullable'] === 'Y',
+                        'default' => trim($col['Default value']),
+                    ])
+            );
+        }, $columns);
+
+        return new ColumnCollection($columns);
     }
 
     public function getRowsCount(): int
@@ -104,21 +127,12 @@ final class TeradataTableReflection implements TableReflectionInterface
 
     public function getTableDefinition(): TableDefinitionInterface
     {
-//        TODO
-//        return new TeradataTableDefinition(
-//            $this->dbName,
-//            $this->tableName,
-//            $this->isTemporary(),
-//            $this->getColumnsDefinitions(),
-//            $this->getPrimaryKeysNames(),
-//            new TableDistributionDefinition(
-//                $this->getTableDistribution(),
-//                $this->getTableDistributionColumnsNames()
-//            ),
-//            new TableIndexDefinition(
-//                $this->getTableIndexType(),
-//                []
-//            )
-//        );
+        return new TeradataTableDefinition(
+            $this->dbName,
+            $this->tableName,
+            $this->isTemporary(),
+            $this->getColumnsDefinitions(),
+            $this->getPrimaryKeysNames()
+        );
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Table\Teradata;
 
+use Generator;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
@@ -88,5 +90,76 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             ));
         }
         self::assertEquals(2, $ref->getRowsCount());
+    }
+
+    /**
+     * @dataProvider tableColsDataProvider
+     */
+    public function testColumnDefinition(
+        string $sqlDef,
+        string $expectedSqlDefinition,
+        string $expectedType,
+        ?string $expectedDefault,
+        ?string $expectedLength,
+        ?string $expectedNullable
+
+    ): void {
+        $tableName = 'table_defs';
+        $sql = sprintf(
+            'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO
+     (
+      "column" %s
+     );',
+            self::TEST_DATABASE,
+            $tableName,
+            $sqlDef
+        );
+
+        $this->connection->executeQuery($sql);
+        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, $tableName);
+        /** @var TeradataColumn $column */
+        $column = $ref->getColumnsDefinitions()->getIterator()->current();
+        $definition = $column->getColumnDefinition();
+        self::assertEquals($definition->getLength(), $expectedLength);
+        self::assertEquals($definition->getDefault(), $expectedDefault);
+        self::assertEquals($definition->getType(), $expectedType);
+        self::assertEquals($definition->isNullable(), $expectedNullable);
+    }
+
+    /* @return Generator<array
+     * {
+     *     string,
+     *     string,
+     *     string,
+     *     ?string,
+     *     ?string,
+     *     bool
+     * }>
+     */
+    public
+    function tableColsDataProvider(): Generator
+    {
+        // TODO add more scenarios
+        yield 'INTEGER' => [
+            'INTEGER',
+            'INT NOT NULL DEFAULT 0',
+            'INTEGER', // type
+            null, // default
+            4, // length
+            true, // nullable
+        ];
+
+        yield 'INTEGER NOT NULL DEFAULT' => [
+            'INTEGER NOT NULL DEFAULT 5',
+            'INT NOT NULL DEFAULT 0',
+            'INTEGER', // type
+            5, // default
+            4, // length
+            false, // nullable
+        ];
     }
 }
