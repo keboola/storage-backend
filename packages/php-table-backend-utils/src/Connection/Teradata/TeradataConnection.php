@@ -11,12 +11,13 @@ use Throwable;
 class TeradataConnection
 {
     /**
-     * @param $params array{
+     * @param array{
      *     host:string,
      *     user:string,
      *     password:string,
      *     port:int,
-     * }
+     *     dbname:?string,
+     * } $params
      * @return Connection
      * @throws Exception
      */

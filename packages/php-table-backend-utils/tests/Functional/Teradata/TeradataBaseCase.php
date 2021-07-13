@@ -32,10 +32,10 @@ class TeradataBaseCase extends TestCase
     private function getTeradataConnection(): Connection
     {
         return TeradataConnection::getConnection([
-            'host' => getenv('TERADATA_HOST'),
-            'user' => getenv('TERADATA_USERNAME'),
-            'password' => getenv('TERADATA_PASSWORD'),
-            'port' => getenv('TERADATA_PORT'),
+            'host' => (string) getenv('TERADATA_HOST'),
+            'user' => (string) getenv('TERADATA_USERNAME'),
+            'password' => (string) getenv('TERADATA_PASSWORD'),
+            'port' => (int) getenv('TERADATA_PORT'),
             'dbname' => '',
         ]);
     }
