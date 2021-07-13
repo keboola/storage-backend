@@ -218,7 +218,7 @@ docker-compose run --rm dev composer ci
 
 You can use following method to get connection to Teradata for your queries
 ```php
-\Keboola\TableBackendUtils\Connection\Teradata\TeradataBaseConnection::getBaseConnection([
+\Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection::getConnection([
             'host' => getenv('TERADATA_HOST'),
             'user' => getenv('TERADATA_USERNAME'),
             'password' => getenv('TERADATA_PASSWORD'),

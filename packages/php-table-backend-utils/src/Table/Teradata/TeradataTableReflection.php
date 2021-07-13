@@ -62,9 +62,11 @@ final class TeradataTableReflection implements TableReflectionInterface
 
     public function getRowsCount(): int
     {
-
-
-        return (int) 0;
+        $result = $this->connection->fetchOne(sprintf('SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
+                TeradataQuote::quoteSingleIdentifier($this->dbName),
+                TeradataQuote::quoteSingleIdentifier($this->tableName))
+        );
+        return (int) $result;
     }
 
     /**

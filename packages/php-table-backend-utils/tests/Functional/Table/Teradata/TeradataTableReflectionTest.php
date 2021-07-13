@@ -70,6 +70,23 @@ class TeradataTableReflectionTest extends TeradataBaseCase
 
     public function testGetRowsCount(): void
     {
-        //        TODO
+        $this->initTable();
+        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        self::assertEquals(0, $ref->getRowsCount());
+        $data = [
+            [1, 'franta', 'omacka'],
+            [2, 'pepik', 'knedla'],
+        ];
+        foreach ($data as $item) {
+            $this->connection->executeQuery(sprintf(
+                'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+                TeradataQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+                $item[0],
+                TeradataQuote::quote($item[1]),
+                TeradataQuote::quote($item[2])
+            ));
+        }
+        self::assertEquals(2, $ref->getRowsCount());
     }
 }
