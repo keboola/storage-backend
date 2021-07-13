@@ -16,6 +16,10 @@ class TeradataBaseCase extends TestCase
 {
     public const TESTS_PREFIX = 'utilsTestX_';
 
+    public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
+    // tables
+    public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
+
     /** @var Connection */
     protected $connection;
 
@@ -27,6 +31,28 @@ class TeradataBaseCase extends TestCase
         parent::setUp();
         $this->connection = $this->getTeradataConnection();
         $this->platform = $this->connection->getDatabasePlatform();
+    }
+
+    protected function initTable(
+        string $database = self::TEST_DATABASE,
+        string $table = self::TABLE_GENERIC
+    ): void {
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO
+     (
+      "id" INTEGER NOT NULL,
+      "first_name" VARCHAR(100),
+      "last_name" VARCHAR(100)
+     );',
+                TeradataQuote::quoteSingleIdentifier($database),
+                TeradataQuote::quoteSingleIdentifier($table)
+            )
+        );
     }
 
     protected function cleanDatabase(string $dbname): void

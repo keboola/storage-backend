@@ -156,24 +156,24 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     }
 
     public function getDropTableCommand(
-        string $schemaName,
+        string $dbName,
         string $tableName
     ): string {
         return sprintf(
             'DROP TABLE %s.%s',
-            SynapseQuote::quoteSingleIdentifier($schemaName),
+            SynapseQuote::quoteSingleIdentifier($dbName),
             SynapseQuote::quoteSingleIdentifier($tableName)
         );
     }
 
     public function getRenameTableCommand(
-        string $schemaName,
+        string $dbName,
         string $sourceTableName,
         string $newTableName
     ): string {
         return sprintf(
             'RENAME OBJECT %s.%s TO %s',
-            SynapseQuote::quoteSingleIdentifier($schemaName),
+            SynapseQuote::quoteSingleIdentifier($dbName),
             SynapseQuote::quoteSingleIdentifier($sourceTableName),
             SynapseQuote::quoteSingleIdentifier($newTableName)
         );

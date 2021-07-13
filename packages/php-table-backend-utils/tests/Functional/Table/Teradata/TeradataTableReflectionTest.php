@@ -8,7 +8,6 @@ use Generator;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
-use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
@@ -19,9 +18,6 @@ use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
  */
 class TeradataTableReflectionTest extends TeradataBaseCase
 {
-    public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
-    // tables
-    public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     //views
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refview';
 
@@ -42,28 +38,6 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             'first_name',
             'last_name',
         ], $ref->getColumnsNames());
-    }
-
-    protected function initTable(
-        string $database = self::TEST_DATABASE,
-        string $table = self::TABLE_GENERIC
-    ): void {
-        $this->connection->executeQuery(
-            sprintf(
-                'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
-     NO BEFORE JOURNAL,
-     NO AFTER JOURNAL,
-     CHECKSUM = DEFAULT,
-     DEFAULT MERGEBLOCKRATIO
-     (
-      "id" INTEGER NOT NULL,
-      "first_name" VARCHAR(100),
-      "last_name" VARCHAR(100)
-     );',
-                TeradataQuote::quoteSingleIdentifier($database),
-                TeradataQuote::quoteSingleIdentifier($table)
-            )
-        );
     }
 
     public function testGetPrimaryKeysNames(): void
