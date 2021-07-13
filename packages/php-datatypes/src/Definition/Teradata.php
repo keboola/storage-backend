@@ -190,30 +190,6 @@ class Teradata extends Common
     private function getDefaultLength()
     {
 //        TODO
-        switch (strtoupper($this->getType())) {
-            case self::TYPE_BLOB:
-                return 0;
-            case self::TYPE_BYTE:
-                return 0;
-            case self::TYPE_VARBYTE:
-                return 0;
-            case self::TYPE_DECIMAL:
-                return 0;
-            case self::TYPE_NUMBER:
-                return 0;
-            case self::TYPE_NUMERIC:
-                return 0;
-            case self::TYPE_TIME:
-                return 0;
-            case self::TYPE_TIMESTAMP:
-                return 0;
-            case self::TYPE_CHAR:
-                return 0;
-            case self::TYPE_VARCHAR:
-                return 0;
-            case self::TYPE_PERIOD:
-                return 0;
-        }
 
         return null;
     }
