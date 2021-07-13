@@ -69,7 +69,6 @@ class Teradata extends Common
     ];
 //https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/6CYL2QcAvXykzEc8mG__Xg
     const TYPE_CODE_TO_TYPE = [
-//        '++' => self::TYPE_TD_ANYTYPE,
         'I8' => self::TYPE_BIGINT,
         'BO' => self::TYPE_BLOB,
         'BF' => self::TYPE_BYTE,
@@ -89,7 +88,8 @@ class Teradata extends Common
         'TS' => self::TYPE_TIMESTAMP,
         'TZ' => self::TYPE_TIME_WITH_ZONE,
         'SZ' => self::TYPE_TIMESTAMP_WITH_ZONE,
-//          'UT' => self::TYPE_USER‑DEFINED TYPE ,
+//        '++' => self::TYPE_TD_ANYTYPE,
+//        'UT' => self::TYPE_USER‑DEFINED TYPE ,
 //        'XM' => self::TYPE_XML,
     ];
     const TYPES = [
@@ -152,21 +152,25 @@ class Teradata extends Common
         return self::TYPE_CODE_TO_TYPE[$code];
     }
 
+
     /**
      * @return string
      */
     public function getSQLDefinition()
     {
         $definition = $this->getType();
-        $length = $this->getLength();
-        if ($length !== null && $length !== '') {
-            $definition .= sprintf('(%s)', $length);
-        } else {
-            $length = $this->getDefaultLength();
-            if (null !== $length) {
+        if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
+            $length = $this->getLength();
+            if ($length !== null && $length !== '') {
                 $definition .= sprintf('(%s)', $length);
+            } else {
+                $length = $this->getDefaultLength();
+                if (null !== $length) {
+                    $definition .= sprintf('(%s)', $length);
+                }
             }
         }
+
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
@@ -204,8 +208,6 @@ class Teradata extends Common
             case self::TYPE_TIMESTAMP:
                 return 0;
             case self::TYPE_CHAR:
-                return 0;
-            case self::TYPE_CHAR_VARYING:
                 return 0;
             case self::TYPE_VARCHAR:
                 return 0;
