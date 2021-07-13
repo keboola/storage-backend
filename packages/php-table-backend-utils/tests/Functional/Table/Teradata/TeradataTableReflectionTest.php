@@ -124,8 +124,8 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         $this->connection->executeQuery($sql);
         $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, $tableName);
         /** @var TeradataColumn $column */
-        /** @var Teradata $definition */
         $column = $ref->getColumnsDefinitions()->getIterator()->current();
+        /** @var Teradata $definition */
         $definition = $column->getColumnDefinition();
         self::assertEquals($expectedLength, $definition->getLength());
         self::assertEquals($expectedDefault, $definition->getDefault());
