@@ -23,25 +23,14 @@ final class TeradataSchemaReflection implements SchemaReflectionInterface
         $this->connection = $connection;
     }
 
-    public function dbExists(): bool
-    {
-        try {
-            $this->connection->executeQuery('HELP DATABASE ' . $this->databaseName);
-            return true;
-        } catch (\Doctrine\DBAL\Exception $e) {
-            // TODO nejaka chytrejsi exception
-            return false;
-        }
-    }
-
     public function getTablesNames(): array
     {
         $database = TeradataQuote::quote($this->databaseName);
         $tables = $this->connection->fetchAllAssociative(
             <<< EOT
-SELECT TableName 
-FROM DBC.TablesV 
-WHERE TableKind = 'T' AND databasename=$database
+SELECT "TableName" 
+FROM "DBC"."TablesV" 
+WHERE "TableKind" = 'T' AND "DataBaseName"=$database
 EOT
         );
 
@@ -53,9 +42,9 @@ EOT
         $database = TeradataQuote::quote($this->databaseName);
         $tables = $this->connection->fetchAllAssociative(
             <<< EOT
-SELECT TableName 
-FROM DBC.TablesV 
-WHERE TableKind = 'V' AND databasename=$database
+SELECT "TableName" 
+FROM "DBC"."TablesV" 
+WHERE "TableKind" = 'V' AND "DataBaseName"=$database
 EOT
         );
 

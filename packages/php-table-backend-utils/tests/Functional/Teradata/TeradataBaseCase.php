@@ -9,16 +9,15 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataPlatform;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
-use Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection;
 use PHPUnit\Framework\TestCase;
 
 class TeradataBaseCase extends TestCase
 {
-    public const TESTS_PREFIX = 'utilsTestX_';
+    public const TESTS_PREFIX = 'utilsTest_';
 
     public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
-    // tables
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
+    public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
     /** @var Connection */
     protected $connection;
@@ -39,7 +38,7 @@ class TeradataBaseCase extends TestCase
     ): void {
         $this->connection->executeQuery(
             sprintf(
-                'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
+                'CREATE MULTISET TABLE %s.%s ,NO FALLBACK
      (
       "id" INTEGER NOT NULL,
       "first_name" VARCHAR(100),
@@ -51,10 +50,19 @@ class TeradataBaseCase extends TestCase
         );
     }
 
+    protected function dbExists(string $dbname): bool
+    {
+        try {
+            $this->connection->executeQuery(sprintf('HELP DATABASE %s', $dbname));
+            return true;
+        } catch (\Doctrine\DBAL\Exception $e) {
+            return false;
+        }
+    }
+
     protected function cleanDatabase(string $dbname): void
     {
-        $ref = new TeradataSchemaReflection($this->connection, $dbname);
-        if (!$ref->dbExists()) {
+        if (!$this->dbExists($dbname)) {
             return;
         }
 
