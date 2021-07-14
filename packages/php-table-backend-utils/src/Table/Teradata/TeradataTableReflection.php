@@ -144,8 +144,7 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
     public function getDependentViews(): array
     {
 //        TODO
-
-        return [];
+        throw new \Exception('method is not implemented yet');
     }
 
 

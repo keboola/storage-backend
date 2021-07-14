@@ -18,9 +18,6 @@ use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
  */
 class TeradataTableReflectionTest extends TeradataBaseCase
 {
-    //views
-    public const VIEW_GENERIC = self::TESTS_PREFIX . 'refview';
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -80,7 +77,6 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ?string $expectedLength,
         ?string $expectedNullable
     ): void {
-        $tableName = 'table_defs';
         $sql = sprintf(
             'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
      NO BEFORE JOURNAL,
@@ -91,12 +87,12 @@ class TeradataTableReflectionTest extends TeradataBaseCase
       "column" %s
      );',
             self::TEST_DATABASE,
-            $tableName,
+            self::TABLE_GENERIC,
             $sqlDef
         );
 
         $this->connection->executeQuery($sql);
-        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, $tableName);
+        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
         /** @var TeradataColumn $column */
         $column = $ref->getColumnsDefinitions()->getIterator()->current();
         /** @var Teradata $definition */

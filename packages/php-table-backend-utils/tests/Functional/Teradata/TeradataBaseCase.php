@@ -40,10 +40,6 @@ class TeradataBaseCase extends TestCase
         $this->connection->executeQuery(
             sprintf(
                 'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
-     NO BEFORE JOURNAL,
-     NO AFTER JOURNAL,
-     CHECKSUM = DEFAULT,
-     DEFAULT MERGEBLOCKRATIO
      (
       "id" INTEGER NOT NULL,
       "first_name" VARCHAR(100),
