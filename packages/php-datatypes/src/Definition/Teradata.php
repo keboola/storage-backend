@@ -13,35 +13,107 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
  */
 class Teradata extends Common
 {
+    //https://docs.teradata.com/r/Ri8d7iL59tIPr1FZNKPLMw/DlfSbsVEC48atCIcADa5IA
+    /* numbers */
+    const TYPE_BYTEINT = 'BYTEINT'; // -128 to 127, 1B, BYTEINT [ attributes [...] ]
+    const TYPE_BIGINT = 'BIGINT'; // 64bit signed, 7B, BIGINT [ attributes [...] ]
+    const TYPE_SMALLINT = 'SMALLINT'; //  -32768 to 32767, 2B, SMALLINT [ attributes [...] ]
+    const TYPE_INTEGER = 'INTEGER'; // 32bit signed, 4B, { INTEGER | INT } [ attributes [...] ]
+    const TYPE_INT = 'INT'; // = INTEGER
+
+    const TYPE_DECIMAL = 'DECIMAL'; // fixed length up to 16B
+    // DECIMAL [(n[,m])], { DECIMAL | DEC | NUMERIC } [ ( n [, m ] ) ] [ attributes [...] ], 12.4567 : n = 6; m = 4
+    const TYPE_NUMERIC = 'NUMERIC'; // = DECIMAL
+    const TYPE_DEC = 'DEC'; // = DECIMAL
+
+    const TYPE_FLOAT = 'FLOAT'; // 8B, { FLOAT | REAL | DOUBLE PRECISION } [ attributes [...] ]
+    const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION'; // = FLOAT
+    const TYPE_REAL = 'REAL'; // = FLOAT
+
+    const TYPE_NUMBER = 'NUMBER'; // 1-20B,  NUMBER(n[,m]) / NUMBER[(*[,m])], as DECIMAL but variable-length
+
+
+    /* Byte */
+    const TYPE_BYTE = 'BYTE'; // BYTE [ ( n ) ] [ attributes [...] ]; n Max 64000 Bytes; fixed length
+    const TYPE_VARBYTE = 'VARBYTE'; // VARBYTE ( n ) [ attributes [...] ]; n Max 64000 Bytes; VARIABLE length
     const TYPE_BLOB = 'BLOB';
-    const TYPE_BYTE = 'BYTE';
-    const TYPE_VARBYTE = 'VARBYTE';
-    const TYPE_BIGINT = 'BIGINT';
-    const TYPE_BYTEINT = 'BYTEINT';
-    const TYPE_DATE = 'DATE';
-    const TYPE_DECIMAL = 'DECIMAL';
-    const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION';
-    const TYPE_FLOAT = 'FLOAT';
-    const TYPE_INTEGER = 'INTEGER';
-    const TYPE_NUMBER = 'NUMBER';
-    const TYPE_NUMERIC = 'NUMERIC';
-    const TYPE_REAL = 'REAL';
-    const TYPE_SMALLINT = 'SMALLINT';
-    const TYPE_TIME = 'TIME';
-    const TYPE_TIME_WITH_ZONE = 'TIME WITH TIME ZONE';
-    const TYPE_TIMESTAMP = 'TIMESTAMP';
-    const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP WITH TIME ZONE';
-    const TYPE_CHAR = 'CHAR';
-    const TYPE_LONG_VARCHAR = 'LONG VARCHAR';
-    const TYPE_CLOB = 'CLOB';
+    //  { BINARY LARGE OBJECT | BLOB }
+    //  [ ( n [ K | M | G ] ) ]
+    //  [ attribute [...] ]
+    // n - amount of
+    //  Bytes - no unit
+    //  KB - K - max 2047937
+    //  MB - M - max 1999
+    //  GB - G - 1 only
+
+    /* DateTime */
+    const TYPE_DATE = 'DATE'; // DATE [ attributes [...] ]
+    const TYPE_TIME = 'TIME'; // TIME [ ( n ) ] [ attributes [...] ]; n = A single digit representing the number of digits in the fractional portion of the SECOND field. '11:37:58.12345' n = 5; '11:37:58' n = 0
+    const TYPE_TIMESTAMP = 'TIMESTAMP'; //  TIMESTAMP [ ( n ) ] [ attributes [...] ]
+    // '1999-01-01 23:59:59.1234' n = 4
+    // '1999-01-01 23:59:59' n = 0
+
+    const TYPE_TIME_WITH_ZONE = 'TIME WITH TIME ZONE'; // as TIME but
+    // TIME [ ( n ) ] WITH TIME ZONE [ attributes [...] ]
+    // where insert value as a number from -12.59 to +14.00  23:59:59.1234 +02:00
+    const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP WITH TIME ZONE'; // same as TYPE_TIME_WITH_ZONE
+
+
+    /* character */
+    const TYPE_CHAR = 'CHAR'; // [(n)]
+    const TYPE_CHARACTER = 'CHARACTER'; // = CHAR
+    //  { { CHARACTER | CHAR } [ ( n ) ]
+    //  [ { CHARACTER | CHAR } SET server_character_set ] |
+    //      GRAPHIC [ ( n ) ]
+    //  } [ attributes [...] ]
+    // n = length, static
+    // 64000 for LATIN charset, 32000 for UNICODE,GRAPHIC,KANJISJIS
+
     const TYPE_VARCHAR = 'VARCHAR';
-    const TYPE_PERIOD = 'PERIOD';
-// TODO intervals
+    //  {
+    //      { VARCHAR | { CHARACTER | CHAR } VARYING } ( n )
+    //      [ { CHARACTER | CHAR } SET ] server_character_set |
+    //      LONG VARCHAR |
+    //      VARGRAPHIC ( n ) |
+    //      LONG VARGRAPHIC
+    //  } [ attributes [...] ]
+    // n = length, variable
+    // 64000 for LATIN charset, 32000 for UNICODE,GRAPHIC,KANJISJIS
+    const TYPE_CHARV = 'CHAR VARYING'; // = VARCHAR
+    const TYPE_CHARACTERV = 'CHARACTER VARYING'; // = VARCHAR
+    const TYPE_VARGRAPHIC = 'VARGRAPHIC'; // = VARCHAR
+
+    // = VARCHAR but without n
+    const TYPE_LONG_VARCHAR = 'LONG VARCHAR';
+    const TYPE_LONG_VARGRAPHIC = 'LONG VARGRAPHIC';
+
+    const TYPE_CLOB = 'CLOB';
+    // { CHARACTER LARGE OBJECT | CLOB }
+    // [ ( n [ K | M | G ] ) ]
+    // [ { CHARACTER | CHAR } SET { LATIN | UNICODE } ]
+    // [ attribute [...] ]
+    //  n - amount of
+    //   Bytes - no unit
+    //   KB - K - max 2047937 for Latin, 1023968 for Unicode
+    //   MB - M - max 1999 for Latin, 999 for Unicode
+    //   GB - G - 1 and for LATIN only
+    const TYPE_CHARACTER_LARGE_OBJECT = 'CHARACTER LARGE OBJECT'; // = CLOB
+
+
+    /* Array */
+//    TODO
+    const TYPE_ARRAY = 'ARRAY';
+    const TYPE_VARRAY = 'VARRAY';
+
+    /* Period */
+//    TODO
+    const TYPE_PERIOD = 'PERIOD'; // (DATE) / PERIOD(TIME [(n)]) / PERIOD(TIMESTAMP [(n)])
+
+    /* Intervals */
+//    TODO
+
+
 // TODO User-defined Type
-// TODO arrays
-// TODO complex periods
-// TODO varying 
-// TODO long varchar
 
     /**
      * Types with precision and scale
@@ -50,6 +122,11 @@ class Teradata extends Common
     const TYPES_WITH_COMPLEX_LENGTH = [
         self::TYPE_DECIMAL,
         self::TYPE_NUMERIC,
+        self::TYPE_DEC,
+        self::TYPE_NUMBER,
+
+        self::TYPE_CLOB,
+        self::TYPE_CHARACTER_LARGE_OBJECT,
     ];
     /**
      * Types without precision, scale, or length
@@ -108,9 +185,9 @@ class Teradata extends Common
         self::TYPE_REAL,
         self::TYPE_SMALLINT,
         self::TYPE_TIME,
-        self::TYPE_TIME_WITH_ZONE,
+//        self::TYPE_TIME_WITH_ZONE,
         self::TYPE_TIMESTAMP,
-        self::TYPE_TIMESTAMP_WITH_ZONE,
+//        self::TYPE_TIMESTAMP_WITH_ZONE,
         self::TYPE_CHAR,
         self::TYPE_LONG_VARCHAR,
         self::TYPE_CLOB,
@@ -243,7 +320,39 @@ class Teradata extends Common
      */
     public function getBasetype()
     {
-//        TODO
-
+        switch (strtoupper($this->type)) {
+            case self::TYPE_BYTEINT:
+            case self::TYPE_INTEGER:
+            case self::TYPE_INT:
+            case self::TYPE_BIGINT:
+            case self::TYPE_SMALLINT:
+                $basetype = BaseType::INTEGER;
+                break;
+            case self::TYPE_DECIMAL:
+            case self::TYPE_DEC:
+            case self::TYPE_NUMERIC:
+            case self::TYPE_NUMBER:
+                $basetype = BaseType::NUMERIC;
+                break;
+            case self::TYPE_FLOAT:
+            case self::TYPE_DOUBLE_PRECISION:
+            case self::TYPE_REAL:
+                $basetype = BaseType::FLOAT;
+                break;
+//            case self::TYPE_BIT:
+//                $basetype = BaseType::BOOLEAN;
+//                break;
+            case self::TYPE_DATE:
+                $basetype = BaseType::DATE;
+                break;
+            case self::TYPE_TIME:
+            case self::TYPE_TIME_WITH_ZONE:
+                $basetype = BaseType::TIMESTAMP;
+                break;
+            default:
+                $basetype = BaseType::STRING;
+                break;
+        }
+        return $basetype;
     }
 }
