@@ -36,13 +36,14 @@ class TeradataBaseCase extends TestCase
         string $database = self::TEST_DATABASE,
         string $table = self::TABLE_GENERIC
     ): void {
+        // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
                 'CREATE MULTISET TABLE %s.%s ,NO FALLBACK
      (
       "id" INTEGER NOT NULL,
-      "first_name" VARCHAR(100),
-      "last_name" VARCHAR(100)
+      "first_name" CHAR(10000),
+      "last_name" CHAR(10000)
      );',
                 TeradataQuote::quoteSingleIdentifier($database),
                 TeradataQuote::quoteSingleIdentifier($table)

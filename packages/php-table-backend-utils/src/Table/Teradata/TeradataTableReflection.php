@@ -106,7 +106,7 @@ final class TeradataTableReflection implements TableReflectionInterface
         SELECT ColumnName FROM DBC.IndicesV WHERE
          IndexType = 'K'
          AND DatabaseName = %s 
-         AND TableName = %s;",
+         AND TableName = %s ORDER BY ColumnName;",
             TeradataQuote::quote($this->dbName),
             TeradataQuote::quote($this->tableName)
         );

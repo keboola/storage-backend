@@ -125,8 +125,8 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
 
         // test table properties
         $tableReflection = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
-        self::assertSame($tableReflection->getColumnsNames(), $expectedColumnNames);
-        self::assertSame($tableReflection->getPrimaryKeysNames(), $expectedPKs);
+        self::assertSame($expectedColumnNames, $tableReflection->getColumnsNames());
+        self::assertSame($expectedPKs, $tableReflection->getPrimaryKeysNames());
     }
 
     /**
@@ -180,7 +180,7 @@ EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
 ("col1" VARCHAR(4000) NOT NULL DEFAULT '',
 "col2" VARCHAR(4000) NOT NULL DEFAULT '',
-PRIMARY KEY ("col1","col2"));
+PRIMARY KEY ("col1", "col2"));
 EOT
             ,
         ];
