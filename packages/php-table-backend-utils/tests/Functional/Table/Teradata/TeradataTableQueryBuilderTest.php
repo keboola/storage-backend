@@ -7,13 +7,12 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Table\Teradata;
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
-use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
 
 /**
- * @covers SynapseTableReflection
+ * @covers TeradataTableQueryBuilder
  * @uses   ColumnCollection
  */
 class TeradataTableQueryBuilderTest extends TeradataBaseCase
@@ -100,7 +99,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
 
     /**
      * @param TeradataColumn[] $columns
-     * @param string[] $PKs
+     * @param string[] $primaryKeys
      * @param string[] $expectedColumnNames
      * @param string[] $expectedPKs
      * @param string $expectedSql
@@ -109,7 +108,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
      */
     public function testGetCreateCommand(
         array $columns,
-        array $PKs,
+        array $primaryKeys,
         array $expectedColumnNames,
         array $expectedPKs,
         string $expectedSql
@@ -118,7 +117,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
             self::TEST_DATABASE,
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            $PKs
+            $primaryKeys
         );
         self::assertSame($expectedSql, $sql);
         $this->connection->executeQuery($sql);

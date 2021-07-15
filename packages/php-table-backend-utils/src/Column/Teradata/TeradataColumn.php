@@ -31,7 +31,7 @@ final class TeradataColumn implements ColumnInterface
         $definition = new Teradata(
             Teradata::TYPE_VARCHAR,
             [
-                'length' => '4000', // max value is 32000
+                'length' => '32000', // max value is 32k for UNICODE,GRAPHIC,KANJISJIS, 64k for LATIN
                 'nullable' => false,
                 'default' => '\'\'',
             ]

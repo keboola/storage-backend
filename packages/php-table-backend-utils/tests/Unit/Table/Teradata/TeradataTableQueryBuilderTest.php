@@ -8,12 +8,11 @@ use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\QueryBuilderException;
-use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers SynapseTableReflection
+ * @covers TeradataTableQueryBuilder
  * @uses   ColumnCollection
  */
 class TeradataTableQueryBuilderTest extends TestCase

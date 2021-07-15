@@ -8,12 +8,11 @@ use Generator;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
-use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
 
 /**
- * @covers SynapseTableReflection
+ * @covers TeradataTableReflection
  * @uses   ColumnCollection
  */
 class TeradataTableReflectionTest extends TeradataBaseCase

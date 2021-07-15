@@ -48,8 +48,6 @@ WHERE "TableKind" = 'V' AND "DataBaseName"=$database
 EOT
         );
 
-        return array_map(static function ($table) {
-            return $table['TableName'];
-        }, $tables);
+        return Collection::extractByKey($tables, 'TableName');
     }
 }
