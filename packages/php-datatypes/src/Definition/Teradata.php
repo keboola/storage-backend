@@ -53,12 +53,10 @@ class Teradata extends Common
     // '1999-01-01 23:59:59.1234' n = 4
     // '1999-01-01 23:59:59' n = 0
 
-    const TYPE_TIME_WITH_ZONE = 'TIME WITH TIME ZONE'; // as TIME but
-    // TIME [ ( n ) ] WITH TIME ZONE [ attributes [...] ]
+    const TYPE_TIME_WITH_ZONE = 'TIME_WITH_ZONE'; // as TIME but
+    // TIME [ ( n ) ]_WITH_ZONE [ attributes [...] ]
     // where insert value as a number from -12.59 to +14.00  23:59:59.1234 +02:00
-    const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP WITH TIME ZONE'; // same as TYPE_TIME_WITH_ZONE
-
-
+    const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP_WITH_ZONE'; // same as TYPE_TIME_WITH_ZONE
     /* character */
     const TYPE_CHAR = 'CHAR'; // [(n)]
     const TYPE_CHARACTER = 'CHARACTER'; // = CHAR
@@ -99,108 +97,155 @@ class Teradata extends Common
     //   GB - G - 1 and for LATIN only
     const TYPE_CHARACTER_LARGE_OBJECT = 'CHARACTER LARGE OBJECT'; // = CLOB
 
-
+    // Following types are listed due compatibility but they are treated as string
     /* Array */
-//    TODO
-    const TYPE_ARRAY = 'ARRAY';
-    const TYPE_VARRAY = 'VARRAY';
+    // not implemented, because arrays are considered as user defined types
 
     /* Period */
-//    TODO
-    const TYPE_PERIOD = 'PERIOD'; // (DATE) / PERIOD(TIME [(n)]) / PERIOD(TIMESTAMP [(n)])
-
+    // n represents fraction of seconds as in TIME / TIMESTAMP
+    const TYPE_PERIOD_DATE = 'PERIOD(DATE)'; // PERIOD(DATE)
+    const TYPE_PERIOD_TIME = 'PERIOD(TIME)';  // PERIOD(TIME [ ( n ) ] )
+    const TYPE_PERIOD_TIMESTAMP = 'PERIOD(TIMESTAMP)';  // PERIOD(TIMESTAMP [ ( n ) ] )
+    const TYPE_PERIOD_TIME_WITH_ZONE = 'PERIOD(TIME)_WITH_ZONE';  // PERIOD(TIME [ ( n ) ] _WITH_ZONE )
+    const TYPE_PERIOD_TIMESTAMP_WITH_ZONE = 'PERIOD(TIMESTAMP)_WITH_ZONE';  // PERIOD(TIMESTAMP [ ( n ) ] _WITH_ZONE )
     /* Intervals */
-//    TODO
-
-
-// TODO User-defined Type
+    // n is always number of digits, m number of decimal digits for seconds. INTERVAL HOUR(1) TO SECOND(2) = '9:59:59.99'
+    const TYPE_INTERVAL_SECOND = 'INTERVAL SECOND [(n,[m])]'; // INTERVAL SECOND [(n;[m])]
+    const TYPE_INTERVAL_MINUTE = 'INTERVAL MINUTE [(n)]'; // INTERVAL MINUTE [(n)]
+    const TYPE_INTERVAL_MINUTE_TO_SECOND = 'INTERVAL MINUTE [(n)] TO SECOND [(m)]'; // INTERVAL MINUTE [(n)] TO SECOND [(m)]
+    const TYPE_INTERVAL_HOUR = 'INTERVAL HOUR [(n)]'; // INTERVAL HOUR [(n)]
+    const TYPE_INTERVAL_HOUR_TO_SECOND = 'INTERVAL HOUR [(n)] TO SECOND [(m)]'; // INTERVAL HOUR [(n)] TO SECOND [(m)]
+    const TYPE_INTERVAL_HOUR_TO_MINUTE = 'INTERVAL HOUR [(n)] TO MINUTE'; // INTERVAL HOUR [(n)] TO MINUTE
+    const TYPE_INTERVAL_DAY = 'INTERVAL DAY [(n)]'; // INTERVAL DAY [(n)]
+    const TYPE_INTERVAL_DAY_TO_SECOND = 'INTERVAL DAY [(n)] TO SECOND [(m)]'; // INTERVAL DAY [(n)] TO SECOND [(m)]
+    const TYPE_INTERVAL_DAY_TO_MINUTE = 'INTERVAL DAY [(n)] TO MINUTE'; // INTERVAL DAY [(n)] TO MINUTE
+    const TYPE_INTERVAL_DAY_TO_HOUR = 'INTERVAL DAY [(n)] TO HOUR'; // INTERVAL DAY [(n)] TO HOUR
+    const TYPE_INTERVAL_MONTH = 'INTERVAL MONTH'; // INTERVAL MONTH
+    const TYPE_INTERVAL_YEAR = 'INTERVAL YEAR [(n)]'; // INTERVAL YEAR [(n)]
+    const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL YEAR [(n)] TO MONTH'; // INTERVAL YEAR [(n)] TO MONTH
+    // User Defined Types (UDP) are not supported
 
     /**
      * Types with precision and scale
      * This used to separate (precision,scale) types from length types when column is retrieved from database
      */
-    const TYPES_WITH_COMPLEX_LENGTH = [
-        self::TYPE_DECIMAL,
-        self::TYPE_NUMERIC,
-        self::TYPE_DEC,
-        self::TYPE_NUMBER,
-
-        self::TYPE_CLOB,
-        self::TYPE_CHARACTER_LARGE_OBJECT,
-    ];
+//    const TYPES_WITH_COMPLEX_LENGTH = [
+//        self::TYPE_DECIMAL,
+//        self::TYPE_NUMERIC,
+//        self::TYPE_DEC,
+//        self::TYPE_NUMBER,
+//
+//        self::TYPE_CLOB,
+//        self::TYPE_CHARACTER_LARGE_OBJECT,
+//    ];
     /**
      * Types without precision, scale, or length
      * This used to separate types when column is retrieved from database
      */
     const TYPES_WITHOUT_LENGTH = [
-        self::TYPE_BIGINT,
-        self::TYPE_BYTEINT,
-        self::TYPE_DATE,
-        self::TYPE_DOUBLE_PRECISION,
-        self::TYPE_FLOAT,
-        self::TYPE_INTEGER,
-        self::TYPE_REAL,
-        self::TYPE_SMALLINT,
-        self::TYPE_CLOB,
-        self::TYPE_LONG_VARCHAR,
+//        self::TYPE_BIGINT,
+//        self::TYPE_BYTEINT,
+//        self::TYPE_DATE,
+//        self::TYPE_DOUBLE_PRECISION,
+//        self::TYPE_FLOAT,
+//        self::TYPE_INTEGER,
+//        self::TYPE_REAL,
+//        self::TYPE_SMALLINT,
+//        self::TYPE_CLOB,
+//        self::TYPE_LONG_VARCHAR,
     ];
 //https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/6CYL2QcAvXykzEc8mG__Xg
     const TYPE_CODE_TO_TYPE = [
         'I8' => self::TYPE_BIGINT,
         'BO' => self::TYPE_BLOB,
         'BF' => self::TYPE_BYTE,
+        'BV' => self::TYPE_VARBYTE,
         'I1' => self::TYPE_BYTEINT,
-        'CF' => self::TYPE_CHAR,
+        'CF' => self::TYPE_CHARACTER,
+        'CV' => self::TYPE_VARCHAR,
         'CO' => self::TYPE_CLOB,
         'D' => self::TYPE_DECIMAL,
-        // could be also NUMERIC 'D' => 'NUMERIC,
         'DA' => self::TYPE_DATE,
         'F' => self::TYPE_FLOAT,
-        // 'DOUBLE PRECISION DOUBLE PRECISION, FLOAT, and REAL are different names for the same data type.,
         'I' => self::TYPE_INTEGER,
+        'DY' => self::TYPE_INTERVAL_DAY,
+        'DH' => self::TYPE_INTERVAL_DAY_TO_HOUR,
+        'DM' => self::TYPE_INTERVAL_DAY_TO_MINUTE,
+        'DS' => self::TYPE_INTERVAL_DAY_TO_SECOND,
+        'HR' => self::TYPE_INTERVAL_HOUR,
+        'HM' => self::TYPE_INTERVAL_HOUR_TO_MINUTE,
+        'HS' => self::TYPE_INTERVAL_HOUR_TO_SECOND,
+        'MI' => self::TYPE_INTERVAL_MINUTE,
+        'MS' => self::TYPE_INTERVAL_MINUTE_TO_SECOND,
+        'MO' => self::TYPE_INTERVAL_MONTH,
+        'SC' => self::TYPE_INTERVAL_SECOND,
+        'YR' => self::TYPE_INTERVAL_YEAR,
+        'YM' => self::TYPE_INTERVAL_YEAR_TO_MONTH,
         'N' => self::TYPE_NUMBER,
-        'PD' => self::TYPE_PERIOD,
+        'PD' => self::TYPE_PERIOD_DATE,
+        'PT' => self::TYPE_PERIOD_TIME,
+        'PZ' => self::TYPE_PERIOD_TIME_WITH_ZONE,
+        'PS' => self::TYPE_PERIOD_TIMESTAMP,
+        'PM' => self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE,
         'I2' => self::TYPE_SMALLINT,
         'AT' => self::TYPE_TIME,
         'TS' => self::TYPE_TIMESTAMP,
         'TZ' => self::TYPE_TIME_WITH_ZONE,
         'SZ' => self::TYPE_TIMESTAMP_WITH_ZONE,
-//        '++' => self::TYPE_TD_ANYTYPE,
-//        'UT' => self::TYPE_USER‑DEFINED TYPE ,
-//        'XM' => self::TYPE_XML,
     ];
     const TYPES = [
+        self::TYPE_BIGINT,
         self::TYPE_BLOB,
         self::TYPE_BYTE,
         self::TYPE_VARBYTE,
-        self::TYPE_BIGINT,
         self::TYPE_BYTEINT,
-        self::TYPE_DATE,
+        self::TYPE_CHARACTER,
+        self::TYPE_VARCHAR,
+        self::TYPE_CLOB,
         self::TYPE_DECIMAL,
-        self::TYPE_DOUBLE_PRECISION,
+        self::TYPE_DATE,
         self::TYPE_FLOAT,
         self::TYPE_INTEGER,
+        self::TYPE_INTERVAL_DAY,
+        self::TYPE_INTERVAL_DAY_TO_HOUR,
+        self::TYPE_INTERVAL_DAY_TO_MINUTE,
+        self::TYPE_INTERVAL_DAY_TO_SECOND,
+        self::TYPE_INTERVAL_HOUR,
+        self::TYPE_INTERVAL_HOUR_TO_MINUTE,
+        self::TYPE_INTERVAL_HOUR_TO_SECOND,
+        self::TYPE_INTERVAL_MINUTE,
+        self::TYPE_INTERVAL_MINUTE_TO_SECOND,
+        self::TYPE_INTERVAL_MONTH,
+        self::TYPE_INTERVAL_SECOND,
+        self::TYPE_INTERVAL_YEAR,
+        self::TYPE_INTERVAL_YEAR_TO_MONTH,
         self::TYPE_NUMBER,
-        self::TYPE_NUMERIC,
-        self::TYPE_REAL,
+        self::TYPE_PERIOD_DATE,
+        self::TYPE_PERIOD_TIME,
+        self::TYPE_PERIOD_TIME_WITH_ZONE,
+        self::TYPE_PERIOD_TIMESTAMP,
+        self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE,
         self::TYPE_SMALLINT,
         self::TYPE_TIME,
-//        self::TYPE_TIME_WITH_ZONE,
         self::TYPE_TIMESTAMP,
-//        self::TYPE_TIMESTAMP_WITH_ZONE,
+        self::TYPE_TIME_WITH_ZONE,
+        self::TYPE_TIMESTAMP_WITH_ZONE,
+
+        // aliases
+        self::TYPE_INT,
         self::TYPE_CHAR,
+        self::TYPE_CHARV,
+        self::TYPE_CHARACTERV,
+        self::TYPE_VARGRAPHIC,
         self::TYPE_LONG_VARCHAR,
-        self::TYPE_CLOB,
-        self::TYPE_VARCHAR,
-        self::TYPE_PERIOD,
+        self::TYPE_LONG_VARGRAPHIC,
+        self::TYPE_CHARACTER_LARGE_OBJECT,
+        self::TYPE_NUMERIC,
+        self::TYPE_DEC,
+        self::TYPE_FLOAT,
+        self::TYPE_DOUBLE_PRECISION,
+        self::TYPE_REAL,
     ];
-// TODO intervals
-// TODO User-defined Type
-// TODO arrays
-// TODO complex periods
-// TODO varying (byte, character)
-// TODO xml, json...
-// TODO anytype
 
     /**
      * @param string $type
@@ -320,39 +365,40 @@ class Teradata extends Common
      */
     public function getBasetype()
     {
-        switch (strtoupper($this->type)) {
-            case self::TYPE_BYTEINT:
-            case self::TYPE_INTEGER:
-            case self::TYPE_INT:
-            case self::TYPE_BIGINT:
-            case self::TYPE_SMALLINT:
-                $basetype = BaseType::INTEGER;
-                break;
-            case self::TYPE_DECIMAL:
-            case self::TYPE_DEC:
-            case self::TYPE_NUMERIC:
-            case self::TYPE_NUMBER:
-                $basetype = BaseType::NUMERIC;
-                break;
-            case self::TYPE_FLOAT:
-            case self::TYPE_DOUBLE_PRECISION:
-            case self::TYPE_REAL:
-                $basetype = BaseType::FLOAT;
-                break;
-//            case self::TYPE_BIT:
-//                $basetype = BaseType::BOOLEAN;
+//        switch (strtoupper($this->type)) {
+//            case self::TYPE_BYTEINT:
+//            case self::TYPE_INTEGER:
+//            case self::TYPE_INT:
+//            case self::TYPE_BIGINT:
+//            case self::TYPE_SMALLINT:
+//                $basetype = BaseType::INTEGER;
 //                break;
-            case self::TYPE_DATE:
-                $basetype = BaseType::DATE;
-                break;
-            case self::TYPE_TIME:
-            case self::TYPE_TIME_WITH_ZONE:
-                $basetype = BaseType::TIMESTAMP;
-                break;
-            default:
-                $basetype = BaseType::STRING;
-                break;
+//            case self::TYPE_DECIMAL:
+//            case self::TYPE_DEC:
+//            case self::TYPE_NUMERIC:
+//            case self::TYPE_NUMBER:
+//                $basetype = BaseType::NUMERIC;
+//                break;
+//            case self::TYPE_FLOAT:
+//            case self::TYPE_DOUBLE_PRECISION:
+//            case self::TYPE_REAL:
+//                $basetype = BaseType::FLOAT;
+//                break;
+////            case self::TYPE_BIT:
+////                $basetype = BaseType::BOOLEAN;
+////                break;
+//            case self::TYPE_DATE:
+//                $basetype = BaseType::DATE;
+//                break;
+//            case self::TYPE_TIME:
+//            case self::TYPE_TIME_WITH_ZONE:
+//                $basetype = BaseType::TIMESTAMP;
+//                break;
+//            default:
+//                $basetype = BaseType::STRING;
+//                break;
+//        }
+//        return $basetype;
         }
-        return $basetype;
-    }
 }
+
