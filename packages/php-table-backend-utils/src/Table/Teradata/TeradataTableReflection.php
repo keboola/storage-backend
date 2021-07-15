@@ -6,9 +6,9 @@ namespace Keboola\TableBackendUtils\Table\Teradata;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Datatype\Definition\Teradata;
-use Keboola\TableBackendUtils\Collection;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
+use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
@@ -52,7 +52,7 @@ final class TeradataTableReflection implements TableReflectionInterface
             )
         );
 
-        return Collection::extractByKey($columns, 'Column Name');
+        return DataHelper::extractByKey($columns, 'Column Name');
     }
 
     public function getColumnsDefinitions(): ColumnCollection
@@ -112,7 +112,7 @@ final class TeradataTableReflection implements TableReflectionInterface
         );
 
         $data = $this->connection->fetchAllAssociative($sql);
-        return Collection::extractByKey($data, 'ColumnName');
+        return DataHelper::extractByKey($data, 'ColumnName');
     }
 
     public function getTableStats(): TableStatsInterface

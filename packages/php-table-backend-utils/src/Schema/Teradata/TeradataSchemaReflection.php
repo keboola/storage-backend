@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Schema\Teradata;
 
 use Doctrine\DBAL\Connection;
-use Keboola\TableBackendUtils\Collection;
+use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 
@@ -34,7 +34,7 @@ WHERE "TableKind" = 'T' AND "DataBaseName"=$database
 EOT
         );
 
-        return Collection::extractByKey($tables, 'TableName');
+        return DataHelper::extractByKey($tables, 'TableName');
     }
 
     public function getViewsNames(): array
@@ -48,6 +48,6 @@ WHERE "TableKind" = 'V' AND "DataBaseName"=$database
 EOT
         );
 
-        return Collection::extractByKey($tables, 'TableName');
+        return DataHelper::extractByKey($tables, 'TableName');
     }
 }
