@@ -279,6 +279,9 @@ class Teradata extends Common
         self::TYPE_REAL,
     ];
 
+    /** @var bool */
+    private $isLatin = false;
+
     /**
      * @param string $type
      * @param array  $options -- length, nullable, default
@@ -290,11 +293,15 @@ class Teradata extends Common
     {
         $this->validateType($type);
         $this->validateLength($type, isset($options['length']) ? $options['length'] : null);
-        $diff = array_diff(array_keys($options), ['length', 'nullable', 'default']);
+        $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'isLatin']);
         if (count($diff) > 0) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
+
+        if (isset($options['isLatin'])) {
+            $this->isLatin = (boolean) $options['isLatin'];
+        }
     }
 
     public static function convertCodeToType($code)
@@ -343,7 +350,7 @@ class Teradata extends Common
 
     private function isLatin()
     {
-        return true;
+        return $this->isLatin;
     }
 
     /**
@@ -375,7 +382,7 @@ class Teradata extends Common
 
         case self::TYPE_CLOB:
         case self::TYPE_CHARACTER_LARGE_OBJECT:
-            $out = $this->isLatin() ? '1G' : '999M';
+            $out = $this->isLatin() ? '1999M' : '999M';
             break;
 
         case self::TYPE_TIME_WITH_ZONE:
@@ -483,40 +490,37 @@ class Teradata extends Common
      */
     public function getBasetype()
     {
-        //        switch (strtoupper($this->type)) {
-        //            case self::TYPE_BYTEINT:
-        //            case self::TYPE_INTEGER:
-        //            case self::TYPE_INT:
-        //            case self::TYPE_BIGINT:
-        //            case self::TYPE_SMALLINT:
-        //                $basetype = BaseType::INTEGER;
-        //                break;
-        //            case self::TYPE_DECIMAL:
-        //            case self::TYPE_DEC:
-        //            case self::TYPE_NUMERIC:
-        //            case self::TYPE_NUMBER:
-        //                $basetype = BaseType::NUMERIC;
-        //                break;
-        //            case self::TYPE_FLOAT:
-        //            case self::TYPE_DOUBLE_PRECISION:
-        //            case self::TYPE_REAL:
-        //                $basetype = BaseType::FLOAT;
-        //                break;
-        ////            case self::TYPE_BIT:
-        ////                $basetype = BaseType::BOOLEAN;
-        ////                break;
-        //            case self::TYPE_DATE:
-        //                $basetype = BaseType::DATE;
-        //                break;
-        //            case self::TYPE_TIME:
-        //            case self::TYPE_TIME_WITH_ZONE:
-        //                $basetype = BaseType::TIMESTAMP;
-        //                break;
-        //            default:
-        //                $basetype = BaseType::STRING;
-        //                break;
-        //        }
-        //        return $basetype;
+                switch (strtoupper($this->type)) {
+                    case self::TYPE_BYTEINT:
+                    case self::TYPE_INTEGER:
+                    case self::TYPE_INT:
+                    case self::TYPE_BIGINT:
+                    case self::TYPE_SMALLINT:
+                        $basetype = BaseType::INTEGER;
+                        break;
+                    case self::TYPE_DECIMAL:
+                    case self::TYPE_DEC:
+                    case self::TYPE_NUMERIC:
+                    case self::TYPE_NUMBER:
+                        $basetype = BaseType::NUMERIC;
+                        break;
+                    case self::TYPE_FLOAT:
+                    case self::TYPE_DOUBLE_PRECISION:
+                    case self::TYPE_REAL:
+                        $basetype = BaseType::FLOAT;
+                        break;
+                    case self::TYPE_DATE:
+                        $basetype = BaseType::DATE;
+                        break;
+                    case self::TYPE_TIME:
+                    case self::TYPE_TIME_WITH_ZONE:
+                        $basetype = BaseType::TIMESTAMP;
+                        break;
+                    default:
+                        $basetype = BaseType::STRING;
+                        break;
+                }
+                return $basetype;
     }
 }
 
