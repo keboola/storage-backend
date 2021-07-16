@@ -20,18 +20,16 @@ class Teradata extends Common
     const TYPE_SMALLINT = 'SMALLINT'; //  -32768 to 32767, 2B, SMALLINT [ attributes [...] ]
     const TYPE_INTEGER = 'INTEGER'; // 32bit signed, 4B, { INTEGER | INT } [ attributes [...] ]
     const TYPE_INT = 'INT'; // = INTEGER
-
     const TYPE_DECIMAL = 'DECIMAL'; // fixed length up to 16B
-    // DECIMAL [(n[,m])], { DECIMAL | DEC | NUMERIC } [ ( n [, m ] ) ] [ attributes [...] ], 12.4567 : n = 6; m = 4
+    // DECIMAL [(n[,m])], { DECIMAL | DEC | NUMERIC } [ ( n [, m ] ) ] [ attributes [...] ], 12.4567 : n = 6; m = 4.
+    // n: 1-38 ; m 0-n, default when no n nor m -> DECIMAL(5, 0)., default when n is specified -> DECIMAL(n, 0).
     const TYPE_NUMERIC = 'NUMERIC'; // = DECIMAL
     const TYPE_DEC = 'DEC'; // = DECIMAL
-
     const TYPE_FLOAT = 'FLOAT'; // 8B, { FLOAT | REAL | DOUBLE PRECISION } [ attributes [...] ]
     const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION'; // = FLOAT
     const TYPE_REAL = 'REAL'; // = FLOAT
-
     const TYPE_NUMBER = 'NUMBER'; // 1-20B,  NUMBER(n[,m]) / NUMBER[(*[,m])], as DECIMAL but variable-length
-
+    // n: 1-38 ; m 0-n, default when no n nor m -> DECIMAL(5, 0)., default when n is specified DECIMAL(n, 0).
 
     /* Byte */
     const TYPE_BYTE = 'BYTE'; // BYTE [ ( n ) ] [ attributes [...] ]; n Max 64000 Bytes; fixed length
@@ -45,6 +43,7 @@ class Teradata extends Common
     //  KB - K - max 2047937
     //  MB - M - max 1999
     //  GB - G - 1 only
+    const TYPE_BINARY_LARGE_OBJECT = 'BINARY LARGE OBJECT';
 
     /* DateTime */
     const TYPE_DATE = 'DATE'; // DATE [ attributes [...] ]
@@ -54,7 +53,7 @@ class Teradata extends Common
     // '1999-01-01 23:59:59' n = 0
 
     const TYPE_TIME_WITH_ZONE = 'TIME_WITH_ZONE'; // as TIME but
-    // TIME [ ( n ) ]_WITH_ZONE [ attributes [...] ]
+    // TIME [ ( n ) ] WITH ZONE [ attributes [...] ]
     // where insert value as a number from -12.59 to +14.00  23:59:59.1234 +02:00
     const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP_WITH_ZONE'; // same as TYPE_TIME_WITH_ZONE
     /* character */
@@ -96,7 +95,6 @@ class Teradata extends Common
     //   MB - M - max 1999 for Latin, 999 for Unicode
     //   GB - G - 1 and for LATIN only
     const TYPE_CHARACTER_LARGE_OBJECT = 'CHARACTER LARGE OBJECT'; // = CLOB
-
     // Following types are listed due compatibility but they are treated as string
     /* Array */
     // not implemented, because arrays are considered as user defined types
@@ -105,57 +103,90 @@ class Teradata extends Common
     // n represents fraction of seconds as in TIME / TIMESTAMP
     const TYPE_PERIOD_DATE = 'PERIOD(DATE)'; // PERIOD(DATE)
     const TYPE_PERIOD_TIME = 'PERIOD(TIME)';  // PERIOD(TIME [ ( n ) ] )
-    const TYPE_PERIOD_TIMESTAMP = 'PERIOD(TIMESTAMP)';  // PERIOD(TIMESTAMP [ ( n ) ] )
-    const TYPE_PERIOD_TIME_WITH_ZONE = 'PERIOD(TIME)_WITH_ZONE';  // PERIOD(TIME [ ( n ) ] _WITH_ZONE )
-    const TYPE_PERIOD_TIMESTAMP_WITH_ZONE = 'PERIOD(TIMESTAMP)_WITH_ZONE';  // PERIOD(TIMESTAMP [ ( n ) ] _WITH_ZONE )
+    const TYPE_PERIOD_TIMESTAMP = 'PERIOD TIMESTAMP';  // PERIOD(TIMESTAMP [ ( n ) ] )
+    const TYPE_PERIOD_TIME_WITH_ZONE = 'PERIOD TIME WITH_ZONE';  // PERIOD(TIME [ ( n ) ] _WITH_ZONE )
+    const TYPE_PERIOD_TIMESTAMP_WITH_ZONE = 'PERIOD TIMESTAMP WITH_ZONE';  // PERIOD(TIMESTAMP [ ( n ) ] _WITH_ZONE )
     /* Intervals */
     // n is always number of digits, m number of decimal digits for seconds. INTERVAL HOUR(1) TO SECOND(2) = '9:59:59.99'
-    const TYPE_INTERVAL_SECOND = 'INTERVAL SECOND [(n,[m])]'; // INTERVAL SECOND [(n;[m])]
-    const TYPE_INTERVAL_MINUTE = 'INTERVAL MINUTE [(n)]'; // INTERVAL MINUTE [(n)]
-    const TYPE_INTERVAL_MINUTE_TO_SECOND = 'INTERVAL MINUTE [(n)] TO SECOND [(m)]'; // INTERVAL MINUTE [(n)] TO SECOND [(m)]
-    const TYPE_INTERVAL_HOUR = 'INTERVAL HOUR [(n)]'; // INTERVAL HOUR [(n)]
-    const TYPE_INTERVAL_HOUR_TO_SECOND = 'INTERVAL HOUR [(n)] TO SECOND [(m)]'; // INTERVAL HOUR [(n)] TO SECOND [(m)]
-    const TYPE_INTERVAL_HOUR_TO_MINUTE = 'INTERVAL HOUR [(n)] TO MINUTE'; // INTERVAL HOUR [(n)] TO MINUTE
-    const TYPE_INTERVAL_DAY = 'INTERVAL DAY [(n)]'; // INTERVAL DAY [(n)]
-    const TYPE_INTERVAL_DAY_TO_SECOND = 'INTERVAL DAY [(n)] TO SECOND [(m)]'; // INTERVAL DAY [(n)] TO SECOND [(m)]
-    const TYPE_INTERVAL_DAY_TO_MINUTE = 'INTERVAL DAY [(n)] TO MINUTE'; // INTERVAL DAY [(n)] TO MINUTE
-    const TYPE_INTERVAL_DAY_TO_HOUR = 'INTERVAL DAY [(n)] TO HOUR'; // INTERVAL DAY [(n)] TO HOUR
+    const TYPE_INTERVAL_SECOND = 'INTERVAL SECOND'; // INTERVAL SECOND [(n;[m])]
+    const TYPE_INTERVAL_MINUTE = 'INTERVAL MINUTE'; // INTERVAL MINUTE [(n)]
+    const TYPE_INTERVAL_MINUTE_TO_SECOND = 'INTERVAL MINUTE TO SECOND'; // INTERVAL MINUTE [(n)] TO SECOND [(m)]
+    const TYPE_INTERVAL_HOUR = 'INTERVAL HOUR'; // INTERVAL HOUR [(n)]
+    const TYPE_INTERVAL_HOUR_TO_SECOND = 'INTERVAL HOUR TO SECOND'; // INTERVAL HOUR [(n)] TO SECOND [(m)]
+    const TYPE_INTERVAL_HOUR_TO_MINUTE = 'INTERVAL HOUR TO MINUTE'; // INTERVAL HOUR [(n)] TO MINUTE
+    const TYPE_INTERVAL_DAY = 'INTERVAL DAY'; // INTERVAL DAY [(n)]
+    const TYPE_INTERVAL_DAY_TO_SECOND = 'INTERVAL DAY TO SECOND'; // INTERVAL DAY [(n)] TO SECOND [(m)]
+    const TYPE_INTERVAL_DAY_TO_MINUTE = 'INTERVAL DAY TO MINUTE'; // INTERVAL DAY [(n)] TO MINUTE
+    const TYPE_INTERVAL_DAY_TO_HOUR = 'INTERVAL DAY TO HOUR'; // INTERVAL DAY [(n)] TO HOUR
     const TYPE_INTERVAL_MONTH = 'INTERVAL MONTH'; // INTERVAL MONTH
-    const TYPE_INTERVAL_YEAR = 'INTERVAL YEAR [(n)]'; // INTERVAL YEAR [(n)]
-    const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL YEAR [(n)] TO MONTH'; // INTERVAL YEAR [(n)] TO MONTH
+    const TYPE_INTERVAL_YEAR = 'INTERVAL YEAR'; // INTERVAL YEAR [(n)]
+    const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL YEAR TO MONTH'; // INTERVAL YEAR [(n)] TO MONTH
     // User Defined Types (UDP) are not supported
 
-    /**
-     * Types with precision and scale
-     * This used to separate (precision,scale) types from length types when column is retrieved from database
-     */
-//    const TYPES_WITH_COMPLEX_LENGTH = [
-//        self::TYPE_DECIMAL,
-//        self::TYPE_NUMERIC,
-//        self::TYPE_DEC,
-//        self::TYPE_NUMBER,
-//
-//        self::TYPE_CLOB,
-//        self::TYPE_CHARACTER_LARGE_OBJECT,
-//    ];
+    // types where length isnt at the end of the type
+    const COMPLEX_LENGTH_DICT = [
+        self::TYPE_TIME_WITH_ZONE => 'TIME (%d) WITH TIME ZONE',
+        self::TYPE_TIMESTAMP_WITH_ZONE => 'TIMESTAMP (%d) WITH TIME ZONE',
+        self::TYPE_PERIOD_TIME => 'PERIOD(TIME (%d))',
+        self::TYPE_PERIOD_TIMESTAMP => 'PERIOD(TIMESTAMP (%d))',
+        self::TYPE_PERIOD_TIME_WITH_ZONE => 'PERIOD(TIME (%d) WITH TIME ZONE)',
+        self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE => 'PERIOD(TIMESTAMP (%d) WITH TIME ZONE)',
+        self::TYPE_INTERVAL_DAY_TO_MINUTE => 'INTERVAL DAY (%d) TO MINUTE',
+        self::TYPE_INTERVAL_DAY_TO_HOUR => 'INTERVAL DAY (%d) TO HOUR',
+        self::TYPE_INTERVAL_HOUR_TO_MINUTE => 'INTERVAL HOUR (%d) TO MINUTE',
+        self::TYPE_INTERVAL_MINUTE_TO_SECOND => 'INTERVAL MINUTE (%d) TO SECOND (%d)',
+        self::TYPE_INTERVAL_HOUR_TO_SECOND => 'INTERVAL HOUR (%d) TO SECOND (%d)',
+        self::TYPE_INTERVAL_DAY_TO_SECOND => 'INTERVAL DAY (%d) TO SECOND (%d)',
+        self::TYPE_INTERVAL_YEAR_TO_MONTH => 'INTERVAL YEAR (%d) TO MONTH',
+
+    ];
     /**
      * Types without precision, scale, or length
      * This used to separate types when column is retrieved from database
      */
     const TYPES_WITHOUT_LENGTH = [
-//        self::TYPE_BIGINT,
-//        self::TYPE_BYTEINT,
-//        self::TYPE_DATE,
-//        self::TYPE_DOUBLE_PRECISION,
-//        self::TYPE_FLOAT,
-//        self::TYPE_INTEGER,
-//        self::TYPE_REAL,
-//        self::TYPE_SMALLINT,
-//        self::TYPE_CLOB,
-//        self::TYPE_LONG_VARCHAR,
+        self::TYPE_BYTEINT,
+        self::TYPE_BIGINT,
+        self::TYPE_SMALLINT,
+        self::TYPE_INTEGER,
+        self::TYPE_INT, //
+        self::TYPE_FLOAT,
+        self::TYPE_DOUBLE_PRECISION, //
+        self::TYPE_REAL, //
+        self::TYPE_PERIOD_DATE,
+        self::TYPE_LONG_VARCHAR,
+        self::TYPE_LONG_VARGRAPHIC,
     ];
-//https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/6CYL2QcAvXykzEc8mG__Xg
-    const TYPE_CODE_TO_TYPE = [
+    // syntax "TYPEXXX <length>" even if the length is not a single value, such as 38,38
+    const TYPES_WITH_SIMPLE_LENGTH = [
+        self::TYPE_BYTE,
+        self::TYPE_VARBYTE,
+        self::TYPE_TIME,
+        self::TYPE_TIMESTAMP,
+        self::TYPE_CHAR,
+        self::TYPE_CHARACTER, //
+        self::TYPE_VARCHAR,
+        self::TYPE_CHARV, //
+        self::TYPE_CHARACTERV,
+        self::TYPE_VARGRAPHIC,
+        self::TYPE_INTERVAL_MINUTE,
+        self::TYPE_INTERVAL_HOUR,
+        self::TYPE_INTERVAL_DAY,
+        self::TYPE_INTERVAL_MONTH,
+        self::TYPE_INTERVAL_YEAR,
+        self::TYPE_DECIMAL,
+        self::TYPE_NUMERIC, // alias
+        self::TYPE_DEC, //
+        self::TYPE_NUMBER,
+        self::TYPE_BLOB, // ?????
+        self::TYPE_BINARY_LARGE_OBJECT, //
+        self::TYPE_CLOB, // ???
+        self::TYPE_CHARACTER_LARGE_OBJECT, //
+        self::TYPE_INTERVAL_SECOND,
+
+    ];
+    //https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/6CYL2QcAvXykzEc8mG__Xg
+    const CODE_TO_TYPE = [
         'I8' => self::TYPE_BIGINT,
         'BO' => self::TYPE_BLOB,
         'BF' => self::TYPE_BYTE,
@@ -240,6 +271,7 @@ class Teradata extends Common
         self::TYPE_LONG_VARCHAR,
         self::TYPE_LONG_VARGRAPHIC,
         self::TYPE_CHARACTER_LARGE_OBJECT,
+        self::TYPE_BINARY_LARGE_OBJECT,
         self::TYPE_NUMERIC,
         self::TYPE_DEC,
         self::TYPE_FLOAT,
@@ -249,7 +281,7 @@ class Teradata extends Common
 
     /**
      * @param string $type
-     * @param array $options -- length, nullable, default
+     * @param array  $options -- length, nullable, default
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
@@ -267,11 +299,11 @@ class Teradata extends Common
 
     public static function convertCodeToType($code)
     {
-        if (!array_key_exists($code, self::TYPE_CODE_TO_TYPE)) {
+        if (!array_key_exists($code, self::CODE_TO_TYPE)) {
             throw new \Exception("Type code {$code} is not supported");
         }
 
-        return self::TYPE_CODE_TO_TYPE[$code];
+        return self::CODE_TO_TYPE[$code];
     }
 
 
@@ -280,15 +312,16 @@ class Teradata extends Common
      */
     public function getSQLDefinition()
     {
-        $definition = $this->getType();
+        $type = $this->getType();
+        $definition = $type;
         if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
-            $length = $this->getLength();
+            $length = $this->getLength() ?: $this->getDefaultLength();
+            // length is set, use it
             if ($length !== null && $length !== '') {
-                $definition .= sprintf('(%s)', $length);
-            } else {
-                $length = $this->getDefaultLength();
-                if (null !== $length) {
-                    $definition .= sprintf('(%s)', $length);
+                if (in_array($definition, self::TYPES_WITH_SIMPLE_LENGTH)) {
+                    $definition .= sprintf(' (%s)', $length);
+                } else {
+                    $definition = $this->buildComplexLength($type, $length);
                 }
             }
         }
@@ -302,6 +335,17 @@ class Teradata extends Common
         return $definition;
     }
 
+    private function buildComplexLength($type, $lengthString)
+    {
+        $parts = explode(',', $lengthString);
+        return sprintf(self::COMPLEX_LENGTH_DICT[$type], ...$parts);
+    }
+
+    private function isLatin()
+    {
+        return true;
+    }
+
     /**
      * Unlike RS or SNFLK which sets default values for types to max
      * Synapse sets default length to min, so when length is empty we need to set maximum values
@@ -311,9 +355,83 @@ class Teradata extends Common
      */
     private function getDefaultLength()
     {
-//        TODO
+        $out = '';
+        switch ($this->type) {
+            // complex lengths
+        case self::TYPE_DECIMAL:
+        case self::TYPE_NUMERIC:
+        case self::TYPE_DEC:
+            $out = '38,38';
+            break;
 
-        return null;
+        case self::TYPE_NUMBER:
+            $out = '38,38';
+            break;
+
+        case self::TYPE_BLOB:
+        case self::TYPE_BINARY_LARGE_OBJECT:
+            $out = '1G';
+            break;
+
+        case self::TYPE_CLOB:
+        case self::TYPE_CHARACTER_LARGE_OBJECT:
+            $out = $this->isLatin() ? '1G' : '999M';
+            break;
+
+        case self::TYPE_TIME_WITH_ZONE:
+        case self::TYPE_TIMESTAMP_WITH_ZONE:
+        case self::TYPE_PERIOD_TIME_WITH_ZONE:
+        case self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE:
+            $out = '6';
+            break;
+
+        case self::TYPE_INTERVAL_DAY_TO_SECOND:
+        case self::TYPE_INTERVAL_MINUTE_TO_SECOND:
+        case self::TYPE_INTERVAL_HOUR_TO_SECOND:
+        case self::TYPE_INTERVAL_SECOND:
+            $out = '4,6';
+            break;
+
+        case self::TYPE_INTERVAL_DAY_TO_MINUTE:
+        case self::TYPE_INTERVAL_DAY_TO_HOUR:
+        case self::TYPE_INTERVAL_HOUR_TO_MINUTE:
+        case self::TYPE_INTERVAL_YEAR_TO_MONTH:
+            $out = '4';
+            break;
+
+            // simple lengths
+        case self::TYPE_BYTE:
+        case self::TYPE_VARBYTE:
+            $out = '64000';
+            break;
+
+        case self::TYPE_TIME:
+        case self::TYPE_TIMESTAMP:
+            $out = '6';
+            break;
+
+        case self::TYPE_CHAR:
+        case self::TYPE_CHARACTER:
+        case self::TYPE_VARCHAR:
+        case self::TYPE_CHARV:
+        case self::TYPE_CHARACTERV:
+        case self::TYPE_VARGRAPHIC:
+            $out = $this->isLatin() ? '64000' : '32000';
+            break;
+        case self::TYPE_PERIOD_TIME:
+        case self::TYPE_PERIOD_TIMESTAMP:
+            $out = '6';
+            break;
+        case self::TYPE_INTERVAL_MINUTE:
+        case self::TYPE_INTERVAL_HOUR:
+        case self::TYPE_INTERVAL_DAY:
+        case self::TYPE_INTERVAL_MONTH:
+        case self::TYPE_INTERVAL_YEAR:
+            $out = '4';
+            break;
+        }
+
+        return $out;
     }
 
     /**
@@ -350,14 +468,14 @@ class Teradata extends Common
     }
 
     /**
-     * @param string $type
+     * @param string      $type
      * @param string|null $length
      * @return void
      * @throws InvalidLengthException
      */
     private function validateLength($type, $length = null)
     {
-//        TODO
+        //        TODO
     }
 
     /**
@@ -365,40 +483,40 @@ class Teradata extends Common
      */
     public function getBasetype()
     {
-//        switch (strtoupper($this->type)) {
-//            case self::TYPE_BYTEINT:
-//            case self::TYPE_INTEGER:
-//            case self::TYPE_INT:
-//            case self::TYPE_BIGINT:
-//            case self::TYPE_SMALLINT:
-//                $basetype = BaseType::INTEGER;
-//                break;
-//            case self::TYPE_DECIMAL:
-//            case self::TYPE_DEC:
-//            case self::TYPE_NUMERIC:
-//            case self::TYPE_NUMBER:
-//                $basetype = BaseType::NUMERIC;
-//                break;
-//            case self::TYPE_FLOAT:
-//            case self::TYPE_DOUBLE_PRECISION:
-//            case self::TYPE_REAL:
-//                $basetype = BaseType::FLOAT;
-//                break;
-////            case self::TYPE_BIT:
-////                $basetype = BaseType::BOOLEAN;
-////                break;
-//            case self::TYPE_DATE:
-//                $basetype = BaseType::DATE;
-//                break;
-//            case self::TYPE_TIME:
-//            case self::TYPE_TIME_WITH_ZONE:
-//                $basetype = BaseType::TIMESTAMP;
-//                break;
-//            default:
-//                $basetype = BaseType::STRING;
-//                break;
-//        }
-//        return $basetype;
-        }
+        //        switch (strtoupper($this->type)) {
+        //            case self::TYPE_BYTEINT:
+        //            case self::TYPE_INTEGER:
+        //            case self::TYPE_INT:
+        //            case self::TYPE_BIGINT:
+        //            case self::TYPE_SMALLINT:
+        //                $basetype = BaseType::INTEGER;
+        //                break;
+        //            case self::TYPE_DECIMAL:
+        //            case self::TYPE_DEC:
+        //            case self::TYPE_NUMERIC:
+        //            case self::TYPE_NUMBER:
+        //                $basetype = BaseType::NUMERIC;
+        //                break;
+        //            case self::TYPE_FLOAT:
+        //            case self::TYPE_DOUBLE_PRECISION:
+        //            case self::TYPE_REAL:
+        //                $basetype = BaseType::FLOAT;
+        //                break;
+        ////            case self::TYPE_BIT:
+        ////                $basetype = BaseType::BOOLEAN;
+        ////                break;
+        //            case self::TYPE_DATE:
+        //                $basetype = BaseType::DATE;
+        //                break;
+        //            case self::TYPE_TIME:
+        //            case self::TYPE_TIME_WITH_ZONE:
+        //                $basetype = BaseType::TIMESTAMP;
+        //                break;
+        //            default:
+        //                $basetype = BaseType::STRING;
+        //                break;
+        //        }
+        //        return $basetype;
+    }
 }
 
