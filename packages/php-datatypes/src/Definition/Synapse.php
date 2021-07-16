@@ -155,15 +155,6 @@ class Synapse extends Common
     }
 
     /**
-     * @param string|null $length
-     * @return bool
-     */
-    private function isEmpty($length)
-    {
-        return $length === null || $length === '';
-    }
-
-    /**
      * @return array
      */
     public function toArray()
@@ -212,30 +203,7 @@ class Synapse extends Common
                 break;
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
-                if ($length === null || $length === '') {
-                    break;
-                }
-                $parts = explode(',', $length);
-                if (!in_array(count($parts), [1, 2])) {
-                    $valid = false;
-                    break;
-                }
-                if (!is_numeric($parts[0])) {
-                    $valid = false;
-                    break;
-                }
-                if (isset($parts[1]) && !is_numeric($parts[1])) {
-                    $valid = false;
-                    break;
-                }
-                if ((int) $parts[0] <= 0 || (int) $parts[0] > 38) {
-                    $valid = false;
-                    break;
-                }
-                if (isset($parts[1]) && ((int) $parts[1] > (int) $parts[0] || (int) $parts[1] > 38)) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateNumericLength($length, 38, 38);
                 break;
             case self::TYPE_NVARCHAR:
                 if ($this->isEmpty($length)) {

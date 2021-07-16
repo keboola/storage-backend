@@ -9,20 +9,13 @@ use Keboola\Datatype\Definition\Teradata;
 
 class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
 {
-    public function invalidLengths()
-    {
-        return [
-            ['datetime', 'anyLength'],
-        ];
-    }
-
     public function testBasetypes()
     {
         //        TODO
     }
 
     /**
-     * //     * @dataProvider invalidLengths
+     * @dataProvider invalidLengths
      *
      * @param  string $type
      * @param  string|null $length
@@ -30,10 +23,13 @@ class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    //    public function testInvalidLengths($type, $length)
-    public function testInvalidLengths()
+    public function testInvalidLengths($type, $length, $extraOption = [])
     {
-        // TODO
+        $options = $extraOption;
+        $options['length'] = $length;
+
+        $this->expectException(InvalidLengthException::class);
+        new Teradata($type, $options);
     }
 
     public function testInvalidOption()
@@ -134,21 +130,151 @@ class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testValidLengths($type, $length)
+    public function testValidLengths($type, $length, $extraOptions = [])
     {
-        $options = [];
-        if ($length !== null) {
-            $options['length'] = $length;
-        }
+        $options = $extraOptions;
+        $options['length'] = $length;
         new Teradata($type, $options);
     }
 
     public function validLengths()
     {
-        // TODO more types
         return [
+            ['BYTEINT', null],
+            ['BIGINT', null],
+            ['SMALLINT', null],
             ['INTEGER', null],
+            ['INT', null],
+            ['DECIMAL', null],
+            ['NUMERIC', null],
+            ['DEC', null],
+            ['DECIMAL', '24,24'],
+            ['FLOAT', null],
+            ['DOUBLE PRECISION', null],
+            ['REAL', null],
+            ['NUMBER', null],
+            ['NUMBER', '24,24'],
+            ['BYTE', null],
+            ['BYTE', '5000'],
+            ['VARBYTE', null],
+            ['BLOB', null],
+            ['BLOB', '10K'],
+            ['BLOB', '20M'],
+            ['BINARY LARGE OBJECT', null],
+            ['DATE', null],
+            ['TIME', null],
+            ['TIME', '5'],
+            ['TIMESTAMP', '5'],
+            ['TIMESTAMP', null],
+            ['TIME_WITH_ZONE', null],
+            ['TIME_WITH_ZONE', '6'],
+            ['TIMESTAMP_WITH_ZONE', null],
+            ['TIMESTAMP_WITH_ZONE', '6'],
+            ['CHAR', null],
+            ['CHAR', '20000', ['isLatin' => false]],
+            ['CHAR', '50000', ['isLatin' => true]],
+            ['CHARACTER', null],
+            ['VARCHAR', null],
+            ['CHAR VARYING', null],
+            ['CHARACTER VARYING', null],
+            ['VARGRAPHIC', null],
+            ['LONG VARCHAR', null],
+            ['LONG VARGRAPHIC', null],
+            ['CLOB', null],
+            ['CLOB', '10K'],
+            ['CLOB', '20M'],
+            ['CLOB', '20     M'],
+            ['CLOB', '1G', ['isLatin' => true]],
+            ['CHARACTER LARGE OBJECT', null],
+            ['PERIOD(DATE)', null],
+            ['PERIOD(TIME)', null],
+            ['PERIOD(TIME)', '5'],
+            ['PERIOD TIMESTAMP', null],
+            ['PERIOD TIMESTAMP', '5'],
+            ['PERIOD TIME WITH_ZONE', null],
+            ['PERIOD TIME WITH_ZONE', '5'],
+            ['PERIOD TIMESTAMP WITH_ZONE', null],
+            ['PERIOD TIMESTAMP WITH_ZONE', '5'],
+            ['INTERVAL SECOND', null],
+            ['INTERVAL SECOND', '4,6'],
+            ['INTERVAL SECOND', '4'],
+            ['INTERVAL MINUTE', null],
+            ['INTERVAL MINUTE', '4'],
+            ['INTERVAL MINUTE TO SECOND', '4,5'],
+            ['INTERVAL MINUTE TO SECOND', '4'],
+            ['INTERVAL HOUR', null],
+            ['INTERVAL HOUR', '4'],
+            ['INTERVAL HOUR TO SECOND', null],
+            ['INTERVAL HOUR TO SECOND', '4,5'],
+            ['INTERVAL HOUR TO SECOND', '4'],
+            ['INTERVAL HOUR TO MINUTE', null],
+            ['INTERVAL HOUR TO MINUTE', '4'],
+            ['INTERVAL DAY', null],
+            ['INTERVAL DAY', '4'],
+            ['INTERVAL DAY TO SECOND', null],
+            ['INTERVAL DAY TO SECOND', '4,5'],
+            ['INTERVAL DAY TO SECOND', '4'],
+            ['INTERVAL DAY TO MINUTE', null],
+            ['INTERVAL DAY TO MINUTE', '4'],
+            ['INTERVAL DAY TO HOUR', null],
+            ['INTERVAL DAY TO HOUR', '4'],
+            ['INTERVAL MONTH', null],
+            ['INTERVAL YEAR', null],
+            ['INTERVAL YEAR', '4'],
+            ['INTERVAL YEAR TO MONTH', null],
+            ['INTERVAL YEAR TO MONTH', '4'],
+        ];
+    }
+
+    public function invalidLengths()
+    {
+        return [
+            ['DECIMAL', '100'],
+            ['NUMBER', '24,100'],
+            ['BYTE', '555000'],
+            ['BLOB', '20G'],
+            ['TIME', '8'],
+            ['TIMESTAMP', '8'],
+            ['TIME_WITH_ZONE', '8'],
+            ['TIMESTAMP_WITH_ZONE', '8'],
+            ['CHAR', '1000000'],
+            ['CHAR', '50000', ['isLatin' => false]],
+            ['CHAR', '500000', ['isLatin' => true]],
+            ['CLOB', '20 G'],
+            ['CLOB', '20F'],
+            ['CLOB', '1G', ['isLatin' => false]],
+            ['PERIOD(TIME)', '7'],
+            ['PERIOD TIMESTAMP', '8'],
+            ['PERIOD TIME WITH_ZONE', '8'],
+            ['PERIOD TIMESTAMP WITH_ZONE', '8'],
+            ['INTERVAL SECOND', '5,6'],
+            ['INTERVAL SECOND', '5'],
+            ['INTERVAL MINUTE', '5'],
+            ['INTERVAL MINUTE TO SECOND', '4,9'],
+            ['INTERVAL MINUTE TO SECOND', '5'],
+            ['INTERVAL HOUR', '6'],
+            ['INTERVAL HOUR TO SECOND', '4,8'],
+            ['INTERVAL HOUR TO SECOND', '5'],
+            ['INTERVAL HOUR TO MINUTE', '5'],
+            ['INTERVAL DAY', '6'],
+            ['INTERVAL DAY TO SECOND', '4,8'],
+            ['INTERVAL DAY TO SECOND', '8'],
+            ['INTERVAL DAY TO MINUTE', '5'],
+            ['INTERVAL DAY TO HOUR', '5'],
+            ['INTERVAL YEAR', '5'],
+            ['INTERVAL YEAR TO MONTH', '5'],
+
+            ['BYTEINT', '4'],
+            ['BIGINT', '4'],
+            ['SMALLINT', '4'],
+            ['INTEGER', '4'],
+            ['INT', '4'],
+            ['FLOAT', '4'],
+            ['DOUBLE PRECISION', '4'],
+            ['REAL', '4'],
+            ['PERIOD(DATE)', '4'],
+            ['LONG VARCHAR', '4'],
+            ['LONG VARGRAPHIC', '4'],
         ];
     }
 }
-

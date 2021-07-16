@@ -40,11 +40,10 @@ class Teradata extends Common
     //  [ attribute [...] ]
     // n - amount of
     //  Bytes - no unit
-    //  KB - K - max 2047937
-    //  MB - M - max 1999
-    //  GB - G - 1 only
+    //  K - K - max 2047937
+    //  M - M - max 1999
+    //  G - G - 1 only
     const TYPE_BINARY_LARGE_OBJECT = 'BINARY LARGE OBJECT';
-
     /* DateTime */
     const TYPE_DATE = 'DATE'; // DATE [ attributes [...] ]
     const TYPE_TIME = 'TIME'; // TIME [ ( n ) ] [ attributes [...] ]; n = A single digit representing the number of digits in the fractional portion of the SECOND field. '11:37:58.12345' n = 5; '11:37:58' n = 0
@@ -79,11 +78,9 @@ class Teradata extends Common
     const TYPE_CHARV = 'CHAR VARYING'; // = VARCHAR
     const TYPE_CHARACTERV = 'CHARACTER VARYING'; // = VARCHAR
     const TYPE_VARGRAPHIC = 'VARGRAPHIC'; // = VARCHAR
-
     // = VARCHAR but without n
     const TYPE_LONG_VARCHAR = 'LONG VARCHAR';
     const TYPE_LONG_VARGRAPHIC = 'LONG VARGRAPHIC';
-
     const TYPE_CLOB = 'CLOB';
     // { CHARACTER LARGE OBJECT | CLOB }
     // [ ( n [ K | M | G ] ) ]
@@ -91,9 +88,9 @@ class Teradata extends Common
     // [ attribute [...] ]
     //  n - amount of
     //   Bytes - no unit
-    //   KB - K - max 2047937 for Latin, 1023968 for Unicode
-    //   MB - M - max 1999 for Latin, 999 for Unicode
-    //   GB - G - 1 and for LATIN only
+    //   K - K - max 2047937 for Latin, 1023968 for Unicode
+    //   M - M - max 1999 for Latin, 999 for Unicode
+    //   G - G - 1 and for LATIN only
     const TYPE_CHARACTER_LARGE_OBJECT = 'CHARACTER LARGE OBJECT'; // = CLOB
     // Following types are listed due compatibility but they are treated as string
     /* Array */
@@ -291,6 +288,10 @@ class Teradata extends Common
      */
     public function __construct($type, $options = [])
     {
+        if (isset($options['isLatin'])) {
+            $this->isLatin = (boolean) $options['isLatin'];
+        }
+
         $this->validateType($type);
         $this->validateLength($type, isset($options['length']) ? $options['length'] : null);
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'isLatin']);
@@ -298,10 +299,6 @@ class Teradata extends Common
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
-
-        if (isset($options['isLatin'])) {
-            $this->isLatin = (boolean) $options['isLatin'];
-        }
     }
 
     public static function convertCodeToType($code)
@@ -365,90 +362,82 @@ class Teradata extends Common
         $out = '';
         switch ($this->type) {
             // complex lengths
-        case self::TYPE_DECIMAL:
-        case self::TYPE_NUMERIC:
-        case self::TYPE_DEC:
-            $out = '38,38';
-            break;
+            case self::TYPE_DECIMAL:
+            case self::TYPE_NUMERIC:
+            case self::TYPE_DEC:
+                $out = '38,38';
+                break;
 
-        case self::TYPE_NUMBER:
-            $out = '38,38';
-            break;
+            case self::TYPE_NUMBER:
+                $out = '38,38';
+                break;
 
-        case self::TYPE_BLOB:
-        case self::TYPE_BINARY_LARGE_OBJECT:
-            $out = '1G';
-            break;
+            case self::TYPE_BLOB:
+            case self::TYPE_BINARY_LARGE_OBJECT:
+                $out = '1G';
+                break;
 
-        case self::TYPE_CLOB:
-        case self::TYPE_CHARACTER_LARGE_OBJECT:
-            $out = $this->isLatin() ? '1999M' : '999M';
-            break;
+            case self::TYPE_CLOB:
+            case self::TYPE_CHARACTER_LARGE_OBJECT:
+                $out = $this->isLatin() ? '1999M' : '999M';
+                break;
 
-        case self::TYPE_TIME_WITH_ZONE:
-        case self::TYPE_TIMESTAMP_WITH_ZONE:
-        case self::TYPE_PERIOD_TIME_WITH_ZONE:
-        case self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE:
-            $out = '6';
-            break;
+            case self::TYPE_TIME_WITH_ZONE:
+            case self::TYPE_TIMESTAMP_WITH_ZONE:
+            case self::TYPE_PERIOD_TIME_WITH_ZONE:
+            case self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE:
+                $out = '6';
+                break;
 
-        case self::TYPE_INTERVAL_DAY_TO_SECOND:
-        case self::TYPE_INTERVAL_MINUTE_TO_SECOND:
-        case self::TYPE_INTERVAL_HOUR_TO_SECOND:
-        case self::TYPE_INTERVAL_SECOND:
-            $out = '4,6';
-            break;
+            case self::TYPE_INTERVAL_DAY_TO_SECOND:
+            case self::TYPE_INTERVAL_MINUTE_TO_SECOND:
+            case self::TYPE_INTERVAL_HOUR_TO_SECOND:
+            case self::TYPE_INTERVAL_SECOND:
+                $out = '4,6';
+                break;
 
-        case self::TYPE_INTERVAL_DAY_TO_MINUTE:
-        case self::TYPE_INTERVAL_DAY_TO_HOUR:
-        case self::TYPE_INTERVAL_HOUR_TO_MINUTE:
-        case self::TYPE_INTERVAL_YEAR_TO_MONTH:
-            $out = '4';
-            break;
+            case self::TYPE_INTERVAL_DAY_TO_MINUTE:
+            case self::TYPE_INTERVAL_DAY_TO_HOUR:
+            case self::TYPE_INTERVAL_HOUR_TO_MINUTE:
+            case self::TYPE_INTERVAL_YEAR_TO_MONTH:
+                $out = '4';
+                break;
 
             // simple lengths
-        case self::TYPE_BYTE:
-        case self::TYPE_VARBYTE:
-            $out = '64000';
-            break;
+            case self::TYPE_BYTE:
+            case self::TYPE_VARBYTE:
+                $out = '64000';
+                break;
 
-        case self::TYPE_TIME:
-        case self::TYPE_TIMESTAMP:
-            $out = '6';
-            break;
+            case self::TYPE_TIME:
+            case self::TYPE_TIMESTAMP:
+                $out = '6';
+                break;
 
-        case self::TYPE_CHAR:
-        case self::TYPE_CHARACTER:
-        case self::TYPE_VARCHAR:
-        case self::TYPE_CHARV:
-        case self::TYPE_CHARACTERV:
-        case self::TYPE_VARGRAPHIC:
-            $out = $this->isLatin() ? '64000' : '32000';
-            break;
-        case self::TYPE_PERIOD_TIME:
-        case self::TYPE_PERIOD_TIMESTAMP:
-            $out = '6';
-            break;
-        case self::TYPE_INTERVAL_MINUTE:
-        case self::TYPE_INTERVAL_HOUR:
-        case self::TYPE_INTERVAL_DAY:
-        case self::TYPE_INTERVAL_MONTH:
-        case self::TYPE_INTERVAL_YEAR:
-            $out = '4';
-            break;
+            case self::TYPE_CHAR:
+            case self::TYPE_CHARACTER:
+            case self::TYPE_VARCHAR:
+            case self::TYPE_CHARV:
+            case self::TYPE_CHARACTERV:
+            case self::TYPE_VARGRAPHIC:
+                $out = $this->isLatin() ? '64000' : '32000';
+                break;
+            case self::TYPE_PERIOD_TIME:
+            case self::TYPE_PERIOD_TIMESTAMP:
+                $out = '6';
+                break;
+            case self::TYPE_INTERVAL_MINUTE:
+            case self::TYPE_INTERVAL_HOUR:
+            case self::TYPE_INTERVAL_DAY:
+            case self::TYPE_INTERVAL_MONTH:
+            case self::TYPE_INTERVAL_YEAR:
+                $out = '4';
+                break;
         }
 
         return $out;
     }
 
-    /**
-     * @param string|null $length
-     * @return bool
-     */
-    private function isEmpty($length)
-    {
-        return $length === null || $length === '';
-    }
 
     /**
      * @return array
@@ -482,7 +471,109 @@ class Teradata extends Common
      */
     private function validateLength($type, $length = null)
     {
-        //        TODO
+        $valid = true;
+
+        if (in_array($type, self::TYPES_WITHOUT_LENGTH) && !is_null($length)) {
+            throw new InvalidLengthException("Type {$type} does not support length definition");
+        }
+
+        switch (strtoupper($type)) {
+            case self::TYPE_DECIMAL:
+            case self::TYPE_NUMERIC:
+            case self::TYPE_DEC:
+            case self::TYPE_NUMBER:
+                $valid = $this->validateNumericLength($length, 38, 38);
+                break;
+            case self::TYPE_INTERVAL_SECOND:
+            case self::TYPE_INTERVAL_MINUTE_TO_SECOND:
+            case self::TYPE_INTERVAL_HOUR_TO_SECOND:
+            case self::TYPE_INTERVAL_DAY_TO_SECOND:
+                $valid = $this->validateNumericLength($length, 4, 6, false);
+                break;
+            case self::TYPE_TIME:
+            case self::TYPE_TIMESTAMP:
+            case self::TYPE_TIME_WITH_ZONE:
+            case self::TYPE_TIMESTAMP_WITH_ZONE:
+            case self::TYPE_PERIOD_TIME:
+            case self::TYPE_PERIOD_TIME_WITH_ZONE:
+            case self::TYPE_PERIOD_TIMESTAMP:
+            case self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE:
+                $valid = $this->validateMaxLength($length, 6, 0);
+                break;
+            case self::TYPE_INTERVAL_MINUTE:
+            case self::TYPE_INTERVAL_HOUR:
+            case self::TYPE_INTERVAL_DAY:
+            case self::TYPE_INTERVAL_MONTH:
+            case self::TYPE_INTERVAL_YEAR:
+            case self::TYPE_INTERVAL_DAY_TO_MINUTE:
+            case self::TYPE_INTERVAL_HOUR_TO_MINUTE:
+            case self::TYPE_INTERVAL_DAY_TO_HOUR:
+            case self::TYPE_INTERVAL_YEAR_TO_MONTH:
+                $valid = $this->validateMaxLength($length, 4);
+                break;
+            case self::TYPE_BYTE:
+            case self::TYPE_VARBYTE:
+                $valid = $this->validateMaxLength($length, 64000);
+                break;
+
+            case self::TYPE_CHAR:
+            case self::TYPE_CHARACTER:
+            case self::TYPE_VARCHAR:
+            case self::TYPE_CHARV:
+            case self::TYPE_CHARACTERV:
+            case self::TYPE_VARGRAPHIC:
+                $valid = $this->validateMaxLength($length, $this->isLatin() ? 64000 : 32000);
+                break;
+            case self::TYPE_CLOB:
+            case self::TYPE_CHARACTER_LARGE_OBJECT:
+                $isLatin = $this->isLatin();
+                $valid = $this->validateLOBLength(
+                    $length,
+                    [
+                        'no' => $isLatin ? 2097088000 : 1048544000,
+                        'K' => $isLatin ? 2047937 : 1023968,
+                        'M' => $isLatin ? 1999 : 999,
+                        'G' => $isLatin ? 1 : 0,
+                    ]
+                );
+                break;
+            case self::TYPE_BLOB:
+            case self::TYPE_BINARY_LARGE_OBJECT:
+                $valid = $this->validateLOBLength(
+                    $length,
+                    [
+                        'no' => 2097088000,
+                        'K' => 2047937,
+                        'M' => 1999,
+                        'G' => 1,
+                    ]
+                );
+                break;
+        }
+
+        if (!$valid) {
+            throw new InvalidLengthException("'{$length}' is not valid length for {$type}");
+        }
+    }
+
+    private function validateLOBLength($length, $maxTab)
+    {
+        if ($this->isEmpty($length)) {
+            return true;
+        }
+        preg_match('/^([1-9]\d*)\s*(M|K|G)?$/', $length, $out);
+        if (empty($out)) {
+            return false;
+        }
+        if (count($out) === 2) {
+            // no unit
+            return $out[1] < $maxTab['noUnit'] && $out[1] >= 1;
+        }
+        if (count($out) === 3) {
+            // with unit
+            return $out[1] <= $maxTab[$out[2]] && $out[1] >= 1;
+        }
+        return false;
     }
 
     /**
@@ -490,37 +581,36 @@ class Teradata extends Common
      */
     public function getBasetype()
     {
-                switch (strtoupper($this->type)) {
-                    case self::TYPE_BYTEINT:
-                    case self::TYPE_INTEGER:
-                    case self::TYPE_INT:
-                    case self::TYPE_BIGINT:
-                    case self::TYPE_SMALLINT:
-                        $basetype = BaseType::INTEGER;
-                        break;
-                    case self::TYPE_DECIMAL:
-                    case self::TYPE_DEC:
-                    case self::TYPE_NUMERIC:
-                    case self::TYPE_NUMBER:
-                        $basetype = BaseType::NUMERIC;
-                        break;
-                    case self::TYPE_FLOAT:
-                    case self::TYPE_DOUBLE_PRECISION:
-                    case self::TYPE_REAL:
-                        $basetype = BaseType::FLOAT;
-                        break;
-                    case self::TYPE_DATE:
-                        $basetype = BaseType::DATE;
-                        break;
-                    case self::TYPE_TIME:
-                    case self::TYPE_TIME_WITH_ZONE:
-                        $basetype = BaseType::TIMESTAMP;
-                        break;
-                    default:
-                        $basetype = BaseType::STRING;
-                        break;
-                }
-                return $basetype;
+        switch (strtoupper($this->type)) {
+            case self::TYPE_BYTEINT:
+            case self::TYPE_INTEGER:
+            case self::TYPE_INT:
+            case self::TYPE_BIGINT:
+            case self::TYPE_SMALLINT:
+                $basetype = BaseType::INTEGER;
+                break;
+            case self::TYPE_DECIMAL:
+            case self::TYPE_DEC:
+            case self::TYPE_NUMERIC:
+            case self::TYPE_NUMBER:
+                $basetype = BaseType::NUMERIC;
+                break;
+            case self::TYPE_FLOAT:
+            case self::TYPE_DOUBLE_PRECISION:
+            case self::TYPE_REAL:
+                $basetype = BaseType::FLOAT;
+                break;
+            case self::TYPE_DATE:
+                $basetype = BaseType::DATE;
+                break;
+            case self::TYPE_TIME:
+            case self::TYPE_TIME_WITH_ZONE:
+                $basetype = BaseType::TIMESTAMP;
+                break;
+            default:
+                $basetype = BaseType::STRING;
+                break;
+        }
+        return $basetype;
     }
 }
-

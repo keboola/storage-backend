@@ -101,6 +101,15 @@ abstract class Common implements DefinitionInterface
     abstract public function toArray();
 
     /**
+     * @param string|null $length
+     * @return bool
+     */
+    protected function isEmpty($length)
+    {
+        return $length === null || $length === '';
+    }
+
+    /**
      * @return array
      */
     public function toMetadata()
@@ -126,9 +135,52 @@ abstract class Common implements DefinitionInterface
         if (!is_null($this->getDefault())) {
             $metadata[] = [
                 "key" => self::KBC_METADATA_KEY_DEFAULT,
-                "value" => $this->getDefault()
+                "value" => $this->getDefault(),
             ];
         }
         return $metadata;
+    }
+
+    protected function validateNumericLength($length, $firstMax, $secondMax, $firstMustBeBigger = true)
+    {
+        if ($this->isEmpty($length)) {
+            return true;
+        }
+        $parts = explode(',', $length);
+        if (!in_array(count($parts), [1, 2])) {
+            return false;
+        }
+        if (!is_numeric($parts[0])) {
+            return false;
+        }
+        if (isset($parts[1]) && !is_numeric($parts[1])) {
+            return false;
+        }
+        if ((int) $parts[0] <= 0 || (int) $parts[0] > $firstMax) {
+            return false;
+        }
+        if (isset($parts[1]) && ((int) $parts[1] > $secondMax)) {
+            return false;
+        }
+
+        if ($firstMustBeBigger && isset($parts[1]) && (int) $parts[1] > (int) $parts[0]) {
+            return false;
+        }
+        return true;
+    }
+
+    protected function validateMaxLength($length, $max, $min = 1)
+    {
+        if ($this->isEmpty($length)) {
+            return true;
+        }
+
+        if (!is_numeric($length)) {
+            return false;
+        }
+        if ((int) $length < $min || (int) $length > $max) {
+            return false;
+        }
+        return true;
     }
 }
