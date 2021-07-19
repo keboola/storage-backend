@@ -2,6 +2,7 @@
 
 namespace Keboola\DatatypeTest;
 
+use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
@@ -9,16 +10,61 @@ use Keboola\Datatype\Definition\Teradata;
 
 class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
 {
-    public function testBasetypes()
+    /**
+     * @dataProvider typesProvider
+     * @param $type
+     * @throws InvalidLengthException
+     * @throws InvalidOptionException
+     * @throws InvalidTypeException
+     */
+    public function testBasetypes($type)
     {
-        //        TODO
+        $basetype = (new Teradata($type))->getBasetype();
+
+        switch (strtoupper($type)) {
+            case 'BYTEINT':
+            case 'INTEGER':
+            case 'INT':
+            case 'BIGINT':
+            case 'SMALLINT':
+                self::assertSame(BaseType::INTEGER, $basetype);
+                break;
+            case 'DECIMAL':
+            case 'DEC':
+            case 'NUMERIC':
+            case 'NUMBER':
+                self::assertSame(BaseType::NUMERIC, $basetype);
+                break;
+            case 'FLOAT':
+            case 'DOUBLE PRECISION':
+            case 'REAL':
+                self::assertSame(BaseType::FLOAT, $basetype);
+                break;
+            case 'DATE':
+                self::assertSame(BaseType::DATE, $basetype);
+                break;
+            case 'TIME':
+            case 'TIME_WITH_ZONE':
+                self::assertSame(BaseType::TIMESTAMP, $basetype);
+                break;
+            default:
+                self::assertSame(BaseType::STRING, $basetype);
+                break;
+        }
+    }
+
+    public function typesProvider()
+    {
+        foreach (Teradata::TYPES as $type) {
+            yield [$type => $type];
+        }
     }
 
     /**
      * @dataProvider invalidLengths
      *
-     * @param  string $type
-     * @param  string|null $length
+     * @param string $type
+     * @param string|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
@@ -63,7 +109,6 @@ class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
 
     public function expectedSqlDefinitions()
     {
-        // TODO more types
         return [
             'BYTEINT' => ['BYTEINT', [], 'BYTEINT'],
             'BIGINT' => ['BIGINT', [], 'BIGINT'],
