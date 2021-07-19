@@ -31,15 +31,4 @@ class TeradataQuote implements QuoteInterface
     {
         return '"' . str_replace('"', '""', $str) . '"';
     }
-
-    /**
-     * @param string[] $data
-     * @return string
-     */
-    public static function quoteAndImplode(array $data): string
-    {
-        return implode(', ', array_map(static function ($item) {
-            return TeradataQuote::quote($item);
-        }, $data));
-    }
 }

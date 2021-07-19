@@ -134,8 +134,8 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             false, // nullable
         ];
         yield 'CHAR WITH LENGTH' => [
-            'CHAR(20)',
-            'CHAR(20)',
+            'CHAR (20)',
+            'CHAR (20)',
             'CHAR', // type
             null, // default
             20, // length

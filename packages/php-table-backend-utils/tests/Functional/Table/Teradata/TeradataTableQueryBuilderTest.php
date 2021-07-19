@@ -146,8 +146,8 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
             'expectedPrimaryKeys' => [],
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR(32000) NOT NULL DEFAULT '',
-"col2" VARCHAR(32000) NOT NULL DEFAULT '');
+("col1" VARCHAR (32000) NOT NULL DEFAULT '',
+"col2" VARCHAR (32000) NOT NULL DEFAULT '');
 EOT
             ,
         ];
@@ -161,8 +161,8 @@ EOT
             'expectedPrimaryKeys' => ['col1'],
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR(32000) NOT NULL DEFAULT '',
-"col2" VARCHAR(32000) NOT NULL DEFAULT '',
+("col1" VARCHAR (32000) NOT NULL DEFAULT '',
+"col2" VARCHAR (32000) NOT NULL DEFAULT '',
 PRIMARY KEY ("col1"));
 EOT
             ,
@@ -177,8 +177,8 @@ EOT
             'expectedPrimaryKeys' => ['col1', 'col2'],
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR(32000) NOT NULL DEFAULT '',
-"col2" VARCHAR(32000) NOT NULL DEFAULT '',
+("col1" VARCHAR (32000) NOT NULL DEFAULT '',
+"col2" VARCHAR (32000) NOT NULL DEFAULT '',
 PRIMARY KEY ("col1", "col2"));
 EOT
             ,
