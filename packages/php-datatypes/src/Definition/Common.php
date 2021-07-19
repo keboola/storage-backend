@@ -141,12 +141,19 @@ abstract class Common implements DefinitionInterface
         return $metadata;
     }
 
+    /**
+     * @param string|null $length
+     * @param int $firstMax
+     * @param int $secondMax
+     * @param bool $firstMustBeBigger
+     * @return bool
+     */
     protected function validateNumericLength($length, $firstMax, $secondMax, $firstMustBeBigger = true)
     {
         if ($this->isEmpty($length)) {
             return true;
         }
-        $parts = explode(',', $length);
+        $parts = explode(',', (string) $length);
         if (!in_array(count($parts), [1, 2])) {
             return false;
         }
@@ -169,6 +176,12 @@ abstract class Common implements DefinitionInterface
         return true;
     }
 
+    /**
+     * @param mixed $length
+     * @param int $max
+     * @param int $min
+     * @return bool
+     */
     protected function validateMaxLength($length, $max, $min = 1)
     {
         if ($this->isEmpty($length)) {

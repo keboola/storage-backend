@@ -120,6 +120,18 @@ class Teradata extends Common
     const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL YEAR TO MONTH'; // INTERVAL YEAR [(n)] TO MONTH
     // User Defined Types (UDP) are not supported
 
+    // default lengths for different kinds of types. Used max values
+    const DEFAULT_BLOB_LENGTH = '1G';
+    const DEFAULT_BYTE_LENGTH = 64000;
+    const DEFAULT_DATETIME_DIGIT_LENGTH = 4;
+    const DEFAULT_DECIMAL_LENGTH = '38,38';
+    const DEFAULT_LATIN_CHAR_LENGTH = 64000;
+    const DEFAULT_LATIN_CLOB_LENGTH = '1999M';
+    const DEFAULT_NON_LATIN_CHAR_LENGTH = 32000;
+    const DEFAULT_NON_LATIN_CLOB_LENGTH = '999M';
+    const DEFAULT_SECOND_PRECISION_LENGTH = 6;
+    const DEFAULT_VALUE_TO_SECOND_PRECISION_LENGTH = '4,6';
+
     // types where length isnt at the end of the type
     const COMPLEX_LENGTH_DICT = [
         self::TYPE_TIME_WITH_ZONE => 'TIME (%d) WITH TIME ZONE',
@@ -301,6 +313,11 @@ class Teradata extends Common
         parent::__construct($type, $options);
     }
 
+    /**
+     * @param string $code
+     * @return string
+     * @throws \Exception
+     */
     public static function convertCodeToType($code)
     {
         if (!array_key_exists($code, self::CODE_TO_TYPE)) {
@@ -324,7 +341,7 @@ class Teradata extends Common
             if ($length !== null && $length !== '') {
                 if (in_array($definition, self::TYPES_WITH_SIMPLE_LENGTH)) {
                     $definition .= sprintf(' (%s)', $length);
-                } else {
+                } elseif (array_key_exists($definition, self::COMPLEX_LENGTH_DICT)) {
                     $definition = $this->buildComplexLength($type, $length);
                 }
             }
@@ -339,12 +356,22 @@ class Teradata extends Common
         return $definition;
     }
 
+    /**
+     * builds SQL definition for types which don't just append the length behind the type name
+     *
+     * @param string $type
+     * @param string|int|null $lengthString
+     * @return string
+     */
     private function buildComplexLength($type, $lengthString)
     {
-        $parts = explode(',', $lengthString);
+        $parts = explode(',', (string) $lengthString);
         return sprintf(self::COMPLEX_LENGTH_DICT[$type], ...$parts);
     }
 
+    /**
+     * @return bool
+     */
     private function isLatin()
     {
         return $this->isLatin;
@@ -359,59 +386,60 @@ class Teradata extends Common
      */
     private function getDefaultLength()
     {
-        $out = '';
+        $out = null;
         switch ($this->type) {
-            // complex lengths
+            // decimals
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
             case self::TYPE_DEC:
-                $out = '38,38';
-                break;
-
+            // number
             case self::TYPE_NUMBER:
-                $out = '38,38';
+                $out = self::DEFAULT_DECIMAL_LENGTH;
                 break;
 
             case self::TYPE_BLOB:
             case self::TYPE_BINARY_LARGE_OBJECT:
-                $out = '1G';
+                $out = self::DEFAULT_BLOB_LENGTH;
                 break;
 
             case self::TYPE_CLOB:
             case self::TYPE_CHARACTER_LARGE_OBJECT:
-                $out = $this->isLatin() ? '1999M' : '999M';
+                $out = $this->isLatin() ? self::DEFAULT_LATIN_CLOB_LENGTH : self::DEFAULT_NON_LATIN_CLOB_LENGTH;
                 break;
 
             case self::TYPE_TIME_WITH_ZONE:
             case self::TYPE_TIMESTAMP_WITH_ZONE:
+            case self::TYPE_TIMESTAMP:
+            case self::TYPE_TIME:
+            case self::TYPE_PERIOD_TIME:
             case self::TYPE_PERIOD_TIME_WITH_ZONE:
+            case self::TYPE_PERIOD_TIMESTAMP:
             case self::TYPE_PERIOD_TIMESTAMP_WITH_ZONE:
-                $out = '6';
+                $out = self::DEFAULT_SECOND_PRECISION_LENGTH;
                 break;
 
             case self::TYPE_INTERVAL_DAY_TO_SECOND:
             case self::TYPE_INTERVAL_MINUTE_TO_SECOND:
             case self::TYPE_INTERVAL_HOUR_TO_SECOND:
             case self::TYPE_INTERVAL_SECOND:
-                $out = '4,6';
+                $out = self::DEFAULT_VALUE_TO_SECOND_PRECISION_LENGTH;
                 break;
 
             case self::TYPE_INTERVAL_DAY_TO_MINUTE:
             case self::TYPE_INTERVAL_DAY_TO_HOUR:
             case self::TYPE_INTERVAL_HOUR_TO_MINUTE:
             case self::TYPE_INTERVAL_YEAR_TO_MONTH:
-                $out = '4';
+            case self::TYPE_INTERVAL_MINUTE:
+            case self::TYPE_INTERVAL_HOUR:
+            case self::TYPE_INTERVAL_DAY:
+            case self::TYPE_INTERVAL_MONTH:
+            case self::TYPE_INTERVAL_YEAR:
+                $out = self::DEFAULT_DATETIME_DIGIT_LENGTH;
                 break;
 
-            // simple lengths
             case self::TYPE_BYTE:
             case self::TYPE_VARBYTE:
-                $out = '64000';
-                break;
-
-            case self::TYPE_TIME:
-            case self::TYPE_TIMESTAMP:
-                $out = '6';
+                $out = self::DEFAULT_BYTE_LENGTH;
                 break;
 
             case self::TYPE_CHAR:
@@ -420,18 +448,7 @@ class Teradata extends Common
             case self::TYPE_CHARV:
             case self::TYPE_CHARACTERV:
             case self::TYPE_VARGRAPHIC:
-                $out = $this->isLatin() ? '64000' : '32000';
-                break;
-            case self::TYPE_PERIOD_TIME:
-            case self::TYPE_PERIOD_TIMESTAMP:
-                $out = '6';
-                break;
-            case self::TYPE_INTERVAL_MINUTE:
-            case self::TYPE_INTERVAL_HOUR:
-            case self::TYPE_INTERVAL_DAY:
-            case self::TYPE_INTERVAL_MONTH:
-            case self::TYPE_INTERVAL_YEAR:
-                $out = '4';
+                $out = $this->isLatin() ? self::DEFAULT_LATIN_CHAR_LENGTH : self::DEFAULT_NON_LATIN_CHAR_LENGTH;
                 break;
         }
 
@@ -552,17 +569,22 @@ class Teradata extends Common
         }
 
         if (!$valid) {
+            echo "$type $length";
             throw new InvalidLengthException("'{$length}' is not valid length for {$type}");
         }
     }
 
+    /**
+     * @param string|null $length
+     * @param array $maxTab table (array) with max values
+     * @return bool
+     */
     private function validateLOBLength($length, $maxTab)
     {
         if ($this->isEmpty($length)) {
             return true;
         }
-        preg_match('/^([1-9]\d*)\s*(M|K|G)?$/', $length, $out);
-        if (empty($out)) {
+        if (!preg_match('/^([1-9]\d*)\s*(M|K|G)?$/', (string) $length, $out)) {
             return false;
         }
         if (count($out) === 2) {
