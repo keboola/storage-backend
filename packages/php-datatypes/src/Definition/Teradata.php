@@ -201,7 +201,7 @@ class Teradata extends Common
         'BF' => self::TYPE_BYTE,
         'BV' => self::TYPE_VARBYTE,
         'I1' => self::TYPE_BYTEINT,
-        'CF' => self::TYPE_CHARACTER,
+        'CF' => self::TYPE_CHAR,
         'CV' => self::TYPE_VARCHAR,
         'CO' => self::TYPE_CLOB,
         'D' => self::TYPE_DECIMAL,
@@ -489,10 +489,6 @@ class Teradata extends Common
     private function validateLength($type, $length = null)
     {
         $valid = true;
-
-        if (in_array($type, self::TYPES_WITHOUT_LENGTH) && !is_null($length)) {
-            throw new InvalidLengthException("Type {$type} does not support length definition");
-        }
 
         switch (strtoupper($type)) {
             case self::TYPE_DECIMAL:

@@ -308,18 +308,6 @@ class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
             ['INTERVAL DAY TO HOUR', '5'],
             ['INTERVAL YEAR', '5'],
             ['INTERVAL YEAR TO MONTH', '5'],
-
-            ['BYTEINT', '4'],
-            ['BIGINT', '4'],
-            ['SMALLINT', '4'],
-            ['INTEGER', '4'],
-            ['INT', '4'],
-            ['FLOAT', '4'],
-            ['DOUBLE PRECISION', '4'],
-            ['REAL', '4'],
-            ['PERIOD(DATE)', '4'],
-            ['LONG VARCHAR', '4'],
-            ['LONG VARGRAPHIC', '4'],
         ];
     }
 }
