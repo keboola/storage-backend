@@ -42,7 +42,9 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         // build escaped list of system users
         $where = sprintf(
             'U.UserName NOT IN (%s)',
-            TeradataQuote::quoteAndImplode(self::$excludedUsers)
+            implode(', ', array_map(static function ($item) {
+                return TeradataQuote::quote($item);
+            }, self::$excludedUsers))
         );
 
         // add LIKE
