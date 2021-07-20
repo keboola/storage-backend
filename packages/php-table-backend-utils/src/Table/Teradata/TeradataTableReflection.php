@@ -65,16 +65,36 @@ final class TeradataTableReflection implements TableReflectionInterface
             )
         );
 
-        $columns = array_map(static function ($col) {
+        // types with structure of length <totalDigits>,<fractionalDigits> hidden in extra columns in table description
+        $fractionalTypes = [
+            'D',
+            'N',
+        ];
+
+        // types with length described in fractionalDigits column
+        $timeTypes = [
+            'AT',
+            'TS',
+            'TZ',
+            'SZ',
+        ];
+        $columns = array_map(static function ($col) use ($fractionalTypes, $timeTypes) {
             $colName = trim($col['Column Name']);
             $colType = trim($col['Type']);
             $defaultvalue = $col['Default value'];
+            $length = $col['Max Length'];
+            if (in_array($colType, $fractionalTypes, true)) {
+                $length = "{$col['Decimal Total Digits']},{$col['Decimal Fractional Digits']}";
+            }
+            if (in_array($colType, $timeTypes, true)) {
+                $length = $col['Decimal Fractional Digits'];
+            }
             return new TeradataColumn(
                 $colName,
                 new Teradata(
                     Teradata::convertCodeToType($colType),
                     [
-                        'length' => $col['Max Length'],
+                        'length' => $length,
                         'nullable' => $col['Nullable'] === 'Y',
                         'default' => is_string($defaultvalue) ? trim($defaultvalue) : $defaultvalue,
                     ]

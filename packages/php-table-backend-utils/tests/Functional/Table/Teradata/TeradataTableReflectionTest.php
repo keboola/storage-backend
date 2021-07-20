@@ -103,19 +103,9 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         self::assertEquals($expectedSqlDefinition, $definition->getSQLDefinition());
     }
 
-    /**
-     * @return Generator<array{
-     *     string,
-     *     string,
-     *     string,
-     *     ?mixed,
-     *     ?integer,
-     *     bool
-     * }>
-     */
+
     public function tableColsDataProvider(): Generator
     {
-        // TODO add more scenarios
         yield 'INTEGER' => [
             'INTEGER',
             'INTEGER',
@@ -123,6 +113,15 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             null, // default
             4, // length
             true, // nullable
+        ];
+
+        yield 'INT' => [
+            'INT',
+            'INTEGER',
+            'INTEGER',
+            null,
+            4,
+            true,
         ];
 
         yield 'INTEGER NOT NULL DEFAULT' => [
@@ -134,13 +133,155 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             false, // nullable
         ];
         yield 'CHAR WITH LENGTH' => [
-            'CHAR (20)',
-            'CHAR (20)',
+            'CHAR (20)', // SQL to create column
+            'CHAR (20)', // expected SQL
             'CHAR', // type
             null, // default
             20, // length
             true, // nullable
         ];
+        yield 'BYTEINT' => [
+            'BYTEINT',
+            'BYTEINT',
+            'BYTEINT',
+            null,
+            1,
+            true,
+        ];
+        yield 'BIGINT' => [
+            'BIGINT',
+            'BIGINT',
+            'BIGINT',
+            null,
+            8,
+            true,
+        ];
+        yield 'SMALLINT' => [
+            'SMALLINT',
+            'SMALLINT',
+            'SMALLINT',
+            null,
+            2,
+            true,
+        ];
+        yield 'DECIMAL' => [
+            'DECIMAL (10,10)',
+            'DECIMAL (10,10)',
+            'DECIMAL',
+            null,
+            '10,10',
+            true,
+        ];
+        yield 'FLOAT' => [
+            'FLOAT',
+            'FLOAT',
+            'FLOAT',
+            null,
+            8,
+            true,
+        ];
+        yield 'NUMBER' => [
+            'NUMBER (12,10)',
+            'NUMBER (12,10)',
+            'NUMBER',
+            null,
+            '12,10',
+            true,
+        ];
+        yield 'BYTE' => [
+            'BYTE (50)',
+            'BYTE (50)',
+            'BYTE',
+            null,
+            50,
+            true,
+        ];
+        yield 'VARBYTE' => [
+            'VARBYTE (32000)',
+            'VARBYTE (32000)',
+            'VARBYTE',
+            null,
+            32000,
+            true,
+        ];
+        // BLOB - cannot be index on it
+
+        yield 'DATE' => [
+            'DATE',
+            'DATE',
+            'DATE',
+            null,
+            '4',
+            true,
+        ];
+        yield 'TIME' => [
+            'TIME (6)',
+            'TIME (6)',
+            'TIME',
+            null,
+            '6',
+            true,
+        ];
+        yield 'TIMESTAMP' => [
+            'TIMESTAMP (1)',
+            'TIMESTAMP (1)',
+            'TIMESTAMP',
+            null,
+            '1',
+            true,
+        ];
+        yield 'TIME WITH ZONE' => [
+            'TIME (5) WITH TIME ZONE',
+            'TIME (5) WITH TIME ZONE',
+            'TIME_WITH_ZONE',
+            null,
+            '5',
+            true,
+        ];
+        // no length -> default
+        yield 'TIMESTAMP WITH ZONE with default length' => [
+            'TIMESTAMP WITH TIME ZONE',
+            'TIMESTAMP (6) WITH TIME ZONE',
+            'TIMESTAMP_WITH_ZONE',
+            null,
+            '6',
+            true,
+        ];
+        // 0 length
+        yield 'TIMESTAMP WITH ZONE with zero length' => [
+            'TIMESTAMP (0) WITH TIME ZONE',
+            'TIMESTAMP (0) WITH TIME ZONE',
+            'TIMESTAMP_WITH_ZONE',
+            null,
+            '0',
+            true,
+        ];
+
+        yield 'CHAR' => [
+            'CHAR (32000)',
+            'CHAR (32000)',
+            'CHAR',
+            null,
+            32000,
+            true,
+        ];
+        yield 'VARCHAR' => [
+            'VARCHAR (32000)',
+            'VARCHAR (32000)',
+            'VARCHAR',
+            null,
+            32000,
+            true,
+        ];
+        //  TODO this one doesnt work
+//        yield 'LONG VARCHAR' => [
+//            'LONG VARCHAR',
+//            'LONG VARCHAR',
+//            'LONG VARCHAR',
+//            null,
+//            32000,
+//            true,
+//        ];
     }
 
     public function testGetTableStats(): void
