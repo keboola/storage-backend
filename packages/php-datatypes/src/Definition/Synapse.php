@@ -155,15 +155,6 @@ class Synapse extends Common
     }
 
     /**
-     * @param string|null $length
-     * @return bool
-     */
-    private function isEmpty($length)
-    {
-        return $length === null || $length === '';
-    }
-
-    /**
      * @return array
      */
     public function toArray()
@@ -198,44 +189,11 @@ class Synapse extends Common
         $valid = true;
         switch (strtoupper($type)) {
             case self::TYPE_FLOAT:
-                if ($this->isEmpty($length)) {
-                    break;
-                }
-                if (!is_numeric($length)) {
-                    $valid = false;
-                    break;
-                }
-                if ($length < 1 || $length > 53) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateMaxLength($length, 53);
                 break;
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
-                if ($length === null || $length === '') {
-                    break;
-                }
-                $parts = explode(',', $length);
-                if (!in_array(count($parts), [1, 2])) {
-                    $valid = false;
-                    break;
-                }
-                if (!is_numeric($parts[0])) {
-                    $valid = false;
-                    break;
-                }
-                if (isset($parts[1]) && !is_numeric($parts[1])) {
-                    $valid = false;
-                    break;
-                }
-                if ((int) $parts[0] <= 0 || (int) $parts[0] > 38) {
-                    $valid = false;
-                    break;
-                }
-                if (isset($parts[1]) && ((int) $parts[1] > (int) $parts[0] || (int) $parts[1] > 38)) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateNumericLength($length, 38, 38);
                 break;
             case self::TYPE_NVARCHAR:
                 if ($this->isEmpty($length)) {
@@ -244,27 +202,10 @@ class Synapse extends Common
                 if (strtoupper((string) $length) === 'MAX') {
                     break;
                 }
-                if (!is_numeric($length)) {
-                    $valid = false;
-                    break;
-                }
-                if ((int) $length < 1 || (int) $length > 4000) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateMaxLength($length, 4000);
                 break;
             case self::TYPE_NCHAR:
-                if ($this->isEmpty($length)) {
-                    break;
-                }
-                if (!is_numeric($length)) {
-                    $valid = false;
-                    break;
-                }
-                if ((int) $length < 1 || (int) $length > 4000) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateMaxLength($length, 4000);
                 break;
             case self::TYPE_VARBINARY:
             case self::TYPE_VARCHAR:
@@ -274,43 +215,16 @@ class Synapse extends Common
                 if (strtoupper((string) $length) === 'MAX') {
                     break;
                 }
-                if (!is_numeric($length)) {
-                    $valid = false;
-                    break;
-                }
-                if ((int) $length < 1 || (int) $length > 8000) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateMaxLength($length, 8000);
                 break;
             case self::TYPE_BINARY:
             case self::TYPE_CHAR:
-                if ($this->isEmpty($length)) {
-                    break;
-                }
-                if (!is_numeric($length)) {
-                    $valid = false;
-                    break;
-                }
-                if ((int) $length < 1 || (int) $length > 8000) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateMaxLength($length, 8000);
                 break;
             case self::TYPE_DATETIMEOFFSET:
             case self::TYPE_DATETIME2:
             case self::TYPE_TIME:
-                if ($this->isEmpty($length)) {
-                    break;
-                }
-                if (!is_numeric($length)) {
-                    $valid = false;
-                    break;
-                }
-                if ((int) $length < 0 || (int) $length > 7) {
-                    $valid = false;
-                    break;
-                }
+                $valid = $this->validateMaxLength($length, 7, 0);
                 break;
             default:
                 if ($length !== null && $length !== '') {
