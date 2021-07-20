@@ -543,7 +543,7 @@ class Teradata extends Common
                 $valid = $this->validateLOBLength(
                     $length,
                     [
-                        'no' => $isLatin ? 2097088000 : 1048544000,
+                        'noUnit' => $isLatin ? 2097088000 : 1048544000,
                         'K' => $isLatin ? 2047937 : 1023968,
                         'M' => $isLatin ? 1999 : 999,
                         'G' => $isLatin ? 1 : 0,
@@ -555,7 +555,7 @@ class Teradata extends Common
                 $valid = $this->validateLOBLength(
                     $length,
                     [
-                        'no' => 2097088000,
+                        'noUnit' => 2097088000,
                         'K' => 2047937,
                         'M' => 1999,
                         'G' => 1,
