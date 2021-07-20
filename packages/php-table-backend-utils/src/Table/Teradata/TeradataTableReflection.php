@@ -69,6 +69,22 @@ final class TeradataTableReflection implements TableReflectionInterface
         $fractionalTypes = [
             'D',
             'N',
+            'SC',
+            'DS',
+            'HS',
+            'MS',
+            'DS',
+        ];
+        $totalTypes = [
+            'MI',
+            'YR',
+            'MO',
+            'DY',
+            'HR',
+            'HM',
+            'DM',
+            'YM',
+            'DH'
         ];
 
         // types with length described in fractionalDigits column
@@ -83,7 +99,7 @@ final class TeradataTableReflection implements TableReflectionInterface
         ];
 
         $charTypes = ['CF', 'CV', 'CO'];
-        $columns = array_map(static function ($col) use ($fractionalTypes, $timeTypes, $charTypes) {
+        $columns = array_map(static function ($col) use ($fractionalTypes, $timeTypes, $charTypes, $totalTypes) {
             $colName = trim($col['Column Name']);
             $colType = trim($col['Type']);
             $defaultvalue = $col['Default value'];
@@ -97,8 +113,8 @@ final class TeradataTableReflection implements TableReflectionInterface
             if (in_array($colType, $timeTypes, true)) {
                 $length = $col['Decimal Fractional Digits'];
             }
-            if (in_array($colType, $timeTypes, true)) {
-                $length = $col['Decimal Fractional Digits'];
+            if (in_array($colType, $totalTypes, true)) {
+                $length = $col['Decimal Total Digits'];
             }
 
             if (!$isLatin && in_array($colType, $charTypes, true)) {

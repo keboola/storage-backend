@@ -355,6 +355,127 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             '2',
             true,
         ];
+        yield 'INTERVAL SECOND' => [
+            'INTERVAL SECOND (3,5)',
+            'INTERVAL SECOND (3,5)',
+            'INTERVAL SECOND',
+            null,
+            '3,5',
+            true,
+        ];
+        yield 'INTERVAL SECOND with default' => [
+            'INTERVAL SECOND',
+            'INTERVAL SECOND (2,6)',
+            'INTERVAL SECOND',
+            null,
+            '2,6',
+            true,
+        ];
+
+        yield 'INTERVAL MINUTE' => [
+            'INTERVAL MINUTE (3)',
+            'INTERVAL MINUTE (3)',
+            'INTERVAL MINUTE',
+            null,
+            '3',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_MINUTE_TO_SECOND' => [
+            'INTERVAL MINUTE (3) TO SECOND (5)',
+            'INTERVAL MINUTE (3) TO SECOND (5)',
+            'INTERVAL MINUTE TO SECOND',
+            null,
+            '3,5',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_MINUTE_TO_SECOND with default' => [
+            'INTERVAL MINUTE TO SECOND',
+            'INTERVAL MINUTE (2) TO SECOND (6)',
+            'INTERVAL MINUTE TO SECOND',
+            null,
+            '2,6',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_MONTH' => [
+            'INTERVAL MONTH',
+            'INTERVAL MONTH (2)',
+            'INTERVAL MONTH',
+            null,
+            '2',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_YEAR with default' => [
+            'INTERVAL YEAR',
+            'INTERVAL YEAR (2)',
+            'INTERVAL YEAR',
+            null,
+            '2',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_YEAR' => [
+            'INTERVAL YEAR (3)',
+            'INTERVAL YEAR (3)',
+            'INTERVAL YEAR',
+            null,
+            '3',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_HOUR' => [
+            'INTERVAL HOUR (3)',
+            'INTERVAL HOUR (3)',
+            'INTERVAL HOUR',
+            null,
+            '3',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_DAY' => [
+            'INTERVAL DAY (3)',
+            'INTERVAL DAY (3)',
+            'INTERVAL DAY',
+            null,
+            '3',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_HOUR_TO_MINUTE' => [
+            'INTERVAL HOUR (3) TO MINUTE',
+            'INTERVAL HOUR (3) TO MINUTE',
+            'INTERVAL HOUR TO MINUTE',
+            null,
+            '3',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_DAY_TO_SECOND' => [
+            'INTERVAL DAY (3) TO SECOND (4)',
+            'INTERVAL DAY (3) TO SECOND (4)',
+            'INTERVAL DAY TO SECOND',
+            null,
+            '3,4',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_DAY_TO_MINUTE' => [
+            'INTERVAL DAY (3) TO MINUTE',
+            'INTERVAL DAY (3) TO MINUTE',
+            'INTERVAL DAY TO MINUTE',
+            null,
+            '3',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_DAY_TO_HOUR' => [
+            'INTERVAL DAY (3) TO HOUR',
+            'INTERVAL DAY (3) TO HOUR',
+            'INTERVAL DAY TO HOUR',
+            null,
+            '3',
+            true,
+        ];
+        yield 'TYPE_INTERVAL_YEAR_TO_MONTH' => [
+            'INTERVAL YEAR (3) TO MONTH',
+            'INTERVAL YEAR (3) TO MONTH',
+            'INTERVAL YEAR TO MONTH',
+            null,
+            '3',
+            true,
+        ];
     }
 
     public function testGetTableStats(): void
@@ -366,7 +487,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         self::assertEquals(0, $stats1->getRowsCount());
         self::assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
 
-        $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
+        $this->insertRowToTable(seDHlf::TEST_DATABASE, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
         $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 2, 'karel', 'motycka');
 
         $stats2 = $ref->getTableStats();
