@@ -83,6 +83,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
      CHECKSUM = DEFAULT,
      DEFAULT MERGEBLOCKRATIO
      (
+      "firstColumn" INT,
       "column" %s
      );',
             self::TEST_DATABASE,
@@ -93,7 +94,9 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         $this->connection->executeQuery($sql);
         $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
         /** @var TeradataColumn $column */
-        $column = $ref->getColumnsDefinitions()->getIterator()->current();
+        $iterator = $ref->getColumnsDefinitions()->getIterator();
+        $iterator->next();
+        $column = $iterator->current();
         /** @var Teradata $definition */
         $definition = $column->getColumnDefinition();
         self::assertEquals($expectedLength, $definition->getLength());
@@ -107,8 +110,8 @@ class TeradataTableReflectionTest extends TeradataBaseCase
     public function tableColsDataProvider(): Generator
     {
         yield 'INTEGER' => [
-            'INTEGER',
-            'INTEGER',
+            'INTEGER', // sql which goes to table
+            'INTEGER', // expected sql from getSQLDefinition
             'INTEGER', // type
             null, // default
             4, // length
@@ -204,7 +207,14 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             32000,
             true,
         ];
-        // BLOB - cannot be index on it
+        yield 'BLOB' => [
+            'BLOB (2M)',
+            'BLOB (2097152)',
+            'BLOB',
+            null,
+            '2097152',
+            true,
+        ];
 
         yield 'DATE' => [
             'DATE',
@@ -273,15 +283,62 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             32000,
             true,
         ];
-        //  TODO this one doesnt work
-//        yield 'LONG VARCHAR' => [
-//            'LONG VARCHAR',
-//            'LONG VARCHAR',
-//            'LONG VARCHAR',
-//            null,
-//            32000,
-//            true,
-//        ];
+        yield 'LONG VARCHAR' => [
+            'VARCHAR (64000)',
+            'VARCHAR (64000)',
+            'VARCHAR',
+            null,
+            64000,
+            true,
+        ];
+        yield 'LONG VARCHAR with UNICODE' => [
+            'VARCHAR (32000) CHARACTER SET UNICODE',
+            'VARCHAR (32000)',
+            'VARCHAR',
+            null,
+            32000,
+            true,
+        ];
+        yield 'CLOB' => [
+            'CLOB (2M)',
+            'CLOB (2097152)',
+            'CLOB',
+            null,
+            '2097152',
+            true,
+        ];
+        yield 'CLOB with Unicode' => [
+            'CLOB (2M)  CHARACTER SET UNICODE',
+            'CLOB (2097152)',
+            'CLOB',
+            null,
+            '2097152',
+            true,
+        ];
+        yield 'PERIOD(DATE)' => [
+            'PERIOD(DATE)',
+            'PERIOD(DATE)',
+            'PERIOD(DATE)',
+            null,
+            '8',
+            true,
+        ];
+        yield 'PERIOD(TIME)' => [
+            'PERIOD(TIME)',
+            'PERIOD(TIME (6))',
+            'PERIOD(TIME)',
+            null,
+            '6',
+            true,
+        ];
+        yield 'PERIOD(TIME) with fraction' => [
+            'PERIOD(TIME (2))',
+            'PERIOD(TIME (2))',
+            'PERIOD(TIME)',
+            null,
+            '2',
+            true,
+        ];
     }
 
     public function testGetTableStats(): void

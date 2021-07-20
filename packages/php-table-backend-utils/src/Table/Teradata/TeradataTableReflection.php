@@ -77,17 +77,31 @@ final class TeradataTableReflection implements TableReflectionInterface
             'TS',
             'TZ',
             'SZ',
+            'PT',
         ];
-        $columns = array_map(static function ($col) use ($fractionalTypes, $timeTypes) {
+
+        $charTypes = ['CF', 'CV', 'CO'];
+        $columns = array_map(static function ($col) use ($fractionalTypes, $timeTypes, $charTypes) {
             $colName = trim($col['Column Name']);
             $colType = trim($col['Type']);
             $defaultvalue = $col['Default value'];
             $length = $col['Max Length'];
+            $isLatin = $col['Char Type'] === '1';
+            // 1 latin, 2 unicode, 3 kanjiSJIS, 4 graphic, 5 graphic, 0 others
+
             if (in_array($colType, $fractionalTypes, true)) {
                 $length = "{$col['Decimal Total Digits']},{$col['Decimal Fractional Digits']}";
             }
             if (in_array($colType, $timeTypes, true)) {
                 $length = $col['Decimal Fractional Digits'];
+            }
+            if (in_array($colType, $timeTypes, true)) {
+                $length = $col['Decimal Fractional Digits'];
+            }
+
+            if (!$isLatin && in_array($colType, $charTypes, true)) {
+                $length /= 2;
+                // non latin chars (unicode etc) declares double of space for data
             }
             return new TeradataColumn(
                 $colName,
@@ -96,6 +110,7 @@ final class TeradataTableReflection implements TableReflectionInterface
                     [
                         'length' => $length,
                         'nullable' => $col['Nullable'] === 'Y',
+                        'isLatin' => $isLatin,
                         'default' => is_string($defaultvalue) ? trim($defaultvalue) : $defaultvalue,
                     ]
                 )
