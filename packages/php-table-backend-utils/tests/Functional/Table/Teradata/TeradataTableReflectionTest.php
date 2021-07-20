@@ -339,6 +339,22 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             '2',
             true,
         ];
+        yield 'PERIOD(TIME) with ZONE' => [
+            'PERIOD(TIME (2) WITH TIME ZONE)',
+            'PERIOD(TIME (2) WITH TIME ZONE)',
+            'PERIOD TIME WITH_ZONE',
+            null,
+            '2',
+            true,
+        ];
+        yield 'PERIOD(TIMESTAMP) with ZONE' => [
+            'PERIOD(TIMESTAMP (2) WITH TIME ZONE)',
+            'PERIOD(TIMESTAMP (2) WITH TIME ZONE)',
+            'PERIOD TIMESTAMP WITH_ZONE',
+            null,
+            '2',
+            true,
+        ];
     }
 
     public function testGetTableStats(): void

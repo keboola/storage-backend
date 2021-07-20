@@ -78,6 +78,8 @@ final class TeradataTableReflection implements TableReflectionInterface
             'TZ',
             'SZ',
             'PT',
+            'PZ',
+            'PM',
         ];
 
         $charTypes = ['CF', 'CV', 'CO'];
