@@ -79,8 +79,8 @@ class Teradata extends Common
     const TYPE_CHARACTERV = 'CHARACTER VARYING'; // = VARCHAR
     const TYPE_VARGRAPHIC = 'VARGRAPHIC'; // = VARCHAR
     // = VARCHAR but without n
-    const TYPE_LONG_VARCHAR = 'LONG VARCHAR';
-    const TYPE_LONG_VARGRAPHIC = 'LONG VARGRAPHIC';
+    const TYPE_LONG_VARCHAR = 'LONG VARCHAR'; // = VARCHAR with max n
+    const TYPE_LONG_VARGRAPHIC = 'LONG VARGRAPHIC'; // = LONG VARCHAR
     const TYPE_CLOB = 'CLOB';
     // { CHARACTER LARGE OBJECT | CLOB }
     // [ ( n [ K | M | G ] ) ]
@@ -290,6 +290,8 @@ class Teradata extends Common
 
     /** @var bool */
     private $isLatin = false;
+    // depends on Char Type column in HELP TABLE column
+    // 1 latin, 2 unicode, 3 kanjiSJIS, 4 graphic, 5 graphic, 0 others
 
     /**
      * @param string $type
@@ -336,7 +338,8 @@ class Teradata extends Common
         $type = $this->getType();
         $definition = $type;
         if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
-            $length = $this->getLength() ?: $this->getDefaultLength();
+            $length = $this->getLength();
+            $length = is_null($length) ? $this->getDefaultLength() : $length;
             // length is set, use it
             if ($length !== null && $length !== '') {
                 if (in_array($definition, self::TYPES_WITH_SIMPLE_LENGTH)) {
@@ -565,7 +568,6 @@ class Teradata extends Common
         }
 
         if (!$valid) {
-            echo "$type $length";
             throw new InvalidLengthException("'{$length}' is not valid length for {$type}");
         }
     }
