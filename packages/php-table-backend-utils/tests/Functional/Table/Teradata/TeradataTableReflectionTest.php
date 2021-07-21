@@ -93,7 +93,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
 
         $this->connection->executeQuery($sql);
         $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
-        /** @var TeradataColumn $column */
+        /** @var Generator<TeradataColumn> $iterator */
         $iterator = $ref->getColumnsDefinitions()->getIterator();
         $iterator->next();
         $column = $iterator->current();
@@ -106,7 +106,9 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         self::assertEquals($expectedSqlDefinition, $definition->getSQLDefinition());
     }
 
-
+    /**
+     * @return Generator<string,array<mixed>>
+     */
     public function tableColsDataProvider(): Generator
     {
         yield 'INTEGER' => [
@@ -487,7 +489,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         self::assertEquals(0, $stats1->getRowsCount());
         self::assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
 
-        $this->insertRowToTable(seDHlf::TEST_DATABASE, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
+        $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
         $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 2, 'karel', 'motycka');
 
         $stats2 = $ref->getTableStats();

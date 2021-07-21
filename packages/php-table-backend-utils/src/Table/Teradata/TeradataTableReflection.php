@@ -84,7 +84,7 @@ final class TeradataTableReflection implements TableReflectionInterface
             'HM',
             'DM',
             'YM',
-            'DH'
+            'DH',
         ];
 
         // types with length described in fractionalDigits column
