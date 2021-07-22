@@ -29,6 +29,12 @@ class Exasol extends Common
 
     // aliases
     const TYPE_BIGINT = 'BIGINT'; // BIGINT = DECIMAL(36,0)
+    const TYPE_INT = 'INT'; // INT = DECIMAL(18,0)
+    const TYPE_INTEGER = 'INTEGER'; // INTEGER = DECIMAL(18,0)
+    const TYPE_SHORTINT = 'SHORTINT'; // SHORTINT = DECIMAL(9,0)
+    const TYPE_SMALLINT = 'SMALLINT'; // SMALLINT = DECIMAL(9,0)
+    const TYPE_TINYINT = 'TINYINT'; // TINYINT = DECIMAL(3,0)
+
     const TYPE_BOOL = 'BOOL'; // BOOL = BOOLEAN
     const TYPE_CHAR_VARYING = 'CHAR VARYING'; // CHAR VARYING(n) = VARCHAR(n), 1 ≤ n ≤ 2,000,000
     const TYPE_CHARACTER = 'CHARACTER'; // CHARACTER = CHAR(1)
@@ -36,33 +42,23 @@ class Exasol extends Common
     const TYPE_CHARACTER_VARYING = 'CHARACTER VARYING'; // CHARACTER VARYING(n) = VARCHAR(n) , 1 ≤ n ≤ 2,000,000
     const TYPE_CLOB = 'CLOB'; // CLOB(n) = VARCHAR(n) , 1 ≤ n ≤ 2,000,000
     const TYPE_DEC = 'DEC'; // DEC(p,s) = s ≤ p ≤ 36
-    const TYPE_DOUBLE = 'DOUBLE'; // DOUBLE = DOUBLE PRECISION
-    const TYPE_FLOAT = 'FLOAT'; // FLOAT = DOUBLE PRECISION
-    const TYPE_INT = 'INT'; // INT = DECIMAL(18,0)
-    const TYPE_INTEGER = 'INTEGER'; // INTEGER = DECIMAL(18,0)
     const TYPE_LONG_VARCHAR = 'LONG VARCHAR'; // LONG VARCHAR = VARCHAR(2000000)
-    const TYPE_NCHAR = 'NCHAR(n)'; // NCHAR(n) = CHAR(n)
+    const TYPE_NCHAR = 'NCHAR'; // NCHAR(n) = CHAR(n)
     const TYPE_NUMBER = 'NUMBER'; // NUMBER(p,s) = DECIMAL(p,s) = s ≤ p ≤ 36
     const TYPE_NUMERIC = 'NUMERIC'; // NUMERIC(p,s) = DECIMAL(p,s) = s ≤ p ≤ 36
     const TYPE_NVARCHAR = 'NVARCHAR'; // NVARCHAR(n) = VARCHAR(n) , 1 ≤ n ≤ 2,000,000
     const TYPE_NVARCHAR2 = 'NVARCHAR2'; // NVARCHAR2(n) = VARCHAR(n) , 1 ≤ n ≤ 2,000,000
+    const TYPE_VARCHAR2 = 'VARCHAR2'; // VARCHAR2(n) = VARCHAR(n),  1 ≤ n ≤ 2,000,000
+    const TYPE_DOUBLE = 'DOUBLE'; // DOUBLE = DOUBLE PRECISION
+    const TYPE_FLOAT = 'FLOAT'; // FLOAT = DOUBLE PRECISION
     const TYPE_REAL = 'REAL'; // REAL = DOUBLE PRECISION
-    const TYPE_SHORTINT = 'SHORTINT'; // SHORTINT = DECIMAL(9,0)
-    const TYPE_SMALLINT = 'SMALLINT'; // SMALLINT = DECIMAL(9,0)
-    const TYPE_TINYINT = 'TINYINT'; // TINYINT = DECIMAL(3,0)
-    const TYPE_VARCHAR2 = 'VARCHAR2(n)'; // VARCHAR2(n) = VARCHAR(n),  1 ≤ n ≤ 2,000,000
-    /* unlisted aliases
-    TODO issue
-NUMBER = DOUBLE PRECISION = Possible loss in precision
-NUMBER(p,s) = DECIMAL(p,s)
-     */
-    // default lengths for different kinds of types. Used max values
-    const DEFAULT_DECIMAL_LENGTH = '36,36'; // max is 36.36, default 18,0
-    const DEFAULT_CHAR_LENGTH = '2000';
-    const DEFAULT_VARCHAR_LENGTH = '2000000';
-    const DEFAULT_GEOMETRY_LENGTH = '4294967295'; // max value
-    const DEFAULT_HASH_LENGTH = '1024 BYTE'; // max value
 
+    // default lengths for different kinds of types. Used max values
+    const MAX_DECIMAL_LENGTH = '36,36'; // max is 36.36, default 18,0
+    const MAX_CHAR_LENGTH = 2000;
+    const MAX_VARCHAR_LENGTH = 2000000;
+    const MAX_GEOMETRY_LENGTH = 4294967295; // max value
+    const MAX_HASH_LENGTH = '1024 BYTE'; // max value
     // types where length isnt at the end of the type
     const COMPLEX_LENGTH_DICT = [
         self::TYPE_INTERVAL_YEAR_TO_MONTH => 'INTERVAL_YEAR %d TO MONTH',
@@ -163,7 +159,18 @@ NUMBER(p,s) = DECIMAL(p,s)
     public function __construct($type, $options = [])
     {
         $this->validateType($type);
-        $this->validateLength($type, isset($options['length']) ? $options['length'] : null);
+        $length = isset($options['length']) ? $options['length'] : null;
+        $this->validateLength($type, $length);
+
+        /*
+         * because
+         * NUMBER = DOUBLE PRECISION
+         * NUMBER(p,s) = DECIMAL(p,s)
+         */
+        if ($type === self::TYPE_NUMBER && $length === null) {
+            $type = self::TYPE_DOUBLE_PRECISION;
+        }
+
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default']);
         if (count($diff) > 0) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
@@ -227,7 +234,7 @@ NUMBER(p,s) = DECIMAL(p,s)
             case self::TYPE_DEC:
             case self::TYPE_NUMBER:
             case self::TYPE_NUMERIC:
-                $out = self::DEFAULT_DECIMAL_LENGTH;
+                $out = self::MAX_DECIMAL_LENGTH;
                 break;
             case self::TYPE_INTERVAL_YEAR_TO_MONTH:
                 $out = 2;
@@ -237,7 +244,7 @@ NUMBER(p,s) = DECIMAL(p,s)
                 break;
             case self::TYPE_CHAR:
             case self::TYPE_NCHAR:
-                $out = self::DEFAULT_CHAR_LENGTH;
+                $out = self::MAX_CHAR_LENGTH;
                 break;
             case self::TYPE_VARCHAR:
             case self::TYPE_CHAR_VARYING:
@@ -247,13 +254,13 @@ NUMBER(p,s) = DECIMAL(p,s)
             case self::TYPE_NVARCHAR:
             case self::TYPE_NVARCHAR2:
             case self::TYPE_VARCHAR2:
-                $out = self::DEFAULT_VARCHAR_LENGTH;
+                $out = self::MAX_VARCHAR_LENGTH;
                 break;
             case self::TYPE_GEOMETRY:
-                $out = self::DEFAULT_GEOMETRY_LENGTH;
+                $out = self::MAX_GEOMETRY_LENGTH;
                 break;
             case self::TYPE_HASHTYPE:
-                $out = self::DEFAULT_HASH_LENGTH;
+                $out = self::MAX_HASH_LENGTH;
                 break;
         }
 
@@ -305,15 +312,16 @@ NUMBER(p,s) = DECIMAL(p,s)
                 $valid = $this->validateMaxLength($length, 9);
                 break;
             case self::TYPE_INTERVAL_DAY_TO_SECOND:
-                $exploded = explode(',', $length);
+                $exploded = explode(',', (string) $length);
                 $valid = $this->validateMaxLength((isset($exploded[0]) ? $exploded[0] : ''), 9)
                     && $this->validateMaxLength((isset($exploded[1]) ? $exploded[1] : ''), 9, 0);
                 break;
             case self::TYPE_HASHTYPE:
                 if ($this->isEmpty($length)) {
                     $valid = true;
+                    break;
                 }
-                if (preg_match('/(?<val>[1-9]+\d*)\s*(?<unit>BYTE|BIT)/i', $length, $matched)) {
+                if (preg_match('/(?<val>[1-9]+\d*)\s*(?<unit>BYTE|BIT)/i', (string) $length, $matched)) {
                     $val = $matched['val'];
                     $unit = strtoupper($matched['unit']);
 
@@ -321,12 +329,18 @@ NUMBER(p,s) = DECIMAL(p,s)
                         'BYTE' => [1, 1024],
                         'BIT' => [8, 8192],
                     ];
-                    $valid = $val >= $limits[$unit] && $val <= $limits[$unit];
+                    $valid = $limits[$unit][0] <= $val && $val <= $limits[$unit][1];
+                } else {
+                    $valid = false;
                 }
                 break;
             case self::TYPE_CHAR:
             case self::TYPE_NCHAR:
-                $valid = $this->validateMaxLength($length, 2000);
+                $valid = $this->validateMaxLength($length, self::MAX_CHAR_LENGTH);
+                break;
+
+            case self::TYPE_GEOMETRY:
+                $valid = $this->validateMaxLength($length, self::MAX_GEOMETRY_LENGTH);
                 break;
             case self::TYPE_VARCHAR:
             case self::TYPE_CHAR_VARYING:
@@ -336,12 +350,11 @@ NUMBER(p,s) = DECIMAL(p,s)
             case self::TYPE_NVARCHAR:
             case self::TYPE_NVARCHAR2:
             case self::TYPE_VARCHAR2:
-                $valid = $this->validateMaxLength($length, 2000000);
+                $valid = $this->validateMaxLength($length, self::MAX_VARCHAR_LENGTH);
                 break;
         }
 
         if (!$valid) {
-            echo "$type $length";
             throw new InvalidLengthException("'{$length}' is not valid length for {$type}");
         }
     }
