@@ -339,7 +339,7 @@ class Teradata extends Common
         $definition = $type;
         if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
             $length = $this->getLength();
-            $length = is_null($length) ? $this->getDefaultLength() : $length;
+            $length = $length === null ? $this->getDefaultLength() : $length;
             // length is set, use it
             if ($length !== null && $length !== '') {
                 if (in_array($definition, self::TYPES_WITH_SIMPLE_LENGTH)) {
