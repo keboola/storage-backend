@@ -6,12 +6,13 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Exasol;
 
 use Doctrine\DBAL\Connection;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use PHPUnit\Framework\TestCase;
 
 class ExasolBaseCase extends TestCase
 {
     public const TESTS_PREFIX = 'utilsTest_';
-    public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
+    public const TEST_SCHEMA = self::TESTS_PREFIX . 'refTableSchema';
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
@@ -34,24 +35,55 @@ class ExasolBaseCase extends TestCase
     }
 
     protected function initTable(
-        string $database = self::TEST_DATABASE,
+        string $database = self::TEST_SCHEMA,
         string $table = self::TABLE_GENERIC
     ): void {
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE SCHEMA %s;',
+                ExasolQuote::quoteSingleIdentifier($database)
+            )
+        );
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100)
+);',
+                ExasolQuote::quoteSingleIdentifier($database),
+                ExasolQuote::quoteSingleIdentifier($table)
+            )
+        );
     }
 
-    protected function cleanDatabase(string $dbname): void
+    protected function cleanDatabase(string $schemaName): void
     {
-        if (!$this->dbExists($dbname)) {
+        if (!$this->schemaExists($schemaName)) {
             return;
         }
+
+        $this->connection->executeQuery(
+            sprintf(
+                'DROP SCHEMA %s CASCADE',
+                ExasolQuote::quoteSingleIdentifier($schemaName)
+            )
+        );
     }
 
-    protected function dbExists(string $dbname): bool
+    protected function schemaExists(string $schemaName): bool
     {
-        return false;
+        return (bool) $this->connection->fetchOne(
+            sprintf(
+                'SELECT "SCHEMA_NAME" FROM "SYS"."EXA_ALL_SCHEMAS" WHERE "SCHEMA_NAME" = %s',
+                ExasolQuote::quote($schemaName)
+            )
+        );
     }
 
-    public function createDatabase(string $dbName): void
+    public function createDatabase(string $schemaName): void
     {
     }
 
@@ -78,7 +110,7 @@ class ExasolBaseCase extends TestCase
     }
 
     protected function insertRowToTable(
-        string $dbName,
+        string $schemaName,
         string $tableName,
         int $id,
         string $firstName,
