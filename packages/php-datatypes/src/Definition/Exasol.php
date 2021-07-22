@@ -43,7 +43,7 @@ class Exasol extends Common
     const TYPE_LONG_VARCHAR = 'LONG VARCHAR'; // LONG VARCHAR = VARCHAR(2000000)
     const TYPE_NCHAR = 'NCHAR(n)'; // NCHAR(n) = CHAR(n)
     const TYPE_NUMBER = 'NUMBER'; // NUMBER(p,s) = DECIMAL(p,s) = s ≤ p ≤ 36
-    const TYPE_NUMERIC = '"NUMERIC"'; // NUMERIC(p,s) = DECIMAL(p,s) = s ≤ p ≤ 36
+    const TYPE_NUMERIC = 'NUMERIC'; // NUMERIC(p,s) = DECIMAL(p,s) = s ≤ p ≤ 36
     const TYPE_NVARCHAR = 'NVARCHAR'; // NVARCHAR(n) = VARCHAR(n) , 1 ≤ n ≤ 2,000,000
     const TYPE_NVARCHAR2 = 'NVARCHAR2'; // NVARCHAR2(n) = VARCHAR(n) , 1 ≤ n ≤ 2,000,000
     const TYPE_REAL = 'REAL'; // REAL = DOUBLE PRECISION
@@ -60,11 +60,13 @@ NUMBER(p,s) = DECIMAL(p,s)
     const DEFAULT_DECIMAL_LENGTH = '36,36'; // max is 36.36, default 18,0
     const DEFAULT_CHAR_LENGTH = '2000';
     const DEFAULT_VARCHAR_LENGTH = '2000000';
+    const DEFAULT_GEOMETRY_LENGTH = '4294967295'; // max value
+    const DEFAULT_HASH_LENGTH = '1024 BYTE'; // max value
+
     // types where length isnt at the end of the type
     const COMPLEX_LENGTH_DICT = [
-        self::TYPE_INTERVAL_YEAR_TO_MONTH,
-        self::TYPE_INTERVAL_DAY_TO_SECOND,
-        self::TYPE_HASHTYPE, // TODO
+        self::TYPE_INTERVAL_YEAR_TO_MONTH => 'INTERVAL_YEAR %d TO MONTH',
+        self::TYPE_INTERVAL_DAY_TO_SECOND => 'INTERVAL DAY %d TO SECOND %d',
     ];
     /**
      * Types without precision, scale, or length
@@ -93,9 +95,10 @@ NUMBER(p,s) = DECIMAL(p,s)
     // syntax "TYPEXXX <length>" even if the length is not a single value, such as 38,38
     const TYPES_WITH_SIMPLE_LENGTH = [
         self::TYPE_DECIMAL,
-        self::TYPE_GEOMETRY, // TODO
+        self::TYPE_GEOMETRY,
         self::TYPE_CHAR,
         self::TYPE_VARCHAR,
+        self::TYPE_HASHTYPE,
 
         self::TYPE_CHAR_VARYING,
         self::TYPE_CHARACTER_LARGE_OBJECT,
@@ -221,6 +224,9 @@ NUMBER(p,s) = DECIMAL(p,s)
         $out = null;
         switch ($this->type) {
             case self::TYPE_DECIMAL:
+            case self::TYPE_DEC:
+            case self::TYPE_NUMBER:
+            case self::TYPE_NUMERIC:
                 $out = self::DEFAULT_DECIMAL_LENGTH;
                 break;
             case self::TYPE_INTERVAL_YEAR_TO_MONTH:
@@ -230,10 +236,24 @@ NUMBER(p,s) = DECIMAL(p,s)
                 $out = '2,3';
                 break;
             case self::TYPE_CHAR:
-                $out = 2000;
+            case self::TYPE_NCHAR:
+                $out = self::DEFAULT_CHAR_LENGTH;
                 break;
             case self::TYPE_VARCHAR:
-                $out = 2000000;
+            case self::TYPE_CHAR_VARYING:
+            case self::TYPE_CHARACTER_LARGE_OBJECT:
+            case self::TYPE_CHARACTER_VARYING:
+            case self::TYPE_CLOB:
+            case self::TYPE_NVARCHAR:
+            case self::TYPE_NVARCHAR2:
+            case self::TYPE_VARCHAR2:
+                $out = self::DEFAULT_VARCHAR_LENGTH;
+                break;
+            case self::TYPE_GEOMETRY:
+                $out = self::DEFAULT_GEOMETRY_LENGTH;
+                break;
+            case self::TYPE_HASHTYPE:
+                $out = self::DEFAULT_HASH_LENGTH;
                 break;
         }
 
@@ -276,23 +296,46 @@ NUMBER(p,s) = DECIMAL(p,s)
 
         switch (strtoupper($type)) {
             case self::TYPE_DECIMAL:
+            case self::TYPE_DEC:
+            case self::TYPE_NUMBER:
+            case self::TYPE_NUMERIC:
                 $valid = $this->validateNumericLength($length, 36, 36, true);
                 break;
             case self::TYPE_INTERVAL_YEAR_TO_MONTH:
                 $valid = $this->validateMaxLength($length, 9);
                 break;
             case self::TYPE_INTERVAL_DAY_TO_SECOND:
-                // TODO
-                $valid = false;
+                $exploded = explode(',', $length);
+                $valid = $this->validateMaxLength((isset($exploded[0]) ? $exploded[0] : ''), 9)
+                    && $this->validateMaxLength((isset($exploded[1]) ? $exploded[1] : ''), 9, 0);
                 break;
             case self::TYPE_HASHTYPE:
-                // TODO
-                $valid = false;
+                if ($this->isEmpty($length)) {
+                    $valid = true;
+                }
+                if (preg_match('/(?<val>[1-9]+\d*)\s*(?<unit>BYTE|BIT)/i', $length, $matched)) {
+                    $val = $matched['val'];
+                    $unit = strtoupper($matched['unit']);
+
+                    $limits = [
+                        'BYTE' => [1, 1024],
+                        'BIT' => [8, 8192],
+                    ];
+                    $valid = $val >= $limits[$unit] && $val <= $limits[$unit];
+                }
                 break;
             case self::TYPE_CHAR:
+            case self::TYPE_NCHAR:
                 $valid = $this->validateMaxLength($length, 2000);
                 break;
             case self::TYPE_VARCHAR:
+            case self::TYPE_CHAR_VARYING:
+            case self::TYPE_CHARACTER_LARGE_OBJECT:
+            case self::TYPE_CHARACTER_VARYING:
+            case self::TYPE_CLOB:
+            case self::TYPE_NVARCHAR:
+            case self::TYPE_NVARCHAR2:
+            case self::TYPE_VARCHAR2:
                 $valid = $this->validateMaxLength($length, 2000000);
                 break;
         }
@@ -310,12 +353,28 @@ NUMBER(p,s) = DECIMAL(p,s)
     public function getBasetype()
     {
         switch (strtoupper($this->type)) {
-            // TODO integer
             case self::TYPE_DECIMAL:
-            case self::TYPE_DOUBLE_PRECISION:
+            case self::TYPE_DEC:
+            case self::TYPE_NUMBER:
+            case self::TYPE_NUMERIC:
                 $basetype = BaseType::NUMERIC;
                 break;
+            case self::TYPE_DOUBLE_PRECISION:
+            case self::TYPE_DOUBLE:
+            case self::TYPE_FLOAT:
+            case self::TYPE_REAL:
+                $basetype = BaseType::FLOAT;
+                break;
+            case self::TYPE_INT:
+            case self::TYPE_INTEGER:
+            case self::TYPE_BIGINT:
+            case self::TYPE_SHORTINT:
+            case self::TYPE_SMALLINT:
+            case self::TYPE_TINYINT:
+                $basetype = BaseType::INTEGER;
+                break;
             case self::TYPE_BOOLEAN:
+            case self::TYPE_BOOL:
                 $basetype = BaseType::BOOLEAN;
                 break;
             case self::TYPE_DATE:
