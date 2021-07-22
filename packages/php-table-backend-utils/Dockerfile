@@ -1,7 +1,7 @@
 FROM quay.io/keboola/aws-cli
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_ACCESS_KEY_ID
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/tdodbc.deb
+RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
 
 FROM php:7.1-cli
 
@@ -63,10 +63,7 @@ RUN set -ex; \
     docker-php-ext-install odbc; \
     docker-php-source delete
 
-## install snowflake drivers
-COPY ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol
-ADD https://sfc-repo.snowflakecomputing.com/odbc/linux/$SNOWFLAKE_ODBC_VERSION/snowflake-odbc-$SNOWFLAKE_ODBC_VERSION.x86_64.deb /tmp/snowflake-odbc.deb
-COPY ./docker/snowflake/simba.snowflake.ini /usr/lib/snowflake/odbc/lib/simba.snowflake.ini
+
 
 #Synapse ODBC
 RUN set -ex; \
@@ -74,27 +71,30 @@ RUN set -ex; \
     docker-php-ext-enable sqlsrv pdo_sqlsrv; \
     docker-php-source delete
 
+## Snowflake
+COPY ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol
+COPY ./docker/snowflake/simba.snowflake.ini /usr/lib/snowflake/odbc/lib/simba.snowflake.ini
+
 RUN mkdir -p ~/.gnupg \
     && chmod 700 ~/.gnupg \
     && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
     && mkdir -p /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
     && gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys $SNOWFLAKE_GPG_KEY \
     && gpg --export $SNOWFLAKE_GPG_KEY > /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY/debsig.gpg \
+    && curl https://sfc-repo.snowflakecomputing.com/odbc/linux/$SNOWFLAKE_ODBC_VERSION/snowflake-odbc-$SNOWFLAKE_ODBC_VERSION.x86_64.deb --output /tmp/snowflake-odbc.deb \
     && debsig-verify /tmp/snowflake-odbc.deb \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
 
 # Teradata
-COPY --from=0 /tmp/tdodbc.deb /tmp/tdodbc.deb
-COPY docker/teradata/odbc.ini /tmp/odbc_td.ini
-COPY docker/teradata/odbcinst.ini /tmp/odbcinst_td.ini
+COPY --from=0 /tmp/teradata/tdodbc.deb /tmp/teradata/tdodbc.deb
+COPY docker/teradata/odbc.ini /tmp/teradata/odbc_td.ini
+COPY docker/teradata/odbcinst.ini /tmp/teradata/odbcinst_td.ini
 
-RUN dpkg -i /tmp/tdodbc.deb \
-    && cat /tmp/odbc_td.ini >> /etc/odbc.ini \
-    && cat /tmp/odbcinst_td.ini >> /etc/odbcinst.ini \
-    && rm /tmp/odbc_td.ini \
-    && rm /tmp/odbcinst_td.ini \
-    && rm /tmp/tdodbc.deb \
+RUN dpkg -i /tmp/teradata/tdodbc.deb \
+    && cat /tmp/teradata/odbc_td.ini >> /etc/odbc.ini \
+    && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
+    && rm -r /tmp/teradata \
     && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
     && docker-php-ext-install pdo_odbc
 
@@ -102,7 +102,6 @@ ENV ODBCHOME = /opt/teradata/client/ODBC_64/
 ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
 ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
 ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
-
 
 ## Composer - deps always cached unless changed
 # First copy only composer files
