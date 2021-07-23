@@ -6,7 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Teradata;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Keboola\TableBackendUtils\Connection\Teradata\ExasolConnection;
+use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataPlatform;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use PHPUnit\Framework\TestCase;
@@ -83,7 +83,7 @@ CREATE DATABASE %s AS
 
     private function getTeradataConnection(): Connection
     {
-        return ExasolConnection::getConnection([
+        return TeradataConnection::getConnection([
             'host' => (string) getenv('TERADATA_HOST'),
             'user' => (string) getenv('TERADATA_USERNAME'),
             'password' => (string) getenv('TERADATA_PASSWORD'),

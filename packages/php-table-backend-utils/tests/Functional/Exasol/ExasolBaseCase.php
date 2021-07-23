@@ -48,6 +48,7 @@ class ExasolBaseCase extends TestCase
 
     protected function dbExists(string $dbname): bool
     {
+        return false;
     }
 
     public function createDatabase(string $dbName): void

@@ -24,8 +24,8 @@ class ExasolConnection
 
         try {
             return DriverManager::getConnection([
-                "pdo" => $dbh,
-                "driverClass" => Driver::class,
+                'pdo' => $dbh,
+                'driverClass' => Driver::class,
             ]);
         } catch (Throwable $e) {
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);

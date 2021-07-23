@@ -4,6 +4,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.1",
+        "ext-pdo": "*",
         "doctrine/dbal": "^2.9",
         "keboola/common-exceptions": "^1",
         "keboola/php-datatypes": "^4.10.0",
