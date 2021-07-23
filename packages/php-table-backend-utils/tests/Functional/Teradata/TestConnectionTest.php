@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Teradata\Database;
+namespace Tests\Keboola\TableBackendUtils\Functional\Teradata;
 
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
-use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
 
 /**
  * @covers SynapseTableQueryBuilder
  */
-class TeradataDatabaseTest extends TeradataBaseCase
+class TestConnectionTest extends TeradataBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'qb-schema';
     public const TEST_SCHEMA_2 = self::TESTS_PREFIX . 'qb-schema2';

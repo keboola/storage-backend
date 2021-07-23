@@ -15,8 +15,8 @@
             <!-- temporarly disabled because TD servers were turned off -->
             <exclude>tests/Functional/Schema/Teradata</exclude>
             <exclude>tests/Functional/Table/Teradata</exclude>
+            <exclude>tests/Functional/Database/Teradata</exclude>
             <exclude>tests/Functional/Teradata</exclude>
-            <exclude>tests/Functional/Database/TeradataDatabaseReflectionTest.php</exclude>
         </testsuite>
 
         <testsuite name="unit">

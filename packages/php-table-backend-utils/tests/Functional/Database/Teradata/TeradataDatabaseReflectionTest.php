@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Database;
+namespace Tests\Keboola\TableBackendUtils\Functional\Database\Teradata;
 
 use Keboola\TableBackendUtils\Database\Teradata\TeradataDatabaseReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
