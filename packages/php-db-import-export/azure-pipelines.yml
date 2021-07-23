@@ -39,7 +39,11 @@ stages:
               parallel --version
               php --version
               composer --version
-              docker pull quay.io/keboola/azure-cli
+              parallel -j12 --linebuffer docker pull ::: \
+                quay.io/keboola/azure-cli \
+                php:7.1-cli \
+                exasol/docker-db:latest
+              docker pull
               docker network create php-db-import-export_default
               cd provisioning && composer install
             displayName: 'Prepare environment'
@@ -113,6 +117,7 @@ stages:
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
           - script: |
+              docker-compose up -d exasol
               docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
               tests-storage \
@@ -127,6 +132,7 @@ stages:
               tests-synapse-heap4000temp-optimized \
               tests-synapse-heap4000temp-optimized-hash \
               tests-synapse-next
+              docker-compose stop
             displayName: 'Functional tests'
             env:
               BUILD_PREFIX: $(tag)
@@ -148,6 +154,9 @@ stages:
               SYNAPSE_PWD: $(SYNAPSE_PWD)
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
+              EXASOL_HOST: exasol:8563
+              EXASOL_USERNAME: sys
+              EXASOL_PASSWORD: exasol
           - script: |
               php ./provisioning/cli.php app:delete:synapse \
               --resourceGroup $AZURE_RESOURCE_GROUP \

@@ -20,6 +20,9 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - AWS_S3_BUCKET
       - AWS_REGION
+      - EXASOL_HOST
+      - EXASOL_USERNAME
+      - EXASOL_PASSWORD
   dev: &dev
     <<: *prod
     image: keboola/php-db-import-export
@@ -28,4 +31,10 @@ services:
   dev-xdebug:
     <<: *dev
     build: docker/xdebug
-
+  exasol:
+    image: exasol/docker-db:latest
+    privileged: true
+    volumes:
+      - exa-volume:/exa
+volumes:
+  exa-volume:
