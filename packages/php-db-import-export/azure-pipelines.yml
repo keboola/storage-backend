@@ -48,6 +48,7 @@ stages:
               cd provisioning && composer install
             displayName: 'Prepare environment'
           - script: |
+              docker-compose up -d exasol
               php ./provisioning/cli.php app:deploy:synapse \
               --serverName $SERVER_NAME \
               --resourceGroup $AZURE_RESOURCE_GROUP \
@@ -117,7 +118,6 @@ stages:
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
           - script: |
-              docker-compose up -d exasol
               docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
               tests-storage \
