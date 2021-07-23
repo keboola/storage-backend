@@ -11,8 +11,12 @@ before_script:
   # install dependencies
   - sudo apt-get -y install parallel
   - parallel --version
+  - >-
+    parallel -j5 --linebuffer docker pull :::
+    quay.io/keboola/azure-cli
+    exasol/docker-db:latest
+    php:7.1-cli
   - docker-compose build production
-  - docker pull quay.io/keboola/azure-cli
   #create synapse server
   - . ./provisioning/synapse/synapse.sh -c
   - echo $SYNAPSE_RESOURCE_ID
@@ -20,8 +24,11 @@ script:
   - echo $SYNAPSE_RESOURCE_ID
   # prepare docker network
   - docker network create php-table-backend-utils_default
+  #Run Exasol server
+  - docker run --name exasoldb  -p 8563:8563 --detach --privileged --stop-timeout 120 -v exa_volume:/exa exasol/docker-db:latest
   # run ci
   - docker-compose run production composer ci
+  - docker stop exasoldb
 after_script:
   # delete synapse
   - ./provisioning/synapse/synapse.sh -d
