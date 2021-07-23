@@ -87,6 +87,10 @@ RUN set -ex; \
     echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
     rm -rf /tmp/exasol;
 
+#php odbc
+RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
+    && docker-php-ext-install pdo_odbc
+
 ## Composer - deps always cached unless changed
 # First copy only composer files
 COPY composer.* /code/
