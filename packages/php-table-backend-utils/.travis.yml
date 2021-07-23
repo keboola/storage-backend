@@ -25,13 +25,13 @@ script:
   # prepare docker network
   - docker network create php-table-backend-utils_default
   #Run Exasol server
-  - docker run --name exasoldb  -p 8563:8563 --detach --privileged --stop-timeout 120 -v exa_volume:/exa exasol/docker-db:latest
-  - export EXASOL_HOST=host.docker.internal:8563
+  - docker-compose up -d exasol
+  - export EXASOL_HOST=exasol:8563
   - export EXASOL_USERNAME=sys
   - export EXASOL_PASSWORD=exasol
   # run ci
   - docker-compose run production composer ci
-  - docker stop exasoldb
+  - docker-compose stop
 after_script:
   # delete synapse
   - ./provisioning/synapse/synapse.sh -d

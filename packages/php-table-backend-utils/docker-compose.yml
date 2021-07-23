@@ -6,8 +6,6 @@ services:
       args:
         - AWS_ACCESS_KEY_ID
         - AWS_SECRET_ACCESS_KEY
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
       - ABS_ACCOUNT_NAME
       - ABS_ACCOUNT_KEY
@@ -39,8 +37,6 @@ services:
     build: docker/xdebug
   exasol:
     image: exasol/docker-db:latest
-    ports:
-      - 8563:8563
     privileged: true
     volumes:
       - exa-volume:/exa
