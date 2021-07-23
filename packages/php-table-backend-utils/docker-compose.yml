@@ -37,4 +37,12 @@ services:
   dev-xdebug:
     <<: *dev
     build: docker/xdebug
-
+  exasol:
+    image: exasol/docker-db:latest
+    ports:
+      - 8563:8563
+    privileged: true
+    volumes:
+      - exa-volume:/exa
+volumes:
+  exa-volume:

@@ -176,7 +176,7 @@ AWS_SECRET_ACCESS_KEY=
 
 Run Exasol on your local machine in docker (for this case .env is preconfigured)
 ```
-docker run --name exasoldb  -p 8563:8563 --detach --privileged --stop-timeout 120 -v exa_volume:/exa exasol/docker-db:latest
+docker-compose up -d exasol
 ```
 
 Run Exasol server somewhere else and set up env variables:
