@@ -103,10 +103,32 @@ class ExasolBaseCase extends TestCase
 
     protected function setUpUser(string $userName): void
     {
+        // delete existing users
+        $this->connection->executeQuery(sprintf(
+            'DROP USER IF EXISTS %s CASCADE',
+            ExasolQuote::quoteSingleIdentifier($userName)
+        ));
+
+        // create user
+        $this->connection->executeQuery(sprintf(
+            'CREATE USER %s IDENTIFIED BY "xxxx";',
+            ExasolQuote::quoteSingleIdentifier($userName)
+        ));
     }
 
     protected function setUpRole(string $roleName): void
     {
+        // delete existing role
+        $this->connection->executeQuery(sprintf(
+            'DROP ROLE IF EXISTS %s CASCADE',
+            ExasolQuote::quoteSingleIdentifier($roleName)
+        ));
+
+        // create role
+        $this->connection->executeQuery(sprintf(
+            'CREATE ROLE %s;',
+            ExasolQuote::quoteSingleIdentifier($roleName)
+        ));
     }
 
     protected function insertRowToTable(
