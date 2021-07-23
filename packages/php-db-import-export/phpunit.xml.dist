@@ -14,6 +14,10 @@
             <directory>tests/functional/Storage</directory>
         </testsuite>
 
+        <testsuite name="exasol">
+            <directory>tests/functional/Exasol</directory>
+        </testsuite>
+
         <testsuite name="snowflake">
             <directory>tests/functional/Snowflake</directory>
         </testsuite>

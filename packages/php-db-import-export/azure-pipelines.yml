@@ -131,7 +131,8 @@ stages:
               tests-synapse-heap4000temp-hash \
               tests-synapse-heap4000temp-optimized \
               tests-synapse-heap4000temp-optimized-hash \
-              tests-synapse-next
+              tests-synapse-next \
+              tests-exasol
               docker-compose stop
             displayName: 'Functional tests'
             env:
