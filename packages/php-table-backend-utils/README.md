@@ -188,7 +188,9 @@ EXASOL_PASSWORD=
 
 _issues:_
 
-If you are getting error `exadt::ERROR: the private interface with address '<ip>/16' either does not exist or is down.` https://github.com/exasol/docker-db/issues/45
+- on slower machines Exasol can take a lot of resources. Run `docker-compose -f docker-compose.yml -f docker-compose.limits.yml up exasol` to limit memory and cpu 
+
+- If you are getting error `exadt::ERROR: the private interface with address '<ip>/16' either does not exist or is down.` https://github.com/exasol/docker-db/issues/45
 Exasol saves you (container) current ip address and docker daemon is changing default bridge range. There are two ways to fix this:
 1. each reboot set you current ip range to exasol `docket-compose run --rm exasol exaconf modify-node -n 11 -p '<ip>/16'` this is have to be done each time when ip addresses are not align.
 2. set docker default bridge to some fixed range: edit or create `/etc/docker/daemon.json` and set `{"bip":"172.0.0.1/24"}` (or different range that suites you)
