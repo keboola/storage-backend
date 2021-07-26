@@ -141,7 +141,7 @@ class ExasolBaseCase extends TestCase
     ): void {
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
-            TeradataQuote::quoteSingleIdentifier($dbName),
+            TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
             $id,
             TeradataQuote::quote($firstName),

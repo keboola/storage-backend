@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\DataHelper;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
@@ -142,8 +143,8 @@ final class ExasolTableReflection implements TableReflectionInterface
     {
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
-            TeradataQuote::quoteSingleIdentifier($this->schemaName),
-            TeradataQuote::quoteSingleIdentifier($this->tableName)
+            ExasolQuote::quoteSingleIdentifier($this->schemaName),
+            ExasolQuote::quoteSingleIdentifier($this->tableName)
         ));
         return (int) $result;
     }
@@ -154,29 +155,21 @@ final class ExasolTableReflection implements TableReflectionInterface
      */
     public function getPrimaryKeysNames(): array
     {
-        $sql = sprintf(
-            "
-        SELECT ColumnName FROM DBC.IndicesV WHERE
-         IndexType = 'K'
-         AND DatabaseName = %s 
-         AND TableName = %s ORDER BY ColumnName;",
-            TeradataQuote::quote($this->schemaName),
-            TeradataQuote::quote($this->tableName)
-        );
-
-        $data = $this->connection->fetchAllAssociative($sql);
-        return DataHelper::extractByKey($data, 'ColumnName');
+        // TODO get list of primary keys
+//        return DataHelper::extractByKey($data, 'ColumnName');
     }
 
     public function getTableStats(): TableStatsInterface
     {
         $sql = sprintf(
             '
-SELECT CURRENTPERM FROM DBC.ALLSPACE
-WHERE  DATABASENAME = %s AND TABLENAME = %s 
-',
-            TeradataQuote::quote($this->schemaName),
-            TeradataQuote::quote($this->tableName)
+            SELECT "RAW_OBJECT_SIZE"
+  FROM "SYS"."EXA_ALL_OBJECT_SIZES"
+  WHERE "OBJECT_NAME" = %s AND "ROOT_NAME" = %s AND "ROOT_TYPE" = %s
+            ',
+            ExasolQuote::quote($this->schemaName),
+            ExasolQuote::quote($this->tableName),
+            ExasolQuote::quote('SCHEMA')
         );
         $result = $this->connection->fetchOne($sql);
 
@@ -203,12 +196,6 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
 
     public function getTableDefinition(): TableDefinitionInterface
     {
-        return new TeradataTableDefinition(
-            $this->schemaName,
-            $this->tableName,
-            $this->isTemporary(),
-            $this->getColumnsDefinitions(),
-            $this->getPrimaryKeysNames()
-        );
+        // TODO
     }
 }
