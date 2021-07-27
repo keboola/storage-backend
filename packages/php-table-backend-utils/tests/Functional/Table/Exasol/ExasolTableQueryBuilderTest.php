@@ -1,0 +1,186 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Keboola\TableBackendUtils\Functional\Table\Exasol;
+
+use Doctrine\DBAL\Exception as DBALException;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
+use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;
+
+/**
+ * @covers ExasolTableQueryBuilder
+ * @uses   ColumnCollection
+ */
+class ExasolTableQueryBuilderTest extends ExasolBaseCase
+{
+    /** @var ExasolTableQueryBuilder */
+    private $qb;
+
+    public function setUp(): void
+    {
+        $this->qb = new ExasolTableQueryBuilder();
+        parent::setUp();
+
+        $this->cleanDatabase(self::TEST_SCHEMA);
+    }
+
+    public function testGetRenameTableCommand(): void
+    {
+        $testDb = self::TEST_SCHEMA;
+        $testTable = self::TABLE_GENERIC;
+        $testTableNew = 'newName';
+        $this->initTable();
+
+        // reflection to old table
+        $refOld = new ExasolTableReflection($this->connection, $testDb, $testTable);
+
+        // get, test and run command
+        $sql = $this->qb->getRenameTableCommand(self::TEST_SCHEMA, self::TABLE_GENERIC, $testTableNew);
+        self::assertEquals("RENAME TABLE \"{$testDb}\".\"{$testTable}\" TO \"{$testDb}\".\"{$testTableNew}\"", $sql);
+        $this->connection->executeQuery($sql);
+
+        // reflection to new table and check the existence via counting
+        $refNew = new ExasolTableReflection($this->connection, $testDb, $testTableNew);
+        $refNew->getRowsCount();
+
+        // test NON existence of old table via counting
+        $this->expectException(DBALException::class);
+        $refOld->getRowsCount();
+    }
+
+    public function testGetTruncateTableCommand(): void
+    {
+        $testDb = self::TEST_SCHEMA;
+        $testTable = self::TABLE_GENERIC;
+        $this->initTable();
+
+        // reflection to the table
+        $ref = new ExasolTableReflection($this->connection, $testDb, $testTable);
+
+        // check that table is empty
+        self::assertEquals(0, $ref->getRowsCount());
+
+        // insert some data, table wont be empty
+        $this->insertRowToTable($testDb, $testTable, 1, 'franta', 'omacka');
+        self::assertEquals(1, $ref->getRowsCount());
+
+        // get, test and run query
+        $sql = $this->qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertEquals("TRUNCATE TABLE \"{$testDb}\".\"{$testTable}\"", $sql);
+        $this->connection->executeQuery($sql);
+
+        // check that table is empty again
+        self::assertEquals(0, $ref->getRowsCount());
+    }
+
+    public function testGetDropTableCommand(): void
+    {
+        $testDb = self::TEST_SCHEMA;
+        $testTable = self::TABLE_GENERIC;
+        $this->initTable();
+
+        // reflection to the table
+        $ref = new ExasolTableReflection($this->connection, $testDb, $testTable);
+
+        // get, test and run query
+        $sql = $this->qb->getDropTableCommand(self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertEquals("DROP TABLE \"{$testDb}\".\"{$testTable}\"", $sql);
+        $this->connection->executeQuery($sql);
+
+        // test NON existence of old table via counting
+        $this->expectException(DBALException::class);
+        $ref->getRowsCount();
+    }
+
+    /**
+     * @param ExasolColumn[] $columns
+     * @param string[] $primaryKeys
+     * @param string[] $expectedColumnNames
+     * @param string[] $expectedPKs
+     * @param string $expectedSql
+     * @throws DBALException
+     * @dataProvider createTableTestSqlProvider
+     */
+    public function testGetCreateCommand(
+        array $columns,
+        array $primaryKeys,
+        array $expectedColumnNames,
+        array $expectedPKs,
+        string $expectedSql
+    ): void {
+        $sql = $this->qb->getCreateTableCommand(
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC,
+            new ColumnCollection($columns),
+            $primaryKeys
+        );
+        self::assertSame($expectedSql, $sql);
+        $this->connection->executeQuery($sql);
+
+        // test table properties
+        $tableReflection = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertSame($expectedColumnNames, $tableReflection->getColumnsNames());
+        self::assertSame($expectedPKs, $tableReflection->getPrimaryKeysNames());
+    }
+
+    /**
+     * @return \Generator<string, mixed, mixed, mixed>
+     */
+    public function createTableTestSqlProvider(): \Generator
+    {
+        $testDb = self::TEST_SCHEMA;
+        $tableName = self::TABLE_GENERIC;
+
+        yield 'no keys' => [
+            'cols' => [
+                ExasolColumn::createGenericColumn('col1'),
+                ExasolColumn::createGenericColumn('col2'),
+            ],
+            'primaryKeys' => [],
+            'expectedColumnNames' => ['col1', 'col2'],
+            'expectedPrimaryKeys' => [],
+            'query' => <<<EOT
+CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
+("col1" VARCHAR (32000) NOT NULL DEFAULT '',
+"col2" VARCHAR (32000) NOT NULL DEFAULT '');
+EOT
+            ,
+        ];
+        yield 'with single pk' => [
+            'cols' => [
+                ExasolColumn::createGenericColumn('col1'),
+                ExasolColumn::createGenericColumn('col2'),
+            ],
+            'primaryKeys' => ['col1'],
+            'expectedColumnNames' => ['col1', 'col2'],
+            'expectedPrimaryKeys' => ['col1'],
+            'query' => <<<EOT
+CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
+("col1" VARCHAR (32000) NOT NULL DEFAULT '',
+"col2" VARCHAR (32000) NOT NULL DEFAULT '',
+PRIMARY KEY ("col1"));
+EOT
+            ,
+        ];
+        yield 'with multiple pks' => [
+            'cols' => [
+                ExasolColumn::createGenericColumn('col1'),
+                ExasolColumn::createGenericColumn('col2'),
+            ],
+            'primaryKeys' => ['col1', 'col2'],
+            'expectedColumnNames' => ['col1', 'col2'],
+            'expectedPrimaryKeys' => ['col1', 'col2'],
+            'query' => <<<EOT
+CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
+("col1" VARCHAR (32000) NOT NULL DEFAULT '',
+"col2" VARCHAR (32000) NOT NULL DEFAULT '',
+PRIMARY KEY ("col1", "col2"));
+EOT
+            ,
+        ];
+    }
+}

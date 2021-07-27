@@ -112,6 +112,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
      */
     public function tableColsDataProvider(): Generator
     {
+        // ints
         yield 'INTEGER' => [
             'INTEGER', // sql which goes to table
             'DECIMAL (18,0)', // expected sql from getSQLDefinition
@@ -138,6 +139,8 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '36,0', // length
             true, // nullable
         ];
+
+        // booleans
         yield 'BOOL' => [
             'BOOL', // sql which goes to table
             'BOOLEAN', // expected sql from getSQLDefinition
@@ -154,88 +157,8 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '1', // length
             true, // nullable
         ];
-        yield 'CHAR' => [
-            'CHAR', // sql which goes to table
-            'CHAR (1)', // expected sql from getSQLDefinition
-            'CHAR', // expected type from db
-            null, // default
-            '1', // length
-            true, // nullable
-        ];
-        yield 'CHAR' => [
-            'CHAR (300)', // sql which goes to table
-            'CHAR (300)', // expected sql from getSQLDefinition
-            'CHAR', // expected type from db
-            null, // default
-            '300', // length
-            true, // nullable
-        ];
-        yield 'CHAR VARYING (n)' => [
-            'CHAR VARYING (5000)', // sql which goes to table
-            'VARCHAR (5000)', // expected sql from getSQLDefinition
-            'VARCHAR', // expected type from db
-            null, // default
-            '5000', // length
-            true, // nullable
-        ];
 
-        yield 'CHARACTER VARYING (n)' => [
-            'CHARACTER VARYING (6000)', // sql which goes to table
-            'VARCHAR (6000)', // expected sql from getSQLDefinition
-            'VARCHAR', // expected type from db
-            null, // default
-            '6000', // length
-            true, // nullable
-        ];
-        yield 'CHARACTER' => [
-            'CHARACTER (2000)', // sql which goes to table
-            'CHAR (2000)', // expected sql from getSQLDefinition
-            'CHAR', // expected type from db
-            null, // default
-            '2000', // length
-            true, // nullable
-        ];
-        yield 'CHARACTER' => [
-            'CHARACTER', // sql which goes to table
-            'CHAR (1)', // expected sql from getSQLDefinition
-            'CHAR', // expected type from db
-            null, // default
-            '1', // length
-            true, // nullable
-        ];
-        yield 'CHARACTER LARGE OBJECT' => [
-            'CHARACTER LARGE OBJECT', // sql which goes to table
-            'VARCHAR (2000000)', // expected sql from getSQLDefinition
-            'VARCHAR', // expected type from db
-            null, // default
-            '2000000', // length
-            true, // nullable
-        ];
-        yield 'CHARACTER LARGE OBJECT (n)' => [
-            'CHARACTER LARGE OBJECT (4000)', // sql which goes to table
-            'VARCHAR (4000)', // expected sql from getSQLDefinition
-            'VARCHAR', // expected type from db
-            null, // default
-            '4000', // length
-            true, // nullable
-        ];
-
-        yield 'CLOB' => [
-            'CLOB', // sql which goes to table
-            'VARCHAR (2000000)', // expected sql from getSQLDefinition
-            'VARCHAR', // expected type from db
-            null, // default
-            '2000000', // length
-            true, // nullable
-        ];
-        yield 'CLOB (n)' => [
-            'CLOB (5000)', // sql which goes to table
-            'VARCHAR (5000)', // expected sql from getSQLDefinition
-            'VARCHAR', // expected type from db
-            null, // default
-            '5000', // length
-            true, // nullable
-        ];
+        // decimals
         yield 'DEC' => [
             'DEC', // sql which goes to table
             'DECIMAL (18,0)', // expected sql from getSQLDefinition
@@ -286,47 +209,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '12,5', // length
             true, // nullable
         ];
-        // TODO doubles
-        yield 'DOUBLE' => [
-            'DOUBLE', // sql which goes to table
-            'DOUBLE PRECISION', // expected sql from getSQLDefinition
-            'DOUBLE PRECISION', // expected type from db
-            null, // default
-            '64', // length
-            true, // nullable
-        ];
-        yield 'DOUBLE PRECISION' => [
-            'DOUBLE PRECISION', // sql which goes to table
-            'DOUBLE PRECISION', // expected sql from getSQLDefinition
-            'DOUBLE PRECISION', // expected type from db
-            null, // default
-            '64', // length
-            true, // nullable
-        ];
-        yield 'FLOAT' => [
-            'FLOAT', // sql which goes to table
-            'DOUBLE PRECISION', // expected sql from getSQLDefinition
-            'DOUBLE PRECISION', // expected type from db
-            null, // default
-            '64', // length
-            true, // nullable
-        ];
-        yield 'NUMBER' => [
-            'NUMBER', // sql which goes to table
-            'DOUBLE PRECISION', // expected sql from getSQLDefinition
-            'DOUBLE PRECISION', // expected type from db
-            null, // default
-            '64', // length
-            true, // nullable
-        ];
-        yield 'REAL' => [
-            'REAL', // sql which goes to table
-            'DOUBLE', // expected sql from getSQLDefinition
-            'DOUBLE', // expected type from db
-            null, // default
-            '64', // length
-            true, // nullable
-        ];
+
         yield 'NUMBER (p)' => [
             'NUMBER (10,0)', // sql which goes to table
             'DECIMAL (10,0)', // expected sql from getSQLDefinition
@@ -383,28 +266,135 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '3,0', // length
             true, // nullable
         ];
+
+        // doubles
+        yield 'DOUBLE' => [
+            'DOUBLE', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
+        ];
+        yield 'DOUBLE PRECISION' => [
+            'DOUBLE PRECISION', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
+        ];
+        yield 'FLOAT' => [
+            'FLOAT', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
+        ];
+        yield 'NUMBER' => [
+            'NUMBER', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
+        ];
+        yield 'REAL' => [
+            'REAL', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
+        ];
+
+        // hash types
         yield 'HASHTYPE' => [
             'HASHTYPE', // sql which goes to table
             'HASHTYPE (16 BYTE)', // expected sql from getSQLDefinition
             'HASHTYPE', // expected type from db
             null, // default
-            '16 BYTE', // length
+            '16', // length
             true, // nullable
         ];
-        yield 'LONG VARCHAR' => [
-            'LONG VARCHAR', // sql which goes to table
-            'VARCHAR (2000000)', // expected sql from getSQLDefinition
-            'VARCHAR', // expected type from db
+        yield 'HASHTYPE n bit' => [
+            'HASHTYPE (24 BIT)', // sql which goes to table
+            'HASHTYPE (3 BYTE)', // expected sql from getSQLDefinition
+            'HASHTYPE', // expected type from db
             null, // default
-            '2000000', // length
+            '3', // length
             true, // nullable
         ];
+        yield 'HASHTYPE n byte' => [
+            'HASHTYPE (10 BYTE)', // sql which goes to table
+            'HASHTYPE (10 BYTE)', // expected sql from getSQLDefinition
+            'HASHTYPE', // expected type from db
+            null, // default
+            '10', // length
+            true, // nullable
+        ];
+
+        // chars
+        yield 'CHAR (n)' => [
+            'CHAR (300)', // sql which goes to table
+            'CHAR (300)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '300', // length
+            true, // nullable
+        ];
+
         yield 'NCHAR' => [
             'NCHAR (300)', // sql which goes to table
             'CHAR (300)', // expected sql from getSQLDefinition
             'CHAR', // expected type from db
             null, // default
             '300', // length
+            true, // nullable
+        ];
+
+        yield 'CHAR' => [
+            'CHAR', // sql which goes to table
+            'CHAR (1)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '1', // length
+            true, // nullable
+        ];
+        yield 'CHAR' => [
+            'CHAR (300)', // sql which goes to table
+            'CHAR (300)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '300', // length
+            true, // nullable
+        ];
+
+        yield 'CHARACTER' => [
+            'CHARACTER (2000)', // sql which goes to table
+            'CHAR (2000)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '2000', // length
+            true, // nullable
+        ];
+        yield 'CHARACTER' => [
+            'CHARACTER', // sql which goes to table
+            'CHAR (1)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '1', // length
+            true, // nullable
+        ];
+
+        // varchars
+        yield 'LONG VARCHAR' => [
+            'LONG VARCHAR', // sql which goes to table
+            'VARCHAR (2000000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '2000000', // length
             true, // nullable
         ];
         yield 'NVARCHAR (n)' => [
@@ -439,15 +429,61 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '30000', // length
             true, // nullable
         ];
-        yield 'CHAR (n)' => [
-            'CHAR (300)', // sql which goes to table
-            'CHAR (300)', // expected sql from getSQLDefinition
-            'CHAR', // expected type from db
+
+        yield 'CHAR VARYING (n)' => [
+            'CHAR VARYING (5000)', // sql which goes to table
+            'VARCHAR (5000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
             null, // default
-            '300', // length
+            '5000', // length
             true, // nullable
         ];
 
+        yield 'CHARACTER VARYING (n)' => [
+            'CHARACTER VARYING (6000)', // sql which goes to table
+            'VARCHAR (6000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '6000', // length
+            true, // nullable
+        ];
+
+        // clob
+        yield 'CHARACTER LARGE OBJECT' => [
+            'CHARACTER LARGE OBJECT', // sql which goes to table
+            'VARCHAR (2000000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '2000000', // length
+            true, // nullable
+        ];
+        yield 'CHARACTER LARGE OBJECT (n)' => [
+            'CHARACTER LARGE OBJECT (4000)', // sql which goes to table
+            'VARCHAR (4000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '4000', // length
+            true, // nullable
+        ];
+
+        yield 'CLOB' => [
+            'CLOB', // sql which goes to table
+            'VARCHAR (2000000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '2000000', // length
+            true, // nullable
+        ];
+        yield 'CLOB (n)' => [
+            'CLOB (5000)', // sql which goes to table
+            'VARCHAR (5000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '5000', // length
+            true, // nullable
+        ];
+
+        // date and time
         yield 'DATE' => [
             'DATE', // sql which goes to table
             'DATE', // expected sql from getSQLDefinition
@@ -472,26 +508,37 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '29', // length
             true, // nullable
         ];
+
+        // intervals
         yield 'INTERVAL YEAR [(p)] TO MONTH' => [
-            'INTERVAL YEAR (5) TO MONTH', // sql which goes to table
-            'INTERVAL YEAR (5) TO MONTH', // expected sql from getSQLDefinition
-            'INTERVAL YEAR (5) TO MONTH', // expected type from db
+            'INTERVAL YEAR(5) TO MONTH', // sql which goes to table
+            'INTERVAL YEAR(5) TO MONTH', // expected sql from getSQLDefinition
+            'INTERVAL YEAR TO MONTH', // expected type from db
             null, // default
             '5', // length
             true, // nullable
         ];
-        // TODO type detection will be fixed based on Thomas answer
+        yield 'INTERVAL YEAR TO MONTH' => [
+            'INTERVAL YEAR(5) TO MONTH', // sql which goes to table
+            'INTERVAL YEAR(5) TO MONTH', // expected sql from getSQLDefinition
+            'INTERVAL YEAR TO MONTH', // expected type from db
+            null, // default
+            '5', // length
+            true, // nullable
+        ];
         yield 'INTERVAL DAY [(p)] TO SECOND [(fp)]' => [
-            'INTERVAL DAY (5) TO SECOND (4)', // sql which goes to table
-            'INTERVAL DAY (5) TO SECOND (4)', // expected sql from getSQLDefinition
+            'INTERVAL DAY(5) TO SECOND(4)', // sql which goes to table
+            'INTERVAL DAY(5) TO SECOND(4)', // expected sql from getSQLDefinition
             'INTERVAL DAY TO SECOND', // expected type from db
             null, // default
             '5,4', // length
             true, // nullable
         ];
+
+        // geometry
         yield 'GEOMETRY [(srid)]' => [
             'GEOMETRY (100)', // sql which goes to table
-            'GEOMETRY (100)', // expected sql from getSQLDefinition
+            'GEOMETRY (8000000)', // expected sql from getSQLDefinition
             'GEOMETRY', // expected type from db
             null, // default
             '8000000', // length

@@ -59,11 +59,21 @@ final class ExasolTableReflection implements TableReflectionInterface
     {
         $columns = $this->connection->fetchAllAssociative(
             sprintf('
-                SELECT "COLUMN_NAME", "COLUMN_IS_NULLABLE", "COLUMN_MAXSIZE", "COLUMN_NUM_PREC", "COLUMN_NUM_SCALE", "COLUMN_DEFAULT", "COLUMN_TYPE"
-  FROM "SYS"."EXA_ALL_COLUMNS"
-  WHERE "COLUMN_SCHEMA" = %s
-    AND "COLUMN_TABLE" = %s
-  ORDER BY "COLUMN_ORDINAL_POSITION"',
+SELECT 
+    "COLUMN_NAME", 
+    "COLUMN_IS_NULLABLE", 
+    "COLUMN_MAXSIZE", 
+    "COLUMN_NUM_PREC", 
+    "COLUMN_NUM_SCALE", 
+    "COLUMN_DEFAULT", 
+    "COLUMN_TYPE",
+    "TYPES"."TYPE_NAME"
+FROM "SYS"."EXA_ALL_COLUMNS" "COLUMNS"
+JOIN "SYS"."EXA_SQL_TYPES" "TYPES" ON "COLUMNS"."COLUMN_TYPE_ID" = "TYPES"."TYPE_ID"
+WHERE "COLUMN_SCHEMA" = %s
+  AND "COLUMN_TABLE" =  %s
+ORDER BY "COLUMN_ORDINAL_POSITION"
+  ',
                 ExasolQuote::quote($this->schemaName),
                 ExasolQuote::quote($this->tableName)
             )
@@ -74,9 +84,9 @@ final class ExasolTableReflection implements TableReflectionInterface
             return new ExasolColumn(
                 $col['COLUMN_NAME'],
                 new Exasol(
-                    self::extractColumnType($col['COLUMN_TYPE']),
+                    $col['TYPE_NAME'],
                     [
-                        'length' => self::extractColumnLength($col['COLUMN_MAXSIZE'], $col['COLUMN_NUM_PREC'], $col['COLUMN_NUM_SCALE']),
+                        'length' => self::extractColumnLength($col),
                         'nullable' => $col['COLUMN_IS_NULLABLE'] === '1',
                         'default' => is_string($defaultValue) ? trim($defaultValue) : $defaultValue,
                     ]
@@ -87,21 +97,25 @@ final class ExasolTableReflection implements TableReflectionInterface
         return new ColumnCollection($columns);
     }
 
-    private function extractColumnType($type): string
+    private function extractColumnLength($colData): string
     {
-        if (!preg_match('/(?P<type>[a-zA-Z ]+)\(?.*/', $type, $output_array)) {
-            throw new \Exception("Unknown type {$type}");
+        $colType = $colData['COLUMN_TYPE'];
+        if ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_DAY_TO_SECOND) {
+            preg_match('/INTERVAL DAY\((?P<valDays>\d)\) TO SECOND\((?P<valSeconds>\d)\)/', $colType, $output_array);
+            return $output_array['valDays'] . ',' . $output_array['valSeconds'];
+        } elseif ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_YEAR_TO_MONTH) {
+            preg_match('/INTERVAL YEAR\((?P<val>\d)\) TO MONTH/', $colType, $output_array);
+            return $output_array['val'];
         } else {
-            return $output_array['type'];
+            $precision = $colData['COLUMN_NUM_PREC'];
+            $scale = $colData['COLUMN_NUM_SCALE'];
+            $maxLength = $colData['COLUMN_MAXSIZE'];
+            return ($precision === null && $scale === null) ? $maxLength : "{$precision},{$scale}";
         }
     }
 
-    private function extractColumnLength($maxLength, $precision = null, $scale = null): string
-    {
-        return ($precision === null && $scale === null) ? $maxLength : "{$precision},{$scale}";
-    }
-
-    public function getRowsCount(): int
+    public
+    function getRowsCount(): int
     {
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
@@ -113,6 +127,7 @@ final class ExasolTableReflection implements TableReflectionInterface
 
     /**
      * returns list of column names where PK is defined on
+     *
      * @return string[]
      */
     public function getPrimaryKeysNames(): array
@@ -171,6 +186,12 @@ final class ExasolTableReflection implements TableReflectionInterface
 
     public function getTableDefinition(): TableDefinitionInterface
     {
-        // TODO
+        return new ExasolTableDefinition(
+            $this->schemaName,
+            $this->tableName,
+            $this->isTemporary(),
+            $this->getColumnsDefinitions(),
+            $this->getPrimaryKeysNames()
+        );
     }
 }
