@@ -155,8 +155,21 @@ final class ExasolTableReflection implements TableReflectionInterface
      */
     public function getPrimaryKeysNames(): array
     {
-        // TODO get list of primary keys
-//        return DataHelper::extractByKey($data, 'ColumnName');
+        $sql = sprintf(
+            '
+  SELECT "COLUMN_NAME"
+  FROM "SYS"."EXA_ALL_CONSTRAINT_COLUMNS"
+  WHERE "CONSTRAINT_SCHEMA" = %s 
+    AND "CONSTRAINT_TABLE" = %s 
+    AND "CONSTRAINT_TYPE" = %s
+  ORDER BY "ORDINAL_POSITION"
+            ',
+            ExasolQuote::quote($this->schemaName),
+            ExasolQuote::quote($this->tableName),
+            ExasolQuote::quote('PRIMARY KEY')
+        );
+        $data = $this->connection->fetchAllAssociative($sql);
+        return DataHelper::extractByKey($data, 'COLUMN_NAME');
     }
 
     public function getTableStats(): TableStatsInterface
@@ -167,8 +180,8 @@ final class ExasolTableReflection implements TableReflectionInterface
   FROM "SYS"."EXA_ALL_OBJECT_SIZES"
   WHERE "OBJECT_NAME" = %s AND "ROOT_NAME" = %s AND "ROOT_TYPE" = %s
             ',
-            ExasolQuote::quote($this->schemaName),
             ExasolQuote::quote($this->tableName),
+            ExasolQuote::quote($this->schemaName),
             ExasolQuote::quote('SCHEMA')
         );
         $result = $this->connection->fetchOne($sql);

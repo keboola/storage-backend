@@ -8,7 +8,9 @@ use Generator;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
+use Keboola\TableBackendUtils\Table\TableStats;
 use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;
 
 /**
@@ -38,17 +40,16 @@ class ExasolTableReflectionTest extends ExasolBaseCase
 
     public function testGetPrimaryKeysNames(): void
     {
-//        // TODO get query
-//        $this->initTable();
-//        $this->connection->executeQuery(
-//            sprintf(
-//                'ALTER TABLE %s.%s ADD PRIMARY KEY (id)',
-//                self::TEST_SCHEMA,
-//                self::TABLE_GENERIC
-//            )
-//        );
-//        $ref = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
-//        self::assertEquals(['id'], $ref->getPrimaryKeysNames());
+        $this->initTable();
+        $this->connection->executeQuery(
+            sprintf(
+                'ALTER TABLE %s.%s ADD CONSTRAINT PRIMARY KEY ("id") DISABLE',
+                ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            )
+        );
+        $ref = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertEquals(['id'], $ref->getPrimaryKeysNames());
     }
 
     public function testGetRowsCount(): void
@@ -488,11 +489,12 @@ class ExasolTableReflectionTest extends ExasolBaseCase
 
         $stats1 = $ref->getTableStats();
         self::assertEquals(0, $stats1->getRowsCount());
-        self::assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
+        self::assertEquals(0, $stats1->getDataSizeBytes()); // empty tables take up some space
 
         $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
         $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 2, 'karel', 'motycka');
 
+        /** @var TableStats $stats2 */
         $stats2 = $ref->getTableStats();
         self::assertEquals(2, $stats2->getRowsCount());
         self::assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
