@@ -39,13 +39,7 @@ class ExasolBaseCase extends TestCase
         string $database = self::TEST_SCHEMA,
         string $table = self::TABLE_GENERIC
     ): void {
-        // char because of Stats test
-        $this->connection->executeQuery(
-            sprintf(
-                'CREATE SCHEMA %s;',
-                ExasolQuote::quoteSingleIdentifier($database)
-            )
-        );
+        $this->createDatabase($database);
         // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
@@ -86,6 +80,13 @@ class ExasolBaseCase extends TestCase
 
     public function createDatabase(string $schemaName): void
     {
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE SCHEMA %s;',
+                ExasolQuote::quoteSingleIdentifier($schemaName)
+            )
+        );
     }
 
     public function testConnection(): void

@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Table\Exasol;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Datatype\Definition\Teradata;
+use Keboola\Datatype\Definition\Exasol;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
+use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
-use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
@@ -48,8 +47,8 @@ final class ExasolTableReflection implements TableReflectionInterface
         $columns = $this->connection->fetchAllAssociative(
             sprintf(
                 'DESCRIBE %s.%s',
-                TeradataQuote::quoteSingleIdentifier($this->schemaName),
-                TeradataQuote::quoteSingleIdentifier($this->tableName)
+                ExasolQuote::quoteSingleIdentifier($this->schemaName),
+                ExasolQuote::quoteSingleIdentifier($this->tableName)
             )
         );
 
@@ -59,84 +58,47 @@ final class ExasolTableReflection implements TableReflectionInterface
     public function getColumnsDefinitions(): ColumnCollection
     {
         $columns = $this->connection->fetchAllAssociative(
-            sprintf(
-                'HELP TABLE %s.%s',
-                TeradataQuote::quoteSingleIdentifier($this->schemaName),
-                TeradataQuote::quoteSingleIdentifier($this->tableName)
+            sprintf('
+                SELECT "COLUMN_NAME", "COLUMN_IS_NULLABLE", "COLUMN_MAXSIZE", "COLUMN_NUM_PREC", "COLUMN_NUM_SCALE", "COLUMN_DEFAULT", "COLUMN_TYPE"
+  FROM "SYS"."EXA_ALL_COLUMNS"
+  WHERE "COLUMN_SCHEMA" = %s
+    AND "COLUMN_TABLE" = %s
+  ORDER BY "COLUMN_ORDINAL_POSITION"',
+                ExasolQuote::quote($this->schemaName),
+                ExasolQuote::quote($this->tableName)
             )
         );
 
-        // types with structure of length <totalDigits>,<fractionalDigits> hidden in extra columns in table description
-        $fractionalTypes = [
-            'D',
-            'N',
-            'SC',
-            'DS',
-            'HS',
-            'MS',
-            'DS',
-        ];
-        $totalTypes = [
-            'MI',
-            'YR',
-            'MO',
-            'DY',
-            'HR',
-            'HM',
-            'DM',
-            'YM',
-            'DH',
-        ];
-
-        // types with length described in fractionalDigits column
-        $timeTypes = [
-            'AT',
-            'TS',
-            'TZ',
-            'SZ',
-            'PT',
-            'PZ',
-            'PM',
-        ];
-
-        $charTypes = ['CF', 'CV', 'CO'];
-        $columns = array_map(static function ($col) use ($fractionalTypes, $timeTypes, $charTypes, $totalTypes) {
-            $colName = trim($col['Column Name']);
-            $colType = trim($col['Type']);
-            $defaultvalue = $col['Default value'];
-            $length = $col['Max Length'];
-            $isLatin = $col['Char Type'] === '1';
-            // 1 latin, 2 unicode, 3 kanjiSJIS, 4 graphic, 5 graphic, 0 others
-
-            if (in_array($colType, $fractionalTypes, true)) {
-                $length = "{$col['Decimal Total Digits']},{$col['Decimal Fractional Digits']}";
-            }
-            if (in_array($colType, $timeTypes, true)) {
-                $length = $col['Decimal Fractional Digits'];
-            }
-            if (in_array($colType, $totalTypes, true)) {
-                $length = $col['Decimal Total Digits'];
-            }
-
-            if (!$isLatin && in_array($colType, $charTypes, true)) {
-                $length /= 2;
-                // non latin chars (unicode etc) declares double of space for data
-            }
-            return new TeradataColumn(
-                $colName,
-                new Teradata(
-                    Teradata::convertCodeToType($colType),
+        $columns = array_map(static function ($col) {
+            $defaultValue = $col["COLUMN_DEFAULT"];
+            return new ExasolColumn(
+                $col['COLUMN_NAME'],
+                new Exasol(
+                    self::extractColumnType($col['COLUMN_TYPE']),
                     [
-                        'length' => $length,
-                        'nullable' => $col['Nullable'] === 'Y',
-                        'isLatin' => $isLatin,
-                        'default' => is_string($defaultvalue) ? trim($defaultvalue) : $defaultvalue,
+                        'length' => self::extractColumnLength($col['COLUMN_MAXSIZE'], $col['COLUMN_NUM_PREC'], $col['COLUMN_NUM_SCALE']),
+                        'nullable' => $col['COLUMN_IS_NULLABLE'] === '1',
+                        'default' => is_string($defaultValue) ? trim($defaultValue) : $defaultValue,
                     ]
                 )
             );
         }, $columns);
 
         return new ColumnCollection($columns);
+    }
+
+    private function extractColumnType($type): string
+    {
+        if (!preg_match('/(?P<type>[a-zA-Z ]+)\(?.*/', $type, $output_array)) {
+            throw new \Exception("Unknown type {$type}");
+        } else {
+            return $output_array['type'];
+        }
+    }
+
+    private function extractColumnLength($maxLength, $precision = null, $scale = null): string
+    {
+        return ($precision === null && $scale === null) ? $maxLength : "{$precision},{$scale}";
     }
 
     public function getRowsCount(): int

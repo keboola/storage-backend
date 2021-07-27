@@ -43,7 +43,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
         $this->initTable();
         $this->connection->executeQuery(
             sprintf(
-                'ALTER TABLE %s.%s ADD CONSTRAINT PRIMARY KEY ("id") DISABLE',
+                'ALTER TABLE %s.%s ADD CONSTRAINT PRIMARY KEY ("id")',
                 ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
                 ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
             )
@@ -77,19 +77,18 @@ class ExasolTableReflectionTest extends ExasolBaseCase
         ?string $expectedDefault,
         ?string $expectedLength,
         ?string $expectedNullable
-    ): void {
+    ): void
+    {
+        $this->cleanDatabase(self::TEST_SCHEMA);
+        $this->createDatabase(self::TEST_SCHEMA);
         $sql = sprintf(
-            'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
-     NO BEFORE JOURNAL,
-     NO AFTER JOURNAL,
-     CHECKSUM = DEFAULT,
-     DEFAULT MERGEBLOCKRATIO
-     (
+            '
+            CREATE OR REPLACE TABLE %s.%s (
       "firstColumn" INT,
       "column" %s
-     );',
-            self::TEST_SCHEMA,
-            self::TABLE_GENERIC,
+);',
+            ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
             $sqlDef
         );
 
@@ -115,371 +114,399 @@ class ExasolTableReflectionTest extends ExasolBaseCase
     {
         yield 'INTEGER' => [
             'INTEGER', // sql which goes to table
-            'INTEGER', // expected sql from getSQLDefinition
-            'INTEGER', // type
+            'DECIMAL (18,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
             null, // default
-            4, // length
+            '18,0', // length
             true, // nullable
         ];
 
         yield 'INT' => [
-            'INT',
-            'INTEGER',
-            'INTEGER',
-            null,
-            4,
-            true,
-        ];
-
-        yield 'INTEGER NOT NULL DEFAULT' => [
-            'INTEGER NOT NULL DEFAULT 5',
-            'INTEGER NOT NULL DEFAULT 5',
-            'INTEGER', // type
-            5, // default
-            4, // length
-            false, // nullable
-        ];
-        yield 'CHAR WITH LENGTH' => [
-            'CHAR (20)', // SQL to create column
-            'CHAR (20)', // expected SQL
-            'CHAR', // type
+            'INT', // sql which goes to table
+            'DECIMAL (18,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
             null, // default
-            20, // length
+            '18,0', // length
             true, // nullable
         ];
-        yield 'BYTEINT' => [
-            'BYTEINT',
-            'BYTEINT',
-            'BYTEINT',
-            null,
-            1,
-            true,
-        ];
+
         yield 'BIGINT' => [
-            'BIGINT',
-            'BIGINT',
-            'BIGINT',
-            null,
-            8,
-            true,
+            'BIGINT', // sql which goes to table
+            'DECIMAL (36,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '36,0', // length
+            true, // nullable
         ];
-        yield 'SMALLINT' => [
-            'SMALLINT',
-            'SMALLINT',
-            'SMALLINT',
-            null,
-            2,
-            true,
+        yield 'BOOL' => [
+            'BOOL', // sql which goes to table
+            'BOOLEAN', // expected sql from getSQLDefinition
+            'BOOLEAN', // expected type from db
+            null, // default
+            '1', // length
+            true, // nullable
         ];
-        yield 'DECIMAL' => [
-            'DECIMAL (10,10)',
-            'DECIMAL (10,10)',
-            'DECIMAL',
-            null,
-            '10,10',
-            true,
+        yield 'BOOLEAN' => [
+            'BOOLEAN', // sql which goes to table
+            'BOOLEAN', // expected sql from getSQLDefinition
+            'BOOLEAN', // expected type from db
+            null, // default
+            '1', // length
+            true, // nullable
+        ];
+        yield 'CHAR' => [
+            'CHAR', // sql which goes to table
+            'CHAR (1)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '1', // length
+            true, // nullable
+        ];
+        yield 'CHAR' => [
+            'CHAR (300)', // sql which goes to table
+            'CHAR (300)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '300', // length
+            true, // nullable
+        ];
+        yield 'CHAR VARYING (n)' => [
+            'CHAR VARYING (5000)', // sql which goes to table
+            'VARCHAR (5000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '5000', // length
+            true, // nullable
+        ];
+
+        yield 'CHARACTER VARYING (n)' => [
+            'CHARACTER VARYING (6000)', // sql which goes to table
+            'VARCHAR (6000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '6000', // length
+            true, // nullable
+        ];
+        yield 'CHARACTER' => [
+            'CHARACTER (2000)', // sql which goes to table
+            'CHAR (2000)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '2000', // length
+            true, // nullable
+        ];
+        yield 'CHARACTER' => [
+            'CHARACTER', // sql which goes to table
+            'CHAR (1)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '1', // length
+            true, // nullable
+        ];
+        yield 'CHARACTER LARGE OBJECT' => [
+            'CHARACTER LARGE OBJECT', // sql which goes to table
+            'VARCHAR (2000000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '2000000', // length
+            true, // nullable
+        ];
+        yield 'CHARACTER LARGE OBJECT (n)' => [
+            'CHARACTER LARGE OBJECT (4000)', // sql which goes to table
+            'VARCHAR (4000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '4000', // length
+            true, // nullable
+        ];
+
+        yield 'CLOB' => [
+            'CLOB', // sql which goes to table
+            'VARCHAR (2000000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '2000000', // length
+            true, // nullable
+        ];
+        yield 'CLOB (n)' => [
+            'CLOB (5000)', // sql which goes to table
+            'VARCHAR (5000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '5000', // length
+            true, // nullable
+        ];
+        yield 'DEC' => [
+            'DEC', // sql which goes to table
+            'DECIMAL (18,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '18,0', // length
+            true, // nullable
+        ];
+        yield 'DEC (p)' => [
+            'DEC (9)', // sql which goes to table
+            'DECIMAL (9,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '9,0', // length
+            true, // nullable
+        ];
+        yield 'DEC (p,s)' => [
+            'DEC (9,5)', // sql which goes to table
+            'DECIMAL (9,5)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '9,5', // length
+            true, // nullable
+        ];
+
+
+        yield 'DEC' => [
+            'DEC', // sql which goes to table
+            'DECIMAL (18,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '18,0', // length
+            true, // nullable
+        ];
+        yield 'DECIMAL (p)' => [
+            'DECIMAL (9)', // sql which goes to table
+            'DECIMAL (9,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '9,0', // length
+            true, // nullable
+        ];
+        yield 'DECIMAL (p,s)' => [
+            'DECIMAL (12,5)', // sql which goes to table
+            'DECIMAL (12,5)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '12,5', // length
+            true, // nullable
+        ];
+        // TODO doubles
+        yield 'DOUBLE' => [
+            'DOUBLE', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
+        ];
+        yield 'DOUBLE PRECISION' => [
+            'DOUBLE PRECISION', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
         ];
         yield 'FLOAT' => [
-            'FLOAT',
-            'FLOAT',
-            'FLOAT',
-            null,
-            8,
-            true,
+            'FLOAT', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
         ];
         yield 'NUMBER' => [
-            'NUMBER (12,10)',
-            'NUMBER (12,10)',
-            'NUMBER',
-            null,
-            '12,10',
-            true,
+            'NUMBER', // sql which goes to table
+            'DOUBLE PRECISION', // expected sql from getSQLDefinition
+            'DOUBLE PRECISION', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
         ];
-        yield 'BYTE' => [
-            'BYTE (50)',
-            'BYTE (50)',
-            'BYTE',
-            null,
-            50,
-            true,
+        yield 'REAL' => [
+            'REAL', // sql which goes to table
+            'DOUBLE', // expected sql from getSQLDefinition
+            'DOUBLE', // expected type from db
+            null, // default
+            '64', // length
+            true, // nullable
         ];
-        yield 'VARBYTE' => [
-            'VARBYTE (32000)',
-            'VARBYTE (32000)',
-            'VARBYTE',
-            null,
-            32000,
-            true,
+        yield 'NUMBER (p)' => [
+            'NUMBER (10,0)', // sql which goes to table
+            'DECIMAL (10,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '10,0', // length
+            true, // nullable
         ];
-        yield 'BLOB' => [
-            'BLOB (2M)',
-            'BLOB (2097152)',
-            'BLOB',
-            null,
-            '2097152',
-            true,
+        yield 'NUMBER (p,s)' => [
+            'NUMBER (10,5)', // sql which goes to table
+            'DECIMAL (10,5)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '10,5', // length
+            true, // nullable
+        ];
+        yield 'NUMERIC (p)' => [
+            'NUMERIC (10,0)', // sql which goes to table
+            'DECIMAL (10,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '10,0', // length
+            true, // nullable
+        ];
+        yield 'NUMERIC (p,s)' => [
+            'NUMERIC (10,5)', // sql which goes to table
+            'DECIMAL (10,5)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '10,5', // length
+            true, // nullable
+        ];
+        yield 'SHORTINT' => [
+            'SHORTINT', // sql which goes to table
+            'DECIMAL (9,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '9,0', // length
+            true, // nullable
+        ];
+        yield 'SMALLINT' => [
+            'SMALLINT', // sql which goes to table
+            'DECIMAL (9,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '9,0', // length
+            true, // nullable
+        ];
+        yield 'TINYINT' => [
+            'TINYINT', // sql which goes to table
+            'DECIMAL (3,0)', // expected sql from getSQLDefinition
+            'DECIMAL', // expected type from db
+            null, // default
+            '3,0', // length
+            true, // nullable
+        ];
+        yield 'HASHTYPE' => [
+            'HASHTYPE', // sql which goes to table
+            'HASHTYPE (16 BYTE)', // expected sql from getSQLDefinition
+            'HASHTYPE', // expected type from db
+            null, // default
+            '16 BYTE', // length
+            true, // nullable
+        ];
+        yield 'LONG VARCHAR' => [
+            'LONG VARCHAR', // sql which goes to table
+            'VARCHAR (2000000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '2000000', // length
+            true, // nullable
+        ];
+        yield 'NCHAR' => [
+            'NCHAR (300)', // sql which goes to table
+            'CHAR (300)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '300', // length
+            true, // nullable
+        ];
+        yield 'NVARCHAR (n)' => [
+            'NVARCHAR (30000)', // sql which goes to table
+            'VARCHAR (30000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '30000', // length
+            true, // nullable
+        ];
+        yield 'NVARCHAR2 (n)' => [
+            'NVARCHAR2 (30000)', // sql which goes to table
+            'VARCHAR (30000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '30000', // length
+            true, // nullable
+        ];
+        yield 'VARCHAR2 (n)' => [
+            'VARCHAR2 (30000)', // sql which goes to table
+            'VARCHAR (30000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '30000', // length
+            true, // nullable
+        ];
+        yield 'VARCHAR (n)' => [
+            'VARCHAR (30000)', // sql which goes to table
+            'VARCHAR (30000)', // expected sql from getSQLDefinition
+            'VARCHAR', // expected type from db
+            null, // default
+            '30000', // length
+            true, // nullable
+        ];
+        yield 'CHAR (n)' => [
+            'CHAR (300)', // sql which goes to table
+            'CHAR (300)', // expected sql from getSQLDefinition
+            'CHAR', // expected type from db
+            null, // default
+            '300', // length
+            true, // nullable
         ];
 
         yield 'DATE' => [
-            'DATE',
-            'DATE',
-            'DATE',
-            null,
-            '4',
-            true,
-        ];
-        yield 'TIME' => [
-            'TIME (6)',
-            'TIME (6)',
-            'TIME',
-            null,
-            '6',
-            true,
+            'DATE', // sql which goes to table
+            'DATE', // expected sql from getSQLDefinition
+            'DATE', // expected type from db
+            null, // default
+            '10', // length
+            true, // nullable
         ];
         yield 'TIMESTAMP' => [
-            'TIMESTAMP (1)',
-            'TIMESTAMP (1)',
-            'TIMESTAMP',
-            null,
-            '1',
-            true,
+            'TIMESTAMP', // sql which goes to table
+            'TIMESTAMP', // expected sql from getSQLDefinition
+            'TIMESTAMP', // expected type from db
+            null, // default
+            '29', // length
+            true, // nullable
         ];
-        yield 'TIME WITH ZONE' => [
-            'TIME (5) WITH TIME ZONE',
-            'TIME (5) WITH TIME ZONE',
-            'TIME_WITH_ZONE',
-            null,
-            '5',
-            true,
+        yield 'TIMESTAMP WITH LOCAL TIME ZONE' => [
+            'TIMESTAMP WITH LOCAL TIME ZONE', // sql which goes to table
+            'TIMESTAMP WITH LOCAL TIME ZONE', // expected sql from getSQLDefinition
+            'TIMESTAMP WITH LOCAL TIME ZONE', // expected type from db
+            null, // default
+            '29', // length
+            true, // nullable
         ];
-        // no length -> default
-        yield 'TIMESTAMP WITH ZONE with default length' => [
-            'TIMESTAMP WITH TIME ZONE',
-            'TIMESTAMP (6) WITH TIME ZONE',
-            'TIMESTAMP_WITH_ZONE',
-            null,
-            '6',
-            true,
+        yield 'INTERVAL YEAR [(p)] TO MONTH' => [
+            'INTERVAL YEAR (5) TO MONTH', // sql which goes to table
+            'INTERVAL YEAR (5) TO MONTH', // expected sql from getSQLDefinition
+            'INTERVAL YEAR (5) TO MONTH', // expected type from db
+            null, // default
+            '5', // length
+            true, // nullable
         ];
-        // 0 length
-        yield 'TIMESTAMP WITH ZONE with zero length' => [
-            'TIMESTAMP (0) WITH TIME ZONE',
-            'TIMESTAMP (0) WITH TIME ZONE',
-            'TIMESTAMP_WITH_ZONE',
-            null,
-            '0',
-            true,
+        // TODO type detection will be fixed based on Thomas answer
+        yield 'INTERVAL DAY [(p)] TO SECOND [(fp)]' => [
+            'INTERVAL DAY (5) TO SECOND (4)', // sql which goes to table
+            'INTERVAL DAY (5) TO SECOND (4)', // expected sql from getSQLDefinition
+            'INTERVAL DAY TO SECOND', // expected type from db
+            null, // default
+            '5,4', // length
+            true, // nullable
         ];
-
-        yield 'CHAR' => [
-            'CHAR (32000)',
-            'CHAR (32000)',
-            'CHAR',
-            null,
-            32000,
-            true,
+        yield 'GEOMETRY [(srid)]' => [
+            'GEOMETRY (100)', // sql which goes to table
+            'GEOMETRY (100)', // expected sql from getSQLDefinition
+            'GEOMETRY', // expected type from db
+            null, // default
+            '8000000', // length
+            true, // nullable
         ];
-        yield 'VARCHAR' => [
-            'VARCHAR (32000)',
-            'VARCHAR (32000)',
-            'VARCHAR',
-            null,
-            32000,
-            true,
-        ];
-        yield 'LONG VARCHAR' => [
-            'VARCHAR (64000)',
-            'VARCHAR (64000)',
-            'VARCHAR',
-            null,
-            64000,
-            true,
-        ];
-        yield 'LONG VARCHAR with UNICODE' => [
-            'VARCHAR (32000) CHARACTER SET UNICODE',
-            'VARCHAR (32000)',
-            'VARCHAR',
-            null,
-            32000,
-            true,
-        ];
-        yield 'CLOB' => [
-            'CLOB (2M)',
-            'CLOB (2097152)',
-            'CLOB',
-            null,
-            '2097152',
-            true,
-        ];
-        yield 'CLOB with Unicode' => [
-            'CLOB (2M)  CHARACTER SET UNICODE',
-            'CLOB (2097152)',
-            'CLOB',
-            null,
-            '2097152',
-            true,
-        ];
-        yield 'PERIOD(DATE)' => [
-            'PERIOD(DATE)',
-            'PERIOD(DATE)',
-            'PERIOD(DATE)',
-            null,
-            '8',
-            true,
-        ];
-        yield 'PERIOD(TIME)' => [
-            'PERIOD(TIME)',
-            'PERIOD(TIME (6))',
-            'PERIOD(TIME)',
-            null,
-            '6',
-            true,
-        ];
-        yield 'PERIOD(TIME) with fraction' => [
-            'PERIOD(TIME (2))',
-            'PERIOD(TIME (2))',
-            'PERIOD(TIME)',
-            null,
-            '2',
-            true,
-        ];
-        yield 'PERIOD(TIME) with ZONE' => [
-            'PERIOD(TIME (2) WITH TIME ZONE)',
-            'PERIOD(TIME (2) WITH TIME ZONE)',
-            'PERIOD TIME WITH_ZONE',
-            null,
-            '2',
-            true,
-        ];
-        yield 'PERIOD(TIMESTAMP) with ZONE' => [
-            'PERIOD(TIMESTAMP (2) WITH TIME ZONE)',
-            'PERIOD(TIMESTAMP (2) WITH TIME ZONE)',
-            'PERIOD TIMESTAMP WITH_ZONE',
-            null,
-            '2',
-            true,
-        ];
-        yield 'INTERVAL SECOND' => [
-            'INTERVAL SECOND (3,5)',
-            'INTERVAL SECOND (3,5)',
-            'INTERVAL SECOND',
-            null,
-            '3,5',
-            true,
-        ];
-        yield 'INTERVAL SECOND with default' => [
-            'INTERVAL SECOND',
-            'INTERVAL SECOND (2,6)',
-            'INTERVAL SECOND',
-            null,
-            '2,6',
-            true,
+        yield 'GEOMETRY' => [
+            'GEOMETRY', // sql which goes to table
+            'GEOMETRY (8000000)', // expected sql from getSQLDefinition
+            'GEOMETRY', // expected type from db
+            null, // default
+            '8000000', // length
+            true, // nullable
         ];
 
-        yield 'INTERVAL MINUTE' => [
-            'INTERVAL MINUTE (3)',
-            'INTERVAL MINUTE (3)',
-            'INTERVAL MINUTE',
-            null,
-            '3',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_MINUTE_TO_SECOND' => [
-            'INTERVAL MINUTE (3) TO SECOND (5)',
-            'INTERVAL MINUTE (3) TO SECOND (5)',
-            'INTERVAL MINUTE TO SECOND',
-            null,
-            '3,5',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_MINUTE_TO_SECOND with default' => [
-            'INTERVAL MINUTE TO SECOND',
-            'INTERVAL MINUTE (2) TO SECOND (6)',
-            'INTERVAL MINUTE TO SECOND',
-            null,
-            '2,6',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_MONTH' => [
-            'INTERVAL MONTH',
-            'INTERVAL MONTH (2)',
-            'INTERVAL MONTH',
-            null,
-            '2',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_YEAR with default' => [
-            'INTERVAL YEAR',
-            'INTERVAL YEAR (2)',
-            'INTERVAL YEAR',
-            null,
-            '2',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_YEAR' => [
-            'INTERVAL YEAR (3)',
-            'INTERVAL YEAR (3)',
-            'INTERVAL YEAR',
-            null,
-            '3',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_HOUR' => [
-            'INTERVAL HOUR (3)',
-            'INTERVAL HOUR (3)',
-            'INTERVAL HOUR',
-            null,
-            '3',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_DAY' => [
-            'INTERVAL DAY (3)',
-            'INTERVAL DAY (3)',
-            'INTERVAL DAY',
-            null,
-            '3',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_HOUR_TO_MINUTE' => [
-            'INTERVAL HOUR (3) TO MINUTE',
-            'INTERVAL HOUR (3) TO MINUTE',
-            'INTERVAL HOUR TO MINUTE',
-            null,
-            '3',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_DAY_TO_SECOND' => [
-            'INTERVAL DAY (3) TO SECOND (4)',
-            'INTERVAL DAY (3) TO SECOND (4)',
-            'INTERVAL DAY TO SECOND',
-            null,
-            '3,4',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_DAY_TO_MINUTE' => [
-            'INTERVAL DAY (3) TO MINUTE',
-            'INTERVAL DAY (3) TO MINUTE',
-            'INTERVAL DAY TO MINUTE',
-            null,
-            '3',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_DAY_TO_HOUR' => [
-            'INTERVAL DAY (3) TO HOUR',
-            'INTERVAL DAY (3) TO HOUR',
-            'INTERVAL DAY TO HOUR',
-            null,
-            '3',
-            true,
-        ];
-        yield 'TYPE_INTERVAL_YEAR_TO_MONTH' => [
-            'INTERVAL YEAR (3) TO MONTH',
-            'INTERVAL YEAR (3) TO MONTH',
-            'INTERVAL YEAR TO MONTH',
-            null,
-            '3',
-            true,
-        ];
+
     }
 
     public function testGetTableStats(): void
