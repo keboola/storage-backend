@@ -229,7 +229,6 @@ class ExasolDatatypeTest extends \PHPUnit_Framework_TestCase
 
         $out['HASHTYPE-1BYTE'] = ['HASHTYPE', '0BYTE'];
         $out['HASHTYPE-2000     BYTE'] = ['HASHTYPE', '2000     BYTE'];
-        $out['HASHTYPE-2000'] = ['HASHTYPE', '2000'];
         $out['HASHTYPE-100B'] = ['HASHTYPE', '100B'];
 
         $out['HASHTYPE-5 BIT'] = ['HASHTYPE', '5 BIT'];
@@ -237,7 +236,7 @@ class ExasolDatatypeTest extends \PHPUnit_Framework_TestCase
         $out['HASHTYPE-10000 BIT'] = ['HASHTYPE', '10000 BIT'];
 
 
-        $out['INTERVAL_YEAR TO MONTH 12'] = ['INTERVAL_YEAR TO MONTH', '12'];
+        $out['INTERVAL YEAR TO MONTH 12'] = ['INTERVAL YEAR TO MONTH', '12'];
         $out['INTERVAL DAY TO SECOND 0 0'] = ['INTERVAL DAY TO SECOND', '0,0'];
 
         return $out;
@@ -296,12 +295,13 @@ class ExasolDatatypeTest extends \PHPUnit_Framework_TestCase
         $out['HASHTYPE-1 BIT'] = ['HASHTYPE', '8 BIT'];
         $out['HASHTYPE-5000 BIT'] = ['HASHTYPE', '5000 BIT'];
         $out['HASHTYPE-8192 BIT'] = ['HASHTYPE', '8192 BIT'];
+        $out['HASHTYPE-2000'] = ['HASHTYPE', '2000'];
 
-        $out['INTERVAL_YEAR TO MONTH null'] = ['INTERVAL_YEAR TO MONTH', null];
-        $out['INTERVAL_YEAR TO MONTH 1'] = ['INTERVAL_YEAR TO MONTH', '1'];
-        $out['INTERVAL_YEAR TO MONTH 9'] = ['INTERVAL_YEAR TO MONTH', '9'];
+        $out['INTERVAL YEAR TO MONTH null'] = ['INTERVAL YEAR TO MONTH', null];
+        $out['INTERVAL YEAR TO MONTH 1'] = ['INTERVAL YEAR TO MONTH', '1'];
+        $out['INTERVAL YEAR TO MONTH 9'] = ['INTERVAL YEAR TO MONTH', '9'];
 
-        $out['INTERVAL_YEAR TO MONTH null'] = ['INTERVAL_YEAR TO MONTH', null];
+        $out['INTERVAL YEAR TO MONTH null'] = ['INTERVAL YEAR TO MONTH', null];
         $out['INTERVAL DAY TO SECOND 1 9'] = ['INTERVAL DAY TO SECOND', '1,9'];
         $out['INTERVAL DAY TO SECOND 9 0'] = ['INTERVAL DAY TO SECOND', '9,0'];
 
