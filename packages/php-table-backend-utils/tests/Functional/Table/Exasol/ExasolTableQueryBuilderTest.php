@@ -25,7 +25,7 @@ class ExasolTableQueryBuilderTest extends ExasolBaseCase
         $this->qb = new ExasolTableQueryBuilder();
         parent::setUp();
 
-        $this->cleanDatabase(self::TEST_SCHEMA);
+        $this->cleanSchema(self::TEST_SCHEMA);
     }
 
     public function testGetRenameTableCommand(): void
@@ -112,8 +112,8 @@ class ExasolTableQueryBuilderTest extends ExasolBaseCase
         array $expectedPKs,
         string $expectedSql
     ): void {
-        $this->cleanDatabase(self::TEST_SCHEMA);
-        $this->createDatabase(self::TEST_SCHEMA);
+        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->createSchema(self::TEST_SCHEMA);
         $sql = $this->qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,

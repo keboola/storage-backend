@@ -39,7 +39,7 @@ class ExasolBaseCase extends TestCase
         string $database = self::TEST_SCHEMA,
         string $table = self::TABLE_GENERIC
     ): void {
-        $this->createDatabase($database);
+        $this->createSchema($database);
         // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
@@ -54,7 +54,7 @@ class ExasolBaseCase extends TestCase
         );
     }
 
-    protected function cleanDatabase(string $schemaName): void
+    protected function cleanSchema(string $schemaName): void
     {
         if (!$this->schemaExists($schemaName)) {
             return;
@@ -78,7 +78,7 @@ class ExasolBaseCase extends TestCase
         );
     }
 
-    public function createDatabase(string $schemaName): void
+    public function createSchema(string $schemaName): void
     {
         // char because of Stats test
         $this->connection->executeQuery(

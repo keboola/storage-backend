@@ -22,8 +22,8 @@ class ExasolTableReflectionTest extends ExasolBaseCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cleanDatabase(self::TEST_SCHEMA);
-        $this->createDatabase(self::TEST_SCHEMA);
+        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->createSchema(self::TEST_SCHEMA);
     }
 
     public function testGetTableColumnsNames(): void
@@ -78,8 +78,8 @@ class ExasolTableReflectionTest extends ExasolBaseCase
         ?string $expectedLength,
         ?string $expectedNullable
     ): void {
-        $this->cleanDatabase(self::TEST_SCHEMA);
-        $this->createDatabase(self::TEST_SCHEMA);
+        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->createSchema(self::TEST_SCHEMA);
         $sql = sprintf(
             '
             CREATE OR REPLACE TABLE %s.%s (

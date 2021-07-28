@@ -18,8 +18,8 @@ class ExasolSchemaReflectionTest extends ExasolBaseCase
         parent::setUp();
         $this->schemaRef = new ExasolSchemaReflection($this->connection, self::TEST_SCHEMA);
 
-        $this->cleanDatabase(self::TEST_SCHEMA);
-        $this->createDatabase(self::TEST_SCHEMA);
+        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->createSchema(self::TEST_SCHEMA);
     }
 
     public function testListTables(): void
