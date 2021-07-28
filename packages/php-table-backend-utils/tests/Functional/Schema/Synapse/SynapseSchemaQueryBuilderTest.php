@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Schema;
+namespace Tests\Keboola\TableBackendUtils\Functional\Schema\Synapse;
 
 use Keboola\TableBackendUtils\Schema\SynapseSchemaQueryBuilder;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;

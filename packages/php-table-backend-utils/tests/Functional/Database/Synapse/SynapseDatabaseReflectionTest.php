@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Database;
+namespace Tests\Keboola\TableBackendUtils\Functional\Database\Synapse;
 
 use Keboola\TableBackendUtils\Database\SynapseDatabaseReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Auth\BaseAuthTestCase;

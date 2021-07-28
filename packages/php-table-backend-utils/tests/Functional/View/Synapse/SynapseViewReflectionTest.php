@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\View;
+namespace Tests\Keboola\TableBackendUtils\Functional\View\Synapse;
 
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\View\InvalidViewDefinitionException;

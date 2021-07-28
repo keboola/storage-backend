@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Auth;
+namespace Tests\Keboola\TableBackendUtils\Functional\Auth\Synapse;
 
 use Generator;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOn;
@@ -10,6 +10,7 @@ use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOptions;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\Permission;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\RevokeOptions;
 use Keboola\TableBackendUtils\Auth\SynapseGrantQueryBuilder;
+use Tests\Keboola\TableBackendUtils\Functional\Auth\BaseAuthTestCase;
 
 class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 {

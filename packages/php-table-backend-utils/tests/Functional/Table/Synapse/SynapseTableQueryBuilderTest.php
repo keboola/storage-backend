@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Table;
+namespace Tests\Keboola\TableBackendUtils\Functional\Table\Synapse;
 
 use Doctrine\DBAL\DBALException;
 use Keboola\Datatype\Definition\Synapse;
