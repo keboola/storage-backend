@@ -112,6 +112,8 @@ class ExasolTableQueryBuilderTest extends ExasolBaseCase
         array $expectedPKs,
         string $expectedSql
     ): void {
+        $this->cleanDatabase(self::TEST_SCHEMA);
+        $this->createDatabase(self::TEST_SCHEMA);
         $sql = $this->qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
@@ -144,9 +146,11 @@ class ExasolTableQueryBuilderTest extends ExasolBaseCase
             'expectedColumnNames' => ['col1', 'col2'],
             'expectedPrimaryKeys' => [],
             'query' => <<<EOT
-CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR (32000) NOT NULL DEFAULT '',
-"col2" VARCHAR (32000) NOT NULL DEFAULT '');
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR (2000000) DEFAULT '' NOT NULL,
+"col2" VARCHAR (2000000) DEFAULT '' NOT NULL
+);
 EOT
             ,
         ];
@@ -159,10 +163,12 @@ EOT
             'expectedColumnNames' => ['col1', 'col2'],
             'expectedPrimaryKeys' => ['col1'],
             'query' => <<<EOT
-CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR (32000) NOT NULL DEFAULT '',
-"col2" VARCHAR (32000) NOT NULL DEFAULT '',
-PRIMARY KEY ("col1"));
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR (2000000) DEFAULT '' NOT NULL,
+"col2" VARCHAR (2000000) DEFAULT '' NOT NULL,
+CONSTRAINT PRIMARY KEY ("col1")
+);
 EOT
             ,
         ];
@@ -175,10 +181,12 @@ EOT
             'expectedColumnNames' => ['col1', 'col2'],
             'expectedPrimaryKeys' => ['col1', 'col2'],
             'query' => <<<EOT
-CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR (32000) NOT NULL DEFAULT '',
-"col2" VARCHAR (32000) NOT NULL DEFAULT '',
-PRIMARY KEY ("col1", "col2"));
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR (2000000) DEFAULT '' NOT NULL,
+"col2" VARCHAR (2000000) DEFAULT '' NOT NULL,
+CONSTRAINT PRIMARY KEY ("col1","col2")
+);
 EOT
             ,
         ];

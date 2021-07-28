@@ -62,7 +62,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
      * @inheritDoc
      */
     public function getCreateTableCommand(
-        string $dbName,
+        string $schemaName,
         string $tableName,
         ColumnCollection $columns,
         array $primaryKeys = []
@@ -135,7 +135,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'CREATE MULTISET TABLE %s.%s, FALLBACK
 (%s);',
-            TeradataQuote::quoteSingleIdentifier($dbName),
+            TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
             $columnsSql
         );

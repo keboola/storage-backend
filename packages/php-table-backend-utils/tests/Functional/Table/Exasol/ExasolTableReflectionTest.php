@@ -77,8 +77,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
         ?string $expectedDefault,
         ?string $expectedLength,
         ?string $expectedNullable
-    ): void
-    {
+    ): void {
         $this->cleanDatabase(self::TEST_SCHEMA);
         $this->createDatabase(self::TEST_SCHEMA);
         $sql = sprintf(
@@ -183,7 +182,6 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '9,5', // length
             true, // nullable
         ];
-
 
         yield 'DEC' => [
             'DEC', // sql which goes to table
@@ -552,8 +550,6 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '8000000', // length
             true, // nullable
         ];
-
-
     }
 
     public function testGetTableStats(): void

@@ -58,7 +58,8 @@ final class ExasolTableReflection implements TableReflectionInterface
     public function getColumnsDefinitions(): ColumnCollection
     {
         $columns = $this->connection->fetchAllAssociative(
-            sprintf('
+            sprintf(
+                '
 SELECT 
     "COLUMN_NAME", 
     "COLUMN_IS_NULLABLE", 
@@ -80,7 +81,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
         );
 
         $columns = array_map(static function ($col) {
-            $defaultValue = $col["COLUMN_DEFAULT"];
+            $defaultValue = $col['COLUMN_DEFAULT'];
             return new ExasolColumn(
                 $col['COLUMN_NAME'],
                 new Exasol(
@@ -97,7 +98,18 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
         return new ColumnCollection($columns);
     }
 
-    private function extractColumnLength($colData): string
+    /**
+     * @param array<string, mixed> $colData
+     * array{
+     * COLUMN_TYPE: string,
+     * TYPE_NAME: string,
+     * COLUMN_NUM_PREC: ?string,
+     * COLUMN_NUM_SCALE: ?string,
+     * COLUMN_MAXSIZE: ?string,
+     * } $colData
+     * @return string
+     */
+    private static function extractColumnLength(array $colData): string
     {
         $colType = $colData['COLUMN_TYPE'];
         if ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_DAY_TO_SECOND) {
@@ -114,8 +126,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
         }
     }
 
-    public
-    function getRowsCount(): int
+    public function getRowsCount(): int
     {
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',

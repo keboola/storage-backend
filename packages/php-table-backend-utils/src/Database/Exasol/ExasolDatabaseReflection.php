@@ -32,7 +32,7 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
     {
         // build escaped list of system users
         $where = sprintf(
-            'U.USER_NAME NOT IN (%s)',
+            '"U"."USER_NAME" NOT IN (%s)',
             implode(', ', array_map(static function ($item) {
                 return ExasolQuote::quote($item);
             }, self::$excludedUsers))
@@ -41,20 +41,19 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         // add LIKE
         if ($like !== null) {
             $where .= sprintf(
-                ' AND U.USER_NAME LIKE %s',
+                ' AND "U"."USER_NAME" LIKE %s',
                 ExasolQuote::quote("%$like%")
             );
         }
 
         // load the data
         $users = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT U.USER_NAME FROM SYS.EXA_ALL_USERS U WHERE %s',
+            'SELECT "U"."USER_NAME" FROM "SYS"."EXA_ALL_USERS" "U" WHERE %s',
             $where
         ));
 
         // extract data to primitive array
         return DataHelper::extractByKey($users, 'USER_NAME');
-
     }
 
     /**
