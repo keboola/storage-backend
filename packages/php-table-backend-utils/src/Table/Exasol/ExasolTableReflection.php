@@ -183,15 +183,27 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
     }
 
     /**
-     * @return array{
+     * @return array<int, array<string, mixed>>
+     * array{
      *  schema_name: string,
      *  name: string
      * }[]
      */
     public function getDependentViews(): array
     {
-//        TODO
-        throw new \Exception('method is not implemented yet');
+        // TODO tables only?
+        $sql = sprintf(
+            '
+SELECT 
+    "OBJECT_SCHEMA" AS "schema_name", 
+    "OBJECT_NAME" AS "name" 
+FROM "SYS"."EXA_ALL_DEPENDENCIES"  
+WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
+            ExasolQuote::quote($this->schemaName),
+            ExasolQuote::quote($this->tableName)
+        );
+
+        return $this->connection->fetchAllAssociative($sql);
     }
 
 

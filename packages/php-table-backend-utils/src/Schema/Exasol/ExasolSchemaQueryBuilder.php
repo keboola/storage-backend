@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Schema\Exasol;
 
-
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 
 class ExasolSchemaQueryBuilder

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\View\Exasol;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
-use Keboola\TableBackendUtils\Escaping\SynapseQuote;
+use Doctrine\DBAL\Exception;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
+use Keboola\TableBackendUtils\View\InvalidViewDefinitionException;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 
 final class ExasolViewReflection implements ViewReflectionInterface
@@ -29,28 +28,56 @@ final class ExasolViewReflection implements ViewReflectionInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     * array{
+     *  schema_name: string,
+     *  name: string
+     * }[]
+     */
     public function getDependentViews(): array
     {
-        // TODO
-        return [];
+        // TODO views only?
+        $sql = sprintf(
+            '
+SELECT 
+    "OBJECT_SCHEMA" AS "schema_name", 
+    "OBJECT_NAME" AS "name" 
+FROM "SYS"."EXA_ALL_DEPENDENCIES"  
+WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
+            ExasolQuote::quote($this->schemaName),
+            ExasolQuote::quote($this->viewName)
+        );
+
+        return $this->connection->fetchAllAssociative($sql);
     }
 
-    /**
-     * if definition is longer than 4000characters, function will throw exception and user has to create view on its own
-     */
     public function getViewDefinition(): string
     {
-        // TODO
-        return '';
+        $sql = sprintf(
+            'SELECT "VIEW_TEXT" FROM "SYS"."EXA_ALL_VIEWS"  WHERE "VIEW_SCHEMA" = %s AND "VIEW_NAME" = %s',
+            ExasolQuote::quote($this->schemaName),
+            ExasolQuote::quote($this->viewName)
+        );
+
+        return $this->connection->fetchOne($sql);
     }
 
-    /**
-     * in general there is stored procedure sp_refreshview in mssql but this is not available in synapse
-     * function is using INFORMATION_SCHEMA.VIEWS[VIEW_DEFINITION] to recreate view
-     * if definition is longer than 4000characters, function will throw exception and user has to create view on its own
-     */
     public function refreshView(): void
     {
-        // todo
+        $definition = $this->getViewDefinition();
+
+        $objectNameWithSchema = sprintf(
+            '%s.%s',
+            ExasolQuote::quoteSingleIdentifier($this->schemaName),
+            ExasolQuote::quoteSingleIdentifier($this->viewName)
+        );
+
+        $this->connection->executeQuery(sprintf('DROP VIEW %s', $objectNameWithSchema));
+        try {
+            $this->connection->executeQuery($definition);
+        } catch (Exception $e) {
+            throw InvalidViewDefinitionException::createViewRefreshError($this->schemaName, $this->viewName, $e);
+        }
     }
 }

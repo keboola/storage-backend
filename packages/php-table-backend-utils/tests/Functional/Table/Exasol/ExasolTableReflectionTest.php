@@ -23,7 +23,6 @@ class ExasolTableReflectionTest extends ExasolBaseCase
     {
         parent::setUp();
         $this->cleanSchema(self::TEST_SCHEMA);
-        $this->createSchema(self::TEST_SCHEMA);
     }
 
     public function testGetTableColumnsNames(): void
@@ -568,5 +567,37 @@ class ExasolTableReflectionTest extends ExasolBaseCase
         $stats2 = $ref->getTableStats();
         self::assertEquals(2, $stats2->getRowsCount());
         self::assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
+    }
+
+    public function testGetDependentViews(): void
+    {
+        $this->initTable();
+
+        $ref = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        self::assertCount(0, $ref->getDependentViews());
+
+        $this->initView();
+
+        $dependentViews = $ref->getDependentViews();
+        self::assertCount(1, $dependentViews);
+
+        self::assertSame([
+            'schema_name' => self::TEST_SCHEMA,
+            'name' => self::VIEW_GENERIC,
+        ], $dependentViews[0]);
+    }
+
+    private function initView(): void
+    {
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE VIEW %s.%s AS SELECT * FROM %s.%s;',
+                ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                ExasolQuote::quoteSingleIdentifier(self::VIEW_GENERIC),
+                ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            )
+        );
     }
 }
