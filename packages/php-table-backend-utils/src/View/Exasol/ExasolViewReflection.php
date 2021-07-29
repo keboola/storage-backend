@@ -37,7 +37,6 @@ final class ExasolViewReflection implements ViewReflectionInterface
      */
     public function getDependentViews(): array
     {
-        // TODO views only?
         $sql = sprintf(
             '
 SELECT 

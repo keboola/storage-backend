@@ -7,7 +7,6 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Exasol;
 use Doctrine\DBAL\Connection;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
-use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use PHPUnit\Framework\TestCase;
 
 class ExasolBaseCase extends TestCase
@@ -142,11 +141,11 @@ class ExasolBaseCase extends TestCase
     ): void {
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
-            TeradataQuote::quoteSingleIdentifier($schemaName),
-            TeradataQuote::quoteSingleIdentifier($tableName),
+            ExasolQuote::quoteSingleIdentifier($schemaName),
+            ExasolQuote::quoteSingleIdentifier($tableName),
             $id,
-            TeradataQuote::quote($firstName),
-            TeradataQuote::quote($lastName)
+            ExasolQuote::quote($firstName),
+            ExasolQuote::quote($lastName)
         ));
     }
 }

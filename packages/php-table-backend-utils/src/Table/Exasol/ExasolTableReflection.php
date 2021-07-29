@@ -191,7 +191,6 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
      */
     public function getDependentViews(): array
     {
-        // TODO tables only?
         $sql = sprintf(
             '
 SELECT 

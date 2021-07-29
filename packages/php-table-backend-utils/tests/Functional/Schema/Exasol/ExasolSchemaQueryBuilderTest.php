@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Schema\Exasol;
 
+use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Schema\Exasol\ExasolSchemaQueryBuilder;
@@ -53,11 +54,12 @@ class ExasolSchemaQueryBuilderTest extends ExasolBaseCase
         return DataHelper::extractByKey($schemas, 'SCHEMA_NAME');
     }
 
-    public function testGetDropSchemaCommand(): void
+    public function testGetDropSchemaCommandWithCascade(): void
     {
         $qb = new ExasolSchemaQueryBuilder();
-
-        $this->connection->executeQuery($qb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        // Creates schema self::TEST_SCHEMA with a table in it.
+        // Drop column has CASCADE option true, so it should drop it anyway
+        $this->initTable(self::TEST_SCHEMA);
         $this->connection->executeQuery($qb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
         $schemas = $this->getSchemaFromDatabase();
         self::assertCount(1, $schemas);
@@ -66,5 +68,16 @@ class ExasolSchemaQueryBuilderTest extends ExasolBaseCase
         $this->connection->executeQuery($qb->getDropSchemaCommand(self::TEST_SCHEMA));
         $schemas = $this->getSchemaFromDatabase();
         self::assertEmpty($schemas);
+    }
+
+    public function testGetDropSchemaCommandWithRestrict(): void
+    {
+        // try to delete schema with table in it but with RESTRICT option
+        $qb = new ExasolSchemaQueryBuilder();
+        $this->initTable();
+        $this->expectException(Exception::class);
+        $this->connection->executeQuery($qb->getDropSchemaCommand(self::TEST_SCHEMA, false));
+        $schemas = $this->getSchemaFromDatabase();
+        self::assertNotEmpty($schemas);
     }
 }

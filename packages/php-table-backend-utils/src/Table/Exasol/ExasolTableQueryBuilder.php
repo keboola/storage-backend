@@ -109,6 +109,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 
         $columnsSql = implode(",\n", $columnsSqlDefinitions);
 
+        // brackets on single rows because in order to have much more beautiful query at the end
         return sprintf(
             'CREATE TABLE %s.%s
 (

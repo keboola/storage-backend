@@ -13,8 +13,12 @@ class ExasolSchemaQueryBuilder
         return sprintf('CREATE SCHEMA %s', ExasolQuote::quoteSingleIdentifier($schemaName));
     }
 
-    public function getDropSchemaCommand(string $schemaName): string
+    public function getDropSchemaCommand(string $schemaName, bool $cascade = true): string
     {
-        return sprintf('DROP SCHEMA %s CASCADE', ExasolQuote::quoteSingleIdentifier($schemaName));
+        return sprintf(
+            'DROP SCHEMA %s %s',
+            ExasolQuote::quoteSingleIdentifier($schemaName),
+            $cascade ? 'CASCADE' : 'RESTRICT'
+        );
     }
 }
