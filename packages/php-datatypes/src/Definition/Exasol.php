@@ -20,7 +20,7 @@ class Exasol extends Common
     const TYPE_DATE = 'DATE';
     const TYPE_TIMESTAMP = 'TIMESTAMP';
     const TYPE_TIMESTAMP_WITH_LOCAL_ZONE = 'TIMESTAMP WITH LOCAL TIME ZONE';
-    const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL_YEAR TO MONTH'; // INTERVAL_YEAR [(p)] TO MONTH
+    const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL YEAR TO MONTH'; // INTERVAL_YEAR [(p)] TO MONTH
     const TYPE_INTERVAL_DAY_TO_SECOND = 'INTERVAL DAY TO SECOND'; // INTERVAL DAY [(p)] TO SECOND [(fp)]
     const TYPE_GEOMETRY = 'GEOMETRY'; // GEOMETRY [(srid)]
     const TYPE_HASHTYPE = 'HASHTYPE'; // HASHTYPE[(n BYTE | m BIT)]
@@ -61,8 +61,9 @@ class Exasol extends Common
     const MAX_HASH_LENGTH = '1024 BYTE'; // max value
     // types where length isnt at the end of the type
     const COMPLEX_LENGTH_DICT = [
-        self::TYPE_INTERVAL_YEAR_TO_MONTH => 'INTERVAL_YEAR %d TO MONTH',
-        self::TYPE_INTERVAL_DAY_TO_SECOND => 'INTERVAL DAY %d TO SECOND %d',
+        self::TYPE_INTERVAL_YEAR_TO_MONTH => 'INTERVAL YEAR(%d) TO MONTH',
+        self::TYPE_INTERVAL_DAY_TO_SECOND => 'INTERVAL DAY(%d) TO SECOND(%d)',
+        self::TYPE_HASHTYPE => 'HASHTYPE (%d BYTE)',
     ];
     /**
      * Types without precision, scale, or length
@@ -94,7 +95,6 @@ class Exasol extends Common
         self::TYPE_GEOMETRY,
         self::TYPE_CHAR,
         self::TYPE_VARCHAR,
-        self::TYPE_HASHTYPE,
 
         self::TYPE_CHAR_VARYING,
         self::TYPE_CHARACTER_LARGE_OBJECT,
@@ -197,11 +197,12 @@ class Exasol extends Common
             }
         }
 
-        if (!$this->isNullable()) {
-            $definition .= ' NOT NULL';
-        }
         if ($this->getDefault() !== null) {
             $definition .= ' DEFAULT ' . $this->getDefault();
+        }
+
+        if (!$this->isNullable()) {
+            $definition .= ' NOT NULL';
         }
         return $definition;
     }
@@ -321,6 +322,12 @@ class Exasol extends Common
                     $valid = true;
                     break;
                 }
+
+                if (is_numeric($length)) {
+                    $valid = $this->validateMaxLength($length, 8192);
+                    break;
+                }
+
                 if (preg_match('/(?<val>[1-9]+\d*)\s*(?<unit>BYTE|BIT)/i', (string) $length, $matched)) {
                     $val = $matched['val'];
                     $unit = strtoupper($matched['unit']);
@@ -329,7 +336,10 @@ class Exasol extends Common
                         'BYTE' => [1, 1024],
                         'BIT' => [8, 8192],
                     ];
-                    $valid = $limits[$unit][0] <= $val && $val <= $limits[$unit][1];
+                    $valid = $limits[$unit][0] <= $val
+                        && $val <= $limits[$unit][1]
+                        && ($unit === 'BYTE' || $val % 8 === 0);
+                    // BIT values have to be divisible by 8
                 } else {
                     $valid = false;
                 }
