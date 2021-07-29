@@ -9,6 +9,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class ExasolBaseTestCase extends ImportExportBaseTest
@@ -56,4 +57,73 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             (string) getenv('EXASOL_PASSWORD')
         );
     }
+
+//    protected function initTable(
+//        string $database = self::TEST_SCHEMA,
+//        string $table = self::TABLE_GENERIC
+//    ): void {
+//        $this->createSchema($database);
+//        // char because of Stats test
+//        $this->connection->executeQuery(
+//            sprintf(
+//                'CREATE OR REPLACE TABLE %s.%s (
+//            "id" INTEGER,
+//    "first_name" VARCHAR(100),
+//    "last_name" VARCHAR(100)
+//);',
+//                ExasolQuote::quoteSingleIdentifier($database),
+//                ExasolQuote::quoteSingleIdentifier($table)
+//            )
+//        );
+//    }
+
+    protected function getSourceSchemaName(): string
+    {
+        return self::EXASOL_DEST_SCHEMA_NAME
+            . '-'
+            . getenv('SUITE');
+    }
+
+    protected function getDestinationSchemaName(): string
+    {
+        return self::EXASOL_SOURCE_SCHEMA_NAME
+            . '-'
+            . getenv('SUITE');
+    }
+
+    protected function cleanSchema(string $schemaName): void
+    {
+        if (!$this->schemaExists($schemaName)) {
+            return;
+        }
+
+        $this->connection->executeQuery(
+            sprintf(
+                'DROP SCHEMA %s CASCADE',
+                ExasolQuote::quoteSingleIdentifier($schemaName)
+            )
+        );
+    }
+
+    protected function schemaExists(string $schemaName): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            sprintf(
+                'SELECT "SCHEMA_NAME" FROM "SYS"."EXA_ALL_SCHEMAS" WHERE "SCHEMA_NAME" = %s',
+                ExasolQuote::quote($schemaName)
+            )
+        );
+    }
+
+    public function createSchema(string $schemaName): void
+    {
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE SCHEMA %s;',
+                ExasolQuote::quoteSingleIdentifier($schemaName)
+            )
+        );
+    }
+
 }
