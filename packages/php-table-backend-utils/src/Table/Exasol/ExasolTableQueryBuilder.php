@@ -128,40 +128,11 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         ExasolTableDefinition $definition,
         bool $definePrimaryKeys = false
     ): string {
-        $columnsSqlDefinitions = [];
-        /** @var ExasolColumn $column */
-        foreach ($definition->getColumnsDefinitions()->getIterator() as $column) {
-            $columnName = $column->getColumnName();
-            /** @var Exasol $columnDefinition */
-            $columnDefinition = $column->getColumnDefinition();
-            $columnsSqlDefinitions[] = sprintf(
-                '%s %s',
-                ExasolQuote::quoteSingleIdentifier($columnName),
-                $columnDefinition->getSQLDefinition()
-            );
-        }
-
-        if ($definePrimaryKeys === true && count($definition->getPrimaryKeysNames()) !== 0) {
-            $columnsSqlDefinitions[] =
-                sprintf(
-                    'CONSTRAINT PRIMARY KEY (%s)',
-                    implode(',', array_map(static function ($item) {
-                        return ExasolQuote::quoteSingleIdentifier($item);
-                    }, $definition->getPrimaryKeysNames()))
-                );
-        }
-
-        $columnsSql = implode(",\n", $columnsSqlDefinitions);
-
-        // brackets on single rows because in order to have much more beautiful query at the end
-        return sprintf(
-            'CREATE TABLE %s.%s
-(
-%s
-);',
-            ExasolQuote::quoteSingleIdentifier($definition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($definition->getTableName()),
-            $columnsSql
+        return $this->getCreateTableCommand(
+            $definition->getSchemaName(),
+            $definition->getTableName(),
+            $definition->getColumnsDefinitions(),
+            $definePrimaryKeys === true ? $definition->getPrimaryKeysNames() : []
         );
     }
 }
