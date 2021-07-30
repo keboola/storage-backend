@@ -6,7 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
 use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
@@ -14,9 +14,9 @@ use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class ExasolBaseTestCase extends ImportExportBaseTest
 {
-    protected const EXASOL_DEST_SCHEMA_NAME = 'in.c-tests';
-    protected const EXASOL_SOURCE_SCHEMA_NAME = 'some.tests';
-
+    // TODO exasol cannot have "." in schema name
+    protected const EXASOL_DEST_SCHEMA_NAME = 'in_c-tests';
+    protected const EXASOL_SOURCE_SCHEMA_NAME = 'some_tests';
     public const TABLE_ACCOUNTS_3 = 'accounts-3';
     public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
     public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
@@ -34,7 +34,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     /** @var SqlCommandBuilder */
     protected $qb;
 
-    /** @var SQLServer2012Platform|AbstractPlatform */
+    /** @var OraclePlatform|AbstractPlatform */
     protected $platform;
 
     protected function setUp(): void
@@ -58,24 +58,43 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         );
     }
 
-//    protected function initTable(
-//        string $database = self::TEST_SCHEMA,
-//        string $table = self::TABLE_GENERIC
-//    ): void {
-//        $this->createSchema($database);
-//        // char because of Stats test
-//        $this->connection->executeQuery(
-//            sprintf(
-//                'CREATE OR REPLACE TABLE %s.%s (
-//            "id" INTEGER,
-//    "first_name" VARCHAR(100),
-//    "last_name" VARCHAR(100)
-//);',
-//                ExasolQuote::quoteSingleIdentifier($database),
-//                ExasolQuote::quoteSingleIdentifier($table)
-//            )
-//        );
-//    }
+    protected function insertRowToTable(
+        string $schemaName,
+        string $tableName,
+        int $id,
+        string $firstName,
+        string $lastName
+    ): void {
+        $this->connection->executeQuery(sprintf(
+            'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+            ExasolQuote::quoteSingleIdentifier($schemaName),
+            ExasolQuote::quoteSingleIdentifier($tableName),
+            $id,
+            ExasolQuote::quote($firstName),
+            ExasolQuote::quote($lastName)
+        ));
+    }
+
+    protected function initTable(
+        string $schema = self::EXASOL_SOURCE_SCHEMA_NAME,
+        string $table = self::TABLE_TABLE
+    ): void {
+        if (!$this->schemaExists($schema)) {
+            $this->createSchema($schema);
+        }
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100)
+);',
+                ExasolQuote::quoteSingleIdentifier($schema),
+                ExasolQuote::quoteSingleIdentifier($table)
+            )
+        );
+    }
 
     protected function getSourceSchemaName(): string
     {
@@ -117,7 +136,6 @@ class ExasolBaseTestCase extends ImportExportBaseTest
 
     public function createSchema(string $schemaName): void
     {
-        // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',

@@ -51,28 +51,7 @@ final class StageTableDefinitionFactory
             BackendHelper::generateTempTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames(),
-        );
-    }
-
-    /**
-     * @param string[] $sourceColumnsNames
-     */
-    public static function createStagingTableDefinitionWithText(
-        ExasolTableDefinition $destination,
-        array $sourceColumnsNames
-    ): ExasolTableDefinition {
-        $newDefinitions = [];
-        foreach ($sourceColumnsNames as $columnName) {
-            $newDefinitions[] = self::createNvarcharColumn($columnName);
-        }
-
-        return new ExasolTableDefinition(
-            $destination->getSchemaName(),
-            BackendHelper::generateTempTableName(),
-            true,
-            new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames(),
+            $destination->getPrimaryKeysNames()
         );
     }
 
@@ -83,8 +62,7 @@ final class StageTableDefinitionFactory
             new Exasol(
                 Exasol::TYPE_NVARCHAR,
                 [
-                    'length' => 2000000,
-//                    'length' => Exasol::MAX_LENGTH_NVARCHAR, // TODO Exasol class doesnt have max value yet
+                    'length' => Exasol::MAX_VARCHAR_LENGTH,
                     'nullable' => true, // set all columns to be nullable
                 ]
             )

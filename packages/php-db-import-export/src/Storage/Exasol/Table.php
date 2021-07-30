@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 
 class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 {
@@ -38,19 +39,17 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
-        $this->platform = new SQLServerPlatform();
         $this->columnsNames = $columns;
         $this->primaryKeysNames = $primaryKeysNames;
     }
 
     public function getFromStatement(): string
     {
-        $quotedColumns = array_map(function ($column) {
-            return $this->platform->quoteSingleIdentifier($column);
-        }, $this->getColumnsNames());
-
         $select = '*';
-        if (count($quotedColumns) > 0) {
+        if (($colums = $this->getColumnsNames()) !== []) {
+            $quotedColumns = array_map(static function ($column) {
+                return ExasolQuote::quoteSingleIdentifier($column);
+            }, $colums);
             $select = implode(', ', $quotedColumns);
         }
 
@@ -69,8 +68,8 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     {
         return sprintf(
             '%s.%s',
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($this->tableName)
+            ExasolQuote::quoteSingleIdentifier($this->getSchema()),
+            ExasolQuote::quoteSingleIdentifier($this->getTableName())
         );
     }
 
@@ -81,6 +80,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 
     public function getQueryBindings(): array
     {
+        // TODO
         return [];
     }
 

@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
-use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
-use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Storage\Exasol\Table;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
-use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 
 class StageImportTest extends ExasolBaseTestCase
@@ -25,64 +22,54 @@ class StageImportTest extends ExasolBaseTestCase
         $this->createSchema($this->getSourceSchemaName());
     }
 
-    public function testLongColumnImport6k(): void
+    public function testMoveDataFromAToStagingTable(): void
     {
-        $this->initTables([self::TABLE_OUT_CSV_2COLS]);
-
-        if (getenv('TEMP_TABLE_TYPE') === ExasolImportOptions::TEMP_TABLE_COLUMNSTORE
-            || getenv('TEMP_TABLE_TYPE') === ExasolImportOptions::TEMP_TABLE_CLUSTERED_INDEX
-            || getenv('TEMP_TABLE_TYPE') === ExasolImportOptions::TEMP_TABLE_HEAP_4000
-        ) {
-            $this->expectException(Exception::class);
-            $this->expectExceptionMessage(
-                '[SQL Server]Bulk load data conversion error'
-            );
-        }
+        $this->initTable($this->getSourceSchemaName(), 'sourceTable');
+        $this->initTable($this->getDestinationSchemaName(), 'targetTable');
 
         $importer = new ToStageImporter($this->connection);
-        $ref = new ExasolTableReflection(
+        $targetTableRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            'targetTable'
         );
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+
+        $source = new Table(
+            $this->getSourceSchemaName(),
+            'sourceTable',
+            ['id', 'first_name', 'last_name'],
+            []
         );
-        $qb = new ExasolTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
+
+        $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
+        $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 2, 'c', 'd');
+
         $importer->importToStagingTable(
-            $this->createABSSourceInstanceFromCsv(
-                'long_col_6k.csv',
-                new CsvOptions(),
-                [
-                    'col1',
-                    'col2',
-                ],
-                false,
-                false,
-                []
-            ),
-            $stagingTable,
+            $source,
+            $targetTableRef->getTableDefinition(),
             $this->getExasolImportOptions()
         );
 
-        if (getenv('TEMP_TABLE_TYPE') === ExasolImportOptions::TEMP_TABLE_HEAP) {
-            $sql = sprintf(
-                'SELECT "col1","col2" FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            );
-            $queryResult = array_map(static function ($row) {
-                return array_map(static function ($column) {
-                    return $column;
-                }, array_values($row));
-            }, $this->connection->fetchAllAssociative($sql));
+        $dataSource = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                ExasolQuote::quoteSingleIdentifier('sourceTable')
+            )
+        );
+        $dataDest = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                ExasolQuote::quoteSingleIdentifier('targetTable')
+            )
+        );
 
-            self::assertEquals(4000, strlen($queryResult[0][0]));
-        }
+        self::assertSame($dataSource, $dataDest);
     }
 
+    protected function getExasolImportOptions(): ExasolImportOptions
+    {
+        return new ExasolImportOptions();
+    }
 }
