@@ -8,6 +8,9 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 
 interface TableQueryBuilderInterface
 {
+    public const CREATE_TABLE_WITH_PRIMARY_KEYS = true;
+    public const CREATE_TABLE_WITHOUT_PRIMARY_KEYS = false;
+
     public function getCreateTempTableCommand(
         string $schemaName,
         string $tableName,
@@ -28,5 +31,10 @@ interface TableQueryBuilderInterface
         string $tableName,
         ColumnCollection $columns,
         array $primaryKeys = []
+    ): string;
+
+    public function getCreateTableCommandFromDefinition(
+        TableDefinitionInterface $definition,
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
     ): string;
 }

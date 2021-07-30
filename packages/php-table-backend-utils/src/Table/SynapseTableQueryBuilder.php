@@ -93,10 +93,14 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         );
     }
 
+    /**
+     * @param SynapseTableDefinition $definition
+     */
     public function getCreateTableCommandFromDefinition(
-        SynapseTableDefinition $definition,
-        bool $definePrimaryKeys = false
+        TableDefinitionInterface $definition,
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
     ): string {
+        assert($definition instanceof SynapseTableDefinition);
         $columnsSql = [];
         foreach ($definition->getColumnsDefinitions() as $column) {
             $columnsSql[] = sprintf(
@@ -107,7 +111,9 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         }
 
         $primaryKeySql = '';
-        if ($definePrimaryKeys === true && count($definition->getPrimaryKeysNames()) !== 0) {
+        if ($definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
+            && count($definition->getPrimaryKeysNames()) !== 0
+        ) {
             $quotedPrimaryKeys = array_map(function ($columnName) {
                 return SynapseQuote::quoteSingleIdentifier($columnName);
             }, $definition->getPrimaryKeysNames());

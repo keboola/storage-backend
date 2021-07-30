@@ -9,6 +9,7 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\QueryBuilderException;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableQueryBuilderInterface;
 
 class TeradataTableQueryBuilder implements TableQueryBuilderInterface
@@ -139,5 +140,12 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             TeradataQuote::quoteSingleIdentifier($tableName),
             $columnsSql
         );
+    }
+
+    public function getCreateTableCommandFromDefinition(
+        TableDefinitionInterface $definition,
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+    ): string {
+        throw new \Exception('method is not implemented yet');
     }
 }

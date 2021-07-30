@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableQueryBuilderInterface;
 
 class ExasolTableQueryBuilder implements TableQueryBuilderInterface
@@ -124,15 +125,21 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         );
     }
 
+    /**
+     * @param ExasolTableDefinition $definition
+     */
     public function getCreateTableCommandFromDefinition(
-        ExasolTableDefinition $definition,
-        bool $definePrimaryKeys = false
+        TableDefinitionInterface $definition,
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
     ): string {
+        assert($definition instanceof ExasolTableDefinition);
         return $this->getCreateTableCommand(
             $definition->getSchemaName(),
             $definition->getTableName(),
             $definition->getColumnsDefinitions(),
-            $definePrimaryKeys === true ? $definition->getPrimaryKeysNames() : []
+            $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
+                ? $definition->getPrimaryKeysNames()
+                : []
         );
     }
 }

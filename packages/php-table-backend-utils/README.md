@@ -70,6 +70,10 @@ interface TableQueryBuilderInterface
         ColumnCollection $columns,
         array $primaryKeys = []
     ): string;
+    public function getCreateTableCommandFromDefinition(
+        TableDefinitionInterface $definition,
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+    ): string;
 }
 ```
 
