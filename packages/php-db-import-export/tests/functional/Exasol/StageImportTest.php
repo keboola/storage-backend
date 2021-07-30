@@ -22,7 +22,7 @@ class StageImportTest extends ExasolBaseTestCase
         $this->createSchema($this->getSourceSchemaName());
     }
 
-    public function testMoveDataFromAToStagingTable(): void
+    public function testMoveDataFromAToB(): void
     {
         $this->initTable($this->getSourceSchemaName(), 'sourceTable');
         $this->initTable($this->getDestinationSchemaName(), 'targetTable');
@@ -38,6 +38,53 @@ class StageImportTest extends ExasolBaseTestCase
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
+            []
+        );
+
+        $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
+        $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 2, 'c', 'd');
+
+        $importer->importToStagingTable(
+            $source,
+            $targetTableRef->getTableDefinition(),
+            $this->getExasolImportOptions()
+        );
+
+        $dataSource = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                ExasolQuote::quoteSingleIdentifier('sourceTable')
+            )
+        );
+        $dataDest = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                ExasolQuote::quoteSingleIdentifier('targetTable')
+            )
+        );
+
+        self::assertSame($dataSource, $dataDest);
+    }
+
+    public function testMoveDataFromAToTableWithWrongStructure(): void
+    {
+        // should fail -> TODO
+        $this->initTable($this->getSourceSchemaName(), 'sourceTable');
+        $this->initTable($this->getDestinationSchemaName(), 'targetTable');
+
+        $importer = new ToStageImporter($this->connection);
+        $targetTableRef = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            'targetTable'
+        );
+
+        $source = new Table(
+            $this->getSourceSchemaName(),
+            'sourceTable',
+            ['id', 'XXXX', 'last_name'],
             []
         );
 
