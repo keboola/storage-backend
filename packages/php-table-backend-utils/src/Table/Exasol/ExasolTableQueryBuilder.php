@@ -8,7 +8,10 @@ use Keboola\Datatype\Definition\Exasol;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\QueryBuilderException;
+use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
+use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\TableQueryBuilderInterface;
 
 class ExasolTableQueryBuilder implements TableQueryBuilderInterface
@@ -117,6 +120,47 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 );',
             ExasolQuote::quoteSingleIdentifier($schemaName),
             ExasolQuote::quoteSingleIdentifier($tableName),
+            $columnsSql
+        );
+    }
+
+    public function getCreateTableCommandFromDefinition(
+        ExasolTableDefinition $definition,
+        bool $definePrimaryKeys = false
+    ): string {
+        $columnsSqlDefinitions = [];
+        /** @var ExasolColumn $column */
+        foreach ($definition->getColumnsDefinitions()->getIterator() as $column) {
+            $columnName = $column->getColumnName();
+            /** @var Exasol $columnDefinition */
+            $columnDefinition = $column->getColumnDefinition();
+            $columnsSqlDefinitions[] = sprintf(
+                '%s %s',
+                ExasolQuote::quoteSingleIdentifier($columnName),
+                $columnDefinition->getSQLDefinition()
+            );
+        }
+
+        if ($definePrimaryKeys === true && count($definition->getPrimaryKeysNames()) !== 0) {
+            $columnsSqlDefinitions[] =
+                sprintf(
+                    'CONSTRAINT PRIMARY KEY (%s)',
+                    implode(',', array_map(static function ($item) {
+                        return ExasolQuote::quoteSingleIdentifier($item);
+                    }, $definition->getPrimaryKeysNames()))
+                );
+        }
+
+        $columnsSql = implode(",\n", $columnsSqlDefinitions);
+
+        // brackets on single rows because in order to have much more beautiful query at the end
+        return sprintf(
+            'CREATE TABLE %s.%s
+(
+%s
+);',
+            ExasolQuote::quoteSingleIdentifier($definition->getSchemaName()),
+            ExasolQuote::quoteSingleIdentifier($definition->getTableName()),
             $columnsSql
         );
     }

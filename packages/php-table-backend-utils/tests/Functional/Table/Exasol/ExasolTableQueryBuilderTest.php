@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Table\Exasol;
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;
@@ -190,5 +191,138 @@ CONSTRAINT PRIMARY KEY ("col1","col2")
 EOT
             ,
         ];
+    }
+
+    /**
+     * @return \Generator<string, array{
+     *     definition: ExasolTableDefinition,
+     *     query: string,
+     *     createPrimaryKeys: bool
+     * }>
+     */
+    public function createTableTestFromDefinitionSqlProvider(): \Generator
+    {
+        $testDb = self::TEST_SCHEMA;
+        $tableName = self::TABLE_GENERIC;
+
+        yield 'no keys' => [
+            'definition' => new ExasolTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        ExasolColumn::createGenericColumn('col1'),
+                        ExasolColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                []
+            ),
+            'query' => <<<EOT
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR (2000000) DEFAULT '' NOT NULL,
+"col2" VARCHAR (2000000) DEFAULT '' NOT NULL
+);
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+        yield 'with single pk' => [
+            'definition' => new ExasolTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        ExasolColumn::createGenericColumn('col1'),
+                        ExasolColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                ['col1']
+            ),
+            'query' => <<<EOT
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR (2000000) DEFAULT '' NOT NULL,
+"col2" VARCHAR (2000000) DEFAULT '' NOT NULL,
+CONSTRAINT PRIMARY KEY ("col1")
+);
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+        yield 'with multiple pks' => [
+            'definition' => new ExasolTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        ExasolColumn::createGenericColumn('col1'),
+                        ExasolColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                ['col1', 'col2']
+            ),
+            'query' => <<<EOT
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR (2000000) DEFAULT '' NOT NULL,
+"col2" VARCHAR (2000000) DEFAULT '' NOT NULL,
+CONSTRAINT PRIMARY KEY ("col1","col2")
+);
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+
+        yield 'with multiple pks no definition' => [
+            'definition' => new ExasolTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        ExasolColumn::createGenericColumn('col1'),
+                        ExasolColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                ['col1', 'col2']
+            ),
+            'query' => <<<EOT
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR (2000000) DEFAULT '' NOT NULL,
+"col2" VARCHAR (2000000) DEFAULT '' NOT NULL
+);
+EOT
+            ,
+            'createPrimaryKeys' => false,
+        ];
+    }
+
+    /**
+     * @dataProvider createTableTestFromDefinitionSqlProvider
+     */
+    public function testGetCreateTableCommandFromDefinition(
+        ExasolTableDefinition $definition,
+        string $expectedSql,
+        bool $createPrimaryKeys
+    ): void {
+        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->createSchema(self::TEST_SCHEMA);
+        $sql = $this->qb->getCreateTableCommandFromDefinition($definition, $createPrimaryKeys);
+        self::assertSame($expectedSql, $sql);
+        $this->connection->executeQuery($sql);
+
+        // test table properties
+        $tableReflection = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());
+        if ($createPrimaryKeys === true) {
+            self::assertSame($definition->getPrimaryKeysNames(), $tableReflection->getPrimaryKeysNames());
+        } else {
+            self::assertSame([], $tableReflection->getPrimaryKeysNames());
+        }
     }
 }
