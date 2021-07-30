@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Exasol;
-
-use Tests\Keboola\Db\ImportExportFunctional\Exasol\ExasolBaseTestCase;
+namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
 class TestConnectionTest extends ExasolBaseTestCase
 {
