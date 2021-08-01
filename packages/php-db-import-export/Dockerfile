@@ -58,16 +58,8 @@ RUN set -ex; \
     docker-php-ext-install odbc; \
     docker-php-source delete
 
-## install snowflake drivers
 COPY ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol
-ADD https://sfc-repo.snowflakecomputing.com/odbc/linux/$SNOWFLAKE_ODBC_VERSION/snowflake-odbc-$SNOWFLAKE_ODBC_VERSION.x86_64.deb /tmp/snowflake-odbc.deb
 COPY ./docker/snowflake/simba.snowflake.ini /usr/lib/snowflake/odbc/lib/simba.snowflake.ini
-
-#Synapse ODBC
-RUN set -ex; \
-    pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
-    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
-    docker-php-source delete
 
 RUN mkdir -p ~/.gnupg \
     && chmod 700 ~/.gnupg \
@@ -75,9 +67,29 @@ RUN mkdir -p ~/.gnupg \
     && mkdir -p /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
     && gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys $SNOWFLAKE_GPG_KEY \
     && gpg --export $SNOWFLAKE_GPG_KEY > /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY/debsig.gpg \
+    && curl https://sfc-repo.snowflakecomputing.com/odbc/linux/$SNOWFLAKE_ODBC_VERSION/snowflake-odbc-$SNOWFLAKE_ODBC_VERSION.x86_64.deb --output /tmp/snowflake-odbc.deb \
     && debsig-verify /tmp/snowflake-odbc.deb \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
+
+#Synapse ODBC
+RUN set -ex; \
+    pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
+    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
+    docker-php-source delete
+
+#Exasol
+RUN set -ex; \
+    mkdir -p /tmp/exasol/odbc /opt/exasol ;\
+    curl https://www.exasol.com/support/secure/attachment/155337/EXASOL_ODBC-7.0.11.tar.gz --output /tmp/exasol/odbc.tar.gz; \
+    tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
+    cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
+    echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
+    rm -rf /tmp/exasol;
+
+#php odbc
+RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
+    && docker-php-ext-install pdo_odbc
 
 ## Composer - deps always cached unless changed
 # First copy only composer files

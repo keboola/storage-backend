@@ -75,6 +75,20 @@ How to setup and use Managed Identity is described in [docs](https://docs.micros
 > TLDR;
 > In IAM of ABS add role assignment "Blob Storage Data {Reader or Contributor}" to your Synapse server principal
 
+#### Exasol
+
+Run Exasol on your local machine in docker (for this case .env is preconfigured)
+```
+docker-compose up -d exasol
+```
+
+Run Exasol server somewhere else and set up env variables:
+```bash
+EXASOL_HOST=
+EXASOL_USERNAME=
+EXASOL_PASSWORD=
+```
+
 ### Tests
 
 Run tests with following command.

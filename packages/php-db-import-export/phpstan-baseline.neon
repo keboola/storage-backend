@@ -16,12 +16,7 @@ parameters:
 			path: src/Backend/ExporterInterface.php
 
 		-
-			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\ImportState\\:\\:\\$warnings type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/ImportState.php
-
-		-
-			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\ImportState\\:\\:\\$timers type has no value type specified in iterable type array\\.$#"
+			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\ImportState\\:\\:setImportedColumns\\(\\) has parameter \\$importedColumns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Backend/ImportState.php
 
@@ -31,7 +26,12 @@ parameters:
 			path: src/Backend/ImportState.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\ImportState\\:\\:setImportedColumns\\(\\) has parameter \\$importedColumns with no value type specified in iterable type array\\.$#"
+			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\ImportState\\:\\:\\$timers type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Backend/ImportState.php
+
+		-
+			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\ImportState\\:\\:\\$warnings type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Backend/ImportState.php
 
@@ -46,12 +46,12 @@ parameters:
 			path: src/Backend/Snowflake/Exporter.php
 
 		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
+			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Snowflake\\\\Exporter\\:\\:setAdapters\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Backend/Snowflake/Exporter.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Snowflake\\\\Exporter\\:\\:setAdapters\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
+			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 1
 			path: src/Backend/Snowflake/Exporter.php
 
@@ -116,12 +116,12 @@ parameters:
 			path: src/Backend/Synapse/DestinationTableOptions.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\Exporter\\:\\:setAdapters\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
+			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\Exporter\\:\\:exportTable\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Backend/Synapse/Exporter.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\Exporter\\:\\:exportTable\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\Exporter\\:\\:setAdapters\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Backend/Synapse/Exporter.php
 
@@ -151,17 +151,17 @@ parameters:
 			path: src/Backend/Synapse/PolyBaseCommandBuilder.php
 
 		-
+			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getColumnsString\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Backend/Synapse/SqlCommandBuilder.php
+
+		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getCreateTempTableCommand\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Backend/Synapse/SqlCommandBuilder.php
 
 		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getDedupCommand\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getColumnsString\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Backend/Synapse/SqlCommandBuilder.php
 
@@ -186,17 +186,17 @@ parameters:
 			path: src/Backend/Synapse/SqlCommandBuilder.php
 
 		-
-			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\ImportOptions\\:\\:\\$convertEmptyValuesToNull type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/ImportOptions.php
-
-		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\ImportOptions\\:\\:__construct\\(\\) has parameter \\$convertEmptyValuesToNull with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/ImportOptions.php
 
 		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\ImportOptions\\:\\:getConvertEmptyValuesToNull\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/ImportOptions.php
+
+		-
+			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\ImportOptions\\:\\:\\$convertEmptyValuesToNull type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/ImportOptions.php
 
@@ -226,16 +226,6 @@ parameters:
 			path: src/Storage/ABS/SourceFile.php
 
 		-
-			message: "#^Cannot access offset 1 on array\\<int, string\\>\\|false\\.$#"
-			count: 1
-			path: src/Storage/ABS/SourceFile.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function GuzzleHttp\\\\json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storage/ABS/SourceFile.php
-
-		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\ABS\\\\SourceFile\\:\\:getManifestEntries\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storage/ABS/SourceFile.php
@@ -251,14 +241,14 @@ parameters:
 			path: src/Storage/ABS/SourceFile.php
 
 		-
+			message: "#^Parameter \\#1 \\$json of function GuzzleHttp\\\\json_decode expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Storage/ABS/SourceFile.php
+
+		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\ABS\\\\SynapseExportAdapter\\:\\:runCopyCommand\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storage/ABS/SynapseExportAdapter.php
-
-		-
-			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Snowflake\\\\SelectSource\\:\\:\\$queryBindings type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storage/Snowflake/SelectSource.php
 
 		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Snowflake\\\\SelectSource\\:\\:__construct\\(\\) has parameter \\$queryBindings with no value type specified in iterable type array\\.$#"
@@ -271,6 +261,11 @@ parameters:
 			path: src/Storage/Snowflake/SelectSource.php
 
 		-
+			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Snowflake\\\\SelectSource\\:\\:\\$queryBindings type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storage/Snowflake/SelectSource.php
+
+		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Snowflake\\\\Table\\:\\:getQueryBindings\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storage/Snowflake/Table.php
@@ -279,16 +274,6 @@ parameters:
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\SqlSourceInterface\\:\\:getQueryBindings\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storage/SqlSourceInterface.php
-
-		-
-			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Synapse\\\\SelectSource\\:\\:\\$queryBindings type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storage/Synapse/SelectSource.php
-
-		-
-			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Synapse\\\\SelectSource\\:\\:\\$dataTypes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storage/Synapse/SelectSource.php
 
 		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Synapse\\\\SelectSource\\:\\:__construct\\(\\) has parameter \\$dataTypes with no value type specified in iterable type array\\.$#"
@@ -311,9 +296,54 @@ parameters:
 			path: src/Storage/Synapse/SelectSource.php
 
 		-
+			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Synapse\\\\SelectSource\\:\\:\\$dataTypes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storage/Synapse/SelectSource.php
+
+		-
+			message: "#^Property Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Synapse\\\\SelectSource\\:\\:\\$queryBindings type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storage/Synapse/SelectSource.php
+
+		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Storage\\\\Synapse\\\\Table\\:\\:getQueryBindings\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storage/Synapse/Table.php
+
+		-
+			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
+			count: 2
+			path: tests/StubLoader/AbsLoader.php
+
+		-
+			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
+			count: 6
+			path: tests/StubLoader/AbsLoader.php
+
+		-
+			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlobAsync\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, string\\|false given\\.$#"
+			count: 1
+			path: tests/StubLoader/AbsLoader.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertArrayEqualsSorted\\(\\) has parameter \\$actual with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/ImportExportBaseTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertArrayEqualsSorted\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/ImportExportBaseTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$actual with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
+			count: 1
+			path: tests/functional/ImportExportBaseTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$expected with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
+			count: 1
+			path: tests/functional/ImportExportBaseTest.php
 
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:createABSSourceInstance\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
@@ -336,24 +366,49 @@ parameters:
 			path: tests/functional/ImportExportBaseTest.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$actual with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ExportTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$actual with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
 			count: 1
-			path: tests/functional/ImportExportBaseTest.php
+			path: tests/functional/Snowflake/ExportTest.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$expected with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ExportTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$expected with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
 			count: 1
-			path: tests/functional/ImportExportBaseTest.php
+			path: tests/functional/Snowflake/ExportTest.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertArrayEqualsSorted\\(\\) has parameter \\$actual with no value type specified in iterable type array\\.$#"
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ExportTest\\:\\:getCsvFileFromBlob\\(\\) return type has no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
 			count: 1
-			path: tests/functional/ImportExportBaseTest.php
+			path: tests/functional/Snowflake/ExportTest.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertArrayEqualsSorted\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\FullImportTest\\:\\:fullImportData\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
-			path: tests/functional/ImportExportBaseTest.php
+			path: tests/functional/Snowflake/FullImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Snowflake/FullImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\IncrementalImportTest\\:\\:incrementalImportData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Snowflake/IncrementalImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Snowflake/IncrementalImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\SnowflakeImportExportBaseTest\\:\\:assertTableEqualsExpected\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\SnowflakeImportExportBaseTest\\:\\:assertTableEqualsFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
 
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\SnowflakeImportExportBaseTest\\:\\:createABSSourceInstance\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
@@ -376,14 +431,64 @@ parameters:
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\SnowflakeImportExportBaseTest\\:\\:assertTableEqualsExpected\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\ExportTest\\:\\:getCsvFileFromBlob\\(\\) return type has no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
 			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
+			path: tests/functional/Synapse/ExportTest.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\SnowflakeImportExportBaseTest\\:\\:assertTableEqualsFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
+			message: "#^Parameter \\#2 \\$exportCredentialsType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseExportOptions constructor expects string, string\\|false given\\.$#"
+			count: 4
+			path: tests/functional/Synapse/ExportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:fullImportData\\(\\) return type has no value type specified in iterable type Generator\\.$#"
 			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
+			path: tests/functional/Synapse/FullImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/FullImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$tablesToInit with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/FullImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:incrementalImportData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/IncrementalImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/IncrementalImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$tablesToInit with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/IncrementalImportTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SqlCommandBuilderTest\\:\\:createTempTableCommandProvider\\(\\) return type has no value type specified in iterable type Generator\\.$#"
+			count: 1
+			path: tests/functional/Synapse/SqlCommandBuilderTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SqlCommandBuilderTest\\:\\:testGetCreateTempTableCommand\\(\\) has parameter \\$distributionColumnsNames with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/SqlCommandBuilderTest.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SynapseBaseTestCase\\:\\:assertTableEqualsExpected\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/SynapseBaseTestCase.php
+
+		-
+			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SynapseBaseTestCase\\:\\:initTables\\(\\) has parameter \\$tables with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/functional/Synapse/SynapseBaseTestCase.php
 
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportUnit\\\\Backend\\\\Snowflake\\\\ImporterTest\\:\\:createABSSourceInstance\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
@@ -424,6 +529,11 @@ parameters:
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportUnit\\\\Backend\\\\Synapse\\\\ImporterTest\\:\\:createABSSourceInstanceFromCsv\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/unit/Backend/Synapse/ImporterTest.php
+
+		-
+			message: "#^You should use assertFalse\\(\\) instead of assertSame\\(\\) when expecting \"false\"$#"
+			count: 1
+			path: tests/unit/ExportOptionsTest.php
 
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportUnit\\\\Storage\\\\ABS\\\\BlobIteratorTest\\:\\:createABSSourceInstance\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
@@ -526,6 +636,11 @@ parameters:
 			path: tests/unit/Storage/ABS/SourceFileTest.php
 
 		-
+			message: "#^Variable \\$destination in PHPDoc tag @var does not match assigned variable \\$options\\.$#"
+			count: 1
+			path: tests/unit/Storage/ABS/SynapseExportAdapterTest.php
+
+		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportUnit\\\\Storage\\\\ABS\\\\SynapseImportAdapterTest\\:\\:createABSSourceInstance\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/unit/Storage/ABS/SynapseImportAdapterTest.php
@@ -584,124 +699,4 @@ parameters:
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportUnit\\\\Storage\\\\Synapse\\\\SynapseAdapterTest\\:\\:createABSSourceInstanceFromCsv\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/unit/Storage/Synapse/SynapseAdapterTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
-			count: 6
-			path: tests/StubLoader/AbsLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
-			count: 2
-			path: tests/StubLoader/AbsLoader.php
-
-		-
-			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlobAsync\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, string\\|false given\\.$#"
-			count: 1
-			path: tests/StubLoader/AbsLoader.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ExportTest\\:\\:getCsvFileFromBlob\\(\\) return type has no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ExportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ExportTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$actual with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ExportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ExportTest\\:\\:assertCsvFilesSame\\(\\) has parameter \\$expected with no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ExportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\FullImportTest\\:\\:fullImportData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\IncrementalImportTest\\:\\:incrementalImportData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/IncrementalImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$exportCredentialsType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseExportOptions constructor expects string, string\\|false given\\.$#"
-			count: 4
-			path: tests/functional/Synapse/ExportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\ExportTest\\:\\:getCsvFileFromBlob\\(\\) return type has no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
-			count: 1
-			path: tests/functional/Synapse/ExportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:fullImportData\\(\\) return type has no value type specified in iterable type Generator\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$tablesToInit with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:incrementalImportData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$tablesToInit with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SqlCommandBuilderTest\\:\\:createTempTableCommandProvider\\(\\) return type has no value type specified in iterable type Generator\\.$#"
-			count: 1
-			path: tests/functional/Synapse/SqlCommandBuilderTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SqlCommandBuilderTest\\:\\:testGetCreateTempTableCommand\\(\\) has parameter \\$distributionColumnsNames with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/SqlCommandBuilderTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SynapseBaseTestCase\\:\\:initTables\\(\\) has parameter \\$tables with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/SynapseBaseTestCase.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SynapseBaseTestCase\\:\\:assertTableEqualsExpected\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/SynapseBaseTestCase.php
-
-		-
-			message: "#^You should use assertFalse\\(\\) instead of assertSame\\(\\) when expecting \"false\"$#"
-			count: 1
-			path: tests/unit/ExportOptionsTest.php
-
-		-
-			message: "#^Variable \\$destination in PHPDoc tag @var does not match assigned variable \\$options\\.$#"
-			count: 1
-			path: tests/unit/Storage/ABS/SynapseExportAdapterTest.php
 
