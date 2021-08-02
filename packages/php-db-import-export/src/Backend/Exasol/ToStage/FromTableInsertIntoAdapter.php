@@ -35,7 +35,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         assert($destination instanceof ExasolTableDefinition);
         assert($importOptions instanceof ExasolImportOptions);
 
-        $quotedColumns = array_map(function ($column) {
+        $quotedColumns = array_map(static function ($column) {
             return ExasolQuote::quoteSingleIdentifier($column);
         }, $source->getColumnsNames());
 

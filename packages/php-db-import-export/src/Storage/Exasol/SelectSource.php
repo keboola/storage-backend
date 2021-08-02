@@ -12,10 +12,10 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     /** @var string */
     private $query;
 
-    /** @var array */
+    /** @var string[] */
     private $queryBindings;
 
-    /** @var array */
+    /** @var string[] */
     private $dataTypes;
 
     /** @var string[] */
@@ -25,6 +25,9 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     private $primaryKeysNames;
 
     /**
+     * @param string $query
+     * @param string[] $queryBindings
+     * @param string[] $dataTypes
      * @param string[] $columnsNames
      * @param string[]|null $primaryKeysNames
      */
@@ -42,11 +45,17 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         $this->primaryKeysNames = $primaryKeysNames;
     }
 
+    /**
+     * @return string[]
+     */
     public function getColumnsNames(): array
     {
         return $this->columnsNames;
     }
 
+    /**
+     * @return string[]
+     */
     public function getDataTypes(): array
     {
         return $this->dataTypes;
@@ -62,11 +71,17 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         return $this->query;
     }
 
+    /**
+     * @return string[]|null
+     */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
     }
 
+    /**
+     * @return array|string[]
+     */
     public function getQueryBindings(): array
     {
         return $this->queryBindings;

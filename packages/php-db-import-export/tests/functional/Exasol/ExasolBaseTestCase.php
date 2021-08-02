@@ -143,5 +143,4 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             )
         );
     }
-
 }

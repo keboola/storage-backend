@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\Exasol;
 
-use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
@@ -17,9 +16,6 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 
     /** @var string */
     private $tableName;
-
-    /** @var SQLServerPlatform */
-    private $platform;
 
     /** @var string[] */
     private $columnsNames;
@@ -46,7 +42,8 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     public function getFromStatement(): string
     {
         $select = '*';
-        if (($colums = $this->getColumnsNames()) !== []) {
+        $colums = $this->getColumnsNames();
+        if ($colums !== []) {
             $quotedColumns = array_map(static function ($column) {
                 return ExasolQuote::quoteSingleIdentifier($column);
             }, $colums);
@@ -78,6 +75,9 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return $this->primaryKeysNames;
     }
 
+    /**
+     * @return string[]
+     */
     public function getQueryBindings(): array
     {
         // TODO

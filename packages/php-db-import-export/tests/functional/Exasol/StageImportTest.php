@@ -69,7 +69,7 @@ class StageImportTest extends ExasolBaseTestCase
         self::assertSame($dataSource, $dataDest);
     }
 
-    public function testMoveDataFromAToTableWithWrongStructure(): void
+    public function testMoveDataFromAToTableWithWrongSourceStructure(): void
     {
         $this->initTable($this->getDestinationSchemaName(), 'targetTable');
 
@@ -87,9 +87,48 @@ class StageImportTest extends ExasolBaseTestCase
             []
         );
 
-
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Columns doest not match. Non existing columns: XXX');
+
+        $importer->importToStagingTable(
+            $source,
+            $targetTableRef->getTableDefinition(),
+            $this->getExasolImportOptions()
+        );
+    }
+
+    public function testMoveDataFromBetweenDifferentTables(): void
+    {
+        $this->initTable($this->getSourceSchemaName(), 'sourceTable');
+        $this->initTable($this->getDestinationSchemaName(), 'targetTable');
+
+        $this->connection->executeQuery(
+            sprintf(
+                'ALTER TABLE %s.%s DROP COLUMN %s',
+                ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                ExasolQuote::quoteSingleIdentifier('targetTable'),
+                ExasolQuote::quoteSingleIdentifier('first_name')
+            )
+        );
+
+        $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
+
+        $importer = new ToStageImporter($this->connection);
+        $targetTableRef = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            'targetTable'
+        );
+
+        $source = new Table(
+            $this->getSourceSchemaName(),
+            'sourceTable',
+            ['id', 'first_name', 'last_name'],
+            []
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Columns doest not match. Non existing columns: first_name');
 
         $importer->importToStagingTable(
             $source,
