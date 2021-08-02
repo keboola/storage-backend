@@ -13,6 +13,7 @@ use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use function Keboola\Utils\returnBytes;
 
 final class SynapseTableReflection implements TableReflectionInterface
@@ -95,8 +96,8 @@ final class SynapseTableReflection implements TableReflectionInterface
         ));
 
         if ($objectId === null) {
-            throw new ReflectionException(sprintf(
-                'Table %s.%s does not exist.',
+            throw new TableNotExistsReflectionException(sprintf(
+                'Table "%s.%s" does not exist.',
                 $this->schemaName,
                 $this->tableName
             ));

@@ -8,10 +8,10 @@ use Doctrine\DBAL\DBALException;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
-use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
 
 /**
@@ -339,7 +339,8 @@ EOT
         $this->assertNotNull($ref->getObjectId());
 
         $ref = $this->getSynapseTableReflection();
-        $this->expectException(ReflectionException::class);
+        $this->expectException(TableNotExistsReflectionException::class);
+        $this->expectExceptionMessage('Table "utils-test_qb-schema.utils-test_test" does not exist.');
         $ref->getObjectId();
     }
 
@@ -380,7 +381,8 @@ EOT
         $this->assertNotFalse($ref->getObjectId());
 
         $ref = $this->getSynapseTableReflection();
-        $this->expectException(ReflectionException::class);
+        $this->expectException(TableNotExistsReflectionException::class);
+        $this->expectExceptionMessage('Table "utils-test_qb-schema.utils-test_test" does not exist.');
         $ref->getObjectId();
     }
 
