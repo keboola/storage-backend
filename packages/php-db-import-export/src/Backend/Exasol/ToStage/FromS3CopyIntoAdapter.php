@@ -63,16 +63,25 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         $destinationSchema = ExasolQuote::quoteSingleIdentifier($destination->getSchemaName());
         $destinationTable = ExasolQuote::quoteSingleIdentifier($destination->getTableName());
 
+        // first row (skippping some lines)
+        $firstRow = '';
+        if ($importOptions->getNumberOfIgnoredLines() !== 0) {
+            $firstRow = sprintf('SKIP=%d', $importOptions->getNumberOfIgnoredLines());
+        }
+
         return sprintf('
     IMPORT INTO %s.%s FROM CSV AT %s
 USER %s IDENTIFIED BY %s
-FILE %s',
+FILE %s
+%s
+',
             $destinationSchema,
             $destinationTable,
             ExasolQuote::quote($source->getBucketURL()),
             ExasolQuote::quote($source->getKey()),
             ExasolQuote::quote($source->getSecret()),
-            ExasolQuote::quote($source->getFilePath())
+            ExasolQuote::quote($source->getFilePath()),
+            $firstRow
         );
     }
 }

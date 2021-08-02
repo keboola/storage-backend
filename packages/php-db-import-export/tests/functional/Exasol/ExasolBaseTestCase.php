@@ -146,6 +146,26 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     ExasolQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
+            case self::TABLE_ACCOUNTS_BEZ_TS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000) NOT NULL,
+                "idTwitter" VARCHAR(2000000) NOT NULL,
+                "name" VARCHAR(2000000) NOT NULL,
+                "import" VARCHAR(2000000) NOT NULL,
+                "isImported" VARCHAR(2000000) NOT NULL,
+                "apiLimitExceededDatetime" VARCHAR(2000000) NOT NULL,
+                "analyzeSentiment" VARCHAR(2000000) NOT NULL,
+                "importKloutScore" VARCHAR(2000000) NOT NULL,
+                "timestamp" VARCHAR(2000000) NOT NULL,
+                "oauthToken" VARCHAR(2000000) NOT NULL,
+                "oauthSecret" VARCHAR(2000000) NOT NULL,
+                "idApp" VARCHAR(2000000) NOT NULL
+            ) ',
+                        ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                        ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
         }
     }
 
