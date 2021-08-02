@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Exasol\ToStage;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Exasol\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
@@ -40,8 +41,7 @@ final class ToStageImporter implements ToStageImporterInterface
     ): ImportState {
         assert($options instanceof ExasolImportOptions);
         assert($destinationDefinition instanceof ExasolTableDefinition);
-//        Assert::assertValidSource($source);
-//        Assert::assertColumnsOnTableDefinition($source, $destinationDefinition);
+        Assert::assertColumnsOnTableDefinition($source, $destinationDefinition);
         $state = new ImportState($destinationDefinition->getTableName());
 
         $adapter = $this->getAdapter($source);

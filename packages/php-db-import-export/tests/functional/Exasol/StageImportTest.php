@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
+use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Storage\Exasol\Table;
@@ -70,8 +71,6 @@ class StageImportTest extends ExasolBaseTestCase
 
     public function testMoveDataFromAToTableWithWrongStructure(): void
     {
-        // should fail -> TODO
-        $this->initTable($this->getSourceSchemaName(), 'sourceTable');
         $this->initTable($this->getDestinationSchemaName(), 'targetTable');
 
         $importer = new ToStageImporter($this->connection);
@@ -88,31 +87,15 @@ class StageImportTest extends ExasolBaseTestCase
             []
         );
 
-        $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
-        $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 2, 'c', 'd');
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Columns doest not match. Non existing columns: XXX');
 
         $importer->importToStagingTable(
             $source,
             $targetTableRef->getTableDefinition(),
             $this->getExasolImportOptions()
         );
-
-        $dataSource = $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                ExasolQuote::quoteSingleIdentifier('sourceTable')
-            )
-        );
-        $dataDest = $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                ExasolQuote::quoteSingleIdentifier('targetTable')
-            )
-        );
-
-        self::assertSame($dataSource, $dataDest);
     }
 
     protected function getExasolImportOptions(): ExasolImportOptions
