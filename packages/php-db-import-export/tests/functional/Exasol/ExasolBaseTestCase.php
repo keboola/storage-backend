@@ -117,7 +117,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     'INSERT INTO %s.%s VALUES (\'x\', \'y\');',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
-//                    $now
+                    //                    $now
                 ));
 //                $this->connection->executeQuery(sprintf(
 //                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', \'%s\');',
@@ -162,8 +162,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 "oauthSecret" VARCHAR(2000000) NOT NULL,
                 "idApp" VARCHAR(2000000) NOT NULL
             ) ',
-                        ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                        ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
         }

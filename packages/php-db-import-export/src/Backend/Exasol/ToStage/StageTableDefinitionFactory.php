@@ -9,6 +9,7 @@ use Keboola\Db\ImportExport\Backend\Exasol\Helper\BackendHelper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class StageTableDefinitionFactory
 {
@@ -16,9 +17,10 @@ final class StageTableDefinitionFactory
      * @param string[] $sourceColumnsNames
      */
     public static function createStagingTableDefinition(
-        ExasolTableDefinition $destination,
+        TableDefinitionInterface $destination,
         array $sourceColumnsNames
     ): ExasolTableDefinition {
+        /** @var ExasolTableDefinition $destination */
         $newDefinitions = [];
         // create staging table for source columns in order
         // but with types from destination

@@ -63,10 +63,12 @@ class StageImportS3Test extends ExasolBaseTestCase
         );
 
         self::assertEquals(2, $this->connection->fetchOne(
-            sprintf("SELECT COUNT(*) FROM %s.%s",
+            sprintf(
+                'SELECT COUNT(*) FROM %s.%s',
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )));
+            )
+        ));
     }
 
     public function testWithSkippingLines(): void
@@ -115,11 +117,113 @@ class StageImportS3Test extends ExasolBaseTestCase
             $this->getExasolImportOptions(2)
         );
 
-        self::assertEquals(2, $this->connection->fetchOne(
-            sprintf("SELECT COUNT(*) FROM %s.%s",
+        $importedData = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )));
+            )
+        );
+        self::assertCount(2, $importedData);
+        self::assertCount(12, $importedData[0]);
+    }
+
+    public function testWithTabsAsSeparators(): void
+    {
+        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_ACCOUNTS_BEZ_TS
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv(
+                'tw_accounts.tabs.csv',
+                new CsvOptions(chr(9), ''),
+                [
+                    'id',
+                    'idTwitter',
+                    'name',
+                    'import',
+                    'isImported',
+                    'apiLimitExceededDatetime',
+                    'analyzeSentiment',
+                    'importKloutScore',
+                    'timestamp',
+                    'oauthToken',
+                    'oauthSecret',
+                    'idApp',
+                ],
+                false,
+                false,
+                []
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions()
+        );
+
+        $importedData = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
+            )
+        );
+        self::assertCount(4, $importedData);
+        self::assertCount(12, $importedData[0]);
+    }
+
+    public function testWithExtraEnclosures(): void
+    {
+        $this->initTable(self::TABLE_OUT_CSV_2COLS);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_OUT_CSV_2COLS
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv(
+                'escaping/standard-with-enclosures.csv',
+                new CsvOptions(',', '"'),
+                [
+                    'col1',
+                    'col2',
+                ],
+                false,
+                false,
+                []
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions()
+        );
+
+        self::assertEquals(8, $this->connection->fetchOne(
+            sprintf(
+                'SELECT COUNT(*) FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
+            )
+        ));
     }
 
     protected function getExasolImportOptions(

@@ -9,7 +9,6 @@ use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
-use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
@@ -59,7 +58,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         Storage\S3\SourceFile $source,
         ExasolTableDefinition $destination,
         ExasolImportOptions $importOptions
-    ): ?string {
+    ): string {
         $destinationSchema = ExasolQuote::quoteSingleIdentifier($destination->getSchemaName());
         $destinationTable = ExasolQuote::quoteSingleIdentifier($destination->getTableName());
 
@@ -69,11 +68,17 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
             $firstRow = sprintf('SKIP=%d', $importOptions->getNumberOfIgnoredLines());
         }
 
-        return sprintf('
+        // EXA COLUMN SEPARATOR = string between values
+        // EXA COLUMN DELIMITER = enclosure -> quote to quote values aaa -> "aaa"
+        return sprintf(
+            '
     IMPORT INTO %s.%s FROM CSV AT %s
 USER %s IDENTIFIED BY %s
 FILE %s
+--- file_opt
 %s
+COLUMN SEPARATOR=%s
+COLUMN DELIMITER=%s
 ',
             $destinationSchema,
             $destinationTable,
@@ -81,7 +86,9 @@ FILE %s
             ExasolQuote::quote($source->getKey()),
             ExasolQuote::quote($source->getSecret()),
             ExasolQuote::quote($source->getFilePath()),
-            $firstRow
+            $firstRow,
+            ExasolQuote::quote($source->getCsvOptions()->getDelimiter()),
+            ExasolQuote::quote($source->getCsvOptions()->getEnclosure())
         );
     }
 }
