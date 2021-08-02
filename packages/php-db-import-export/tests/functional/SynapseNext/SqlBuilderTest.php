@@ -12,12 +12,12 @@ use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
-use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 
 class SqlBuilderTest extends SynapseBaseTestCase
 {
@@ -262,7 +262,8 @@ class SqlBuilderTest extends SynapseBaseTestCase
                 $schemaName,
                 $tableName
             ));
-        } catch (ReflectionException $e) {
+        } catch (TableNotExistsReflectionException $e) {
+            $this->assertEquals(sprintf('Table "%s.%s" does not exist.', $schemaName, $tableName), $e->getMessage());
         }
     }
 
