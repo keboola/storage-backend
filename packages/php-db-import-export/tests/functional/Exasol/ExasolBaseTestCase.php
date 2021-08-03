@@ -22,6 +22,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
     public const TABLE_MULTI_PK = 'multi-pk';
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
+    public const TABLE_NULLIFY = 'nullify';
     public const TABLE_OUT_LEMMA = 'out.lemma';
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
     public const TABLE_TABLE = 'table';
@@ -161,6 +162,17 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 "oauthToken" VARCHAR(2000000) NOT NULL,
                 "oauthSecret" VARCHAR(2000000) NOT NULL,
                 "idApp" VARCHAR(2000000) NOT NULL
+            ) ',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_NULLIFY:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000)   NOT NULL,
+                "col1" VARCHAR(2000000) NOT NULL,
+                "col2" VARCHAR(2000000) NOT NULL
             ) ',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)

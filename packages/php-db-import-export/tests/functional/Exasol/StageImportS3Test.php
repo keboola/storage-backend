@@ -226,6 +226,55 @@ class StageImportS3Test extends ExasolBaseTestCase
         ));
     }
 
+    public function testWithNullifyValue(): void
+    {
+        $this->initTable(self::TABLE_NULLIFY);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_NULLIFY
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv(
+                'nullify.csv',
+                new CsvOptions(),
+                [
+                    'id',
+                    'col1',
+                    'col2',
+                ],
+                false,
+                false,
+                []
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions()
+        );
+
+        self::assertEquals([
+            ['id' => 'id', 'col1' => 'name', 'col2' => 'price'],
+            ['id' => '1', 'col1' => 'test', 'col2' => '50'],
+            ['id' => '2', 'col1' => null, 'col2' => '500'],
+            ['id' => '3', 'col1' => 'Bageta', 'col2' => null],
+        ], $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
+            )
+        ));
+    }
+
     protected function getExasolImportOptions(
         int $skipLines = 0
     ): ExasolImportOptions {
