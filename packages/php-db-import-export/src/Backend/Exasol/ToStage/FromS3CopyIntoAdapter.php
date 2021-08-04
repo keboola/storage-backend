@@ -68,24 +68,42 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
             $firstRow = sprintf('SKIP=%d', $importOptions->getNumberOfIgnoredLines());
         }
 
+        if ($source->isSliced()) {
+            $entries = $source->getManifestEntries();
+            $s3Prefix = $source->getS3Prefix() . '/';
+            $entries = array_map(
+                static function ($entry) use ($s3Prefix) {
+                    return 'FILE ' . ExasolQuote::quote(strtr($entry, [$s3Prefix => '']));
+                },
+                $entries
+            );
+        } else {
+            $entries = ['FILE ' . ExasolQuote::quote($source->getFilePath())];
+        }
+
+        if (count($entries) === 0) {
+            return '';
+        }
+
         // EXA COLUMN SEPARATOR = string between values
         // EXA COLUMN DELIMITER = enclosure -> quote to quote values aaa -> "aaa"
+        // ESCAPED BY is not supported yet
         return sprintf(
-            '
-    IMPORT INTO %s.%s FROM CSV AT %s
+            "
+IMPORT INTO %s.%s FROM CSV AT %s
 USER %s IDENTIFIED BY %s
-FILE %s
+%s --- files
 --- file_opt
 %s
 COLUMN SEPARATOR=%s
 COLUMN DELIMITER=%s
-',
+",
             $destinationSchema,
             $destinationTable,
             ExasolQuote::quote($source->getBucketURL()),
             ExasolQuote::quote($source->getKey()),
             ExasolQuote::quote($source->getSecret()),
-            ExasolQuote::quote($source->getFilePath()),
+            implode("\n", $entries),
             $firstRow,
             ExasolQuote::quote($source->getCsvOptions()->getDelimiter()),
             ExasolQuote::quote($source->getCsvOptions()->getEnclosure())

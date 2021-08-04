@@ -17,6 +17,21 @@ class StageImportS3Test extends ExasolBaseTestCase
 {
     use S3SourceTrait;
 
+    private const TWITTER_COLUMNS = [
+        'id',
+        'idTwitter',
+        'name',
+        'import',
+        'isImported',
+        'apiLimitExceededDatetime',
+        'analyzeSentiment',
+        'importKloutScore',
+        'timestamp',
+        'oauthToken',
+        'oauthSecret',
+        'idApp',
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -95,20 +110,7 @@ class StageImportS3Test extends ExasolBaseTestCase
             $this->createS3SourceInstanceFromCsv(
                 'tw_accounts.csv',
                 new CsvOptions(),
-                [
-                    'id',
-                    'idTwitter',
-                    'name',
-                    'import',
-                    'isImported',
-                    'apiLimitExceededDatetime',
-                    'analyzeSentiment',
-                    'importKloutScore',
-                    'timestamp',
-                    'oauthToken',
-                    'oauthSecret',
-                    'idApp',
-                ],
+                self::TWITTER_COLUMNS,
                 false,
                 false,
                 []
@@ -125,6 +127,50 @@ class StageImportS3Test extends ExasolBaseTestCase
             )
         );
         self::assertCount(2, $importedData);
+        self::assertCount(12, $importedData[0]);
+    }
+
+    public function testWithDirectory(): void
+    {
+        // file has 4 lines in total (including header which is considered as data).
+        // Setting skip lines = 2 -> 2 lines should be imported
+        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_ACCOUNTS_BEZ_TS
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv(
+                'sliced_accounts_no_manifest',
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
+                true,
+                true,
+                []
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions()
+        );
+
+        $importedData = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
+            )
+        );
+        self::assertCount(3, $importedData);
         self::assertCount(12, $importedData[0]);
     }
 
@@ -150,20 +196,7 @@ class StageImportS3Test extends ExasolBaseTestCase
             $this->createS3SourceInstanceFromCsv(
                 'tw_accounts.tabs.csv',
                 new CsvOptions(chr(9), ''),
-                [
-                    'id',
-                    'idTwitter',
-                    'name',
-                    'import',
-                    'isImported',
-                    'apiLimitExceededDatetime',
-                    'analyzeSentiment',
-                    'importKloutScore',
-                    'timestamp',
-                    'oauthToken',
-                    'oauthSecret',
-                    'idApp',
-                ],
+                self::TWITTER_COLUMNS,
                 false,
                 false,
                 []

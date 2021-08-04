@@ -162,6 +162,11 @@ class SourceFile implements SourceInterface
         return $this->filePath;
     }
 
+    public function isSliced(): bool
+    {
+        return $this->isSliced;
+    }
+
     public function getBucketURL(): string
     {
         return sprintf('https://%s.s3.%s.amazonaws.com', $this->bucket, $this->region);
