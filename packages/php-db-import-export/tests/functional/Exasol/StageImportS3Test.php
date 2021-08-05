@@ -132,8 +132,6 @@ class StageImportS3Test extends ExasolBaseTestCase
 
     public function testWithDirectory(): void
     {
-        // file has 4 lines in total (including header which is considered as data).
-        // Setting skip lines = 2 -> 2 lines should be imported
         $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
 
         $importer = new ToStageImporter($this->connection);
@@ -155,8 +153,50 @@ class StageImportS3Test extends ExasolBaseTestCase
                 'sliced_accounts_no_manifest',
                 new CsvOptions(),
                 self::TWITTER_COLUMNS,
+                false,
                 true,
+                []
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions()
+        );
+
+        $importedData = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
+            )
+        );
+        self::assertCount(3, $importedData);
+        self::assertCount(12, $importedData[0]);
+    }
+
+    public function testDirectoryWithManifest(): void
+    {
+        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_ACCOUNTS_BEZ_TS
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv(
+                'sliced/accounts/S3.accounts.csvmanifest',
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
                 true,
+                false,
                 []
             ),
             $stagingTable,

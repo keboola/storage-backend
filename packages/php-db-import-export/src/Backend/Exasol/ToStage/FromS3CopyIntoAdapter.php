@@ -68,18 +68,15 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
             $firstRow = sprintf('SKIP=%d', $importOptions->getNumberOfIgnoredLines());
         }
 
-        if ($source->isSliced()) {
-            $entries = $source->getManifestEntries();
-            $s3Prefix = $source->getS3Prefix() . '/';
-            $entries = array_map(
-                static function ($entry) use ($s3Prefix) {
-                    return 'FILE ' . ExasolQuote::quote(strtr($entry, [$s3Prefix => '']));
-                },
-                $entries
-            );
-        } else {
-            $entries = ['FILE ' . ExasolQuote::quote($source->getFilePath())];
-        }
+        // get files from single file, directory or manifest
+        $entries = $source->getManifestEntries();
+        $s3Prefix = $source->getS3Prefix() . '/';
+        $entries = array_map(
+            static function ($entry) use ($s3Prefix) {
+                return 'FILE ' . ExasolQuote::quote(strtr($entry, [$s3Prefix => '']));
+            },
+            $entries
+        );
 
         if (count($entries) === 0) {
             return '';
