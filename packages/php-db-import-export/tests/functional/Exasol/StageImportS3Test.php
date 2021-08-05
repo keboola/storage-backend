@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
+use Doctrine\DBAL\Exception;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
@@ -42,17 +43,30 @@ class StageImportS3Test extends ExasolBaseTestCase
         $this->createSchema($this->getSourceSchemaName());
     }
 
-    public function testLongColumnImport6k(): void
-    {
-        $this->initTable(self::TABLE_OUT_CSV_2COLS);
+    /**
+     * @dataProvider s3ImportSettingProvider
+     * @param string $table
+     * @param array{string, CsvOptions, array, bool, bool} $s3Setting
+     * @param int $expectedRowsNumber
+     * @param int $expectedFirstLine
+     * @param int $skippedLines
+     * @throws Exception
+     */
+    public function testImportS3(
+        string $table,
+        array $s3Setting,
+        int $expectedRowsNumber,
+        int $expectedFirstLine,
+        int $skippedLines = 0
+    ): void {
+        $this->initTable($table);
 
         $importer = new ToStageImporter($this->connection);
         $ref = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            $table
         );
-        // TODO columns have to match stg table columns, but we want to add _timestamp
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
             $ref->getColumnsNames()
@@ -63,240 +77,112 @@ class StageImportS3Test extends ExasolBaseTestCase
         );
         $importer->importToStagingTable(
             $this->createS3SourceInstanceFromCsv(
-                'long_col_6k.csv',
-                new CsvOptions(),
-                [
-                    'col1',
-                    'col2',
+                ...$s3Setting
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions($skippedLines)
+        );
+
+        $importedData = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
+            )
+        );
+        self::assertCount($expectedRowsNumber, $importedData);
+        self::assertCount($expectedFirstLine, $importedData[0]);
+    }
+
+    /**
+     * @return array[]
+     */
+    public function s3ImportSettingProvider(): array
+    {
+        return [
+            'with enclosures' => [
+                'table' => self::TABLE_OUT_CSV_2COLS,
+                's3providerSetting' => [
+                    'escaping/standard-with-enclosures.csv',
+                    new CsvOptions(',', '"'),
+                    [
+                        'col1',
+                        'col2',
+                    ],
+                    false,
+                    false,
                 ],
-                false,
-                false,
-                []
-            ),
-            $stagingTable,
-            $this->getExasolImportOptions()
-        );
-
-        self::assertEquals(2, $this->connection->fetchOne(
-            sprintf(
-                'SELECT COUNT(*) FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        ));
-    }
-
-    public function testWithSkippingLines(): void
-    {
-        // file has 4 lines in total (including header which is considered as data).
-        // Setting skip lines = 2 -> 2 lines should be imported
-        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
-
-        $importer = new ToStageImporter($this->connection);
-        $ref = new ExasolTableReflection(
-            $this->connection,
-            $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_BEZ_TS
-        );
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $ref->getTableDefinition(),
-            $ref->getColumnsNames()
-        );
-        $qb = new ExasolTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
-                'tw_accounts.csv',
-                new CsvOptions(),
-                self::TWITTER_COLUMNS,
-                false,
-                false,
-                []
-            ),
-            $stagingTable,
-            $this->getExasolImportOptions(2)
-        );
-
-        $importedData = $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        );
-        self::assertCount(2, $importedData);
-        self::assertCount(12, $importedData[0]);
-    }
-
-    public function testWithDirectory(): void
-    {
-        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
-
-        $importer = new ToStageImporter($this->connection);
-        $ref = new ExasolTableReflection(
-            $this->connection,
-            $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_BEZ_TS
-        );
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $ref->getTableDefinition(),
-            $ref->getColumnsNames()
-        );
-        $qb = new ExasolTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
-                'sliced_accounts_no_manifest',
-                new CsvOptions(),
-                self::TWITTER_COLUMNS,
-                false,
-                true,
-                []
-            ),
-            $stagingTable,
-            $this->getExasolImportOptions()
-        );
-
-        $importedData = $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        );
-        self::assertCount(3, $importedData);
-        self::assertCount(12, $importedData[0]);
-    }
-
-    public function testDirectoryWithManifest(): void
-    {
-        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
-
-        $importer = new ToStageImporter($this->connection);
-        $ref = new ExasolTableReflection(
-            $this->connection,
-            $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_BEZ_TS
-        );
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $ref->getTableDefinition(),
-            $ref->getColumnsNames()
-        );
-        $qb = new ExasolTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
-                'sliced/accounts/S3.accounts.csvmanifest',
-                new CsvOptions(),
-                self::TWITTER_COLUMNS,
-                true,
-                false,
-                []
-            ),
-            $stagingTable,
-            $this->getExasolImportOptions()
-        );
-
-        $importedData = $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        );
-        self::assertCount(3, $importedData);
-        self::assertCount(12, $importedData[0]);
-    }
-
-    public function testWithTabsAsSeparators(): void
-    {
-        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
-
-        $importer = new ToStageImporter($this->connection);
-        $ref = new ExasolTableReflection(
-            $this->connection,
-            $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_BEZ_TS
-        );
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $ref->getTableDefinition(),
-            $ref->getColumnsNames()
-        );
-        $qb = new ExasolTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
-                'tw_accounts.tabs.csv',
-                new CsvOptions(chr(9), ''),
-                self::TWITTER_COLUMNS,
-                false,
-                false,
-                []
-            ),
-            $stagingTable,
-            $this->getExasolImportOptions()
-        );
-
-        $importedData = $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        );
-        self::assertCount(4, $importedData);
-        self::assertCount(12, $importedData[0]);
-    }
-
-    public function testWithExtraEnclosures(): void
-    {
-        $this->initTable(self::TABLE_OUT_CSV_2COLS);
-
-        $importer = new ToStageImporter($this->connection);
-        $ref = new ExasolTableReflection(
-            $this->connection,
-            $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
-        );
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $ref->getTableDefinition(),
-            $ref->getColumnsNames()
-        );
-        $qb = new ExasolTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
-                'escaping/standard-with-enclosures.csv',
-                new CsvOptions(',', '"'),
-                [
-                    'col1',
-                    'col2',
+                'expectedNumberofRows' => 8,
+                'expectedFirstLineLength' => 2,
+            ],
+            'with tabs as separators' => [
+                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+                's3providerSetting' => [
+                    'tw_accounts.tabs.csv',
+                    // 9 is tabular
+                    new CsvOptions(chr(9), ''),
+                    self::TWITTER_COLUMNS,
+                    false,
+                    false,
                 ],
-                false,
-                false,
-                []
-            ),
-            $stagingTable,
-            $this->getExasolImportOptions()
-        );
-
-        self::assertEquals(8, $this->connection->fetchOne(
-            sprintf(
-                'SELECT COUNT(*) FROM %s.%s',
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        ));
+                'expectedNumberofRows' => 4,
+                'expectedFirstLineLength' => 12,
+            ],
+            'with manifest' => [
+                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+                's3providerSetting' => [
+                    'sliced/accounts/S3.accounts.csvmanifest',
+                    new CsvOptions(),
+                    self::TWITTER_COLUMNS,
+                    true,
+                    false,
+                ],
+                'expectedNumberofRows' => 3,
+                'expectedFirstLineLength' => 12,
+            ],
+            'with directory' => [
+                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+                's3providerSetting' => [
+                    'sliced_accounts_no_manifest',
+                    new CsvOptions(),
+                    self::TWITTER_COLUMNS,
+                    false,
+                    true,
+                ],
+                'expectedNumberofRows' => 3,
+                'expectedFirstLineLength' => 12,
+            ],
+            'with single csv' => [
+                'table' => self::TABLE_OUT_CSV_2COLS,
+                's3providerSetting' => [
+                    'long_col_6k.csv',
+                    new CsvOptions(),
+                    [
+                        'col1',
+                        'col2',
+                    ],
+                    false,
+                    false,
+                ],
+                'expectedNumberofRows' => 2,
+                'expectedFirstLineLength' => 2,
+            ],
+            // file has 4 lines in total (including header which is considered as data).
+            // Setting skip lines = 2 -> 2 lines should be imported
+            'with skipped lines' => [
+                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+                's3providerSetting' => [
+                    'tw_accounts.csv',
+                    new CsvOptions(),
+                    self::TWITTER_COLUMNS,
+                    false,
+                    false,
+                ],
+                'expectedNumberofRows' => 2,
+                'expectedFirstLineLength' => 12,
+                'skippedLines' => 2,
+            ],
+        ];
     }
 
     public function testWithNullifyValue(): void
@@ -327,8 +213,7 @@ class StageImportS3Test extends ExasolBaseTestCase
                     'col2',
                 ],
                 false,
-                false,
-                []
+                false
             ),
             $stagingTable,
             $this->getExasolImportOptions()
@@ -346,6 +231,81 @@ class StageImportS3Test extends ExasolBaseTestCase
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
             )
         ));
+    }
+
+// testCopyIntoInvalidTypes
+    public function testInvalidManifestImport(): void
+    {
+        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_ACCOUNTS_BEZ_TS
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+
+        // fails on SQL, no parsing/checking entries before
+        $this->expectException(Exception::class);
+
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv(
+                '02_tw_accounts.csv.invalid.manifest',
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
+                true,
+                false
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions()
+        );
+    }
+
+    public function testCopyIntoInvalidTypes(): void
+    {
+        $this->initTable(self::TABLE_TYPES);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getSourceSchemaName(),
+            self::TABLE_TYPES
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+
+        $this->expectException(Exception::class);
+
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv(
+                'typed_table.invalid-types.csv',
+                new CsvOptions(),
+                [
+                    'charCol',
+                    'numCol',
+                    'floatCol',
+                    'boolCol',
+                ],
+                false,
+                false
+            ),
+            $stagingTable,
+            $this->getExasolImportOptions()
+        );
     }
 
     protected function getExasolImportOptions(

@@ -120,12 +120,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     ExasolQuote::quoteSingleIdentifier($tableName)
                     //                    $now
                 ));
-//                $this->connection->executeQuery(sprintf(
-//                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', \'%s\');',
-//                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-//                    ExasolQuote::quoteSingleIdentifier($tableName),
-//                    $now
-//                ));
+
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
           "col1" NVARCHAR(4000) DEFAULT \'\' NOT NULL,
@@ -176,6 +171,33 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             ) ',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_TYPES:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s."types" (
+              "charCol"  VARCHAR(2000000) NOT NULL,
+              "numCol"   VARCHAR(2000000) NOT NULL,
+              "floatCol" VARCHAR(2000000) NOT NULL,
+              "boolCol"  VARCHAR(2000000) NOT NULL
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE  %s."types" (
+              "charCol"  VARCHAR(4000) NOT NULL,
+              "numCol" decimal(10,1) NOT NULL,
+              "floatCol" float NOT NULL,
+              "boolCol" tinyint NOT NULL
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
+                ));
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO  %s."types" VALUES
+              (\'a\', \'10.5\', \'0.3\', 1)
+           ;',
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
                 ));
                 break;
         }

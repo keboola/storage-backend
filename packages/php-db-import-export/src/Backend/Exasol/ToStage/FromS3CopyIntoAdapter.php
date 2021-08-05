@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\Db\ImportExport\Storage\S3\SourceDirectory;
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
@@ -69,6 +70,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         }
 
         // get files from single file, directory or manifest
+        /** @var SourceDirectory|SourceFile $source */
         $entries = $source->getManifestEntries();
         $s3Prefix = $source->getS3Prefix() . '/';
         $entries = array_map(
@@ -86,7 +88,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         // EXA COLUMN DELIMITER = enclosure -> quote to quote values aaa -> "aaa"
         // ESCAPED BY is not supported yet
         return sprintf(
-            "
+            '
 IMPORT INTO %s.%s FROM CSV AT %s
 USER %s IDENTIFIED BY %s
 %s --- files
@@ -94,7 +96,7 @@ USER %s IDENTIFIED BY %s
 %s
 COLUMN SEPARATOR=%s
 COLUMN DELIMITER=%s
-",
+',
             $destinationSchema,
             $destinationTable,
             ExasolQuote::quote($source->getBucketURL()),
