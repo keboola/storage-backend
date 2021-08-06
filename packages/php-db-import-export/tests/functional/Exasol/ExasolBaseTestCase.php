@@ -212,6 +212,20 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     ExasolQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
+            case self::TABLE_MULTI_PK:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+            "VisitID"   VARCHAR(2000000) NOT NULL,
+            "Value"     VARCHAR(2000000),
+            "MenuItem"  VARCHAR(2000000),
+            "Something" VARCHAR(2000000),
+            "Other"     VARCHAR(2000000),
+            CONSTRAINT PRIMARY KEY ("VisitID")
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
             default:
                 throw new \Exception("unknown table {$tableName}");
         }

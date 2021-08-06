@@ -71,4 +71,49 @@ class FullImportTest extends ExasolBaseTestCase
 
         self::assertEquals(2, $result->getImportedRowsCount());
     }
+    public function testLoadToTableWithDedup(): void
+    {
+        $this->initTable(self::TABLE_MULTI_PK);
+
+        // skipping header
+        $options = $this->getExasolImportOptions(1);
+        $source = $this->createS3SourceInstance(
+            'multi-pk.csv',
+            [
+                'VisitID','Value','MenuItem','Something','Other',
+            ],
+            false,
+            false,
+            ['VisitID']
+        );
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_MULTI_PK
+        );
+        $destination = $ref->getTableDefinition();
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+            'VisitID','Value','MenuItem','Something','Other',
+        ]);
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importState = $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $options
+        );
+        $toFinalTableImporter = new FullImporter($this->connection);
+        $result = $toFinalTableImporter->importToTable(
+            $stagingTable,
+            $destination,
+            $options,
+            $importState
+        );
+
+        self::assertEquals(4, $result->getImportedRowsCount());
+    }
 }

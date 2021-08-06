@@ -81,6 +81,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             );
         }
 
+        // TODO it works but stats are wrong
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
 
         return $state->getResult();
@@ -95,12 +96,12 @@ final class FullImporter implements ToFinalTableImporterInterface
         $state->startTimer(self::TIMER_DEDUP);
 
         // 1 create dedup table
-        $dedupTmpTableName = BackendHelper::generateStagingTableName();
+        $dedupTmpTableName = 'dedup' . BackendHelper::generateStagingTableName();
         $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
             $destinationTableDefinition->getSchemaName(),
             $dedupTmpTableName,
-            $stagingTableDefinition->getColumnsDefinitions(),
-            $stagingTableDefinition->getPrimaryKeysNames()
+            $destinationTableDefinition->getColumnsDefinitions(),
+            $destinationTableDefinition->getPrimaryKeysNames()
         ));
         $dedupTableRef = new ExasolTableReflection(
             $this->connection,
