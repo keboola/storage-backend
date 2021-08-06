@@ -142,6 +142,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolImportOptions $options,
         ImportState $state
     ): void {
+        // truncate table
         $this->connection->executeStatement(
             $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destinationTableDefinition->getSchemaName(),
@@ -149,6 +150,8 @@ final class FullImporter implements ToFinalTableImporterInterface
             )
         );
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
+
+        // move data with INSERT INTO
         $this->connection->executeStatement(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
                 $stagingTableDefinition,

@@ -7,7 +7,6 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 use Doctrine\DBAL\Exception;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
@@ -305,17 +304,6 @@ class StageImportS3Test extends ExasolBaseTestCase
             ),
             $stagingTable,
             $this->getExasolImportOptions()
-        );
-    }
-
-    protected function getExasolImportOptions(
-        int $skipLines = 0
-    ): ExasolImportOptions {
-        return new ExasolImportOptions(
-            [],
-            false,
-            false,
-            $skipLines
         );
     }
 }

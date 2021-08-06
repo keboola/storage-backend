@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
@@ -200,6 +201,19 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
                 ));
                 break;
+            case self::TABLE_COLUMN_NAME_ROW_NUMBER:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+              "id" VARCHAR(4000) NOT NULL,
+              "row_number" VARCHAR(4000) NOT NULL,
+              "_timestamp" TIMESTAMP
+           )',
+                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                     ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            default:
+                throw new \Exception("unknown table {$tableName}");
         }
     }
 
@@ -248,6 +262,17 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 'CREATE SCHEMA %s;',
                 ExasolQuote::quoteSingleIdentifier($schemaName)
             )
+        );
+    }
+
+    protected function getExasolImportOptions(
+        int $skipLines = 0
+    ): ExasolImportOptions {
+        return new ExasolImportOptions(
+            [],
+            false,
+            false,
+            $skipLines
         );
     }
 }
