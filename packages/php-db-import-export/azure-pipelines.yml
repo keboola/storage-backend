@@ -119,7 +119,7 @@ stages:
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
           - script: |
               docker-compose run production php -v
-              parallel -j12 --linebuffer docker-compose run production composer ::: \
+              parallel -j12 --joblog /tmp/parallel-joblog --linebuffer docker-compose run production composer ::: \
               tests-storage \
               tests-snowflake-abs \
               tests-snowflake-s3 \
@@ -133,7 +133,8 @@ stages:
               tests-synapse-heap4000temp-optimized-hash \
               tests-synapse-next \
               tests-exasol
-              docker-compose stop
+              cat /tmp/parallel-joblog
+              sleep 1
             displayName: 'Functional tests'
             env:
               BUILD_PREFIX: $(tag)
@@ -159,6 +160,7 @@ stages:
               EXASOL_USERNAME: sys
               EXASOL_PASSWORD: exasol
           - script: |
+              docker-compose stop
               php ./provisioning/cli.php app:delete:synapse \
               --resourceGroup $AZURE_RESOURCE_GROUP \
               --fileStorageResourceId $FILE_STORAGE_RESOURCE_ID \
