@@ -5,7 +5,7 @@ resources:
   - repo: self
 
 variables:
-  tag: '$(Build.BuildId)'
+  tag: $(Build.BuildId)
   ABS_CONTAINER_NAME: testing
   AZURE_RESOURCE_GROUP: ci-import-export-lib
   AZURE_SERVICE_PRINCIPAL: http://ci-import-export-lib
@@ -133,8 +133,10 @@ stages:
               tests-synapse-heap4000temp-optimized-hash \
               tests-synapse-next \
               tests-exasol
+              PARALLEL_EXIT_CODE=$?
               cat /tmp/parallel-joblog
               sleep 1
+              [ $PARALLEL_EXIT_CODE -eq 0 ] && echo "Tests was successful" || exit 1
             displayName: 'Functional tests'
             env:
               BUILD_PREFIX: $(tag)
