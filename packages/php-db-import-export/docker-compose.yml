@@ -23,6 +23,7 @@ services:
       - EXASOL_HOST
       - EXASOL_USERNAME
       - EXASOL_PASSWORD
+      - BUILD_PREFIX
   dev: &dev
     <<: *prod
     image: keboola/php-db-import-export

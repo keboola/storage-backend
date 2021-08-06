@@ -5,7 +5,7 @@ resources:
   - repo: self
 
 variables:
-  tag: '$(Build.BuildId)'
+  tag: $(Build.BuildId)
   ABS_CONTAINER_NAME: testing
   AZURE_RESOURCE_GROUP: ci-import-export-lib
   AZURE_SERVICE_PRINCIPAL: http://ci-import-export-lib
