@@ -7,18 +7,20 @@ namespace Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable;
 use Doctrine\DBAL\Connection;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImportState;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class FullImporter implements ToFinalTableImporterInterface
 {
-    private const TIMER_DEDUP_CTAS = 'CTAS_dedup';
     private const TIMER_COPY_TO_TARGET = 'copyFromStagingToTarget';
-
+    private const TIMER_DEDUP = 'fromStagingToTargetWithDedup';
     private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
     private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
@@ -90,49 +92,55 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolImportOptions $options,
         ImportState $state
     ): void {
-        $tmpDestination = new ExasolTableDefinition(
+        $state->startTimer(self::TIMER_DEDUP);
+
+        // 1 create dedup table
+        $dedupTmpTableName = BackendHelper::generateStagingTableName();
+        $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
             $destinationTableDefinition->getSchemaName(),
-            $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
-            false,
-            $destinationTableDefinition->getColumnsDefinitions(),
-            $destinationTableDefinition->getPrimaryKeysNames()
+            $dedupTmpTableName,
+            $stagingTableDefinition->getColumnsDefinitions(),
+            $stagingTableDefinition->getPrimaryKeysNames()
+        ));
+        $dedupTableRef = new ExasolTableReflection(
+            $this->connection,
+            $destinationTableDefinition->getSchemaName(),
+            $dedupTmpTableName
         );
 
-        $state->startTimer(self::TIMER_DEDUP_CTAS);
+        /** @var ExasolTableDefinition $dedupTableDef */
+        $dedupTableDef = $dedupTableRef->getTableDefinition();
+
+        // 2 transfer data from source to dedup table with dedup process
         $this->connection->executeStatement(
-            $this->sqlBuilder->getCtasDedupCommand(
+            $this->sqlBuilder->getDedupCommand(
                 $stagingTableDefinition,
-                $tmpDestination,
-                $options,
-                DateTimeHelper::getNowFormatted()
+                $dedupTableDef,
+                $destinationTableDefinition->getPrimaryKeysNames()
             )
         );
-        $state->stopTimer(self::TIMER_DEDUP_CTAS);
 
-        $tmpDestinationToRemove = $destinationTableDefinition->getTableName()
-            . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
-
+        // 3 truncate destination table
         $this->connection->executeStatement(
-            $this->sqlBuilder->getRenameTableCommand(
+            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName(),
-                $tmpDestinationToRemove
-            )
-        );
-
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getRenameTableCommand(
-                $tmpDestination->getSchemaName(),
-                $tmpDestination->getTableName(),
                 $destinationTableDefinition->getTableName()
             )
         );
 
+        // 4 move data with INSERT INTO
         $this->connection->executeStatement(
-            $this->sqlBuilder->getDropCommand(
-                $destinationTableDefinition->getSchemaName(),
-                $tmpDestinationToRemove
+            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                $dedupTableDef,
+                $destinationTableDefinition,
+                $options,
+                DateTimeHelper::getNowFormatted()
             )
+        );
+        $state->stopTimer(self::TIMER_DEDUP);
+
+        $this->connection->executeStatement(
+            $this->sqlBuilder->getCommitTransaction()
         );
     }
 
@@ -142,7 +150,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolImportOptions $options,
         ImportState $state
     ): void {
-        // truncate table
+        // truncate destination table
         $this->connection->executeStatement(
             $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destinationTableDefinition->getSchemaName(),

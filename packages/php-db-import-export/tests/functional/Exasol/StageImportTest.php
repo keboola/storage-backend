@@ -136,9 +136,4 @@ class StageImportTest extends ExasolBaseTestCase
             $this->getExasolImportOptions()
         );
     }
-
-    protected function getExasolImportOptions(): ExasolImportOptions
-    {
-        return new ExasolImportOptions();
-    }
 }

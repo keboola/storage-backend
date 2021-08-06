@@ -208,8 +208,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
               "row_number" VARCHAR(4000) NOT NULL,
               "_timestamp" TIMESTAMP
            )',
-                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                     ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
             default:
