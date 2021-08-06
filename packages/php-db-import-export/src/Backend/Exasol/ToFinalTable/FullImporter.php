@@ -44,7 +44,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         assert($stagingTableDefinition instanceof ExasolTableDefinition);
         assert($destinationTableDefinition instanceof ExasolTableDefinition);
         assert($options instanceof ExasolImportOptions);
-
+        /** @var ExasolTableDefinition $destinationTableDefinition */
         try {
             //import files to staging table
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
@@ -95,9 +95,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
             false,
             $destinationTableDefinition->getColumnsDefinitions(),
-            $destinationTableDefinition->getPrimaryKeysNames(),
-            $destinationTableDefinition->getTableDistribution(),
-            $destinationTableDefinition->getTableIndex()
+            $destinationTableDefinition->getPrimaryKeysNames()
         );
 
         $state->startTimer(self::TIMER_DEDUP_CTAS);
@@ -144,10 +142,6 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolImportOptions $options,
         ImportState $state
     ): void {
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getBeginTransaction()
-        );
-
         $this->connection->executeStatement(
             $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destinationTableDefinition->getSchemaName(),

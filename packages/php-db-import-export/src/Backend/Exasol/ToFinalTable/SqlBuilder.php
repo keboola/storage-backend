@@ -14,6 +14,8 @@ use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 
 class SqlBuilder
 {
+    public const SRC_ALIAS = 'src';
+
     public function getCommitTransaction(): string
     {
         return 'COMMIT';
@@ -77,7 +79,7 @@ class SqlBuilder
         string $delimiter = ', ',
         ?string $tableAlias = null
     ): string {
-        return implode($delimiter, array_map(function ($columns) use (
+        return implode($delimiter, array_map(static function ($columns) use (
             $tableAlias
         ) {
             $alias = $tableAlias === null ? '' : $tableAlias . '.';
@@ -209,7 +211,7 @@ class SqlBuilder
                 }
             } else {
                 $columnsSetSql[] = sprintf(
-                    'CAST(COALESCE(%s, \'\') as %s) AS %s',
+                    'CAST(COALESCE(%s, \'\') AS %s) AS %s',
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $this->getColumnTypeSqlDefinition($columnDefinition),
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
@@ -222,12 +224,13 @@ class SqlBuilder
         }
 
         return sprintf(
-            'INSERT INTO %s (%s) (SELECT %s FROM %s.%s AS "src")',
+            'INSERT INTO %s (%s) (SELECT %s FROM %s.%s AS %s)',
             $destinationTable,
             $this->getColumnsString($insColumns),
             implode(',', $columnsSetSql),
             ExasolQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
+            ExasolQuote::quoteSingleIdentifier(self::SRC_ALIAS)
         );
     }
 
