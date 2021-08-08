@@ -81,7 +81,6 @@ final class FullImporter implements ToFinalTableImporterInterface
             );
         }
 
-        // TODO it works but stats are wrong
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
 
         return $state->getResult();

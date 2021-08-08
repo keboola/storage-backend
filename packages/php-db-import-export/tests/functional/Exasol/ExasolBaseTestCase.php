@@ -22,6 +22,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
     public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
     public const TABLE_MULTI_PK = 'multi-pk';
+    public const TABLE_SINGLE_PK = 'single-pk';
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
     public const TABLE_NULLIFY = 'nullify';
     public const TABLE_OUT_LEMMA = 'out.lemma';
@@ -212,7 +213,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     ExasolQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
-            case self::TABLE_MULTI_PK:
+            case self::TABLE_SINGLE_PK:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
             "VisitID"   VARCHAR(2000000) NOT NULL,
@@ -221,6 +222,20 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             "Something" VARCHAR(2000000),
             "Other"     VARCHAR(2000000),
             CONSTRAINT PRIMARY KEY ("VisitID")
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_MULTI_PK:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+            "VisitID"   VARCHAR(2000000) NOT NULL,
+            "Value"     VARCHAR(2000000),
+            "MenuItem"  VARCHAR(2000000),
+            "Something" VARCHAR(2000000),
+            "Other"     VARCHAR(2000000),
+            CONSTRAINT PRIMARY KEY ("VisitID", "Something")
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
