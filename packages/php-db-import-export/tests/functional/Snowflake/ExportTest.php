@@ -25,6 +25,20 @@ class ExportTest extends SnowflakeImportExportBaseTest
      */
     private $blobClient;
 
+    private function getExportDir(): string
+    {
+        $buildPrefix = '';
+        if (getenv('BUILD_PREFIX') !== false) {
+            $buildPrefix = getenv('BUILD_PREFIX');
+        }
+
+        return self::EXPORT_BLOB_DIR
+            . '-'
+            . $buildPrefix
+            . '-'
+            . getenv('SUITE');
+    }
+
     public function setUp(): void
     {
         parent::setUp();
@@ -38,7 +52,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
         // delete blobs from EXPORT_BLOB_DIR
         $listOptions = new ListBlobsOptions();
-        $listOptions->setPrefix(self::EXPORT_BLOB_DIR);
+        $listOptions->setPrefix($this->getExportDir());
         $blobs = $this->blobClient->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions);
         foreach ($blobs->getBlobs() as $blob) {
             $this->blobClient->deleteBlob((string) getenv('ABS_CONTAINER_NAME'), $blob->getName());
@@ -71,7 +85,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         // export
         $source = $destination;
         $options = new ExportOptions(true);
-        $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/gz_test');
+        $destination = $this->createABSSourceDestinationInstance($this->getExportDir() . '/gz_test');
 
         $result = (new Exporter($this->connection))->exportTable(
             $source,
@@ -126,7 +140,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         // export
         $source = $destination;
         $options = new ExportOptions();
-        $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/ts_test');
+        $destination = $this->createABSSourceDestinationInstance($this->getExportDir() . '/ts_test');
 
         $result = (new Exporter($this->connection))->exportTable(
             $source,
@@ -214,7 +228,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
         $source = new Storage\Snowflake\SelectSource($query);
         $options = new ExportOptions();
-        $destination = $this->createABSSourceDestinationInstance(self::EXPORT_BLOB_DIR . '/tw_test');
+        $destination = $this->createABSSourceDestinationInstance($this->getExportDir() . '/tw_test');
 
         $result = (new Exporter($this->connection))->exportTable(
             $source,
