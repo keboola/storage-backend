@@ -12,6 +12,8 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
@@ -91,15 +93,26 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolTableDefinition $destinationTableDefinition,
         ExasolImportOptions $options,
         ImportState $state
-    ): void {
+    ): void
+    {
         $state->startTimer(self::TIMER_DEDUP);
+
+        // remove _timestamp from ColumnDefinition of DEDUP table
+        $columnsToDedupTable = new ColumnCollection(
+            array_filter(
+                iterator_to_array($destinationTableDefinition->getColumnsDefinitions()->getIterator()), function (
+                ColumnInterface $item
+            ) {
+                return $item->getColumnName() !== '_timestamp';
+            })
+        );
 
         // 1 create dedup table
         $dedupTmpTableName = 'dedup' . BackendHelper::generateStagingTableName();
         $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
             $destinationTableDefinition->getSchemaName(),
             $dedupTmpTableName,
-            $destinationTableDefinition->getColumnsDefinitions(),
+            $columnsToDedupTable,
             $destinationTableDefinition->getPrimaryKeysNames()
         ));
         $dedupTableRef = new ExasolTableReflection(
