@@ -21,9 +21,10 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
     public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
     public const TABLE_MULTI_PK = 'multi-pk';
-    public const TABLE_OUT_CSV_2COLS = 'out.csv_2Cols';
+    public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
+    public const TABLE_NULLIFY = 'nullify';
     public const TABLE_OUT_LEMMA = 'out.lemma';
-    public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out.no_timestamp_table';
+    public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
     public const TABLE_TABLE = 'table';
     public const TABLE_TYPES = 'types';
     public const TESTS_PREFIX = 'import-export-test_';
@@ -75,7 +76,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         ));
     }
 
-    protected function initTable(
+    protected function initSingleTable(
         string $schema = self::EXASOL_SOURCE_SCHEMA_NAME,
         string $table = self::TABLE_TABLE
     ): void {
@@ -94,6 +95,112 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 ExasolQuote::quoteSingleIdentifier($table)
             )
         );
+    }
+
+    protected function initTable(string $tableName): void
+    {
+        $now = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+
+        switch ($tableName) {
+            case self::TABLE_OUT_CSV_2COLS:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE TABLE %s.%s (
+          "col1" VARCHAR(20000)  DEFAULT \'\' NOT NULL,
+          "col2" VARCHAR(20000)  DEFAULT \'\' NOT NULL
+        );',
+                        ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                        ExasolQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'x\', \'y\');',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    //                    $now
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+          "col1" NVARCHAR(4000) DEFAULT \'\' NOT NULL,
+          "col2" NVARCHAR(4000) DEFAULT \'\' NOT NULL
+        );',
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_ACCOUNTS_BEZ_TS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000) NOT NULL,
+                "idTwitter" VARCHAR(2000000) NOT NULL,
+                "name" VARCHAR(2000000) NOT NULL,
+                "import" VARCHAR(2000000) NOT NULL,
+                "isImported" VARCHAR(2000000) NOT NULL,
+                "apiLimitExceededDatetime" VARCHAR(2000000) NOT NULL,
+                "analyzeSentiment" VARCHAR(2000000) NOT NULL,
+                "importKloutScore" VARCHAR(2000000) NOT NULL,
+                "timestamp" VARCHAR(2000000) NOT NULL,
+                "oauthToken" VARCHAR(2000000) NOT NULL,
+                "oauthSecret" VARCHAR(2000000) NOT NULL,
+                "idApp" VARCHAR(2000000) NOT NULL
+            ) ',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_NULLIFY:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000)   NOT NULL,
+                "col1" VARCHAR(2000000) NOT NULL,
+                "col2" VARCHAR(2000000) NOT NULL
+            ) ',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_TYPES:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s."types" (
+              "charCol"  VARCHAR(2000000) NOT NULL,
+              "numCol"   VARCHAR(2000000) NOT NULL,
+              "floatCol" VARCHAR(2000000) NOT NULL,
+              "boolCol"  VARCHAR(2000000) NOT NULL
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE  %s."types" (
+              "charCol"  VARCHAR(4000) NOT NULL,
+              "numCol" decimal(10,1) NOT NULL,
+              "floatCol" float NOT NULL,
+              "boolCol" tinyint NOT NULL
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
+                ));
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO  %s."types" VALUES
+              (\'a\', \'10.5\', \'0.3\', 1)
+           ;',
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
+                ));
+                break;
+        }
     }
 
     protected function getSourceSchemaName(): string

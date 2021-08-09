@@ -74,12 +74,11 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
     ): array {
         $filesToImport = $source->getManifestEntries();
         $commands = [];
+        $s3Prefix = $source->getS3Prefix() . '/';
         foreach (array_chunk($filesToImport, ImporterInterface::SLICED_FILES_CHUNK_SIZE) as $entries) {
             $quotedFiles = array_map(
-                static function ($entry) use ($source) {
-                    return QuoteHelper::quote(
-                        strtr($entry, [$source->getS3Prefix() . '/' => ''])
-                    );
+                static function ($entry) use ($s3Prefix) {
+                    return QuoteHelper::quote(strtr($entry, [$s3Prefix => '']));
                 },
                 $entries
             );

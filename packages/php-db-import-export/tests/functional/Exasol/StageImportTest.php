@@ -25,8 +25,8 @@ class StageImportTest extends ExasolBaseTestCase
 
     public function testMoveDataFromAToB(): void
     {
-        $this->initTable($this->getSourceSchemaName(), 'sourceTable');
-        $this->initTable($this->getDestinationSchemaName(), 'targetTable');
+        $this->initSingleTable($this->getSourceSchemaName(), 'sourceTable');
+        $this->initSingleTable($this->getDestinationSchemaName(), 'targetTable');
 
         $importer = new ToStageImporter($this->connection);
         $targetTableRef = new ExasolTableReflection(
@@ -71,7 +71,7 @@ class StageImportTest extends ExasolBaseTestCase
 
     public function testMoveDataFromAToTableWithWrongSourceStructure(): void
     {
-        $this->initTable($this->getDestinationSchemaName(), 'targetTable');
+        $this->initSingleTable($this->getDestinationSchemaName(), 'targetTable');
 
         $importer = new ToStageImporter($this->connection);
         $targetTableRef = new ExasolTableReflection(
@@ -99,8 +99,8 @@ class StageImportTest extends ExasolBaseTestCase
 
     public function testMoveDataFromBetweenDifferentTables(): void
     {
-        $this->initTable($this->getSourceSchemaName(), 'sourceTable');
-        $this->initTable($this->getDestinationSchemaName(), 'targetTable');
+        $this->initSingleTable($this->getSourceSchemaName(), 'sourceTable');
+        $this->initSingleTable($this->getDestinationSchemaName(), 'targetTable');
 
         $this->connection->executeQuery(
             sprintf(
