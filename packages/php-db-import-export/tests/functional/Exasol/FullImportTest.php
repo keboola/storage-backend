@@ -25,7 +25,7 @@ class FullImportTest extends ExasolBaseTestCase
         $this->createSchema($this->getDestinationSchemaName());
     }
 
-    public function testLoadToFinalTable(): void
+    public function testLoadToFinalTableWitoutDedup(): void
     {
         $this->initTable(self::TABLE_COLUMN_NAME_ROW_NUMBER);
 
@@ -192,4 +192,7 @@ class FullImportTest extends ExasolBaseTestCase
 
         self::assertEquals(6, $destinationRef->getRowsCount());
     }
+
+    // TODO testy jako na Synapse
+    // incremental load
 }

@@ -9,8 +9,11 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class ExasolBaseTestCase extends ImportExportBaseTest
@@ -25,7 +28,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     public const TABLE_SINGLE_PK = 'single-pk';
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
     public const TABLE_NULLIFY = 'nullify';
-    public const TABLE_OUT_LEMMA = 'out.lemma';
+    public const TABLE_OUT_LEMMA = 'out_lemma';
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
     public const TABLE_TABLE = 'table';
     public const TABLE_TYPES = 'types';
@@ -125,8 +128,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
 
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-          "col1" NVARCHAR(4000) DEFAULT \'\' NOT NULL,
-          "col2" NVARCHAR(4000) DEFAULT \'\' NOT NULL
+          "col1" VARCHAR(2000000) DEFAULT \'\' NOT NULL,
+          "col2" VARCHAR(2000000) DEFAULT \'\' NOT NULL
         );',
                     ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
@@ -241,6 +244,62 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     ExasolQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
+            case self::TABLE_ACCOUNTS_3:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000) NOT NULL,
+                "idTwitter" VARCHAR(2000000) NOT NULL,
+                "name" VARCHAR(2000000) NOT NULL,
+                "import" VARCHAR(2000000) NOT NULL,
+                "isImported" VARCHAR(2000000) NOT NULL,
+                "apiLimitExceededDatetime" VARCHAR(2000000) NOT NULL,
+                "analyzeSentiment" VARCHAR(2000000) NOT NULL,
+                "importKloutScore" VARCHAR(2000000) NOT NULL,
+                "timestamp" VARCHAR(2000000) NOT NULL,
+                "oauthToken" VARCHAR(2000000) NOT NULL,
+                "oauthSecret" VARCHAR(2000000) NOT NULL,
+                "idApp" VARCHAR(2000000) NOT NULL,
+                "_timestamp" TIMESTAMP,
+                CONSTRAINT PRIMARY KEY ("id")
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_OUT_LEMMA:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+          "ts" VARCHAR(2000000)         DEFAULT \'\' NOT NULL,
+          "lemma" VARCHAR(2000000)      DEFAULT \'\' NOT NULL,
+          "lemmaIndex" VARCHAR(2000000) DEFAULT \'\' NOT NULL,
+                "_timestamp" TIMESTAMP
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_TABLE:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                                "column" VARCHAR(2000000)         DEFAULT \'\' NOT NULL,
+                                "table" VARCHAR(2000000)      DEFAULT \'\' NOT NULL,
+                                "lemmaIndex" VARCHAR(2000000) DEFAULT \'\' NOT NULL,
+                "_timestamp" TIMESTAMP
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                                "col1" VARCHAR(2000000)         DEFAULT \'\' NOT NULL,
+                                "col2" VARCHAR(2000000)      DEFAULT \'\' NOT NULL
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
             default:
                 throw new \Exception("unknown table {$tableName}");
         }
@@ -302,6 +361,64 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             false,
             false,
             $skipLines
+        );
+    }
+
+    /**
+     * @param int|string $sortKey
+     * @param array<mixed> $expected
+     * @param string|int $sortKey
+     */
+    protected function assertExasolTableEqualsExpected(
+        SourceInterface $source,
+        ExasolTableDefinition $destination,
+        ExasolImportOptions $options,
+        array $expected,
+        $sortKey,
+        string $message = 'Imported tables are not the same as expected'
+    ): void {
+        $tableColumns = (new ExasolTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        ))->getColumnsNames();
+
+        if ($options->useTimestamp()) {
+            self::assertContains('_timestamp', $tableColumns);
+        } else {
+            self::assertNotContains('_timestamp', $tableColumns);
+        }
+
+        if (!in_array('_timestamp', $source->getColumnsNames(), true)) {
+            $tableColumns = array_filter($tableColumns, static function ($column) {
+                return $column !== '_timestamp';
+            });
+        }
+
+        $tableColumns = array_map(static function ($column) {
+            return sprintf('%s', $column);
+        }, $tableColumns);
+
+        $sql = sprintf(
+            'SELECT %s FROM %s.%s',
+            implode(', ', array_map(static function ($item) {
+                return ExasolQuote::quoteSingleIdentifier($item);
+            }, $tableColumns)),
+                ExasolQuote::quoteSingleIdentifier($destination->getSchemaName()),
+                ExasolQuote::quoteSingleIdentifier($destination->getTableName())
+            );
+
+        $queryResult = array_map(static function ($row) {
+            return array_map(static function ($column) {
+                return $column;
+            }, array_values($row));
+        }, $this->connection->fetchAll($sql));
+
+        $this->assertArrayEqualsSorted(
+            $expected,
+            $queryResult,
+            $sortKey,
+            $message
         );
     }
 }

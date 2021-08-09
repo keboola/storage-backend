@@ -59,7 +59,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         Storage\S3\SourceFile $source,
         ExasolTableDefinition $destination,
         ExasolImportOptions $importOptions
-    ): string {
+    ): ?string {
         $destinationSchema = ExasolQuote::quoteSingleIdentifier($destination->getSchemaName());
         $destinationTable = ExasolQuote::quoteSingleIdentifier($destination->getTableName());
 
@@ -81,7 +81,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         );
 
         if (count($entries) === 0) {
-            return '';
+            return null;
         }
 
         // EXA COLUMN SEPARATOR = string between values
