@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
@@ -93,22 +94,24 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolTableDefinition $destinationTableDefinition,
         ExasolImportOptions $options,
         ImportState $state
-    ): void
-    {
+    ): void {
         $state->startTimer(self::TIMER_DEDUP);
 
         // remove _timestamp from ColumnDefinition of DEDUP table
-        $columnsToDedupTable = new ColumnCollection(
+        $columnsToDedupTable = $options->useTimestamp() ?
+            $destinationTableDefinition->getColumnsDefinitions() : new ColumnCollection(
             array_filter(
-                iterator_to_array($destinationTableDefinition->getColumnsDefinitions()->getIterator()), function (
-                ColumnInterface $item
-            ) {
-                return $item->getColumnName() !== '_timestamp';
-            })
+                iterator_to_array($destinationTableDefinition->getColumnsDefinitions()->getIterator()),
+                static function (
+                    ColumnInterface $item
+                ) {
+                    return $item->getColumnName() !== ToStageImporterInterface::TIMESTAMP_COLUMN_NAME;
+                }
+            )
         );
 
         // 1 create dedup table
-        $dedupTmpTableName = 'dedup' . BackendHelper::generateStagingTableName();
+        $dedupTmpTableName = 'dedup_' . BackendHelper::generateStagingTableName();
         $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
             $destinationTableDefinition->getSchemaName(),
             $dedupTmpTableName,

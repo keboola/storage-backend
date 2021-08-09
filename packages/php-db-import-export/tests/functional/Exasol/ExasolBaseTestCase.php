@@ -27,6 +27,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     public const TABLE_MULTI_PK = 'multi-pk';
     public const TABLE_SINGLE_PK = 'single-pk';
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
+    public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
     public const TABLE_NULLIFY = 'nullify';
     public const TABLE_OUT_LEMMA = 'out_lemma';
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
@@ -104,10 +105,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
 
     protected function initTable(string $tableName): void
     {
-        $now = (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
-
         switch ($tableName) {
-            case self::TABLE_OUT_CSV_2COLS:
+            case self::TABLE_OUT_CSV_2COLS_WITHOUT_TS:
                 $this->connection->executeQuery(
                     sprintf(
                         'CREATE TABLE %s.%s (
@@ -116,14 +115,25 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         );',
                         ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                         ExasolQuote::quoteSingleIdentifier($tableName)
+                    ));
+                break;
+            case self::TABLE_OUT_CSV_2COLS:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE TABLE %s.%s (
+          "col1" VARCHAR(20000)  DEFAULT \'\' NOT NULL,
+          "col2" VARCHAR(20000)  DEFAULT \'\' NOT NULL,
+          "_timestamp" TIMESTAMP
+        );',
+                        ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                        ExasolQuote::quoteSingleIdentifier($tableName)
                     )
                 );
 
                 $this->connection->executeQuery(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'x\', \'y\');',
+                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', NOW());',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
-                    //                    $now
                 ));
 
                 $this->connection->executeQuery(sprintf(
@@ -184,7 +194,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
               "charCol"  VARCHAR(2000000) NOT NULL,
               "numCol"   VARCHAR(2000000) NOT NULL,
               "floatCol" VARCHAR(2000000) NOT NULL,
-              "boolCol"  VARCHAR(2000000) NOT NULL
+              "boolCol"  VARCHAR(2000000) NOT NULL,
+              "_timestamp" TIMESTAMP
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
                 ));
@@ -354,12 +365,13 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     }
 
     protected function getExasolImportOptions(
-        int $skipLines = 0
+        int $skipLines = 1,
+        bool $useTimeStamp = true
     ): ExasolImportOptions {
         return new ExasolImportOptions(
             [],
             false,
-            false,
+            $useTimeStamp,
             $skipLines
         );
     }
@@ -404,15 +416,15 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             implode(', ', array_map(static function ($item) {
                 return ExasolQuote::quoteSingleIdentifier($item);
             }, $tableColumns)),
-                ExasolQuote::quoteSingleIdentifier($destination->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($destination->getTableName())
-            );
+            ExasolQuote::quoteSingleIdentifier($destination->getSchemaName()),
+            ExasolQuote::quoteSingleIdentifier($destination->getTableName())
+        );
 
         $queryResult = array_map(static function ($row) {
             return array_map(static function ($column) {
                 return $column;
             }, array_values($row));
-        }, $this->connection->fetchAll($sql));
+        }, $this->connection->fetchAllAssociative($sql));
 
         $this->assertArrayEqualsSorted(
             $expected,

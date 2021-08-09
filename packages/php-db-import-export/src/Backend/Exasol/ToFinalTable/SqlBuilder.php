@@ -378,9 +378,10 @@ class SqlBuilder
 
     private function getColumnTypeSqlDefinition(ExasolColumn $column): string
     {
+        // TODO integrate it with Exasol class
         $columnTypeDefinition = $column->getColumnDefinition()->getType();
         $length = $column->getColumnDefinition()->getLength();
-        if ($length !== null && $length !== '') {
+        if ($length !== null && $length !== '' && !in_array($columnTypeDefinition, Exasol::TYPES_WITHOUT_LENGTH)) {
             $columnTypeDefinition .= sprintf('(%s)', $length);
         }
         return $columnTypeDefinition;

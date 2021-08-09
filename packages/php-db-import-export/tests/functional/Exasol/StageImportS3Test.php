@@ -100,7 +100,7 @@ class StageImportS3Test extends ExasolBaseTestCase
     {
         return [
             'with enclosures' => [
-                'table' => self::TABLE_OUT_CSV_2COLS,
+                'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
                 's3providerSetting' => [
                     'escaping/standard-with-enclosures.csv',
                     new CsvOptions(',', '"'),
@@ -152,7 +152,7 @@ class StageImportS3Test extends ExasolBaseTestCase
                 'expectedFirstLineLength' => 12,
             ],
             'with single csv' => [
-                'table' => self::TABLE_OUT_CSV_2COLS,
+                'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
                 's3providerSetting' => [
                     'long_col_6k.csv',
                     new CsvOptions(),
@@ -219,7 +219,6 @@ class StageImportS3Test extends ExasolBaseTestCase
         );
 
         self::assertEquals([
-            ['id' => 'id', 'col1' => 'name', 'col2' => 'price'],
             ['id' => '1', 'col1' => 'test', 'col2' => '50'],
             ['id' => '2', 'col1' => null, 'col2' => '500'],
             ['id' => '3', 'col1' => 'Bageta', 'col2' => null],
