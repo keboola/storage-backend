@@ -427,7 +427,6 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             }, array_values($row));
         }, $this->connection->fetchAllAssociative($sql));
 
-        var_export($queryResult);
         $this->assertArrayEqualsSorted(
             $expected,
             $queryResult,
