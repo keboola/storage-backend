@@ -21,12 +21,12 @@ class SqlBuilderTest extends ExasolBaseTestCase
 {
     public const TESTS_PREFIX = 'import-export-test_';
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'schema';
-    public const TEST_SCHEMA_QUOTED = '[' . self::TEST_SCHEMA . ']';
+    public const TEST_SCHEMA_QUOTED = '"' . self::TEST_SCHEMA . '"';
     public const TEST_STAGING_TABLE = 'stagingTable';
     public const TEST_STAGING_TABLE_QUOTED = '"stagingTable"';
     public const TEST_TABLE = self::TESTS_PREFIX . 'test';
     public const TEST_TABLE_IN_SCHEMA = self::TEST_SCHEMA_QUOTED . '.' . self::TEST_TABLE_QUOTED;
-    public const TEST_TABLE_QUOTED = '[' . self::TEST_TABLE . ']';
+    public const TEST_TABLE_QUOTED = '"' . self::TEST_TABLE . '"';
 
     protected function dropTestSchema(): void
     {
@@ -209,7 +209,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
 
         $this->assertEquals(
         // phpcs:ignore
-            'DELETE FROM "import-export-test_schema"."stagingTable" WHERE EXISTS (SELECT * FROM "import-export-test_schema"."import-export-test_test" WHERE "import-export-test_schema"."import-export-test_test"."pk1" = COALESCE("import-export-test_schema"."stagingTable"."pk1", \'\') AND "import-export-test_schema"."import-export-test_test"."pk2" = COALESCE("import-export-test_schema"."stagingTable"."pk2", \'\'))',
+            'DELETE FROM "import-export-test_schema"."stagingTable" WHERE EXISTS (SELECT * FROM "import-export-test_schema"."import-export-test_test" WHERE COALESCE("import-export-test_schema"."import-export-test_test"."pk1", \'KBC_$#\') = COALESCE("import-export-test_schema"."stagingTable"."pk1", \'KBC_$#\') AND COALESCE("import-export-test_schema"."import-export-test_test"."pk2", \'KBC_$#\') = COALESCE("import-export-test_schema"."stagingTable"."pk2", \'KBC_$#\'))',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -576,7 +576,7 @@ EOT
         ], $result);
 
         // no convert values no timestamp
-        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+        $sql = $this->getBuilder()->getUpdateWithPkCommandSubstitute(
             $fakeStage,
             $fakeDestination,
             $this->getDummyImportOptions(),
@@ -584,7 +584,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE "import-export-test_schema"."import-export-test_test" SET "col2" = COALESCE("src"."col2", \'\') FROM "import-export-test_schema"."stagingTable" AS "src","import-export-test_schema"."import-export-test_test" WHERE "import-export-test_schema"."import-export-test_test"."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST("import-export-test_schema"."import-export-test_test"."col1" AS NVARCHAR(4000)), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(CAST("import-export-test_schema"."import-export-test_test"."col2" AS NVARCHAR(4000)), \'\') != COALESCE("src"."col2", \'\')) ',
+            'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM "import-export-test_schema"."stagingTable" AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -665,7 +665,7 @@ EOT
         $options = new ExasolImportOptions(['col1']);
 
         // converver values
-        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+        $sql = $this->getBuilder()->getUpdateWithPkCommandSubstitute(
             $fakeStage,
             $fakeDestination,
             $options,
@@ -673,7 +673,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE "import-export-test_schema"."import-export-test_test" SET "col2" = COALESCE("src"."col2", \'\') FROM "import-export-test_schema"."stagingTable" AS "src","import-export-test_schema"."import-export-test_test" WHERE "import-export-test_schema"."import-export-test_test"."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST("import-export-test_schema"."import-export-test_test"."col1" AS NVARCHAR(4000)), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(CAST("import-export-test_schema"."import-export-test_test"."col2" AS NVARCHAR(4000)), \'\') != COALESCE("src"."col2", \'\')) ',
+            'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM "import-export-test_schema"."stagingTable" AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -765,7 +765,7 @@ EOT
 
         // use timestamp
         $options = new ExasolImportOptions(['col1'], false, true);
-        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+        $sql = $this->getBuilder()->getUpdateWithPkCommandSubstitute(
             $fakeStage,
             $fakeDestination,
             $options,
@@ -774,7 +774,7 @@ EOT
 
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE "import-export-test_schema"."import-export-test_test" SET "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01.000\' FROM "import-export-test_schema"."stagingTable" AS "src","import-export-test_schema"."import-export-test_test" WHERE "import-export-test_schema"."import-export-test_test"."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST("import-export-test_schema"."import-export-test_test"."col1" AS NVARCHAR(4000)), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(CAST("import-export-test_schema"."import-export-test_test"."col2" AS NVARCHAR(4000)), \'\') != COALESCE("src"."col2", \'\')) ',
+            'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01.000\' FROM "import-export-test_schema"."stagingTable" AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
         );
         $this->connection->executeStatement($sql);

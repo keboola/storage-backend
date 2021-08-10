@@ -105,7 +105,7 @@ class SqlBuilder
             'DELETE FROM %s WHERE EXISTS (SELECT * FROM %s WHERE %s)',
             $stagingTable,
             $destinationTable,
-            $this->getPrimaryKeyWhereConditions(
+            $this->getPrimaryKeyWhereConditionsSubstitute(
                 $destinationTableDefinition->getPrimaryKeysNames(),
                 $stagingTable,
                 $destinationTable
@@ -116,14 +116,39 @@ class SqlBuilder
     /**
      * @param string[] $primaryKeys
      */
-    private function getPrimaryKeyWhereConditions(
+    private function getPrimaryKeyWhereConditionsSubstitute(
         array $primaryKeys,
         string $sourceTable,
         string $destinationTable
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($sourceTable, $destinationTable) {
             return sprintf(
-                '%s.%s = COALESCE(%s.%s, \'\')',
+                'COALESCE(%s.%s, \'KBC_$#\') = COALESCE(%s.%s, \'KBC_$#\')',
+                $destinationTable,
+                ExasolQuote::quoteSingleIdentifier($col),
+                $sourceTable,
+                ExasolQuote::quoteSingleIdentifier($col)
+            );
+        }, $primaryKeys);
+
+        return rtrim(implode(' AND ', $pkWhereSql) . ' ');
+    }
+
+    /**
+     * @param string[] $primaryKeys
+     */
+    private function getPrimaryKeyWhereConditionsNull(
+        array $primaryKeys,
+        string $sourceTable,
+        string $destinationTable
+    ): string {
+        $pkWhereSql = array_map(function (string $col) use ($sourceTable, $destinationTable) {
+            return sprintf(
+                '(%s.%s = %s.%s OR %s.%s IS NULL AND %s.%s IS NULL)',
+                $destinationTable,
+                ExasolQuote::quoteSingleIdentifier($col),
+                $sourceTable,
+                ExasolQuote::quoteSingleIdentifier($col),
                 $destinationTable,
                 ExasolQuote::quoteSingleIdentifier($col),
                 $sourceTable,
@@ -217,7 +242,7 @@ class SqlBuilder
         );
     }
 
-    public function getUpdateWithPkCommand(
+    public function getUpdateWithPkCommandSubstitute(
         ExasolTableDefinition $stagingTableDefinition,
         ExasolTableDefinition $destinationDefinition,
         ExasolImportOptions $importOptions,
@@ -236,28 +261,11 @@ class SqlBuilder
                 // primary keys are not updated
                 continue;
             }
-            if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
-                // use nullif only for string base type
-                if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
-                    $columnsSet[] = sprintf(
-                        '%s = NULLIF("src".%s, \'\')',
-                        ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                        ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
-                    );
-                } else {
-                    $columnsSet[] = sprintf(
-                        '%s = "src".%s',
-                        ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                        ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
-                    );
-                }
-            } else {
-                $columnsSet[] = sprintf(
-                    '%s = COALESCE("src".%s, \'\')',
-                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
-                );
-            }
+            $columnsSet[] = sprintf(
+                '%s = "src".%s',
+                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+            );
         }
 
         if ($importOptions->useTimestamp()) {
@@ -270,10 +278,9 @@ class SqlBuilder
 
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
         $columnsComparisionSql = array_map(
-            function (ExasolColumn $columnDefinition) use ($dest) {
+            function (ExasolColumn $columnDefinition) {
                 return sprintf(
-                    'COALESCE(CAST(%s.%s AS %s), \'\') != COALESCE("src".%s, \'\')',
-                    $dest,
+                    'COALESCE(CAST("dest".%s AS %s), \'KBC_$#\') != COALESCE("src".%s, \'KBC_$#\')',
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $this->getColumnTypeSqlDefinition($columnDefinition),
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
@@ -283,13 +290,85 @@ class SqlBuilder
         );
 
         return sprintf(
-            'UPDATE %s SET %s FROM %s.%s AS "src",%s WHERE %s AND (%s) ',
+            'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src",%s AS "dest" WHERE %s AND (%s) ',
             $dest,
             implode(', ', $columnsSet),
             ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
             $dest,
-            $this->getPrimaryKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), '"src"', $dest),
+            $this->getPrimaryKeyWhereConditionsSubstitute(
+                $destinationDefinition->getPrimaryKeysNames(),
+                '"src"',
+                '"dest"'
+            ),
+            implode(' OR ', $columnsComparisionSql)
+        );
+    }
+
+
+    public function getUpdateWithPkCommandNull(
+        ExasolTableDefinition $stagingTableDefinition,
+        ExasolTableDefinition $destinationDefinition,
+        ExasolImportOptions $importOptions,
+        string $timestamp
+    ): string {
+        $dest = sprintf(
+            '%s.%s',
+            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
+            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+        );
+
+        $columnsSet = [];
+        /** @var ExasolColumn $columnDefinition */
+        foreach ($stagingTableDefinition->getColumnsDefinitions() as $columnDefinition) {
+            if (in_array($columnDefinition->getColumnName(), $destinationDefinition->getPrimaryKeysNames(), true)) {
+                // primary keys are not updated
+                continue;
+            }
+            $columnsSet[] = sprintf(
+                '%s = "src".%s',
+                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+            );
+        }
+
+        if ($importOptions->useTimestamp()) {
+            $columnsSet[] = sprintf(
+                '%s = \'%s\'',
+                ExasolQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+                $timestamp
+            );
+        }
+
+        // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
+        $columnsComparisionSql = array_map(
+            function (ExasolColumn $columnDefinition) {
+                return sprintf(
+                // phpcs:ignore
+                    '("dest".%s != "src".%s OR ("dest".%s IS NULL OR "src".%s IS NULL AND ("dest".%s IS NULL AND "src".%s IS NULL)))',
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
+            },
+            iterator_to_array($stagingTableDefinition->getColumnsDefinitions())
+        );
+
+        return sprintf(
+            'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src",%s AS "dest" WHERE %s AND (%s) ',
+            $dest,
+            implode(', ', $columnsSet),
+            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+            $dest,
+            $this->getPrimaryKeyWhereConditionsNull(
+                $destinationDefinition->getPrimaryKeysNames(),
+                '"src"',
+                '"dest"'
+            ),
             implode(' OR ', $columnsComparisionSql)
         );
     }
