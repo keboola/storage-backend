@@ -310,7 +310,7 @@ class Redshift extends Common
      */
     public function getBasetype()
     {
-        switch ($this->type) {
+        switch (strtoupper($this->type)) {
             case "SMALLINT":
             case "INT2":
             case "INTEGER":
