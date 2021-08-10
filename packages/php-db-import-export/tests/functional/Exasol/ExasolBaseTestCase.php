@@ -115,7 +115,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         );',
                         ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                         ExasolQuote::quoteSingleIdentifier($tableName)
-                    ));
+                    )
+                );
                 break;
             case self::TABLE_OUT_CSV_2COLS:
                 $this->connection->executeQuery(
