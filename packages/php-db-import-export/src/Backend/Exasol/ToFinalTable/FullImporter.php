@@ -97,25 +97,12 @@ final class FullImporter implements ToFinalTableImporterInterface
     ): void {
         $state->startTimer(self::TIMER_DEDUP);
 
-        // remove _timestamp from ColumnDefinition of DEDUP table
-        $columnsToDedupTable = $options->useTimestamp() ?
-            $destinationTableDefinition->getColumnsDefinitions() : new ColumnCollection(
-                array_filter(
-                    iterator_to_array($destinationTableDefinition->getColumnsDefinitions()->getIterator()),
-                    static function (
-                        ColumnInterface $item
-                    ) {
-                        return $item->getColumnName() !== ToStageImporterInterface::TIMESTAMP_COLUMN_NAME;
-                    }
-                )
-            );
-
         // 1 create dedup table
         $dedupTmpTableName = 'dedup_' . BackendHelper::generateStagingTableName();
         $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
             $destinationTableDefinition->getSchemaName(),
             $dedupTmpTableName,
-            $columnsToDedupTable,
+            $stagingTableDefinition->getColumnsDefinitions(),
             $destinationTableDefinition->getPrimaryKeysNames()
         ));
         $dedupTableRef = new ExasolTableReflection(

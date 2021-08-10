@@ -110,8 +110,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 $this->connection->executeQuery(
                     sprintf(
                         'CREATE TABLE %s.%s (
-          "col1" VARCHAR(20000)  DEFAULT \'\' NOT NULL,
-          "col2" VARCHAR(20000)  DEFAULT \'\' NOT NULL
+          "col1" VARCHAR(20000)  ,
+          "col2" VARCHAR(20000)  
         );',
                         ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                         ExasolQuote::quoteSingleIdentifier($tableName)
@@ -122,8 +122,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 $this->connection->executeQuery(
                     sprintf(
                         'CREATE TABLE %s.%s (
-          "col1" VARCHAR(20000)  DEFAULT \'\' NOT NULL,
-          "col2" VARCHAR(20000)  DEFAULT \'\' NOT NULL,
+          "col1" VARCHAR(20000)  ,
+          "col2" VARCHAR(20000)  ,
           "_timestamp" TIMESTAMP
         );',
                         ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
@@ -139,8 +139,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
 
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-          "col1" VARCHAR(2000000) DEFAULT \'\' NOT NULL,
-          "col2" VARCHAR(2000000) DEFAULT \'\' NOT NULL
+          "col1" VARCHAR(2000000) ,
+          "col2" VARCHAR(2000000) 
         );',
                     ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
@@ -161,18 +161,18 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_ACCOUNTS_BEZ_TS:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-                "id" VARCHAR(2000000) NOT NULL,
-                "idTwitter" VARCHAR(2000000) NOT NULL,
-                "name" VARCHAR(2000000) NOT NULL,
-                "import" VARCHAR(2000000) NOT NULL,
-                "isImported" VARCHAR(2000000) NOT NULL,
-                "apiLimitExceededDatetime" VARCHAR(2000000) NOT NULL,
-                "analyzeSentiment" VARCHAR(2000000) NOT NULL,
-                "importKloutScore" VARCHAR(2000000) NOT NULL,
-                "timestamp" VARCHAR(2000000) NOT NULL,
-                "oauthToken" VARCHAR(2000000) NOT NULL,
-                "oauthSecret" VARCHAR(2000000) NOT NULL,
-                "idApp" VARCHAR(2000000) NOT NULL
+                "id" VARCHAR(2000000) ,
+                "idTwitter" VARCHAR(2000000) ,
+                "name" VARCHAR(2000000) ,
+                "import" VARCHAR(2000000) ,
+                "isImported" VARCHAR(2000000) ,
+                "apiLimitExceededDatetime" VARCHAR(2000000) ,
+                "analyzeSentiment" VARCHAR(2000000) ,
+                "importKloutScore" VARCHAR(2000000) ,
+                "timestamp" VARCHAR(2000000) ,
+                "oauthToken" VARCHAR(2000000) ,
+                "oauthSecret" VARCHAR(2000000) ,
+                "idApp" VARCHAR(2000000) 
             ) ',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
@@ -181,9 +181,9 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_NULLIFY:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-                "id" VARCHAR(2000000)   NOT NULL,
-                "col1" VARCHAR(2000000) NOT NULL,
-                "col2" VARCHAR(2000000) NOT NULL
+                "id" VARCHAR(2000000)   ,
+                "col1" VARCHAR(2000000) ,
+                "col2" VARCHAR(2000000) 
             ) ',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
@@ -192,10 +192,10 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_TYPES:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s."types" (
-              "charCol"  VARCHAR(2000000) NOT NULL,
-              "numCol"   VARCHAR(2000000) NOT NULL,
-              "floatCol" VARCHAR(2000000) NOT NULL,
-              "boolCol"  VARCHAR(2000000) NOT NULL,
+              "charCol"  VARCHAR(2000000) ,
+              "numCol"   VARCHAR(2000000) ,
+              "floatCol" VARCHAR(2000000) ,
+              "boolCol"  VARCHAR(2000000) ,
               "_timestamp" TIMESTAMP
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
@@ -203,10 +203,10 @@ class ExasolBaseTestCase extends ImportExportBaseTest
 
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE  %s."types" (
-              "charCol"  VARCHAR(4000) NOT NULL,
-              "numCol" decimal(10,1) NOT NULL,
-              "floatCol" float NOT NULL,
-              "boolCol" tinyint NOT NULL
+              "charCol"  VARCHAR(4000) ,
+              "numCol" decimal(10,1) ,
+              "floatCol" float ,
+              "boolCol" tinyint 
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
                 ));
@@ -220,8 +220,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-              "id" VARCHAR(4000) NOT NULL,
-              "row_number" VARCHAR(4000) NOT NULL,
+              "id" VARCHAR(4000) ,
+              "row_number" VARCHAR(4000) ,
               "_timestamp" TIMESTAMP
            )',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
@@ -231,7 +231,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_SINGLE_PK:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-            "VisitID"   VARCHAR(2000000) NOT NULL,
+            "VisitID"   VARCHAR(2000000) ,
             "Value"     VARCHAR(2000000),
             "MenuItem"  VARCHAR(2000000),
             "Something" VARCHAR(2000000),
@@ -245,7 +245,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_MULTI_PK:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-            "VisitID"   VARCHAR(2000000) NOT NULL,
+            "VisitID"   VARCHAR(2000000) ,
             "Value"     VARCHAR(2000000),
             "MenuItem"  VARCHAR(2000000),
             "Something" VARCHAR(2000000),
@@ -259,18 +259,18 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-                "id" VARCHAR(2000000) NOT NULL,
-                "idTwitter" VARCHAR(2000000) NOT NULL,
-                "name" VARCHAR(2000000) NOT NULL,
-                "import" VARCHAR(2000000) NOT NULL,
-                "isImported" VARCHAR(2000000) NOT NULL,
-                "apiLimitExceededDatetime" VARCHAR(2000000) NOT NULL,
-                "analyzeSentiment" VARCHAR(2000000) NOT NULL,
-                "importKloutScore" VARCHAR(2000000) NOT NULL,
-                "timestamp" VARCHAR(2000000) NOT NULL,
-                "oauthToken" VARCHAR(2000000) NOT NULL,
-                "oauthSecret" VARCHAR(2000000) NOT NULL,
-                "idApp" VARCHAR(2000000) NOT NULL,
+                "id" VARCHAR(2000000) ,
+                "idTwitter" VARCHAR(2000000) ,
+                "name" VARCHAR(2000000) ,
+                "import" VARCHAR(2000000) ,
+                "isImported" VARCHAR(2000000) ,
+                "apiLimitExceededDatetime" VARCHAR(2000000) ,
+                "analyzeSentiment" VARCHAR(2000000) ,
+                "importKloutScore" VARCHAR(2000000) ,
+                "timestamp" VARCHAR(2000000) ,
+                "oauthToken" VARCHAR(2000000) ,
+                "oauthSecret" VARCHAR(2000000) ,
+                "idApp" VARCHAR(2000000) ,
                 "_timestamp" TIMESTAMP,
                 CONSTRAINT PRIMARY KEY ("id")
             );',
@@ -281,9 +281,9 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_OUT_LEMMA:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-          "ts" VARCHAR(2000000)         DEFAULT \'\' NOT NULL,
-          "lemma" VARCHAR(2000000)      DEFAULT \'\' NOT NULL,
-          "lemmaIndex" VARCHAR(2000000) DEFAULT \'\' NOT NULL,
+          "ts" VARCHAR(2000000)         ,
+          "lemma" VARCHAR(2000000)      ,
+          "lemmaIndex" VARCHAR(2000000) ,
                 "_timestamp" TIMESTAMP
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
@@ -293,9 +293,9 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_TABLE:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-                                "column" VARCHAR(2000000)         DEFAULT \'\' NOT NULL,
-                                "table" VARCHAR(2000000)      DEFAULT \'\' NOT NULL,
-                                "lemmaIndex" VARCHAR(2000000) DEFAULT \'\' NOT NULL,
+                                "column" VARCHAR(2000000)         ,
+                                "table" VARCHAR(2000000)      ,
+                                "lemmaIndex" VARCHAR(2000000) ,
                 "_timestamp" TIMESTAMP
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
@@ -305,8 +305,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-                                "col1" VARCHAR(2000000)         DEFAULT \'\' NOT NULL,
-                                "col2" VARCHAR(2000000)      DEFAULT \'\' NOT NULL
+                                "col1" VARCHAR(2000000)         ,
+                                "col2" VARCHAR(2000000)      
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
@@ -427,6 +427,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             }, array_values($row));
         }, $this->connection->fetchAllAssociative($sql));
 
+        var_export($queryResult);
         $this->assertArrayEqualsSorted(
             $expected,
             $queryResult,

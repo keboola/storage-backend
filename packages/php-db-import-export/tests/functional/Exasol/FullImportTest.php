@@ -360,20 +360,23 @@ class FullImportTest extends ExasolBaseTestCase
             3,
             self::TABLE_ACCOUNTS_3,
         ];
-        yield 'accounts crlf' => [
-            $this->createS3SourceInstance(
-                'tw_accounts.crlf.csv',
-                $accountsHeader,
-                false,
-                false,
-                ['id']
-            ),
-            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
-            $this->getExasolImportOptions(),
-            $expectedAccounts,
-            3,
-            self::TABLE_ACCOUNTS_3,
-        ];
+
+        // line ending detection is not supported yet for S3
+        //yield 'accounts crlf' => [
+        //    $this->createS3SourceInstance(
+        //        'tw_accounts.crlf.csv',
+        //        $accountsHeader,
+        //        false,
+        //        false,
+        //        ['id']
+        //    ),
+        //    [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
+        //    $this->getExasolImportOptions(),
+        //    $expectedAccounts,
+        //    3,
+        //    self::TABLE_ACCOUNTS_3,
+        //];
+
         // manifests
         yield 'accounts sliced' => [
             $this->createS3SourceInstance(
@@ -432,7 +435,7 @@ class FullImportTest extends ExasolBaseTestCase
             ),
             [$this->getDestinationSchemaName(), self::TABLE_TABLE],
             $this->getExasolImportOptions(),
-            [['table', 'column']],
+            [['table', 'column', null]],
             1,
             self::TABLE_TABLE,
         ];
