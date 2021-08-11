@@ -19,7 +19,10 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 class FromS3CopyIntoAdapter implements CopyAdapterInterface
 {
-    private const SLICED_FILES_CHUNK_SIZE = 50;
+    // small number of parallel files to make it work everywhere
+    // Exasol should provide us way to calculate maximum for large clusters and make it dynamic
+    // https://keboolaglobal.slack.com/archives/C02988ZV06M/p1628665432001900?thread_ts=1628517612.015800&cid=C02988ZV06M
+    private const SLICED_FILES_CHUNK_SIZE = 32;
     /** @var Connection */
     private $connection;
 
