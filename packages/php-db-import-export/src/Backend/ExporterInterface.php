@@ -15,5 +15,8 @@ interface ExporterInterface
         ExportOptionsInterface $options
     ): array;
 
+    /**
+     * @param class-string<BackendExportAdapterInterface>[] $adapters
+     */
     public function setAdapters(array $adapters): void;
 }

@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Synapse;
 
 use Doctrine\DBAL\Connection;
 use Exception;
+use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -28,6 +29,9 @@ class Exporter implements ExporterInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @param class-string<BackendExportAdapterInterface>[] $adapters
+     */
     public function setAdapters(array $adapters): void
     {
         $this->adapters = $adapters;
