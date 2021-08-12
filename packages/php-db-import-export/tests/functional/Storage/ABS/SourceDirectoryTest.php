@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
+namespace Tests\Keboola\Db\ImportExportFunctional\Storage\ABS;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;

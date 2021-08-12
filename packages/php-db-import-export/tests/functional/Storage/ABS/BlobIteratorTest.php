@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
+namespace Tests\Keboola\Db\ImportExportFunctional\Storage\ABS;
 
 use Keboola\Db\ImportExport\Storage\ABS\BlobIterator;
 use Keboola\FileStorage\Abs\ClientFactory;
