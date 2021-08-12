@@ -5,15 +5,11 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
 use Keboola\Csv\CsvFile;
-use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\S3;
-use Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
-use Tests\Keboola\Db\ImportExport\S3SourceTrait;
+use Tests\Keboola\Db\ImportExport\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
@@ -21,11 +17,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
     protected const SNOWFLAKE_SOURCE_SCHEMA_NAME = 'some.tests';
     protected const SNOWFLAKE_DEST_SCHEMA_NAME = 'in.c-tests';
 
-    protected const STORAGE_S3 = 'S3';
-    protected const STORAGE_ABS = 'ABS';
-
-    use ABSSourceTrait;
-    use S3SourceTrait;
+    use StorageTrait;
 
     /** @var Connection */
     protected $connection;
@@ -343,77 +335,5 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             . $buildPrefix
             . '-'
             . getenv('SUITE');
-    }
-
-    /**
-     * @param string[] $columns
-     * @param string[]|null $primaryKeys
-     * @return S3\SourceFile|ABS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
-     */
-    public function getSourceInstance(
-        string $filePath,
-        array $columns = [],
-        bool $isSliced = false,
-        bool $isDirectory = false,
-        ?array $primaryKeys = null
-    ) {
-        switch (getenv('STORAGE_TYPE')) {
-            case self::STORAGE_S3:
-                $getSourceInstance = 'createS3SourceInstance';
-                $manifestPrefix = 'S3.';
-                break;
-            case self::STORAGE_ABS:
-                $getSourceInstance = 'createABSSourceInstance';
-                $manifestPrefix = '';
-                break;
-            default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
-        }
-
-        $filePath = str_replace('%MANIFEST_PREFIX%', $manifestPrefix, $filePath);
-        return $this->$getSourceInstance(
-            $filePath,
-            $columns,
-            $isSliced,
-            $isDirectory,
-            $primaryKeys
-        );
-    }
-
-    /**
-     * @param string[] $columns
-     * @param string[]|null $primaryKeys
-     * @return S3\SourceFile|ABS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
-     */
-    public function getSourceInstanceFromCsv(
-        string $filePath,
-        CsvOptions $options,
-        array $columns = [],
-        bool $isSliced = false,
-        bool $isDirectory = false,
-        ?array $primaryKeys = null
-    ) {
-        switch (getenv('STORAGE_TYPE')) {
-            case self::STORAGE_S3:
-                $getSourceInstanceFromCsv = 'createS3SourceInstanceFromCsv';
-                $manifestPrefix = 'S3.';
-                break;
-            case self::STORAGE_ABS:
-                $getSourceInstanceFromCsv = 'createABSSourceInstanceFromCsv';
-                $manifestPrefix = '';
-                break;
-            default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
-        }
-
-        $filePath = str_replace('%MANIFEST_PREFIX%', $manifestPrefix, $filePath);
-        return $this->$getSourceInstanceFromCsv(
-            $filePath,
-            $options,
-            $columns,
-            $isSliced,
-            $isDirectory,
-            $primaryKeys
-        );
     }
 }

@@ -7,12 +7,12 @@ namespace Tests\Keboola\Db\ImportExportFunctional;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExport\StorageTrait;
 
 abstract class ImportExportBaseTest extends TestCase
 {
     protected const DATA_DIR = __DIR__ . '/../data/';
-    use ABSSourceTrait;
+    use StorageTrait;
 
     /**
      * @param CsvFile[] $expected
