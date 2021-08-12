@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable;
 
 use Doctrine\DBAL\Connection;
+use Keboola\Datatype\Definition\Exasol;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
-use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\ColumnInterface;
+use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
@@ -97,12 +97,31 @@ final class FullImporter implements ToFinalTableImporterInterface
     ): void {
         $state->startTimer(self::TIMER_DEDUP);
 
+        // ensure that PK on dedup table are not null
+        $dedupTableColumns = [];
+        /** @var ExasolColumn $definition */
+        foreach ($stagingTableDefinition->getColumnsDefinitions() as $definition) {
+            if (in_array($definition->getColumnName(), $destinationTableDefinition->getPrimaryKeysNames())) {
+                $dedupTableColumns[] = new ExasolColumn(
+                    $definition->getColumnName(),
+                    new Exasol(
+                        $definition->getColumnDefinition()->getType(), [
+                            'length' => $definition->getColumnDefinition()->getLength(),
+                            'nullable' => false,
+                        ]
+                    )
+                );
+            } else {
+                $dedupTableColumns[] = $definition;
+            }
+        }
+
         // 1 create dedup table
         $dedupTmpTableName = 'dedup_' . BackendHelper::generateStagingTableName();
         $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
             $destinationTableDefinition->getSchemaName(),
             $dedupTmpTableName,
-            $stagingTableDefinition->getColumnsDefinitions(),
+            new ColumnCollection($dedupTableColumns),
             $destinationTableDefinition->getPrimaryKeysNames()
         ));
         $dedupTableRef = new ExasolTableReflection(
