@@ -48,7 +48,7 @@
         "tests-synapse-heap4000temp-hash": "SUITE=tests-synapse-heap4000temp-hash CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP4000 DEDUP_TYPE=TMP_TABLE TABLE_DISTRIBUTION=HASH phpunit --colors=always --testsuite tests-synapse-heap4000temp",
         "tests-synapse-clusterdindextemp": "SUITE=tests-synapse-clusterdindextemp CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=CLUSTERED_INDEX DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite tests-synapse-clusterdindextemp",
         "tests-synapse-mi": "SUITE=tests-synapse-mi CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY TEMP_TABLE_TYPE=HEAP DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite synapse-mi",
-        "tests-exasol": "SUITE=tests-exasol phpunit --colors=always --testsuite exasol",
+        "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
         "tests-functional": [
             "@tests-snowflake-abs",
             "@tests-snowflake-s3",
