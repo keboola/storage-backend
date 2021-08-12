@@ -105,7 +105,8 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $dedupTableColumns[] = new ExasolColumn(
                     $definition->getColumnName(),
                     new Exasol(
-                        $definition->getColumnDefinition()->getType(), [
+                        $definition->getColumnDefinition()->getType(),
+                        [
                             'length' => $definition->getColumnDefinition()->getLength(),
                             'nullable' => false,
                         ]
