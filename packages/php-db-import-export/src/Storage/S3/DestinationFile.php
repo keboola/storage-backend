@@ -23,7 +23,6 @@ class DestinationFile extends BaseFile implements DestinationInterface
         $path = RelativePath::createFromRootAndPath(new S3Provider(), $this->bucket, $this->filePath);
 
         $filename = $path->getPathnameWithoutRoot();
-        $filename = str_replace('.csv', '', $filename);
         $suffix = $isCompressed ? '.gz' : '';
         // Exasol wont slice by default
         // for compressed files all files are created this is annoying
