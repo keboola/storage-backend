@@ -57,7 +57,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
         $expectedAccountsRows = array_values($expectedAccountsRows);
 
         // multi pk
-        $expectationMultiPkFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk.increment.csv');
+        $expectationMultiPkFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk_not-null.increment.csv');
         $expectedMultiPkRows = [];
         foreach ($expectationMultiPkFile as $row) {
             $expectedMultiPkRows[] = $row;
@@ -122,7 +122,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
         ];
         yield 'multi pk' => [
             $this->createS3SourceInstance(
-                'multi-pk.csv',
+                'multi-pk_not-null.csv',
                 $multiPkColumns,
                 false,
                 false,
@@ -130,17 +130,17 @@ class IncrementalImportTest extends ExasolBaseTestCase
             ),
             $this->getExasolImportOptions(),
             $this->createS3SourceInstance(
-                'multi-pk.increment.csv',
+                'multi-pk_not-null.increment.csv',
                 $multiPkColumns,
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getExasolIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'multi-pk'],
+            [$this->getDestinationSchemaName(), 'multi-pk_ts'],
             $expectedMultiPkRows,
             3,
-            self::TABLE_MULTI_PK,
+            self::TABLE_MULTI_PK_WITH_TS,
         ];
         return $tests;
     }

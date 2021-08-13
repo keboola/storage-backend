@@ -55,6 +55,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         /** @var ExasolTableDefinition $destinationTableDefinition */
         /** @var ExasolTableDefinition $destinationTableDefinition */
         if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
+            // has PKs for dedup
+
             // Create table for deduplication
             $deduplicationTableDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
                 $stagingTableDefinition,
@@ -69,7 +71,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
             $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
             $this->connection->executeStatement(
-                $this->sqlBuilder->getUpdateWithPkCommandSubstitute(
+                $this->sqlBuilder->getUpdateWithPkCommandNull(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
@@ -107,6 +109,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         }
 
+        // insert into.
         $state->startTimer(self::TIMER_INSERT_INTO_TARGET);
         $this->connection->executeStatement(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
