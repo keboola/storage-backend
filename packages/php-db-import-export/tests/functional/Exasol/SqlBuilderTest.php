@@ -30,7 +30,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
 
     protected function dropTestSchema(): void
     {
-        $this->connection->executeStatement(sprintf('DROP SCHEMA IF EXISTS %s CASCADE', self::TEST_SCHEMA_QUOTED));
+        $this->cleanSchema(self::TEST_SCHEMA);
     }
 
     protected function getBuilder(): SqlBuilder
@@ -46,7 +46,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
 
     protected function createTestSchema(): void
     {
-        $this->connection->executeStatement(sprintf('CREATE SCHEMA %s', self::TEST_SCHEMA_QUOTED));
+        $this->createSchema(self::TEST_SCHEMA);
     }
 
     public function testGetDedupCommand(): void
