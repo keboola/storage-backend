@@ -56,6 +56,7 @@ class ExasolExportAdapter implements BackendExportAdapterInterface
 EXPORT %s INTO CSV AT '%s' 
 USER '%s' IDENTIFIED BY '%s'
 %s
+DELIMIT = ALWAYS
 REPLACE
 EOD
             ,

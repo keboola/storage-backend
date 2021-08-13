@@ -60,6 +60,7 @@ FILE 'file.csv_029.csv'
 FILE 'file.csv_030.csv'
 FILE 'file.csv_031.csv'
 FILE 'file.csv_032.csv'
+DELIMIT = ALWAYS
 REPLACE
 EOT
             ,
@@ -106,6 +107,7 @@ FILE 'file.csv_007.csv.gz.gz'
 FILE 'file.csv_008.csv.gz.gz'
 FILE 'file.csv_009.csv.gz.gz'
 FILE 'file.csv_010.csv.gz.gz'
+DELIMIT = ALWAYS
 REPLACE
 EOT
             ,
@@ -174,6 +176,7 @@ FILE 'file.csv_029.csv'
 FILE 'file.csv_030.csv'
 FILE 'file.csv_031.csv'
 FILE 'file.csv_032.csv'
+DELIMIT = ALWAYS
 REPLACE
 EOT
             ,
