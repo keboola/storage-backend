@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\S3\SourceDirectory;
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
@@ -18,6 +19,10 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 class FromS3CopyIntoAdapter implements CopyAdapterInterface
 {
+    // small number of parallel files to make it work everywhere
+    // Exasol should provide us way to calculate maximum for large clusters and make it dynamic
+    // https://keboolaglobal.slack.com/archives/C02988ZV06M/p1628665432001900?thread_ts=1628517612.015800&cid=C02988ZV06M
+    private const SLICED_FILES_CHUNK_SIZE = 32;
     /** @var Connection */
     private $connection;
 
@@ -40,9 +45,10 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         assert($destination instanceof ExasolTableDefinition);
         assert($importOptions instanceof ExasolImportOptions);
 
-        $sql = $this->getCopyCommand($source, $destination, $importOptions);
-
-        if ($sql !== null) {
+        foreach ($this->getCopyCommand($source, $destination, $importOptions) as $sql) {
+            if ($sql === null) {
+                break;
+            }
             $this->connection->executeStatement($sql);
         }
 
@@ -55,11 +61,14 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         return $ref->getRowsCount();
     }
 
+    /**
+     * @return \Generator<string|null>
+     */
     private function getCopyCommand(
         Storage\S3\SourceFile $source,
         ExasolTableDefinition $destination,
         ExasolImportOptions $importOptions
-    ): string {
+    ): \Generator {
         $destinationSchema = ExasolQuote::quoteSingleIdentifier($destination->getSchemaName());
         $destinationTable = ExasolQuote::quoteSingleIdentifier($destination->getTableName());
 
@@ -71,24 +80,26 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
 
         // get files from single file, directory or manifest
         /** @var SourceDirectory|SourceFile $source */
-        $entries = $source->getManifestEntries();
+        $filesToImport = $source->getManifestEntries();
         $s3Prefix = $source->getS3Prefix() . '/';
-        $entries = array_map(
-            static function ($entry) use ($s3Prefix) {
-                return 'FILE ' . ExasolQuote::quote(strtr($entry, [$s3Prefix => '']));
-            },
-            $entries
-        );
 
-        if (count($entries) === 0) {
-            return '';
+        if (count($filesToImport) === 0) {
+            yield null;
         }
 
-        // EXA COLUMN SEPARATOR = string between values
-        // EXA COLUMN DELIMITER = enclosure -> quote to quote values aaa -> "aaa"
-        // ESCAPED BY is not supported yet
-        return sprintf(
-            '
+        foreach (array_chunk($filesToImport, self::SLICED_FILES_CHUNK_SIZE) as $entries) {
+            $entries = array_map(
+                static function ($entry) use ($s3Prefix) {
+                    return 'FILE ' . ExasolQuote::quote(strtr($entry, [$s3Prefix => '']));
+                },
+                $entries
+            );
+
+            // EXA COLUMN SEPARATOR = string between values
+            // EXA COLUMN DELIMITER = enclosure -> quote to quote values aaa -> "aaa"
+            // ESCAPED BY is not supported yet
+            yield sprintf(
+                '
 IMPORT INTO %s.%s FROM CSV AT %s
 USER %s IDENTIFIED BY %s
 %s --- files
@@ -97,15 +108,16 @@ USER %s IDENTIFIED BY %s
 COLUMN SEPARATOR=%s
 COLUMN DELIMITER=%s
 ',
-            $destinationSchema,
-            $destinationTable,
-            ExasolQuote::quote($source->getBucketURL()),
-            ExasolQuote::quote($source->getKey()),
-            ExasolQuote::quote($source->getSecret()),
-            implode("\n", $entries),
-            $firstRow,
-            ExasolQuote::quote($source->getCsvOptions()->getDelimiter()),
-            ExasolQuote::quote($source->getCsvOptions()->getEnclosure())
-        );
+                $destinationSchema,
+                $destinationTable,
+                ExasolQuote::quote($source->getBucketURL()),
+                ExasolQuote::quote($source->getKey()),
+                ExasolQuote::quote($source->getSecret()),
+                implode("\n", $entries),
+                $firstRow,
+                ExasolQuote::quote($source->getCsvOptions()->getDelimiter()),
+                ExasolQuote::quote($source->getCsvOptions()->getEnclosure())
+            );
+        }
     }
 }

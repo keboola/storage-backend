@@ -6,7 +6,6 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Storage\Exasol\Table;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
@@ -135,10 +134,5 @@ class StageImportTest extends ExasolBaseTestCase
             $targetTableRef->getTableDefinition(),
             $this->getExasolImportOptions()
         );
-    }
-
-    protected function getExasolImportOptions(): ExasolImportOptions
-    {
-        return new ExasolImportOptions();
     }
 }

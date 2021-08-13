@@ -158,9 +158,9 @@ stages:
               SYNAPSE_PWD: $(SYNAPSE_PWD)
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
-              EXASOL_HOST: exasol:8563
-              EXASOL_USERNAME: sys
-              EXASOL_PASSWORD: exasol
+              EXASOL_HOST: $(EXASOL_HOST)
+              EXASOL_USERNAME: $(EXASOL_USERNAME)
+              EXASOL_PASSWORD: $(EXASOL_PASSWORD)
           - script: |
               docker-compose stop
               php ./provisioning/cli.php app:delete:synapse \
