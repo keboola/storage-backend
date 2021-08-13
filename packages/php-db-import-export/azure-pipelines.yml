@@ -48,7 +48,6 @@ stages:
               cd provisioning && composer install
             displayName: 'Prepare environment'
           - script: |
-              docker-compose up -d exasol
               php ./provisioning/cli.php app:deploy:synapse \
               --serverName $SERVER_NAME \
               --resourceGroup $AZURE_RESOURCE_GROUP \
