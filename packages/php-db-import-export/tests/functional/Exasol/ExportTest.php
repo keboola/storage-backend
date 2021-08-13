@@ -164,12 +164,10 @@ class ExportTest extends ExasolBaseTestCase
             $options
         );
 
-        /** @var array<mixed>|null $files */
         $files = $this->listFiles($this->getExportDir());
         self::assertNotNull($files);
-        self::assertCount(1, $files);
 
-        $actual = $this->getCsvFileFromStorage($files[0]['Key']);
+        $actual = $this->getCsvFileFromStorage($files);
         $expected = new CsvFile(
             self::DATA_DIR . 'with-ts.expected.exasol.csv',
             CsvOptions::DEFAULT_DELIMITER,
@@ -211,12 +209,10 @@ class ExportTest extends ExasolBaseTestCase
             $options
         );
 
-        /** @var array<mixed>|null $files */
         $files = $this->listFiles($this->getExportDir());
         self::assertNotNull($files);
-        self::assertCount(1, $files);
 
-        $actual = $this->getCsvFileFromStorage($files[0]['Key']);
+        $actual = $this->getCsvFileFromStorage($files);
         $expected = new CsvFile(
             self::DATA_DIR . 'tw_accounts.csv',
             CsvOptions::DEFAULT_DELIMITER,

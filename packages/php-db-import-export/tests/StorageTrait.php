@@ -12,10 +12,13 @@ use Keboola\Db\ImportExport\Storage\S3;
 use Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\FileStorage\Abs\ClientFactory;
+use Keboola\StorageApi\ProcessPolyfill;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\Blob;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 trait StorageTrait
 {
@@ -215,37 +218,44 @@ trait StorageTrait
     }
 
     /**
+     * @param Blob[]|array<mixed> $files
      * @return CsvFile<string[]>
      */
     public function getCsvFileFromStorage(
-        string $filePath,
+        array $files,
         string $tmpName = 'tmp.csv'
     ): CsvFile {
         $tmp = new Temp();
         $tmp->initRunFolder();
-        $actualName = $tmp->getTmpFolder() . $tmpName;
+        $tmpFolder = $tmp->getTmpFolder();
+        $finalFile = $tmpFolder . $tmpName;
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
                 /** @var S3Client $client */
                 $client = $this->createClient();
-                $result = $client->getObject([
-                    'Bucket' => (string) getenv('AWS_S3_BUCKET'),
-                    'Key' => $filePath,
-                ]);
-                file_put_contents($actualName, $result['Body']);
-                return new CsvFile($actualName);
-            case StorageType::STORAGE_ABS:
-                /** @var BlobRestProxy $client */
-                $client = $this->createClient();
-                $content = stream_get_contents(
-                    $client->getBlob((string) getenv('ABS_CONTAINER_NAME'), $filePath)
-                    ->getContentStream()
-                );
-                if ($content === false) {
-                    throw new \Exception();
+                $tmpFiles = [];
+                /** @var array<mixed> $file */
+                foreach ($files as $file) {
+                    $result = $client->getObject([
+                        'Bucket' => (string) getenv('AWS_S3_BUCKET'),
+                        'Key' => $file['Key'],
+                    ]);
+                    $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file['Key']);
+                    file_put_contents($tmpName, $result['Body']);
                 }
-                file_put_contents($actualName, $content);
-                return new CsvFile($actualName);
+
+                foreach ($tmpFiles as $file) {
+                    $catCmd = 'cat ' . escapeshellarg($file) . ' >> ' . escapeshellarg($finalFile);
+                    $process = Process::fromShellCommandline($catCmd);
+                    $process->setTimeout(null);
+                    if ($process->run() !== 0) {
+                        throw new ProcessFailedException($process);
+                    }
+                }
+
+                return new CsvFile($finalFile);
+            case StorageType::STORAGE_ABS:
+                throw new \Exception('Implement this for ABS');
             default:
                 throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
