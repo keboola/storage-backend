@@ -56,7 +56,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
             // has PKs for dedup
 
-            // Create table for deduplication
+            // 0. Create table for deduplication
             $deduplicationTableDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
                 $stagingTableDefinition,
                 $stagingTableDefinition->getColumnsNames()
@@ -68,6 +68,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             $this->connection->executeStatement($sql);
             $state->stopTimer(self::TIMER_DEDUP_TABLE_CREATE);
 
+            // 1. Run UPDATE command to update rows in final table with updated data based on PKs
             $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
             $this->connection->executeStatement(
                 $this->sqlBuilder->getUpdateWithPkCommandNull(
@@ -79,6 +80,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             );
             $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
 
+            // 2. delete updated rows from staging table
             $state->startTimer(self::TIMER_DELETE_UPDATED_ROWS);
             $this->connection->executeStatement(
                 $this->sqlBuilder->getDeleteOldItemsCommand(
@@ -86,9 +88,9 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $destinationTableDefinition
                 )
             );
-
             $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
 
+            // 3. dedup insert
             $state->startTimer(self::TIMER_DEDUP_STAGING);
             $this->connection->executeStatement(
                 $this->sqlBuilder->getDedupCommand(
@@ -104,11 +106,9 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 )
             );
             $state->stopTimer(self::TIMER_DEDUP_STAGING);
-        } else {
-            // TODO
         }
 
-        // insert into.
+        // insert into destination table
         $state->startTimer(self::TIMER_INSERT_INTO_TARGET);
         $this->connection->executeStatement(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
@@ -126,6 +126,13 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
 
+        if(isset($deduplicationTableDefinition)){
+            // drop dedup table
+            $this->sqlBuilder->getDropTableIfExistsCommand(
+                $deduplicationTableDefinition->getSchemaName(),
+                $deduplicationTableDefinition->getTableName()
+            );
+        }
         return $state->getResult();
     }
 }
