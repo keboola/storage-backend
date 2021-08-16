@@ -207,7 +207,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
             $tableDefinition
         );
 
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'DELETE FROM "import-export-test_schema"."stagingTable" WHERE EXISTS (SELECT * FROM "import-export-test_schema"."import-export-test_test" WHERE COALESCE("import-export-test_schema"."import-export-test_test"."pk1", \'KBC_$#\') = COALESCE("import-export-test_schema"."stagingTable"."pk1", \'KBC_$#\') AND COALESCE("import-export-test_schema"."import-export-test_test"."pk2", \'KBC_$#\') = COALESCE("import-export-test_schema"."stagingTable"."pk2", \'KBC_$#\'))',
             $sql
@@ -219,8 +219,8 @@ class SqlBuilderTest extends ExasolBaseTestCase
             $stagingTableSql
         ));
 
-        $this->assertCount(1, $result);
-        $this->assertSame([
+        self::assertCount(1, $result);
+        self::assertSame([
             [
                 'pk1' => '2',
                 'pk2' => '1',
@@ -246,11 +246,11 @@ class SqlBuilderTest extends ExasolBaseTestCase
     public function testGetDropTableIfExistsCommand(): void
     {
         $this->createTestSchema();
-        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
+        self::assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
 
         // try to drop not existing table
         $sql = $this->getBuilder()->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'DROP TABLE IF EXISTS "import-export-test_schema"."import-export-test_test"',
             $sql
@@ -262,14 +262,14 @@ class SqlBuilderTest extends ExasolBaseTestCase
 
         // try to drop not existing table
         $sql = $this->getBuilder()->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'DROP TABLE IF EXISTS "import-export-test_schema"."import-export-test_test"',
             $sql
         );
         $this->connection->executeStatement($sql);
 
-        $this->assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
+        self::assertTableNotExists(self::TEST_SCHEMA, self::TEST_TABLE);
     }
 
     protected function createTestTable(): void
@@ -309,21 +309,21 @@ EOT
             '2020-01-01 00:00:00'
         );
 
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") (SELECT CAST(COALESCE("col1", \'\') AS NVARCHAR(4000)) AS "col1",CAST(COALESCE("col2", \'\') AS NVARCHAR(4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src")',
             $sql
         );
 
         $out = $this->connection->executeStatement($sql);
-        $this->assertEquals(4, $out);
+        self::assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
 
-        $this->assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing([
             [
                 'id' => null,
                 'col1' => '1',
@@ -427,20 +427,20 @@ EOT
             $options,
             '2020-01-01 00:00:00'
         );
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS NVARCHAR(4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
-        $this->assertEquals(4, $out);
+        self::assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
 
-        $this->assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing([
             [
                 'id' => null,
                 'col1' => '1',
@@ -489,13 +489,13 @@ EOT
             $options,
             '2020-01-01 00:00:00'
         );
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2", "_timestamp") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS NVARCHAR(4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import-export-test_schema"."stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
-        $this->assertEquals(4, $out);
+        self::assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
@@ -503,10 +503,10 @@ EOT
         ));
 
         foreach ($result as $item) {
-            $this->assertArrayHasKey('id', $item);
-            $this->assertArrayHasKey('col1', $item);
-            $this->assertArrayHasKey('col2', $item);
-            $this->assertArrayHasKey('_timestamp', $item);
+            self::assertArrayHasKey('id', $item);
+            self::assertArrayHasKey('col1', $item);
+            self::assertArrayHasKey('col2', $item);
+            self::assertArrayHasKey('_timestamp', $item);
         }
     }
 
@@ -516,15 +516,15 @@ EOT
         $this->createStagingTableWithData();
 
         $ref = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
-        $this->assertEquals(3, $ref->getRowsCount());
+        self::assertEquals(3, $ref->getRowsCount());
 
         $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
-        $this->assertEquals(
+        self::assertEquals(
             'DELETE FROM "import-export-test_schema"."stagingTable"',
             $sql
         );
         $this->connection->executeStatement($sql);
-        $this->assertEquals(0, $ref->getRowsCount());
+        self::assertEquals(0, $ref->getRowsCount());
     }
 
     public function testGetUpdateWithPkCommand(): void
@@ -567,7 +567,7 @@ EOT
             self::TEST_TABLE_IN_SCHEMA
         ));
 
-        $this->assertEquals([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '2',
@@ -582,7 +582,7 @@ EOT
             $this->getDummyImportOptions(),
             '2020-01-01 00:00:00'
         );
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import-export-test_schema"."stagingTable") AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
@@ -594,7 +594,7 @@ EOT
             self::TEST_TABLE_IN_SCHEMA
         ));
 
-        $this->assertEquals([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '2',
@@ -649,7 +649,7 @@ EOT
             self::TEST_TABLE_IN_SCHEMA
         ));
 
-        $this->assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing([
             [
                 'id' => '1',
                 'col1' => '',
@@ -671,7 +671,7 @@ EOT
             $options,
             '2020-01-01 00:00:00'
         );
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import-export-test_schema"."stagingTable") AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
@@ -683,7 +683,7 @@ EOT
             self::TEST_TABLE_IN_SCHEMA
         ));
 
-        $this->assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing([
             [
                 'id' => '1',
                 'col1' => null,
@@ -748,7 +748,7 @@ EOT
             self::TEST_TABLE_IN_SCHEMA
         ));
 
-        $this->assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing([
             [
                 'id' => '1',
                 'col1' => '',
@@ -772,7 +772,7 @@ EOT
             $timestampSet->format(DateTimeHelper::FORMAT) . '.000'
         );
 
-        $this->assertEquals(
+        self::assertEquals(
         // phpcs:ignore
             'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01.000\' FROM (SELECT DISTINCT * FROM "import-export-test_schema"."stagingTable") AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR(4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
@@ -785,11 +785,11 @@ EOT
         ));
 
         foreach ($result as $item) {
-            $this->assertArrayHasKey('id', $item);
-            $this->assertArrayHasKey('col1', $item);
-            $this->assertArrayHasKey('col2', $item);
-            $this->assertArrayHasKey('_timestamp', $item);
-            $this->assertSame(
+            self::assertArrayHasKey('id', $item);
+            self::assertArrayHasKey('col1', $item);
+            self::assertArrayHasKey('col2', $item);
+            self::assertArrayHasKey('_timestamp', $item);
+            self::assertSame(
                 $timestampSet->format(DateTimeHelper::FORMAT),
                 (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
             );
