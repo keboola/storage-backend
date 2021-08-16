@@ -27,7 +27,7 @@ class ExasolExportAdapterTest extends BaseTestCase
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
 EXPORT SELECT * FROM "schema"."table" INTO CSV AT 'https://myBucket.s3.eu-central-1.amazonaws.com' 
-USER 's3Key' IDENTIFIED BY 's3Secret'
+USER 's3Key' IDENTIFIED BY 's3Secret;sse_type=AES256'
 FILE 'file.csv_001.csv'
 FILE 'file.csv_002.csv'
 FILE 'file.csv_003.csv'
@@ -96,7 +96,7 @@ EOT
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
 EXPORT SELECT * FROM "schema"."table" INTO CSV AT 'https://myBucket.s3.eu-central-1.amazonaws.com' 
-USER 's3Key' IDENTIFIED BY 's3Secret'
+USER 's3Key' IDENTIFIED BY 's3Secret;sse_type=AES256'
 FILE 'file.csv_001.csv.gz.gz'
 FILE 'file.csv_002.csv.gz.gz'
 FILE 'file.csv_003.csv.gz.gz'
@@ -143,7 +143,7 @@ EOT
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
 EXPORT SELECT * FROM "schema"."table" INTO CSV AT 'https://myBucket.s3.eu-central-1.amazonaws.com' 
-USER 's3Key' IDENTIFIED BY 's3Secret'
+USER 's3Key' IDENTIFIED BY 's3Secret;sse_type=AES256'
 FILE 'file.csv_001.csv'
 FILE 'file.csv_002.csv'
 FILE 'file.csv_003.csv'

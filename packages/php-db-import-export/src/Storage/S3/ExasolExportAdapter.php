@@ -54,7 +54,7 @@ class ExasolExportAdapter implements BackendExportAdapterInterface
         $sql = sprintf(
             <<<EOD
 EXPORT %s INTO CSV AT '%s' 
-USER '%s' IDENTIFIED BY '%s'
+USER '%s' IDENTIFIED BY '%s;sse_type=AES256'
 %s
 DELIMIT = ALWAYS
 REPLACE
