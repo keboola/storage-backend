@@ -50,7 +50,6 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         // table used in getInsertAllIntoTargetTableCommand if PK's are specified, dedup table is used
         $tableToCopyFrom = $stagingTableDefinition;
 
-
         $timestampValue = DateTimeHelper::getNowFormatted();
         /** @var ExasolTableDefinition $destinationTableDefinition */
         /** @var ExasolTableDefinition $destinationTableDefinition */
@@ -106,7 +105,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             );
             $state->stopTimer(self::TIMER_DEDUP_STAGING);
         } else {
-
+            // TODO
         }
 
         // insert into.

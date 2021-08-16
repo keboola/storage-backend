@@ -149,7 +149,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
      * @dataProvider  incrementalImportData
      * @param array<string,string> $table
      * @param array<mixed> $expected
-     * @param string[] $tablesToInit
+     * @param string $tablesToInit
      */
     public function testIncrementalImport(
         Storage\SourceInterface $fullLoadSource,
