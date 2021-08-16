@@ -34,7 +34,7 @@ class FullImportTest extends ExasolBaseTestCase
         $this->createSchema($this->getDestinationSchemaName());
     }
 
-    public function testLoadToFinalTableWitoutDedup(): void
+    public function testLoadToFinalTableWithoutDedup(): void
     {
         $this->initTable(self::TABLE_COLUMN_NAME_ROW_NUMBER);
 

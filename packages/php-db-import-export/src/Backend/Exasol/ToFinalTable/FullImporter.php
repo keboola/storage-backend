@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Keboola\Datatype\Definition\Exasol;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImportState;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Backend\Exasol\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
@@ -118,7 +118,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         }
 
         // 1 create dedup table
-        $dedupTmpTableName = 'dedup_' . BackendHelper::generateStagingTableName();
+        $dedupTmpTableName = BackendHelper::generateTempDedupTableName();
         $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
             $destinationTableDefinition->getSchemaName(),
             $dedupTmpTableName,
@@ -161,6 +161,9 @@ final class FullImporter implements ToFinalTableImporterInterface
             )
         );
         $state->stopTimer(self::TIMER_DEDUP);
+
+        // 5 drop dedup table
+        $this->sqlBuilder->getDropTableIfExistsCommand($dedupTableDef->getSchemaName(), $dedupTableDef->getTableName());
 
         $this->connection->executeStatement(
             $this->sqlBuilder->getCommitTransaction()
