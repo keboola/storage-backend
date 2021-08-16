@@ -57,9 +57,9 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             // has PKs for dedup
 
             // 0. Create table for deduplication
-            $deduplicationTableDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
+            $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
                 $stagingTableDefinition,
-                $stagingTableDefinition->getColumnsNames()
+                $destinationTableDefinition->getPrimaryKeysNames()
             );
             $tableToCopyFrom = $deduplicationTableDefinition;
             $qb = new ExasolTableQueryBuilder();
@@ -126,7 +126,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
 
-        if(isset($deduplicationTableDefinition)){
+        if (isset($deduplicationTableDefinition)) {
             // drop dedup table
             $this->sqlBuilder->getDropTableIfExistsCommand(
                 $deduplicationTableDefinition->getSchemaName(),

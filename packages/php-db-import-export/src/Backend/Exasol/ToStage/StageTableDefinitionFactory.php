@@ -70,4 +70,42 @@ final class StageTableDefinitionFactory
             )
         );
     }
+
+    /**
+     * @param ExasolTableDefinition $destination
+     * @param string[] $pkNames
+     * @return ExasolTableDefinition
+     */
+    public static function createDedupTableDefinition(
+        ExasolTableDefinition $destination,
+        array $pkNames
+    ): ExasolTableDefinition {
+        // ensure that PK on dedup table are not null
+        $dedupTableColumns = [];
+        /** @var ExasolColumn $definition */
+        foreach ($destination->getColumnsDefinitions() as $definition) {
+            if (in_array($definition->getColumnName(), $pkNames)) {
+                $dedupTableColumns[] = new ExasolColumn(
+                    $definition->getColumnName(),
+                    new Exasol(
+                        $definition->getColumnDefinition()->getType(),
+                        [
+                            'length' => $definition->getColumnDefinition()->getLength(),
+                            'nullable' => false,
+                        ]
+                    )
+                );
+            } else {
+                $dedupTableColumns[] = $definition;
+            }
+        }
+
+        return new ExasolTableDefinition(
+            $destination->getSchemaName(),
+            BackendHelper::generateTempDedupTableName(),
+            true,
+            new ColumnCollection($dedupTableColumns),
+            $pkNames
+        );
+    }
 }
