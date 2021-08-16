@@ -293,7 +293,7 @@ class SqlBuilder
         );
 
         return sprintf(
-            'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src",%s AS "dest" WHERE %s AND (%s) ',
+            'UPDATE %s AS "dest" SET %s FROM (SELECT DISTINCT * FROM %s.%s) AS "src",%s AS "dest" WHERE %s AND (%s) ',
             $dest,
             implode(', ', $columnsSet),
             ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
@@ -361,7 +361,7 @@ class SqlBuilder
         );
 
         return sprintf(
-            'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src",%s AS "dest" WHERE %s AND (%s) ',
+            'UPDATE %s AS "dest" SET %s FROM (SELECT DISTINCT * FROM %s.%s) AS "src",%s AS "dest" WHERE %s AND (%s) ',
             $dest,
             implode(', ', $columnsSet),
             ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
