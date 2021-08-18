@@ -52,7 +52,6 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         $timestampValue = DateTimeHelper::getNowFormatted();
         /** @var ExasolTableDefinition $destinationTableDefinition */
-        /** @var ExasolTableDefinition $destinationTableDefinition */
         if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
             // has PKs for dedup
 
