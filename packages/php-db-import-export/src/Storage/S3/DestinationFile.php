@@ -30,7 +30,7 @@ class DestinationFile extends BaseFile implements DestinationInterface
         $countOfFiles = $isCompressed ? self::N_OF_FILES_COMPRESSED : self::N_OF_FILES_UNCOMPRESSED;
 
         $files = [];
-        foreach (range(1, $countOfFiles) as $index) {
+        for ($index = 1; $index < $countOfFiles + 1; $index++) {
             $files[] = sprintf('%s_%03d.csv%s', $filename, $index, $suffix);
         }
 
