@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Backend\Synapse;
+namespace Keboola\Db\ImportExport\Backend\Exasol;
 
 use Doctrine\DBAL\Connection;
 use Exception;
@@ -14,10 +14,10 @@ use Keboola\Db\ImportExport\Storage;
 class Exporter implements ExporterInterface
 {
     public const DEFAULT_ADAPTERS = [
-        Storage\ABS\SynapseExportAdapter::class,
+        Storage\S3\ExasolExportAdapter::class,
     ];
 
-    /** @var string[] */
+    /** @var class-string<BackendExportAdapterInterface>[] */
     private $adapters = self::DEFAULT_ADAPTERS;
 
     /** @var Connection */
@@ -39,6 +39,7 @@ class Exporter implements ExporterInterface
 
     /**
      * @param Storage\SqlSourceInterface $source
+     * @return array<mixed>
      */
     public function exportTable(
         Storage\SourceInterface $source,
@@ -52,23 +53,14 @@ class Exporter implements ExporterInterface
     private function getAdapter(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination
-    ): SynapseExportAdapterInterface {
+    ): BackendExportAdapterInterface {
         $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
-            $ref = new \ReflectionClass($adapter);
-            if (!$ref->implementsInterface(SynapseExportAdapterInterface::class)) {
-                throw new Exception(
-                    sprintf(
-                        'Each Synapse export adapter must implement "%s".',
-                        SynapseExportAdapterInterface::class
-                    )
-                );
-            }
             if ($adapter::isSupported($source, $destination)) {
                 if ($adapterForUse !== null) {
                     throw new Exception(
                         sprintf(
-                            'More than one suitable adapter found for Synapse exporter with source: '
+                            'More than one suitable adapter found for Export exporter with source: '
                             . '"%s", destination "%s".',
                             get_class($source),
                             get_class($destination)
@@ -81,7 +73,7 @@ class Exporter implements ExporterInterface
         if ($adapterForUse === null) {
             throw new Exception(
                 sprintf(
-                    'No suitable adapter found for Synapse exporter with source: "%s", destination "%s".',
+                    'No suitable adapter found for Exasol exporter with source: "%s", destination "%s".',
                     get_class($source),
                     get_class($destination)
                 )

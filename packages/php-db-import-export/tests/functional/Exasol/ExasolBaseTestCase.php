@@ -25,6 +25,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
     public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
     public const TABLE_MULTI_PK = 'multi-pk';
+    public const TABLE_MULTI_PK_WITH_TS = 'multi-pk_ts';
     public const TABLE_SINGLE_PK = 'single-pk';
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
     public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
@@ -172,7 +173,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 "timestamp" VARCHAR(2000000) ,
                 "oauthToken" VARCHAR(2000000) ,
                 "oauthSecret" VARCHAR(2000000) ,
-                "idApp" VARCHAR(2000000) 
+                "idApp" VARCHAR(2000000),
+                 CONSTRAINT PRIMARY KEY ("id")
             ) ',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)
@@ -251,6 +253,22 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             "Something" VARCHAR(2000000),
             "Other"     VARCHAR(2000000),
             CONSTRAINT PRIMARY KEY ("VisitID", "Something")
+            );',
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    ExasolQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+                // table just for EXA because PK cannot have null nor ''
+            case self::TABLE_MULTI_PK_WITH_TS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+            "VisitID"   VARCHAR(2000000) ,
+            "Value"     VARCHAR(2000000),
+            "MenuItem"  VARCHAR(2000000),
+            "Something" VARCHAR(2000000),
+            "Other"     VARCHAR(2000000),
+            "_timestamp" TIMESTAMP,
+            CONSTRAINT PRIMARY KEY ("VisitID", "Value", "MenuItem")
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     ExasolQuote::quoteSingleIdentifier($tableName)

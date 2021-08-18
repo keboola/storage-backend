@@ -5,19 +5,15 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Datatype\Definition\Exasol;
 use Keboola\Db\Import\Result;
+use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\ImportState;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
-use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
-use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class FullImporter implements ToFinalTableImporterInterface
@@ -97,48 +93,21 @@ final class FullImporter implements ToFinalTableImporterInterface
     ): void {
         $state->startTimer(self::TIMER_DEDUP);
 
-        // ensure that PK on dedup table are not null
-        $dedupTableColumns = [];
-        /** @var ExasolColumn $definition */
-        foreach ($stagingTableDefinition->getColumnsDefinitions() as $definition) {
-            if (in_array($definition->getColumnName(), $destinationTableDefinition->getPrimaryKeysNames())) {
-                $dedupTableColumns[] = new ExasolColumn(
-                    $definition->getColumnName(),
-                    new Exasol(
-                        $definition->getColumnDefinition()->getType(),
-                        [
-                            'length' => $definition->getColumnDefinition()->getLength(),
-                            'nullable' => false,
-                        ]
-                    )
-                );
-            } else {
-                $dedupTableColumns[] = $definition;
-            }
-        }
-
-        // 1 create dedup table
-        $dedupTmpTableName = 'dedup_' . BackendHelper::generateStagingTableName();
-        $this->connection->executeStatement((new ExasolTableQueryBuilder())->getCreateTableCommand(
-            $destinationTableDefinition->getSchemaName(),
-            $dedupTmpTableName,
-            new ColumnCollection($dedupTableColumns),
+        // 1. Create table for deduplication
+        $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
+            $stagingTableDefinition,
             $destinationTableDefinition->getPrimaryKeysNames()
-        ));
-        $dedupTableRef = new ExasolTableReflection(
-            $this->connection,
-            $destinationTableDefinition->getSchemaName(),
-            $dedupTmpTableName
         );
 
-        /** @var ExasolTableDefinition $dedupTableDef */
-        $dedupTableDef = $dedupTableRef->getTableDefinition();
+        $qb = new ExasolTableQueryBuilder();
+        $sql = $qb->getCreateTableCommandFromDefinition($deduplicationTableDefinition);
+        $this->connection->executeStatement($sql);
 
         // 2 transfer data from source to dedup table with dedup process
         $this->connection->executeStatement(
             $this->sqlBuilder->getDedupCommand(
                 $stagingTableDefinition,
-                $dedupTableDef,
+                $deduplicationTableDefinition,
                 $destinationTableDefinition->getPrimaryKeysNames()
             )
         );
@@ -154,13 +123,19 @@ final class FullImporter implements ToFinalTableImporterInterface
         // 4 move data with INSERT INTO
         $this->connection->executeStatement(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
-                $dedupTableDef,
+                $deduplicationTableDefinition,
                 $destinationTableDefinition,
                 $options,
                 DateTimeHelper::getNowFormatted()
             )
         );
         $state->stopTimer(self::TIMER_DEDUP);
+
+        // 5 drop dedup table
+        $this->sqlBuilder->getDropTableIfExistsCommand(
+            $deduplicationTableDefinition->getSchemaName(),
+            $deduplicationTableDefinition->getTableName()
+        );
 
         $this->connection->executeStatement(
             $this->sqlBuilder->getCommitTransaction()

@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake;
 
 use Exception;
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -82,6 +83,9 @@ class Exporter implements ExporterInterface
         return $adapterForUse;
     }
 
+    /**
+     * @param class-string<BackendExportAdapterInterface>[] $adapters
+     */
     public function setAdapters(array $adapters): void
     {
         $this->adapters = $adapters;

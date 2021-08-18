@@ -40,6 +40,10 @@ trait ABSSourceTrait
         );
     }
 
+    /**
+     * @param string[] $columns
+     * @param string[]|null $primaryKeys
+     */
     protected function createABSSourceInstance(
         string $filePath,
         array $columns = [],
@@ -57,6 +61,10 @@ trait ABSSourceTrait
         );
     }
 
+    /**
+     * @param string[] $columns
+     * @param string[]|null $primaryKeys
+     */
     protected function createABSSourceInstanceFromCsv(
         string $filePath,
         CsvOptions $options,

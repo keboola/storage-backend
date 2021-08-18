@@ -9,6 +9,7 @@ use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Tests\Keboola\Db\ImportExport\StorageType;
 
 class OtherImportTest extends SnowflakeImportExportBaseTest
 {
@@ -65,7 +66,7 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         );
 
         $this->expectException(Exception::class);
-        if (getenv('STORAGE_TYPE') === self::STORAGE_S3) {
+        if (getenv('STORAGE_TYPE') === StorageType::STORAGE_S3) {
             $this->expectExceptionCode(Exception::INVALID_SOURCE_DATA);
         } else {
             $this->expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);

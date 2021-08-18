@@ -9,7 +9,7 @@ use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 
-class SourceFile implements SourceInterface
+class SourceFile extends BaseFile implements SourceInterface
 {
     /**
      * @var bool
@@ -20,31 +20,6 @@ class SourceFile implements SourceInterface
      * @var CsvOptions
      */
     private $csvOptions;
-
-    /**
-     * @var string
-     */
-    private $key;
-
-    /**
-     * @var string
-     */
-    private $secret;
-
-    /**
-     * @var string
-     */
-    private $region;
-
-    /**
-     * @var string
-     */
-    protected $bucket;
-
-    /**
-     * @var string
-     */
-    protected $filePath;
 
     /** @var string[] */
     private $columnsNames;
@@ -67,27 +42,17 @@ class SourceFile implements SourceInterface
         array $columnsNames = [],
         ?array $primaryKeysNames = null
     ) {
+        parent::__construct(
+            $key,
+            $secret,
+            $region,
+            $bucket,
+            $filePath
+        );
         $this->isSliced = $isSliced;
         $this->csvOptions = $csvOptions;
-        $this->key = $key;
-        $this->secret = $secret;
-        $this->region = $region;
-        $this->bucket = $bucket;
-        $this->filePath = $filePath;
         $this->columnsNames = $columnsNames;
         $this->primaryKeysNames = $primaryKeysNames;
-    }
-
-    protected function getClient(): \Aws\S3\S3Client
-    {
-        return new \Aws\S3\S3Client([
-            'credentials' => [
-                'key' => $this->key,
-                'secret' => $this->secret,
-            ],
-            'region' => $this->region,
-            'version' => '2006-03-01',
-        ]);
     }
 
     /**
@@ -101,11 +66,6 @@ class SourceFile implements SourceInterface
     public function getCsvOptions(): CsvOptions
     {
         return $this->csvOptions;
-    }
-
-    public function getKey(): string
-    {
-        return $this->key;
     }
 
     /**
@@ -134,31 +94,11 @@ class SourceFile implements SourceInterface
         }, $manifest['entries']);
     }
 
-    public function getS3Prefix(): string
-    {
-        return sprintf('s3://%s', $this->bucket);
-    }
-
     /**
      * @return string[]|null
      */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
-    }
-
-    public function getRegion(): string
-    {
-        return $this->region;
-    }
-
-    public function getSecret(): string
-    {
-        return $this->secret;
-    }
-
-    public function getBucketURL(): string
-    {
-        return sprintf('https://%s.s3.%s.amazonaws.com', $this->bucket, $this->region);
     }
 }
