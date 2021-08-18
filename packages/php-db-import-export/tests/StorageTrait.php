@@ -152,9 +152,10 @@ trait StorageTrait
                 // delete blobs from EXPORT_BLOB_DIR
                 $listOptions = new ListBlobsOptions();
                 $listOptions->setPrefix($dirToClear);
-                $blobs = $client->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions);
+                $containerName = (string) getenv('ABS_CONTAINER_NAME');
+                $blobs = $client->listBlobs($containerName, $listOptions);
                 foreach ($blobs->getBlobs() as $blob) {
-                    $client->deleteBlob((string) getenv('ABS_CONTAINER_NAME'), $blob->getName());
+                    $client->deleteBlob($containerName, $blob->getName());
                 }
                 return;
             default:
