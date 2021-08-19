@@ -138,6 +138,7 @@ class ExasolDatatypeTest extends \PHPUnit_Framework_TestCase
             'NCHAR' => ['NCHAR', [], 'NCHAR (2000)'],
 
             'VARCHAR' => ['VARCHAR', [], 'VARCHAR (2000000)'],
+            'VARCHAR lowercase' => ['varchar', [], 'VARCHAR (2000000)'],
             'CHAR VARYING' => ['CHAR VARYING', [], 'CHAR VARYING (2000000)'],
             'CHARACTER LARGE OBJECT' => ['CHARACTER LARGE OBJECT', [], 'CHARACTER LARGE OBJECT (2000000)'],
             'CHARACTER VARYING' => ['CHARACTER VARYING', [], 'CHARACTER VARYING (2000000)'],

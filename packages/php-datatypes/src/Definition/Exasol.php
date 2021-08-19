@@ -184,7 +184,7 @@ class Exasol extends Common
     public function getSQLDefinition()
     {
         $type = $this->getType();
-        $definition = $type;
+        $definition = strtoupper($type);
         if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
             $length = $this->getLength() ?: $this->getDefaultLength();
             // length is set, use it
@@ -230,7 +230,7 @@ class Exasol extends Common
     private function getDefaultLength()
     {
         $out = null;
-        switch ($this->type) {
+        switch (strtoupper($this->type)) {
             case self::TYPE_DECIMAL:
             case self::TYPE_DEC:
             case self::TYPE_NUMBER:
