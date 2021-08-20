@@ -127,9 +127,11 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         if (isset($deduplicationTableDefinition)) {
             // drop dedup table
-            $this->sqlBuilder->getDropTableIfExistsCommand(
-                $deduplicationTableDefinition->getSchemaName(),
-                $deduplicationTableDefinition->getTableName()
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getDropTableIfExistsCommand(
+                    $deduplicationTableDefinition->getSchemaName(),
+                    $deduplicationTableDefinition->getTableName()
+                )
             );
         }
         return $state->getResult();
