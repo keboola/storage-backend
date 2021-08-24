@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage;
 
+use Doctrine\DBAL\Exception as DBALException;
 use Keboola\Db\Import\Exception;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use Throwable;
@@ -24,5 +25,10 @@ class FileNotFoundException extends Exception
     public static function createFromServiceException(ServiceException $e): FileNotFoundException
     {
         return new self($e->getErrorText(), $e);
+    }
+
+    public static function createFromDbalException(DBALException $e, string $message): FileNotFoundException
+    {
+        return new self($message, $e);
     }
 }

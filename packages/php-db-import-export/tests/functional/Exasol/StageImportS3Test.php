@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
@@ -252,7 +253,7 @@ class StageImportS3Test extends ExasolBaseTestCase
         );
 
         // fails on SQL, no parsing/checking entries before
-        $this->expectException(Exception::class);
+        $this->expectException(FileNotFoundException::class);
 
         $importer->importToStagingTable(
             $this->createS3SourceInstanceFromCsv(

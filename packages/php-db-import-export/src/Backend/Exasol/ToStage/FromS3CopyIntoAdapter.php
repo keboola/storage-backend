@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Exasol\ToStage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\S3\SourceDirectory;
@@ -16,6 +18,7 @@ use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 class FromS3CopyIntoAdapter implements CopyAdapterInterface
 {
@@ -45,11 +48,15 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         assert($destination instanceof ExasolTableDefinition);
         assert($importOptions instanceof ExasolImportOptions);
 
-        foreach ($this->getCopyCommand($source, $destination, $importOptions) as $sql) {
-            if ($sql === null) {
-                break;
+        try {
+            foreach ($this->getCopyCommand($source, $destination, $importOptions) as $sql) {
+                if ($sql === null) {
+                    break;
+                }
+                $this->connection->executeStatement($sql);
             }
-            $this->connection->executeStatement($sql);
+        } catch (\Doctrine\DBAL\Exception $e) {
+            throw ExasolException::covertException($e);
         }
 
         $ref = new ExasolTableReflection(
