@@ -17,7 +17,7 @@ class ExasolConnection
     public static function getConnection(string $dsn, string $user, string $password): Connection
     {
         try {
-            $dbh = new PDO('odbc:Driver=exasol;EXAHOST=' . $dsn, $user, $password);
+            $dbh = new PDO('odbc:Driver=exasol;ENCODING=UTF-8;EXAHOST=' . $dsn, $user, $password);
         } catch (PDOException $e) {
             throw new Exception('Connection failed: ' . $e->getMessage(), (int) $e->getCode(), $e);
         }
