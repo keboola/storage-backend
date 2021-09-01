@@ -722,8 +722,9 @@ class SynapseTableReflectionTest extends SynapseBaseCase
 
     /**
      * @return Generator<array{
+     *     ?string,
      *     string,
-     *     string,
+     *     string[]
      * }>
      */
     public function tableIndexProvider(): \Generator
@@ -731,37 +732,46 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         yield 'CLUSTERED COLUMNSTORE INDEX' => [
             'CLUSTERED COLUMNSTORE INDEX',
             'CLUSTERED COLUMNSTORE INDEX',
+            [],
         ];
         yield 'HEAP' => [
             'HEAP',
             'HEAP',
+            [],
         ];
         yield 'CLUSTERED INDEX' => [
             'CLUSTERED INDEX (int_def)',
             'CLUSTERED INDEX',
+            ['int_def'],
+        ];
+        yield 'Default' => [
+            null,
+            'CLUSTERED COLUMNSTORE INDEX',
+            [],
         ];
     }
 
     /**
+     * @param string[] $expectedColumns
      * @dataProvider tableIndexProvider
      */
-    public function testGetTableIndexName(string $with, string $expectedIndexType): void
+    public function testGetTableIndexName(?string $with, string $expectedIndexType, array $expectedColumns): void
     {
-        self::markTestIncomplete('getTableIndexType now returns only CCI statically.');
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'CREATE TABLE %s.%s (
           [int_def] INT
         )
-        WITH(%s)
+        %s
         ;',
                 SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
                 SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-                $with
+                $with === null ? '': 'WITH('.$with.')'
             )
         );
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
-        self::assertEquals($expectedIndexType, $ref->getTableIndexType());
+        self::assertEquals($expectedIndexType, $ref->getTableIndex());
+        self::assertEquals($expectedColumns, $ref->getTableIndexColumnsNames());
     }
 
     private function initView(string $viewName, string $parentName): void

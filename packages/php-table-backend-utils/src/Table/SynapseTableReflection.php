@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Table;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
@@ -14,6 +12,7 @@ use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use LogicException;
 use function Keboola\Utils\returnBytes;
 
 final class SynapseTableReflection implements TableReflectionInterface
@@ -316,18 +315,84 @@ EOT
                 $this->getTableDistributionColumnsNames()
             ),
             new TableIndexDefinition(
-                $this->getTableIndexType(),
-                []
+                $this->getTableIndex(),
+                $this->getTableIndexColumnsNames()
             )
         );
     }
 
     /**
-     * @todo find the way how to get right index from synapse
      * @return TableIndexDefinition::TABLE_INDEX_TYPE_*
      */
-    public function getTableIndexType(): string
+    public function getTableIndex(): string
     {
-        return TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX;
+        $tableId = $this->getObjectId();
+        $result = $this->connection->fetchFirstColumn(
+            <<< EOT
+        select i.type_desc from sys.tables t
+JOIN sys.indexes i
+    ON i.object_id = t.object_id
+JOIN sys.schemas s
+    ON t.schema_id = s.schema_id
+FULL OUTER JOIN sys.pdw_table_distribution_properties dp
+    ON t.object_id = dp.object_id
+WHERE t.object_id = '$tableId'
+EOT
+        );
+
+        $indexType = $result[0];
+
+        // Synapse sys.indexes has indexes without INDEX suffix
+        switch ($indexType) {
+            case 'CLUSTERED COLUMNSTORE':
+                return TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX;
+            case 'CLUSTERED':
+                return TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX;
+            case TableIndexDefinition::TABLE_INDEX_TYPE_HEAP:
+                return TableIndexDefinition::TABLE_INDEX_TYPE_HEAP;
+        }
+
+        throw new LogicException(sprintf(
+            'Unknown index type for Synapse "%s"',
+            $indexType
+        ));
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTableIndexColumnsNames(): array
+    {
+        $tableId = $this->getObjectId();
+        $result = $this->connection->fetchFirstColumn(
+            <<< EOT
+SELECT
+    c.Name
+FROM
+    sys.tables t
+INNER JOIN 
+    sys.indexes i ON t.object_id = i.object_id
+INNER JOIN 
+    sys.index_columns ic ON i.index_id = ic.index_id AND i.object_id = ic.object_id
+INNER JOIN 
+    sys.columns c ON ic.column_id = c.column_id AND ic.object_id = c.object_id
+WHERE
+    t.object_id = '$tableId'
+    AND
+    i.index_id = 1  -- clustered index
+    AND
+    i.type = 1 -- clustered index type, vs. heap and CCI and others
+    AND c.is_identity = 0
+    AND EXISTS (SELECT * 
+                FROM sys.columns c2 
+                WHERE ic.object_id = c2.object_id )
+EOT
+        );
+
+        if (count($result) === 0) {
+            return [];
+        }
+
+        return [$result[0]];
     }
 }
