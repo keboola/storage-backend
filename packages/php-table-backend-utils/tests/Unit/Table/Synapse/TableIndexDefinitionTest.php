@@ -25,8 +25,8 @@ class TableIndexDefinitionTest extends TestCase
 
     public function testValidCI(): void
     {
-        $definition = new TableIndexDefinition('CLUSTERED INDEX');
-        self::assertSame([], $definition->getIndexedColumnsNames());
+        $definition = new TableIndexDefinition('CLUSTERED INDEX', ['id']);
+        self::assertSame(['id'], $definition->getIndexedColumnsNames());
         self::assertSame('CLUSTERED INDEX', $definition->getIndexType());
     }
 }

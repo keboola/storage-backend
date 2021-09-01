@@ -24,7 +24,11 @@ final class Assert
      */
     public static function assertValidClusteredIndex(string $indexName, array $indexedColumnsNames): void
     {
-        // @todo: properly validate clustered index
+        if ($indexName === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX
+            && count($indexedColumnsNames) !== 1
+        ) {
+            throw new LogicException('CLUSTERED table index must have one key specified.');
+        }
     }
 
     /**

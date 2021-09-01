@@ -38,6 +38,35 @@ class AssertTest extends TestCase
     }
 
     /**
+     * @return \Generator<string,array<int, string[]>>
+     */
+    public function invalidClusteredIndexes(): \Generator
+    {
+        yield 'More than one column' => [['id1', 'id2']];
+        yield 'No column' => [[]];
+    }
+
+    /**
+     * @param string[] $columns
+     * @dataProvider invalidClusteredIndexes
+     */
+    public function testAssertInvalidClusteredIndex(array $columns): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('CLUSTERED table index must have one key specified.');
+        Assert::assertValidClusteredIndex('CLUSTERED INDEX', $columns);
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    //phpcs:ignore
+    public function testAssertValidClusteredIndex(): void
+    {
+        Assert::assertValidClusteredIndex('CLUSTERED INDEX', ['id1']);
+    }
+
+    /**
      * @dataProvider validDistributions
      * @doesNotPerformAssertions
      */
