@@ -51,89 +51,92 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         $tableToCopyFrom = $stagingTableDefinition;
 
         $timestampValue = DateTimeHelper::getNowFormatted();
-        /** @var ExasolTableDefinition $destinationTableDefinition */
-        if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
-            // has PKs for dedup
+        try {
+            /** @var ExasolTableDefinition $destinationTableDefinition */
+            if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
+                // has PKs for dedup
 
-            // 0. Create table for deduplication
-            $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
-                $stagingTableDefinition,
-                $destinationTableDefinition->getPrimaryKeysNames()
-            );
-            $tableToCopyFrom = $deduplicationTableDefinition;
-            $qb = new ExasolTableQueryBuilder();
-            $sql = $qb->getCreateTableCommandFromDefinition($deduplicationTableDefinition);
-            $state->startTimer(self::TIMER_DEDUP_TABLE_CREATE);
-            $this->connection->executeStatement($sql);
-            $state->stopTimer(self::TIMER_DEDUP_TABLE_CREATE);
-
-            // 1. Run UPDATE command to update rows in final table with updated data based on PKs
-            $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getUpdateWithPkCommandNull(
+                // 0. Create table for deduplication
+                $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
                     $stagingTableDefinition,
+                    $destinationTableDefinition->getPrimaryKeysNames()
+                );
+                $tableToCopyFrom = $deduplicationTableDefinition;
+                $qb = new ExasolTableQueryBuilder();
+                $sql = $qb->getCreateTableCommandFromDefinition($deduplicationTableDefinition);
+                $state->startTimer(self::TIMER_DEDUP_TABLE_CREATE);
+                $this->connection->executeStatement($sql);
+                $state->stopTimer(self::TIMER_DEDUP_TABLE_CREATE);
+
+                // 1. Run UPDATE command to update rows in final table with updated data based on PKs
+                $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getUpdateWithPkCommandNull(
+                        $stagingTableDefinition,
+                        $destinationTableDefinition,
+                        $options,
+                        $timestampValue
+                    )
+                );
+                $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
+
+                // 2. delete updated rows from staging table
+                $state->startTimer(self::TIMER_DELETE_UPDATED_ROWS);
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getDeleteOldItemsCommand(
+                        $stagingTableDefinition,
+                        $destinationTableDefinition
+                    )
+                );
+                $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
+
+                // 3. dedup insert
+                $state->startTimer(self::TIMER_DEDUP_STAGING);
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getDedupCommand(
+                        $stagingTableDefinition,
+                        $deduplicationTableDefinition,
+                        $destinationTableDefinition->getPrimaryKeysNames()
+                    )
+                );
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+                        $stagingTableDefinition->getSchemaName(),
+                        $stagingTableDefinition->getTableName()
+                    )
+                );
+                $state->stopTimer(self::TIMER_DEDUP_STAGING);
+            }
+
+            // insert into destination table
+            $state->startTimer(self::TIMER_INSERT_INTO_TARGET);
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                    $tableToCopyFrom,
                     $destinationTableDefinition,
                     $options,
                     $timestampValue
                 )
             );
-            $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
+            $state->stopTimer(self::TIMER_INSERT_INTO_TARGET);
 
-            // 2. delete updated rows from staging table
-            $state->startTimer(self::TIMER_DELETE_UPDATED_ROWS);
             $this->connection->executeStatement(
-                $this->sqlBuilder->getDeleteOldItemsCommand(
-                    $stagingTableDefinition,
-                    $destinationTableDefinition
-                )
+                $this->sqlBuilder->getCommitTransaction()
             );
-            $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
 
-            // 3. dedup insert
-            $state->startTimer(self::TIMER_DEDUP_STAGING);
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getDedupCommand(
-                    $stagingTableDefinition,
-                    $deduplicationTableDefinition,
-                    $destinationTableDefinition->getPrimaryKeysNames()
-                )
-            );
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getTruncateTableWithDeleteCommand(
-                    $stagingTableDefinition->getSchemaName(),
-                    $stagingTableDefinition->getTableName()
-                )
-            );
-            $state->stopTimer(self::TIMER_DEDUP_STAGING);
+            $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
+        } finally {
+            if (isset($deduplicationTableDefinition)) {
+                // drop dedup table
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getDropTableIfExistsCommand(
+                        $deduplicationTableDefinition->getSchemaName(),
+                        $deduplicationTableDefinition->getTableName()
+                    )
+                );
+            }
         }
 
-        // insert into destination table
-        $state->startTimer(self::TIMER_INSERT_INTO_TARGET);
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
-                $tableToCopyFrom,
-                $destinationTableDefinition,
-                $options,
-                $timestampValue
-            )
-        );
-        $state->stopTimer(self::TIMER_INSERT_INTO_TARGET);
-
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getCommitTransaction()
-        );
-
-        $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
-
-        if (isset($deduplicationTableDefinition)) {
-            // drop dedup table
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getDropTableIfExistsCommand(
-                    $deduplicationTableDefinition->getSchemaName(),
-                    $deduplicationTableDefinition->getTableName()
-                )
-            );
-        }
         return $state->getResult();
     }
 }
