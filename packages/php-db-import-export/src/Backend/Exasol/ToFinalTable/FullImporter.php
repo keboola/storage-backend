@@ -99,45 +99,47 @@ final class FullImporter implements ToFinalTableImporterInterface
             $destinationTableDefinition->getPrimaryKeysNames()
         );
 
-        $qb = new ExasolTableQueryBuilder();
-        $sql = $qb->getCreateTableCommandFromDefinition($deduplicationTableDefinition);
-        $this->connection->executeStatement($sql);
+        try {
+            $qb = new ExasolTableQueryBuilder();
+            $sql = $qb->getCreateTableCommandFromDefinition($deduplicationTableDefinition);
+            $this->connection->executeStatement($sql);
 
-        // 2 transfer data from source to dedup table with dedup process
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getDedupCommand(
-                $stagingTableDefinition,
-                $deduplicationTableDefinition,
-                $destinationTableDefinition->getPrimaryKeysNames()
-            )
-        );
+            // 2 transfer data from source to dedup table with dedup process
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getDedupCommand(
+                    $stagingTableDefinition,
+                    $deduplicationTableDefinition,
+                    $destinationTableDefinition->getPrimaryKeysNames()
+                )
+            );
 
-        // 3 truncate destination table
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
-                $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName()
-            )
-        );
+            // 3 truncate destination table
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+                    $destinationTableDefinition->getSchemaName(),
+                    $destinationTableDefinition->getTableName()
+                )
+            );
 
-        // 4 move data with INSERT INTO
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
-                $deduplicationTableDefinition,
-                $destinationTableDefinition,
-                $options,
-                DateTimeHelper::getNowFormatted()
-            )
-        );
-        $state->stopTimer(self::TIMER_DEDUP);
-
-        // 5 drop dedup table
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getDropTableIfExistsCommand(
-                $deduplicationTableDefinition->getSchemaName(),
-                $deduplicationTableDefinition->getTableName()
-            )
-        );
+            // 4 move data with INSERT INTO
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                    $deduplicationTableDefinition,
+                    $destinationTableDefinition,
+                    $options,
+                    DateTimeHelper::getNowFormatted()
+                )
+            );
+            $state->stopTimer(self::TIMER_DEDUP);
+        } finally {
+            // 5 drop dedup table
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getDropTableIfExistsCommand(
+                    $deduplicationTableDefinition->getSchemaName(),
+                    $deduplicationTableDefinition->getTableName()
+                )
+            );
+        }
 
         $this->connection->executeStatement(
             $this->sqlBuilder->getCommitTransaction()
