@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
+use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 
 class SqlBuilder
@@ -84,6 +85,7 @@ class SqlBuilder
             return '';
         }
         $distributionSql = $this->getSqlDistributionPart($destinationTableDefinition);
+        $indexSql = $this->getSqlIndexPart($destinationTableDefinition);
 
         $pkSql = $this->getColumnsString(
             $destinationTableDefinition->getPrimaryKeysNames(),
@@ -182,10 +184,11 @@ class SqlBuilder
         );
 
         return sprintf(
-            'CREATE TABLE %s.%s WITH (%s) AS %s',
+            'CREATE TABLE %s.%s WITH (%s,%s) AS %s',
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
             $distributionSql,
+            $indexSql,
             $depudeSql
         );
     }
@@ -373,6 +376,24 @@ class SqlBuilder
             );
         }
         return $distributionSql;
+    }
+
+    private function getSqlIndexPart(SynapseTableDefinition $definition): string
+    {
+        if ($definition->getTableIndex()->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
+            $quotedColumns = array_map(function ($columnName) {
+                return SynapseQuote::quoteSingleIdentifier($columnName);
+            }, $definition->getTableIndex()->getIndexedColumnsNames());
+            $indexSql = sprintf(
+                '%s(%s)',
+                $definition->getTableIndex()->getIndexType(),
+                implode(',', $quotedColumns)
+            );
+        } else {
+            $indexSql = $definition->getTableIndex()->getIndexType();
+        }
+
+        return $indexSql;
     }
 
     public function getTruncateTableWithDeleteCommand(
