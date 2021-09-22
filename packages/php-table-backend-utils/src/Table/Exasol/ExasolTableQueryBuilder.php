@@ -18,6 +18,7 @@ use Keboola\TableBackendUtils\Table\TableQueryBuilderInterface;
 class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 {
     private const INVALID_PKS_FOR_TABLE = 'invalidPKs';
+    private const INVALID_TABLE_NAME = 'invalidTableName';
 
     public function getCreateTempTableCommand(string $schemaName, string $tableName, ColumnCollection $columns): string
     {
@@ -36,6 +37,13 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 
     public function getRenameTableCommand(string $schemaName, string $sourceTableName, string $newTableName): string
     {
+        if (!$this->validateTableName($newTableName)) {
+            throw new QueryBuilderException(
+                sprintf('Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.', $newTableName),
+                self::INVALID_TABLE_NAME
+            );
+        }
+
         $quotedDbName = ExasolQuote::quoteSingleIdentifier($schemaName);
         return sprintf(
             'RENAME TABLE %s.%s TO %s.%s',
@@ -63,7 +71,15 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         string $tableName,
         ColumnCollection $columns,
         array $primaryKeys = []
-    ): string {
+    ): string
+    {
+        if (!$this->validateTableName($tableName)) {
+            throw new QueryBuilderException(
+                sprintf('Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.', $tableName),
+                self::INVALID_TABLE_NAME
+            );
+        }
+
         $columnNames = [];
         $columnsSqlDefinitions = [];
         /** @var ExasolColumn $column */
@@ -141,5 +157,10 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
                 ? $definition->getPrimaryKeysNames()
                 : []
         );
+    }
+
+    private function validateTableName(string $tableName): bool
+    {
+        return (bool) preg_match('/^[-_A-Za-z0-9]+$/', $tableName, $out);
     }
 }

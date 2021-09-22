@@ -61,4 +61,20 @@ class ExasolTableQueryBuilderTest extends TestCase
             'exceptionString' => 'Trying to set PK on column col1 but this column is nullable',
         ];
     }
+
+    public function testCreateTableWithInvalidTableName(): void
+    {
+        $this->expectException(QueryBuilderException::class);
+        $this->expectExceptionMessage('Invalid table name testTable.: Only alphanumeric characters dash and underscores are allowed.');
+        $this->qb->getCreateTableCommand('testDb', 'testTable.', new ColumnCollection([]));
+        self::fail('Should fail because of invalid table name');
+    }
+
+    public function testRenameTableWithInvalidTableName(): void
+    {
+        $this->expectException(QueryBuilderException::class);
+        $this->expectExceptionMessage('Invalid table name testTable.: Only alphanumeric characters dash and underscores are allowed.');
+        $this->qb->getRenameTableCommand('testDb', 'testTable', 'testTable.');
+        self::fail('Should fail because of invalid table name');
+    }
 }
