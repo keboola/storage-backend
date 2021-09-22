@@ -39,7 +39,10 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
     {
         if (!$this->validateTableName($newTableName)) {
             throw new QueryBuilderException(
-                sprintf('Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.', $newTableName),
+                sprintf(
+                    'Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.',
+                    $newTableName
+                ),
                 self::INVALID_TABLE_NAME
             );
         }
@@ -71,11 +74,13 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         string $tableName,
         ColumnCollection $columns,
         array $primaryKeys = []
-    ): string
-    {
+    ): string {
         if (!$this->validateTableName($tableName)) {
             throw new QueryBuilderException(
-                sprintf('Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.', $tableName),
+                sprintf(
+                    'Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.',
+                    $tableName
+                ),
                 self::INVALID_TABLE_NAME
             );
         }
