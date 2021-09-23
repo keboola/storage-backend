@@ -183,19 +183,7 @@ class Exasol extends Common
      */
     public function getSQLDefinition()
     {
-        $type = $this->getType();
-        $definition = strtoupper($type);
-        if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
-            $length = $this->getLength() ?: $this->getDefaultLength();
-            // length is set, use it
-            if ($length !== null && $length !== '') {
-                if (in_array($definition, self::TYPES_WITH_SIMPLE_LENGTH)) {
-                    $definition .= sprintf(' (%s)', $length);
-                } elseif (array_key_exists($definition, self::COMPLEX_LENGTH_DICT)) {
-                    $definition = $this->buildComplexLength($type, $length);
-                }
-            }
-        }
+        $definition = $this->buildDefinitionString();
 
         if ($this->getDefault() !== null) {
             $definition .= ' DEFAULT ' . $this->getDefault();
@@ -208,16 +196,29 @@ class Exasol extends Common
     }
 
     /**
-     * builds SQL definition for types which don't just append the length behind the type name
-     *
-     * @param string $type
-     * @param string|int|null $lengthString
+     * generates type with length
+     * most of the types just append it, but some of them are complex and some have no length...
+     * used here and in i/e lib
      * @return string
      */
-    private function buildComplexLength($type, $lengthString)
+    public function buildDefinitionString()
     {
-        $parts = explode(',', (string) $lengthString);
-        return sprintf(self::COMPLEX_LENGTH_DICT[$type], ...$parts);
+        $type = $this->getType();
+        $definition = strtoupper($type);
+        if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
+            $length = $this->getLength() ?: $this->getDefaultLength();
+            // length is set, use it
+            if ($length !== null && $length !== '') {
+                if (in_array($definition, self::TYPES_WITH_SIMPLE_LENGTH)) {
+                    $definition .= sprintf(' (%s)', $length);
+                } elseif (array_key_exists($definition, self::COMPLEX_LENGTH_DICT)) {
+                    $parts = explode(',', (string) $length);
+                    $definition = sprintf(self::COMPLEX_LENGTH_DICT[$type], ...$parts);
+                }
+            }
+        }
+
+        return $definition;
     }
 
     /**
