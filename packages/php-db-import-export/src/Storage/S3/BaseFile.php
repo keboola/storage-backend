@@ -52,6 +52,11 @@ abstract class BaseFile
                 'key' => $this->key,
                 'secret' => $this->secret,
             ],
+            'retries' => 40,
+            'http' => [
+                'connect_timeout' => 10,
+                'timeout' => 120,
+            ],
             'region' => $this->region,
             'version' => '2006-03-01',
         ]);
