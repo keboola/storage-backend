@@ -21,6 +21,11 @@ final class StageTableDefinitionFactory
         array $sourceColumnsNames,
         ?TableIndexDefinition $indexDefinition = null
     ): SynapseTableDefinition {
+        $clusteredIndexColumns = [];
+        if ($indexDefinition !== null && $indexDefinition->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
+            $clusteredIndexColumns = $indexDefinition->getIndexedColumnsNames();
+        }
+
         $newDefinitions = [];
         // create staging table for source columns in order
         // but with types from destination
@@ -36,7 +41,8 @@ final class StageTableDefinitionFactory
                             $definition->getColumnDefinition()->getType(),
                             [
                                 'length' => $definition->getColumnDefinition()->getLength(),
-                                'nullable' => true, // set all columns to be nullable
+                                // set all columns to be nullable except in clustered index
+                                'nullable' => !in_array($columnName, $clusteredIndexColumns, true),
                                 'default' => $definition->getColumnDefinition()->getDefault(),
                             ]
                         )
@@ -45,7 +51,7 @@ final class StageTableDefinitionFactory
                 }
             }
             // if column doesn't exists in destination set default type
-            $newDefinitions[] = self::createNvarcharColumn($columnName);
+            $newDefinitions[] = self::createNvarcharColumn($columnName, $clusteredIndexColumns);
         }
 
         return new SynapseTableDefinition(
@@ -56,6 +62,21 @@ final class StageTableDefinitionFactory
             $destination->getPrimaryKeysNames(),
             $destination->getTableDistribution(),
             $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+    }
+
+    private static function createNvarcharColumn(string $columnName, array $clusteredIndexColumns): SynapseColumn
+    {
+        return new SynapseColumn(
+            $columnName,
+            new Synapse(
+                Synapse::TYPE_NVARCHAR,
+                [
+                    'length' => Synapse::MAX_LENGTH_NVARCHAR,
+                    // set all columns to be nullable except in clustered index
+                    'nullable' => !in_array($columnName, $clusteredIndexColumns, true),
+                ]
+            )
         );
     }
 
@@ -67,9 +88,14 @@ final class StageTableDefinitionFactory
         array $sourceColumnsNames,
         ?TableIndexDefinition $indexDefinition = null
     ): SynapseTableDefinition {
+        $clusteredIndexColumns = [];
+        if ($indexDefinition !== null && $indexDefinition->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
+            $clusteredIndexColumns = $indexDefinition->getIndexedColumnsNames();
+        }
+
         $newDefinitions = [];
         foreach ($sourceColumnsNames as $columnName) {
-            $newDefinitions[] = self::createNvarcharColumn($columnName);
+            $newDefinitions[] = self::createNvarcharColumn($columnName, $clusteredIndexColumns);
         }
 
         return new SynapseTableDefinition(
@@ -80,20 +106,6 @@ final class StageTableDefinitionFactory
             $destination->getPrimaryKeysNames(),
             $destination->getTableDistribution(),
             $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
-        );
-    }
-
-    private static function createNvarcharColumn(string $columnName): SynapseColumn
-    {
-        return new SynapseColumn(
-            $columnName,
-            new Synapse(
-                Synapse::TYPE_NVARCHAR,
-                [
-                    'length' => Synapse::MAX_LENGTH_NVARCHAR,
-                    'nullable' => true, // set all columns to be nullable
-                ]
-            )
         );
     }
 }
