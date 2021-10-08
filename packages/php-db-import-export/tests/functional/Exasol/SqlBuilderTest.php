@@ -56,7 +56,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
 
         $deduplicationDef = new ExasolTableDefinition(
             self::TEST_SCHEMA,
-            '#tempTable',
+            'tempTable',
             true,
             new ColumnCollection([
                 ExasolColumn::createGenericColumn('col1'),
@@ -77,7 +77,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import-export-test_schema"."#tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM "import-export-test_schema"."stagingTable") AS a WHERE a."_row_number_" = 1',
+            'INSERT INTO "import-export-test_schema"."tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM "import-export-test_schema"."stagingTable") AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $this->connection->executeStatement($sql);
