@@ -22,7 +22,9 @@ final class StageTableDefinitionFactory
         ?TableIndexDefinition $indexDefinition = null
     ): SynapseTableDefinition {
         $clusteredIndexColumns = [];
-        if ($indexDefinition !== null && $indexDefinition->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
+        $isClusteredIndex = $indexDefinition !== null
+            && $indexDefinition->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX;
+        if ($isClusteredIndex) {
             $clusteredIndexColumns = $indexDefinition->getIndexedColumnsNames();
         }
 
@@ -65,6 +67,9 @@ final class StageTableDefinitionFactory
         );
     }
 
+    /**
+     * @param string[] $clusteredIndexColumns
+     */
     private static function createNvarcharColumn(string $columnName, array $clusteredIndexColumns): SynapseColumn
     {
         return new SynapseColumn(
@@ -89,7 +94,9 @@ final class StageTableDefinitionFactory
         ?TableIndexDefinition $indexDefinition = null
     ): SynapseTableDefinition {
         $clusteredIndexColumns = [];
-        if ($indexDefinition !== null && $indexDefinition->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
+        $isClusteredIndex = $indexDefinition !== null
+            && $indexDefinition->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX;
+        if ($isClusteredIndex) {
             $clusteredIndexColumns = $indexDefinition->getIndexedColumnsNames();
         }
 
