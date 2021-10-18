@@ -30,7 +30,7 @@ stages:
         steps:
           - checkout: self
           - script: |
-              sudo apt-get -y install parallel php-cli
+              sudo apt-get -y install parallel php-cli jq
               curl -sS https://getcomposer.org/installer -o composer-setup.php
               sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
               rm composer-setup.php
@@ -55,6 +55,9 @@ stages:
               --principalName $AZURE_SERVICE_PRINCIPAL \
               --principalPassword $AZURE_SERVICE_PRINCIPAL_PASSWORD
               source ./provisioning/env_export
+              bash docker/exasol/createDeleteServer.sh -w
+              NEW_CLUSTER_DNS=`cat out_dns`
+              rm -f out_dns
             displayName: 'Deploy resources'
             env:
               ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
@@ -63,6 +66,9 @@ stages:
               AZURE_SERVICE_PRINCIPAL_TENANT: $(AZURE_SERVICE_PRINCIPAL_TENANT)
               SERVER_NAME: $(SERVER_NAME)
               AZURE_SERVICE_PRINCIPAL_PASSWORD: $(AZURE_SERVICE_PRINCIPAL_PASSWORD)
+              EXA_SAAS_HOST: $(EXA_SAAS_HOST)
+              EXA_SAAS_USER_ID: $(EXA_SAAS_USER_ID)
+              EXA_SAAS_TOKEN: $(EXA_SAAS_TOKEN)
           - script: |
               docker-compose build --pull production
             displayName: 'Build project images'
@@ -157,9 +163,9 @@ stages:
               SYNAPSE_PWD: $(SYNAPSE_PWD)
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
-              EXASOL_HOST: $(EXASOL_HOST)
-              EXASOL_USERNAME: $(EXASOL_USERNAME)
-              EXASOL_PASSWORD: $(EXASOL_PASSWORD)
+              EXASOL_HOST: $(NEW_CLUSTER_DNS)
+              EXASOL_USERNAME: devel
+              EXASOL_PASSWORD: $(EXA_SAAS_TOKEN)
           - script: |
               docker-compose stop
               php ./provisioning/cli.php app:delete:synapse \
