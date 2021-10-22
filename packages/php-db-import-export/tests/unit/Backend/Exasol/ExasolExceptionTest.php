@@ -34,4 +34,20 @@ EOD;
         // phpcs:ignore
         $this->assertSame('Load error: Following error occured while reading data from external connection [https://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy.s3.eu-central-1.amazonaws.com/not-exists.csv failed with error code=404 after 285 bytes. NoSuchKey: The specified key does not exist.]', $exception->getMessage());
     }
+
+    public function testConstraintViolationNotNull(): void
+    {
+        // @codingStandardsIgnoreStart
+        $exceptionMessage = <<<EOD
+An exception occurred while executing 'INSERT INTO "in_c-API-tests-b9e1dc60f915aeb6aaf95ed032cab50f67299b50"."__temp_DEDUP_csvimport6172585e9775b1_40593964" ("id", "name") SELECT a."id",a."name" FROM (SELECT "id", "name", ROW_NUMBER() OVER (PARTITION BY "name" ORDER BY "name") AS "_row_number_" FROM "DEV_ZAJCA_1594-in_c-API-tests-b9e1dc60f915aeb6aaf95ed032cab50f67299b50"."__temp_csvimport6172585dbcdcb3_59853165") AS a WHERE a."_row_number_" = 1':
+
+SQLSTATE[27001]: <<Unknown error>>: -3685825 [EXASOL][EXASolution driver]constraint violation - not null (column name in table __temp_DEDUP_csvimport6172585e9775b1_40593964) (Session: 1714299785649455106) (SQLExecDirect[4291281471] at /usr/src/php/ext/pdo_odbc/odbc_driver.c:246)
+EOD;
+        // @codingStandardsIgnoreEnd
+        $exception = ExasolException::covertException(new Exception($exceptionMessage));
+
+        $this->assertInstanceOf(\Keboola\Db\Import\Exception::class, $exception);
+        // phpcs:ignore
+        $this->assertSame('Load error: Constraint violation - not null (column name).', $exception->getMessage());
+    }
 }

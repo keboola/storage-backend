@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Result;
+use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
@@ -63,6 +65,8 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $state
                 );
             }
+        } catch (Exception $e) {
+            throw ExasolException::covertException($e);
         } finally {
             // drop optimized load tmp table if exists
             $this->connection->executeStatement(
