@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\SqlBuilder;
@@ -32,6 +33,61 @@ class FullImportTest extends ExasolBaseTestCase
         $this->cleanSchema($this->getSourceSchemaName());
         $this->createSchema($this->getSourceSchemaName());
         $this->createSchema($this->getDestinationSchemaName());
+    }
+
+    public function testLoadToTableFailOnNullConstraint(): void
+    {
+        $this->initTable(self::TABLE_SINGLE_PK);
+
+        // skipping header
+        $options = $this->getExasolImportOptions(1, false);
+        $source = $this->createS3SourceInstance(
+            'multi-pk_null.csv',
+            [
+                'VisitID',
+                'Value',
+                'MenuItem',
+                'Something',
+                'Other',
+            ],
+            false,
+            false,
+            ['VisitID']
+        );
+
+        $importer = new ToStageImporter($this->connection);
+        $destinationRef = new ExasolTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_SINGLE_PK
+        );
+        $destination = $destinationRef->getTableDefinition();
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+            'VisitID',
+            'Value',
+            'MenuItem',
+            'Something',
+            'Other',
+        ]);
+        $qb = new ExasolTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importState = $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $options
+        );
+        $toFinalTableImporter = new FullImporter($this->connection);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Load error: Constraint violation - not null (column VisitID).');
+        $toFinalTableImporter->importToTable(
+            $stagingTable,
+            $destination,
+            $options,
+            $importState
+        );
     }
 
     public function testLoadToFinalTableWithoutDedup(): void

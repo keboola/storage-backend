@@ -26,13 +26,13 @@ class ExasolException extends Exception
         if (strpos($e->getMessage(), self::CONSTRAINT_VIOLATION_NOT_NULL) !== false) {
             // strip query from message, there are things like internal table names
             preg_match(
-                '/^(An exception occurred.*?)(constraint violation - not null.*)=?.\(column name in table.*/ms',
+                '/^(An exception occurred.*?)(constraint violation - not null.*)=?.in table.*/ms',
                 $e->getMessage(),
                 $matches
             );
 
             return new Exception(
-                'Load error: ' . ucfirst($matches[2]) . '.',
+                'Load error: ' . ucfirst($matches[2]) . ').',
                 Exception::UNKNOWN_ERROR
             );
         }

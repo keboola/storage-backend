@@ -48,6 +48,6 @@ EOD;
 
         $this->assertInstanceOf(\Keboola\Db\Import\Exception::class, $exception);
         // phpcs:ignore
-        $this->assertSame('Load error: Constraint violation - not null.', $exception->getMessage());
+        $this->assertSame('Load error: Constraint violation - not null (column name).', $exception->getMessage());
     }
 }
