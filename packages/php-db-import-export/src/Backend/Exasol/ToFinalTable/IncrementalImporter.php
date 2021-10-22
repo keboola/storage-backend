@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Result;
+use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
@@ -125,6 +127,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             );
 
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
+        } catch (Exception $e) {
+            throw ExasolException::covertException($e);
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // drop dedup table

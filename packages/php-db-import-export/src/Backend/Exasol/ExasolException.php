@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 class ExasolException extends Exception
 {
     private const MANIFEST_ENTRY_NOT_FOUND = 'failed with error code=404';
+    private const CONSTRAINT_VIOLATION_NOT_NULL = 'constraint violation - not null';
 
     public static function covertException(\Doctrine\DBAL\Exception $e): \Throwable
     {
@@ -20,6 +21,20 @@ class ExasolException extends Exception
             preg_match('/^(An exception occurred.*?)(Following error.*)=?.\(Session.*/ms', $e->getMessage(), $matches);
 
             return FileNotFoundException::createFromDbalException($e, $matches[2]);
+        }
+
+        if (strpos($e->getMessage(), self::CONSTRAINT_VIOLATION_NOT_NULL) !== false) {
+            // strip query from message, there are things like internal table names
+            preg_match(
+                '/^(An exception occurred.*?)(constraint violation - not null.*)=?.\(column name in table.*/ms',
+                $e->getMessage(),
+                $matches
+            );
+
+            return new Exception(
+                'Load error: ' . ucfirst($matches[2]) . '.',
+                Exception::UNKNOWN_ERROR
+            );
         }
 
         return $e;
