@@ -45,12 +45,13 @@ getClusterFromDb(){
   echo $(getClusters $1 | jq -r ".[0].id")
 }
 getDNS(){
-  echo $(getConnectionData $1 $2 | jq -r ".dns")
+  local connectionData=$(getConnectionData $1 $2)
+  echo `echo $connectionData | jq -r ".dns"`:`echo $connectionData | jq -r ".port"`
 }
 
 #{
 #  "status": "creating",
-#  "id": "DooPHBW1R2mSheesaV4c9A",
+#  "id": "xxxx",
 #  "name": "ci-import",
 #  "clusters": {
 #    "total": 1,
@@ -69,7 +70,6 @@ waitForCreate(){
     local runtime="30 minute"
     local endtime=$(date -ud "$runtime" +%s)
     local newDbId=$(createDbWithId)
-#    local newDbId="6wPo-tG2T4OP_1-dkd0iww"
     while [[ $(date -u +%s) -le ${endtime} ]]
     do
         local status=$(getDbStatus $newDbId)
