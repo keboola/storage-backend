@@ -56,9 +56,8 @@ stages:
               --principalPassword $AZURE_SERVICE_PRINCIPAL_PASSWORD
               source ./provisioning/env_export
               bash docker/exasol/createDeleteServer.sh -w
-              NEW_CLUSTER_DNS=`cat out_dns`
-              echo "##vso[task.setvariable variable=NEW_CLUSTER_DNS]$NEW_CLUSTER_DNS"
-              rm -f out_dns
+              cat /tmp/env_export_exasol
+              source /tmp/env_export_exasol
             displayName: 'Deploy resources'
             env:
               ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
@@ -124,7 +123,7 @@ stages:
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
           - script: |
-              EXASOL_HOST=$NEW_CLUSTER_DNS
+              EXASOL_HOST=$EXASOL_CLUSTER_DNS
               EXASOL_USERNAME=devel
               docker-compose run production php -v
               parallel -j12 --joblog /tmp/parallel-joblog --linebuffer docker-compose run production composer ::: \
@@ -166,7 +165,7 @@ stages:
               SYNAPSE_PWD: $(SYNAPSE_PWD)
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
-              EXASOL_HOST: $(NEW_CLUSTER_DNS)
+              EXASOL_HOST: $(EXASOL_CLUSTER_DNS)
               EXASOL_USERNAME: devel
               EXASOL_PASSWORD: $(EXA_SAAS_TOKEN)
           - script: |
@@ -181,6 +180,7 @@ stages:
               --principalName $AZURE_SERVICE_PRINCIPAL \
               --principalPassword $AZURE_SERVICE_PRINCIPAL_PASSWORD \
               --storageAccountName $ABS_ACCOUNT_NAME
+              bash docker/exasol/createDeleteServer.sh -d
             displayName: 'Clean up'
             condition: 'always()'
             env:
@@ -194,3 +194,4 @@ stages:
               SYNAPSE_DW_SERVER_NAME: $(SYNAPSE_DW_SERVER_NAME)
               SYNAPSE_RESOURCE_ID: $(SYNAPSE_RESOURCE_ID)
               ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
+              EXASOL_DB_ID: $(EXASOL_DB_ID)

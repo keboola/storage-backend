@@ -25,6 +25,16 @@ createDb(){
     }'
 }
 
+deleteDb(){
+      DATE=`date +%s`
+      curl -X 'POST' \
+      "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$EXASOL_DB_ID" \
+      -H 'accept: application/json' \
+      -H "Authorization: Bearer $EXA_SAAS_TOKEN" \
+      -H 'Content-Type: application/json'
+}
+
+
 getDb(){
     curl -X GET "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$1" -H "accept: application/json" -H "Authorization: Bearer $EXA_SAAS_TOKEN"
 }
@@ -78,7 +88,10 @@ waitForCreate(){
             echo "Exasol DB is online."
             local clusterId=$(getClusterFromDb $newDbId)
             local dns=$(getDNS $newDbId $clusterId)
-            echo $dns > out_dns
+            cat << EOF > /tmp/env_export_exasol
+echo "##vso[task.setvariable variable=EXASOL_CLUSTER_DNS]$dns"
+echo "##vso[task.setvariable variable=EXASOL_DB_ID]$newDbId"
+EOF
             exit 0
         fi
         # null -> tocreate -> creating -> running
@@ -102,11 +115,10 @@ Script for starting Exasol SaaS DB.
 
  Options:
   -h|--help                Print this
-  -r|--resume              Resume DB
-  -p|--pause               Pause DB
+  -d|--delete              Delete DB
   -w|--waitForStart        Wait till DB is online, this will check api periodically
                            return 0 if server is online
-                           return 1 if server is not online after 10 minutes.
+                           return 1 if server is not online after 30 minutes.
 EOF
 }
 
@@ -118,14 +130,8 @@ while [[ $# -gt 0 ]]; do
             script_usage
             exit 0
             ;;
-        -c | --create)
-            startDb
-            ;;
         -d | --delete)
             deleteDb
-            ;;
-        -p | --pause)
-            stopDb
             ;;
         -w | --waitForStart)
             waitForCreate
