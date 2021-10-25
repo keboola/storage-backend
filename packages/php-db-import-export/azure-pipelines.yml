@@ -56,7 +56,6 @@ stages:
               --principalPassword $AZURE_SERVICE_PRINCIPAL_PASSWORD
               source ./provisioning/env_export
               bash docker/exasol/createDeleteServer.sh -w
-              cat /tmp/env_export_exasol
               source /tmp/env_export_exasol
             displayName: 'Deploy resources'
             env:
@@ -195,3 +194,6 @@ stages:
               SYNAPSE_RESOURCE_ID: $(SYNAPSE_RESOURCE_ID)
               ABS_ACCOUNT_NAME: $(ABS_ACCOUNT_NAME)
               EXASOL_DB_ID: $(EXASOL_DB_ID)
+              EXA_SAAS_HOST: $(EXA_SAAS_HOST)
+              EXA_SAAS_USER_ID: $(EXA_SAAS_USER_ID)
+              EXA_SAAS_TOKEN: $(EXA_SAAS_TOKEN)
