@@ -124,6 +124,8 @@ stages:
               SYNAPSE_DATABASE: $(SYNAPSE_DATABASE)
               SYNAPSE_SERVER: $(SYNAPSE_SERVER)
           - script: |
+              EXASOL_HOST=$NEW_CLUSTER_DNS
+              EXASOL_USERNAME=devel
               docker-compose run production php -v
               parallel -j12 --joblog /tmp/parallel-joblog --linebuffer docker-compose run production composer ::: \
               tests-storage \
