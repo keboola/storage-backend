@@ -27,7 +27,7 @@ createDb(){
 
 deleteDb(){
       DATE=`date +%s`
-      curl -X 'POST' \
+      curl -X 'DELETE' \
       "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$EXASOL_DB_ID" \
       -H 'accept: application/json' \
       -H "Authorization: Bearer $EXA_SAAS_TOKEN" \
