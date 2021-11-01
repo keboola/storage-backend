@@ -322,9 +322,18 @@ class SqlBuilder
                 } else {
                     $columnsSetSql[] = SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
                 }
-            } else {
+            } elseif ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                 $columnsSetSql[] = sprintf(
                     'CAST(COALESCE(%s, \'\') as %s) AS %s',
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    $this->getColumnTypeSqlDefinition($columnDefinition),
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
+            } else {
+                // on columns other than string dont use COALESCE, use direct cast
+                // this will fail if the column is not null, but this is expected
+                $columnsSetSql[] = sprintf(
+                    'CAST(%s as %s) AS %s',
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $this->getColumnTypeSqlDefinition($columnDefinition),
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
