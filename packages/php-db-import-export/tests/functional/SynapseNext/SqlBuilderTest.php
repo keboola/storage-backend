@@ -378,9 +378,83 @@ EOT
         ], $result);
     }
 
+    public function testGetInsertAllIntoTargetTableCommandNotString(): void
+    {
+        $col2 = new SynapseColumn(
+            'col2',
+            new Synapse(
+                Synapse::TYPE_NUMERIC
+            )
+        );
+
+        $this->createTestSchema();
+        $destination = $this->createTestTableWithColumns(false, false, $col2);
+        $this->createStagingTableWithData(true);
+
+        // create fake stage with missing id column and numeric col2
+        $fakeStage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $col2,
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $destination,
+            $this->getDummyImportOptions(),
+            '2020-01-01 00:00:00'
+        );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'INSERT INTO [import-export-test-ng_schema].[import-export-test-ng_test] ([col1], [col2]) (SELECT CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NUMERIC) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src])',
+            $sql
+        );
+
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(4, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEqualsCanonicalizing([
+            [
+                'id' => null,
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'id' => null,
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'id' => null,
+                'col1' => '2',
+                'col2' => '2',
+            ],
+            [
+                'id' => null,
+                'col1' => '',
+                'col2' => null,
+            ],
+        ], $result);
+    }
+
     protected function createTestTableWithColumns(
         bool $includeTimestamp = false,
-        bool $includePrimaryKey = false
+        bool $includePrimaryKey = false,
+        ?SynapseColumn $overwriteColumn2 = null
     ): SynapseTableDefinition {
         $columns = [];
         $pks = [];
@@ -394,7 +468,11 @@ EOT
             $columns[] = $this->createNullableGenericColumn('id');
         }
         $columns[] = $this->createNullableGenericColumn('col1');
-        $columns[] = $this->createNullableGenericColumn('col2');
+        if ($overwriteColumn2 === null) {
+            $columns[] = $this->createNullableGenericColumn('col2');
+        } else {
+            $columns[] = $overwriteColumn2;
+        }
 
         if ($includeTimestamp) {
             $columns[] = new SynapseColumn(
@@ -646,6 +724,93 @@ EOT
         $this->assertEquals(
         // phpcs:ignore
             'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
+            $sql
+        );
+        $this->connection->exec($sql);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEquals([
+            [
+                'id' => '1',
+                'col1' => '2',
+                'col2' => '2',
+            ],
+        ], $result);
+    }
+
+    public function testGetUpdateWithPkCommandNotString(): void
+    {
+        $col2 = new SynapseColumn(
+            'col2',
+            new Synapse(
+                Synapse::TYPE_NUMERIC
+            )
+        );
+
+        $this->createTestSchema();
+        $this->createTestTableWithColumns(false, false, $col2);
+        $this->createStagingTableWithData(true);
+        // create fake destination and say that there is pk on col1
+        $fakeDestination = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $col2,
+            ]),
+            ['col1'],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $col2,
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        $this->connection->exec(
+            sprintf(
+                'INSERT INTO %s([id],[col1],[col2]) VALUES (1,\'2\',\'1\')',
+                self::TEST_TABLE_IN_SCHEMA
+            )
+        );
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEquals([
+            [
+                'id' => '1',
+                'col1' => '2',
+                'col2' => '1',
+            ],
+        ], $result);
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            $this->getDummyImportOptions(),
+            '2020-01-01 00:00:00'
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = [src].[col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NUMERIC) != [src].[col2]) ',
             $sql
         );
         $this->connection->exec($sql);
@@ -1001,7 +1166,7 @@ EOT
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as NVARCHAR(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as NVARCHAR(4000)) AS [pk2],CAST(COALESCE([col1], \'\') as INT) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as NVARCHAR(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as NVARCHAR(4000)) AS [pk2],CAST([col1] as INT) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
         ];
 
         yield 'testGetCtasDedupCommandWithHashDistribution' => [
