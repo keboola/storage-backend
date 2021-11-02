@@ -124,4 +124,35 @@ abstract class ImportExportBaseTest extends TestCase
             $skipLines
         );
     }
+
+    public const EXPECTATION_FILE_DATA_CONVERT_NULLS = true;
+    public const EXPECTATION_FILE_DATA_KEEP_AS_IS = false;
+    /**
+     * @param self::EXPECTATION_FILE_DATA_* $convertNullsString
+     * @return array{0:string[], 1:array<string,mixed>}
+     */
+    protected function getExpectationFileData(
+        string $filePathInDataDir,
+        bool $convertNullsString = self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+    ): array {
+        $expectedRows = [];
+        $expectationFile = new CsvFile(self::DATA_DIR . $filePathInDataDir);
+        foreach ($expectationFile as $row) {
+            if ($convertNullsString === self::EXPECTATION_FILE_DATA_CONVERT_NULLS) {
+                $row = array_map(static function ($item) {
+                    return $item === 'null' ? null : $item; // convert 'null' string to null to compare
+                }, $row);
+            }
+            $expectedRows[] = $row;
+        }
+        /** @var string[] $expectedColumns */
+        $expectedColumns = array_shift($expectedRows);
+        /** @var array<string,mixed> $expectedRows */
+        $expectedRows = array_values($expectedRows);
+
+        return [
+            $expectedColumns,
+            $expectedRows,
+        ];
+    }
 }

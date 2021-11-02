@@ -95,20 +95,13 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
      */
     public function fullImportData(): \Generator
     {
-        $expectedAccounts = [];
-        // expected output for typed table differ
-        // empty DATETIME is filled
-        // empty int set set to 0
-        // datetime fractional seconds are added
-        $file = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts-typed.csv');
-        foreach ($file as $row) {
-            $row = array_map(static function ($item) {
-                return $item === 'null' ? null : $item;
-            }, $row);
-            $expectedAccounts[] = $row;
-        }
-        $accountsHeader = array_shift($expectedAccounts); // remove header
-        $expectedAccounts = array_values($expectedAccounts);
+        [
+            $accountsHeader,
+            $expectedAccounts,
+        ] = $this->getExpectationFileData(
+            'expectation.tw_accounts-typed.csv',
+            self::EXPECTATION_FILE_DATA_CONVERT_NULLS
+        );
 
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.changedColumnsOrder.csv');
         $accountChangedColumnsOrderHeader = $file->getHeader();

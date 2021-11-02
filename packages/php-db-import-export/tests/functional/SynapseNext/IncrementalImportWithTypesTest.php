@@ -92,42 +92,29 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
      */
     public function incrementalImportData(): \Generator
     {
-        // accounts
-        $expectedAccountsRows = [];
-        // expected output for typed table differ
-        // empty DATETIME is filled
-        // empty int set set to 0
-        // datetime fractional seconds are added
-        $expectationAccountsFile = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts.increment-typed.csv');
-        foreach ($expectationAccountsFile as $row) {
-            $row = array_map(static function ($item) {
-                return $item === 'null' ? null : $item;
-            }, $row);
-            $expectedSimpleRows[] = $row;
-        }
-        $accountColumns = array_shift($expectedAccountsRows);
-        $expectedAccountsRows = array_values($expectedAccountsRows);
+        [
+            $accountColumns,
+            $expectedAccountsRows,
+        ] = $this->getExpectationFileData(
+            'expectation.tw_accounts.increment-typed.csv',
+            self::EXPECTATION_FILE_DATA_CONVERT_NULLS
+        );
 
-        // multi pk
-        $expectationMultiPkFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk.increment.csv');
-        $expectedMultiPkRows = [];
-        foreach ($expectationMultiPkFile as $row) {
-            $expectedMultiPkRows[] = $row;
-        }
-        $multiPkColumns = array_shift($expectedMultiPkRows);
-        $expectedMultiPkRows = array_values($expectedMultiPkRows);
+        [
+            $multiPkColumns,
+            $expectedMultiPkRows,
+        ] = $this->getExpectationFileData(
+            'expectation.multi-pk.increment.csv',
+            self::EXPECTATION_FILE_DATA_CONVERT_NULLS
+        );
 
-        // simple
-        $expectationSimpleFile = new CsvFile(self::DATA_DIR . 'expectation.simple.increment.csv');
-        $expectedSimpleRows = [];
-        foreach ($expectationSimpleFile as $row) {
-            $row = array_map(static function ($item) {
-                return $item === 'null' ? null : $item;
-            }, $row);
-            $expectedSimpleRows[] = $row;
-        }
-        $simpleColumns = array_shift($expectedSimpleRows);
-        $expectedSimpleRows = array_values($expectedSimpleRows);
+        [
+            $simpleColumns,
+            $expectedSimpleRows,
+        ] = $this->getExpectationFileData(
+            'expectation.simple.increment.csv',
+            self::EXPECTATION_FILE_DATA_CONVERT_NULLS
+        );
 
         $tests = [];
         yield 'simple accounts' => [
