@@ -32,23 +32,20 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
      */
     public function incrementalImportData(): \Generator
     {
-        // accounts
-        $expectationAccountsFile = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts.increment.csv');
-        $expectedAccountsRows = [];
-        foreach ($expectationAccountsFile as $row) {
-            $expectedAccountsRows[] = $row;
-        }
-        $accountColumns = array_shift($expectedAccountsRows);
-        $expectedAccountsRows = array_values($expectedAccountsRows);
-
-        // multi pk
-        $expectationMultiPkFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk.increment.csv');
-        $expectedMultiPkRows = [];
-        foreach ($expectationMultiPkFile as $row) {
-            $expectedMultiPkRows[] = $row;
-        }
-        $multiPkColumns = array_shift($expectedMultiPkRows);
-        $expectedMultiPkRows = array_values($expectedMultiPkRows);
+        [
+            $accountColumns,
+            $expectedAccountsRows,
+        ] = $this->getExpectationFileData(
+            'expectation.tw_accounts.increment.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
+        [
+            $multiPkColumns,
+            $expectedMultiPkRows,
+        ] = $this->getExpectationFileData(
+            'expectation.multi-pk.increment.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
 
         $tests = [];
         yield 'simple' => [

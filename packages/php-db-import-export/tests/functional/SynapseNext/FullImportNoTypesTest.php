@@ -32,32 +32,32 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
      */
     public function fullImportData(): \Generator
     {
-        $expectedEscaping = [];
-        $file = new CsvFile(self::DATA_DIR . 'escaping/standard-with-enclosures.csv');
-        foreach ($file as $row) {
-            $expectedEscaping[] = $row;
-        }
-        $escapingHeader = array_shift($expectedEscaping); // remove header
-        $expectedEscaping = array_values($expectedEscaping);
+        [
+            $escapingHeader,
+            $expectedEscaping,
+        ] = $this->getExpectationFileData(
+            'escaping/standard-with-enclosures.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
 
-        $expectedAccounts = [];
-        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        foreach ($file as $row) {
-            $expectedAccounts[] = $row;
-        }
-        $accountsHeader = array_shift($expectedAccounts); // remove header
-        $expectedAccounts = array_values($expectedAccounts);
+        [
+            $accountsHeader,
+            $expectedAccounts,
+        ] = $this->getExpectationFileData(
+            'tw_accounts.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
 
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.changedColumnsOrder.csv');
         $accountChangedColumnsOrderHeader = $file->getHeader();
 
-        $file = new CsvFile(self::DATA_DIR . 'lemma.csv');
-        $expectedLemma = [];
-        foreach ($file as $row) {
-            $expectedLemma[] = $row;
-        }
-        $lemmaHeader = array_shift($expectedLemma);
-        $expectedLemma = array_values($expectedLemma);
+        [
+            $lemmaHeader,
+            $expectedLemma,
+        ] = $this->getExpectationFileData(
+            'lemma.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
 
         // large sliced manifest
         $expectedLargeSlicedManifest = [];
