@@ -102,6 +102,9 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
         // datetime fractional seconds are added
         $file = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts-typed.csv');
         foreach ($file as $row) {
+            $row = array_map(static function ($item) {
+                return $item === 'null' ? null : $item;
+            }, $row);
             $expectedAccounts[] = $row;
         }
         $accountsHeader = array_shift($expectedAccounts); // remove header
@@ -154,7 +157,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                     'boolCol',
                 ]
             ),
-           [
+            [
                 $this->getDestinationSchemaName(),
                 'types',
             ],

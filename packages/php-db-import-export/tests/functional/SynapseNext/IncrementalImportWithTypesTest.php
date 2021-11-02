@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
 class IncrementalImportWithTypesTest extends SynapseBaseTestCase
 {
+    private const TABLE_SIMPLE = 'simple';
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,6 +36,18 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
         }
 
         switch ($tableName) {
+            case self::TABLE_SIMPLE:
+                $this->connection->executeStatement(sprintf(
+                    'CREATE TABLE [%s].[simple] (
+                [Col1] INT NOT NULL,
+                [Col2] NUMERIC(10,1) NOT NULL,
+                [Col3] datetime2,
+                PRIMARY KEY NONCLUSTERED("Col1") NOT ENFORCED
+            ) WITH (DISTRIBUTION=%s)',
+                    $this->getDestinationSchemaName(),
+                    $tableDistribution === 'HASH' ? 'HASH([Col1])' : $tableDistribution
+                ));
+                break;
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->exec(sprintf(
                     'CREATE TABLE [%s].[accounts-3] (
@@ -87,7 +100,10 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
         // datetime fractional seconds are added
         $expectationAccountsFile = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts.increment-typed.csv');
         foreach ($expectationAccountsFile as $row) {
-            $expectedAccountsRows[] = $row;
+            $row = array_map(static function ($item) {
+                return $item === 'null' ? null : $item;
+            }, $row);
+            $expectedSimpleRows[] = $row;
         }
         $accountColumns = array_shift($expectedAccountsRows);
         $expectedAccountsRows = array_values($expectedAccountsRows);
@@ -101,8 +117,20 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
         $multiPkColumns = array_shift($expectedMultiPkRows);
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
+        // simple
+        $expectationSimpleFile = new CsvFile(self::DATA_DIR . 'expectation.simple.increment.csv');
+        $expectedSimpleRows = [];
+        foreach ($expectationSimpleFile as $row) {
+            $row = array_map(static function ($item) {
+                return $item === 'null' ? null : $item;
+            }, $row);
+            $expectedSimpleRows[] = $row;
+        }
+        $simpleColumns = array_shift($expectedSimpleRows);
+        $expectedSimpleRows = array_values($expectedSimpleRows);
+
         $tests = [];
-        yield 'simple' => [
+        yield 'simple accounts' => [
             $this->createABSSourceInstance(
                 'tw_accounts.csv',
                 $accountColumns,
@@ -123,6 +151,28 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
             $expectedAccountsRows,
             4,
             [self::TABLE_ACCOUNTS_3],
+        ];
+        yield 'simple types' => [
+            $this->createABSSourceInstance(
+                'simple.csv',
+                $simpleColumns,
+                false,
+                false,
+                ['Col1']
+            ),
+            $this->getSynapseImportOptions(),
+            $this->createABSSourceInstance(
+                'simple.increment.csv',
+                $simpleColumns,
+                false,
+                false,
+                ['Col1']
+            ),
+            $this->getSynapseIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_SIMPLE],
+            $expectedSimpleRows,
+            10,
+            [self::TABLE_SIMPLE],
         ];
         yield 'multi pk' => [
             $this->createABSSourceInstance(

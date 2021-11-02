@@ -145,6 +145,9 @@ class SqlBuilder
                     'COALESCE(%s, \'\')',
                     SynapseQuote::quoteSingleIdentifier($column->getColumnName())
                 );
+                if ($column->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
+                    $colSql = SynapseQuote::quoteSingleIdentifier($column->getColumnName());
+                }
                 if ($importOptions->getCastValueTypes()) {
                     $colSql = sprintf(
                         'CAST(%s as %s)',
@@ -451,11 +454,21 @@ class SqlBuilder
                     );
                 }
             } else {
-                $columnsSet[] = sprintf(
-                    '%s = COALESCE([src].%s, \'\')',
+                $sql = sprintf(
+                    '%s = [src].%s',
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
+
+                if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+                    $sql = sprintf(
+                        '%s = COALESCE([src].%s, \'\')',
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    );
+                }
+
+                $columnsSet[] = $sql;
             }
         }
 
@@ -470,8 +483,16 @@ class SqlBuilder
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
         $columnsComparisionSql = array_map(
             function (SynapseColumn $columnDefinition) use ($dest) {
+
+                $useCoalesce = $columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING;
+
+                $sqlTemplate = 'CAST(%s.%s AS %s) != [src].%s';
+                if ($useCoalesce) {
+                    $sqlTemplate = 'COALESCE(CAST(%s.%s AS %s), \'\') != COALESCE([src].%s, \'\')';
+                }
+
                 return sprintf(
-                    'COALESCE(CAST(%s.%s AS %s), \'\') != COALESCE([src].%s, \'\')',
+                    $sqlTemplate,
                     $dest,
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $this->getColumnTypeSqlDefinition($columnDefinition),
