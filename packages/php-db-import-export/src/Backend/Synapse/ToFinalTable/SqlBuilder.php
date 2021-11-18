@@ -371,8 +371,11 @@ class SqlBuilder
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
         );
 
-        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $sourceTableDefinition->getColumnsNames(), true)
-            && $importOptions->useTimestamp();
+        $useTimestamp = !in_array(
+            ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            $sourceTableDefinition->getColumnsNames(),
+            true
+        ) && $importOptions->useTimestamp();
 
         $columnsSetSql = [];
         /** @var SynapseColumn $columnDefinition */
@@ -408,7 +411,11 @@ class SqlBuilder
         }
 
         if ($useTimestamp) {
-            $columnsSetSql[] = sprintf('%s AS %s', SynapseQuote::quote($timestamp), ToStageImporterInterface::TIMESTAMP_COLUMN_NAME);
+            $columnsSetSql[] = sprintf(
+                '%s AS %s',
+                SynapseQuote::quote($timestamp),
+                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
+            );
         }
 
         $distributionSql = $this->getSqlDistributionPart($destinationTableDefinition);
