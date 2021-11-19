@@ -358,6 +358,79 @@ class SqlBuilder
         );
     }
 
+    public function getCTASInsertAllIntoTargetTableCommand(
+        SynapseTableDefinition $sourceTableDefinition,
+        SynapseTableDefinition $destinationTableDefinition,
+        SynapseImportOptions $importOptions,
+        string $timestamp
+    ): string {
+        $destinationTable = sprintf(
+            '%s.%s',
+            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
+            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+        );
+
+        $useTimestamp = !in_array(
+            ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            $sourceTableDefinition->getColumnsNames(),
+            true
+        ) && $importOptions->useTimestamp();
+
+        $columnsSetSql = [];
+        /** @var SynapseColumn $columnDefinition */
+        foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
+            if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
+                // use nullif only for string base type
+                if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+                    $columnsSetSql[] = sprintf(
+                        'NULLIF(%s, \'\') AS %s',
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    );
+                } else {
+                    $columnsSetSql[] = SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
+                }
+            } elseif ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+                $columnsSetSql[] = sprintf(
+                    'CAST(COALESCE(%s, \'\') as %s) AS %s',
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    $this->getColumnTypeSqlDefinition($columnDefinition),
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
+            } else {
+                // on columns other than string dont use COALESCE, use direct cast
+                // this will fail if the column is not null, but this is expected
+                $columnsSetSql[] = sprintf(
+                    'CAST(%s as %s) AS %s',
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    $this->getColumnTypeSqlDefinition($columnDefinition),
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
+            }
+        }
+
+        if ($useTimestamp) {
+            $columnsSetSql[] = sprintf(
+                '%s AS %s',
+                SynapseQuote::quote($timestamp),
+                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
+            );
+        }
+
+        $distributionSql = $this->getSqlDistributionPart($destinationTableDefinition);
+        $indexSql = $this->getSqlIndexPart($destinationTableDefinition);
+
+        return sprintf(
+            'CREATE TABLE %s WITH (%s,%s) AS SELECT %s FROM %s.%s',
+            $destinationTable,
+            $distributionSql,
+            $indexSql,
+            implode(',', $columnsSetSql),
+            SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
+            SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName())
+        );
+    }
+
     public function getRenameTableCommand(
         string $schema,
         string $sourceTableName,

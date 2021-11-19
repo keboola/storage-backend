@@ -144,29 +144,51 @@ final class FullImporter implements ToFinalTableImporterInterface
         SynapseImportOptions $options,
         ImportState $state
     ): void {
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getBeginTransaction()
+        $tmpDestination = new SynapseTableDefinition(
+            $destinationTableDefinition->getSchemaName(),
+            $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
+            false,
+            $destinationTableDefinition->getColumnsDefinitions(),
+            $destinationTableDefinition->getPrimaryKeysNames(),
+            $destinationTableDefinition->getTableDistribution(),
+            $destinationTableDefinition->getTableIndex()
         );
 
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
-                $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName()
-            )
-        );
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
         $this->connection->executeStatement(
-            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+            $this->sqlBuilder->getCTASInsertAllIntoTargetTableCommand(
                 $stagingTableDefinition,
-                $destinationTableDefinition,
+                $tmpDestination,
                 $options,
                 DateTimeHelper::getNowFormatted()
             )
         );
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
 
+        $tmpDestinationToRemove = $destinationTableDefinition->getTableName()
+            . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
+
         $this->connection->executeStatement(
-            $this->sqlBuilder->getCommitTransaction()
+            $this->sqlBuilder->getRenameTableCommand(
+                $destinationTableDefinition->getSchemaName(),
+                $destinationTableDefinition->getTableName(),
+                $tmpDestinationToRemove
+            )
+        );
+
+        $this->connection->executeStatement(
+            $this->sqlBuilder->getRenameTableCommand(
+                $tmpDestination->getSchemaName(),
+                $tmpDestination->getTableName(),
+                $destinationTableDefinition->getTableName()
+            )
+        );
+
+        $this->connection->executeStatement(
+            $this->sqlBuilder->getDropCommand(
+                $destinationTableDefinition->getSchemaName(),
+                $tmpDestinationToRemove
+            )
         );
     }
 }
