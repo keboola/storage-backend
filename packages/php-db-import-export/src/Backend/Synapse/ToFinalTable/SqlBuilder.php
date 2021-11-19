@@ -25,7 +25,6 @@ class SqlBuilder
         return 'COMMIT';
     }
 
-
     /**
      * @param string[] $primaryKeys
      */
