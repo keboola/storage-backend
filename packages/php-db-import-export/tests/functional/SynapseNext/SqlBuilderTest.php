@@ -456,39 +456,10 @@ EOT
         bool $includePrimaryKey = false,
         ?SynapseColumn $overwriteColumn2 = null
     ): SynapseTableDefinition {
-        $columns = [];
-        $pks = [];
-        if ($includePrimaryKey) {
-            $pks[] = 'id';
-            $columns[] = new SynapseColumn(
-                'id',
-                new Synapse(Synapse::TYPE_INT)
-            );
-        } else {
-            $columns[] = $this->createNullableGenericColumn('id');
-        }
-        $columns[] = $this->createNullableGenericColumn('col1');
-        if ($overwriteColumn2 === null) {
-            $columns[] = $this->createNullableGenericColumn('col2');
-        } else {
-            $columns[] = $overwriteColumn2;
-        }
-
-        if ($includeTimestamp) {
-            $columns[] = new SynapseColumn(
-                '_timestamp',
-                new Synapse(Synapse::TYPE_DATETIME)
-            );
-        }
-
-        $tableDefinition = new SynapseTableDefinition(
-            self::TEST_SCHEMA,
-            self::TEST_TABLE,
-            false,
-            new ColumnCollection($columns),
-            $pks,
-            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+        $tableDefinition = $this->getTestTableWithColumnsDefinition(
+            $includeTimestamp,
+            $includePrimaryKey,
+            $overwriteColumn2
         );
         $this->connection->exec(
             (new SynapseTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition)
@@ -1368,5 +1339,285 @@ EOT
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
             new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
         );
+    }
+
+    public function testGetCTASInsertAllIntoTargetTableCommand(): void
+    {
+        $this->createTestSchema();
+        $destination = $this->getTestTableWithColumnsDefinition();
+        $this->createStagingTableWithData(true);
+
+        // create fake stage and say that there is less columns
+        $fakeStage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $destination,
+            $this->getDummyImportOptions(),
+            '2020-01-01 00:00:00'
+        );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            $sql
+        );
+
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(4, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEqualsCanonicalizing([
+            [
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '2',
+            ],
+            [
+                'col1' => '',
+                'col2' => '',
+            ],
+        ], $result);
+    }
+
+    public function testGetCTASInsertAllIntoTargetTableCommandNotString(): void
+    {
+        $col2 = new SynapseColumn(
+            'col2',
+            new Synapse(
+                Synapse::TYPE_NUMERIC
+            )
+        );
+
+        $this->createTestSchema();
+        $destination = $this->getTestTableWithColumnsDefinition(false, false, $col2);
+        $this->createStagingTableWithData(true);
+
+        // create fake stage with missing id column and numeric col2
+        $fakeStage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $col2,
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $destination,
+            $this->getDummyImportOptions(),
+            '2020-01-01 00:00:00'
+        );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NUMERIC) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            $sql
+        );
+
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(4, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEqualsCanonicalizing([
+            [
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '2',
+            ],
+            [
+                'col1' => '',
+                'col2' => null,
+            ],
+        ], $result);
+    }
+
+    public function testGetCTASInsertAllIntoTargetTableCommandConvertToNull(): void
+    {
+        $this->createTestSchema();
+        $destination = $this->getTestTableWithColumnsDefinition();
+        $this->createStagingTableWithData(true);
+        // create fake stage and say that there is less columns
+        $fakeStage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        // convert col1 to null
+        $options = new SynapseImportOptions(['col1']);
+        $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $destination,
+            $options,
+            '2020-01-01 00:00:00'
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            $sql
+        );
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(4, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEqualsCanonicalizing([
+            [
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'col1' => '1',
+                'col2' => '1',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '2',
+            ],
+            [
+                'col1' => null,
+                'col2' => '',
+            ],
+        ], $result);
+    }
+
+    public function testGetCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(): void
+    {
+        $this->createTestSchema();
+        $destination = $this->getTestTableWithColumnsDefinition(true);
+        $this->createStagingTableWithData(true);
+        // create fake stage and say that there is less columns
+        $fakeStage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        // use timestamp
+        $options = new SynapseImportOptions(['col1'], false, true);
+        $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $destination,
+            $options,
+            '2020-01-01 00:00:00'
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
+            $sql
+        );
+        $out = $this->connection->exec($sql);
+        $this->assertEquals(4, $out);
+
+        $result = $this->connection->fetchAll(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        foreach ($result as $item) {
+            $this->assertArrayHasKey('col1', $item);
+            $this->assertArrayHasKey('col2', $item);
+            $this->assertArrayHasKey('_timestamp', $item);
+        }
+    }
+
+    protected function getTestTableWithColumnsDefinition(
+        bool $includeTimestamp = false,
+        bool $includePrimaryKey = false,
+        ?SynapseColumn $overwriteColumn2 = null
+    ): SynapseTableDefinition {
+        $columns = [];
+        $pks = [];
+        if ($includePrimaryKey) {
+            $pks[] = 'id';
+            $columns[] = new SynapseColumn(
+                'id',
+                new Synapse(Synapse::TYPE_INT)
+            );
+        } else {
+            $columns[] = $this->createNullableGenericColumn('id');
+        }
+        $columns[] = $this->createNullableGenericColumn('col1');
+        if ($overwriteColumn2 === null) {
+            $columns[] = $this->createNullableGenericColumn('col2');
+        } else {
+            $columns[] = $overwriteColumn2;
+        }
+
+        if ($includeTimestamp) {
+            $columns[] = new SynapseColumn(
+                '_timestamp',
+                new Synapse(Synapse::TYPE_DATETIME)
+            );
+        }
+
+        $tableDefinition = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection($columns),
+            $pks,
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+        );
+        return $tableDefinition;
     }
 }
