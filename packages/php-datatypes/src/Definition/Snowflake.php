@@ -7,22 +7,69 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Snowflake extends Common
 {
+    const TYPE_NUMBER = 'NUMBER';
+    const TYPE_DECIMAL = 'DECIMAL';
+    const TYPE_NUMERIC = 'NUMERIC';
+    const TYPE_INT = 'INT';
+    const TYPE_INTEGER = 'INTEGER';
+    const TYPE_BIGINT = 'BIGINT';
+    const TYPE_SMALLINT = 'SMALLINT';
+    const TYPE_TINYINT = 'TINYINT';
+    const TYPE_BYTEINT = 'BYTEINT';
+    const TYPE_FLOAT = 'FLOAT';
+    const TYPE_FLOAT4 = 'FLOAT4';
+    const TYPE_FLOAT8 = 'FLOAT8';
+    const TYPE_DOUBLE = 'DOUBLE';
+    const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION';
+    const TYPE_REAL = 'REAL';
+    const TYPE_VARCHAR = 'VARCHAR';
+    const TYPE_CHAR = 'CHAR';
+    const TYPE_CHARACTER = 'CHARACTER';
+    const TYPE_STRING = 'STRING';
+    const TYPE_TEXT = 'TEXT';
+    const TYPE_BOOLEAN = 'BOOLEAN';
+    const TYPE_DATE = 'DATE';
+    const TYPE_DATETIME = 'DATETIME';
+    const TYPE_TIME = 'TIME';
+    const TYPE_TIMESTAMP = 'TIMESTAMP';
+    const TYPE_TIMESTAMP_NTZ = 'TIMESTAMP_NTZ';
+    const TYPE_TIMESTAMP_LTZ = 'TIMESTAMP_LTZ';
+    const TYPE_TIMESTAMP_TZ = 'TIMESTAMP_TZ';
+    const TYPE_VARIANT = 'VARIANT';
+    const TYPE_BINARY = 'BINARY';
+    const TYPE_VARBINARY = 'VARBINARY';
     const TYPES = [
-        "NUMBER",
-        "DECIMAL", "NUMERIC",
-        "INT", "INTEGER", "BIGINT", "SMALLINT", "TINYINT", "BYTEINT",
-        "FLOAT", "FLOAT4", "FLOAT8",
-        "DOUBLE", "DOUBLE PRECISION", "REAL",
-        "VARCHAR",
-        "CHAR", "CHARACTER",
-        "STRING", "TEXT",
-        "BOOLEAN",
-        "DATE",
-        "DATETIME",
-        "TIME",
-        "TIMESTAMP", "TIMESTAMP_NTZ", "TIMESTAMP_LTZ", "TIMESTAMP_TZ",
-        "VARIANT",
-        "BINARY","VARBINARY",
+        self::TYPE_NUMBER,
+        self::TYPE_DECIMAL,
+        self::TYPE_NUMERIC,
+        self::TYPE_INT,
+        self::TYPE_INTEGER,
+        self::TYPE_BIGINT,
+        self::TYPE_SMALLINT,
+        self::TYPE_TINYINT,
+        self::TYPE_BYTEINT,
+        self::TYPE_FLOAT,
+        self::TYPE_FLOAT4,
+        self::TYPE_FLOAT8,
+        self::TYPE_DOUBLE,
+        self::TYPE_DOUBLE_PRECISION,
+        self::TYPE_REAL,
+        self::TYPE_VARCHAR,
+        self::TYPE_CHAR,
+        self::TYPE_CHARACTER,
+        self::TYPE_STRING,
+        self::TYPE_TEXT,
+        self::TYPE_BOOLEAN,
+        self::TYPE_DATE,
+        self::TYPE_DATETIME,
+        self::TYPE_TIME,
+        self::TYPE_TIMESTAMP,
+        self::TYPE_TIMESTAMP_NTZ,
+        self::TYPE_TIMESTAMP_LTZ,
+        self::TYPE_TIMESTAMP_TZ,
+        self::TYPE_VARIANT,
+        self::TYPE_BINARY,
+        self::TYPE_VARBINARY,
     ];
 
     /**
@@ -135,9 +182,9 @@ class Snowflake extends Common
     {
         $valid = true;
         switch (strtoupper($type)) {
-            case "NUMBER":
-            case "DECIMAL":
-            case "NUMERIC":
+            case self::TYPE_NUMBER:
+            case self::TYPE_DECIMAL:
+            case self::TYPE_NUMERIC:
                 if (is_null($length) || $length === "") {
                     break;
                 }
@@ -154,20 +201,20 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$parts[0] <= 0 || (int)$parts[0] > 38) {
+                if ((int) $parts[0] <= 0 || (int) $parts[0] > 38) {
                     $valid = false;
                     break;
                 }
-                if (isset($parts[1]) && ((int)$parts[1] > (int)$parts[0] || (int)$parts[1] > 38)) {
+                if (isset($parts[1]) && ((int) $parts[1] > (int) $parts[0] || (int) $parts[1] > 38)) {
                     $valid = false;
                     break;
                 }
                 break;
-            case "VARCHAR":
-            case "CHAR":
-            case "CHARACTER":
-            case "STRING":
-            case "TEXT":
+            case self::TYPE_VARCHAR:
+            case self::TYPE_CHAR:
+            case self::TYPE_CHARACTER:
+            case self::TYPE_STRING:
+            case self::TYPE_TEXT:
                 if (is_null($length) || $length == "") {
                     break;
                 }
@@ -175,17 +222,17 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$length <= 0 || (int)$length > 16777216) {
+                if ((int) $length <= 0 || (int) $length > 16777216) {
                     $valid = false;
                     break;
                 }
                 break;
-            case "TIME":
-            case "DATETIME":
-            case "TIMESTAMP":
-            case "TIMESTAMP_NTZ":
-            case "TIMESTAMP_LTZ":
-            case "TIMESTAMP_TZ":
+            case self::TYPE_TIME:
+            case self::TYPE_DATETIME:
+            case self::TYPE_TIMESTAMP:
+            case self::TYPE_TIMESTAMP_NTZ:
+            case self::TYPE_TIMESTAMP_LTZ:
+            case self::TYPE_TIMESTAMP_TZ:
                 if (is_null($length) || $length == "") {
                     break;
                 }
@@ -193,13 +240,13 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$length < 0 || (int)$length > 9) {
+                if ((int) $length < 0 || (int) $length > 9) {
                     $valid = false;
                     break;
                 }
                 break;
-            case "BINARY":
-            case "VARBINARY":
+            case self::TYPE_BINARY:
+            case self::TYPE_VARBINARY:
                 if (is_null($length) || $length == "") {
                     break;
                 }
@@ -207,7 +254,7 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$length < 1 || (int)$length > 8388608) {
+                if ((int) $length < 1 || (int) $length > 8388608) {
                     $valid = false;
                     break;
                 }
@@ -230,38 +277,38 @@ class Snowflake extends Common
     public function getBasetype()
     {
         switch (strtoupper($this->type)) {
-            case "INT":
-            case "INTEGER":
-            case "BIGINT":
-            case "SMALLINT":
-            case "TINYINT":
-            case "BYTEINT":
+            case self::TYPE_INT:
+            case self::TYPE_INTEGER:
+            case self::TYPE_BIGINT:
+            case self::TYPE_SMALLINT:
+            case self::TYPE_TINYINT:
+            case self::TYPE_BYTEINT:
                 $basetype = BaseType::INTEGER;
                 break;
-            case "NUMBER":
-            case "DECIMAL":
-            case "NUMERIC":
+            case self::TYPE_NUMBER:
+            case self::TYPE_DECIMAL:
+            case self::TYPE_NUMERIC:
                 $basetype = BaseType::NUMERIC;
                 break;
-            case "FLOAT":
-            case "FLOAT4":
-            case "FLOAT8":
-            case "DOUBLE":
-            case "DOUBLE PRECISION":
-            case "REAL":
+            case self::TYPE_FLOAT:
+            case self::TYPE_FLOAT4:
+            case self::TYPE_FLOAT8:
+            case self::TYPE_DOUBLE:
+            case self::TYPE_DOUBLE_PRECISION:
+            case self::TYPE_REAL:
                 $basetype = BaseType::FLOAT;
                 break;
-            case "BOOLEAN":
+            case self::TYPE_BOOLEAN:
                 $basetype = BaseType::BOOLEAN;
                 break;
-            case "DATE":
+            case self::TYPE_DATE:
                 $basetype = BaseType::DATE;
                 break;
-            case "DATETIME":
-            case "TIMESTAMP":
-            case "TIMESTAMP_NTZ":
-            case "TIMESTAMP_LTZ":
-            case "TIMESTAMP_TZ":
+            case self::TYPE_DATETIME:
+            case self::TYPE_TIMESTAMP:
+            case self::TYPE_TIMESTAMP_NTZ:
+            case self::TYPE_TIMESTAMP_LTZ:
+            case self::TYPE_TIMESTAMP_TZ:
                 $basetype = BaseType::TIMESTAMP;
                 break;
             default:
