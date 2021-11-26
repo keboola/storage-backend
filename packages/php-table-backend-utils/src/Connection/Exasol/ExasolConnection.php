@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Connection\Exasol;
 
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\Exception as ExceptionInterface;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Result;
 use Doctrine\DBAL\Driver\PDO\Statement;
