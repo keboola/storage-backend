@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Exasol;
 
 use Doctrine\DBAL\Connection;
-use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
+use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use PHPUnit\Framework\TestCase;
 
@@ -27,7 +27,7 @@ class ExasolBaseCase extends TestCase
 
     private function getExasolConnection(): Connection
     {
-        return ExasolConnection::getConnection(
+        return ExasolConnectionFactory::getConnection(
             (string) getenv('EXASOL_HOST'),
             (string) getenv('EXASOL_USERNAME'),
             (string) getenv('EXASOL_PASSWORD')
