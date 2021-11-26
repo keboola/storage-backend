@@ -46,7 +46,7 @@ class BaseAuthTestCase extends SynapseBaseCase
     protected function dropRoles(string $prefix): void
     {
         // drop all roles
-        $roles = $this->connection->fetchAll(sprintf(
+        $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers] WHERE [name] LIKE N%s AND [issqlrole] = 1',
             $this->connection->quote($prefix . '%')
         ));
@@ -63,7 +63,7 @@ class BaseAuthTestCase extends SynapseBaseCase
         $masterDb = $this->getMasterDbConnection();
 
         // drop all users
-        $users = $this->connection->fetchAll(sprintf(
+        $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers] WHERE [name] LIKE N%s AND [issqluser] = 1',
             $this->connection->quote($loginPrefix . '%')
         ));
@@ -75,7 +75,7 @@ class BaseAuthTestCase extends SynapseBaseCase
         }
 
         // drop all logins
-        $logins = $masterDb->fetchAll(sprintf(
+        $logins = $masterDb->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sql_logins] WHERE [name] LIKE N%s',
             $masterDb->quote($loginPrefix . '%')
         ));

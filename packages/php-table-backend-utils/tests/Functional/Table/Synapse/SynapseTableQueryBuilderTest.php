@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Table\Synapse;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
@@ -53,7 +53,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         );
         $this->connection->exec($sql);
         // try to create same table
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->connection->exec($sql);
     }
 
@@ -82,7 +82,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $this->assertNotNull($ref->getObjectId());
         $this->assertEqualsCanonicalizing(['col1', 'col2'], $ref->getColumnsNames());
 
-        $this->expectException(DBALException::class);
+        $this->expectException(Exception::class);
         $this->connection->exec($sql);
     }
 

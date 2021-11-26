@@ -332,7 +332,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
      * @param array<Permission::GRANT_*> $permissions
      * @param null|GrantOn::ON_* $grantSubject
      * @param string[] $grantOnTargetPath
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\DBAL\Exception
      * @dataProvider grantDataProvider
      */
     public function testGrant(

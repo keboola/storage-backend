@@ -51,7 +51,7 @@ final class SynapseTableReflection implements TableReflectionInterface
         }
         $tableId = $this->getObjectId();
 
-        $columns = $this->connection->fetchAll(sprintf(
+        $columns = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[columns] WHERE [object_id] = %s ORDER BY [column_id]',
             SynapseQuote::quote($tableId)
         ));
@@ -89,7 +89,7 @@ final class SynapseTableReflection implements TableReflectionInterface
         }
 
         /** @var string|null $objectId */
-        $objectId = $this->connection->fetchColumn(sprintf(
+        $objectId = $this->connection->fetchOne(sprintf(
             'SELECT OBJECT_ID(N%s)',
             $object
         ));
@@ -140,7 +140,7 @@ EOT;
          *     column_is_nullable:string,
          *     column_default:?string
          * }[] $columns */
-        $columns = $this->connection->fetchAll($sql);
+        $columns = $this->connection->fetchAllAssociative($sql);
 
         $columns = array_map(static function ($col) {
             return SynapseColumn::createFromDB($col);
@@ -151,7 +151,7 @@ EOT;
 
     public function getRowsCount(): int
     {
-        $count = $this->connection->fetchColumn(sprintf(
+        $count = $this->connection->fetchOne(sprintf(
             'SELECT COUNT_BIG(*) AS [count] FROM %s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
             SynapseQuote::quoteSingleIdentifier($this->tableName)
@@ -171,7 +171,7 @@ EOT;
 
         $tableId = $this->getObjectId();
 
-        $result = $this->connection->fetchAll(
+        $result = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT COL_NAME(ic.OBJECT_ID,ic.column_id) AS column_name
     FROM sys.indexes AS i INNER JOIN
@@ -202,7 +202,7 @@ EOT
          *  unused: string,
          * } $info
          */
-        $info = $this->connection->fetchAssoc(sprintf(
+        $info = $this->connection->fetchAssociative(sprintf(
             'EXEC sp_spaceused \'%s.%s\'',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
             SynapseQuote::quoteSingleIdentifier($this->tableName)
@@ -231,7 +231,7 @@ EOT
     public function getDependentViews(): array
     {
         $sql = 'SELECT * FROM INFORMATION_SCHEMA.VIEWS';
-        $views = $this->connection->fetchAll($sql);
+        $views = $this->connection->fetchAllAssociative($sql);
 
         $objectNameWithSchema = sprintf(
             '%s.%s',
@@ -269,7 +269,7 @@ EOT
     {
         $tableId = $this->getObjectId();
 
-        return $this->connection->fetchColumn(
+        return $this->connection->fetchOne(
             <<< EOT
 SELECT distribution_policy_desc
     FROM sys.pdw_table_distribution_properties AS dp
@@ -285,7 +285,7 @@ EOT
     {
         $tableId = $this->getObjectId();
 
-        $result = $this->connection->fetchAll(
+        $result = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT c.name
 FROM sys.pdw_column_distribution_properties AS dp

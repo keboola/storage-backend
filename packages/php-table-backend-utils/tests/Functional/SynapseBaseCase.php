@@ -46,7 +46,7 @@ class SynapseBaseCase extends TestCase
             $this->connection->exec(sprintf('DROP VIEW [%s].[%s]', $schema, $view));
         }
 
-        $schemas = $this->connection->fetchAll(
+        $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',
                 $schema

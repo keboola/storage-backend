@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Auth\Synapse;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Auth\SynapseUserReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Auth\BaseAuthTestCase;
 
@@ -40,11 +41,11 @@ class SynapseUserReflectionTest extends BaseAuthTestCase
 
         $this->assertGreaterThan(0, count($ref->getAllSessionIds()));
 
-        $dbUser->fetchAll('SELECT * FROM sys.tables');
+        $dbUser->fetchAllAssociative('SELECT * FROM sys.tables');
 
         $ref->endAllSessions();
 
-        $this->expectException(DBALException::class);
-        $dbUser->fetchAll('SELECT * FROM sys.tables');
+        $this->expectException(Exception::class);
+        $dbUser->fetchAllAssociative('SELECT * FROM sys.tables');
     }
 }

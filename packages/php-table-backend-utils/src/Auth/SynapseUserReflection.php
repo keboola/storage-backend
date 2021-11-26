@@ -46,7 +46,7 @@ SELECT c.session_id AS id
     WHERE s.login_name = N%s
 EOD;
         /** @var string[]|false $sessions */
-        $sessions = $this->connection->fetchArray(
+        $sessions = $this->connection->fetchNumeric(
             sprintf($sql, SynapseQuote::quote($this->userName))
         );
 

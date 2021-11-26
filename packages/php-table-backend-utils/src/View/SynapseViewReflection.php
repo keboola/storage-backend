@@ -5,21 +5,16 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\View;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseViewReflection implements ViewReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
-    /** @var string */
-    private $viewName;
+    private string $viewName;
 
     public function __construct(Connection $connection, string $schemaName, string $viewName)
     {
@@ -31,7 +26,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
     public function getDependentViews(): array
     {
         $sql = 'SELECT * FROM INFORMATION_SCHEMA.VIEWS';
-        $views = $this->connection->fetchAll($sql);
+        $views = $this->connection->fetchAllAssociative($sql);
 
         $objectNameWithSchema = sprintf(
             '%s.%s',
@@ -73,7 +68,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
             SynapseQuote::quote($this->viewName)
         );
 
-        $definition = $this->connection->fetchColumn($sql);
+        $definition = $this->connection->fetchOne($sql);
         $isValid = preg_match('/CREATE[\s\S]*VIEW[\s\S]*AS[\s\S]*SELECT[\s\S]*FROM[\s\S]*/', $definition);
         if ($isValid === 0) {
             throw InvalidViewDefinitionException::createForMissingDefinition($this->schemaName, $this->viewName);
@@ -97,10 +92,10 @@ final class SynapseViewReflection implements ViewReflectionInterface
             SynapseQuote::quoteSingleIdentifier($this->viewName)
         );
 
-        $this->connection->exec(sprintf('DROP VIEW %s', $objectNameWithSchema));
+        $this->connection->executeStatement(sprintf('DROP VIEW %s', $objectNameWithSchema));
         try {
-            $this->connection->exec($definition);
-        } catch (DBALException $e) {
+            $this->connection->executeStatement($definition);
+        } catch (Exception $e) {
             throw InvalidViewDefinitionException::createViewRefreshError($this->schemaName, $this->viewName, $e);
         }
     }

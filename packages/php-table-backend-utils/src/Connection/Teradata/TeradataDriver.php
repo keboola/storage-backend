@@ -6,8 +6,9 @@ namespace Keboola\TableBackendUtils\Connection\Teradata;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\PDO;
-use Doctrine\Deprecations\Deprecation;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 // TODO create abstract class as it is for others
 class TeradataDriver implements Driver
@@ -40,44 +41,18 @@ class TeradataDriver implements Driver
         return $pdo;
     }
 
-    public function getName(): string
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/issues/3580',
-            'Driver::getName() is deprecated'
-        );
-
-        return 'teradata';
-    }
-
     public function getDatabasePlatform(): TeradataPlatform
     {
         return new TeradataPlatform();
     }
 
-    public function getSchemaManager(Connection $conn): TeradataSchemaManager
+    public function getSchemaManager(Connection $conn, AbstractPlatform $platform): TeradataSchemaManager
     {
-        return new TeradataSchemaManager($conn);
+        return new TeradataSchemaManager($conn, $platform);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use Connection::getDatabase() instead.
-     */
-    public function getDatabase(Connection $conn)
+    public function getExceptionConverter(): ExceptionConverter
     {
-        $params = $conn->getParams();
-
-        if (isset($params['dbname'])) {
-            return $params['dbname'];
-        }
-
-        $database = $conn->executeQuery('SELECT DATABASE')->fetchOne();
-
-        assert($database !== false);
-
-        return $database;
+        return new TeradataExceptionConverter();
     }
 }
