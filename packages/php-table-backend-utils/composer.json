@@ -3,9 +3,11 @@
     "description": "Package allows to import files to Snowflake from multiple cloud storages",
     "license": "MIT",
     "require": {
-        "php": "^7.1",
+        "php": "^7.4",
         "ext-pdo": "*",
-        "doctrine/dbal": "^2.9",
+        "ext-json": "*",
+        "ext-odbc": "*",
+        "doctrine/dbal": "^3",
         "keboola/common-exceptions": "^1",
         "keboola/php-datatypes": "^4.11.0",
         "keboola/php-utils": "^4.1"
