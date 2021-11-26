@@ -7,14 +7,14 @@ namespace Keboola\TableBackendUtils\Connection\Snowflake;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class SnowflakeDriver implements Driver
 {
     /**
      * @param array{
      *     'host':string,
-     *     'user':string,
-     *     'password':string,
      *     'port'?:string,
      *     'warehouse'?:string,
      *     'database'?:string,
@@ -42,12 +42,11 @@ class SnowflakeDriver implements Driver
 
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): SnowflakeSchemaManager
     {
-        assert($platform instanceof SnowflakePlatform);
         return new SnowflakeSchemaManager($conn, $platform);
     }
 
-    public function getExceptionConverter(): SnowflakeExceptionConverter
+    public function getExceptionConverter(): Driver\API\OCI\ExceptionConverter
     {
-        return new SnowflakeExceptionConverter();
+        return new Driver\API\OCI\ExceptionConverter();
     }
 }

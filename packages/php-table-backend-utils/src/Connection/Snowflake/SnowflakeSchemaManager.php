@@ -7,9 +7,6 @@ namespace Keboola\TableBackendUtils\Connection\Snowflake;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Exception;
 
-/**
- * @extends AbstractSchemaManager<SnowflakePlatform>
- */
 class SnowflakeSchemaManager extends AbstractSchemaManager
 {
     /**

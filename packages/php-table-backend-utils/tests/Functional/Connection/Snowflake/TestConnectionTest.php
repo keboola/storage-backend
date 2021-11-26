@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake;
 
 use Doctrine\DBAL\Exception;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
@@ -38,27 +36,11 @@ class TestConnectionTest extends SnowflakeBaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         );
-        $sqlSelectBindNamed = sprintf(
+        $sqlSelectBind = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = :first_name',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         );
-        $sqlSelectBindMultipleNamed = sprintf(
-            'SELECT * FROM %s.%s WHERE "first_name" = :first_name AND "last_name" = :last_name ',
-            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-        );
-        $sqlSelectBindNotNamed = sprintf(
-            'SELECT * FROM %s.%s WHERE "first_name" = ?',
-            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-        );
-        $sqlSelectBindMultipleNotNamed = sprintf(
-            'SELECT * FROM %s.%s WHERE "first_name" = ? AND "last_name" = ?',
-            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-        );
-
         $result = $this->connection->fetchAllAssociative($sqlSelect);
         $this->assertSame([
             [
@@ -73,37 +55,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             ],
         ], $result);
 
-        $result = $this->connection->fetchAllAssociative($sqlSelectBindNamed, ['first_name' => 'franta']);
-        $this->assertSame([
-            [
-                'id' => '1',
-                'first_name' => 'franta',
-                'last_name' => 'omacka',
-            ],
-        ], $result);
-
-        $result = $this->connection->fetchAllAssociative($sqlSelectBindMultipleNamed, [
-            'first_name' => 'franta',
-            'last_name' => 'omacka',
-        ]);
-        $this->assertSame([
-            [
-                'id' => '1',
-                'first_name' => 'franta',
-                'last_name' => 'omacka',
-            ],
-        ], $result);
-
-        $result = $this->connection->fetchAllAssociative($sqlSelectBindNotNamed, ['franta']);
-        $this->assertSame([
-            [
-                'id' => '1',
-                'first_name' => 'franta',
-                'last_name' => 'omacka',
-            ],
-        ], $result);
-
-        $result = $this->connection->fetchAllAssociative($sqlSelectBindMultipleNotNamed, ['franta', 'omacka']);
+        $result = $this->connection->fetchAllAssociative($sqlSelectBind, ['first_name' => 'franta']);
         $this->assertSame([
             [
                 'id' => '1',
@@ -124,7 +76,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             ],
         ], $result);
 
-        $result = $this->connection->fetchAllAssociativeIndexed($sqlSelectBindNamed, ['first_name' => 'franta']);
+        $result = $this->connection->fetchAllAssociativeIndexed($sqlSelectBind, ['first_name' => 'franta']);
         $this->assertSame([
             1 => [
                 'first_name' => 'franta',
@@ -134,13 +86,13 @@ class TestConnectionTest extends SnowflakeBaseCase
 
         $result = $this->connection->fetchFirstColumn($sqlSelect);
         $this->assertSame([
-            '1',
-            '2',
+            "1",
+            "2",
         ], $result);
 
-        $result = $this->connection->fetchFirstColumn($sqlSelectBindNamed, ['first_name' => 'franta']);
+        $result = $this->connection->fetchFirstColumn($sqlSelectBind, ['first_name' => 'franta']);
         $this->assertSame([
-            '1',
+            "1",
         ], $result);
 
         $result = $this->connection->fetchAssociative($sqlSelect);
@@ -151,7 +103,7 @@ class TestConnectionTest extends SnowflakeBaseCase
 
         ], $result);
 
-        $result = $this->connection->fetchAssociative($sqlSelectBindNamed, ['first_name' => 'pepik']);
+        $result = $this->connection->fetchAssociative($sqlSelectBind, ['first_name' => 'pepik']);
         $this->assertSame([
             'id' => '2',
             'first_name' => 'pepik',
@@ -165,7 +117,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             2 => 'pepik',
         ], $result);
 
-        $result = $this->connection->fetchAllKeyValue($sqlSelectBindNamed, ['first_name' => 'franta']);
+        $result = $this->connection->fetchAllKeyValue($sqlSelectBind, ['first_name' => 'franta']);
         $this->assertSame([
             1 => 'franta',
         ], $result);
@@ -184,7 +136,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             ],
         ], $result);
 
-        $result = $this->connection->fetchAllNumeric($sqlSelectBindNamed, ['first_name' => 'franta']);
+        $result = $this->connection->fetchAllNumeric($sqlSelectBind, ['first_name' => 'franta']);
         $this->assertSame([
             [
                 '1',
@@ -197,43 +149,18 @@ class TestConnectionTest extends SnowflakeBaseCase
     public function testStringToLong(): void
     {
         $this->initTable();
-        $longString= str_repeat('a', 101);
-        $this->expectException(StringTooLongException::class);
-        $this->expectExceptionMessage(sprintf(
-            // phpcs:ignore
-            'An exception occurred while executing a query: String \'%s\' cannot be inserted because it\'s bigger than column size',
-            $longString
-        ));
         $this->insertRowToTable(
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             1,
             'franta',
-            $longString
+            str_repeat('a', 101)
         );
-    }
-
-    public function testInvalidCredentials(): void
-    {
-        $connection = SnowflakeConnectionFactory::getConnection(
-            (string) getenv('SNOWFLAKE_HOST'),
-            'invalid',
-            'invalid',
-            [
-                'port' => (string) getenv('SNOWFLAKE_PORT'),
-                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-            ]
-        );
-
-        $this->expectException(\Doctrine\DBAL\Exception\DriverException::class);
-        $this->expectExceptionMessage(
-            'An exception occurred in the driver: Incorrect username or password was specified.',
-        );
-        $this->assertConnectionIsWorking($connection);
     }
 
     public function testInvalidAccessToDatabase(): void
     {
+        $invalidDatabase = 'invalidDatabase';
         $connection = SnowflakeConnectionFactory::getConnection(
             (string) getenv('SNOWFLAKE_HOST'),
             (string) getenv('SNOWFLAKE_USER'),
@@ -241,18 +168,43 @@ class TestConnectionTest extends SnowflakeBaseCase
             [
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-                'database' => 'invalidDatabase',
+                'database' => $invalidDatabase,
             ]
         );
 
-        $this->assertConnectionIsWorking($connection);
-        $this->assertNull($connection->fetchOne('SELECT CURRENT_DATABASE()'));
-        $this->connection->close();
-        $this->assertConnectionIsWorking($this->connection);
-        $this->assertSame(
-            (string) getenv('SNOWFLAKE_DATABASE'),
-            $this->connection->fetchOne('SELECT CURRENT_DATABASE()')
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            sprintf(
+                'Cannot access object or it does not exist. Executing query "USE DATABASE %s"',
+                SnowflakeQuote::quoteSingleIdentifier($invalidDatabase)
+            )
         );
+        $connection->executeQuery(sprintf('USE DATABASE %s', SnowflakeQuote::quoteSingleIdentifier($invalidDatabase)));
+    }
+
+    public function testInvalidAccessToSchema(): void
+    {
+        $invalidSchema = 'invalidSchema';
+        $connection = SnowflakeConnectionFactory::getConnection(
+            (string) getenv('SNOWFLAKE_HOST'),
+            (string) getenv('SNOWFLAKE_USER'),
+            (string) getenv('SNOWFLAKE_PASSWORD'),
+            [
+                'port' => (string) getenv('SNOWFLAKE_PORT'),
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                'schema' => $invalidSchema,
+            ],
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            sprintf(
+                'Cannot access object or it does not exist. Executing query "USE SCHEMA %s"',
+                SnowflakeQuote::quoteSingleIdentifier($invalidSchema)
+            )
+        );
+        $connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::quoteSingleIdentifier($invalidSchema)));
     }
 
     public function testWillDisconnect(): void
@@ -282,13 +234,14 @@ class TestConnectionTest extends SnowflakeBaseCase
 
         $this->assertNull($wrappedConnectionPropRef->getValue($wrappedConnection));
         // try reconnect
-        $this->assertConnectionIsWorking($wrappedConnection);
+        $wrappedConnection->fetchOne('SELECT 1');
         $wrappedConnection->close();
     }
 
     public function testQueryTagging(): void
     {
         $connection = SnowflakeConnectionFactory::getConnection(
+
             (string) getenv('SNOWFLAKE_HOST'),
             (string) getenv('SNOWFLAKE_USER'),
             (string) getenv('SNOWFLAKE_PASSWORD'),
@@ -313,75 +266,5 @@ SQL
         );
 
         $this->assertEquals('{"runId":"runIdValue"}', $queries[0]['QUERY_TAG']);
-    }
-
-    public function testQueryTimeoutLimit(): void
-    {
-        $connection = $this->connection;
-        $connection->executeStatement('ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = 3');
-        try {
-            $connection->executeStatement('CALL system$wait(5)');
-        } catch (WarehouseTimeoutReached $e) {
-            $this->assertSame(WarehouseTimeoutReached::class, get_class($e));
-            $this->assertSame(
-                'An exception occurred while executing a query: Query reached its timeout 3 second(s)',
-                $e->getMessage()
-            );
-        } finally {
-            $connection->executeStatement('ALTER SESSION UNSET STATEMENT_TIMEOUT_IN_SECONDS');
-        }
-    }
-
-    public function testSchema(): void
-    {
-        $connection = SnowflakeConnectionFactory::getConnection(
-            (string) getenv('SNOWFLAKE_HOST'),
-            (string) getenv('SNOWFLAKE_USER'),
-            (string) getenv('SNOWFLAKE_PASSWORD'),
-            [
-                'port' => (string) getenv('SNOWFLAKE_PORT'),
-                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
-                'schema' => 'invalidSchema',
-            ],
-        );
-
-        $this->assertConnectionIsWorking($connection);
-        $this->assertNull($connection->fetchOne('SELECT CURRENT_SCHEMA()'));
-        $connection->close();
-
-        $this->connection->executeStatement('CREATE SCHEMA IF NOT EXISTS "tableUtils-testSchema"');
-        $connection = SnowflakeConnectionFactory::getConnection(
-            (string) getenv('SNOWFLAKE_HOST'),
-            (string) getenv('SNOWFLAKE_USER'),
-            (string) getenv('SNOWFLAKE_PASSWORD'),
-            [
-                'port' => (string) getenv('SNOWFLAKE_PORT'),
-                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
-                'schema' => 'tableUtils-testSchema',
-            ]
-        );
-        //tests if you set schema in constructor it really set in connection
-        $this->assertSame(
-            'tableUtils-testSchema',
-            $connection->fetchOne('SELECT CURRENT_SCHEMA()')
-        );
-        $this->connection->close();
-        $connection->close();
-
-        //main connection has still no schema
-        $this->assertNull(
-            $this->connection->fetchOne('SELECT CURRENT_SCHEMA()')
-        );
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(
-            sprintf(
-                'Cannot access object or it does not exist. Executing query "USE SCHEMA %s"',
-                SnowflakeQuote::quoteSingleIdentifier('Other schema')
-            )
-        );
-        $connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::quoteSingleIdentifier('Other schema')));
     }
 }

@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\ParameterType;
-use Exception;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 class SnowflakeConnection implements Connection
@@ -25,18 +24,16 @@ class SnowflakeConnection implements Connection
         ?array $options
     ) {
         try {
-            $handle = odbc_connect($dsn, $user, $password);
-            assert($handle !== false);
-            $this->conn = $handle;
-        } catch (\Throwable $e) {
-            throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
-        }
+            $this->conn = odbc_connect($dsn, $user, $password);
 
-        if (isset($options['runId'])) {
-            $queryTag = [
-                'runId' => $options['runId'],
-            ];
-            $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag) . "';");
+            if (isset($options['runId'])) {
+                $queryTag = [
+                    'runId' => $options['runId'],
+                ];
+                $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag) . "';");
+            }
+        } catch (\Throwable $e) {
+            throw Exception::new(new \PDOException($e->getMessage(), $e->getCode(), $e->getPrevious()));
         }
     }
 
@@ -46,20 +43,17 @@ class SnowflakeConnection implements Connection
         return $stmt->execute();
     }
 
-    public function prepare(string $sql): SnowflakeStatement
+    public function prepare($sql): SnowflakeStatement
     {
         return new SnowflakeStatement($this->conn, $sql);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function quote($value, $type = ParameterType::STRING): string
+    public function quote($value, $type = ParameterType::STRING)
     {
         return SnowflakeQuote::quote($value);
     }
 
-    public function exec(string $sql): int
+    public function exec($sql): int
     {
         $stmt = $this->prepare($sql);
         $result = $stmt->execute();
@@ -67,27 +61,30 @@ class SnowflakeConnection implements Connection
         return $result->rowCount();
     }
 
-    /**
-     * @inheritDoc
-     */
     public function lastInsertId($name = null)
     {
         // TODO: Implement lastInsertId() method.
-        throw new Exception('method is not implemented yet');
     }
 
-    /**
-     * @inheritDoc
-     */
     public function beginTransaction()
     {
-        if ($this->inTransaction()) {
-            throw new DriverException('There is already an active transaction');
-        }
+        $this->checkTransactionStarted(false);
         return odbc_autocommit($this->conn, false);
     }
 
+    private function checkTransactionStarted(bool $flag = true): void
+    {
+        if ($flag && !$this->inTransaction()) {
+            throw new SnowflakeDriverException('Transaction was not started');
+        }
+        if (!$flag && $this->inTransaction()) {
+            throw new SnowflakeDriverException('Transaction was already started');
+        }
+    }
 
+    /**
+     * @return bool
+     */
     private function inTransaction(): bool
     {
         return !odbc_autocommit($this->conn);
@@ -95,17 +92,15 @@ class SnowflakeConnection implements Connection
 
     public function commit(): bool
     {
-        if (!$this->inTransaction()) {
-            throw new DriverException('There is no active transaction');
-        }
+        $this->checkTransactionStarted();
+
         return odbc_commit($this->conn) && odbc_autocommit($this->conn, true);
     }
 
     public function rollBack(): bool
     {
-        if (!$this->inTransaction()) {
-            throw new DriverException('There is no active transaction');
-        }
+        $this->checkTransactionStarted();
+
         return odbc_rollback($this->conn) && odbc_autocommit($this->conn, true);
     }
 
@@ -114,10 +109,6 @@ class SnowflakeConnection implements Connection
         return odbc_error($this->conn);
     }
 
-    /**
-     * @inheritDoc
-     * @return array{code:string, message:string}
-     */
     public function errorInfo(): array
     {
         return [

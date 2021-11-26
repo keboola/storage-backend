@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
+use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 
 class SnowflakeStatement implements Statement
 {
@@ -21,7 +22,7 @@ class SnowflakeStatement implements Statement
     private $stmt;
 
     /**
-     * @var array<mixed>
+     * @var array
      */
     private $params = [];
 
@@ -30,6 +31,7 @@ class SnowflakeStatement implements Statement
     /**
      * @param resource $dbh database handle
      * @param string $query
+     * @param array $options
      */
     public function __construct($dbh, string $query)
     {
@@ -45,31 +47,27 @@ class SnowflakeStatement implements Statement
     {
         $stmt = @odbc_prepare($this->dbh, $this->query);
         if (!$stmt) {
-            throw DriverException::newFromHandle($this->dbh);
+            throw new Exception(sprintf(
+                '[%s] %s',
+                odbc_errormsg($this->dbh),
+                odbc_error($this->dbh)
+            ));
         }
+
         return $stmt;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {
         return $this->bindParam($param, $value, $type);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool
     {
         $this->params[$param] = &$variable;
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function execute($params = null): Result
     {
         if (!empty($params) && is_array($params)) {
@@ -81,10 +79,9 @@ class SnowflakeStatement implements Statement
             }
         }
 
-        try {
-            odbc_execute($this->stmt, $this->repairBinding($this->params));
-        } catch (\Throwable $e) {
-            throw DriverException::newFromHandle($this->dbh);
+        $ret = odbc_execute($this->stmt, $this->repairBinding($this->params));
+        if (! $ret) {
+            throw Error::new($this->stmt);
         }
 
         return new Result($this->stmt);
@@ -93,8 +90,8 @@ class SnowflakeStatement implements Statement
     /**
      * Avoid odbc file open http://php.net/manual/en/function.odbc-execute.php
      *
-     * @param array<mixed> $bind
-     * @return array<mixed>
+     * @param array $bind
+     * @return array
      */
     private function repairBinding(array $bind): array
     {
