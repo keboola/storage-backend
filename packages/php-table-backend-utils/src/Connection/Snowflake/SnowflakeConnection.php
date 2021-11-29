@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
 use Doctrine\DBAL\Driver\Connection;
-use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\ParameterType;
+use Exception;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 class SnowflakeConnection implements Connection
@@ -24,16 +25,18 @@ class SnowflakeConnection implements Connection
         ?array $options
     ) {
         try {
-            $this->conn = odbc_connect($dsn, $user, $password);
-
-            if (isset($options['runId'])) {
-                $queryTag = [
-                    'runId' => $options['runId'],
-                ];
-                $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag) . "';");
-            }
+            $handle = odbc_connect($dsn, $user, $password);
+            assert($handle !== false);
+            $this->conn = $handle;
         } catch (\Throwable $e) {
-            throw Exception::new(new \PDOException($e->getMessage(), $e->getCode(), $e->getPrevious()));
+            throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
+        }
+
+        if (isset($options['runId'])) {
+            $queryTag = [
+                'runId' => $options['runId'],
+            ];
+            $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag) . "';");
         }
     }
 
@@ -43,17 +46,20 @@ class SnowflakeConnection implements Connection
         return $stmt->execute();
     }
 
-    public function prepare($sql): SnowflakeStatement
+    public function prepare(string $sql): SnowflakeStatement
     {
         return new SnowflakeStatement($this->conn, $sql);
     }
 
-    public function quote($value, $type = ParameterType::STRING)
+    /**
+     * @inheritDoc
+     */
+    public function quote($value, $type = ParameterType::STRING): string
     {
         return SnowflakeQuote::quote($value);
     }
 
-    public function exec($sql): int
+    public function exec(string $sql): int
     {
         $stmt = $this->prepare($sql);
         $result = $stmt->execute();
@@ -61,11 +67,18 @@ class SnowflakeConnection implements Connection
         return $result->rowCount();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function lastInsertId($name = null)
     {
         // TODO: Implement lastInsertId() method.
+        throw new Exception('method is not implemented yet');
     }
 
+    /**
+     * @inheritDoc
+     */
     public function beginTransaction()
     {
         $this->checkTransactionStarted(false);
@@ -75,16 +88,13 @@ class SnowflakeConnection implements Connection
     private function checkTransactionStarted(bool $flag = true): void
     {
         if ($flag && !$this->inTransaction()) {
-            throw new SnowflakeDriverException('Transaction was not started');
+            throw new DriverException('Transaction was not started');
         }
         if (!$flag && $this->inTransaction()) {
-            throw new SnowflakeDriverException('Transaction was already started');
+            throw new DriverException('Transaction was already started');
         }
     }
 
-    /**
-     * @return bool
-     */
     private function inTransaction(): bool
     {
         return !odbc_autocommit($this->conn);
@@ -109,6 +119,10 @@ class SnowflakeConnection implements Connection
         return odbc_error($this->conn);
     }
 
+    /**
+     * @inheritDoc
+     * @return array{code:string, message:string}
+     */
     public function errorInfo(): array
     {
         return [

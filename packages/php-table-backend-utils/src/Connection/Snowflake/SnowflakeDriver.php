@@ -15,6 +15,8 @@ class SnowflakeDriver implements Driver
     /**
      * @param array{
      *     'host':string,
+     *     'user':string,
+     *     'password':string,
      *     'port'?:string,
      *     'warehouse'?:string,
      *     'database'?:string,
@@ -45,8 +47,8 @@ class SnowflakeDriver implements Driver
         return new SnowflakeSchemaManager($conn, $platform);
     }
 
-    public function getExceptionConverter(): Driver\API\OCI\ExceptionConverter
+    public function getExceptionConverter(): SnowflakeExceptionConverter
     {
-        return new Driver\API\OCI\ExceptionConverter();
+        return new SnowflakeExceptionConverter();
     }
 }

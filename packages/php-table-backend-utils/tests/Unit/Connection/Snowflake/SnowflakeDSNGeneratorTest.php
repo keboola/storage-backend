@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Connection\Snowflake;
 
-use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeDriver;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeDSNGenerator;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class SnowflakeDSNGeneratorTest extends TestCase
 {
+    /**
+     * @return \Generator<array<int, array<string, array|bool|int|string>|string>>
+     */
     public function dsnOptionsProvider(): \Generator
     {
         $options = [
@@ -34,6 +36,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
 
         yield 'all' => [
             $options,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -41,6 +44,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['port']);
         yield 'no port' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=443;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -48,6 +52,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['tracing']);
         yield 'no tracing' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=0;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -55,6 +60,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['loginTimeout']);
         yield 'no loginTimeout' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -62,6 +68,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['networkTimeout']);
         yield 'no networkTimeout' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -69,6 +76,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['queryTimeout']);
         yield 'no queryTimeout' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -76,6 +84,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['maxBackoffAttempts']);
         yield 'no maxBackoffAttempts' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -83,6 +92,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['database']);
         yield 'no database' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -90,6 +100,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['schema']);
         yield 'no schema' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -97,6 +108,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['warehouse']);
         yield 'no warehouse' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";CLIENT_SESSION_KEEP_ALIVE=TRUE',
         ];
 
@@ -104,15 +116,18 @@ class SnowflakeDSNGeneratorTest extends TestCase
         unset($optionsCopy['clientSessionKeepAlive']);
         yield 'no clientSessionKeepAlive' => [
             $optionsCopy,
+            // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse"',
         ];
     }
 
     /**
      * @dataProvider dsnOptionsProvider
+     * @param array<mixed> $options
      */
     public function testDSNGenerate(array $options, string $expectedDSN): void
     {
+        // @phpstan-ignore-next-line
         $this->assertSame($expectedDSN, SnowflakeDSNGenerator::generateDSN($options));
     }
 
@@ -121,6 +136,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Unknown options: someRandomParameter, otherRandomParameter, 0');
 
+        // @phpstan-ignore-next-line
         SnowflakeDSNGenerator::generateDSN([
             'host' => getenv('SNOWFLAKE_HOST'),
             'user' => getenv('SNOWFLAKE_USER'),
@@ -136,6 +152,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Missing options: host');
 
+        // @phpstan-ignore-next-line
         SnowflakeDSNGenerator::generateDSN([
             'password' => getenv('SNOWFLAKE_PASSWORD'),
         ]);

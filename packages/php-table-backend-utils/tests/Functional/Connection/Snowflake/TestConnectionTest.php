@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake;
 
-use Doctrine\DBAL\Exception;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectException;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
@@ -86,13 +88,13 @@ class TestConnectionTest extends SnowflakeBaseCase
 
         $result = $this->connection->fetchFirstColumn($sqlSelect);
         $this->assertSame([
-            "1",
-            "2",
+            '1',
+            '2',
         ], $result);
 
         $result = $this->connection->fetchFirstColumn($sqlSelectBind, ['first_name' => 'franta']);
         $this->assertSame([
-            "1",
+            '1',
         ], $result);
 
         $result = $this->connection->fetchAssociative($sqlSelect);
@@ -149,12 +151,19 @@ class TestConnectionTest extends SnowflakeBaseCase
     public function testStringToLong(): void
     {
         $this->initTable();
+        $longString= str_repeat('a', 101);
+        $this->expectException(StringTooLongException::class);
+        $this->expectExceptionMessage(sprintf(
+            // phpcs:ignore
+            'An exception occurred while executing a query: String \'%s\' cannot be inserted because it\'s bigger than column size',
+            $longString
+        ));
         $this->insertRowToTable(
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             1,
             'franta',
-            str_repeat('a', 101)
+            $longString
         );
     }
 
@@ -172,7 +181,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             ]
         );
 
-        $this->expectException(Exception::class);
+        $this->expectException(CannotAccessObjectException::class);
         $this->expectExceptionMessage(
             sprintf(
                 'Cannot access object or it does not exist. Executing query "USE DATABASE %s"',
@@ -197,7 +206,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             ],
         );
 
-        $this->expectException(Exception::class);
+        $this->expectException(CannotAccessObjectException::class);
         $this->expectExceptionMessage(
             sprintf(
                 'Cannot access object or it does not exist. Executing query "USE SCHEMA %s"',
@@ -241,7 +250,6 @@ class TestConnectionTest extends SnowflakeBaseCase
     public function testQueryTagging(): void
     {
         $connection = SnowflakeConnectionFactory::getConnection(
-
             (string) getenv('SNOWFLAKE_HOST'),
             (string) getenv('SNOWFLAKE_USER'),
             (string) getenv('SNOWFLAKE_PASSWORD'),
@@ -266,5 +274,50 @@ SQL
         );
 
         $this->assertEquals('{"runId":"runIdValue"}', $queries[0]['QUERY_TAG']);
+    }
+
+    public function testQueryTimeoutLimit(): void
+    {
+        $connection = $this->connection;
+        $connection->executeStatement('ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = 3');
+        try {
+            $connection->executeStatement('CALL system$wait(5)');
+        } catch (WarehouseTimeoutReached $e) {
+            $this->assertSame(WarehouseTimeoutReached::class, get_class($e));
+            $this->assertSame(
+                'An exception occurred while executing a query: Query reached its timeout 3 second(s)',
+                $e->getMessage()
+            );
+        } finally {
+            $connection->executeStatement('ALTER SESSION UNSET STATEMENT_TIMEOUT_IN_SECONDS');
+        }
+    }
+
+
+    public function testSchema(): void
+    {
+        $this->connection->executeStatement('CREATE SCHEMA IF NOT EXISTS "tableUtils-testSchema"');
+        $connection = SnowflakeConnectionFactory::getConnection(
+            (string) getenv('SNOWFLAKE_HOST'),
+            (string) getenv('SNOWFLAKE_USER'),
+            (string) getenv('SNOWFLAKE_PASSWORD'),
+            [
+                'port' => (string) getenv('SNOWFLAKE_PORT'),
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                'schema' => 'tableUtils-testSchema',
+            ]
+        );
+
+        //tests if you set schema in constructor it really set in connection
+        $this->assertSame(
+            'tableUtils-testSchema',
+            $connection->fetchOne('SELECT CURRENT_SCHEMA()')
+        );
+
+        //main connection has still no schema
+        $this->assertNull(
+            $this->connection->fetchOne('SELECT CURRENT_SCHEMA()')
+        );
     }
 }

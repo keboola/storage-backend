@@ -20,31 +20,49 @@ class Result implements ResultInterface
         $this->statement = $statement;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function fetchNumeric()
     {
         return $this->fetch(\PDO::FETCH_NUM);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function fetchAssociative()
     {
         return $this->fetch(\PDO::FETCH_ASSOC);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function fetchOne()
     {
         return FetchUtils::fetchOne($this);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
@@ -65,8 +83,10 @@ class Result implements ResultInterface
         odbc_free_result($this->statement);
     }
 
-
-    public function fetch($fetchMode)
+    /**
+     * @return array<mixed>|false
+     */
+    private function fetch(int $fetchMode)
     {
         if (!odbc_fetch_row($this->statement)) {
             return false;
