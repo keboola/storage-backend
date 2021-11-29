@@ -9,9 +9,6 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 
 class Result implements ResultInterface
 {
-    private const FETCH_ASSOCIATIVE = 'FETCH_ASSOCIATIVE';
-    private const FETCH_NUMERIC = 'FETCH_NUMERIC';
-
     /** @var resource */
     private $statement;
 
@@ -28,7 +25,7 @@ class Result implements ResultInterface
      */
     public function fetchNumeric()
     {
-        return $this->fetch(self::FETCH_NUMERIC);
+        return $this->fetch(\PDO::FETCH_NUM);
     }
 
     /**
@@ -36,7 +33,7 @@ class Result implements ResultInterface
      */
     public function fetchAssociative()
     {
-        return $this->fetch(self::FETCH_ASSOCIATIVE);
+        return $this->fetch(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -87,10 +84,9 @@ class Result implements ResultInterface
     }
 
     /**
-     * @param self::FETCH_* $fetchMode
      * @return array<mixed>|false
      */
-    private function fetch(string $fetchMode)
+    private function fetch(int $fetchMode)
     {
         if (!odbc_fetch_row($this->statement)) {
             return false;
@@ -98,13 +94,13 @@ class Result implements ResultInterface
         $numFields = odbc_num_fields($this->statement);
         $row = [];
         switch ($fetchMode) {
-            case self::FETCH_ASSOCIATIVE:
+            case \PDO::FETCH_ASSOC:
                 for ($i = 1; $i <= $numFields; $i++) {
                     $row[odbc_field_name($this->statement, $i)] = odbc_result($this->statement, $i);
                 }
                 break;
 
-            case self::FETCH_NUMERIC:
+            case \PDO::FETCH_NUM:
                 for ($i = 1; $i <= $numFields; $i++) {
                     $row[] = odbc_result($this->statement, $i);
                 }
