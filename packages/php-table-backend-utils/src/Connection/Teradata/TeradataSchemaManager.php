@@ -7,6 +7,9 @@ namespace Keboola\TableBackendUtils\Connection\Teradata;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Exception;
 
+/**
+ * @extends AbstractSchemaManager<TeradataPlatform>
+ */
 class TeradataSchemaManager extends AbstractSchemaManager
 {
     /**

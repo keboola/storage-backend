@@ -7,8 +7,6 @@ namespace Keboola\TableBackendUtils\Connection\Snowflake;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\OraclePlatform;
-use Doctrine\DBAL\Schema\OracleSchemaManager;
 
 class SnowflakeDriver implements Driver
 {
@@ -44,6 +42,7 @@ class SnowflakeDriver implements Driver
 
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): SnowflakeSchemaManager
     {
+        assert($platform instanceof SnowflakePlatform);
         return new SnowflakeSchemaManager($conn, $platform);
     }
 

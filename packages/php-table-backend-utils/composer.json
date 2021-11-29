@@ -7,7 +7,7 @@
         "ext-pdo": "*",
         "ext-json": "*",
         "ext-odbc": "*",
-        "doctrine/dbal": "^3",
+        "doctrine/dbal": "^3.2",
         "keboola/common-exceptions": "^1",
         "keboola/php-datatypes": "^4.11.0",
         "keboola/php-utils": "^4.1"

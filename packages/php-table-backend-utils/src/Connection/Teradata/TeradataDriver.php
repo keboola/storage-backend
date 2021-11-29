@@ -7,8 +7,11 @@ namespace Keboola\TableBackendUtils\Connection\Teradata;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
-use Doctrine\DBAL\Driver\PDO;
+use Doctrine\DBAL\Driver\PDO as PDODriver;
+use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use PDO;
+use PDOException;
 
 // TODO create abstract class as it is for others
 class TeradataDriver implements Driver
@@ -19,7 +22,7 @@ class TeradataDriver implements Driver
      * @param string|null $username
      * @param string|null $password
      * @param string[] $driverOptions
-     * @return PDO\Connection
+     * @return PDODriver\Connection
      */
     // ignores type in $username and $password because it woudn't be compatible with interface
     // phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
@@ -28,7 +31,7 @@ class TeradataDriver implements Driver
         $username = null,
         $password = null,
         array $driverOptions = []
-    ): PDO\Connection {
+    ): PDODriver\Connection {
         $odbcDSN = sprintf(
             'DRIVER={Teradata};DBCName=%s;TDMSTPortNumber=%s;Charset=UTF8',
             $params['host'],
@@ -37,8 +40,18 @@ class TeradataDriver implements Driver
 
         $pdoDSN = "odbc:{$odbcDSN}";
 
-        $pdo = new PDO\Connection($pdoDSN, $username, $password);
-        return $pdo;
+        try {
+            $pdo = new PDO(
+                $pdoDSN,
+                $params['user'] ?? '',
+                $params['password'] ?? '',
+                $driverOptions
+            );
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+
+        return new PDODriver\Connection($pdo);
     }
 
     public function getDatabasePlatform(): TeradataPlatform
@@ -48,6 +61,7 @@ class TeradataDriver implements Driver
 
     public function getSchemaManager(Connection $conn, AbstractPlatform $platform): TeradataSchemaManager
     {
+        assert($platform instanceof TeradataPlatform);
         return new TeradataSchemaManager($conn, $platform);
     }
 
