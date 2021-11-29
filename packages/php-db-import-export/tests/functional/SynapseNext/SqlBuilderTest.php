@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
@@ -1082,6 +1083,9 @@ EOT
             $timestampColumn = array_shift($timestampColumns);
             self::assertSame(Synapse::TYPE_DATETIME2, $timestampColumn->getColumnDefinition()->getType());
         }
+
+        $resultColumns = $ref->getColumnsDefinitions();
+        $this->assertColumnsDefinitions($resultColumns, $destination, $options);
     }
 
     /**
@@ -1137,7 +1141,7 @@ EOT
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as NVARCHAR(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as NVARCHAR(4000)) AS [pk2],CAST([col1] as INT) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST([col1] as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
         ];
 
         yield 'testGetCtasDedupCommandWithHashDistribution' => [
@@ -1162,7 +1166,7 @@ EOT
                 SynapseImportOptions::TABLE_TYPES_CAST // cast values
             ),
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=HASH([pk1]),HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as NVARCHAR(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as NVARCHAR(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=HASH([pk1]),HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
         ];
 
         yield 'testGetCtasDedupCommandWithHashDistributionNoCasting' => [
@@ -1213,7 +1217,7 @@ EOT
                 SynapseImportOptions::TABLE_TYPES_CAST // cast values
             ),
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as NVARCHAR(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as NVARCHAR(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
         ];
 
         yield 'testGetCtasDedupCommandWithTimestampNullConvertNoCasting' => [
@@ -1263,7 +1267,7 @@ EOT
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT CAST(COALESCE([pk1], \'\') as NVARCHAR(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as NVARCHAR(4000)) AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
             false,
         ];
 
@@ -1319,7 +1323,7 @@ EOT
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT CAST(COALESCE([pk1], \'\') as NVARCHAR(4000)) AS [pk1],CAST(COALESCE([pk2], \'\') as NVARCHAR(4000)) AS [pk2],CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
         ];
     }
 
@@ -1341,7 +1345,28 @@ EOT
         );
     }
 
-    public function testGetCTASInsertAllIntoTargetTableCommand(): void
+    /**
+     * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
+     */
+    public function getCTASInsertAllIntoTargetTableCommandProvider(): \Generator
+    {
+        yield 'no type casting' => [
+            SynapseImportOptions::TABLE_TYPES_PRESERVE,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE([col1], \'\') AS [col1],COALESCE([col2], \'\') AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+        yield 'type casting' => [
+            SynapseImportOptions::TABLE_TYPES_CAST,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+    }
+
+    /**
+     * @dataProvider getCTASInsertAllIntoTargetTableCommandProvider
+     * @param SynapseImportOptions::TABLE_TYPES_* $cast
+     */
+    public function testGetCTASInsertAllIntoTargetTableCommand(string $cast, string $expectedSQL): void
     {
         $this->createTestSchema();
         $destination = $this->getTestTableWithColumnsDefinition();
@@ -1362,16 +1387,26 @@ EOT
         );
 
         // no convert values no timestamp
+        $importOptions = new SynapseImportOptions(
+            [],
+            false,
+            false,
+            0,
+            SynapseImportOptions::CREDENTIALS_SAS,
+            SynapseImportOptions::TEMP_TABLE_HEAP,
+            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
+            $cast
+        );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
-            $this->getDummyImportOptions(),
+            $importOptions,
             '2020-01-01 00:00:00'
         );
 
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            $expectedSQL,
             $sql
         );
 
@@ -1401,14 +1436,46 @@ EOT
                 'col2' => '',
             ],
         ], $result);
+
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
+        $resultColumns = $ref->getColumnsDefinitions();
+        $this->assertColumnsDefinitions($resultColumns, $destination, $importOptions);
     }
 
-    public function testGetCTASInsertAllIntoTargetTableCommandNotString(): void
+    /**
+     * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
+     */
+    public function getCTASInsertAllIntoTargetTableCommandNotStringProvider(): \Generator
+    {
+        yield 'no type casting' => [
+            SynapseImportOptions::TABLE_TYPES_PRESERVE,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE([col1], \'\') AS [col1],[col2] AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+        yield 'type casting' => [
+            SynapseImportOptions::TABLE_TYPES_CAST,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],CAST([col2] as NUMERIC(18,0)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+    }
+
+    /**
+     * @dataProvider getCTASInsertAllIntoTargetTableCommandNotStringProvider
+     * @param SynapseImportOptions::TABLE_TYPES_* $cast
+     */
+    public function testGetCTASInsertAllIntoTargetTableCommandNotString(string $cast, string $expectedSQL): void
     {
         $col2 = new SynapseColumn(
             'col2',
             new Synapse(
-                Synapse::TYPE_NUMERIC
+                Synapse::TYPE_NUMERIC,
+                [
+                    'length' => '18,0',
+                ]
             )
         );
 
@@ -1431,16 +1498,26 @@ EOT
         );
 
         // no convert values no timestamp
+        $importOptions = new SynapseImportOptions(
+            [],
+            false,
+            false,
+            0,
+            SynapseImportOptions::CREDENTIALS_SAS,
+            SynapseImportOptions::TEMP_TABLE_HEAP,
+            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
+            $cast
+        );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
-            $this->getDummyImportOptions(),
+            $importOptions,
             '2020-01-01 00:00:00'
         );
 
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NUMERIC) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            $expectedSQL,
             $sql
         );
 
@@ -1470,9 +1547,38 @@ EOT
                 'col2' => null,
             ],
         ], $result);
+
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
+        $resultColumns = $ref->getColumnsDefinitions();
+        $this->assertColumnsDefinitions($resultColumns, $destination, $importOptions);
     }
 
-    public function testGetCTASInsertAllIntoTargetTableCommandConvertToNull(): void
+    /**
+     * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
+     */
+    public function getCTASInsertAllIntoTargetTableCommandConvertToNullProvider(): \Generator
+    {
+        yield 'no type casting' => [
+            SynapseImportOptions::TABLE_TYPES_PRESERVE,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],[col2] AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+        yield 'type casting' => [
+            SynapseImportOptions::TABLE_TYPES_CAST,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+    }
+
+    /**
+     * @dataProvider getCTASInsertAllIntoTargetTableCommandConvertToNullProvider
+     * @param SynapseImportOptions::TABLE_TYPES_* $cast
+     */
+    public function testGetCTASInsertAllIntoTargetTableCommandConvertToNull(string $cast, string $expectedSQL): void
     {
         $this->createTestSchema();
         $destination = $this->getTestTableWithColumnsDefinition();
@@ -1484,7 +1590,7 @@ EOT
             true,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createIntColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1492,7 +1598,16 @@ EOT
         );
 
         // convert col1 to null
-        $options = new SynapseImportOptions(['col1']);
+        $options = new SynapseImportOptions(
+            ['col1'],
+            false,
+            false,
+            0,
+            SynapseImportOptions::CREDENTIALS_SAS,
+            SynapseImportOptions::TEMP_TABLE_HEAP,
+            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
+            $cast
+        );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
@@ -1500,8 +1615,7 @@ EOT
             '2020-01-01 00:00:00'
         );
         $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            $expectedSQL,
             $sql
         );
         $out = $this->connection->exec($sql);
@@ -1530,10 +1644,41 @@ EOT
                 'col2' => '',
             ],
         ], $result);
+
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
+        $resultColumns = $ref->getColumnsDefinitions();
+        $this->assertColumnsDefinitions($resultColumns, $destination, $options);
     }
 
-    public function testGetCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(): void
+    /**
+     * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
+     */
+    public function getCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): \Generator
     {
+        yield 'no type casting' => [
+            SynapseImportOptions::TABLE_TYPES_PRESERVE,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],[col2] AS [col2],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+        yield 'type casting' => [
+            SynapseImportOptions::TABLE_TYPES_CAST,
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NVARCHAR(4000)) AS [col2],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
+        ];
+    }
+
+    /**
+     * @dataProvider getCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider
+     * @param SynapseImportOptions::TABLE_TYPES_* $cast
+     */
+    public function testGetCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(
+        string $cast,
+        string $expectedSQL
+    ): void {
         $this->createTestSchema();
         $destination = $this->getTestTableWithColumnsDefinition(true);
         $this->createStagingTableWithData(true);
@@ -1544,7 +1689,7 @@ EOT
             true,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createIntColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1552,7 +1697,16 @@ EOT
         );
 
         // use timestamp
-        $options = new SynapseImportOptions(['col1'], false, true);
+        $options = new SynapseImportOptions(
+            ['col1'],
+            false,
+            true,
+            0,
+            SynapseImportOptions::CREDENTIALS_SAS,
+            SynapseImportOptions::TEMP_TABLE_HEAP,
+            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
+            $cast
+        );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
@@ -1560,8 +1714,7 @@ EOT
             '2020-01-01 00:00:00'
         );
         $this->assertEquals(
-        // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
+            $expectedSQL,
             $sql
         );
         $out = $this->connection->exec($sql);
@@ -1577,6 +1730,29 @@ EOT
             $this->assertArrayHasKey('col2', $item);
             $this->assertArrayHasKey('_timestamp', $item);
         }
+
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
+        $resultColumns = $ref->getColumnsDefinitions();
+        $this->assertColumnsDefinitions($resultColumns, $destination, $options);
+    }
+
+    private function createIntColumn(string $columnName): SynapseColumn
+    {
+        $definition = new Synapse(
+            Synapse::TYPE_INT,
+            [
+                'nullable' => false,
+            ]
+        );
+
+        return new SynapseColumn(
+            $columnName,
+            $definition
+        );
     }
 
     protected function getTestTableWithColumnsDefinition(
@@ -1619,5 +1795,40 @@ EOT
             new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
         );
         return $tableDefinition;
+    }
+
+    private function assertColumnsDefinitions(
+        ColumnCollection $resultColumns,
+        SynapseTableDefinition $destination,
+        SynapseImportOptions $options
+    ): void {
+        /** @var SynapseColumn $resultCol */
+        foreach ($resultColumns as $resultCol) {
+            if ($resultCol->getColumnName() === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME) {
+                continue;
+            }
+            $expectedCol = null;
+            /** @var SynapseColumn $col */
+            foreach ($destination->getColumnsDefinitions() as $col) {
+                if ($col->getColumnName() === $resultCol->getColumnName()) {
+                    $expectedCol = $col;
+                    break;
+                }
+            }
+            $this->assertNotNull($expectedCol);
+            if ($options->getCastValueTypes()) {
+                $this->assertSame(
+                    $expectedCol->getColumnDefinition()->getSQLDefinition(),
+                    $resultCol->getColumnDefinition()->getSQLDefinition(),
+                    sprintf('Column "%s" definition not match.', $resultCol->getColumnName())
+                );
+            } else {
+                $this->assertSame(
+                    $expectedCol->getColumnDefinition()->isNullable(),
+                    $resultCol->getColumnDefinition()->isNullable(),
+                    sprintf('Column "%s" nullability not match.', $resultCol->getColumnName())
+                );
+            }
+        }
     }
 }
