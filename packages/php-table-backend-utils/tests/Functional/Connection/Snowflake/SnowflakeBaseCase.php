@@ -43,6 +43,7 @@ class SnowflakeBaseCase extends TestCase
         string $table = self::TABLE_GENERIC
     ): void {
         $this->createSchema($schema);
+        // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
                 'CREATE OR REPLACE TABLE %s.%s (
@@ -58,6 +59,7 @@ class SnowflakeBaseCase extends TestCase
 
     public function createSchema(string $schemaName): void
     {
+        // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',
@@ -111,7 +113,7 @@ class SnowflakeBaseCase extends TestCase
 
     protected function setUpUser(string $userName): void
     {
-        // delete existing user
+        // delete existing users
         $this->connection->executeQuery(sprintf(
             'DROP USER IF EXISTS %s',
             SnowflakeQuote::quoteSingleIdentifier($userName)

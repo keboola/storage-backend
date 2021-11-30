@@ -81,19 +81,12 @@ class SnowflakeConnection implements Connection
      */
     public function beginTransaction()
     {
-        $this->checkTransactionStarted(false);
+        if ($this->inTransaction()) {
+            throw new DriverException('Transaction was already started');
+        }
         return odbc_autocommit($this->conn, false);
     }
 
-    private function checkTransactionStarted(bool $flag = true): void
-    {
-        if ($flag && !$this->inTransaction()) {
-            throw new DriverException('Transaction was not started');
-        }
-        if (!$flag && $this->inTransaction()) {
-            throw new DriverException('Transaction was already started');
-        }
-    }
 
     private function inTransaction(): bool
     {
@@ -102,15 +95,17 @@ class SnowflakeConnection implements Connection
 
     public function commit(): bool
     {
-        $this->checkTransactionStarted();
-
+        if (!$this->inTransaction()) {
+            throw new DriverException('Transaction was not started');
+        }
         return odbc_commit($this->conn) && odbc_autocommit($this->conn, true);
     }
 
     public function rollBack(): bool
     {
-        $this->checkTransactionStarted();
-
+        if (!$this->inTransaction()) {
+            throw new DriverException('Transaction was not started');
+        }
         return odbc_rollback($this->conn) && odbc_autocommit($this->conn, true);
     }
 
