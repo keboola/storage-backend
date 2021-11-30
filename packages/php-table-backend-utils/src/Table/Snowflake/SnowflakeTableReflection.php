@@ -44,26 +44,35 @@ final class SnowflakeTableReflection implements TableReflectionInterface
      */
     public function getColumnsNames(): array
     {
-        // TODO
+        $columnsData = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SHOW COLUMNS IN %s',
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->dbName, $this->schemaName, $this->tableName,])
+            )
+        );
+
+        return array_values(array_map(function ($column) {
+            return $column['column_name'];
+        }, $columnsData));
     }
 
     public function getColumnsDefinitions(): ColumnCollection
     {
-
         $this->connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::createQuotedIdentifierFromParts([
             $this->dbName,
-            $this->schemaName
+            $this->schemaName,
         ])));
 
-        $columnsMeta = $this->connection->fetchAllAssociative(sprintf('DESC TABLE %s', SnowflakeQuote::createQuotedIdentifierFromParts([
-            $this->dbName,
-            $this->schemaName,
-            $this->tableName,
-        ])));
+        $columnsMeta = $this->connection->fetchAllAssociative(
+            sprintf(
+                'DESC TABLE %s',
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->dbName, $this->schemaName, $this->tableName,])
+            )
+        );
 
         $columns = [];
 
-        foreach ($columnsMeta as $col){
+        foreach ($columnsMeta as $col) {
             if ($col['kind'] === 'COLUMN') {
                 $columns[] = SnowflakeColumn::createFromDB($col);
             }
@@ -76,7 +85,15 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function getRowsCount(): int
     {
-        // TODO
+        $result = $this->connection->fetchOne(sprintf(
+            'SELECT COUNT(*) AS NumberOfRows FROM %s',
+            SnowflakeQuote::createQuotedIdentifierFromParts([
+                $this->dbName,
+                $this->schemaName,
+                $this->tableName,
+            ])
+        ));
+        return (int) $result;
     }
 
     /**
