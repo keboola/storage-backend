@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake;
 
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
@@ -167,33 +166,27 @@ class TestConnectionTest extends SnowflakeBaseCase
         );
     }
 
-    public function testInvalidAccessToDatabase(): void
+    public function testInvalidCredentials(): void
     {
-        $invalidDatabase = 'invalidDatabase';
         $connection = SnowflakeConnectionFactory::getConnection(
             (string) getenv('SNOWFLAKE_HOST'),
-            (string) getenv('SNOWFLAKE_USER'),
-            (string) getenv('SNOWFLAKE_PASSWORD'),
+            'invalid',
+            'invalid',
             [
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-                'database' => $invalidDatabase,
             ]
         );
 
-        $this->expectException(CannotAccessObjectException::class);
+        $this->expectException(\Doctrine\DBAL\Exception\DriverException::class);
         $this->expectExceptionMessage(
-            sprintf(
-                'Cannot access object or it does not exist. Executing query "USE DATABASE %s"',
-                SnowflakeQuote::quoteSingleIdentifier($invalidDatabase)
-            )
+            'An exception occurred in the driver: Incorrect username or password was specified.',
         );
-        $connection->executeQuery(sprintf('USE DATABASE %s', SnowflakeQuote::quoteSingleIdentifier($invalidDatabase)));
+        $this->assertConnectionIsWorking($connection);
     }
 
-    public function testInvalidAccessToSchema(): void
+    public function testInvalidAccessToDatabase(): void
     {
-        $invalidSchema = 'invalidSchema';
         $connection = SnowflakeConnectionFactory::getConnection(
             (string) getenv('SNOWFLAKE_HOST'),
             (string) getenv('SNOWFLAKE_USER'),
@@ -201,19 +194,18 @@ class TestConnectionTest extends SnowflakeBaseCase
             [
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
-                'schema' => $invalidSchema,
-            ],
+                'database' => 'invalidDatabase',
+            ]
         );
 
-        $this->expectException(CannotAccessObjectException::class);
-        $this->expectExceptionMessage(
-            sprintf(
-                'Cannot access object or it does not exist. Executing query "USE SCHEMA %s"',
-                SnowflakeQuote::quoteSingleIdentifier($invalidSchema)
-            )
+        $this->assertConnectionIsWorking($connection);
+        $this->assertNull($connection->fetchOne('SELECT CURRENT_DATABASE()'));
+        $this->connection->close();
+        $this->assertConnectionIsWorking($this->connection);
+        $this->assertSame(
+            (string) getenv('SNOWFLAKE_DATABASE'),
+            $this->connection->fetchOne('SELECT CURRENT_DATABASE()')
         );
-        $connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::quoteSingleIdentifier($invalidSchema)));
     }
 
     public function testWillDisconnect(): void
@@ -243,7 +235,7 @@ class TestConnectionTest extends SnowflakeBaseCase
 
         $this->assertNull($wrappedConnectionPropRef->getValue($wrappedConnection));
         // try reconnect
-        $wrappedConnection->fetchOne('SELECT 1');
+        $this->assertConnectionIsWorking($wrappedConnection);
         $wrappedConnection->close();
     }
 
@@ -295,6 +287,22 @@ SQL
 
     public function testSchema(): void
     {
+        $connection = SnowflakeConnectionFactory::getConnection(
+            (string) getenv('SNOWFLAKE_HOST'),
+            (string) getenv('SNOWFLAKE_USER'),
+            (string) getenv('SNOWFLAKE_PASSWORD'),
+            [
+                'port' => (string) getenv('SNOWFLAKE_PORT'),
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                'schema' => 'invalidSchema',
+            ],
+        );
+
+        $this->assertConnectionIsWorking($connection);
+        $this->assertNull($connection->fetchOne('SELECT CURRENT_SCHEMA()'));
+        $connection->close();
+
         $this->connection->executeStatement('CREATE SCHEMA IF NOT EXISTS "tableUtils-testSchema"');
         $connection = SnowflakeConnectionFactory::getConnection(
             (string) getenv('SNOWFLAKE_HOST'),
@@ -307,12 +315,12 @@ SQL
                 'schema' => 'tableUtils-testSchema',
             ]
         );
-
         //tests if you set schema in constructor it really set in connection
         $this->assertSame(
             'tableUtils-testSchema',
             $connection->fetchOne('SELECT CURRENT_SCHEMA()')
         );
+        $this->connection->close();
         $connection->close();
 
         //main connection has still no schema

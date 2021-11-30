@@ -39,10 +39,10 @@ class SnowflakeBaseCase extends TestCase
     }
 
     protected function initTable(
-        string $database = self::TEST_SCHEMA,
+        string $schema = self::TEST_SCHEMA,
         string $table = self::TABLE_GENERIC
     ): void {
-        $this->createSchema($database);
+        $this->createSchema($schema);
         // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
@@ -51,7 +51,7 @@ class SnowflakeBaseCase extends TestCase
     "first_name" VARCHAR(100),
     "last_name" VARCHAR(100)
 );',
-                SnowflakeQuote::quoteSingleIdentifier($database),
+                SnowflakeQuote::quoteSingleIdentifier($schema),
                 SnowflakeQuote::quoteSingleIdentifier($table)
             )
         );
@@ -94,9 +94,14 @@ class SnowflakeBaseCase extends TestCase
 
     public function testConnection(): void
     {
+        $this->assertConnectionIsWorking($this->connection);
+    }
+
+    public function assertConnectionIsWorking(Connection $connection): void
+    {
         self::assertEquals(
             1,
-            $this->connection->fetchOne('SELECT 1')
+            $connection->fetchOne('SELECT 1')
         );
     }
 

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Query;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectException;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\ConnectionException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException as SnowflakeDriverException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
@@ -20,6 +21,20 @@ class SnowflakeExceptionConverter implements ExceptionConverter
 
     public function convert(Exception $exception, ?Query $query): DriverException
     {
+        $pattern = '/Incorrect username or password was specified/';
+        $matches = null;
+        if (preg_match($pattern, $exception->getMessage(), $matches)) {
+            return new ConnectionException(
+                new SnowflakeDriverException(
+                    'Incorrect username or password was specified.',
+                    null,
+                    $exception->getCode(),
+                    $exception
+                ),
+                $query
+            );
+        }
+
         $pattern = "/String \'([^\']*)\' is too long and would be truncated/";
         $matches = null;
         if ($exception->getCode() === self::CODE_STRING_TRUNCATE
