@@ -119,6 +119,14 @@ class SnowflakeDSNGeneratorTest extends TestCase
             // phpcs:ignore
             'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse"',
         ];
+
+        $optionsCopy = $options;
+        $optionsCopy['port'] = '';
+        yield 'empty string as port' => [
+            $optionsCopy,
+            // phpcs:ignore
+            'Driver=SnowflakeDSIIDriver;Server=https://snowflakecomputing.com;Port=443;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+        ];
     }
 
     /**

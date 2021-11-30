@@ -76,7 +76,7 @@ class SnowflakeDSNGenerator
             throw new \LogicException('Unknown options: ' . implode(', ', $unknownOptions));
         }
 
-        $port = isset($options['port']) ? (int) $options['port'] : 443;
+        $port = (isset($options['port']) && $options['port']) ? (int) $options['port'] : 443;
         $tracing = isset($options['tracing']) ? (int) $options['tracing'] : 0;
 
         $dsn = 'Driver=SnowflakeDSIIDriver;Server=' . $options['host'];
