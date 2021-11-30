@@ -16,8 +16,7 @@ class SnowflakeBaseCase extends TestCase
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
     protected function setUp(): void
     {
@@ -111,13 +110,13 @@ class SnowflakeBaseCase extends TestCase
     {
         // delete existing users
         $this->connection->executeQuery(sprintf(
-            'DROP USER IF EXISTS %s CASCADE',
+            'DROP USER IF EXISTS %s',
             SnowflakeQuote::quoteSingleIdentifier($userName)
         ));
 
         // create user
         $this->connection->executeQuery(sprintf(
-            'CREATE USER %s IDENTIFIED BY "xxxx";',
+            'CREATE USER %s PASSWORD = \'xxxx\'',
             SnowflakeQuote::quoteSingleIdentifier($userName)
         ));
     }
@@ -126,7 +125,7 @@ class SnowflakeBaseCase extends TestCase
     {
         // delete existing role
         $this->connection->executeQuery(sprintf(
-            'DROP ROLE IF EXISTS %s CASCADE',
+            'DROP ROLE IF EXISTS %s',
             SnowflakeQuote::quoteSingleIdentifier($roleName)
         ));
 

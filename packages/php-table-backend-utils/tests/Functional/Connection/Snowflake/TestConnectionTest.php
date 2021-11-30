@@ -293,7 +293,6 @@ SQL
         }
     }
 
-
     public function testSchema(): void
     {
         $this->connection->executeStatement('CREATE SCHEMA IF NOT EXISTS "tableUtils-testSchema"');
@@ -314,6 +313,7 @@ SQL
             'tableUtils-testSchema',
             $connection->fetchOne('SELECT CURRENT_SCHEMA()')
         );
+        $connection->close();
 
         //main connection has still no schema
         $this->assertNull(
