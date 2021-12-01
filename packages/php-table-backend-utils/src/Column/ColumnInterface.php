@@ -20,4 +20,6 @@ interface ColumnInterface extends CollectionItemInterface
      * like: varchar(max)
      */
     public static function createGenericColumn(string $columnName): self;
+
+    public static function createFromDB(array $dbResponse): self;
 }

@@ -55,4 +55,9 @@ final class ExasolColumn implements ColumnInterface
     {
         return $this->columnDefinition;
     }
+
+    public static function createFromDB(array $dbResponse): ColumnInterface
+    {
+        // TODO: Implement createFromDB() method.
+    }
 }

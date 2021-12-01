@@ -32,7 +32,7 @@ final class SynapseColumn implements ColumnInterface
      *     column_default:?string
      * } $dbResponse
      */
-    public static function createFromDB(array $dbResponse): self
+    public static function createFromDB(array $dbResponse): ColumnInterface
     {
         $type = strtoupper($dbResponse['column_type']);
         $length = $dbResponse['column_length'];
