@@ -115,53 +115,11 @@ class SqlBuilder
         }
         $createTableColumns = $this->getColumnsString($columnsInOrder, ',', 'a');
 
-        $columnsSetSql = [];
-        /** @var SynapseColumn $column */
-        foreach ($stagingTableDefinition->getColumnsDefinitions() as $column) {
-            $columnTypeDefinition = $this->getColumnTypeSqlDefinition($column);
-
-            if (in_array($column->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
-                $colSql = sprintf(
-                    'NULLIF(%s, \'\')',
-                    SynapseQuote::quoteSingleIdentifier($column->getColumnName())
-                );
-                if ($column->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
-                    $colSql = SynapseQuote::quoteSingleIdentifier($column->getColumnName());
-                }
-                if ($importOptions->getCastValueTypes()) {
-                    $colSql = sprintf(
-                        'CAST(%s as %s)',
-                        $colSql,
-                        $columnTypeDefinition
-                    );
-                }
-                $columnsSetSql[] = sprintf(
-                    '%s AS %s',
-                    $colSql,
-                    SynapseQuote::quoteSingleIdentifier($column->getColumnName())
-                );
-            } else {
-                $colSql = sprintf(
-                    'COALESCE(%s, \'\')',
-                    SynapseQuote::quoteSingleIdentifier($column->getColumnName())
-                );
-                if ($column->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
-                    $colSql = SynapseQuote::quoteSingleIdentifier($column->getColumnName());
-                }
-                if ($importOptions->getCastValueTypes()) {
-                    $colSql = sprintf(
-                        'CAST(%s as %s)',
-                        $colSql,
-                        $columnTypeDefinition
-                    );
-                }
-                $columnsSetSql[] = sprintf(
-                    '%s AS %s',
-                    $colSql,
-                    SynapseQuote::quoteSingleIdentifier($column->getColumnName())
-                );
-            }
-        }
+        $columnsSetSql = $this->getCTASColumnsSetSql(
+            $stagingTableDefinition,
+            $destinationTableDefinition,
+            $importOptions
+        );
 
         if ($useTimestamp) {
             $columnsSetSql[] = sprintf(
@@ -376,38 +334,11 @@ class SqlBuilder
             true
         ) && $importOptions->useTimestamp();
 
-        $columnsSetSql = [];
-        /** @var SynapseColumn $columnDefinition */
-        foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
-            if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
-                // use nullif only for string base type
-                if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
-                    $columnsSetSql[] = sprintf(
-                        'NULLIF(%s, \'\') AS %s',
-                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
-                    );
-                } else {
-                    $columnsSetSql[] = SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
-                }
-            } elseif ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
-                $columnsSetSql[] = sprintf(
-                    'CAST(COALESCE(%s, \'\') as %s) AS %s',
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $this->getColumnTypeSqlDefinition($columnDefinition),
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
-                );
-            } else {
-                // on columns other than string dont use COALESCE, use direct cast
-                // this will fail if the column is not null, but this is expected
-                $columnsSetSql[] = sprintf(
-                    'CAST(%s as %s) AS %s',
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $this->getColumnTypeSqlDefinition($columnDefinition),
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
-                );
-            }
-        }
+        $columnsSetSql = $this->getCTASColumnsSetSql(
+            $sourceTableDefinition,
+            $destinationTableDefinition,
+            $importOptions
+        );
 
         if ($useTimestamp) {
             $columnsSetSql[] = sprintf(
@@ -594,5 +525,111 @@ class SqlBuilder
             $columnTypeDefinition .= sprintf('(%s)', $length);
         }
         return $columnTypeDefinition;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getCTASColumnsSetSql(
+        SynapseTableDefinition $sourceTableDefinition,
+        SynapseTableDefinition $destinationTableDefinition,
+        SynapseImportOptions $importOptions
+    ): array {
+        $columnsSetSql = [];
+        /** @var SynapseColumn $column */
+        foreach ($sourceTableDefinition->getColumnsDefinitions() as $column) {
+            $destinationColumn = null;
+            /** @var SynapseColumn $col */
+            foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
+                if ($col->getColumnName() === $column->getColumnName()) {
+                    $destinationColumn = $col;
+                    break;
+                }
+            }
+            assert($destinationColumn !== null);
+            $columnTypeDefinition = $this->getColumnTypeSqlDefinition($destinationColumn);
+            if (in_array($column->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
+                $columnsSetSql[] = $this->getCTASColumnSetSQLWithConvertEmptyValues(
+                    $column,
+                    $importOptions,
+                    $columnTypeDefinition,
+                    $destinationColumn
+                );
+            } else {
+                $columnsSetSql[] = $this->getCTASColumnSetSQL(
+                    $column,
+                    $importOptions,
+                    $columnTypeDefinition,
+                    $destinationColumn
+                );
+            }
+        }
+        return $columnsSetSql;
+    }
+
+    private function getCTASColumnSetSQLWithConvertEmptyValues(
+        SynapseColumn $source,
+        SynapseImportOptions $importOptions,
+        string $columnTypeDefinition,
+        SynapseColumn $destinationColumn
+    ): string {
+        if ($source->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+            // convert nulls only for strings
+            $colSql = sprintf(
+                'NULLIF(%s, \'\')',
+                SynapseQuote::quoteSingleIdentifier($source->getColumnName())
+            );
+        } else {
+            $colSql = SynapseQuote::quoteSingleIdentifier($source->getColumnName());
+        }
+        if ($importOptions->getCastValueTypes()) {
+            $colSql = sprintf(
+                'CAST(%s as %s)',
+                $colSql,
+                $columnTypeDefinition
+            );
+        }
+        return sprintf(
+            '%s AS %s',
+            $colSql,
+            SynapseQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
+        );
+    }
+
+    private function getCTASColumnSetSQL(
+        SynapseColumn $sourceColumn,
+        SynapseImportOptions $importOptions,
+        string $columnTypeDefinition,
+        SynapseColumn $destinationColumn
+    ): string {
+        if ($importOptions->getCastValueTypes()) {
+            $colSql = sprintf(
+                'CAST(%s as %s)',
+                SynapseQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                $columnTypeDefinition
+            );
+        } else {
+            $colSql = SynapseQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
+        }
+        if ($sourceColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+            if ($destinationColumn->getColumnDefinition()->isNullable()) {
+                // Columns with coalesce are nullable in CTAS
+                $colSql = sprintf(
+                    'COALESCE(%s, \'\')',
+                    $colSql
+                );
+            } else {
+                // Columns with isnull are not null in CTAS
+                $colSql = sprintf(
+                    'ISNULL(%s, \'\')',
+                    $colSql
+                );
+            }
+        }
+        return sprintf(
+            '%s AS %s',
+            $colSql,
+            SynapseQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
+        );
     }
 }
