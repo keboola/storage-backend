@@ -200,6 +200,35 @@ Exasol saves you (container) current ip address and docker daemon is changing de
 2. set docker default bridge to some fixed range: edit or create `/etc/docker/daemon.json` and set `{"bip":"172.0.0.1/24"}` (or different range that suites you)
 
 
+#### Snowflake
+
+Prepare credentials for Snowflake access
+
+```sql
+CREATE ROLE "KEBOOLA_CI_TABLE_UTILS";
+CREATE DATABASE "KEBOOLA_CI_TABLE_UTILS";
+
+GRANT ALL PRIVILEGES ON DATABASE "KEBOOLA_CI_TABLE_UTILS" TO ROLE "KEBOOLA_CI_TABLE_UTILS";
+GRANT USAGE ON WAREHOUSE "DEV" TO ROLE "KEBOOLA_CI_TABLE_UTILS";
+
+CREATE USER "KEBOOLA_CI_TABLE_UTILS"
+PASSWORD = 'my_secret_password'
+DEFAULT_ROLE = "KEBOOLA_CI_TABLE_UTILS";
+
+GRANT ROLE "KEBOOLA_CI_TABLE_UTILS" TO USER "KEBOOLA_CI_TABLE_UTILS";
+```
+
+set up env variables:
+
+```
+SNOWFLAKE_HOST=
+SNOWFLAKE_PORT=443
+SNOWFLAKE_USER=KEBOOLA_CI_TABLE_UTILS
+SNOWFLAKE_PASSWORD='my_secret_password
+SNOWFLAKE_DATABASE=KEBOOLA_CI_TABLE_UTILS
+SNOWFLAKE_WAREHOUSE=
+```
+
 ### Tests
 
 Run tests with following command.
