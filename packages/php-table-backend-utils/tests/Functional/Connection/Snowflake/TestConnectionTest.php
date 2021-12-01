@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake;
 
+use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
@@ -327,5 +328,14 @@ SQL
         $this->assertNull(
             $this->connection->fetchOne('SELECT CURRENT_SCHEMA()')
         );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            sprintf(
+                'Cannot access object or it does not exist. Executing query "USE SCHEMA %s"',
+                SnowflakeQuote::quoteSingleIdentifier('Other schema')
+            )
+        );
+        $connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::quoteSingleIdentifier('Other schema')));
     }
 }
