@@ -55,8 +55,25 @@ final class SnowflakeColumn implements ColumnInterface
         return $this->columnDefinition;
     }
 
-    public static function createFromDB(array $dbResponse): ColumnInterface
+    public static function createFromDB(array $column): ColumnInterface
     {
-        // TODO: Implement createFromDB() method.
+        $type = $column['type'];
+        $default = $column['default'];
+        $length = null;
+
+        $matches = [];
+        if (preg_match('/^(\w+)\(([0-9\,]+)\)$/ui', $column['type'], $matches)) {
+            $type = $matches[1];
+            $length = $matches[2];
+        }
+
+        return new self($column['name'], new Snowflake(
+            $type,
+            [
+                'nullable' => $column['null?'] === 'Y' ? true : false,
+                'length' => $length,
+                'default' => $default,
+            ]
+        ));
     }
 }
