@@ -325,8 +325,8 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -398,7 +398,7 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
+                $this->createGenericColumn('col1'),
                 $col2,
             ]),
             [],
@@ -469,13 +469,13 @@ EOT
         return $tableDefinition;
     }
 
-    private function createNullableGenericColumn(string $columnName): SynapseColumn
+    private function createGenericColumn(string $columnName, bool $nullable = true): SynapseColumn
     {
         $definition = new Synapse(
             Synapse::TYPE_NVARCHAR,
             [
                 'length' => '4000', // should be changed to max in future
-                'nullable' => true,
+                'nullable' => $nullable,
             ]
         );
 
@@ -496,8 +496,8 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -560,8 +560,8 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -645,8 +645,8 @@ EOT
             self::TEST_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             ['col1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -658,8 +658,8 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -732,7 +732,7 @@ EOT
             self::TEST_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
+                $this->createGenericColumn('col1'),
                 $col2,
             ]),
             ['col1'],
@@ -745,7 +745,7 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
+                $this->createGenericColumn('col1'),
                 $col2,
             ]),
             [],
@@ -812,8 +812,8 @@ EOT
             self::TEST_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             ['col1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -825,8 +825,8 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -913,8 +913,8 @@ EOT
             self::TEST_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             ['col1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -926,8 +926,8 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1107,15 +1107,15 @@ EOT
                 $stage->getTableName(),
                 $stage->isTemporary(),
                 new ColumnCollection([
-                    $this->createNullableGenericColumn('pk1'),
-                    $this->createNullableGenericColumn('pk2'),
+                    $this->createGenericColumn('pk1'),
+                    $this->createGenericColumn('pk2'),
                     new SynapseColumn(
                         'col1',
                         new Synapse(
                             Synapse::TYPE_INT
                         )
                     ),
-                    $this->createNullableGenericColumn('col2'),
+                    $this->createGenericColumn('col2'),
                 ]),
                 $stage->getPrimaryKeysNames(),
                 $stage->getTableDistribution(),
@@ -1142,6 +1142,54 @@ EOT
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST([col1] as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
+        ];
+
+        yield 'testGetCtasDedupCommandWithNotStringTypeNotNullable' => [
+            new SynapseTableDefinition(
+                $stage->getSchemaName(),
+                $stage->getTableName(),
+                $stage->isTemporary(),
+                new ColumnCollection([
+                    $this->createGenericColumn('pk1'),
+                    $this->createGenericColumn('pk2'),
+                    new SynapseColumn(
+                        'col1',
+                        new Synapse(
+                            Synapse::TYPE_INT
+                        )
+                    ),
+                    $this->createGenericColumn('col2'),
+                ]),
+                $stage->getPrimaryKeysNames(),
+                $stage->getTableDistribution(),
+                $stage->getTableIndex()
+            ),
+            new SynapseTableDefinition(
+                $stage->getSchemaName(),
+                self::TEST_TABLE,
+                false,
+                new ColumnCollection([
+                    $this->createGenericColumn('pk1'),
+                    $this->createGenericColumn('pk2'),
+                    $this->createGenericColumn('col1'),
+                    $this->createGenericColumn('col2', false),
+                ]),
+                ['pk1', 'pk2'],
+                $stage->getTableDistribution(),
+                $stage->getTableIndex()
+            ),
+            new SynapseImportOptions(
+                [],
+                false,
+                true,
+                0,
+                SynapseImportOptions::CREDENTIALS_SAS,
+                SynapseImportOptions::TEMP_TABLE_HEAP,
+                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
+                SynapseImportOptions::TABLE_TYPES_CAST
+            ),
+            // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST([col1] as NVARCHAR(4000)) AS [col1],ISNULL(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
         ];
 
         yield 'testGetCtasDedupCommandWithHashDistribution' => [
@@ -1334,10 +1382,10 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('pk1'),
-                $this->createNullableGenericColumn('pk2'),
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('pk1'),
+                $this->createGenericColumn('pk2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1353,12 +1401,12 @@ EOT
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE([col1], \'\') AS [col1],COALESCE([col2], \'\') AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE([col1], \'\') AS [col1],COALESCE([col2], \'\') AS [col2],ISNULL([pk1], \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
         yield 'type casting' => [
             SynapseImportOptions::TABLE_TYPES_CAST,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],ISNULL(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
     }
 
@@ -1369,7 +1417,12 @@ EOT
     public function testGetCTASInsertAllIntoTargetTableCommand(string $cast, string $expectedSQL): void
     {
         $this->createTestSchema();
-        $destination = $this->getTestTableWithColumnsDefinition();
+        $destination = $this->getTestTableWithColumnsDefinition(
+            false,
+            false,
+            null,
+            true
+        );
         $this->createStagingTableWithData(true);
 
         // create fake stage and say that there is less columns
@@ -1378,8 +1431,9 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
+                $this->createGenericColumn('pk1', false),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1422,18 +1476,22 @@ EOT
             [
                 'col1' => '1',
                 'col2' => '1',
+                'pk1' => '1',
             ],
             [
                 'col1' => '1',
                 'col2' => '1',
+                'pk1' => '1',
             ],
             [
                 'col1' => '2',
                 'col2' => '2',
+                'pk1' => '2',
             ],
             [
                 'col1' => '',
                 'col2' => '',
+                'pk1' => '2',
             ],
         ], $result);
 
@@ -1454,12 +1512,12 @@ EOT
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE([col1], \'\') AS [col1],[col2] AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE([col1], \'\') AS [col1],[col2] AS [col2],ISNULL([pk1], \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
         yield 'type casting' => [
             SynapseImportOptions::TABLE_TYPES_CAST,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],CAST([col2] as NUMERIC(18,0)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],CAST([col2] as NUMERIC(18,0)) AS [col2],ISNULL(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
     }
 
@@ -1480,7 +1538,12 @@ EOT
         );
 
         $this->createTestSchema();
-        $destination = $this->getTestTableWithColumnsDefinition(false, false, $col2);
+        $destination = $this->getTestTableWithColumnsDefinition(
+            false,
+            false,
+            $col2,
+            true
+        );
         $this->createStagingTableWithData(true);
 
         // create fake stage with missing id column and numeric col2
@@ -1489,8 +1552,9 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
+                $this->createGenericColumn('col1'),
                 $col2,
+                $this->createGenericColumn('pk1', false),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1533,18 +1597,22 @@ EOT
             [
                 'col1' => '1',
                 'col2' => '1',
+                'pk1' => '1',
             ],
             [
                 'col1' => '1',
                 'col2' => '1',
+                'pk1' => '1',
             ],
             [
                 'col1' => '2',
                 'col2' => '2',
+                'pk1' => '2',
             ],
             [
                 'col1' => '',
                 'col2' => null,
+                'pk1' => '2',
             ],
         ], $result);
 
@@ -1565,12 +1633,12 @@ EOT
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],[col2] AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],[col2] AS [col2],ISNULL([pk1], \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
         yield 'type casting' => [
             SynapseImportOptions::TABLE_TYPES_CAST,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NVARCHAR(4000)) AS [col2],ISNULL(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
     }
 
@@ -1581,16 +1649,22 @@ EOT
     public function testGetCTASInsertAllIntoTargetTableCommandConvertToNull(string $cast, string $expectedSQL): void
     {
         $this->createTestSchema();
-        $destination = $this->getTestTableWithColumnsDefinition();
         $this->createStagingTableWithData(true);
+        $destination = $this->getTestTableWithColumnsDefinition(
+            false,
+            false,
+            null,
+            true
+        );
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
+                $this->createGenericColumn('col1'),
                 $this->createIntColumn('col2'),
+                $this->createGenericColumn('pk1', false),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1630,18 +1704,22 @@ EOT
             [
                 'col1' => '1',
                 'col2' => '1',
+                'pk1' => '1',
             ],
             [
                 'col1' => '1',
                 'col2' => '1',
+                'pk1' => '1',
             ],
             [
                 'col1' => '2',
                 'col2' => '2',
+                'pk1' => '2',
             ],
             [
                 'col1' => null,
                 'col2' => '',
+                'pk1' => '2',
             ],
         ], $result);
 
@@ -1662,12 +1740,12 @@ EOT
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],[col2] AS [col2],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT NULLIF([col1], \'\') AS [col1],[col2] AS [col2],ISNULL([pk1], \'\') AS [pk1],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
         yield 'type casting' => [
             SynapseImportOptions::TABLE_TYPES_CAST,
             // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NVARCHAR(4000)) AS [col2],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NVARCHAR(4000)) AS [col2],ISNULL(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],\'2020-01-01 00:00:00\' AS _timestamp FROM [import-export-test-ng_schema].[#stagingTable]',
         ];
     }
 
@@ -1680,7 +1758,12 @@ EOT
         string $expectedSQL
     ): void {
         $this->createTestSchema();
-        $destination = $this->getTestTableWithColumnsDefinition(true);
+        $destination = $this->getTestTableWithColumnsDefinition(
+            true,
+            false,
+            null,
+            true
+        );
         $this->createStagingTableWithData(true);
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
@@ -1688,8 +1771,9 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createNullableGenericColumn('col1'),
+                $this->createGenericColumn('col1'),
                 $this->createIntColumn('col2'),
+                $this->createGenericColumn('pk1', false),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
@@ -1758,7 +1842,8 @@ EOT
     protected function getTestTableWithColumnsDefinition(
         bool $includeTimestamp = false,
         bool $includePrimaryKey = false,
-        ?SynapseColumn $overwriteColumn2 = null
+        ?SynapseColumn $overwriteColumn2 = null,
+        bool $includeNotNullableColumn = false
     ): SynapseTableDefinition {
         $columns = [];
         $pks = [];
@@ -1769,11 +1854,11 @@ EOT
                 new Synapse(Synapse::TYPE_INT)
             );
         } else {
-            $columns[] = $this->createNullableGenericColumn('id');
+            $columns[] = $this->createGenericColumn('id');
         }
-        $columns[] = $this->createNullableGenericColumn('col1');
+        $columns[] = $this->createGenericColumn('col1');
         if ($overwriteColumn2 === null) {
-            $columns[] = $this->createNullableGenericColumn('col2');
+            $columns[] = $this->createGenericColumn('col2');
         } else {
             $columns[] = $overwriteColumn2;
         }
@@ -1783,6 +1868,10 @@ EOT
                 '_timestamp',
                 new Synapse(Synapse::TYPE_DATETIME)
             );
+        }
+
+        if ($includeNotNullableColumn) {
+            $columns[] = $this->createGenericColumn('pk1', false);
         }
 
         $tableDefinition = new SynapseTableDefinition(
