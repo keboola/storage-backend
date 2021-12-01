@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
@@ -114,21 +115,37 @@ final class FullImporter implements ToFinalTableImporterInterface
         $tmpDestinationToRemove = $destinationTableDefinition->getTableName()
             . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
 
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getRenameTableCommand(
+        try {
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getRenameTableCommand(
+                    $destinationTableDefinition->getSchemaName(),
+                    $destinationTableDefinition->getTableName(),
+                    $tmpDestinationToRemove
+                )
+            );
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getRenameTableCommand(
+                    $tmpDestination->getSchemaName(),
+                    $tmpDestination->getTableName(),
+                    $destinationTableDefinition->getTableName()
+                )
+            );
+        } catch (\Throwable $e) {
+            if (!$this->isTableInSchema(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName(),
-                $tmpDestinationToRemove
-            )
-        );
-
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getRenameTableCommand(
-                $tmpDestination->getSchemaName(),
-                $tmpDestination->getTableName(),
                 $destinationTableDefinition->getTableName()
-            )
-        );
+            )) {
+                // in case of error ensure original table is renamed back
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getRenameTableCommand(
+                        $destinationTableDefinition->getSchemaName(),
+                        $tmpDestinationToRemove,
+                        $destinationTableDefinition->getTableName()
+                    )
+                );
+            }
+            throw $e;
+        }
 
         $this->connection->executeStatement(
             $this->sqlBuilder->getDropCommand(
@@ -168,27 +185,52 @@ final class FullImporter implements ToFinalTableImporterInterface
         $tmpDestinationToRemove = $destinationTableDefinition->getTableName()
             . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
 
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getRenameTableCommand(
+        try {
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getRenameTableCommand(
+                    $destinationTableDefinition->getSchemaName(),
+                    $destinationTableDefinition->getTableName(),
+                    $tmpDestinationToRemove
+                )
+            );
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getRenameTableCommand(
+                    $tmpDestination->getSchemaName(),
+                    $tmpDestination->getTableName(),
+                    $destinationTableDefinition->getTableName()
+                )
+            );
+        } catch (\Throwable $e) {
+            if (!$this->isTableInSchema(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName(),
-                $tmpDestinationToRemove
-            )
-        );
-
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getRenameTableCommand(
-                $tmpDestination->getSchemaName(),
-                $tmpDestination->getTableName(),
                 $destinationTableDefinition->getTableName()
-            )
-        );
+            )) {
+                // in case of error ensure original table is renamed back
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getRenameTableCommand(
+                        $destinationTableDefinition->getSchemaName(),
+                        $tmpDestinationToRemove,
+                        $destinationTableDefinition->getTableName()
+                    )
+                );
+            }
+            throw $e;
+        }
 
         $this->connection->executeStatement(
             $this->sqlBuilder->getDropCommand(
                 $destinationTableDefinition->getSchemaName(),
                 $tmpDestinationToRemove
             )
+        );
+    }
+
+    private function isTableInSchema(string $schemaName, string $tableName): bool
+    {
+        return in_array(
+            $tableName,
+            (new SynapseSchemaReflection($this->connection, $schemaName))->getTablesNames(),
+            true
         );
     }
 }
