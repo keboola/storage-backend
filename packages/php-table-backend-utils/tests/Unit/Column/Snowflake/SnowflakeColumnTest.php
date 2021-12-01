@@ -21,21 +21,21 @@ class SnowflakeColumnTest extends TestCase
         self::assertEquals('\'\'', $col->getColumnDefinition()->getDefault());
     }
 
-    public function testCreateFromDB()
+    public function testCreateFromDB(): void
     {
         $data = [
-            "Row" => "1",
-            "name" => "first_name",
-            "type" => "VARCHAR(16777216)",
-            "kind" => "COLUMN",
-            "null?" => "Y",
-            "default" => "N",
-            "primary key" => "N",
-            "unique key" => "",
-            "check" => "",
-            "expression" => "",
-            "comment" => "",
-            "policy name" => "",
+            'Row' => '1',
+            'name' => 'first_name',
+            'type' => 'VARCHAR(16777216)',
+            'kind' => 'COLUMN',
+            'null?' => 'Y',
+            'default' => '',
+            'primary key' => 'N',
+            'unique key' => '',
+            'check' => '',
+            'expression' => '',
+            'comment' => '',
+            'policy name' => '',
         ];
 
         $column = SnowflakeColumn::createFromDB($data);
@@ -46,21 +46,21 @@ class SnowflakeColumnTest extends TestCase
         self::assertEquals('16777216', $column->getColumnDefinition()->getLength());
     }
 
-    public function testCreateFromDBNotNullInt()
+    public function testCreateFromDBNotNullInt(): void
     {
         $data = [
-            "Row" => "1",
-            "name" => "age",
-            "type" => "NUMBER(38,0)",
-            "kind" => "COLUMN",
-            "null?" => "N",
-            "default" => "18",
-            "primary key" => "N",
-            "unique key" => "",
-            "check" => "",
-            "expression" => "",
-            "comment" => "",
-            "policy name" => "",
+            'Row' => '1',
+            'name' => 'age',
+            'type' => 'NUMBER(38,0)',
+            'kind' => 'COLUMN',
+            'null?' => 'N',
+            'default' => '18',
+            'primary key' => 'N',
+            'unique key' => '',
+            'check' => '',
+            'expression' => '',
+            'comment' => '',
+            'policy name' => '',
         ];
 
         $column = SnowflakeColumn::createFromDB($data);

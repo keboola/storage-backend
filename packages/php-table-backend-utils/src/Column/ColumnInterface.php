@@ -21,5 +21,9 @@ interface ColumnInterface extends CollectionItemInterface
      */
     public static function createGenericColumn(string $columnName): self;
 
+    /**
+     * @param array<string, mixed> $dbResponse row from "DESCRIBE TABLE"-like query (each backend has it different)
+     * @return static
+     */
     public static function createFromDB(array $dbResponse): self;
 }

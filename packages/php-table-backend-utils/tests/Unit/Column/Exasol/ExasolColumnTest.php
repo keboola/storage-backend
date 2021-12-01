@@ -21,17 +21,17 @@ class ExasolColumnTest extends TestCase
         self::assertEquals('\'\'', $col->getColumnDefinition()->getDefault());
     }
 
-    public function testCreateFromDB()
+    public function testCreateFromDB(): void
     {
         $data = [
-            "COLUMN_NAME" => "A",
-            "COLUMN_IS_NULLABLE" => "1",
-            "COLUMN_MAXSIZE" => "20",
-            "COLUMN_NUM_PREC" => null,
-            "COLUMN_NUM_SCALE" => null,
-            "COLUMN_DEFAULT" => null,
-            "COLUMN_TYPE" => "VARCHAR(20) UTF8",
-            "TYPE_NAME" => "VARCHAR",
+            'COLUMN_NAME' => 'A',
+            'COLUMN_IS_NULLABLE' => '1',
+            'COLUMN_MAXSIZE' => '20',
+            'COLUMN_NUM_PREC' => null,
+            'COLUMN_NUM_SCALE' => null,
+            'COLUMN_DEFAULT' => null,
+            'COLUMN_TYPE' => 'VARCHAR(20) UTF8',
+            'TYPE_NAME' => 'VARCHAR',
         ];
 
         $column = ExasolColumn::createFromDB($data);
@@ -42,18 +42,18 @@ class ExasolColumnTest extends TestCase
         self::assertEquals('20', $column->getColumnDefinition()->getLength());
     }
 
-    public function testCreateFromDBNotNullInt()
+    public function testCreateFromDBNotNullInt(): void
     {
 
         $data = [
-            "COLUMN_NAME" => "B",
-            "COLUMN_IS_NULLABLE" => "0",
-            "COLUMN_MAXSIZE" => "24",
-            "COLUMN_NUM_PREC" => 24,
-            "COLUMN_NUM_SCALE" => 4,
-            "COLUMN_DEFAULT" => "10",
-            "COLUMN_TYPE" => "DECIMAL(24,4)",
-            "TYPE_NAME" => "DECIMAL",
+            'COLUMN_NAME' => 'B',
+            'COLUMN_IS_NULLABLE' => '0',
+            'COLUMN_MAXSIZE' => '24',
+            'COLUMN_NUM_PREC' => '24',
+            'COLUMN_NUM_SCALE' => '4',
+            'COLUMN_DEFAULT' => '10',
+            'COLUMN_TYPE' => 'DECIMAL(24,4)',
+            'TYPE_NAME' => 'DECIMAL',
         ];
 
         $column = ExasolColumn::createFromDB($data);

@@ -56,16 +56,19 @@ final class ExasolColumn implements ColumnInterface
         return $this->columnDefinition;
     }
 
-    public static function createFromDB(array $col): ColumnInterface
+    /**
+     * @inheritDoc
+     */
+    public static function createFromDB(array $dbResponse): ColumnInterface
     {
-        $defaultValue = $col['COLUMN_DEFAULT'];
+        $defaultValue = $dbResponse['COLUMN_DEFAULT'];
         return new ExasolColumn(
-            $col['COLUMN_NAME'],
+            $dbResponse['COLUMN_NAME'],
             new Exasol(
-                $col['TYPE_NAME'],
+                $dbResponse['TYPE_NAME'],
                 [
-                    'length' => self::extractColumnLength($col),
-                    'nullable' => $col['COLUMN_IS_NULLABLE'] === '1',
+                    'length' => self::extractColumnLength($dbResponse),
+                    'nullable' => $dbResponse['COLUMN_IS_NULLABLE'] === '1',
                     'default' => is_string($defaultValue) ? trim($defaultValue) : $defaultValue,
                 ]
             )
