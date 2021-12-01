@@ -103,7 +103,16 @@ final class SnowflakeTableReflection implements TableReflectionInterface
      */
     public function getPrimaryKeysNames(): array
     {
-        // TODO
+        $columnsMeta = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SHOW PRIMARY KEYS IN TABLE %s',
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->dbName, $this->schemaName, $this->tableName,])
+            )
+        );
+
+        return array_map(function ($pkRow) {
+            return $pkRow['column_name'];
+        }, $columnsMeta);
     }
 
     public function getTableStats(): TableStatsInterface
