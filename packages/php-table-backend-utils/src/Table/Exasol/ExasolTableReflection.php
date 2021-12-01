@@ -81,49 +81,10 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
         );
 
         $columns = array_map(static function ($col) {
-            $defaultValue = $col['COLUMN_DEFAULT'];
-            return new ExasolColumn(
-                $col['COLUMN_NAME'],
-                new Exasol(
-                    $col['TYPE_NAME'],
-                    [
-                        'length' => self::extractColumnLength($col),
-                        'nullable' => $col['COLUMN_IS_NULLABLE'] === '1',
-                        'default' => is_string($defaultValue) ? trim($defaultValue) : $defaultValue,
-                    ]
-                )
-            );
+            return ExasolColumn::createFromDB($col);
         }, $columns);
 
         return new ColumnCollection($columns);
-    }
-
-    /**
-     * @param array<string, mixed> $colData
-     * array{
-     * COLUMN_TYPE: string,
-     * TYPE_NAME: string,
-     * COLUMN_NUM_PREC: ?string,
-     * COLUMN_NUM_SCALE: ?string,
-     * COLUMN_MAXSIZE: ?string,
-     * } $colData
-     * @return string
-     */
-    private static function extractColumnLength(array $colData): string
-    {
-        $colType = $colData['COLUMN_TYPE'];
-        if ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_DAY_TO_SECOND) {
-            preg_match('/INTERVAL DAY\((?P<valDays>\d)\) TO SECOND\((?P<valSeconds>\d)\)/', $colType, $output_array);
-            return $output_array['valDays'] . ',' . $output_array['valSeconds'];
-        } elseif ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_YEAR_TO_MONTH) {
-            preg_match('/INTERVAL YEAR\((?P<val>\d)\) TO MONTH/', $colType, $output_array);
-            return $output_array['val'];
-        } else {
-            $precision = $colData['COLUMN_NUM_PREC'];
-            $scale = $colData['COLUMN_NUM_SCALE'];
-            $maxLength = $colData['COLUMN_MAXSIZE'];
-            return ($precision === null && $scale === null) ? $maxLength : "{$precision},{$scale}";
-        }
     }
 
     public function getRowsCount(): int
