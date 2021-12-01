@@ -38,11 +38,27 @@ class TestConnectionTest extends SnowflakeBaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         );
-        $sqlSelectBind = sprintf(
+        $sqlSelectBindNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = :first_name',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         );
+        $sqlSelectBindMultipleNamed = sprintf(
+            'SELECT * FROM %s.%s WHERE "first_name" = :first_name AND "last_name" = :last_name ',
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+        );
+        $sqlSelectBindNotNamed = sprintf(
+            'SELECT * FROM %s.%s WHERE "first_name" = ?',
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+        );
+        $sqlSelectBindMultipleNotNamed = sprintf(
+            'SELECT * FROM %s.%s WHERE "first_name" = ? AND "last_name" = ?',
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+        );
+
         $result = $this->connection->fetchAllAssociative($sqlSelect);
         $this->assertSame([
             [
@@ -57,7 +73,37 @@ class TestConnectionTest extends SnowflakeBaseCase
             ],
         ], $result);
 
-        $result = $this->connection->fetchAllAssociative($sqlSelectBind, ['first_name' => 'franta']);
+        $result = $this->connection->fetchAllAssociative($sqlSelectBindNamed, ['first_name' => 'franta']);
+        $this->assertSame([
+            [
+                'id' => '1',
+                'first_name' => 'franta',
+                'last_name' => 'omacka',
+            ],
+        ], $result);
+
+        $result = $this->connection->fetchAllAssociative($sqlSelectBindMultipleNamed, [
+            'first_name' => 'franta',
+            'last_name' => 'omacka',
+        ]);
+        $this->assertSame([
+            [
+                'id' => '1',
+                'first_name' => 'franta',
+                'last_name' => 'omacka',
+            ],
+        ], $result);
+
+        $result = $this->connection->fetchAllAssociative($sqlSelectBindNotNamed, ['franta']);
+        $this->assertSame([
+            [
+                'id' => '1',
+                'first_name' => 'franta',
+                'last_name' => 'omacka',
+            ],
+        ], $result);
+
+        $result = $this->connection->fetchAllAssociative($sqlSelectBindMultipleNotNamed, ['franta', 'omacka']);
         $this->assertSame([
             [
                 'id' => '1',
@@ -78,7 +124,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             ],
         ], $result);
 
-        $result = $this->connection->fetchAllAssociativeIndexed($sqlSelectBind, ['first_name' => 'franta']);
+        $result = $this->connection->fetchAllAssociativeIndexed($sqlSelectBindNamed, ['first_name' => 'franta']);
         $this->assertSame([
             1 => [
                 'first_name' => 'franta',
@@ -92,7 +138,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             '2',
         ], $result);
 
-        $result = $this->connection->fetchFirstColumn($sqlSelectBind, ['first_name' => 'franta']);
+        $result = $this->connection->fetchFirstColumn($sqlSelectBindNamed, ['first_name' => 'franta']);
         $this->assertSame([
             '1',
         ], $result);
@@ -105,7 +151,7 @@ class TestConnectionTest extends SnowflakeBaseCase
 
         ], $result);
 
-        $result = $this->connection->fetchAssociative($sqlSelectBind, ['first_name' => 'pepik']);
+        $result = $this->connection->fetchAssociative($sqlSelectBindNamed, ['first_name' => 'pepik']);
         $this->assertSame([
             'id' => '2',
             'first_name' => 'pepik',
@@ -119,7 +165,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             2 => 'pepik',
         ], $result);
 
-        $result = $this->connection->fetchAllKeyValue($sqlSelectBind, ['first_name' => 'franta']);
+        $result = $this->connection->fetchAllKeyValue($sqlSelectBindNamed, ['first_name' => 'franta']);
         $this->assertSame([
             1 => 'franta',
         ], $result);
@@ -138,7 +184,7 @@ class TestConnectionTest extends SnowflakeBaseCase
             ],
         ], $result);
 
-        $result = $this->connection->fetchAllNumeric($sqlSelectBind, ['first_name' => 'franta']);
+        $result = $this->connection->fetchAllNumeric($sqlSelectBindNamed, ['first_name' => 'franta']);
         $this->assertSame([
             [
                 '1',
