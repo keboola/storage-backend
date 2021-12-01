@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Table\Exasol;
 
 use Generator;
-use Keboola\Datatype\Definition\Teradata;
+use Keboola\Datatype\Definition\Exasol;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
+use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
@@ -92,11 +92,11 @@ class ExasolTableReflectionTest extends ExasolBaseCase
 
         $this->connection->executeQuery($sql);
         $ref = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
-        /** @var Generator<TeradataColumn> $iterator */
+        /** @var Generator<ExasolColumn> $iterator */
         $iterator = $ref->getColumnsDefinitions()->getIterator();
         $iterator->next();
         $column = $iterator->current();
-        /** @var Teradata $definition */
+        /** @var Exasol $definition */
         $definition = $column->getColumnDefinition();
         self::assertEquals($expectedLength, $definition->getLength());
         self::assertEquals($expectedDefault, $definition->getDefault());
