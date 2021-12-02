@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Connection\Snowflake;
 
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeDSNGenerator;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -141,7 +142,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
 
     public function testFailsToConnectWithUnknownParams(): void
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(DriverException::class);
         $this->expectExceptionMessage('Unknown options: someRandomParameter, otherRandomParameter, 0');
 
         // @phpstan-ignore-next-line
@@ -157,7 +158,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
 
     public function testFailsWhenRequiredParamsMissing(): void
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(DriverException::class);
         $this->expectExceptionMessage('Missing options: host');
 
         // @phpstan-ignore-next-line

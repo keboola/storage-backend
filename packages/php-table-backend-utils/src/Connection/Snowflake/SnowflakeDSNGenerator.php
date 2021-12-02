@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 class SnowflakeDSNGenerator
@@ -68,12 +69,12 @@ class SnowflakeDSNGenerator
 
         $missingOptions = array_diff($requiredOptions, array_keys($options));
         if (!empty($missingOptions)) {
-            throw new \LogicException('Missing options: ' . implode(', ', $missingOptions));
+            throw new DriverException('Missing options: ' . implode(', ', $missingOptions));
         }
 
         $unknownOptions = array_diff(array_keys($options), $allowedOptions);
         if (!empty($unknownOptions)) {
-            throw new \LogicException('Unknown options: ' . implode(', ', $unknownOptions));
+            throw new DriverException('Unknown options: ' . implode(', ', $unknownOptions));
         }
 
         $port = (isset($options['port']) && $options['port']) ? (int) $options['port'] : 443;
