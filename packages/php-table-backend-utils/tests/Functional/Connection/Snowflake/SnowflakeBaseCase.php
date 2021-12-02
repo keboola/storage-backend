@@ -119,8 +119,9 @@ class SnowflakeBaseCase extends TestCase
 
         // create user
         $this->connection->executeQuery(sprintf(
-            'CREATE USER %s PASSWORD = \'xxxx\'',
-            SnowflakeQuote::quoteSingleIdentifier($userName)
+            'CREATE USER %s PASSWORD = %s',
+            SnowflakeQuote::quoteSingleIdentifier($userName),
+            SnowflakeQuote::quote(bin2hex(random_bytes(8)))
         ));
     }
 

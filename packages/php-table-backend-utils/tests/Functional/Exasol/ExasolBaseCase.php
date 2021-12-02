@@ -39,7 +39,6 @@ class ExasolBaseCase extends TestCase
         string $table = self::TABLE_GENERIC
     ): void {
         $this->createSchema($database);
-        // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
                 'CREATE OR REPLACE TABLE %s.%s (
@@ -112,8 +111,9 @@ class ExasolBaseCase extends TestCase
 
         // create user
         $this->connection->executeQuery(sprintf(
-            'CREATE USER %s IDENTIFIED BY "xxxx";',
-            ExasolQuote::quoteSingleIdentifier($userName)
+            'CREATE USER %s IDENTIFIED BY "%s";',
+            ExasolQuote::quoteSingleIdentifier($userName),
+            bin2hex(random_bytes(8))
         ));
     }
 

@@ -124,8 +124,9 @@ CREATE DATABASE %s AS
 
         // create user
         $this->connection->executeQuery(sprintf(
-            'CREATE USER %s AS PERM = 0 PASSWORD="xxxx" DEFAULT DATABASE = %s;',
+            'CREATE USER %s AS PERM = 0 PASSWORD="%s" DEFAULT DATABASE = %s;',
             TeradataQuote::quoteSingleIdentifier($userName),
+            TeradataQuote::quoteSingleIdentifier(bin2hex(random_bytes(8))),
             TeradataQuote::quoteSingleIdentifier($userName . 'DB')
         ));
     }
