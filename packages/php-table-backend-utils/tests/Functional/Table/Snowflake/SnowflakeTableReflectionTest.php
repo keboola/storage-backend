@@ -353,4 +353,65 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             true, // nullable
         ];
     }
+
+    public function testGetDependentViews(): void
+    {
+        $this->initTable();
+        // create extra table and view to check that it finds the one which we are looking for
+        $this->initTable(self::TEST_SCHEMA, 'newTable', false);
+
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        self::assertCount(0, $ref->getDependentViews());
+
+        $this->initView();
+        $this->initView('newView', 'newTable');
+
+        $dependentViews = $ref->getDependentViews();
+        self::assertCount(1, $dependentViews);
+
+        self::assertSame([
+            'schema_name' => self::TEST_SCHEMA,
+            'name' => self::VIEW_GENERIC,
+        ], $dependentViews[0]);
+    }
+
+    public function testGetDependentViewsInAnotherSchema(): void
+    {
+        $this->cleanSchema('anotherSchema');
+        $this->createSchema(self::TEST_SCHEMA);
+        // create extra table and view to check that it finds the one which we are looking for
+        $this->initTable('anotherSchema', 'tableInAnotherSchema');
+
+        $ref = new SnowflakeTableReflection($this->connection, 'anotherSchema', 'tableInAnotherSchema');
+
+        self::assertCount(0, $ref->getDependentViews());
+
+        $this->initView(self::VIEW_GENERIC, 'tableInAnotherSchema', self::TEST_SCHEMA, 'anotherSchema');
+
+        $dependentViews = $ref->getDependentViews();
+        self::assertCount(1, $dependentViews);
+
+        self::assertSame([
+            'schema_name' => self::TEST_SCHEMA,
+            'name' => self::VIEW_GENERIC,
+        ], $dependentViews[0]);
+    }
+
+    private function initView(
+        string $viewName = self::VIEW_GENERIC,
+        string $tableName = self::TABLE_GENERIC,
+        string $viewSchema = self::TEST_SCHEMA,
+        string $tableSchema = self::TEST_SCHEMA
+    ): void {
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE VIEW %s.%s AS SELECT * FROM %s.%s;',
+                SnowflakeQuote::quoteSingleIdentifier($viewSchema),
+                SnowflakeQuote::quoteSingleIdentifier($viewName),
+                SnowflakeQuote::quoteSingleIdentifier($tableSchema),
+                SnowflakeQuote::quoteSingleIdentifier($tableName)
+            )
+        );
+    }
 }

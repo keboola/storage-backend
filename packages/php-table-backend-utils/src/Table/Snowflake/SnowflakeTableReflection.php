@@ -119,8 +119,8 @@ final class SnowflakeTableReflection implements TableReflectionInterface
             ExasolQuote::quoteSingleIdentifier($this->schemaName)
         );
         $result = $this->connection->fetchAssociative($sql);
-
-        return new TableStats((int) $result['bytes'], $this->getRowsCount());
+        $bytes = $result ? (int) $result['bytes'] : 0;
+        return new TableStats($bytes, $this->getRowsCount());
     }
 
     public function isTemporary(): bool
@@ -137,7 +137,50 @@ final class SnowflakeTableReflection implements TableReflectionInterface
      */
     public function getDependentViews(): array
     {
-        // TODO
+        $databaseName = $this->connection->fetchOne('SELECT CURRENT_DATABASE()');
+        $views = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SHOW VIEWS IN DATABASE %s',
+                SnowflakeQuote::quoteSingleIdentifier($databaseName)
+            )
+        );
+
+        $dependentViews = [];
+        foreach ($views as $viewRow) {
+            // check that the tableName exists in DDL of the view
+            if (preg_match('/.*' . $this->tableName . '.*/i', $viewRow['text']) === 1) {
+                try {
+                    $dependentObjects = $this->connection->fetchAllAssociative(
+                        sprintf(
+                            '
+SELECT * FROM TABLE(get_object_references(database_name=>%s, SCHEMA_NAME=>%s, object_name=>%s))  
+WHERE REFERENCED_OBJECT_TYPE = %s 
+  AND REFERENCED_OBJECT_NAME = %s
+  AND REFERENCED_SCHEMA_NAME = %s
+  AND REFERENCED_DATABASE_NAME = %s
+  ',
+                            SnowflakeQuote::quoteSingleIdentifier($viewRow['database_name']),
+                            SnowflakeQuote::quoteSingleIdentifier($viewRow['schema_name']),
+                            SnowflakeQuote::quoteSingleIdentifier($viewRow['name']),
+                            SnowflakeQuote::quote('TABLE'),
+                            SnowflakeQuote::quote($this->tableName),
+                            SnowflakeQuote::quote($this->schemaName),
+                            SnowflakeQuote::quote($databaseName)
+                        )
+                    );
+
+                    if (count($dependentObjects)) {
+                        $dependentViews[] = [
+                            'schema_name' => $viewRow['schema_name'],
+                            'name' => $viewRow['name'],
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    continue;
+                }
+            }
+        }
+        return $dependentViews;
     }
 
 

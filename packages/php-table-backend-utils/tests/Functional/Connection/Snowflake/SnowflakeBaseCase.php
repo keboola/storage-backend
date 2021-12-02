@@ -40,9 +40,14 @@ class SnowflakeBaseCase extends TestCase
 
     protected function initTable(
         string $schema = self::TEST_SCHEMA,
-        string $table = self::TABLE_GENERIC
+        string $table = self::TABLE_GENERIC,
+        bool $createNewSchema = true
     ): void {
-        $this->createSchema($schema);
+        if ($createNewSchema) {
+            $this->createSchema($schema);
+        }
+
+        // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
                 'CREATE OR REPLACE TABLE %s.%s (
