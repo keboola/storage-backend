@@ -76,10 +76,7 @@ class SnowflakeConnection implements Connection
         throw new Exception('method is not implemented yet');
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function beginTransaction()
+    public function beginTransaction(): bool
     {
         if ($this->inTransaction()) {
             throw new DriverException('There is already an active transaction');
