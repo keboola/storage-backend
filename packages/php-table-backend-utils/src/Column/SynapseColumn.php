@@ -32,7 +32,7 @@ final class SynapseColumn implements ColumnInterface
      *     column_default:?string
      * } $dbResponse
      */
-    public static function createFromDB(array $dbResponse): ColumnInterface
+    public static function createFromDB(array $dbResponse): SynapseColumn
     {
         $type = strtoupper($dbResponse['column_type']);
         $length = $dbResponse['column_length'];
@@ -98,10 +98,7 @@ final class SynapseColumn implements ColumnInterface
         return new self($dbResponse['column_name'], $definition);
     }
 
-    /**
-     * @return SynapseColumn
-     */
-    public static function createGenericColumn(string $columnName): ColumnInterface
+    public static function createGenericColumn(string $columnName): SynapseColumn
     {
         $definition = new Synapse(
             Synapse::TYPE_NVARCHAR,

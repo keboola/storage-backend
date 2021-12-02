@@ -22,11 +22,7 @@ final class ExasolColumn implements ColumnInterface
         $this->columnDefinition = $columnDefinition;
     }
 
-    /**
-     * @param string $columnName
-     * @return ExasolColumn
-     */
-    public static function createGenericColumn(string $columnName): ColumnInterface
+    public static function createGenericColumn(string $columnName): ExasolColumn
     {
         $definition = new Exasol(
             Exasol::TYPE_VARCHAR,
@@ -59,7 +55,7 @@ final class ExasolColumn implements ColumnInterface
     /**
      * @inheritDoc
      */
-    public static function createFromDB(array $dbResponse): ColumnInterface
+    public static function createFromDB(array $dbResponse): ExasolColumn
     {
         $defaultValue = $dbResponse['COLUMN_DEFAULT'];
         return new ExasolColumn(

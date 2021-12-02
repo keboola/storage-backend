@@ -59,7 +59,7 @@ final class TeradataColumn implements ColumnInterface
     /**
      * @inheritDoc
      */
-    public static function createFromDB(array $dbResponse): ColumnInterface
+    public static function createFromDB(array $dbResponse): TeradataColumn
     {
         // TODO: Implement createFromDB() method.
         return self::createGenericColumn('tmp');

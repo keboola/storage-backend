@@ -58,7 +58,7 @@ final class SnowflakeColumn implements ColumnInterface
     /**
      * @inheritDoc
      */
-    public static function createFromDB(array $dbResponse): ColumnInterface
+    public static function createFromDB(array $dbResponse): SnowflakeColumn
     {
         $type = $dbResponse['type'];
         $default = $dbResponse['default'];
