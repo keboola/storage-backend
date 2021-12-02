@@ -29,11 +29,11 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         throw new \Exception('method is not implemented yet');
     }
 
-    public function getDropTableCommand(string $dbName, string $tableName): string
+    public function getDropTableCommand(string $schemaName, string $tableName): string
     {
         return sprintf(
             'DROP TABLE %s.%s',
-            TeradataQuote::quoteSingleIdentifier($dbName),
+            TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName)
         );
     }
@@ -50,11 +50,11 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         );
     }
 
-    public function getTruncateTableCommand(string $dbName, string $tableName): string
+    public function getTruncateTableCommand(string $schemaName, string $tableName): string
     {
         return sprintf(
             'DELETE %s.%s ALL',
-            TeradataQuote::quoteSingleIdentifier($dbName),
+            TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName)
         );
     }

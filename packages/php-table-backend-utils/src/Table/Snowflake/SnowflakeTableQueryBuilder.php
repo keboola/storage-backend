@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Keboola\TableBackendUtils\Table\Exasol;
+namespace Keboola\TableBackendUtils\Table\Snowflake;
 
-use Keboola\Datatype\Definition\Exasol;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
-use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableQueryBuilderInterface;
 
-class ExasolTableQueryBuilder implements TableQueryBuilderInterface
+class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 {
     private const INVALID_PKS_FOR_TABLE = 'invalidPKs';
     private const INVALID_TABLE_NAME = 'invalidTableName';
@@ -27,8 +27,8 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
     {
         return sprintf(
             'DROP TABLE %s.%s',
-            ExasolQuote::quoteSingleIdentifier($schemaName),
-            ExasolQuote::quoteSingleIdentifier($tableName)
+            SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            SnowflakeQuote::quoteSingleIdentifier($tableName)
         );
     }
 
@@ -37,20 +37,20 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         if (!$this->validateTableName($newTableName)) {
             throw new QueryBuilderException(
                 sprintf(
-                    'Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.',
+                    'Invalid table name %s: Only alphanumeric characters, underscores and dollar signs are allowed.',
                     $newTableName
                 ),
                 self::INVALID_TABLE_NAME
             );
         }
 
-        $quotedDbName = ExasolQuote::quoteSingleIdentifier($schemaName);
+        $quotedDbName = SnowflakeQuote::quoteSingleIdentifier($schemaName);
         return sprintf(
-            'RENAME TABLE %s.%s TO %s.%s',
+            'ALTER TABLE %s.%s RENAME TO %s.%s',
             $quotedDbName,
-            ExasolQuote::quoteSingleIdentifier($sourceTableName),
+            SnowflakeQuote::quoteSingleIdentifier($sourceTableName),
             $quotedDbName,
-            ExasolQuote::quoteSingleIdentifier($newTableName)
+            SnowflakeQuote::quoteSingleIdentifier($newTableName)
         );
     }
 
@@ -58,8 +58,8 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
     {
         return sprintf(
             'TRUNCATE TABLE %s.%s',
-            ExasolQuote::quoteSingleIdentifier($schemaName),
-            ExasolQuote::quoteSingleIdentifier($tableName)
+            SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            SnowflakeQuote::quoteSingleIdentifier($tableName)
         );
     }
 
@@ -75,25 +75,24 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         if (!$this->validateTableName($tableName)) {
             throw new QueryBuilderException(
                 sprintf(
-                    'Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.',
+                    'Invalid table name %s: Only alphanumeric characters, underscores and dollar signs are allowed.',
                     $tableName
                 ),
                 self::INVALID_TABLE_NAME
             );
         }
 
-        $columnNames = [];
         $columnsSqlDefinitions = [];
-        /** @var ExasolColumn $column */
+        $columnNames = [];
+        /** @var SnowflakeColumn $column */
         foreach ($columns->getIterator() as $column) {
             $columnName = $column->getColumnName();
             $columnNames[] = $columnName;
-            /** @var Exasol $columnDefinition */
+            /** @var Snowflake $columnDefinition */
             $columnDefinition = $column->getColumnDefinition();
 
-            // check if PK can be defined on selected columns
-            if ($primaryKeys && in_array($columnName, $primaryKeys, true)
-                && $columnDefinition->isNullable()) {
+            // add PK on nullable column is legal, but SNFLK will force it to non-nullable. So rather check it first
+            if ($primaryKeys && in_array($columnName, $primaryKeys, true) && $columnDefinition->isNullable()) {
                 throw new QueryBuilderException(
                     sprintf('Trying to set PK on column %s but this column is nullable', $columnName),
                     self::INVALID_PKS_FOR_TABLE
@@ -102,7 +101,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 
             $columnsSqlDefinitions[] = sprintf(
                 '%s %s',
-                ExasolQuote::quoteSingleIdentifier($columnName),
+                SnowflakeQuote::quoteSingleIdentifier($columnName),
                 $columnDefinition->getSQLDefinition()
             );
         }
@@ -122,9 +121,9 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         if ($primaryKeys) {
             $columnsSqlDefinitions[] =
                 sprintf(
-                    'CONSTRAINT PRIMARY KEY (%s)',
+                    'PRIMARY KEY (%s)',
                     implode(',', array_map(static function ($item) {
-                        return ExasolQuote::quoteSingleIdentifier($item);
+                        return SnowflakeQuote::quoteSingleIdentifier($item);
                     }, $primaryKeys))
                 );
         }
@@ -137,20 +136,20 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 (
 %s
 );',
-            ExasolQuote::quoteSingleIdentifier($schemaName),
-            ExasolQuote::quoteSingleIdentifier($tableName),
+            SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
             $columnsSql
         );
     }
 
     /**
-     * @param ExasolTableDefinition $definition
+     * @param SnowflakeTableDefinition $definition
      */
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
         bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
     ): string {
-        assert($definition instanceof ExasolTableDefinition);
+        assert($definition instanceof SnowflakeTableDefinition);
         return $this->getCreateTableCommand(
             $definition->getSchemaName(),
             $definition->getTableName(),
@@ -163,6 +162,6 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 
     private function validateTableName(string $tableName): bool
     {
-        return (bool) preg_match('/^[-_A-Za-z0-9]+$/', $tableName, $out);
+        return (bool) preg_match('/^[A-Za-z][_A-Za-z0-9$]*$/', $tableName, $out);
     }
 }
