@@ -66,6 +66,24 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         self::assertEquals(2, $ref->getRowsCount());
     }
 
+    public function testGetTableStats(): void
+    {
+        $this->initTable();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        $stats1 = $ref->getTableStats();
+        self::assertEquals(0, $stats1->getRowsCount());
+        self::assertEquals(0, $stats1->getDataSizeBytes()); // empty tables take up some space
+
+        $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
+        $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 2, 'karel', 'motycka');
+
+        /** @var TableStats $stats2 */
+        $stats2 = $ref->getTableStats();
+        self::assertEquals(2, $stats2->getRowsCount());
+        self::assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
+    }
+
     /**
      * @dataProvider tableColsDataProvider
      */

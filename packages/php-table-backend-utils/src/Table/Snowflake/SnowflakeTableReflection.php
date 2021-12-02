@@ -7,9 +7,11 @@ namespace Keboola\TableBackendUtils\Table\Snowflake;
 use Doctrine\DBAL\Connection;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
+use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
 
 final class SnowflakeTableReflection implements TableReflectionInterface
@@ -111,7 +113,14 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function getTableStats(): TableStatsInterface
     {
-        // TODO
+        $sql = sprintf(
+            'SHOW TABLES LIKE %s IN SCHEMA %s',
+            ExasolQuote::quote($this->tableName),
+            ExasolQuote::quoteSingleIdentifier($this->schemaName)
+        );
+        $result = $this->connection->fetchAssociative($sql);
+
+        return new TableStats((int) $result['bytes'], $this->getRowsCount());
     }
 
     public function isTemporary(): bool
