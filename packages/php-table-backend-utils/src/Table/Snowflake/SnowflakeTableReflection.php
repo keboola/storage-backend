@@ -26,16 +26,12 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     /** @var bool */
     private $isTemporary;
 
-    /** @var string */
-    private $dbName;
-
-    public function __construct(Connection $connection, string $dbName, string $schemaName, string $tableName)
+    public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
         $this->isTemporary = false;
 
         $this->tableName = $tableName;
         $this->schemaName = $schemaName;
-        $this->dbName = $dbName;
         $this->connection = $connection;
     }
 
@@ -47,7 +43,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $columnsData = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW COLUMNS IN %s',
-                SnowflakeQuote::createQuotedIdentifierFromParts([$this->dbName, $this->schemaName, $this->tableName,])
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,])
             )
         );
 
@@ -59,14 +55,13 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     public function getColumnsDefinitions(): ColumnCollection
     {
         $this->connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::createQuotedIdentifierFromParts([
-            $this->dbName,
             $this->schemaName,
         ])));
 
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'DESC TABLE %s',
-                SnowflakeQuote::createQuotedIdentifierFromParts([$this->dbName, $this->schemaName, $this->tableName,])
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,])
             )
         );
 
@@ -88,7 +83,6 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s',
             SnowflakeQuote::createQuotedIdentifierFromParts([
-                $this->dbName,
                 $this->schemaName,
                 $this->tableName,
             ])
@@ -106,7 +100,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW PRIMARY KEYS IN TABLE %s',
-                SnowflakeQuote::createQuotedIdentifierFromParts([$this->dbName, $this->schemaName, $this->tableName,])
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,])
             )
         );
 
