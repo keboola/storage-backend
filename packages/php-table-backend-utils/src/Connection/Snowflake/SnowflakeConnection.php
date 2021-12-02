@@ -82,7 +82,7 @@ class SnowflakeConnection implements Connection
     public function beginTransaction()
     {
         if ($this->inTransaction()) {
-            throw new DriverException('Transaction was already started');
+            throw new DriverException('There is already an active transaction');
         }
         return odbc_autocommit($this->conn, false);
     }
@@ -96,7 +96,7 @@ class SnowflakeConnection implements Connection
     public function commit(): bool
     {
         if (!$this->inTransaction()) {
-            throw new DriverException('Transaction was not started');
+            throw new DriverException('There is no active transaction');
         }
         return odbc_commit($this->conn) && odbc_autocommit($this->conn, true);
     }
@@ -104,7 +104,7 @@ class SnowflakeConnection implements Connection
     public function rollBack(): bool
     {
         if (!$this->inTransaction()) {
-            throw new DriverException('Transaction was not started');
+            throw new DriverException('There is no active transaction');
         }
         return odbc_rollback($this->conn) && odbc_autocommit($this->conn, true);
     }
