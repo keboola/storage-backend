@@ -16,11 +16,36 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 {
     private const INVALID_PKS_FOR_TABLE = 'invalidPKs';
     private const INVALID_TABLE_NAME = 'invalidTableName';
+    public const TEMP_TABLE_PREFIX = '__temp_';
 
     public function getCreateTempTableCommand(string $schemaName, string $tableName, ColumnCollection $columns): string
     {
-        // TODO: Implement getCreateTempTableCommand() method.
-        throw new \Exception('method is not implemented yet');
+        $this->assertTableName($tableName);
+        $tableName = self::TEMP_TABLE_PREFIX . $tableName;
+
+        $columnsSqlDefinitions = [];
+        /** @var SnowflakeColumn $column */
+        foreach ($columns->getIterator() as $column) {
+            /** @var Snowflake $columnDefinition */
+            $columnDefinition = $column->getColumnDefinition();
+            $columnsSqlDefinitions[] = sprintf(
+                '%s %s',
+                SnowflakeQuote::quoteSingleIdentifier($column->getColumnName()),
+                $columnDefinition->getSQLDefinition()
+            );
+        }
+
+        $columnsSql = implode(",\n", $columnsSqlDefinitions);
+
+        return sprintf(
+            'CREATE TEMPORARY TABLE %s.%s
+(
+%s
+);',
+            SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
+            $columnsSql
+        );
     }
 
     public function getDropTableCommand(string $schemaName, string $tableName): string
@@ -34,15 +59,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 
     public function getRenameTableCommand(string $schemaName, string $sourceTableName, string $newTableName): string
     {
-        if (!$this->validateTableName($newTableName)) {
-            throw new QueryBuilderException(
-                sprintf(
-                    'Invalid table name %s: Only alphanumeric characters, underscores and dollar signs are allowed.',
-                    $newTableName
-                ),
-                self::INVALID_TABLE_NAME
-            );
-        }
+        $this->assertTableName($newTableName);
 
         $quotedDbName = SnowflakeQuote::quoteSingleIdentifier($schemaName);
         return sprintf(
@@ -72,15 +89,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         ColumnCollection $columns,
         array $primaryKeys = []
     ): string {
-        if (!$this->validateTableName($tableName)) {
-            throw new QueryBuilderException(
-                sprintf(
-                    'Invalid table name %s: Only alphanumeric characters, underscores and dollar signs are allowed.',
-                    $tableName
-                ),
-                self::INVALID_TABLE_NAME
-            );
-        }
+        $this->assertTableName($tableName);
 
         $columnsSqlDefinitions = [];
         $columnNames = [];
@@ -160,8 +169,26 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         );
     }
 
-    private function validateTableName(string $tableName): bool
+    private function assertTableName(string $tableName): void
     {
-        return (bool) preg_match('/^[A-Za-z][_A-Za-z0-9$]*$/', $tableName, $out);
+        if (strpos($tableName, self::TEMP_TABLE_PREFIX) === 0) {
+            throw new QueryBuilderException(
+                sprintf(
+                    'Invalid table name %s: Table cannot start with __temp_ prefix',
+                    $tableName
+                ),
+                self::INVALID_TABLE_NAME
+            );
+        }
+
+        if (preg_match('/^[_A-Za-z][_A-Za-z0-9$]*$/', $tableName, $out) === 0) {
+            throw new QueryBuilderException(
+                sprintf(
+                    'Invalid table name %s: Only alphanumeric characters, underscores and dollar signs are allowed.',
+                    $tableName
+                ),
+                self::INVALID_TABLE_NAME
+            );
+        }
     }
 }

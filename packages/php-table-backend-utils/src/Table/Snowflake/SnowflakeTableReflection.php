@@ -30,7 +30,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
-        $this->isTemporary = false;
+        $this->isTemporary = strpos($tableName, SnowflakeTableQueryBuilder::TEMP_TABLE_PREFIX) === 0;
 
         $this->tableName = $tableName;
         $this->schemaName = $schemaName;

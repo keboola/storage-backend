@@ -132,6 +132,36 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
         $tableReflection = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertSame($expectedColumnNames, $tableReflection->getColumnsNames());
         self::assertSame($expectedPKs, $tableReflection->getPrimaryKeysNames());
+        self::assertFalse($tableReflection->isTemporary());
+    }
+
+    public function testCreateTempTable(): void
+    {
+        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->createSchema(self::TEST_SCHEMA);
+        $tableName = SnowflakeTableQueryBuilder::TEMP_TABLE_PREFIX . self::TABLE_GENERIC;
+        $sql = $this->qb->getCreateTempTableCommand(
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC,
+            new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('col1'),
+                SnowflakeColumn::createGenericColumn('col2'),
+            ])
+        );
+        self::assertSame(
+            'CREATE TEMPORARY TABLE "' . self::TEST_SCHEMA . '"."' . $tableName . '"
+(
+"col1" VARCHAR NOT NULL,
+"col2" VARCHAR NOT NULL
+);',
+            $sql
+        );
+        $this->connection->executeQuery($sql);
+
+        // test table properties
+        $tableReflection = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, $tableName);
+        self::assertTrue($tableReflection->isTemporary());
+        self::assertSame(['col1', 'col2'], $tableReflection->getColumnsNames());
     }
 
     /**
