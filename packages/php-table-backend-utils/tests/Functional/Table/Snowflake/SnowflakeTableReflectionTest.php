@@ -397,11 +397,11 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             'name' => self::VIEW_GENERIC,
         ], $dependentViews[0]);
     }
-    
+
 
     public function testDependenciesWithCaseSensitivity(): void
     {
-        $this->cleanSchema("TEST_UTIL_SCHEMA");
+        $this->cleanSchema('TEST_UTIL_SCHEMA');
         $this->initTable('TEST_UTIL_SCHEMA', 'case_sensitive'); // A
         $this->initTable('TEST_UTIL_SCHEMA', 'CASE_SENSITIVE', false); // B
 
@@ -411,10 +411,18 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         self::assertCount(0, $refA->getDependentViews());
         self::assertCount(0, $refB->getDependentViews());
 
-        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.A_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."case_sensitive";');
-        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER AS SELECT * FROM TEST_UTIL_SCHEMA.CASE_SENSITIVE;');
-        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."CASE_SENSITIVE";');
-        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_AUTO AS SELECT * FROM TEST_UTIL_SCHEMA.case_sensitive;');
+        $this->connection->executeQuery(
+            'CREATE VIEW TEST_UTIL_SCHEMA.A_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."case_sensitive";'
+        );
+        $this->connection->executeQuery(
+            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER AS SELECT * FROM TEST_UTIL_SCHEMA.CASE_SENSITIVE;'
+        );
+        $this->connection->executeQuery(
+            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."CASE_SENSITIVE";'
+        );
+        $this->connection->executeQuery(
+            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_AUTO AS SELECT * FROM TEST_UTIL_SCHEMA.case_sensitive;'
+        );
 
         $dependentViewsA = $refA->getDependentViews();
         self::assertCount(1, $dependentViewsA);
@@ -429,7 +437,8 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
                     'name' => 'A_ESCAPED',
                 ],
             ],
-            $dependentViewsA);
+            $dependentViewsA
+        );
 
         self::assertSame(
             [
@@ -446,7 +455,8 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
                     'name' => 'B_UPPER_ESCAPED',
                 ],
             ],
-            $dependentViewsB);
+            $dependentViewsB
+        );
     }
 
     public function testGetDependentViewsInAnotherSchema(): void
