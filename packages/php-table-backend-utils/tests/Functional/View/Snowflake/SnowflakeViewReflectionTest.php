@@ -60,7 +60,8 @@ class SnowflakeViewReflectionTest extends SnowflakeBaseCase
         $this->initTable();
         $this->initView(self::VIEW_GENERIC, self::TABLE_GENERIC);
         $viewRef = new SnowflakeViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
-        self::assertEquals('CREATE VIEW "utilsTest_refView" AS SELECT * FROM "utilsTest_refTableSchema"."utilsTest_refTab";',
+        self::assertEquals(
+            'CREATE VIEW "utilsTest_refView" AS SELECT * FROM "utilsTest_refTableSchema"."utilsTest_refTab";',
             $viewRef->getViewDefinition()
         );
     }

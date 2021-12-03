@@ -7,6 +7,7 @@ namespace Keboola\TableBackendUtils\View\Snowflake;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\View\InvalidViewDefinitionException;
 use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 
@@ -37,29 +38,23 @@ final class SnowflakeViewReflection implements ViewReflectionInterface
      */
     public function getDependentViews(): array
     {
-        $sql = sprintf(
-            '
-SELECT 
-    "OBJECT_SCHEMA" AS "schema_name", 
-    "OBJECT_NAME" AS "name" 
-FROM "SYS"."EXA_ALL_DEPENDENCIES"  
-WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
-            SnowflakeQuote::quote($this->schemaName),
-            SnowflakeQuote::quote($this->viewName)
+        return SnowflakeTableReflection::getDependentViewsForObject(
+            $this->connection,
+            $this->viewName,
+            $this->schemaName,
+            SnowflakeTableReflection::DEPENDENT_OBJECT_VIEW
         );
-
-        return $this->connection->fetchAllAssociative($sql);
     }
 
     public function getViewDefinition(): string
     {
-        $sql = sprintf(
+        $result = $this->connection->fetchAssociative(sprintf(
             'SHOW VIEWS LIKE %s IN %s',
             SnowflakeQuote::quote($this->viewName),
             SnowflakeQuote::quoteSingleIdentifier($this->schemaName)
-        );
+        ));
 
-        return $this->connection->fetchAssociative($sql)['text'] ?? '';
+        return $result ? $result['text'] : '';
     }
 
     public function refreshView(): void

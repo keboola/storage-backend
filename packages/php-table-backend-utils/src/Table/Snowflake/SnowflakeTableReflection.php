@@ -17,6 +17,9 @@ use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 
 final class SnowflakeTableReflection implements TableReflectionInterface
 {
+    public const DEPENDENT_OBJECT_TABLE = 'TABLE';
+    public const DEPENDENT_OBJECT_VIEW = 'VIEW';
+
     /** @var Connection */
     private $connection;
 
@@ -157,10 +160,14 @@ final class SnowflakeTableReflection implements TableReflectionInterface
      *  name: string
      * }[]
      */
-    public function getDependentViews(): array
-    {
-        $databaseName = $this->connection->fetchOne('SELECT CURRENT_DATABASE()');
-        $views = $this->connection->fetchAllAssociative(
+    public static function getDependentViewsForObject(
+        Connection $connection,
+        string $objectName,
+        string $schemaName,
+        string $objectType = self::DEPENDENT_OBJECT_TABLE
+    ): array {
+        $databaseName = $connection->fetchOne('SELECT CURRENT_DATABASE()');
+        $views = $connection->fetchAllAssociative(
             sprintf(
                 'SHOW VIEWS IN DATABASE %s',
                 SnowflakeQuote::quoteSingleIdentifier($databaseName)
@@ -170,9 +177,9 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $dependentViews = [];
         foreach ($views as $viewRow) {
             // check that the tableName exists in DDL of the view
-            if (preg_match('/.*' . $this->tableName . '.*/i', $viewRow['text']) === 1) {
+            if (preg_match('/.*' . $objectName . '.*/i', $viewRow['text']) === 1) {
                 try {
-                    $dependentObjects = $this->connection->fetchAllAssociative(
+                    $dependentObjects = $connection->fetchAllAssociative(
                         sprintf(
                             '
 SELECT * FROM TABLE(get_object_references(database_name=>%s, SCHEMA_NAME=>%s, object_name=>%s))  
@@ -184,9 +191,9 @@ WHERE REFERENCED_OBJECT_TYPE = %s
                             SnowflakeQuote::quoteSingleIdentifier($viewRow['database_name']),
                             SnowflakeQuote::quoteSingleIdentifier($viewRow['schema_name']),
                             SnowflakeQuote::quoteSingleIdentifier($viewRow['name']),
-                            SnowflakeQuote::quote('TABLE'),
-                            SnowflakeQuote::quote($this->tableName),
-                            SnowflakeQuote::quote($this->schemaName),
+                            SnowflakeQuote::quote($objectType),
+                            SnowflakeQuote::quote($objectName),
+                            SnowflakeQuote::quote($schemaName),
                             SnowflakeQuote::quote($databaseName)
                         )
                     );
@@ -205,6 +212,17 @@ WHERE REFERENCED_OBJECT_TYPE = %s
         return $dependentViews;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     * array{
+     *  schema_name: string,
+     *  name: string
+     * }[]
+     */
+    public function getDependentViews(): array
+    {
+        return self::getDependentViewsForObject($this->connection, $this->tableName, $this->schemaName, 'TABLE');
+    }
 
     public function getTableDefinition(): TableDefinitionInterface
     {
