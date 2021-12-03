@@ -27,7 +27,7 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $likeSql .= sprintf(
                 ' LIKE %s',
-                SnowflakeQuote::quote('%'.$like.'%')
+                SnowflakeQuote::quote('%' . $like . '%')
             );
         }
 
@@ -50,7 +50,7 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $likeSql .= sprintf(
                 ' LIKE %s',
-                SnowflakeQuote::quote('%'.$like.'%')
+                SnowflakeQuote::quote('%' . $like . '%')
             );
         }
 
