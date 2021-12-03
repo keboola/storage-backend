@@ -129,13 +129,17 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     public function getTableStats(): TableStatsInterface
     {
         $sql = sprintf(
-            'SHOW TABLES LIKE %s IN SCHEMA %s',
+            'SHOW TABLES LIKE %s IN SCHEMA %s STARTS WITH %s',
             ExasolQuote::quote($this->tableName),
-            ExasolQuote::quoteSingleIdentifier($this->schemaName)
+            ExasolQuote::quoteSingleIdentifier($this->schemaName),
+            ExasolQuote::quote($this->tableName)
         );
         $result = $this->connection->fetchAssociative($sql);
-        $bytes = $result ? (int) $result['bytes'] : 0;
-        return new TableStats($bytes, $this->getRowsCount());
+        if (!$result) {
+            throw new TableNotExistsReflectionException('Table does not exist');
+        }
+
+        return new TableStats((int) $result['bytes'], $this->getRowsCount());
     }
 
     public function isTemporary(): bool

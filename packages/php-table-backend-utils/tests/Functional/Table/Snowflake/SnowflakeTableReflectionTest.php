@@ -80,6 +80,14 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         self::assertEquals(2, $ref->getRowsCount());
     }
 
+    public function testGetTableStatsWithWrongCase(): void
+    {
+        // check upper case because SHOW TABLES is case-insensitive
+        $this->initTable();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, strtoupper(self::TABLE_GENERIC));
+        $this->expectException(TableNotExistsReflectionException::class);
+        $ref->getTableStats();
+    }
     public function testGetTableStats(): void
     {
         $this->initTable();
