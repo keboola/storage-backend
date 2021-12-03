@@ -13,6 +13,7 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 
 final class SnowflakeTableReflection implements TableReflectionInterface
 {
@@ -39,9 +40,11 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     {
         $row = $this->connection->fetchAssociative(
             sprintf(
-                'SHOW TABLES LIKE %s IN %s',
+                // STARTS WITH is added because it is case-sensitive
+                'SHOW TABLES LIKE %s IN %s STARTS WITH %s ',
                 SnowflakeQuote::quote($this->tableName),
-                SnowflakeQuote::quoteSingleIdentifier($this->schemaName)
+                SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+                SnowflakeQuote::quote($this->tableName)
             )
         );
 
@@ -49,7 +52,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
             return $row['kind'] === 'TEMPORARY';
         }
 
-        throw new \LogicException('Cannot detect if table is temporary or not');
+        throw new TableNotExistsReflectionException('Cannot detect if table is temporary or not. Table does not exist');
     }
 
     /**
@@ -59,6 +62,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     {
         $columnsData = $this->connection->fetchAllAssociative(
             sprintf(
+                // case-sensitive
                 'SHOW COLUMNS IN %s',
                 SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,])
             )

@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
 
 /**
@@ -27,6 +28,18 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
     }
 
     public function testGetTableColumnsNames(): void
+    {
+        $this->initTable();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        self::assertSame([
+            'id',
+            'first_name',
+            'last_name',
+        ], $ref->getColumnsNames());
+    }
+
+    public function testGetTableColumnsNamesCase(): void
     {
         $this->initTable();
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
@@ -419,6 +432,17 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         );
         $refTemp = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, $tableName);
         self::assertTrue($refTemp->isTemporary());
+    }
+
+    public function testDetectTempTableWithWrongCase(): void
+    {
+        // create table. it is escaped so lower case
+        $this->initTable();
+
+        // check upper case because SHOW TABLES is case-insensitive
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, strtoupper(self::TABLE_GENERIC));
+        $this->expectException(TableNotExistsReflectionException::class);
+        self::assertFalse($ref->isTemporary());
     }
 
     private function initView(
