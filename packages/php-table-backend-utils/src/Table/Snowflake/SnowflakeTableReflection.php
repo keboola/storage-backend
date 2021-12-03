@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Table\Snowflake;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
@@ -34,11 +33,9 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $this->tableName = $tableName;
         $this->schemaName = $schemaName;
         $this->connection = $connection;
-
-        $this->setIsTemporary();
     }
 
-    private function setIsTemporary(): void
+    private function setIsTemporary(): bool
     {
         $row = $this->connection->fetchAssociative(
             sprintf(
@@ -49,8 +46,10 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         );
 
         if ($row) {
-            $this->isTemporary = $row['kind'] === 'TEMPORARY';
+            return $row['kind'] === 'TEMPORARY';
         }
+
+        throw new \LogicException('Cannot detect if table is temporary or not');
     }
 
     /**
@@ -137,6 +136,9 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function isTemporary(): bool
     {
+        if ($this->isTemporary === null) {
+            $this->isTemporary = $this->setIsTemporary();
+        }
         return $this->isTemporary;
     }
 
