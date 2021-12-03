@@ -69,19 +69,28 @@ class SnowflakeViewReflectionTest extends SnowflakeBaseCase
 
     public function testRefreshView(): void
     {
+        // create table A
         $this->initTable();
+        // create view V from table A
         $this->initView(self::VIEW_GENERIC, self::TABLE_GENERIC);
-        // add new column
+        // add new column to table A
         $this->connection->executeQuery(sprintf(
             'ALTER TABLE %s ADD COLUMN "xxx" VARCHAR(300) NULL;',
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
+        // check that table A has new column (3->4)
         $tableRef = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertCount(4, $tableRef->getColumnsNames());
-        $viewRef = new SnowflakeViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+
+        // check that view V has not the new column yet
         $viewTableRef = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         self::assertCount(3, $viewTableRef->getColumnsNames());
+
+        // refresh the view V
+        $viewRef = new SnowflakeViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         $viewRef->refreshView();
+
+        // check that view V has the new column
         $tableRef = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         self::assertCount(4, $tableRef->getColumnsNames());
     }

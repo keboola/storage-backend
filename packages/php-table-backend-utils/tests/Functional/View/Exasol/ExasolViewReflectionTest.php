@@ -84,7 +84,7 @@ EOT
             ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
         $tableRef = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
-        // TODO the view is updated as soon as it gets compiled again
+        // the view is updated as soon as it gets compiled again
         self::assertCount(4, $tableRef->getColumnsNames());
         $viewRef = new ExasolViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         $viewRef->refreshView();
