@@ -54,12 +54,12 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
     public function getViewDefinition(): string
     {
         $sql = sprintf(
-            'SELECT "VIEW_TEXT" FROM "SYS"."EXA_ALL_VIEWS"  WHERE "VIEW_SCHEMA" = %s AND "VIEW_NAME" = %s',
-            SnowflakeQuote::quote($this->schemaName),
-            SnowflakeQuote::quote($this->viewName)
+            'SHOW VIEWS LIKE %s IN %s',
+            SnowflakeQuote::quote($this->viewName),
+            SnowflakeQuote::quoteSingleIdentifier($this->schemaName)
         );
 
-        return $this->connection->fetchOne($sql);
+        return $this->connection->fetchAssociative($sql)['text'] ?? '';
     }
 
     public function refreshView(): void
