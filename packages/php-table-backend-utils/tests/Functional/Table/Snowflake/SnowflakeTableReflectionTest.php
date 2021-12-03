@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
@@ -396,6 +397,28 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             'schema_name' => self::TEST_SCHEMA,
             'name' => self::VIEW_GENERIC,
         ], $dependentViews[0]);
+    }
+
+    public function testDetectTempTable(): void
+    {
+        // init table first because of init of schema
+        $this->initTable();
+
+        // check temp table on normal table
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertFalse($ref->isTemporary());
+
+        // check temp table on TEMP table
+        $tableName = 'tableWhichDoesntLookLikeTemp';
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE TEMPORARY TABLE %s.%s (id INT)',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier($tableName)
+            )
+        );
+        $refTemp = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, $tableName);
+        self::assertTrue($refTemp->isTemporary());
     }
 
     private function initView(

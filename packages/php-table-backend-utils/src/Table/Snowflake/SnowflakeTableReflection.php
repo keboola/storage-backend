@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Table\Snowflake;
 
 use Doctrine\DBAL\Connection;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
@@ -30,11 +31,26 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
-        $this->isTemporary = strpos($tableName, SnowflakeTableQueryBuilder::TEMP_TABLE_PREFIX) === 0;
-
         $this->tableName = $tableName;
         $this->schemaName = $schemaName;
         $this->connection = $connection;
+
+        $this->setIsTemporary();
+    }
+
+    private function setIsTemporary(): void
+    {
+        $row = $this->connection->fetchAssociative(
+            sprintf(
+                'SHOW TABLES LIKE %s IN %s',
+                SnowflakeQuote::quote($this->tableName),
+                SnowflakeQuote::quoteSingleIdentifier($this->schemaName)
+            )
+        );
+
+        if ($row) {
+            $this->isTemporary = $row['kind'] === 'TEMPORARY';
+        }
     }
 
     /**
@@ -56,10 +72,6 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function getColumnsDefinitions(): ColumnCollection
     {
-        $this->connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::createQuotedIdentifierFromParts([
-            $this->schemaName,
-        ])));
-
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'DESC TABLE %s',
