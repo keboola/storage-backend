@@ -397,6 +397,57 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             'name' => self::VIEW_GENERIC,
         ], $dependentViews[0]);
     }
+    
+
+    public function testDependenciesWithCaseSensitivity(): void
+    {
+        $this->cleanSchema("TEST_UTIL_SCHEMA");
+        $this->initTable('TEST_UTIL_SCHEMA', 'case_sensitive'); // A
+        $this->initTable('TEST_UTIL_SCHEMA', 'CASE_SENSITIVE', false); // B
+
+        $refA = new SnowflakeTableReflection($this->connection, 'TEST_UTIL_SCHEMA', 'case_sensitive');
+        $refB = new SnowflakeTableReflection($this->connection, 'TEST_UTIL_SCHEMA', 'CASE_SENSITIVE');
+
+        self::assertCount(0, $refA->getDependentViews());
+        self::assertCount(0, $refB->getDependentViews());
+
+        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.A_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."case_sensitive";');
+        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER AS SELECT * FROM TEST_UTIL_SCHEMA.CASE_SENSITIVE;');
+        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."CASE_SENSITIVE";');
+        $this->connection->executeQuery('CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_AUTO AS SELECT * FROM TEST_UTIL_SCHEMA.case_sensitive;');
+
+        $dependentViewsA = $refA->getDependentViews();
+        self::assertCount(1, $dependentViewsA);
+
+        $dependentViewsB = $refB->getDependentViews();
+        self::assertCount(3, $dependentViewsB);
+
+        self::assertSame(
+            [
+                [
+                    'schema_name' => 'TEST_UTIL_SCHEMA',
+                    'name' => 'A_ESCAPED',
+                ],
+            ],
+            $dependentViewsA);
+
+        self::assertSame(
+            [
+                [
+                    'schema_name' => 'TEST_UTIL_SCHEMA',
+                    'name' => 'B_UPPER',
+                ],
+                [
+                    'schema_name' => 'TEST_UTIL_SCHEMA',
+                    'name' => 'B_UPPER_AUTO',
+                ],
+                [
+                    'schema_name' => 'TEST_UTIL_SCHEMA',
+                    'name' => 'B_UPPER_ESCAPED',
+                ],
+            ],
+            $dependentViewsB);
+    }
 
     public function testGetDependentViewsInAnotherSchema(): void
     {
