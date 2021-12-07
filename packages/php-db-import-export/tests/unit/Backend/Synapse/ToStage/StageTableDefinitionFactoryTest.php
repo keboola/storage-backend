@@ -58,6 +58,49 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         );
     }
 
+    public function testCreateStagingTableDefinitionReplicate(): void
+    {
+        $definition = new SynapseTableDefinition(
+            'schema',
+            'table',
+            false,
+            new ColumnCollection([
+                new SynapseColumn('name', new Synapse(Synapse::TYPE_DATE)),
+                SynapseColumn::createGenericColumn('id'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
+            $definition,
+            ['id', 'name', 'notInDef']
+        );
+
+        self::assertSame('schema', $stageDefinition->getSchemaName());
+        self::assertStringStartsWith('#__temp_csvimport', $stageDefinition->getTableName());
+        self::assertTrue($stageDefinition->isTemporary());
+        // order same as source
+        self::assertSame(['id', 'name', 'notInDef'], $stageDefinition->getColumnsNames());
+        /** @var SynapseColumn[] $definitions */
+        $definitions = iterator_to_array($stageDefinition->getColumnsDefinitions());
+        // id is NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[0]->getColumnDefinition()->getType());
+        // name is DATE
+        self::assertSame(Synapse::TYPE_DATE, $definitions[1]->getColumnDefinition()->getType());
+        // notInDef has default NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
+        self::assertSame(
+            TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
+            $stageDefinition->getTableDistribution()->getDistributionName()
+        );
+        // index is heap
+        self::assertSame(
+            TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
+            $stageDefinition->getTableIndex()->getIndexType()
+        );
+    }
+
     public function testCreateStagingTableDefinitionWithClusteredColumnstore(): void
     {
         $definition = new SynapseTableDefinition(
@@ -167,6 +210,47 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
+            $definition,
+            ['id', 'name', 'notInDef']
+        );
+
+        self::assertSame('schema', $stageDefinition->getSchemaName());
+        self::assertStringStartsWith('#__temp_csvimport', $stageDefinition->getTableName());
+        self::assertTrue($stageDefinition->isTemporary());
+        // order same as source
+        self::assertSame(['id', 'name', 'notInDef'], $stageDefinition->getColumnsNames());
+        /** @var SynapseColumn[] $definitions */
+        $definitions = iterator_to_array($stageDefinition->getColumnsDefinitions());
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[0]->getColumnDefinition()->getType());
+        // name is in table as NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[1]->getColumnDefinition()->getType());
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
+        self::assertSame(
+            TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
+            $stageDefinition->getTableDistribution()->getDistributionName()
+        );
+        // index is heap
+        self::assertSame(
+            TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
+            $stageDefinition->getTableIndex()->getIndexType()
+        );
+    }
+
+    public function testCreateStagingTableDefinitionWithTextReplicate(): void
+    {
+        $definition = new SynapseTableDefinition(
+            'schema',
+            'table',
+            false,
+            new ColumnCollection([
+                new SynapseColumn('name', new Synapse(Synapse::TYPE_DATE)),
+                SynapseColumn::createGenericColumn('id'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE),
             new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
