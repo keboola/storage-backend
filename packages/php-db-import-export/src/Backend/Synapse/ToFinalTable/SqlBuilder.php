@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable;
 
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Synapse;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
@@ -539,6 +540,7 @@ class SqlBuilder
         /** @var SynapseColumn $column */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $column) {
             $destinationColumn = null;
+            // case sensitive search
             /** @var SynapseColumn $col */
             foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
                 if ($col->getColumnName() === $column->getColumnName()) {
@@ -546,7 +548,37 @@ class SqlBuilder
                     break;
                 }
             }
-            assert($destinationColumn !== null);
+            if ($destinationColumn === null) {
+                // case insensitive search
+                /** @var SynapseColumn $col */
+                foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
+                    if (strtolower($col->getColumnName()) === strtolower($column->getColumnName())) {
+                        if ($destinationColumn !== null) {
+                            throw new Exception(
+                                sprintf(
+                                    // phpcs:ignore
+                                    'Multiple columns "%s, %s" exists with same name but non exactly match expected "%s".',
+                                    $destinationColumn->getColumnName(),
+                                    $col->getColumnName(),
+                                    $column->getColumnName()
+                                ),
+                                Exception::UNKNOWN_ERROR
+                            );
+                        }
+                        $destinationColumn = $col;
+                    }
+                }
+            }
+            if ($destinationColumn === null) {
+                throw new Exception(
+                    sprintf(
+                        'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
+                        $column->getColumnName(),
+                        implode(', ', $destinationTableDefinition->getColumnsNames())
+                    ),
+                    Exception::UNKNOWN_ERROR
+                );
+            }
             $columnTypeDefinition = $this->getColumnTypeSqlDefinition($destinationColumn);
             if (in_array($column->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSetSql[] = $this->getCTASColumnSetSQLWithConvertEmptyValues(

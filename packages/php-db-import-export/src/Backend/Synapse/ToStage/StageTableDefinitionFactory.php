@@ -8,6 +8,7 @@ use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\ImportExport\Backend\Synapse\Helper\BackendHelper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 
@@ -59,7 +60,7 @@ final class StageTableDefinitionFactory
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames(),
-            $destination->getTableDistribution(),
+            self::resolveDistribution($destination->getTableDistribution()),
             $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
         );
     }
@@ -105,7 +106,7 @@ final class StageTableDefinitionFactory
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames(),
-            $destination->getTableDistribution(),
+            self::resolveDistribution($destination->getTableDistribution()),
             $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
         );
     }
@@ -121,5 +122,17 @@ final class StageTableDefinitionFactory
             return $indexDefinition->getIndexedColumnsNames();
         }
         return null;
+    }
+
+    private static function resolveDistribution(
+        TableDistributionDefinition $distribution
+    ): TableDistributionDefinition {
+        //phpcs:ignore
+        $isReplicateTable = $distribution->getDistributionName() === TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE;
+        if ($isReplicateTable) {
+            // If table distribution is REPLICATE use ROUND_ROBIN as distribution for temp tables can't be REPLICATE
+            return new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN);
+        }
+        return $distribution;
     }
 }
