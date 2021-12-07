@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\SynapseNext;
 
 use DateTime;
 use Keboola\Datatype\Definition\Synapse;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
@@ -1021,6 +1022,106 @@ EOT
         $sql = $this->getBuilder()->getCommitTransaction();
         self::assertSame('COMMIT', $sql);
         $this->connection->exec($sql);
+    }
+
+    /**
+     * @return \Generator<string, array<mixed>>
+     */
+    public function ctasFunctionsProvider(): \Generator
+    {
+        yield 'getCtasDedupCommand' => [
+            'getCtasDedupCommand',
+        ];
+        yield 'getCTASInsertAllIntoTargetTableCommand' => [
+            'getCTASInsertAllIntoTargetTableCommand',
+        ];
+    }
+
+    /**
+     * @dataProvider ctasFunctionsProvider
+     */
+    public function testCtasCommandFailOnMissingColumns(string $function): void
+    {
+        $stage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createGenericColumn('pk1'),
+                $this->createGenericColumn('pk2'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        $destination = new SynapseTableDefinition(
+            'schema',
+            'tableDest',
+            false,
+            new ColumnCollection([
+                $this->createGenericColumn('pk1'),
+                $this->createGenericColumn('notExists'),
+            ]),
+            ['pk1'],
+            $stage->getTableDistribution(),
+            $stage->getTableIndex()
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            'Columns "pk2" can be imported as it was not found between columns "pk1, notExists" of destination table.'
+        );
+        $this->getBuilder()->$function(
+            $stage,
+            $destination,
+            new SynapseImportOptions(),
+            '2020-01-01 00:00:00'
+        );
+    }
+
+    /**
+     * @dataProvider ctasFunctionsProvider
+     */
+    public function testCtasCommandFailOnMultipleColumns(string $function): void
+    {
+        $stage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createGenericColumn('pk1'),
+                $this->createGenericColumn('pk2'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        $destination = new SynapseTableDefinition(
+            'schema',
+            'tableDest',
+            false,
+            new ColumnCollection([
+                $this->createGenericColumn('pk1'),
+                $this->createGenericColumn('PK2'),
+                $this->createGenericColumn('Pk2'),
+            ]),
+            ['pk1'],
+            $stage->getTableDistribution(),
+            $stage->getTableIndex()
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            'Multiple columns "PK2, Pk2" exists with same name but non exactly match expected "pk2".'
+        );
+        $this->getBuilder()->$function(
+            $stage,
+            $destination,
+            new SynapseImportOptions(),
+            '2020-01-01 00:00:00'
+        );
     }
 
     /**
