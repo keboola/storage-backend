@@ -1925,6 +1925,149 @@ EOT
         $this->assertColumnsDefinitions($resultColumns, $destination, $options);
     }
 
+    public function testGetCTASInsertAllIntoTargetTableCommandSourceToDestinationNumeric(): void
+    {
+        $this->createTestSchema();
+        $qb = new SynapseTableQueryBuilder();
+        $this->connection->exec($qb->getCreateTableCommandFromDefinition($this->getStagingTableDefinition()));
+        $this->connection->exec(
+            sprintf(
+                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
+                self::TEST_SCHEMA_QUOTED,
+                self::TEST_STAGING_TABLE
+            )
+        );
+        $this->connection->exec(
+            sprintf(
+                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
+                self::TEST_SCHEMA_QUOTED,
+                self::TEST_STAGING_TABLE
+            )
+        );
+        $this->connection->exec(
+            sprintf(
+                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
+                self::TEST_SCHEMA_QUOTED,
+                self::TEST_STAGING_TABLE
+            )
+        );
+
+        $this->connection->exec(
+            sprintf(
+                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'0\',NULL)',
+                // ^ insert 0 not empty string, empty string would fail
+                self::TEST_SCHEMA_QUOTED,
+                self::TEST_STAGING_TABLE
+            )
+        );
+        $destination = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                $this->createGenericColumn('pk1'),
+                new SynapseColumn(
+                    'col1',
+                    new Synapse(
+                        Synapse::TYPE_NUMERIC, //<-- use numeric
+                        [
+                            'nullable' => true,
+                            'length' => '18,0',
+                        ]
+                    )
+                ),
+                new SynapseColumn(
+                    'col2',
+                    new Synapse(
+                        Synapse::TYPE_NUMERIC, //<-- use numeric
+                        [
+                            'nullable' => true,
+                            'length' => '18,0',
+                        ]
+                    )
+                ),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createGenericColumn('col1'),
+                $this->createGenericColumn('col2'),
+                $this->createGenericColumn('pk1', false),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        // convert col1 to null
+        $options = new SynapseImportOptions(
+            ['col1'],
+            false,
+            false,
+            0,
+            SynapseImportOptions::CREDENTIALS_SAS,
+            SynapseImportOptions::TEMP_TABLE_HEAP,
+            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
+            SynapseImportOptions::TABLE_TYPES_CAST
+        );
+        $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $destination,
+            $options,
+            '2020-01-01 00:00:00'
+        );
+        $this->assertEquals(
+        // phpcs:ignore
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST([col1] as NUMERIC(18,0)) AS [col1],CAST([col2] as NUMERIC(18,0)) AS [col2],COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
+            $sql
+        );
+        $out = $this->connection->executeStatement($sql);
+        $this->assertEquals(4, $out);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEqualsCanonicalizing([
+            [
+                'col1' => '1',
+                'col2' => '1',
+                'pk1' => '1',
+            ],
+            [
+                'col1' => '1',
+                'col2' => '1',
+                'pk1' => '1',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '2',
+                'pk1' => '2',
+            ],
+            [
+                'col1' => null,
+                'col2' => '0',
+                'pk1' => '2',
+            ],
+        ], $result);
+
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
+        $resultColumns = $ref->getColumnsDefinitions();
+        $this->assertColumnsDefinitions($resultColumns, $destination, $options);
+    }
+
     private function createIntColumn(string $columnName): SynapseColumn
     {
         $definition = new Synapse(
@@ -1957,7 +2100,7 @@ EOT
         } else {
             $columns[] = $this->createGenericColumn('id');
         }
-        $columns[] = $this->createGenericColumn('col1');
+        $columns[] = $this->createGenericColumn('col1', false);
         if ($overwriteColumn2 === null) {
             $columns[] = $this->createGenericColumn('col2');
         } else {
