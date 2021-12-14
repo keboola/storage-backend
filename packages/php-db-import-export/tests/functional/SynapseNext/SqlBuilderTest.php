@@ -2100,7 +2100,7 @@ EOT
         } else {
             $columns[] = $this->createGenericColumn('id');
         }
-        $columns[] = $this->createGenericColumn('col1', false);
+        $columns[] = $this->createGenericColumn('col1');
         if ($overwriteColumn2 === null) {
             $columns[] = $this->createGenericColumn('col2');
         } else {
