@@ -9,7 +9,7 @@ set -o pipefail         # Use last non-zero exit code in a pipeline
 
 createDb(){
       DATE=`date +%s`
-      curl -X 'POST' \
+      curl -s -X 'POST' \
       "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases" \
       -H 'accept: application/json' \
       -H "Authorization: Bearer $EXA_SAAS_TOKEN" \
@@ -27,7 +27,7 @@ createDb(){
 
 deleteDb(){
       DATE=`date +%s`
-      curl -X 'DELETE' \
+      curl -s -X 'DELETE' \
       "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$EXASOL_DB_ID" \
       -H 'accept: application/json' \
       -H "Authorization: Bearer $EXA_SAAS_TOKEN" \
@@ -36,13 +36,13 @@ deleteDb(){
 
 
 getDb(){
-    curl -X GET "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$1" -H "accept: application/json" -H "Authorization: Bearer $EXA_SAAS_TOKEN"
+    curl -s -X GET "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$1" -H "accept: application/json" -H "Authorization: Bearer $EXA_SAAS_TOKEN"
 }
 getClusters(){
-    curl -X GET "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$1/clusters" -H "accept: application/json" -H "Authorization: Bearer $EXA_SAAS_TOKEN"
+    curl -s -X GET "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$1/clusters" -H "accept: application/json" -H "Authorization: Bearer $EXA_SAAS_TOKEN"
 }
 getConnectionData(){
-    curl -X GET "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$1/clusters/$2/connect" -H "accept: application/json" -H "Authorization: Bearer $EXA_SAAS_TOKEN"
+    curl -s -X GET "$EXA_SAAS_HOST/api/v1/accounts/$EXA_SAAS_USER_ID/databases/$1/clusters/$2/connect" -H "accept: application/json" -H "Authorization: Bearer $EXA_SAAS_TOKEN"
 }
 
 getDbStatus(){
@@ -80,6 +80,7 @@ waitForCreate(){
     local runtime="30 minute"
     local endtime=$(date -ud "$runtime" +%s)
     local newDbId=$(createDbWithId)
+    echo "Starting new db with id: "${newDbId}
     while [[ $(date -u +%s) -le ${endtime} ]]
     do
         local status=$(getDbStatus $newDbId)
