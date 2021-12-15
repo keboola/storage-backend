@@ -605,7 +605,7 @@ class SqlBuilder
         string $columnTypeDefinition,
         SynapseColumn $destinationColumn
     ): string {
-        if ($source->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+        if ($destinationColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
             // convert nulls only for strings
             $colSql = sprintf(
                 'NULLIF(%s, \'\')',
@@ -643,7 +643,7 @@ class SqlBuilder
         } else {
             $colSql = SynapseQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
         }
-        if ($sourceColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+        if ($destinationColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
             if ($destinationColumn->getColumnDefinition()->isNullable()) {
                 // Columns with coalesce are nullable in CTAS
                 $colSql = sprintf(
