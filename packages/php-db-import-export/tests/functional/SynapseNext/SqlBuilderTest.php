@@ -1929,37 +1929,50 @@ EOT
     {
         $this->createTestSchema();
         $qb = new SynapseTableQueryBuilder();
-        $this->connection->exec($qb->getCreateTableCommandFromDefinition($this->getStagingTableDefinition()));
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
-                self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
+        $columns = [
+            'pk1',
+            'pk2',
+            'colNumericNull',
+            'colNumeric',
+            'colInteger',
+            'colFloat',
+            'colBool',
+            'colDate',
+            'colTimestamp',
+        ];
+        $stage = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection(array_map(
+                function ($name) {
+                    return $this->createGenericColumn($name);
+                },
+                $columns
+            )),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
         );
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
-                self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
-        );
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
-                self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
-        );
+        $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stage));
+        $records = [
+            [1, 1, '\'1\'', '\'1\'', '\'1\'', '\'1.1\'', '\'1\'', '\'2020-02-02\'', '\'2016-12-21 00:00:00.0000000\''],
+            [1, 1, '\'1\'', '\'1\'', '\'1\'', '\'1.1\'', '\'1\'', '\'2020-02-02\'', '\'2016-12-21 00:00:00.0000000\''],
+            [2, 2, '\'2\'', '\'2\'', '\'2\'', '\'2.1\'', '\'0\'', '\'2020-02-02\'', '\'2016-12-22 00:00:00.0000000\''],
+            [2, 2, '\'0\'', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL'],
+        ];
+        foreach ($records as $record) {
+            $this->connection->executeStatement(
+                sprintf(
+                    'INSERT INTO %s.%s(%s) VALUES (%s)',
+                    self::TEST_SCHEMA_QUOTED,
+                    self::TEST_STAGING_TABLE,
+                    implode(',', $columns),
+                    implode(',', $record)
+                )
+            );
+        }
 
-        $this->connection->exec(
-            sprintf(
-                'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'0\',NULL)',
-                // ^ insert 0 not empty string, empty string would fail
-                self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
-        );
         $destination = new SynapseTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_TABLE,
@@ -1967,7 +1980,7 @@ EOT
             new ColumnCollection([
                 $this->createGenericColumn('pk1'),
                 new SynapseColumn(
-                    'col1',
+                    'colNumericNull',
                     new Synapse(
                         Synapse::TYPE_NUMERIC, //<-- use numeric
                         [
@@ -1977,12 +1990,58 @@ EOT
                     )
                 ),
                 new SynapseColumn(
-                    'col2',
+                    'colNumeric',
                     new Synapse(
                         Synapse::TYPE_NUMERIC, //<-- use numeric
                         [
                             'nullable' => true,
                             'length' => '18,0',
+                        ]
+                    )
+                ),
+                new SynapseColumn(
+                    'colInteger',
+                    new Synapse(
+                        Synapse::TYPE_INT,
+                        [
+                            'nullable' => true,
+                        ]
+                    )
+                ),
+                new SynapseColumn(
+                    'colFloat',
+                    new Synapse(
+                        Synapse::TYPE_FLOAT,
+                        [
+                            'nullable' => true,
+                        ]
+                    )
+                ),
+                new SynapseColumn(
+                    'colBool',
+                    new Synapse(
+                        Synapse::TYPE_BIT,
+                        [
+                            'nullable' => true,
+                        ]
+                    )
+                ),
+                new SynapseColumn(
+                    'colDate',
+                    new Synapse(
+                        Synapse::TYPE_DATE,
+                        [
+                            'nullable' => true,
+                        ]
+                    )
+                ),
+                new SynapseColumn(
+                    'colTimestamp',
+                    new Synapse(
+                        Synapse::TYPE_DATETIME2,
+                        [
+                            'nullable' => true,
+                            'length' => '7',
                         ]
                     )
                 ),
@@ -1997,8 +2056,13 @@ EOT
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
-                $this->createGenericColumn('col1'),
-                $this->createGenericColumn('col2'),
+                $this->createGenericColumn('colNumericNull'),
+                $this->createGenericColumn('colNumeric'),
+                $this->createGenericColumn('colInteger'),
+                $this->createGenericColumn('colFloat'),
+                $this->createGenericColumn('colBool'),
+                $this->createGenericColumn('colDate'),
+                $this->createGenericColumn('colTimestamp'),
                 $this->createGenericColumn('pk1', false),
             ]),
             [],
@@ -2006,9 +2070,9 @@ EOT
             new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
         );
 
-        // convert col1 to null
+        // convert colNumericNull to null
         $options = new SynapseImportOptions(
-            ['col1'],
+            ['colNumericNull'],
             false,
             false,
             0,
@@ -2025,7 +2089,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST([col1] as NUMERIC(18,0)) AS [col1],CAST([col2] as NUMERIC(18,0)) AS [col2],COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
+            'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST([colNumericNull] as NUMERIC(18,0)) AS [colNumericNull],CAST([colNumeric] as NUMERIC(18,0)) AS [colNumeric],CAST([colInteger] as INT) AS [colInteger],CAST([colFloat] as FLOAT) AS [colFloat],CAST([colBool] as BIT) AS [colBool],CAST([colDate] as DATE) AS [colDate],CAST([colTimestamp] as DATETIME2(7)) AS [colTimestamp],COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -2038,24 +2102,44 @@ EOT
 
         $this->assertEqualsCanonicalizing([
             [
-                'col1' => '1',
-                'col2' => '1',
+                'colNumericNull' => '1',
+                'colNumeric' => '1',
                 'pk1' => '1',
+                'colInteger' => '1',
+                'colFloat' => '1.1000000000000001',
+                'colBool' => '1',
+                'colDate' => '2020-02-02',
+                'colTimestamp' => '2016-12-21 00:00:00.0000000',
             ],
             [
-                'col1' => '1',
-                'col2' => '1',
+                'colNumericNull' => '1',
+                'colNumeric' => '1',
                 'pk1' => '1',
+                'colInteger' => '1',
+                'colFloat' => '1.1000000000000001',
+                'colBool' => '1',
+                'colDate' => '2020-02-02',
+                'colTimestamp' => '2016-12-21 00:00:00.0000000',
             ],
             [
-                'col1' => '2',
-                'col2' => '2',
+                'colNumericNull' => '2',
+                'colNumeric' => '2',
                 'pk1' => '2',
+                'colInteger' => '2',
+                'colFloat' => '2.1000000000000001',
+                'colBool' => '0',
+                'colDate' => '2020-02-02',
+                'colTimestamp' => '2016-12-22 00:00:00.0000000',
             ],
             [
-                'col1' => null,
-                'col2' => '0',
+                'colNumericNull' => null,
+                'colNumeric' => '0',
                 'pk1' => '2',
+                'colInteger' => null,
+                'colFloat' => null,
+                'colBool' => null,
+                'colDate' => null,
+                'colTimestamp' => null,
             ],
         ], $result);
 
