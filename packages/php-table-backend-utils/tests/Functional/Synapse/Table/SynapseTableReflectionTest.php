@@ -743,6 +743,11 @@ class SynapseTableReflectionTest extends SynapseBaseCase
             'CLUSTERED INDEX',
             ['int_def'],
         ];
+        yield 'CLUSTERED INDEX' => [
+            'CLUSTERED INDEX (int_def, int_def2)',
+            'CLUSTERED INDEX',
+            ['int_def', 'int_def2'],
+        ];
         yield 'Default' => [
             null,
             'CLUSTERED COLUMNSTORE INDEX',
@@ -759,7 +764,8 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->connection->executeStatement(
             sprintf(
                 'CREATE TABLE %s.%s (
-          [int_def] INT
+          [int_def] INT,
+          [int_def2] INT
         )
         %s
         ;',

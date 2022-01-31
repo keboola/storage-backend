@@ -43,7 +43,6 @@ class AssertTest extends TestCase
      */
     public function invalidClusteredIndexes(): Generator
     {
-        yield 'More than one column' => [['id1', 'id2']];
         yield 'No column' => [[]];
     }
 
