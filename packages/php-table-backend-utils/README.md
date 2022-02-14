@@ -282,3 +282,5 @@ You can use following method to get connection to Teradata for your queries
             'dbname' => '',
         ]);
 ```
+
+If you want to use connection via PHPStorm DataGrip or other DB client, remove port when you setting up connection in client. Otherwise test connection will fail.
