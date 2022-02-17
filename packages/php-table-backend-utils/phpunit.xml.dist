@@ -12,6 +12,8 @@
     <testsuites>
         <testsuite name="functional">
             <directory>tests/Functional</directory>
+            <!-- temporarily disabled because TD user has not rights to create roll -->
+            <exclude>tests/Functional/Database/Teradata</exclude>
         </testsuite>
 
         <testsuite name="unit">
