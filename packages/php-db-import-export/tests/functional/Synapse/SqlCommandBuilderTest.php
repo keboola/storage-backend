@@ -189,7 +189,7 @@ class SqlCommandBuilderTest extends SynapseBaseTestCase
             $sql
         );
         $this->connection->exec($sql);
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.[%s]',
             self::TEST_SCHEMA_QUOTED,
             '#tempTable'
@@ -376,7 +376,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.[%s]',
             self::TEST_SCHEMA_QUOTED,
             self::TEST_STAGING_TABLE
@@ -411,7 +411,7 @@ EOT
 
     private function assertTableNotExists(string $schemaName, string $tableName): void
     {
-        $tableId = $this->connection->fetchColumn(
+        $tableId = $this->connection->fetchOne(
             $this->qb->getTableObjectIdCommand($schemaName, $tableName)
         );
         self::assertFalse($tableId);
@@ -486,7 +486,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -566,7 +566,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -618,7 +618,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -645,13 +645,13 @@ EOT
 
         $this->connection->exec($sql);
 
-        $expectedFalse = $this->connection->fetchColumn(
+        $expectedFalse = $this->connection->fetchOne(
             $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
         );
 
         $this->assertFalse($expectedFalse);
 
-        $expectedFalse = $this->connection->fetchColumn(
+        $expectedFalse = $this->connection->fetchOne(
             $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, $renameTo)
         );
 
@@ -669,18 +669,18 @@ EOT
             'SELECT [object_id] FROM sys.tables WHERE schema_name(schema_id) = \'import-export-test_schema\' AND NAME = \'import-export-test_test\'',
             $sql
         );
-        $response = $this->connection->fetchAll($sql);
+        $response = $this->connection->fetchAllAssociative($sql);
         $this->assertCount(1, $response);
         $this->assertArrayHasKey('object_id', $response[0]);
 
-        $response = $this->connection->fetchColumn(
+        $response = $this->connection->fetchOne(
             $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, self::TEST_TABLE)
         );
 
         $this->assertIsString($response);
 
         // non existing table
-        $response = $this->connection->fetchColumn(
+        $response = $this->connection->fetchOne(
             $this->qb->getTableObjectIdCommand(self::TEST_SCHEMA, 'I do not exists')
         );
 
@@ -765,7 +765,7 @@ EOT
             )
         );
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -794,7 +794,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -827,7 +827,7 @@ EOT
             )
         );
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -863,7 +863,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -905,7 +905,7 @@ EOT
             )
         );
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -943,7 +943,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1015,7 +1015,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(2, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1062,7 +1062,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(2, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1109,7 +1109,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(2, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1154,7 +1154,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(2, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1198,7 +1198,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(2, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));

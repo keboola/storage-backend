@@ -64,7 +64,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             $source instanceof SelectSource ? $source->getQueryBindings() : []
         );
 
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
+        $rows = $this->connection->fetchAllAssociative($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),
             $stagingTableName
         ));

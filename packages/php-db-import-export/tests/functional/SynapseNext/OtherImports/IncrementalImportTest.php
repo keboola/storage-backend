@@ -74,7 +74,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $options,
             $importState
         );
-        $importedData = $this->connection->fetchAll($fetchSQL);
+        $importedData = $this->connection->fetchAllAssociative($fetchSQL);
 
         self::assertCount(2, $importedData);
 
@@ -99,7 +99,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $importState
         );
 
-        $importedData = $this->connection->fetchAll($fetchSQL);
+        $importedData = $this->connection->fetchAllAssociative($fetchSQL);
 
         self::assertCount(3, $importedData);
     }
@@ -173,7 +173,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $importState
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));
@@ -259,7 +259,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $importState
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify]',
             $this->getDestinationSchemaName()
         ));
@@ -360,7 +360,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $importState
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify]',
             $this->getDestinationSchemaName()
         ));
@@ -443,7 +443,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             $options,
             $importState
         );
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));

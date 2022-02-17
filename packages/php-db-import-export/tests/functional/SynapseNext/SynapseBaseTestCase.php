@@ -100,7 +100,7 @@ class SynapseBaseTestCase extends \Tests\Keboola\Db\ImportExportFunctional\Synap
             return array_map(function ($column) {
                 return $column;
             }, array_values($row));
-        }, $this->connection->fetchAll($sql));
+        }, $this->connection->fetchAllAssociative($sql));
 
         $this->assertArrayEqualsSorted(
             $expected,

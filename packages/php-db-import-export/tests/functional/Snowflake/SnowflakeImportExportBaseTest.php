@@ -62,7 +62,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             return array_map(function ($column) {
                 return base64_decode($column);
             }, array_values($row));
-        }, $this->connection->fetchAll($sql));
+        }, $this->connection->fetchAllAssociative($sql));
 
         $this->assertArrayEqualsSorted(
             $expected,
@@ -102,7 +102,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             }
         }
 
-        $queryResult = $this->connection->fetchAll(
+        $queryResult = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM %s',
                 $this->connection->quoteIdentifier($tableName)

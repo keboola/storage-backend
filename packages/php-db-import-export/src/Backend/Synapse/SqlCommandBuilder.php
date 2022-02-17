@@ -435,7 +435,7 @@ class SqlCommandBuilder
     public function getTablePrimaryKey(string $schemaName, string $tableName): array
     {
         /** @var string|false $objectId */
-        $objectId = $this->connection->fetchColumn(
+        $objectId = $this->connection->fetchOne(
             $this->getTableObjectIdCommand($schemaName, $tableName)
         );
 
@@ -443,7 +443,7 @@ class SqlCommandBuilder
             throw new Exception(sprintf('Table %s.%s does not exist.', $schemaName, $tableName));
         }
 
-        $result = $this->connection->fetchAll(
+        $result = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT COL_NAME(ic.OBJECT_ID,ic.column_id) AS ColumnName
     FROM sys.indexes AS i INNER JOIN

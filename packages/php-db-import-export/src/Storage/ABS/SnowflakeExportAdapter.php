@@ -59,6 +59,6 @@ DETAILED_OUTPUT = TRUE',
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'"
         );
 
-        return $this->connection->fetchAll($sql, $source->getQueryBindings());
+        return $this->connection->fetchAllAssociative($sql, $source->getQueryBindings());
     }
 }
