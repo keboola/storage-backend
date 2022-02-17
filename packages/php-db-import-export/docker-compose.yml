@@ -1,7 +1,11 @@
 version: '3'
 services:
   production: &prod
-    build: .
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
     environment:
       - ABS_ACCOUNT_NAME
       - ABS_ACCOUNT_KEY
