@@ -15,7 +15,7 @@ class TeradataBaseCase extends TestCase
 {
     public const TESTS_PREFIX = 'utilsTest_';
 
-    public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
+    private const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
@@ -33,9 +33,10 @@ class TeradataBaseCase extends TestCase
     }
 
     protected function initTable(
-        string $database = self::TEST_DATABASE,
         string $table = self::TABLE_GENERIC
     ): void {
+
+        $database = $this->getDatabaseName();
         // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
@@ -49,6 +50,11 @@ class TeradataBaseCase extends TestCase
                 TeradataQuote::quoteSingleIdentifier($table)
             )
         );
+    }
+
+    public function getDatabaseName(): string
+    {
+        return getenv('TERADATA_DB_PREFIX') . self::TEST_DATABASE;
     }
 
     protected function dbExists(string $dbname): bool

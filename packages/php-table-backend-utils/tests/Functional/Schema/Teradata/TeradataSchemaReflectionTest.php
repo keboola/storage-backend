@@ -15,10 +15,10 @@ class TeradataSchemaReflectionTest extends TeradataBaseCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->schemaRef = new TeradataSchemaReflection($this->connection, self::TEST_DATABASE);
+        $this->schemaRef = new TeradataSchemaReflection($this->connection, $this->getDatabaseName());
 
-        $this->cleanDatabase(self::TEST_DATABASE);
-        $this->createDatabase(self::TEST_DATABASE);
+        $this->cleanDatabase($this->getDatabaseName());
+        $this->createDatabase($this->getDatabaseName());
     }
 
     public function testListTables(): void
@@ -31,7 +31,7 @@ class TeradataSchemaReflectionTest extends TeradataBaseCase
         $this->initTable();
 
         $tableName = self::TABLE_GENERIC;
-        $dbName = self::TEST_DATABASE;
+        $dbName = $this->getDatabaseName();
         $viewName = self::VIEW_GENERIC;
         $sql = <<<EOT
 CREATE VIEW $dbName.$viewName AS

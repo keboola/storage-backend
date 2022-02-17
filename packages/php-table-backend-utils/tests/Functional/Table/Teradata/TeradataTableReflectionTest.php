@@ -20,14 +20,14 @@ class TeradataTableReflectionTest extends TeradataBaseCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cleanDatabase(self::TEST_DATABASE);
-        $this->createDatabase(self::TEST_DATABASE);
+        $this->cleanDatabase($this->getDatabaseName());
+        $this->createDatabase($this->getDatabaseName());
     }
 
     public function testGetTableColumnsNames(): void
     {
         $this->initTable();
-        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
 
         self::assertSame([
             'id',
@@ -42,25 +42,25 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         $this->connection->executeQuery(
             sprintf(
                 'ALTER TABLE %s.%s ADD PRIMARY KEY (id)',
-                self::TEST_DATABASE,
+                $this->getDatabaseName(),
                 self::TABLE_GENERIC
             )
         );
-        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
         self::assertEquals(['id'], $ref->getPrimaryKeysNames());
     }
 
     public function testGetRowsCount(): void
     {
         $this->initTable();
-        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
         self::assertEquals(0, $ref->getRowsCount());
         $data = [
             [1, 'franta', 'omacka'],
             [2, 'pepik', 'knedla'],
         ];
         foreach ($data as $item) {
-            $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, ...$item);
+            $this->insertRowToTable($this->getDatabaseName(), self::TABLE_GENERIC, ...$item);
         }
         self::assertEquals(2, $ref->getRowsCount());
     }
@@ -86,13 +86,13 @@ class TeradataTableReflectionTest extends TeradataBaseCase
       "firstColumn" INT,
       "column" %s
      );',
-            self::TEST_DATABASE,
+            $this->getDatabaseName(),
             self::TABLE_GENERIC,
             $sqlDef
         );
 
         $this->connection->executeQuery($sql);
-        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
         /** @var Generator<TeradataColumn> $iterator */
         $iterator = $ref->getColumnsDefinitions()->getIterator();
         $iterator->next();
@@ -483,14 +483,14 @@ class TeradataTableReflectionTest extends TeradataBaseCase
     public function testGetTableStats(): void
     {
         $this->initTable();
-        $ref = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
 
         $stats1 = $ref->getTableStats();
         self::assertEquals(0, $stats1->getRowsCount());
         self::assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
 
-        $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
-        $this->insertRowToTable(self::TEST_DATABASE, self::TABLE_GENERIC, 2, 'karel', 'motycka');
+        $this->insertRowToTable($this->getDatabaseName(), self::TABLE_GENERIC, 1, 'lojza', 'lopata');
+        $this->insertRowToTable($this->getDatabaseName(), self::TABLE_GENERIC, 2, 'karel', 'motycka');
 
         $stats2 = $ref->getTableStats();
         self::assertEquals(2, $stats2->getRowsCount());

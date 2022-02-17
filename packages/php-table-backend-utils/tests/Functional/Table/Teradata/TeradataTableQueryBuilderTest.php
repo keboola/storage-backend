@@ -25,13 +25,13 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $this->qb = new TeradataTableQueryBuilder();
         parent::setUp();
 
-        $this->cleanDatabase(self::TEST_DATABASE);
-        $this->createDatabase(self::TEST_DATABASE);
+        $this->cleanDatabase($this->getDatabaseName());
+        $this->createDatabase($this->getDatabaseName());
     }
 
     public function testGetRenameTableCommand(): void
     {
-        $testDb = self::TEST_DATABASE;
+        $testDb = $this->getDatabaseName();
         $testTable = self::TABLE_GENERIC;
         $testTableNew = 'newName';
         $this->initTable();
@@ -40,7 +40,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $refOld = new TeradataTableReflection($this->connection, $testDb, $testTable);
 
         // get, test and run command
-        $sql = $this->qb->getRenameTableCommand(self::TEST_DATABASE, self::TABLE_GENERIC, $testTableNew);
+        $sql = $this->qb->getRenameTableCommand($this->getDatabaseName(), self::TABLE_GENERIC, $testTableNew);
         self::assertEquals("RENAME TABLE \"{$testDb}\".\"{$testTable}\" AS \"{$testDb}\".\"{$testTableNew}\"", $sql);
         $this->connection->executeQuery($sql);
 
@@ -55,7 +55,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
 
     public function testGetTruncateTableCommand(): void
     {
-        $testDb = self::TEST_DATABASE;
+        $testDb = $this->getDatabaseName();
         $testTable = self::TABLE_GENERIC;
         $this->initTable();
 
@@ -70,7 +70,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         self::assertEquals(1, $ref->getRowsCount());
 
         // get, test and run query
-        $sql = $this->qb->getTruncateTableCommand(self::TEST_DATABASE, self::TABLE_GENERIC);
+        $sql = $this->qb->getTruncateTableCommand($this->getDatabaseName(), self::TABLE_GENERIC);
         self::assertEquals("DELETE \"{$testDb}\".\"{$testTable}\" ALL", $sql);
         $this->connection->executeQuery($sql);
 
@@ -80,7 +80,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
 
     public function testGetDropTableCommand(): void
     {
-        $testDb = self::TEST_DATABASE;
+        $testDb = $this->getDatabaseName();
         $testTable = self::TABLE_GENERIC;
         $this->initTable();
 
@@ -88,7 +88,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $ref = new TeradataTableReflection($this->connection, $testDb, $testTable);
 
         // get, test and run query
-        $sql = $this->qb->getDropTableCommand(self::TEST_DATABASE, self::TABLE_GENERIC);
+        $sql = $this->qb->getDropTableCommand($this->getDatabaseName(), self::TABLE_GENERIC);
         self::assertEquals("DROP TABLE \"{$testDb}\".\"{$testTable}\"", $sql);
         $this->connection->executeQuery($sql);
 
@@ -114,7 +114,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         string $expectedSql
     ): void {
         $sql = $this->qb->getCreateTableCommand(
-            self::TEST_DATABASE,
+            $this->getDatabaseName(),
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
             $primaryKeys
@@ -123,7 +123,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $this->connection->executeQuery($sql);
 
         // test table properties
-        $tableReflection = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        $tableReflection = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
         self::assertSame($expectedColumnNames, $tableReflection->getColumnsNames());
         self::assertSame($expectedPKs, $tableReflection->getPrimaryKeysNames());
     }
@@ -133,7 +133,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
      */
     public function createTableTestSqlProvider(): \Generator
     {
-        $testDb = self::TEST_DATABASE;
+        $testDb = $this->getDatabaseName();
         $tableName = self::TABLE_GENERIC;
 
         yield 'no keys' => [
