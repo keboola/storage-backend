@@ -123,7 +123,11 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $this->connection->executeQuery($sql);
 
         // test table properties
-        $tableReflection = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
+        $tableReflection = new TeradataTableReflection(
+            $this->connection,
+            $this->getDatabaseName(),
+            self::TABLE_GENERIC
+        );
         self::assertSame($expectedColumnNames, $tableReflection->getColumnsNames());
         self::assertSame($expectedPKs, $tableReflection->getPrimaryKeysNames());
     }

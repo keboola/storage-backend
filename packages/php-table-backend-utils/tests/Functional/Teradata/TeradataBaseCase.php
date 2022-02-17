@@ -177,11 +177,13 @@ CREATE DATABASE %s AS
         ));
     }
 
-    private function generateRandomPassword($len = 8) {
-
+    /** generates password with specific rules - at least one uppercase, lowercase, digit and special char */
+    private function generateRandomPassword(int $len = 8): string
+    {
         //enforce min length 8
-        if($len < 8)
+        if ($len < 8) {
             $len = 8;
+        }
 
         //define character libraries - remove ambiguous characters like iIl|1 0oO
         $sets = array();
@@ -198,7 +200,7 @@ CREATE DATABASE %s AS
         }
 
         //use all characters to fill up to $len
-        while(strlen($password) < $len) {
+        while (strlen($password) < $len) {
             //get a random set
             $randomSet = $sets[array_rand($sets)];
 

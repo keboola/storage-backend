@@ -12,7 +12,7 @@
     <testsuites>
         <testsuite name="functional">
             <directory>tests/Functional</directory>
-            <!-- temporarily disabled because TD user has not rights to create roll -->
+            <!-- temporarily disabled because TD user has not rights to create role -->
             <exclude>tests/Functional/Database/Teradata</exclude>
         </testsuite>
 
