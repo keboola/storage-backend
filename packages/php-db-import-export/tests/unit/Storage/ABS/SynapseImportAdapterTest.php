@@ -74,7 +74,7 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchColumn')
+        $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 
@@ -119,7 +119,7 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchColumn')
+        $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 
@@ -161,7 +161,7 @@ WITH (
 )
 EOT
         );
-        $conn->expects($this->once())->method('fetchColumn')
+        $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 
@@ -204,7 +204,7 @@ WITH (
 EOT
         );
 
-        $conn->expects($this->once())->method('fetchColumn')
+        $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
             ->willReturn(10);
 

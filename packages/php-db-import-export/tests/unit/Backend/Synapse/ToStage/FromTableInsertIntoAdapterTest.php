@@ -28,7 +28,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
         // phpcs:ignore
             'INSERT INTO [test_schema].[stagingTable] ([col1], [col2]) SELECT [col1], [col2] FROM [test_schema].[test_table]'
         );
-        $conn->expects($this->once())->method('fetchColumn')
+        $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
             ->willReturn(10);
 
@@ -71,7 +71,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             ['val'],
             [1]
         );
-        $conn->expects($this->once())->method('fetchColumn')
+        $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
             ->willReturn(10);
 
