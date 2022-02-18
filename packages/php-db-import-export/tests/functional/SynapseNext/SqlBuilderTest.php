@@ -86,7 +86,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
             $sql
         );
         $this->connection->exec($sql);
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             SynapseQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
             SynapseQuote::quoteSingleIdentifier($deduplicationDef->getTableName())
@@ -223,7 +223,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             $stagingTableSql
         ));
@@ -351,7 +351,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -424,7 +424,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -521,7 +521,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -585,7 +585,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -674,7 +674,7 @@ EOT
             )
         );
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -701,7 +701,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -761,7 +761,7 @@ EOT
             )
         );
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -788,7 +788,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -847,7 +847,7 @@ EOT
             )
         );
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -881,7 +881,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -950,7 +950,7 @@ EOT
             )
         );
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -986,7 +986,7 @@ EOT
         );
         $this->connection->exec($sql);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1568,7 +1568,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1689,7 +1689,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1796,7 +1796,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));
@@ -1905,7 +1905,7 @@ EOT
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
-        $result = $this->connection->fetchAll(sprintf(
+        $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
             self::TEST_TABLE_IN_SCHEMA
         ));

@@ -143,7 +143,7 @@ class FullImportTest extends SynapseBaseTestCase
             $importState
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));
@@ -207,7 +207,7 @@ class FullImportTest extends SynapseBaseTestCase
             $importState
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));

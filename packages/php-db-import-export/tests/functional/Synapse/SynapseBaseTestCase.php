@@ -42,7 +42,7 @@ class SynapseBaseTestCase extends ImportExportBaseTest
 
     protected function dropAllWithinSchema(string $schema): void
     {
-        $tables = $this->connection->fetchAll(
+        $tables = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT name
 FROM sys.tables
@@ -57,7 +57,7 @@ EOT
             );
         }
 
-        $schemas = $this->connection->fetchAll(
+        $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',
                 $schema
@@ -336,7 +336,7 @@ EOT
             return array_map(function ($column) {
                 return $column;
             }, array_values($row));
-        }, $this->connection->fetchAll($sql));
+        }, $this->connection->fetchAllAssociative($sql));
 
         $this->assertArrayEqualsSorted(
             $expected,

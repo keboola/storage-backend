@@ -203,7 +203,7 @@ class StageImportTest extends SynapseBaseTestCase
                 return array_map(function ($column) {
                     return $column;
                 }, array_values($row));
-            }, $this->connection->fetchAll($sql));
+            }, $this->connection->fetchAllAssociative($sql));
 
             $this->assertEquals(4000, strlen($queryResult[0][0]));
         }
@@ -262,7 +262,7 @@ class StageImportTest extends SynapseBaseTestCase
                 return array_map(function ($column) {
                     return $column;
                 }, array_values($row));
-            }, $this->connection->fetchAll($sql));
+            }, $this->connection->fetchAllAssociative($sql));
 
             $this->assertEquals(4000, strlen($queryResult[0][0]));
         }

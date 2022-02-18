@@ -147,7 +147,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
 
-        $importedData = $this->connection->fetchAll($fetchSQL);
+        $importedData = $this->connection->fetchAllAssociative($fetchSQL);
 
         $this->assertCount(2, $importedData);
 
@@ -161,7 +161,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
 
-        $importedData = $this->connection->fetchAll($fetchSQL);
+        $importedData = $this->connection->fetchAllAssociative($fetchSQL);
 
         $this->assertCount(3, $importedData);
     }
@@ -245,7 +245,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));
@@ -304,7 +304,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));
@@ -373,7 +373,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify]',
             $this->getDestinationSchemaName()
         ));
@@ -457,7 +457,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify]',
             $this->getDestinationSchemaName()
         ));
@@ -520,7 +520,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $options
         );
 
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));
@@ -569,7 +569,7 @@ class OtherImportTest extends SynapseBaseTestCase
             $destination,
             $options
         );
-        $importedData = $this->connection->fetchAll(sprintf(
+        $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
             $this->getDestinationSchemaName()
         ));
@@ -621,7 +621,7 @@ class OtherImportTest extends SynapseBaseTestCase
                 return array_map(function ($column) {
                     return $column;
                 }, array_values($row));
-            }, $this->connection->fetchAll($sql));
+            }, $this->connection->fetchAllAssociative($sql));
 
             $this->assertEquals(4000, strlen($queryResult[0][0]));
         }
@@ -670,7 +670,7 @@ class OtherImportTest extends SynapseBaseTestCase
                 return array_map(function ($column) {
                     return $column;
                 }, array_values($row));
-            }, $this->connection->fetchAll($sql));
+            }, $this->connection->fetchAllAssociative($sql));
 
             $this->assertEquals(4000, strlen($queryResult[0][0]));
         }
