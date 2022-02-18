@@ -116,7 +116,7 @@ ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
 COPY --from=0 /tmp/teradata/tdutils.tar.gz /tmp/teradata/tdutils.tar.gz
 RUN cd /tmp/teradata \
     && tar -xvaf tdutils.tar.gz \
-    && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase \
+    && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase s3axsmod \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/teradata
 

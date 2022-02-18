@@ -28,6 +28,10 @@ services:
       - EXASOL_USERNAME
       - EXASOL_PASSWORD
       - BUILD_PREFIX
+      - TERADATA_HOST
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
+      - TERADATA_PORT
   dev: &dev
     <<: *prod
     image: keboola/php-db-import-export
