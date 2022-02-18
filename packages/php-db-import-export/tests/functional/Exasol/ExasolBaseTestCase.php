@@ -10,7 +10,7 @@ use Doctrine\DBAL\Platforms\OraclePlatform;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
-use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnection;
+use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
@@ -59,7 +59,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
 
     private function getExasolConnection(): Connection
     {
-        return ExasolConnection::getConnection(
+        return ExasolConnectionFactory::getConnection(
             (string) getenv('EXASOL_HOST'),
             (string) getenv('EXASOL_USERNAME'),
             (string) getenv('EXASOL_PASSWORD')
