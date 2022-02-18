@@ -94,11 +94,31 @@ class SourceFile extends BaseFile implements SourceInterface
         }, $manifest['entries']);
     }
 
+    public function isSliced(): bool
+    {
+        return $this->isSliced;
+    }
+
     /**
      * @return string[]|null
      */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
+    }
+
+    public function getFileName(): string
+    {
+        if ($this->isSliced) {
+            throw new \Exception('Not supported getFileName for sliced files.');
+        }
+        $fileName = $this->filePath;
+        return substr($fileName, strrpos($fileName, '/') + 1);
+    }
+
+    public function getPrefix(): string
+    {
+        $prefix = $this->filePath;
+        return substr($prefix, 0, strrpos($prefix, '/'));
     }
 }

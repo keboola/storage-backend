@@ -12,11 +12,7 @@ class SourceDirectory extends SourceFile
     public function getManifestEntries(): array
     {
         $client = $this->getClient();
-        $prefix = $this->filePath;
-        if (substr($prefix, -1) !== '/') {
-            // add trailing slash if not set to list only blobs in folder
-            $prefix .= '/';
-        }
+        $prefix = $this->getPrefix();
         $response = $client->listObjectsV2([
             'Bucket' => $this->bucket,
             'Delimiter' => '/',
@@ -26,5 +22,16 @@ class SourceDirectory extends SourceFile
         return array_map(static function (array $file) {
             return $file['Key'];
         }, $response->get('Contents'));
+    }
+
+    public function getPrefix(): string
+    {
+        $prefix = $this->filePath;
+        if (substr($prefix, -1) !== '/') {
+            // add trailing slash if not set to list only blobs in folder
+            $prefix .= '/';
+        }
+
+        return $prefix;
     }
 }

@@ -87,6 +87,11 @@ abstract class BaseFile
         return $this->filePath;
     }
 
+    public function getBucket(): string
+    {
+        return $this->bucket;
+    }
+
     public function getBucketURL(): string
     {
         return sprintf('https://%s.s3.%s.amazonaws.com', $this->bucket, $this->region);
