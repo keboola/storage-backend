@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDOSqlsrv;
+use Doctrine\DBAL\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
@@ -135,14 +135,14 @@ EOT
      */
     private function getConnectionMock()
     {
-        $driverConnectionMock = $this->createMock(PDOSqlsrv\Connection::class);
+        $driverConnectionMock = $this->createMock(SQLSrv\Connection::class);
         $driverConnectionMock->expects($this->any())
             ->method('quote')
             ->willReturnCallback(function ($string) {
                 return sprintf('\'%s\'', $string);
             });
 
-        $driverMock = $this->createMock(PDOSqlsrv\Driver::class);
+        $driverMock = $this->createMock(SQLSrv\Driver::class);
         $driverMock->expects($this->any())
             ->method('connect')
             ->willReturn($driverConnectionMock);
