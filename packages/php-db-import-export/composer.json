@@ -9,7 +9,7 @@
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^5.0",
         "keboola/php-file-storage-utils": ">=0.2",
-        "keboola/table-backend-utils": "^0.17",
+        "keboola/table-backend-utils": "^0.18",
         "microsoft/azure-storage-blob": "^1.4"
     },
     "require-dev": {
