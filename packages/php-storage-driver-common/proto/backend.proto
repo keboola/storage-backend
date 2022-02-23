@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package keboola.storageDriver.command.backend;
+message InitBackendCommand {
+  google.protobuf.Any meta = 2;
+  message InitBackendSynapseMeta {
+    string globalRoleName = 1;
+  }
+}
+
+message RemoveBackendCommand {
+  google.protobuf.Any meta = 1;
+}

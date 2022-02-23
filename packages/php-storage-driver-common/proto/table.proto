@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+import "google/protobuf/struct.proto";
+
+package keboola.storageDriver.command.table;
+
+message CreateTableCommand {
+  repeated string path = 1;
+  string tableName = 2;
+  message TableColumn {
+    string name = 1;
+    string type = 2;
+    string length = 3;
+    bool nullable = 4;
+    string default = 5;
+  }
+  repeated TableColumn columns = 3;
+  repeated string primaryKeysNames = 4;
+  google.protobuf.Any meta = 5;
+  message SynapseTableMeta {
+
+  }
+}
+
+message RemoveTableCommand {
+  repeated string path = 1;
+  string tableName = 2;
+  bool ignoreErrors = 3;
+}
+
+// maybe split each action
+message AlterTableCommand {
+
+}
+
+message PreviewTableCommand {
+  repeated string path = 1;
+  string tableName = 2;
+  int32 limit = 3;
+  string changeSince = 4;
+  string changeUntil = 5;
+  repeated string columns = 6;
+  string fulltextSearch = 7;
+  message PreviewTableWhereFilter {
+    string columnsName = 1;
+    enum Operator {
+      eq = 0;
+      ne = 1;
+      gt = 2;
+      ge = 3;
+      lt = 4;
+      le = 5;
+    }
+    Operator operator = 2;
+    repeated string values = 3;
+    PreviewTableCommand.DataType dataType = 4;
+  }
+  repeated PreviewTableWhereFilter whereFilters = 8;
+  enum DataType {
+    string = 0;
+    INTEGER = 1;
+    DOUBLE = 2;
+    BIGINT = 3;
+    REAL = 4;
+    DECIMAL = 5;
+  }
+  message PreviewTableOrderBy {
+    string columnsName = 1;
+    enum Order {
+      ASC = 0;
+      DESC = 1;
+    }
+    Order order = 2;
+    PreviewTableCommand.DataType dataType = 3;
+  }
+  PreviewTableOrderBy orderBy = 9;
+}
+
+message PreviewTableResponse {
+  repeated string columns = 1;
+  message Row {
+    repeated Column columns = 1;
+    message Column{
+      string columnName = 1;
+      google.protobuf.Value value = 2;
+      bool isTruncated = 3;
+    }
+  }
+  repeated Row rows = 2;
+}
+

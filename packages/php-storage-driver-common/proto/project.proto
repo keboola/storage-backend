@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package keboola.storageDriver.command.project;
+message CreateProjectCommand {
+  string projectUser = 1;
+  string projectRole = 2;
+  string projectPassword = 3;
+  string readOnlyRoleName = 4;
+  google.protobuf.Any meta = 5;
+  message CreateProjectTeradataMeta {
+    string rootDatabase = 1;
+  }
+}
+
+message RemoveProjectCommand {
+  string projectUser = 1;
+  string projectRole = 2;
+  string readOnlyRoleName = 3;
+  google.protobuf.Any meta = 4;
+}
