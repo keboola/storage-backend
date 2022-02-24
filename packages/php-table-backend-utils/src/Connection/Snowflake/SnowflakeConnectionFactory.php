@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
@@ -27,16 +28,20 @@ class SnowflakeConnectionFactory
         string $host,
         string $user,
         string $password,
-        array $params
+        array $params,
+        ?Configuration $config = null
     ): Connection {
-        return DriverManager::getConnection(array_merge(
-            $params,
-            [
-                'driverClass' => SnowflakeDriver::class,
-                'host' => $host,
-                'user' => $user,
-                'password' => $password,
-            ]
-        ));
+        return DriverManager::getConnection(
+            array_merge(
+                $params,
+                [
+                    'driverClass' => SnowflakeDriver::class,
+                    'host' => $host,
+                    'user' => $user,
+                    'password' => $password,
+                ]
+            ),
+            $config
+        );
     }
 }
