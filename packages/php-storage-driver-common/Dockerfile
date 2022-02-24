@@ -23,6 +23,8 @@ RUN apt-get update -q \
         ca-certificates \
         unixodbc \
         unixodbc-dev \
+        libprotobuf-dev \
+        protobuf-compiler \
 	&& rm -r /var/lib/apt/lists/* \
 	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
 	&& locale-gen \
@@ -33,6 +35,11 @@ ENV LANGUAGE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
+RUN curl -sSLf \
+        -o /usr/local/bin/install-php-extensions \
+        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x /usr/local/bin/install-php-extensions
+
 # Teradata ODBC
 COPY --from=0 /tmp/teradata/tdodbc.deb /tmp/teradata/tdodbc.deb
 COPY etc/docker/teradata/odbc.ini /tmp/teradata/odbc_td.ini
@@ -42,8 +49,7 @@ RUN dpkg -i /tmp/teradata/tdodbc.deb \
     && cat /tmp/teradata/odbc_td.ini >> /etc/odbc.ini \
     && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
     && rm -r /tmp/teradata \
-    && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
-    && docker-php-ext-install pdo_odbc
+    && install-php-extensions pdo_odbc odbc
 
 ENV ODBCHOME = /opt/teradata/client/ODBC_64/
 ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
