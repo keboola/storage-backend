@@ -1,0 +1,29 @@
+version: '3'
+services:
+  production: &prod
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_S3_BUCKET
+      - AWS_REGION
+      - BUILD_PREFIX
+      - TERADATA_HOST
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
+      - TERADATA_PORT
+      - TERADATA_ROOT_DATABASE
+  dev: &dev
+    <<: *prod
+    image: keboola/php-storage-driver-teradata
+    volumes:
+      - ./:/code
+  dev-xdebug:
+    <<: *dev
+    build: etc/docker/xdebug
+volumes:
+  exa-volume:

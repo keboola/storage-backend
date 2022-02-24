@@ -1,0 +1,10 @@
+parameters:
+    level: max
+    paths:
+        - src
+        - contract
+        - tests
+
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
