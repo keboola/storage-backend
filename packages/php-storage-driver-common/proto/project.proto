@@ -11,6 +11,8 @@ message CreateProjectCommand {
   google.protobuf.Any meta = 5;
   message CreateProjectTeradataMeta {
     string rootDatabase = 1;
+    string permSpace = 2;
+    string spoolSpace = 3;
   }
 }
 

@@ -5,8 +5,13 @@ import "google/protobuf/any.proto";
 package keboola.storageDriver.command.bucket;
 message CreateBucketCommand {
   string bucketName = 1;
-  string projectReadOnlyRole = 2;
-  google.protobuf.Any meta = 3;
+  string projectRole = 2;
+  string projectReadOnlyRole = 3;
+  google.protobuf.Any meta = 4;
+  message CreateBucketTeradataMeta {
+    string permSpace = 1;
+    string spoolSpace = 2;
+  }
 }
 
 message DropBucketCommand {

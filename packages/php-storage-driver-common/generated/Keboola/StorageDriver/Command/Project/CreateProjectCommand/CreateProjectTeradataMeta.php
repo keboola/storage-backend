@@ -17,6 +17,14 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string rootDatabase = 1;</code>
      */
     protected $rootDatabase = '';
+    /**
+     * Generated from protobuf field <code>string permSpace = 2;</code>
+     */
+    protected $permSpace = '';
+    /**
+     * Generated from protobuf field <code>string spoolSpace = 3;</code>
+     */
+    protected $spoolSpace = '';
 
     /**
      * Constructor.
@@ -25,6 +33,8 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $rootDatabase
+     *     @type string $permSpace
+     *     @type string $spoolSpace
      * }
      */
     public function __construct($data = NULL) {
@@ -50,6 +60,50 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->rootDatabase = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string permSpace = 2;</code>
+     * @return string
+     */
+    public function getPermSpace()
+    {
+        return $this->permSpace;
+    }
+
+    /**
+     * Generated from protobuf field <code>string permSpace = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setPermSpace($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->permSpace = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string spoolSpace = 3;</code>
+     * @return string
+     */
+    public function getSpoolSpace()
+    {
+        return $this->spoolSpace;
+    }
+
+    /**
+     * Generated from protobuf field <code>string spoolSpace = 3;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setSpoolSpace($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->spoolSpace = $var;
 
         return $this;
     }

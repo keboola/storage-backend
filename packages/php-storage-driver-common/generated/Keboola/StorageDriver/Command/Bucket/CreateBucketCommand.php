@@ -18,11 +18,15 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      */
     protected $bucketName = '';
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 2;</code>
+     * Generated from protobuf field <code>string projectRole = 2;</code>
+     */
+    protected $projectRole = '';
+    /**
+     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
      */
     protected $projectReadOnlyRole = '';
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 3;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
     protected $meta = null;
 
@@ -33,6 +37,7 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $bucketName
+     *     @type string $projectRole
      *     @type string $projectReadOnlyRole
      *     @type \Google\Protobuf\Any $meta
      * }
@@ -65,7 +70,29 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 2;</code>
+     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * @return string
+     */
+    public function getProjectRole()
+    {
+        return $this->projectRole;
+    }
+
+    /**
+     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setProjectRole($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->projectRole = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
      * @return string
      */
     public function getProjectReadOnlyRole()
@@ -74,7 +101,7 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 2;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
      * @param string $var
      * @return $this
      */
@@ -87,7 +114,7 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 3;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @return \Google\Protobuf\Any
      */
     public function getMeta()
@@ -96,7 +123,7 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 3;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */
