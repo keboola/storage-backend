@@ -70,6 +70,9 @@ docker-compose run --rm dev composer phpunit -- --filter=TeradataDriverClientTes
 ## Code quality check
 
 ```bash
+#run all bellow but not tests
+docker-compose run --rm dev composer check
+
 #phplint
 docker-compose run --rm dev composer phplint
 

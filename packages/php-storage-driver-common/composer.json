@@ -56,11 +56,14 @@
             "@protobufTests",
             "@phpunit"
         ],
-        "ci": [
+        "check": [
             "@composer validate --no-check-all --strict",
             "@phplint",
             "@phpcs",
-            "@phpstan",
+            "@phpstan"
+        ],
+        "ci": [
+            "@check",
             "@tests"
         ]
     }
