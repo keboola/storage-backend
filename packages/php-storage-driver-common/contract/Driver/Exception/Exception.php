@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\StorageDriver\Contract\Driver\Exception;
 
-class Exception extends \Exception
+use Exception as NativeException;
+
+class Exception extends NativeException
 {
 }

@@ -47,7 +47,7 @@ To run with xdebug use `dev-xdebug` container instead of `dev`
 ## Generate protobuf code
 
 ```bash
-docker-compose run --rm dev composer proto
+docker-compose run --rm dev composer protobuf
 ```
 
 ## Tests
@@ -55,7 +55,16 @@ docker-compose run --rm dev composer proto
 Run tests with following command.
 
 ```bash
-docker-compose run --rm dev composer phpunit
+docker-compose run --rm dev composer tests
+```
+
+To run separate tests first generate testing protobuf classes
+```bash
+docker-compose run --rm dev composer protobufTests
+```
+And than run phpunit
+```bash
+docker-compose run --rm dev composer phpunit -- --filter=TeradataDriverClientTest
 ```
 
 ## Code quality check

@@ -13,7 +13,6 @@ interface ClientInterface
      * @return mixed
      */
     public function runCommand(
-        string $backend,
         Message $credentials,
         Message $command,
         array $features

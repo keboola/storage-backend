@@ -4,6 +4,9 @@ parameters:
         - src
         - contract
         - tests
+    excludePaths:
+        analyseAndScan:
+            - tests/generated/*
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
