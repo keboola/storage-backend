@@ -15,6 +15,7 @@ CREATE DATABASE <nickname>_driver_teradata FROM <your root database>
 
 -- grant rights
 GRANT CREATE DATABASE, DROP DATABASE, CREATE USER, DROP USER ON <nickname>_driver_teradata TO <nickname>_driver_teradata;
+GRANT CREATE ROLE, DROP ROLE TO <nickname>_driver_teradata;
 ```
 
 setup envs:
