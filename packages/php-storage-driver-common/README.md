@@ -10,8 +10,11 @@ SET SESSION DATABASE <your root database>;
 
 -- create root database for driver, use memory allocation of you choice 
 CREATE DATABASE <nickname>_driver_teradata FROM <your root database>
-    AS PERMANENT = 60000000,
-       SPOOL = 120000000;
+    AS PERMANENT = 1e9,
+       SPOOL = 1e9;
+
+-- grant rights
+GRANT CREATE DATABASE, DROP DATABASE, CREATE USER, DROP USER ON <nickname>_driver_teradata TO <nickname>_driver_teradata;
 ```
 
 setup envs:
