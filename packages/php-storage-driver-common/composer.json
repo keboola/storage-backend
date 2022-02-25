@@ -58,6 +58,7 @@
         ],
         "check": [
             "@composer validate --no-check-all --strict",
+            "@protobufTests",
             "@phplint",
             "@phpcs",
             "@phpstan"
