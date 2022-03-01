@@ -9,9 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * Generated from protobuf message <code>keboola.storageDriver.command.project.RemoveProjectCommand</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.project.DropProjectCommand</code>
  */
-class RemoveProjectCommand extends \Google\Protobuf\Internal\Message
+class DropProjectCommand extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>string projectUser = 1;</code>

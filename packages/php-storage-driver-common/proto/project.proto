@@ -16,7 +16,7 @@ message CreateProjectCommand {
   }
 }
 
-message RemoveProjectCommand {
+message DropProjectCommand {
   string projectUser = 1;
   string projectRole = 2;
   string readOnlyRoleName = 3;
