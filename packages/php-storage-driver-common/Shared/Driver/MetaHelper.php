@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Keboola\StorageDriver\Contract\Driver;
+namespace Keboola\StorageDriver\Shared\Driver;
 
 use Google\Protobuf\Any;
 use Google\Protobuf\Internal\Message;
-use Keboola\StorageDriver\Contract\Driver\Exception\Exception;
+use Keboola\StorageDriver\Shared\Driver\Exception\Exception;
 
 final class MetaHelper
 {

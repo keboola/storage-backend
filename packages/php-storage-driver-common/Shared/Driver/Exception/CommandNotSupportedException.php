@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Keboola\StorageDriver\Contract\Driver\Exception;
+namespace Keboola\StorageDriver\Shared\Driver\Exception;
 
 use Keboola\CommonExceptions\ApplicationExceptionInterface;
+use Keboola\StorageDriver\Contract\Driver\Exception\NonRetryableExceptionInterface;
 
 final class CommandNotSupportedException extends Exception implements
     ApplicationExceptionInterface,
