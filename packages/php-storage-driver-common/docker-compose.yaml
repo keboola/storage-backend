@@ -20,6 +20,7 @@ services:
   dev: &dev
     <<: *prod
     image: keboola/php-storage-driver-teradata
+    network_mode: host
     volumes:
       - ./:/code
   dev-xdebug:

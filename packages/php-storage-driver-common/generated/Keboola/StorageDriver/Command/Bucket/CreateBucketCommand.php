@@ -14,19 +14,27 @@ use Google\Protobuf\Internal\GPBUtil;
 class CreateBucketCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string bucketName = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      */
-    protected $bucketName = '';
+    protected $stackPrefix = '';
     /**
-     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * Generated from protobuf field <code>string projectId = 2;</code>
      */
-    protected $projectRole = '';
+    protected $projectId = '';
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string bucketId = 3;</code>
      */
-    protected $projectReadOnlyRole = '';
+    protected $bucketId = '';
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>string projectRoleName = 4;</code>
+     */
+    protected $projectRoleName = '';
+    /**
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
+     */
+    protected $projectReadOnlyRoleName = '';
+    /**
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      */
     protected $meta = null;
 
@@ -36,9 +44,11 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $bucketName
-     *     @type string $projectRole
-     *     @type string $projectReadOnlyRole
+     *     @type string $stackPrefix
+     *     @type string $projectId
+     *     @type string $bucketId
+     *     @type string $projectRoleName
+     *     @type string $projectReadOnlyRoleName
      *     @type \Google\Protobuf\Any $meta
      * }
      */
@@ -48,73 +58,117 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string bucketName = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @return string
      */
-    public function getBucketName()
+    public function getStackPrefix()
     {
-        return $this->bucketName;
+        return $this->stackPrefix;
     }
 
     /**
-     * Generated from protobuf field <code>string bucketName = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @param string $var
      * @return $this
      */
-    public function setBucketName($var)
+    public function setStackPrefix($var)
     {
         GPBUtil::checkString($var, True);
-        $this->bucketName = $var;
+        $this->stackPrefix = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * Generated from protobuf field <code>string projectId = 2;</code>
      * @return string
      */
-    public function getProjectRole()
+    public function getProjectId()
     {
-        return $this->projectRole;
+        return $this->projectId;
     }
 
     /**
-     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * Generated from protobuf field <code>string projectId = 2;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectRole($var)
+    public function setProjectId($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectRole = $var;
+        $this->projectId = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string bucketId = 3;</code>
      * @return string
      */
-    public function getProjectReadOnlyRole()
+    public function getBucketId()
     {
-        return $this->projectReadOnlyRole;
+        return $this->bucketId;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string bucketId = 3;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectReadOnlyRole($var)
+    public function setBucketId($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectReadOnlyRole = $var;
+        $this->bucketId = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>string projectRoleName = 4;</code>
+     * @return string
+     */
+    public function getProjectRoleName()
+    {
+        return $this->projectRoleName;
+    }
+
+    /**
+     * Generated from protobuf field <code>string projectRoleName = 4;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setProjectRoleName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->projectRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
+     * @return string
+     */
+    public function getProjectReadOnlyRoleName()
+    {
+        return $this->projectReadOnlyRoleName;
+    }
+
+    /**
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setProjectReadOnlyRoleName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->projectReadOnlyRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      * @return \Google\Protobuf\Any
      */
     public function getMeta()
@@ -123,7 +177,7 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */

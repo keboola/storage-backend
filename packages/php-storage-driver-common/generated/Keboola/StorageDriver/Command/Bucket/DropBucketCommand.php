@@ -14,17 +14,17 @@ use Google\Protobuf\Internal\GPBUtil;
 class DropBucketCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string bucketName = 1;</code>
+     * Generated from protobuf field <code>string bucketObjectName = 1;</code>
      */
-    protected $bucketName = '';
+    protected $bucketObjectName = '';
     /**
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      */
     protected $ignoreErrors = false;
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      */
-    protected $projectReadOnlyRole = '';
+    protected $projectReadOnlyRoleName = '';
     /**
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
@@ -36,9 +36,9 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $bucketName
+     *     @type string $bucketObjectName
      *     @type bool $ignoreErrors
-     *     @type string $projectReadOnlyRole
+     *     @type string $projectReadOnlyRoleName
      *     @type \Google\Protobuf\Any $meta
      * }
      */
@@ -48,23 +48,23 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string bucketName = 1;</code>
+     * Generated from protobuf field <code>string bucketObjectName = 1;</code>
      * @return string
      */
-    public function getBucketName()
+    public function getBucketObjectName()
     {
-        return $this->bucketName;
+        return $this->bucketObjectName;
     }
 
     /**
-     * Generated from protobuf field <code>string bucketName = 1;</code>
+     * Generated from protobuf field <code>string bucketObjectName = 1;</code>
      * @param string $var
      * @return $this
      */
-    public function setBucketName($var)
+    public function setBucketObjectName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->bucketName = $var;
+        $this->bucketObjectName = $var;
 
         return $this;
     }
@@ -92,23 +92,23 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @return string
      */
-    public function getProjectReadOnlyRole()
+    public function getProjectReadOnlyRoleName()
     {
-        return $this->projectReadOnlyRole;
+        return $this->projectReadOnlyRoleName;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectReadOnlyRole($var)
+    public function setProjectReadOnlyRoleName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectReadOnlyRole = $var;
+        $this->projectReadOnlyRoleName = $var;
 
         return $this;
     }

@@ -14,21 +14,13 @@ use Google\Protobuf\Internal\GPBUtil;
 class CreateProjectCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string projectUser = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      */
-    protected $projectUser = '';
+    protected $stackPrefix = '';
     /**
-     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * Generated from protobuf field <code>string projectId = 2;</code>
      */
-    protected $projectRole = '';
-    /**
-     * Generated from protobuf field <code>string projectPassword = 3;</code>
-     */
-    protected $projectPassword = '';
-    /**
-     * Generated from protobuf field <code>string readOnlyRoleName = 4;</code>
-     */
-    protected $readOnlyRoleName = '';
+    protected $projectId = '';
     /**
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      */
@@ -40,10 +32,8 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $projectUser
-     *     @type string $projectRole
-     *     @type string $projectPassword
-     *     @type string $readOnlyRoleName
+     *     @type string $stackPrefix
+     *     @type string $projectId
      *     @type \Google\Protobuf\Any $meta
      * }
      */
@@ -53,89 +43,45 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectUser = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @return string
      */
-    public function getProjectUser()
+    public function getStackPrefix()
     {
-        return $this->projectUser;
+        return $this->stackPrefix;
     }
 
     /**
-     * Generated from protobuf field <code>string projectUser = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectUser($var)
+    public function setStackPrefix($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectUser = $var;
+        $this->stackPrefix = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * Generated from protobuf field <code>string projectId = 2;</code>
      * @return string
      */
-    public function getProjectRole()
+    public function getProjectId()
     {
-        return $this->projectRole;
+        return $this->projectId;
     }
 
     /**
-     * Generated from protobuf field <code>string projectRole = 2;</code>
+     * Generated from protobuf field <code>string projectId = 2;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectRole($var)
+    public function setProjectId($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectRole = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string projectPassword = 3;</code>
-     * @return string
-     */
-    public function getProjectPassword()
-    {
-        return $this->projectPassword;
-    }
-
-    /**
-     * Generated from protobuf field <code>string projectPassword = 3;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setProjectPassword($var)
-    {
-        GPBUtil::checkString($var, True);
-        $this->projectPassword = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string readOnlyRoleName = 4;</code>
-     * @return string
-     */
-    public function getReadOnlyRoleName()
-    {
-        return $this->readOnlyRoleName;
-    }
-
-    /**
-     * Generated from protobuf field <code>string readOnlyRoleName = 4;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setReadOnlyRoleName($var)
-    {
-        GPBUtil::checkString($var, True);
-        $this->readOnlyRoleName = $var;
+        $this->projectId = $var;
 
         return $this;
     }

@@ -9,9 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * Generated from protobuf message <code>keboola.storageDriver.command.project.DropProjectCommand</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.project.CreateProjectResponse</code>
  */
-class DropProjectCommand extends \Google\Protobuf\Internal\Message
+class CreateProjectResponse extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>string projectUserName = 1;</code>
@@ -22,13 +22,13 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
      */
     protected $projectRoleName = '';
     /**
-     * Generated from protobuf field <code>string readOnlyRoleName = 3;</code>
+     * Generated from protobuf field <code>string projectPassword = 3;</code>
      */
-    protected $readOnlyRoleName = '';
+    protected $projectPassword = '';
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 4;</code>
      */
-    protected $meta = null;
+    protected $projectReadOnlyRoleName = '';
 
     /**
      * Constructor.
@@ -38,8 +38,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
      *
      *     @type string $projectUserName
      *     @type string $projectRoleName
-     *     @type string $readOnlyRoleName
-     *     @type \Google\Protobuf\Any $meta
+     *     @type string $projectPassword
+     *     @type string $projectReadOnlyRoleName
      * }
      */
     public function __construct($data = NULL) {
@@ -92,45 +92,45 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string readOnlyRoleName = 3;</code>
+     * Generated from protobuf field <code>string projectPassword = 3;</code>
      * @return string
      */
-    public function getReadOnlyRoleName()
+    public function getProjectPassword()
     {
-        return $this->readOnlyRoleName;
+        return $this->projectPassword;
     }
 
     /**
-     * Generated from protobuf field <code>string readOnlyRoleName = 3;</code>
+     * Generated from protobuf field <code>string projectPassword = 3;</code>
      * @param string $var
      * @return $this
      */
-    public function setReadOnlyRoleName($var)
+    public function setProjectPassword($var)
     {
         GPBUtil::checkString($var, True);
-        $this->readOnlyRoleName = $var;
+        $this->projectPassword = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
-     * @return \Google\Protobuf\Any
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 4;</code>
+     * @return string
      */
-    public function getMeta()
+    public function getProjectReadOnlyRoleName()
     {
-        return $this->meta;
+        return $this->projectReadOnlyRoleName;
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
-     * @param \Google\Protobuf\Any $var
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 4;</code>
+     * @param string $var
      * @return $this
      */
-    public function setMeta($var)
+    public function setProjectReadOnlyRoleName($var)
     {
-        GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
-        $this->meta = $var;
+        GPBUtil::checkString($var, True);
+        $this->projectReadOnlyRoleName = $var;
 
         return $this;
     }

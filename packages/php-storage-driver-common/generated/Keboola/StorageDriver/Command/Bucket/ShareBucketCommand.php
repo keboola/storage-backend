@@ -22,9 +22,9 @@ class ShareBucketCommand extends \Google\Protobuf\Internal\Message
      */
     protected $bucketShareRoleName = '';
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      */
-    protected $projectReadOnlyRole = '';
+    protected $projectReadOnlyRoleName = '';
     /**
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
@@ -38,7 +38,7 @@ class ShareBucketCommand extends \Google\Protobuf\Internal\Message
      *
      *     @type string $bucketObjectName
      *     @type string $bucketShareRoleName
-     *     @type string $projectReadOnlyRole
+     *     @type string $projectReadOnlyRoleName
      *     @type \Google\Protobuf\Any $meta
      * }
      */
@@ -92,23 +92,23 @@ class ShareBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @return string
      */
-    public function getProjectReadOnlyRole()
+    public function getProjectReadOnlyRoleName()
     {
-        return $this->projectReadOnlyRole;
+        return $this->projectReadOnlyRoleName;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectReadOnlyRole($var)
+    public function setProjectReadOnlyRoleName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectReadOnlyRole = $var;
+        $this->projectReadOnlyRoleName = $var;
 
         return $this;
     }

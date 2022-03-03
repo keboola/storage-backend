@@ -4,34 +4,41 @@ import "google/protobuf/any.proto";
 
 package keboola.storageDriver.command.bucket;
 message CreateBucketCommand {
-  string bucketName = 1;
-  string projectRole = 2;
-  string projectReadOnlyRole = 3;
-  google.protobuf.Any meta = 4;
+  string stackPrefix = 1;
+  string projectId = 2;
+  string bucketId = 3;
+  string projectRoleName = 4;
+  string projectReadOnlyRoleName = 5;
+  google.protobuf.Any meta = 6;
   message CreateBucketTeradataMeta {
     string permSpace = 1;
     string spoolSpace = 2;
   }
 }
 
+message CreateBucketResponse {
+  repeated string path = 1;
+  string createBucketObjectName = 2;
+}
+
 message DropBucketCommand {
-  string bucketName = 1;
+  string bucketObjectName = 1;
   bool ignoreErrors = 2;
-  string projectReadOnlyRole = 3;
+  string projectReadOnlyRoleName = 3;
   google.protobuf.Any meta = 4;
 }
 
 message LinkBucketCommand {
   string bucketObjectName = 1;
-  string sourceShareRole = 2;
-  string projectReadOnlyRole = 3;
+  string sourceShareRoleName = 2;
+  string projectReadOnlyRoleName = 3;
   google.protobuf.Any meta = 4;
 }
 
 message ShareBucketCommand {
   string bucketObjectName = 1;
   string bucketShareRoleName = 2;
-  string projectReadOnlyRole = 3;
+  string projectReadOnlyRoleName = 3;
   google.protobuf.Any meta = 4;
   message ShareBucketSnowflakeCommandMeta {
     string databaseName = 1;
@@ -40,14 +47,14 @@ message ShareBucketCommand {
 
 message UnlinkBucketCommand {
   string bucketObjectName = 1;
-  string sourceShareRole = 2;
-  string projectReadOnlyRole = 3;
+  string sourceShareRoleName = 2;
+  string projectReadOnlyRoleName = 3;
   google.protobuf.Any meta = 4;
 }
 
 message UnshareBucketCommand {
   string bucketObjectName = 1;
   string bucketShareRoleName = 2;
-  string projectReadOnlyRole = 3;
+  string projectReadOnlyRoleName = 3;
   google.protobuf.Any meta = 4;
 }

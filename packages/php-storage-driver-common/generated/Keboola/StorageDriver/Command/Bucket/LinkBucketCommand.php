@@ -18,13 +18,13 @@ class LinkBucketCommand extends \Google\Protobuf\Internal\Message
      */
     protected $bucketObjectName = '';
     /**
-     * Generated from protobuf field <code>string sourceShareRole = 2;</code>
+     * Generated from protobuf field <code>string sourceShareRoleName = 2;</code>
      */
-    protected $sourceShareRole = '';
+    protected $sourceShareRoleName = '';
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      */
-    protected $projectReadOnlyRole = '';
+    protected $projectReadOnlyRoleName = '';
     /**
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
@@ -37,8 +37,8 @@ class LinkBucketCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $bucketObjectName
-     *     @type string $sourceShareRole
-     *     @type string $projectReadOnlyRole
+     *     @type string $sourceShareRoleName
+     *     @type string $projectReadOnlyRoleName
      *     @type \Google\Protobuf\Any $meta
      * }
      */
@@ -70,45 +70,45 @@ class LinkBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string sourceShareRole = 2;</code>
+     * Generated from protobuf field <code>string sourceShareRoleName = 2;</code>
      * @return string
      */
-    public function getSourceShareRole()
+    public function getSourceShareRoleName()
     {
-        return $this->sourceShareRole;
+        return $this->sourceShareRoleName;
     }
 
     /**
-     * Generated from protobuf field <code>string sourceShareRole = 2;</code>
+     * Generated from protobuf field <code>string sourceShareRoleName = 2;</code>
      * @param string $var
      * @return $this
      */
-    public function setSourceShareRole($var)
+    public function setSourceShareRoleName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->sourceShareRole = $var;
+        $this->sourceShareRoleName = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @return string
      */
-    public function getProjectReadOnlyRole()
+    public function getProjectReadOnlyRoleName()
     {
-        return $this->projectReadOnlyRole;
+        return $this->projectReadOnlyRoleName;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRole = 3;</code>
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectReadOnlyRole($var)
+    public function setProjectReadOnlyRoleName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectReadOnlyRole = $var;
+        $this->projectReadOnlyRoleName = $var;
 
         return $this;
     }

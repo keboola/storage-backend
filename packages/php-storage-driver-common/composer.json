@@ -27,6 +27,7 @@
         "psr-4": {
             "Keboola\\StorageDriver\\Teradata\\": "src/",
             "Keboola\\StorageDriver\\Contract\\": "contract/",
+            "Keboola\\StorageDriver\\Shared\\": "Shared/",
             "Keboola\\StorageDriver\\": "generated/Keboola/StorageDriver",
             "GPBMetadata\\Proto\\": "generated/GPBMetadata/Proto"
         }
