@@ -41,6 +41,12 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
     protected $meta = null;
+    /**
+     * drop all object bucket contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 5;</code>
+     */
+    protected $isCascade = false;
 
     /**
      * Constructor.
@@ -56,6 +62,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
      *           backend read only role associated with project
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
+     *     @type bool $isCascade
+     *           drop all object bucket contains
      * }
      */
     public function __construct($data = NULL) {
@@ -163,6 +171,32 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
         $this->meta = $var;
+
+        return $this;
+    }
+
+    /**
+     * drop all object bucket contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 5;</code>
+     * @return bool
+     */
+    public function getIsCascade()
+    {
+        return $this->isCascade;
+    }
+
+    /**
+     * drop all object bucket contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 5;</code>
+     * @param bool $var
+     * @return $this
+     */
+    public function setIsCascade($var)
+    {
+        GPBUtil::checkBool($var);
+        $this->isCascade = $var;
 
         return $this;
     }

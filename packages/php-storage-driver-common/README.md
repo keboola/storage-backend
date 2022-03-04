@@ -62,7 +62,6 @@ docker run --rm \
   -v $(pwd)/proto:/protos \
   pseudomuto/protoc-gen-doc
 ```
-
 ## Tests
 
 Run tests with following command.
@@ -79,6 +78,10 @@ And than run phpunit
 ```bash
 docker-compose run --rm dev composer phpunit -- --filter=TeradataDriverClientTest
 ```
+
+### Debug queries
+
+To debug queries executed during test set DEBUG=true env variable 
 
 ## Code quality check
 

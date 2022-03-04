@@ -41,6 +41,7 @@ message DropBucketCommand {
   bool ignoreErrors = 2; // if true all backend errors should be ignored and command will always pass
   string projectReadOnlyRoleName = 3; // backend read only role associated with project
   google.protobuf.Any meta = 4; // metadata specific for each backend
+  bool isCascade = 5; // drop all object bucket contains
 }
 
 message LinkBucketCommand {
