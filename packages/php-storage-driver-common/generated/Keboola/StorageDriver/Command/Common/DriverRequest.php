@@ -9,19 +9,28 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Generic request used to trigger driver action
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.common.DriverRequest</code>
  */
 class DriverRequest extends \Google\Protobuf\Internal\Message
 {
     /**
+     * credentials needed to connect into backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any credentials = 1;</code>
      */
     protected $credentials = null;
     /**
+     * command object used for actions
+     *
      * Generated from protobuf field <code>.google.protobuf.Any command = 2;</code>
      */
     protected $command = null;
     /**
+     * list of features which could be processed by backend
+     *
      * Generated from protobuf field <code>repeated string features = 3;</code>
      */
     private $features;
@@ -33,8 +42,11 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type \Google\Protobuf\Any $credentials
+     *           credentials needed to connect into backend
      *     @type \Google\Protobuf\Any $command
+     *           command object used for actions
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $features
+     *           list of features which could be processed by backend
      * }
      */
     public function __construct($data = NULL) {
@@ -43,6 +55,8 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * credentials needed to connect into backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any credentials = 1;</code>
      * @return \Google\Protobuf\Any
      */
@@ -52,6 +66,8 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * credentials needed to connect into backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any credentials = 1;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
@@ -65,6 +81,8 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * command object used for actions
+     *
      * Generated from protobuf field <code>.google.protobuf.Any command = 2;</code>
      * @return \Google\Protobuf\Any
      */
@@ -74,6 +92,8 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * command object used for actions
+     *
      * Generated from protobuf field <code>.google.protobuf.Any command = 2;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
@@ -87,6 +107,8 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * list of features which could be processed by backend
+     *
      * Generated from protobuf field <code>repeated string features = 3;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
@@ -96,6 +118,8 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * list of features which could be processed by backend
+     *
      * Generated from protobuf field <code>repeated string features = 3;</code>
      * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this

@@ -4,8 +4,11 @@ import "google/protobuf/any.proto";
 
 package keboola.storageDriver.command.common;
 
+/**
+ * Generic request used to trigger driver action
+ */
 message DriverRequest {
-  google.protobuf.Any credentials = 1;
-  google.protobuf.Any command = 2;
-  repeated string features = 3;
+  google.protobuf.Any credentials = 1; // credentials needed to connect into backend
+  google.protobuf.Any command = 2; // command object used for actions
+  repeated string features = 3; // list of features which could be processed by backend
 }

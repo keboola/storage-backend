@@ -9,15 +9,22 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Response which is always returned as result of CreateBucketCommand
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.bucket.CreateBucketResponse</code>
  */
 class CreateBucketResponse extends \Google\Protobuf\Internal\Message
 {
     /**
+     * optional path to new bucket resource
+     *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      */
     private $path;
     /**
+     * resulting object name actually stored in backend
+     *
      * Generated from protobuf field <code>string createBucketObjectName = 2;</code>
      */
     protected $createBucketObjectName = '';
@@ -29,7 +36,9 @@ class CreateBucketResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *           optional path to new bucket resource
      *     @type string $createBucketObjectName
+     *           resulting object name actually stored in backend
      * }
      */
     public function __construct($data = NULL) {
@@ -38,6 +47,8 @@ class CreateBucketResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * optional path to new bucket resource
+     *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
@@ -47,6 +58,8 @@ class CreateBucketResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * optional path to new bucket resource
+     *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
@@ -60,6 +73,8 @@ class CreateBucketResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * resulting object name actually stored in backend
+     *
      * Generated from protobuf field <code>string createBucketObjectName = 2;</code>
      * @return string
      */
@@ -69,6 +84,8 @@ class CreateBucketResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * resulting object name actually stored in backend
+     *
      * Generated from protobuf field <code>string createBucketObjectName = 2;</code>
      * @param string $var
      * @return $this

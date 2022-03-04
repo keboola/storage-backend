@@ -9,23 +9,34 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Snowflake credentials metadata
+ *
  * Generated from protobuf message <code>keboola.storageDriver.credentials.GenericBackendCredentials.SnowflakeCredentialsMeta</code>
  */
 class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
 {
     /**
+     * project database name
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      */
     protected $database = '';
     /**
+     * warehouse name used for connection
+     *
      * Generated from protobuf field <code>string warehouse = 2;</code>
      */
     protected $warehouse = '';
     /**
+     * query timeout for workspace
+     *
      * Generated from protobuf field <code>uint32 workspaceStatementTimeoutSeconds = 3;</code>
      */
     protected $workspaceStatementTimeoutSeconds = 0;
     /**
+     * connection tracing level, used for debug
+     *
      * Generated from protobuf field <code>uint32 tracingLevel = 4;</code>
      */
     protected $tracingLevel = 0;
@@ -37,9 +48,13 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $database
+     *           project database name
      *     @type string $warehouse
+     *           warehouse name used for connection
      *     @type int $workspaceStatementTimeoutSeconds
+     *           query timeout for workspace
      *     @type int $tracingLevel
+     *           connection tracing level, used for debug
      * }
      */
     public function __construct($data = NULL) {
@@ -48,6 +63,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project database name
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @return string
      */
@@ -57,6 +74,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project database name
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @param string $var
      * @return $this
@@ -70,6 +89,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * warehouse name used for connection
+     *
      * Generated from protobuf field <code>string warehouse = 2;</code>
      * @return string
      */
@@ -79,6 +100,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * warehouse name used for connection
+     *
      * Generated from protobuf field <code>string warehouse = 2;</code>
      * @param string $var
      * @return $this
@@ -92,6 +115,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * query timeout for workspace
+     *
      * Generated from protobuf field <code>uint32 workspaceStatementTimeoutSeconds = 3;</code>
      * @return int
      */
@@ -101,6 +126,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * query timeout for workspace
+     *
      * Generated from protobuf field <code>uint32 workspaceStatementTimeoutSeconds = 3;</code>
      * @param int $var
      * @return $this
@@ -114,6 +141,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * connection tracing level, used for debug
+     *
      * Generated from protobuf field <code>uint32 tracingLevel = 4;</code>
      * @return int
      */
@@ -123,6 +152,8 @@ class SnowflakeCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * connection tracing level, used for debug
+     *
      * Generated from protobuf field <code>uint32 tracingLevel = 4;</code>
      * @param int $var
      * @return $this

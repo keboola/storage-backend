@@ -9,11 +9,16 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Redshift credentials metadata
+ *
  * Generated from protobuf message <code>keboola.storageDriver.credentials.GenericBackendCredentials.RedshiftCredentialsMeta</code>
  */
 class RedshiftCredentialsMeta extends \Google\Protobuf\Internal\Message
 {
     /**
+     * database used with Redshift connection string
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      */
     protected $database = '';
@@ -25,6 +30,7 @@ class RedshiftCredentialsMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $database
+     *           database used with Redshift connection string
      * }
      */
     public function __construct($data = NULL) {
@@ -33,6 +39,8 @@ class RedshiftCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database used with Redshift connection string
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @return string
      */
@@ -42,6 +50,8 @@ class RedshiftCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database used with Redshift connection string
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @param string $var
      * @return $this

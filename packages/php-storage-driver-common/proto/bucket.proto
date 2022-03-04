@@ -3,29 +3,44 @@ syntax = "proto3";
 import "google/protobuf/any.proto";
 
 package keboola.storageDriver.command.bucket;
+
+/**
+ * Command is used when new bucket is created in Keboola connection
+ * Command will setup resources on backed side and creates CreateBucketResponse
+ */
 message CreateBucketCommand {
-  string stackPrefix = 1;
-  string projectId = 2;
-  string bucketId = 3;
-  string projectRoleName = 4;
-  string projectReadOnlyRoleName = 5;
-  google.protobuf.Any meta = 6;
+  string stackPrefix = 1; // static prefix of stack used
+  string projectId = 2; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+  string bucketId = 3; // id of created bucket example `out.c-API-tests-5df4589250af36e0980a7a61436fd5aa6e21f782`
+  string projectRoleName = 4; // backend role associated with project, role should contain all grants and be assigned to project user
+  string projectReadOnlyRoleName = 5; // backend read only role associated with project, role has read access for all buckets in project and containing tables
+  google.protobuf.Any meta = 6; // metadata specific for each backend
+  /**
+   * Teradata backend metadata
+   */
   message CreateBucketTeradataMeta {
-    string permSpace = 1;
-    string spoolSpace = 2;
+    string permSpace = 1; // size of perm space allocated with project example `1e9`
+    string spoolSpace = 2; // size of spool space allocated with project example `1e9`
   }
 }
 
+/**
+ * Response which is always returned as result of CreateBucketCommand
+ */
 message CreateBucketResponse {
-  repeated string path = 1;
-  string createBucketObjectName = 2;
+  repeated string path = 1; // optional path to new bucket resource
+  string createBucketObjectName = 2; // resulting object name actually stored in backend
 }
 
+/**
+ * Command is used when bucket is removed in Keboola connection
+ * Command will remove all resources on backed side
+ */
 message DropBucketCommand {
-  string bucketObjectName = 1;
-  bool ignoreErrors = 2;
-  string projectReadOnlyRoleName = 3;
-  google.protobuf.Any meta = 4;
+  string bucketObjectName = 1; // object name in backend which will be removed
+  bool ignoreErrors = 2; // if true all backend errors should be ignored and command will always pass
+  string projectReadOnlyRoleName = 3; // backend read only role associated with project
+  google.protobuf.Any meta = 4; // metadata specific for each backend
 }
 
 message LinkBucketCommand {

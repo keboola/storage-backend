@@ -18,23 +18,39 @@ class PasswordTest extends TestCase
             $this->assertPasswordHasUppercase($password);
             $this->assertPasswordHasLowercase($password);
             $this->assertEquals(32, strlen($password));
-            $this->assertMatchesRegularExpression('~^[^0O1Il]+$~', $password, 'Characters "0O1Il" are not excluded from password.');
+            $this->assertMatchesRegularExpression(
+                '~^[^0O1Il]+$~',
+                $password,
+                'Characters "0O1Il" are not excluded from password.'
+            );
         }
     }
 
     private function assertPasswordHasNumber(string $password): void
     {
-        $this->assertMatchesRegularExpression('/[0-9]+/', $password, sprintf('Password "%s" missing numeric characters.', $password));
+        $this->assertMatchesRegularExpression(
+            '/[0-9]+/',
+            $password,
+            sprintf('Password "%s" missing numeric characters.', $password)
+        );
     }
 
     private function assertPasswordHasUppercase(string $password): void
     {
-        $this->assertMatchesRegularExpression('/[A-Z]+/', $password, sprintf('Password "%s" missing uppercase characters.', $password));
+        $this->assertMatchesRegularExpression(
+            '/[A-Z]+/',
+            $password,
+            sprintf('Password "%s" missing uppercase characters.', $password)
+        );
     }
 
     private function assertPasswordHasLowercase(string $password): void
     {
-        $this->assertMatchesRegularExpression('/[a-z]+/', $password, sprintf('Password "%s" missing lowercase characters.', $password));
+        $this->assertMatchesRegularExpression(
+            '/[a-z]+/',
+            $password,
+            sprintf('Password "%s" missing lowercase characters.', $password)
+        );
     }
 
     public function testGeneratePasswordWithSpecialCharacters(): void
@@ -53,13 +69,21 @@ class PasswordTest extends TestCase
             $this->assertPasswordHasLowercase($password);
             $this->assertPasswordHasSpecialCharacter($password);
             $this->assertEquals(50, strlen($password));
-            $this->assertMatchesRegularExpression('~^[^0O1Il]+$~', $password, 'Characters "0O1Il" are not excluded from password.');
+            $this->assertMatchesRegularExpression(
+                '~^[^0O1Il]+$~',
+                $password,
+                'Characters "0O1Il" are not excluded from password.'
+            );
         }
     }
 
     private function assertPasswordHasSpecialCharacter(string $password): void
     {
-        $this->assertMatchesRegularExpression('/[_\-\!\$\.\+\/\@\#\%\&\*\?]+/', $password, sprintf('Password "%s" missing special characters.', $password));
+        $this->assertMatchesRegularExpression(
+            '/[_\-\!\$\.\+\/\@\#\%\&\*\?]+/',
+            $password,
+            sprintf('Password "%s" missing special characters.', $password)
+        );
     }
 
     public function testGeneratePasswordExcludeCharacters(): void
@@ -79,7 +103,11 @@ class PasswordTest extends TestCase
             $this->assertPasswordHasLowercase($password);
             $this->assertPasswordHasSpecialCharacter($password);
             $this->assertEquals(50, strlen($password));
-            $this->assertMatchesRegularExpression('~^[^abc]+$~', $password, 'Characters "abc" are not excluded from password.');
+            $this->assertMatchesRegularExpression(
+                '~^[^abc]+$~',
+                $password,
+                'Characters "abc" are not excluded from password.'
+            );
         }
     }
 }

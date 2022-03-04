@@ -9,27 +9,41 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Command is used when new table is created in Keboola connection
+ * Command will create new table and set all grants needed by project
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.table.CreateTableCommand</code>
  */
 class CreateTableCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * path where table is created
+     *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      */
     private $path;
     /**
+     * table name
+     *
      * Generated from protobuf field <code>string tableName = 2;</code>
      */
     protected $tableName = '';
     /**
+     * table columns definitions
+     *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.CreateTableCommand.TableColumn columns = 3;</code>
      */
     private $columns;
     /**
+     * primary key columns names
+     *
      * Generated from protobuf field <code>repeated string primaryKeysNames = 4;</code>
      */
     private $primaryKeysNames;
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      */
     protected $meta = null;
@@ -41,10 +55,15 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *           path where table is created
      *     @type string $tableName
+     *           table name
      *     @type \Keboola\StorageDriver\Command\Table\CreateTableCommand\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $columns
+     *           table columns definitions
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
+     *           primary key columns names
      *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -53,6 +72,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * path where table is created
+     *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
@@ -62,6 +83,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * path where table is created
+     *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
@@ -75,6 +98,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * table name
+     *
      * Generated from protobuf field <code>string tableName = 2;</code>
      * @return string
      */
@@ -84,6 +109,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * table name
+     *
      * Generated from protobuf field <code>string tableName = 2;</code>
      * @param string $var
      * @return $this
@@ -97,6 +124,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * table columns definitions
+     *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.CreateTableCommand.TableColumn columns = 3;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
@@ -106,6 +135,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * table columns definitions
+     *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.CreateTableCommand.TableColumn columns = 3;</code>
      * @param \Keboola\StorageDriver\Command\Table\CreateTableCommand\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
@@ -119,6 +150,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * primary key columns names
+     *
      * Generated from protobuf field <code>repeated string primaryKeysNames = 4;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
@@ -128,6 +161,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * primary key columns names
+     *
      * Generated from protobuf field <code>repeated string primaryKeysNames = 4;</code>
      * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
@@ -141,6 +176,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @return \Google\Protobuf\Any
      */
@@ -150,6 +187,8 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this

@@ -9,11 +9,16 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Teradata credentials metadata
+ *
  * Generated from protobuf message <code>keboola.storageDriver.credentials.GenericBackendCredentials.TeradataCredentialsMeta</code>
  */
 class TeradataCredentialsMeta extends \Google\Protobuf\Internal\Message
 {
     /**
+     * database set as default after connection is established
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      */
     protected $database = '';
@@ -25,6 +30,7 @@ class TeradataCredentialsMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $database
+     *           database set as default after connection is established
      * }
      */
     public function __construct($data = NULL) {
@@ -33,6 +39,8 @@ class TeradataCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database set as default after connection is established
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @return string
      */
@@ -42,6 +50,8 @@ class TeradataCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database set as default after connection is established
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @param string $var
      * @return $this

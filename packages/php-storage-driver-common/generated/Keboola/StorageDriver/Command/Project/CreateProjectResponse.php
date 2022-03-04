@@ -9,23 +9,35 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Response which is always returned as result of CreateProjectResponse
+ * returned properties are optional and connection will handle when they are not set up on backend
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.project.CreateProjectResponse</code>
  */
 class CreateProjectResponse extends \Google\Protobuf\Internal\Message
 {
     /**
+     * newly created user name associated with project
+     *
      * Generated from protobuf field <code>string projectUserName = 1;</code>
      */
     protected $projectUserName = '';
     /**
+     * newly created role name associated with project
+     *
      * Generated from protobuf field <code>string projectRoleName = 2;</code>
      */
     protected $projectRoleName = '';
     /**
+     * project user password
+     *
      * Generated from protobuf field <code>string projectPassword = 3;</code>
      */
     protected $projectPassword = '';
     /**
+     * newly created role name which will have select grant on all tables and buckets in project
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 4;</code>
      */
     protected $projectReadOnlyRoleName = '';
@@ -37,9 +49,13 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $projectUserName
+     *           newly created user name associated with project
      *     @type string $projectRoleName
+     *           newly created role name associated with project
      *     @type string $projectPassword
+     *           project user password
      *     @type string $projectReadOnlyRoleName
+     *           newly created role name which will have select grant on all tables and buckets in project
      * }
      */
     public function __construct($data = NULL) {
@@ -48,6 +64,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created user name associated with project
+     *
      * Generated from protobuf field <code>string projectUserName = 1;</code>
      * @return string
      */
@@ -57,6 +75,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created user name associated with project
+     *
      * Generated from protobuf field <code>string projectUserName = 1;</code>
      * @param string $var
      * @return $this
@@ -70,6 +90,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created role name associated with project
+     *
      * Generated from protobuf field <code>string projectRoleName = 2;</code>
      * @return string
      */
@@ -79,6 +101,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created role name associated with project
+     *
      * Generated from protobuf field <code>string projectRoleName = 2;</code>
      * @param string $var
      * @return $this
@@ -92,6 +116,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project user password
+     *
      * Generated from protobuf field <code>string projectPassword = 3;</code>
      * @return string
      */
@@ -101,6 +127,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project user password
+     *
      * Generated from protobuf field <code>string projectPassword = 3;</code>
      * @param string $var
      * @return $this
@@ -114,6 +142,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created role name which will have select grant on all tables and buckets in project
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 4;</code>
      * @return string
      */
@@ -123,6 +153,8 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created role name which will have select grant on all tables and buckets in project
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 4;</code>
      * @param string $var
      * @return $this

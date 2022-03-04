@@ -9,23 +9,35 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Command is used when bucket is removed in Keboola connection
+ * Command will remove all resources on backed side
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.bucket.DropBucketCommand</code>
  */
 class DropBucketCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string bucketObjectName = 1;</code>
      */
     protected $bucketObjectName = '';
     /**
+     * if true all backend errors should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      */
     protected $ignoreErrors = false;
     /**
+     * backend read only role associated with project
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      */
     protected $projectReadOnlyRoleName = '';
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
     protected $meta = null;
@@ -37,9 +49,13 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $bucketObjectName
+     *           object name in backend which will be removed
      *     @type bool $ignoreErrors
+     *           if true all backend errors should be ignored and command will always pass
      *     @type string $projectReadOnlyRoleName
+     *           backend read only role associated with project
      *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -48,6 +64,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string bucketObjectName = 1;</code>
      * @return string
      */
@@ -57,6 +75,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string bucketObjectName = 1;</code>
      * @param string $var
      * @return $this
@@ -70,6 +90,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * if true all backend errors should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      * @return bool
      */
@@ -79,6 +101,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * if true all backend errors should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      * @param bool $var
      * @return $this
@@ -92,6 +116,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend read only role associated with project
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @return string
      */
@@ -101,6 +127,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend read only role associated with project
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
      * @param string $var
      * @return $this
@@ -114,6 +142,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @return \Google\Protobuf\Any
      */
@@ -123,6 +153,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this

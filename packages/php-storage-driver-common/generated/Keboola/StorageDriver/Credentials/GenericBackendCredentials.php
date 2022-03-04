@@ -9,27 +9,41 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Generic credentials object used to establish connection to backend
+ * contains only common properties all backend specific properties are meant to be used as metadata
+ *
  * Generated from protobuf message <code>keboola.storageDriver.credentials.GenericBackendCredentials</code>
  */
 class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
 {
     /**
+     * host name. Example vendor.snowflakecomputing.com
+     *
      * Generated from protobuf field <code>string host = 1;</code>
      */
     protected $host = '';
     /**
+     * user name
+     *
      * Generated from protobuf field <code>string principal = 2;</code>
      */
     protected $principal = '';
     /**
+     * password or token
+     *
      * Generated from protobuf field <code>string secret = 3;</code>
      */
     protected $secret = '';
     /**
+     * port for database
+     *
      * Generated from protobuf field <code>uint32 port = 4;</code>
      */
     protected $port = 0;
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      */
     protected $meta = null;
@@ -41,10 +55,15 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $host
+     *           host name. Example vendor.snowflakecomputing.com
      *     @type string $principal
+     *           user name
      *     @type string $secret
+     *           password or token
      *     @type int $port
+     *           port for database
      *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -53,6 +72,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * host name. Example vendor.snowflakecomputing.com
+     *
      * Generated from protobuf field <code>string host = 1;</code>
      * @return string
      */
@@ -62,6 +83,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * host name. Example vendor.snowflakecomputing.com
+     *
      * Generated from protobuf field <code>string host = 1;</code>
      * @param string $var
      * @return $this
@@ -75,6 +98,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * user name
+     *
      * Generated from protobuf field <code>string principal = 2;</code>
      * @return string
      */
@@ -84,6 +109,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * user name
+     *
      * Generated from protobuf field <code>string principal = 2;</code>
      * @param string $var
      * @return $this
@@ -97,6 +124,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * password or token
+     *
      * Generated from protobuf field <code>string secret = 3;</code>
      * @return string
      */
@@ -106,6 +135,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * password or token
+     *
      * Generated from protobuf field <code>string secret = 3;</code>
      * @param string $var
      * @return $this
@@ -119,6 +150,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * port for database
+     *
      * Generated from protobuf field <code>uint32 port = 4;</code>
      * @return int
      */
@@ -128,6 +161,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * port for database
+     *
      * Generated from protobuf field <code>uint32 port = 4;</code>
      * @param int $var
      * @return $this
@@ -141,6 +176,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @return \Google\Protobuf\Any
      */
@@ -150,6 +187,8 @@ class GenericBackendCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this

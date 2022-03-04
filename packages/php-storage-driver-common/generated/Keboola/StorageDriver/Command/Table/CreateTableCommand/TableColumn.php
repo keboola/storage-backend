@@ -9,6 +9,10 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Table column definition
+ * this definition is transformed into column sql definition
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.table.CreateTableCommand.TableColumn</code>
  */
 class TableColumn extends \Google\Protobuf\Internal\Message

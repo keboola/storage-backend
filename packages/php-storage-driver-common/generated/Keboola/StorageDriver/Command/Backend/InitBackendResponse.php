@@ -10,13 +10,11 @@ use Google\Protobuf\Internal\GPBUtil;
 
 /**
  **
- * Command is used when backend is registered into Keboola connection
- * Command will check if connection works and if registered user has all necessary grants
- * Each backend can setup needed resources
+ * Response which is always returned as result of InitBackendCommand
  *
- * Generated from protobuf message <code>keboola.storageDriver.command.backend.InitBackendCommand</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.backend.InitBackendResponse</code>
  */
-class InitBackendCommand extends \Google\Protobuf\Internal\Message
+class InitBackendResponse extends \Google\Protobuf\Internal\Message
 {
     /**
      * custom object for each backend

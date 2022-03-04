@@ -9,31 +9,47 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Command is used when new bucket is created in Keboola connection
+ * Command will setup resources on backed side and creates CreateBucketResponse
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.bucket.CreateBucketCommand</code>
  */
 class CreateBucketCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * static prefix of stack used
+     *
      * Generated from protobuf field <code>string stackPrefix = 1;</code>
      */
     protected $stackPrefix = '';
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 2;</code>
      */
     protected $projectId = '';
     /**
+     * id of created bucket example `out.c-API-tests-5df4589250af36e0980a7a61436fd5aa6e21f782`
+     *
      * Generated from protobuf field <code>string bucketId = 3;</code>
      */
     protected $bucketId = '';
     /**
+     * backend role associated with project, role should contain all grants and be assigned to project user
+     *
      * Generated from protobuf field <code>string projectRoleName = 4;</code>
      */
     protected $projectRoleName = '';
     /**
+     * backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
      */
     protected $projectReadOnlyRoleName = '';
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      */
     protected $meta = null;
@@ -45,11 +61,17 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $stackPrefix
+     *           static prefix of stack used
      *     @type string $projectId
+     *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
      *     @type string $bucketId
+     *           id of created bucket example `out.c-API-tests-5df4589250af36e0980a7a61436fd5aa6e21f782`
      *     @type string $projectRoleName
+     *           backend role associated with project, role should contain all grants and be assigned to project user
      *     @type string $projectReadOnlyRoleName
+     *           backend read only role associated with project, role has read access for all buckets in project and containing tables
      *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -58,6 +80,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * static prefix of stack used
+     *
      * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @return string
      */
@@ -67,6 +91,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * static prefix of stack used
+     *
      * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @param string $var
      * @return $this
@@ -80,6 +106,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 2;</code>
      * @return string
      */
@@ -89,6 +117,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 2;</code>
      * @param string $var
      * @return $this
@@ -102,6 +132,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * id of created bucket example `out.c-API-tests-5df4589250af36e0980a7a61436fd5aa6e21f782`
+     *
      * Generated from protobuf field <code>string bucketId = 3;</code>
      * @return string
      */
@@ -111,6 +143,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * id of created bucket example `out.c-API-tests-5df4589250af36e0980a7a61436fd5aa6e21f782`
+     *
      * Generated from protobuf field <code>string bucketId = 3;</code>
      * @param string $var
      * @return $this
@@ -124,6 +158,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend role associated with project, role should contain all grants and be assigned to project user
+     *
      * Generated from protobuf field <code>string projectRoleName = 4;</code>
      * @return string
      */
@@ -133,6 +169,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend role associated with project, role should contain all grants and be assigned to project user
+     *
      * Generated from protobuf field <code>string projectRoleName = 4;</code>
      * @param string $var
      * @return $this
@@ -146,6 +184,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
      * @return string
      */
@@ -155,6 +195,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
      * @param string $var
      * @return $this
@@ -168,6 +210,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      * @return \Google\Protobuf\Any
      */
@@ -177,6 +221,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this

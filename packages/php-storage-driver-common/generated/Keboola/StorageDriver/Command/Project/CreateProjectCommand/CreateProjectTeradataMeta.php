@@ -9,19 +9,28 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Teradata backend metadata
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.project.CreateProjectCommand.CreateProjectTeradataMeta</code>
  */
 class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
 {
     /**
+     * database under which is new project user created
+     *
      * Generated from protobuf field <code>string rootDatabase = 1;</code>
      */
     protected $rootDatabase = '';
     /**
+     * size of perm space allocated with project example `1e9`
+     *
      * Generated from protobuf field <code>string permSpace = 2;</code>
      */
     protected $permSpace = '';
     /**
+     * size of spool space allocated with project example `1e9`
+     *
      * Generated from protobuf field <code>string spoolSpace = 3;</code>
      */
     protected $spoolSpace = '';
@@ -33,8 +42,11 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $rootDatabase
+     *           database under which is new project user created
      *     @type string $permSpace
+     *           size of perm space allocated with project example `1e9`
      *     @type string $spoolSpace
+     *           size of spool space allocated with project example `1e9`
      * }
      */
     public function __construct($data = NULL) {
@@ -43,6 +55,8 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database under which is new project user created
+     *
      * Generated from protobuf field <code>string rootDatabase = 1;</code>
      * @return string
      */
@@ -52,6 +66,8 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database under which is new project user created
+     *
      * Generated from protobuf field <code>string rootDatabase = 1;</code>
      * @param string $var
      * @return $this
@@ -65,6 +81,8 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * size of perm space allocated with project example `1e9`
+     *
      * Generated from protobuf field <code>string permSpace = 2;</code>
      * @return string
      */
@@ -74,6 +92,8 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * size of perm space allocated with project example `1e9`
+     *
      * Generated from protobuf field <code>string permSpace = 2;</code>
      * @param string $var
      * @return $this
@@ -87,6 +107,8 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * size of spool space allocated with project example `1e9`
+     *
      * Generated from protobuf field <code>string spoolSpace = 3;</code>
      * @return string
      */
@@ -96,6 +118,8 @@ class CreateProjectTeradataMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * size of spool space allocated with project example `1e9`
+     *
      * Generated from protobuf field <code>string spoolSpace = 3;</code>
      * @param string $var
      * @return $this

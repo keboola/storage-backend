@@ -9,15 +9,22 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Synapse credentials metadata
+ *
  * Generated from protobuf message <code>keboola.storageDriver.credentials.GenericBackendCredentials.SynapseCredentialsMeta</code>
  */
 class SynapseCredentialsMeta extends \Google\Protobuf\Internal\Message
 {
     /**
+     * warehouse database name
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      */
     protected $database = '';
     /**
+     * use managed identity to connect into Synapse
+     *
      * Generated from protobuf field <code>bool useManagedIdentity = 2;</code>
      */
     protected $useManagedIdentity = false;
@@ -29,7 +36,9 @@ class SynapseCredentialsMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $database
+     *           warehouse database name
      *     @type bool $useManagedIdentity
+     *           use managed identity to connect into Synapse
      * }
      */
     public function __construct($data = NULL) {
@@ -38,6 +47,8 @@ class SynapseCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * warehouse database name
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @return string
      */
@@ -47,6 +58,8 @@ class SynapseCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * warehouse database name
+     *
      * Generated from protobuf field <code>string database = 1;</code>
      * @param string $var
      * @return $this
@@ -60,6 +73,8 @@ class SynapseCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * use managed identity to connect into Synapse
+     *
      * Generated from protobuf field <code>bool useManagedIdentity = 2;</code>
      * @return bool
      */
@@ -69,6 +84,8 @@ class SynapseCredentialsMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * use managed identity to connect into Synapse
+     *
      * Generated from protobuf field <code>bool useManagedIdentity = 2;</code>
      * @param bool $var
      * @return $this

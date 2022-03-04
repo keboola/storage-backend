@@ -54,6 +54,15 @@ To run with xdebug use `dev-xdebug` container instead of `dev`
 docker-compose run --rm dev composer protobuf
 ```
 
+### Generate protobuf documentation
+
+```bash
+docker run --rm \
+  -v $(pwd)/docs:/out \
+  -v $(pwd)/proto:/protos \
+  pseudomuto/protoc-gen-doc
+```
+
 ## Tests
 
 Run tests with following command.

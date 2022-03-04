@@ -9,23 +9,35 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Command is used when project is deleted in Keboola connection
+ * Command will remove all necessary resource in project
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.project.DropProjectCommand</code>
  */
 class DropProjectCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * project associated user name which will be removed
+     *
      * Generated from protobuf field <code>string projectUserName = 1;</code>
      */
     protected $projectUserName = '';
     /**
+     * project associated role name which will be removed
+     *
      * Generated from protobuf field <code>string projectRoleName = 2;</code>
      */
     protected $projectRoleName = '';
     /**
+     * project associated read only role name which will be removed
+     *
      * Generated from protobuf field <code>string readOnlyRoleName = 3;</code>
      */
     protected $readOnlyRoleName = '';
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
     protected $meta = null;
@@ -37,9 +49,13 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $projectUserName
+     *           project associated user name which will be removed
      *     @type string $projectRoleName
+     *           project associated role name which will be removed
      *     @type string $readOnlyRoleName
+     *           project associated read only role name which will be removed
      *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -48,6 +64,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project associated user name which will be removed
+     *
      * Generated from protobuf field <code>string projectUserName = 1;</code>
      * @return string
      */
@@ -57,6 +75,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project associated user name which will be removed
+     *
      * Generated from protobuf field <code>string projectUserName = 1;</code>
      * @param string $var
      * @return $this
@@ -70,6 +90,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project associated role name which will be removed
+     *
      * Generated from protobuf field <code>string projectRoleName = 2;</code>
      * @return string
      */
@@ -79,6 +101,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project associated role name which will be removed
+     *
      * Generated from protobuf field <code>string projectRoleName = 2;</code>
      * @param string $var
      * @return $this
@@ -92,6 +116,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project associated read only role name which will be removed
+     *
      * Generated from protobuf field <code>string readOnlyRoleName = 3;</code>
      * @return string
      */
@@ -101,6 +127,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * project associated read only role name which will be removed
+     *
      * Generated from protobuf field <code>string readOnlyRoleName = 3;</code>
      * @param string $var
      * @return $this
@@ -114,6 +142,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @return \Google\Protobuf\Any
      */
@@ -123,6 +153,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this

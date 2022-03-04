@@ -5,9 +5,17 @@ import "google/protobuf/struct.proto";
 
 package keboola.storageDriver.command.table;
 
+/**
+ * Command is used when new table is created in Keboola connection
+ * Command will create new table and set all grants needed by project
+ */
 message CreateTableCommand {
-  repeated string path = 1;
-  string tableName = 2;
+  repeated string path = 1; // path where table is created
+  string tableName = 2; // table name
+  /**
+   * Table column definition
+   * this definition is transformed into column sql definition
+   */
   message TableColumn {
     string name = 1;
     string type = 2;
@@ -15,9 +23,9 @@ message CreateTableCommand {
     bool nullable = 4;
     string default = 5;
   }
-  repeated TableColumn columns = 3;
-  repeated string primaryKeysNames = 4;
-  google.protobuf.Any meta = 5;
+  repeated TableColumn columns = 3; // table columns definitions
+  repeated string primaryKeysNames = 4; // primary key columns names
+  google.protobuf.Any meta = 5; // metadata specific for each backend
   message SynapseTableMeta {
 
   }

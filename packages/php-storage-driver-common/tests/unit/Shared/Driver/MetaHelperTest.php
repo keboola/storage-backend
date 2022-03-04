@@ -6,7 +6,7 @@ namespace Keboola\StorageDriver\UnitTests\Shared\Driver;
 
 use Google\Protobuf\Any;
 use Google\Protobuf\Internal\Message;
-use Keboola\StorageDriver\Command\Backend\InitBackendCommand;
+use Keboola\StorageDriver\Command\Backend\InitBackendResponse;
 use Keboola\StorageDriver\Command\Bucket\CreateBucketCommand\CreateBucketTeradataMeta;
 use Keboola\StorageDriver\Shared\Driver\MetaHelper;
 use PHPUnit\Framework\TestCase;
@@ -24,8 +24,8 @@ class MetaHelperTest extends TestCase
 
     public function testGetMetaNoMetaSet(): void
     {
-        $result = \Keboola\StorageDriver\Shared\Driver\MetaHelper::getMeta(
-            new InitBackendCommand()
+        $result = MetaHelper::getMeta(
+            new InitBackendResponse()
         );
         $this->assertNull($result);
     }
@@ -34,22 +34,22 @@ class MetaHelperTest extends TestCase
     {
         $meta = new Any();
         $meta->pack(
-            (new InitBackendCommand\InitBackendSynapseMeta())
+            (new InitBackendResponse\InitBackendSynapseMeta())
                 ->setGlobalRoleName('test')
         );
 
-        $result = \Keboola\StorageDriver\Shared\Driver\MetaHelper::getMeta(
-            (new InitBackendCommand())->setMeta($meta)
+        $result = MetaHelper::getMeta(
+            (new InitBackendResponse())->setMeta($meta)
         );
-        $this->assertInstanceOf(InitBackendCommand\InitBackendSynapseMeta::class, $result);
+        $this->assertInstanceOf(InitBackendResponse\InitBackendSynapseMeta::class, $result);
         $this->assertSame('test', $result->getGlobalRoleName());
     }
 
     public function testGetMetaRestrictedNotContainMeta(): void
     {
-        $result = \Keboola\StorageDriver\Shared\Driver\MetaHelper::getMetaRestricted(
+        $result = MetaHelper::getMetaRestricted(
             $this->createMock(Message::class),
-            InitBackendCommand\InitBackendSynapseMeta::class
+            InitBackendResponse\InitBackendSynapseMeta::class
         );
         $this->assertNull($result);
     }
@@ -57,8 +57,8 @@ class MetaHelperTest extends TestCase
     public function testGetMetaRestrictedNoMetaSet(): void
     {
         $result = MetaHelper::getMetaRestricted(
-            new InitBackendCommand(),
-            InitBackendCommand\InitBackendSynapseMeta::class
+            new InitBackendResponse(),
+            InitBackendResponse\InitBackendSynapseMeta::class
         );
         $this->assertNull($result);
     }
@@ -67,12 +67,12 @@ class MetaHelperTest extends TestCase
     {
         $meta = new Any();
         $meta->pack(
-            new InitBackendCommand\InitBackendSynapseMeta()
+            new InitBackendResponse\InitBackendSynapseMeta()
         );
 
         $this->expectException(Throwable::class);
-        \Keboola\StorageDriver\Shared\Driver\MetaHelper::getMetaRestricted(
-            (new InitBackendCommand())->setMeta($meta),
+        MetaHelper::getMetaRestricted(
+            (new InitBackendResponse())->setMeta($meta),
             CreateBucketTeradataMeta::class
         );
     }
@@ -81,15 +81,15 @@ class MetaHelperTest extends TestCase
     {
         $meta = new Any();
         $meta->pack(
-            (new InitBackendCommand\InitBackendSynapseMeta())
+            (new InitBackendResponse\InitBackendSynapseMeta())
                 ->setGlobalRoleName('test')
         );
 
-        $result = \Keboola\StorageDriver\Shared\Driver\MetaHelper::getMetaRestricted(
-            (new InitBackendCommand())->setMeta($meta),
-            InitBackendCommand\InitBackendSynapseMeta::class
+        $result = MetaHelper::getMetaRestricted(
+            (new InitBackendResponse())->setMeta($meta),
+            InitBackendResponse\InitBackendSynapseMeta::class
         );
-        $this->assertInstanceOf(InitBackendCommand\InitBackendSynapseMeta::class, $result);
+        $this->assertInstanceOf(InitBackendResponse\InitBackendSynapseMeta::class, $result);
         $this->assertSame('test', $result->getGlobalRoleName());
     }
 }

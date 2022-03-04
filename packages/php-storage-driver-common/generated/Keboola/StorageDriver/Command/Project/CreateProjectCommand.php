@@ -9,19 +9,30 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Command is used when new project is created in Keboola connection
+ * Command will setup all necessary resource needed for project to work
+ * CreateProjectResponse is always returned
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.project.CreateProjectCommand</code>
  */
 class CreateProjectCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * static prefix of stack used
+     *
      * Generated from protobuf field <code>string stackPrefix = 1;</code>
      */
     protected $stackPrefix = '';
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 2;</code>
      */
     protected $projectId = '';
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      */
     protected $meta = null;
@@ -33,8 +44,11 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $stackPrefix
+     *           static prefix of stack used
      *     @type string $projectId
+     *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
      *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -43,6 +57,8 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * static prefix of stack used
+     *
      * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @return string
      */
@@ -52,6 +68,8 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * static prefix of stack used
+     *
      * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @param string $var
      * @return $this
@@ -65,6 +83,8 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 2;</code>
      * @return string
      */
@@ -74,6 +94,8 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 2;</code>
      * @param string $var
      * @return $this
@@ -87,6 +109,8 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @return \Google\Protobuf\Any
      */
@@ -96,6 +120,8 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * metadata specific for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this

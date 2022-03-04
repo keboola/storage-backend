@@ -9,11 +9,16 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Command is used when backend is removed from Keboola connection
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.backend.RemoveBackendCommand</code>
  */
 class RemoveBackendCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * custom object for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 1;</code>
      */
     protected $meta = null;
@@ -25,6 +30,7 @@ class RemoveBackendCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type \Google\Protobuf\Any $meta
+     *           custom object for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -33,6 +39,8 @@ class RemoveBackendCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * custom object for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 1;</code>
      * @return \Google\Protobuf\Any
      */
@@ -42,6 +50,8 @@ class RemoveBackendCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * custom object for each backend
+     *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 1;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
