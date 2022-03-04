@@ -10,11 +10,10 @@ interface ClientInterface
 {
     /**
      * @param string[] $features
-     * @return mixed
      */
     public function runCommand(
         Message $credentials,
         Message $command,
         array $features
-    );
+    ): ?Message;
 }

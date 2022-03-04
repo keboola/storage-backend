@@ -10,11 +10,10 @@ interface DriverCommandHandlerInterface
 {
     /**
      * @param string[] $features
-     * @return mixed
      */
     public function __invoke(
         Message $credentials,
         Message $command,
         array $features
-    );
+    ): ?Message;
 }
