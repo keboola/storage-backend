@@ -9,9 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * Generated from protobuf message <code>keboola.storageDriver.command.table.RemoveTableCommand</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.table.DropTableCommand</code>
  */
-class RemoveTableCommand extends \Google\Protobuf\Internal\Message
+class DropTableCommand extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>repeated string path = 1;</code>
