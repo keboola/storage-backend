@@ -8,14 +8,26 @@ Keboola high level storage backend driver for Teradata
 -- set session database of your choice
 SET SESSION DATABASE <your root database>;
 
--- create root database for driver, use memory allocation of you choice 
-CREATE DATABASE <nickname>_driver_teradata FROM <your root database>
-    AS PERMANENT = 1e9,
-       SPOOL = 1e9;
+--There are two options how to preceded
+
+-- Option 1 (preferred): Create user and run all tests with it
+CREATE USER <nickname>_driver_teradata FROM <your root database>
+AS PERMANENT = 1e9,
+SPOOL = 1e9
+PASSWORD = PassW0rd#, -- set your password :)
+DEFAULT DATABASE=<nickname>_driver_teradata;
 
 -- grant rights
 GRANT CREATE DATABASE, DROP DATABASE, CREATE USER, DROP USER ON <nickname>_driver_teradata TO <nickname>_driver_teradata;
 GRANT CREATE ROLE, DROP ROLE TO <nickname>_driver_teradata;
+
+-- Option 2: Create database and use you current user to run tests
+-- you use has to have CREATE DATABASE, DROP DATABASE, CREATE USER, DROP USER, CREATE ROLE, DROP ROLE grants
+
+-- create root database for driver, use memory allocation of you choice 
+CREATE DATABASE <nickname>_driver_teradata FROM <your root database>
+    AS PERMANENT = 1e9,
+       SPOOL = 1e9;
 ```
 
 setup envs:
@@ -56,12 +68,14 @@ docker-compose run --rm dev composer protobuf
 
 ### Generate protobuf documentation
 
+Documentation will be places in `docs` folder. Check [documentation](https://github.com/pseudomuto/protoc-gen-doc/blob/master/README.md) for more options.
 ```bash
 docker run --rm \
   -v $(pwd)/docs:/out \
   -v $(pwd)/proto:/protos \
   pseudomuto/protoc-gen-doc
 ```
+
 ## Tests
 
 Run tests with following command.
