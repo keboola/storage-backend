@@ -39,6 +39,8 @@ TERADATA_PORT=1025
 TERADATA_ROOT_DATABASE=<nickname>_driver_teradata
 ```
 
+_Mac: for local Teradata server in VirtualBox set HOST to `host.docker.internal`._
+
 ## Setup AWS credentials
 
 You access key must have access to `keboola-drivers` bucket to download Teradata odbc driver and utilities
