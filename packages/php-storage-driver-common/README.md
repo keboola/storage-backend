@@ -68,7 +68,7 @@ docker-compose run --rm dev composer protobuf
 
 ### Generate protobuf documentation
 
-Documentation will be places in `docs` folder. Check [documentation](https://github.com/pseudomuto/protoc-gen-doc/blob/master/README.md) for more options.
+Documentation will be placed in `docs` folder. Check [documentation](https://github.com/pseudomuto/protoc-gen-doc/blob/master/README.md) for more options.
 ```bash
 docker run --rm \
   -v $(pwd)/docs:/out \
@@ -95,7 +95,7 @@ docker-compose run --rm dev composer phpunit -- --filter=TeradataDriverClientTes
 
 ### Debug queries
 
-To debug queries executed during test set DEBUG=true env variable 
+To debug queries executed during test set DEBUG=1 env variable 
 
 ## Code quality check
 
