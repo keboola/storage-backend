@@ -57,29 +57,9 @@ message PreviewTableCommand {
   string changeUntil = 5;
   repeated string columns = 6;
   string fulltextSearch = 7;
-  message PreviewTableWhereFilter {
-    string columnsName = 1;
-    enum Operator {
-      eq = 0;
-      ne = 1;
-      gt = 2;
-      ge = 3;
-      lt = 4;
-      le = 5;
-    }
-    Operator operator = 2;
-    repeated string values = 3;
-    PreviewTableCommand.DataType dataType = 4;
-  }
-  repeated PreviewTableWhereFilter whereFilters = 8;
-  enum DataType {
-    string = 0;
-    INTEGER = 1;
-    DOUBLE = 2;
-    BIGINT = 3;
-    REAL = 4;
-    DECIMAL = 5;
-  }
+
+  repeated ImportExportShared.TableWhereFilter whereFilters = 8;
+
   message PreviewTableOrderBy {
     string columnsName = 1;
     enum Order {
@@ -87,7 +67,7 @@ message PreviewTableCommand {
       DESC = 1;
     }
     Order order = 2;
-    PreviewTableCommand.DataType dataType = 3;
+    ImportExportShared.DataType dataType = 3;
   }
   PreviewTableOrderBy orderBy = 9;
 }
@@ -103,4 +83,220 @@ message PreviewTableResponse {
     }
   }
   repeated Row rows = 2;
+}
+
+message ImportExportShared {
+  /**
+   * Common where filter which is transformed into WHERE cause in driver
+   */
+  message TableWhereFilter {
+    string columnsName = 1; // column where is filter applied
+    /**
+     * Supported comparison operators
+     */
+    enum Operator {
+      eq = 0; // =
+      ne = 1; // != | <>
+      gt = 2; // >
+      ge = 3; // >=
+      lt = 4; // <
+      le = 5; // <=
+    }
+    Operator operator = 2;
+    repeated string values = 3; // comparison value
+    ImportExportShared.DataType dataType = 4; // datatype of value usually driver will cast value with TRY method
+  }
+  /**
+   * Supported datatypes
+   */
+  enum DataType {
+    STRING = 0;
+    INTEGER = 1;
+    DOUBLE = 2;
+    BIGINT = 3;
+    REAL = 4;
+    DECIMAL = 5;
+  }
+  message Table {
+    repeated string path = 1; // path where table exists
+    string tableName = 2; // table name
+  }
+  /**
+   * Common import options
+   */
+  message ImportOptions {
+    string timestampColumn = 1; // timestamp column name, in Keboola connection it's usually _timestamp, can be empty
+    repeated string convertEmptyValuesToNullOnColumns = 2; // Specifies columns where empty string values will be converted to null
+    ImportType importType = 3;
+    /**
+     * Type of import into table
+     * Based on DedupType vary behavior of handling duplicate values
+     */
+    enum ImportType {
+      FULL = 0; // destination table is truncated before import
+      INCREMENTAL = 1; // rows are added into table
+    }
+    int32 numberOfIgnoredLines = 4; // number of lines that are skipped, usually used values is 1 to skip csv header
+    /**
+     * Deduplication logic type for handling duplicate values
+     */
+    DedupType dedupType = 5;
+    enum DedupType {
+      UPDATE_DUPLICATES = 0; // Currently only supported deduplication in Keboola connection, will update duplicate values in non-deterministic way
+      INSERT_DUPLICATES = 1; // Will not do deduplication and only insert duplicate values without any checking, this could lead to fail of import query if backend enforce unique keys for example
+      FAIL_ON_DUPLICATES = 2; // Will check if import contains duplicate keys and fail before inserting into final table
+    }
+  }
+  /**
+   * Depends on driver implementation which provider is supported
+   */
+  enum FileProvider {
+    S3 = 0; // Amazon S3
+    ABS = 1; // Azure blob storage
+  }
+  message S3Credentials {
+    string key = 1; // AWS access key
+    string secret = 2; // AWS secret key
+    string region = 5; //S3 region
+    string token = 4; // set only if temporary credentials (scoped) are used, this is preferred way how to use aws credentials, use "root" credentials only if absolutely necessary
+  }
+  message ABSCredentials {
+    string accountName = 1; // ABS account name
+    string sasToken = 2; // preferred way of authorization is to use temporary SAS token
+    string accountKey = 3; // use account key only if absolutely necessary
+  }
+  /**
+   * Relative file properties based on:
+   * https://github.com/keboola/php-file-storage-utils/tree/master/src/Path
+   */
+  message FilePath {
+    string root = 1; // container for ABS, bucket for S3
+    string path = 2; // key for S3, path on ABS
+    string fileName = 3;
+  }
+  /**
+   * Currently only CSV is supported file format in Keboola connection
+   * Additional formatTypeOptions can be specified
+   */
+  enum FileFormat {
+    CSV = 0; // CSV file format can have set CsvTypeOptions in formatTypeOptions
+  }
+}
+
+/**
+ * Command is used when importing file into Keboola connection
+ * Command will take source file and import it into backend table based on provided options
+ */
+message TableImportFromFileCommand {
+  ImportExportShared.FileProvider fileProvider = 1; // Type of file storage provider
+  ImportExportShared.FileFormat fileFormat = 2; // Specifies the format of the data files containing source data
+  google.protobuf.Any formatTypeOptions = 3; // file format options
+  /**
+   * CSV file configuration based on:
+   * https://github.com/keboola/php-db-import-export/blob/master/src/Storage/S3/SourceFile.php
+   * And on:
+   * https://github.com/keboola/php-csv-options
+   * Options support can vary based on backend
+   */
+  message CsvTypeOptions {
+    repeated string columnsNames = 1; // list of columns expected in csv file
+    repeated string primaryKeysNames = 2; // list of primary key columns
+    string delimiter = 3; // One character that separate fields in file. Delimiter must be single character and cannot be empty
+    string enclosure = 4; // Character used to enclose strings. Single quote character ('), or double quote character (")
+    string escapedBy = 5; // Single character string used as the escape character for unenclosed field values only
+    SourceType sourceType = 6; // csv source type
+    /**
+     * File path can point into different kinds of sources
+     */
+    enum SourceType {
+      SINGLE_FILE = 0; // single file, path points on single file only
+      SLICED_FILE = 1; // sliced file, path points on manifest file
+      DIRECTORY = 2; // directory, path points on directory of files
+    }
+    Compression compression = 7; // used compression in files
+    /**
+     * Files can be compressed or in plain form
+     * only gzip is now supported compression
+     */
+    enum Compression {
+      NONE = 0;
+      GZIP = 1;
+    }
+  }
+  ImportExportShared.FilePath filePath = 4; // path to file on cloud storage
+  /**
+   * credentials used to access file on file storage
+   * Use ImportExportShared.{S3Credentials, ABSCredentials}
+   */
+  google.protobuf.Any fileCredentials = 5;
+  /**
+   * Resulting table on the backend
+   * Table must exists before import
+   * All table properties are loaded from backend
+   */
+  ImportExportShared.Table destination = 6;
+  /**
+   * Import options may vary based on backend
+   * based on:
+   * https://github.com/keboola/php-db-import-export/blob/master/src/ImportOptions.php
+   */
+  ImportExportShared.ImportOptions importOptions = 7;
+}
+
+/**
+ * Response of TableImportFromFileCommand
+ */
+message TableImportFromFileResponse {
+  int64 importedRowsCount = 1; // number of rows imported into final table
+  repeated Timer timers = 2; // list of timers captured by driver
+  message Timer {
+    string name = 1; // name of timer
+    string duration = 2; // duration in seconds
+  }
+  repeated string importedColumns = 3; // list of imported columns
+  google.protobuf.Any meta = 4; // additional import data
+  /**
+   * Teradata import metadata information's
+   * Teradata backed provides additional import information's from error tables and import log which can be used for import debugging
+   * TODO: datatypes returned needs to be better specified. Error tables have specific format which may be reflected here
+   */
+  message TeradataTableImportMeta {
+    string importLog = 1;
+    string errorTable1records = 2;
+    string errorTable2records = 3;
+  }
+}
+
+/**
+ * Command is used when copying table into another table in same backend
+ */
+message TableImportFromTableCommand {
+  SourceTableMapping source = 1;
+  /**
+   * Source table input mapping
+   */
+  message SourceTableMapping {
+    repeated string path = 1; // path where table exists
+    string tableName = 2; // table name
+    int64 seconds = 3; // seconds filter, will limit based on timestamp column result
+    repeated ImportExportShared.TableWhereFilter whereFilters = 4; // where causes
+    int64 limit = 5; // limit number of records
+    repeated ColumnMapping columnMappings = 6; // column names mapping
+    message ColumnMapping {
+      string sourceColumnName = 1; // name of column in source table
+      string destinationColumnName = 2; // name of column in destination table
+    }
+  }
+  /**
+   * Resulting table on the backend
+   * Table must exists before import
+   * All table properties are loaded from backend
+   */
+  ImportExportShared.Table destination = 2;
+  /**
+   * Import options may vary based on backend
+   * based on:
+   * https://github.com/keboola/php-db-import-export/blob/master/src/ImportOptions.php
+   */
+  ImportExportShared.ImportOptions importOptions = 3;
 }

@@ -22,7 +22,7 @@ class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
      */
     protected $order = 0;
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.PreviewTableCommand.DataType dataType = 3;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.DataType dataType = 3;</code>
      */
     protected $dataType = 0;
 
@@ -87,7 +87,7 @@ class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.PreviewTableCommand.DataType dataType = 3;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.DataType dataType = 3;</code>
      * @return int
      */
     public function getDataType()
@@ -96,13 +96,13 @@ class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.PreviewTableCommand.DataType dataType = 3;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.DataType dataType = 3;</code>
      * @param int $var
      * @return $this
      */
     public function setDataType($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\DataType::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\DataType::class);
         $this->dataType = $var;
 
         return $this;
