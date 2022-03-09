@@ -1,4 +1,5 @@
 name: Tests
+concurrency: tests # ensure that test are not running in same time
 
 on:
   push:
