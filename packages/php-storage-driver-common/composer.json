@@ -12,7 +12,7 @@
     "require": {
         "php": ">=7.4",
         "ext-odbc": "*",
-        "keboola/db-import-export": "dev-master",
+        "keboola/db-import-export": "^0.18",
         "google/protobuf": "^3.19"
     },
     "require-dev": {
