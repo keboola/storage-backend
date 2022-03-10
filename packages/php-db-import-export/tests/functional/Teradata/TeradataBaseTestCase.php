@@ -97,7 +97,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     {
         $this->connection->executeQuery(sprintf('
 CREATE DATABASE %s AS
-       PERM = 1e9;
+       PERM = 5e6;
        ', $dbName));
     }
 

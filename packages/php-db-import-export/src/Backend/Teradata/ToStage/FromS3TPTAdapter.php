@@ -69,14 +69,14 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         );
         $process->start();
 
-        //// debug stuff
-        //foreach ($process as $type => $data) {
-        //    if ($process::OUT === $type) {
-        //        echo "\nRead from stdout: " . $data;
-        //    } else { // $process::ERR === $type
-        //        echo "\nRead from stderr: " . $data;
-        //    }
-        //}
+        // debug stuff
+        foreach ($process as $type => $data) {
+            if ($process::OUT === $type) {
+                echo "\nRead from stdout: " . $data;
+            } else { // $process::ERR === $type
+                echo "\nRead from stderr: " . $data;
+            }
+        }
         $isTableExists = function (string $tableName, string $databaseName) {
             return (bool) $this->connection->fetchOne(sprintf('SELECT 1 FROM dbc.TablesV WHERE TableName = %s AND DataBaseName = %s', TeradataQuote::quote($tableName), TeradataQuote::quote($databaseName)));
         };
