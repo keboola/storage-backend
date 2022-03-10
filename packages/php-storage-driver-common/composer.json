@@ -12,8 +12,8 @@
     "require": {
         "php": ">=7.4",
         "ext-odbc": "*",
-        "keboola/db-import-export": "dev-master",
-        "google/protobuf": "^3.19"
+        "keboola/db-import-export": "^0.18",
+        "google/protobuf": "^3.20.0RC1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
