@@ -80,7 +80,7 @@ class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
      */
     public function setOrder($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand_PreviewTableOrderBy_Order::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy\Order::class);
         $this->order = $var;
 
         return $this;
@@ -102,7 +102,7 @@ class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
      */
     public function setDataType($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand_DataType::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\DataType::class);
         $this->dataType = $var;
 
         return $this;

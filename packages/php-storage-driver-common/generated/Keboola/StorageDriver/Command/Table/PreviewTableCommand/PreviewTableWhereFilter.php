@@ -85,7 +85,7 @@ class PreviewTableWhereFilter extends \Google\Protobuf\Internal\Message
      */
     public function setOperator($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand_PreviewTableWhereFilter_Operator::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableWhereFilter\Operator::class);
         $this->operator = $var;
 
         return $this;
@@ -129,7 +129,7 @@ class PreviewTableWhereFilter extends \Google\Protobuf\Internal\Message
      */
     public function setDataType($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand_DataType::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\DataType::class);
         $this->dataType = $var;
 
         return $this;

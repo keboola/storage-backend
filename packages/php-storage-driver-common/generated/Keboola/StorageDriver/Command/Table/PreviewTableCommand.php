@@ -250,11 +250,21 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableOrderBy orderBy = 9;</code>
-     * @return \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy
+     * @return \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy|null
      */
     public function getOrderBy()
     {
         return $this->orderBy;
+    }
+
+    public function hasOrderBy()
+    {
+        return isset($this->orderBy);
+    }
+
+    public function clearOrderBy()
+    {
+        unset($this->orderBy);
     }
 
     /**
@@ -264,7 +274,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      */
     public function setOrderBy($var)
     {
-        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand_PreviewTableOrderBy::class);
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy::class);
         $this->orderBy = $var;
 
         return $this;

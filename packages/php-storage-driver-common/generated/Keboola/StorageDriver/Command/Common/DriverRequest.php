@@ -58,11 +58,21 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
      * credentials needed to connect into backend
      *
      * Generated from protobuf field <code>.google.protobuf.Any credentials = 1;</code>
-     * @return \Google\Protobuf\Any
+     * @return \Google\Protobuf\Any|null
      */
     public function getCredentials()
     {
         return $this->credentials;
+    }
+
+    public function hasCredentials()
+    {
+        return isset($this->credentials);
+    }
+
+    public function clearCredentials()
+    {
+        unset($this->credentials);
     }
 
     /**
@@ -84,11 +94,21 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
      * command object used for actions
      *
      * Generated from protobuf field <code>.google.protobuf.Any command = 2;</code>
-     * @return \Google\Protobuf\Any
+     * @return \Google\Protobuf\Any|null
      */
     public function getCommand()
     {
         return $this->command;
+    }
+
+    public function hasCommand()
+    {
+        return isset($this->command);
+    }
+
+    public function clearCommand()
+    {
+        unset($this->command);
     }
 
     /**

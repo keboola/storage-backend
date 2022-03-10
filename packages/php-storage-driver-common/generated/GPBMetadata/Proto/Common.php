@@ -15,9 +15,15 @@ class Common
           return;
         }
         \GPBMetadata\Google\Protobuf\Any::initOnce();
-        $pool->internalAddGeneratedFile(hex2bin(
-            "0ab7010a1270726f746f2f636f6d6d6f6e2e70726f746f12246b65626f6f6c612e73746f726167654472697665722e636f6d6d616e642e636f6d6d6f6e22730a0d4472697665725265717565737412290a0b63726564656e7469616c7318012001280b32142e676f6f676c652e70726f746f6275662e416e7912250a07636f6d6d616e6418022001280b32142e676f6f676c652e70726f746f6275662e416e7912100a086665617475726573180320032809620670726f746f33"
-        ), true);
+        $pool->internalAddGeneratedFile(
+            '
+·
+proto/common.proto$keboola.storageDriver.command.common"s
+DriverRequest)
+credentials (2.google.protobuf.Any%
+command (2.google.protobuf.Any
+features (	bproto3'
+        , true);
 
         static::$is_initialized = true;
     }
