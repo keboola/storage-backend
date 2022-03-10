@@ -77,21 +77,22 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         //        echo "\nRead from stderr: " . $data;
         //    }
         //}
-        $isTableExists = fn(string $tableName
-        ) => (bool) $this->connection->fetchOne(sprintf('SELECT 1 FROM dbc.TablesV WHERE TableName = %s', TeradataQuote::quote($tableName)));
+        $isTableExists = function (string $tableName, string $databaseName) {
+            return (bool) $this->connection->fetchOne(sprintf('SELECT 1 FROM dbc.TablesV WHERE TableName = %s AND DataBaseName = %s', TeradataQuote::quote($tableName), TeradataQuote::quote($databaseName)));
+        };
 
         $logContent = null;
-        if ($isTableExists($logTable)) {
+        if ($isTableExists($logTable, $destination->getSchemaName())) {
             $logContent = $this->connection->fetchAllAssociative('SELECT * FROM ' . TeradataQuote::quoteSingleIdentifier($logTable));
             $this->connection->executeStatement('DROP TABLE ' . $logTable);
         }
         $errContent = null;
-        if ($isTableExists($errTable)) {
+        if ($isTableExists($errTable, $destination->getSchemaName())) {
             $errContent = $this->connection->fetchAllAssociative('SELECT * FROM ' . TeradataQuote::quoteSingleIdentifier($errTable));
             $this->connection->executeStatement('DROP TABLE ' . $errTable);
         }
         $err2Content = null;
-        if ($isTableExists($errTable2)) {
+        if ($isTableExists($errTable2, $destination->getSchemaName())) {
             $err2Content = $this->connection->fetchAllAssociative('SELECT * FROM ' . TeradataQuote::quoteSingleIdentifier($errTable2));
             $this->connection->executeStatement('DROP TABLE ' . $errTable2);
         }
@@ -200,11 +201,11 @@ EOD;
 
         $tablesPrefix = BackendHelper::generateTempTableName();
         $logTable = $tablesPrefix . '_log';
-        $logTableQuoted = TeradataQuote::quoteSingleIdentifier($logTable);
+        $logTableQuoted = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()) . '.' . TeradataQuote::quoteSingleIdentifier($logTable);
         $errTable1 = $tablesPrefix . '_e1';
-        $errTableQuoted = TeradataQuote::quoteSingleIdentifier($errTable1);
+        $errTableQuoted = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()) . '.' . TeradataQuote::quoteSingleIdentifier($errTable1);
         $errTable2 = $tablesPrefix . '_e2';
-        $errTable2Quoted = TeradataQuote::quoteSingleIdentifier($errTable2);
+        $errTable2Quoted = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()) . '.' . TeradataQuote::quoteSingleIdentifier($errTable2);
 
         $jobVariableFile = <<<EOD
 /********************************************************/
