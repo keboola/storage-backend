@@ -7,6 +7,9 @@ parameters:
     excludePaths:
         analyseAndScan:
             - tests/generated/*
+    ignoreErrors:
+        - '#Cannot assign new offset to Google\\Protobuf\\Internal\\RepeatedField\.#'
+        - '#Google\\Protobuf\\Internal\\RepeatedField does not accept#'
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
