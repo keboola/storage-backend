@@ -2,3 +2,6 @@
 /.idea
 composer.lock
 .env
+tests/generated/*
+!tests/generated/.gitkeep
+/docs/

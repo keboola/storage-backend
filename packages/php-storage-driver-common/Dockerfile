@@ -23,8 +23,6 @@ RUN apt-get update -q \
         ca-certificates \
         unixodbc \
         unixodbc-dev \
-        libprotobuf-dev \
-        protobuf-compiler \
 	&& rm -r /var/lib/apt/lists/* \
 	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
 	&& locale-gen \
@@ -34,6 +32,16 @@ RUN apt-get update -q \
 ENV LANGUAGE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
+
+RUN mkdir -p /tmp/protoc && \
+    curl -sSLf \
+    -o /tmp/protoc/protoc.zip \
+    https://github.com/protocolbuffers/protobuf/releases/download/v3.20.0-rc1/protoc-3.20.0-rc-1-linux-x86_64.zip && \
+    unzip /tmp/protoc/protoc.zip -d /tmp/protoc && \
+    mv /tmp/protoc/bin/protoc /usr/local/bin && \
+    mv /tmp/protoc/include/google /usr/local/include && \
+    chmod +x /usr/local/bin/protoc && \
+    rm -rf /tmp/protoc
 
 RUN curl -sSLf \
         -o /usr/local/bin/install-php-extensions \

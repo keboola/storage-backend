@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package keboola.storageDriver.command.project;
+/**
+ * Command is used when new project is created in Keboola connection
+ * Command will setup all necessary resource needed for project to work
+ * CreateProjectResponse is always returned
+ */
+message CreateProjectCommand {
+  string stackPrefix = 1; // static prefix of stack used
+  string projectId = 2; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+  google.protobuf.Any meta = 5; // metadata specific for each backend
+  /**
+   * Teradata backend metadata
+   */
+  message CreateProjectTeradataMeta {
+    string rootDatabase = 1; // database under which is new project user created
+    string permSpace = 2;  // size of perm space allocated with project example `1e9`
+    string spoolSpace = 3; // size of spool space allocated with project example `1e9`
+  }
+}
+
+/**
+ * Response which is always returned as result of CreateProjectResponse
+ * returned properties are optional and connection will handle when they are not set up on backend
+ */
+message CreateProjectResponse {
+  string projectUserName = 1; // newly created user name associated with project
+  string projectRoleName = 2; // newly created role name associated with project
+  string projectPassword = 3; // project user password
+  string projectReadOnlyRoleName = 4; // newly created role name which will have select grant on all tables and buckets in project
+}
+
+/**
+ * Command is used when project is deleted in Keboola connection
+ * Command will remove all necessary resource in project
+ */
+message DropProjectCommand {
+  string projectUserName = 1; // project associated user name which will be removed
+  string projectRoleName = 2; // project associated role name which will be removed
+  string readOnlyRoleName = 3; // project associated read only role name which will be removed
+  google.protobuf.Any meta = 4; // metadata specific for each backend
+}
