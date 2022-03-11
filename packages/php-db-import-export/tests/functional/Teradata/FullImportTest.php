@@ -33,7 +33,7 @@ class FullImportTest extends TeradataBaseTestCase
         // skipping header
         $options = $this->getImportOptions();
         $source = $this->createS3SourceInstance(
-            'column-name-row-number.csv',
+            self::TABLE_COLUMN_NAME_ROW_NUMBER . '.csv',
             [
                 'id',
                 'row_number',
@@ -73,124 +73,5 @@ class FullImportTest extends TeradataBaseTestCase
 
         self::assertEquals(2, $destinationRef->getRowsCount());
     }
-
-    public function testLoadToTableWithDedupWithSinglePK(): void
-    {
-        $this->initTable(self::TABLE_SINGLE_PK);
-
-        // skipping header
-        $options = $this->getTeradataImportOptions(1, false);
-        $source = $this->createS3SourceInstance(
-            'multi-pk.csv',
-            [
-                'VisitID',
-                'Value',
-                'MenuItem',
-                'Something',
-                'Other',
-            ],
-            false,
-            false,
-            ['VisitID']
-        );
-
-        $importer = new ToStageImporter($this->connection);
-        $destinationRef = new TeradataTableReflection(
-            $this->connection,
-            $this->getDestinationDbName(),
-            self::TABLE_SINGLE_PK
-        );
-        $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
-            'VisitID',
-            'Value',
-            'MenuItem',
-            'Something',
-            'Other',
-        ]);
-        $qb = new TeradataTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importState = $importer->importToStagingTable(
-            $source,
-            $stagingTable,
-            $options
-        );
-        $toFinalTableImporter = new FullImporter($this->connection);
-        $result = $toFinalTableImporter->importToTable(
-            $stagingTable,
-            $destination,
-            $options,
-            $importState
-        );
-
-        self::assertEquals(4, $destinationRef->getRowsCount());
-    }
-
-    public function testLoadToTableWithDedupWithMultiPK(): void
-    {
-        $this->initTable(self::TABLE_MULTI_PK);
-
-        // skipping header
-        $options = $this->getTeradataImportOptions(1, false);
-        $source = $this->createS3SourceInstance(
-            'multi-pk.csv',
-            [
-                'VisitID',
-                'Value',
-                'MenuItem',
-                'Something',
-                'Other',
-            ],
-            false,
-            false,
-            ['VisitID', 'Something']
-        );
-
-        $importer = new ToStageImporter($this->connection);
-        $destinationRef = new TeradataTableReflection(
-            $this->connection,
-            $this->getDestinationDbName(),
-            self::TABLE_MULTI_PK
-        );
-        $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
-            'VisitID',
-            'Value',
-            'MenuItem',
-            'Something',
-            'Other',
-        ]);
-        $qb = new TeradataTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importState = $importer->importToStagingTable(
-            $source,
-            $stagingTable,
-            $options
-        );
-
-        // now 6 lines. Add one with same VisitId and Something as an existing line has
-        // -> expecting that this line will be skipped when DEDUP
-        $this->connection->executeQuery(
-            sprintf(
-                "INSERT INTO %s.%s VALUES ('134', 'xx', 'yy', 'abc', 'def');",
-                TeradataQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                TeradataQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        );
-        $toFinalTableImporter = new FullImporter($this->connection);
-        $result = $toFinalTableImporter->importToTable(
-            $stagingTable,
-            $destination,
-            $options,
-            $importState
-        );
-
-        self::assertEquals(6, $destinationRef->getRowsCount());
-    }
-
 
 }
