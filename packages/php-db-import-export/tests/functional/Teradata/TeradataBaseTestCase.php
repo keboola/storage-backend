@@ -118,9 +118,9 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         }
 
         // delete all objects in the DB
-        $this->connection->executeQuery(sprintf('DELETE DATABASE %s ALL', $dbname));
+        $this->connection->executeQuery(sprintf('DELETE DATABASE %s ALL', TeradataQuote::quoteSingleIdentifier($dbname)));
         // drop the empty db
-        $this->connection->executeQuery(sprintf('DROP DATABASE %s', $dbname));
+        $this->connection->executeQuery(sprintf('DROP DATABASE %s', TeradataQuote::quoteSingleIdentifier($dbname)));
     }
 
     public function createDatabase(string $dbName): void
@@ -128,16 +128,20 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         $this->connection->executeQuery(sprintf('
 CREATE DATABASE %s AS
        PERM = 5e6;
-       ', $dbName));
+       ', TeradataQuote::quoteSingleIdentifier($dbName)));
     }
 
     protected function dbExists(string $dbname): bool
     {
         try {
-            $this->connection->executeQuery(sprintf('HELP DATABASE %s', $dbname));
+            $this->connection->executeQuery(sprintf('HELP DATABASE %s', TeradataQuote::quoteSingleIdentifier($dbname)));
             return true;
         } catch (\Doctrine\DBAL\Exception $e) {
-            return false;
+            // https://docs.teradata.com/r/GVKfXcemJFkTJh_89R34UQ/j2TdlzqRJ9LpndY3efMdlw
+            if (strpos($e->getMessage(), "3802")) {
+                return false;
+            }
+            throw $e;
         }
     }
 
