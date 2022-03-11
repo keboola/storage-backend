@@ -24,4 +24,11 @@ class SourceFileTest extends BaseTestCase
         self::assertEquals([], $source->getColumnsNames());
         self::assertNull($source->getPrimaryKeysNames());
     }
+
+    public function testGetFilepathParts()
+    {
+        $source = $this->createDummyS3SourceInstance('data/shared/file.csv');
+        self::assertEquals('data/shared/', $source->getPrefix());
+        self::assertEquals('file.csv', $source->getFileName());
+    }
 }
