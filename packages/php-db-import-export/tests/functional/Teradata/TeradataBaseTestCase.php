@@ -222,6 +222,18 @@ PRIMARY INDEX ("VisitID");
                     )
                 );
                 break;
+            case self::TABLE_COLUMN_NAME_ROW_NUMBER:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+            (
+              "id" VARCHAR(4000) ,
+              "row_number" VARCHAR(4000) ,
+              "_timestamp" TIMESTAMP
+           )',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
         }
     }
 
