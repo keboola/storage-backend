@@ -52,19 +52,20 @@ final class FullImporter implements ToFinalTableImporterInterface
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
 
         // move data with INSERT INTO
+        $sql = $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+            $stagingTableDefinition,
+            $destinationTableDefinition,
+            $options,
+            DateTimeHelper::getNowFormatted()
+        );
         $this->connection->executeStatement(
-            $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
-                $stagingTableDefinition,
-                $destinationTableDefinition,
-                $options,
-                DateTimeHelper::getNowFormatted()
-            )
+            $sql
         );
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
 
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getCommitTransaction()
-        );
+//        $this->connection->executeStatement(
+//            $this->sqlBuilder->getCommitTransaction()
+//        );
     }
 
     public function importToTable(

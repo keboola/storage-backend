@@ -30,7 +30,7 @@ class FullImportTest extends TeradataBaseTestCase
         $this->initTable(self::TABLE_COLUMN_NAME_ROW_NUMBER);
 
         // skipping header
-        $options = $this->getImportOptions();
+        $options = $this->getImportOptions([], false, false, 1);
         $source = $this->createS3SourceInstance(
             self::TABLE_COLUMN_NAME_ROW_NUMBER . '.csv',
             [
