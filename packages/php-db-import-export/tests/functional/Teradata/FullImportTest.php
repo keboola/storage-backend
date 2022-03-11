@@ -27,15 +27,18 @@ class FullImportTest extends TeradataBaseTestCase
 
     public function testLoadToFinalTableWithoutDedup(): void
     {
-        $this->initTable(self::TABLE_COLUMN_NAME_ROW_NUMBER);
+        // table translations checks numeric and string-ish data
+        $this->initTable(self::TABLE_TRANSLATIONS);
 
         // skipping header
         $options = $this->getImportOptions([], false, false, 1);
         $source = $this->createS3SourceInstance(
-            self::TABLE_COLUMN_NAME_ROW_NUMBER . '.csv',
+            self::TABLE_TRANSLATIONS . '.csv',
             [
                 'id',
-                'row_number',
+                'name',
+                'price',
+                'isDeleted',
             ],
             false,
             false,
@@ -46,12 +49,14 @@ class FullImportTest extends TeradataBaseTestCase
         $destinationRef = new TeradataTableReflection(
             $this->connection,
             $this->getDestinationDbName(),
-            self::TABLE_COLUMN_NAME_ROW_NUMBER
+            self::TABLE_TRANSLATIONS
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
             'id',
-            'row_number',
+            'name',
+            'price',
+            'isDeleted',
         ]);
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement(
@@ -70,7 +75,7 @@ class FullImportTest extends TeradataBaseTestCase
             $importState
         );
 
-        self::assertEquals(2, $destinationRef->getRowsCount());
+        self::assertEquals(3, $destinationRef->getRowsCount());
     }
 
 }

@@ -41,6 +41,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
     public const TABLE_TABLE = 'table';
     public const TABLE_TYPES = 'types';
+    public const TABLE_TRANSLATIONS = 'transactions';
 
     protected Connection $connection;
 
@@ -228,6 +229,19 @@ PRIMARY INDEX ("VisitID");
             (
               "id" VARCHAR(4000) ,
               "row_number" VARCHAR(4000) 
+           )',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_TRANSLATIONS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+            (
+              "id" INT ,
+              "name" VARCHAR(4000) ,
+              "price" INT ,
+              "isDeleted" INT
            )',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
                     TeradataQuote::quoteSingleIdentifier($tableName)

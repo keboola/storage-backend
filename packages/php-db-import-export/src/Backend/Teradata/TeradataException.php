@@ -11,6 +11,7 @@ class TeradataException extends Exception
 
     public static function covertException(\Doctrine\DBAL\Exception $e): \Throwable
     {
+        // TODO
         return $e;
     }
 }
