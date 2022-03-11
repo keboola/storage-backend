@@ -16,10 +16,29 @@ class SqlBuilder
         throw new \Exception('not implemented yet');
     }
 
-    public function getDropTableIfExistsCommand(string $getSchemaName, string $string): string
+    /**
+     * SQL to drop table. DOES NOT check existence of table
+     *
+     * @param string $dbName
+     * @param string $tableName
+     * @return string
+     */
+    public function getDropTableUnsafe(string $dbName, string $tableName): string
     {
-        //TODO
-        throw new \Exception('not implemented yet');
+        return sprintf(
+            'DROP TABLE %s.%s',
+            TeradataQuote::quoteSingleIdentifier($dbName),
+            TeradataQuote::quoteSingleIdentifier($tableName)
+        );
+    }
+
+    public function getTableExistsCommand(string $dbName, string $tableName): string
+    {
+        return sprintf(
+            'SELECT COUNT(*) FROM DBC.Tables WHERE DatabaseName = %s AND TableName = %s;',
+            TeradataQuote::quote($dbName),
+            TeradataQuote::quote($tableName)
+        );
     }
 
     public function getInsertAllIntoTargetTableCommand(
