@@ -12,14 +12,14 @@ class SqlBuilder
 {
     public function getCommitTransaction(): string
     {
-        // TODO
-        return '';
+        //TODO
+        throw new \Exception('not implemented yet');
     }
 
     public function getDropTableIfExistsCommand(string $getSchemaName, string $string): string
     {
-        // TODO
-        return '';
+        //TODO
+        throw new \Exception('not implemented yet');
     }
 
     public function getInsertAllIntoTargetTableCommand(
@@ -28,7 +28,8 @@ class SqlBuilder
         TeradataImportOptions $options,
         string $getNowFormatted
     ): string {
-        return '';
+        //TODO
+        throw new \Exception('not implemented yet');
     }
 
     public function getTruncateTableWithDeleteCommand(
