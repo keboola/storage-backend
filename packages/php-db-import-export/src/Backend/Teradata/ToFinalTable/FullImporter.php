@@ -41,7 +41,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         TeradataTableDefinition $destinationTableDefinition,
         TeradataImportOptions $options,
         ImportState $state
-    ) {
+    ): void {
         // truncate destination table
         $this->connection->executeStatement(
             $this->sqlBuilder->getTruncateTableWithDeleteCommand(

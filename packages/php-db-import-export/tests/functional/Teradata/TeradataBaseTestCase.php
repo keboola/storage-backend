@@ -24,7 +24,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
     protected const TERADATA_SOURCE_DATABASE_NAME = 'tests_source';
-    protected const TERADATA_DESTINATION_DATABASE_NAME = 'tests_source';
+    protected const TERADATA_DESTINATION_DATABASE_NAME = 'tests_destination';
     // TODO move somewhere else
     public const TABLE_ACCOUNTS_3 = 'accounts-3';
     public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
@@ -159,7 +159,7 @@ CREATE DATABASE %s AS
     ): void {
         $tableColumns = (new TeradataTableReflection(
             $this->connection,
-            $destination->getSchemaName(),
+            $destination->getDbName(),
             $destination->getTableName()
         ))->getColumnsNames();
 
@@ -182,7 +182,7 @@ CREATE DATABASE %s AS
         $sql = sprintf(
             'SELECT %s FROM [%s].[%s]',
             implode(', ', $tableColumns),
-            $destination->getSchemaName(),
+            $destination->getDbName(),
             $destination->getTableName()
         );
 
@@ -228,11 +228,11 @@ CREATE DATABASE %s AS
                     sprintf(
                         'CREATE MULTISET TABLE %s.%s, NO FALLBACK
             (
-"VisitID"   VARCHAR(2000000) ,
-"Value"     VARCHAR(2000000),
-"MenuItem"  VARCHAR(2000000),
-"Something" VARCHAR(2000000),
-"Other"     VARCHAR(2000000),
+"VisitID"   VARCHAR(4000) ,
+"Value"     VARCHAR(4000),
+"MenuItem"  VARCHAR(4000),
+"Something" VARCHAR(4000),
+"Other"     VARCHAR(4000),
     )
 PRIMARY INDEX ("VisitID");
         );',
@@ -265,6 +265,133 @@ PRIMARY INDEX ("VisitID");
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
+            case self::TABLE_OUT_CSV_2COLS:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+          "col1" VARCHAR(20000)  ,
+          "col2" VARCHAR(20000)  ,
+          "_timestamp" TIMESTAMP
+        );',
+                        TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                        TeradataQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', NOW());',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+          "col1" VARCHAR(4000) ,
+          "col2" VARCHAR(4000) 
+        );',
+                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
+                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
+                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_OUT_LEMMA:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+          "ts" VARCHAR(4000)         ,
+          "lemma" VARCHAR(4000)      ,
+          "lemmaIndex" VARCHAR(4000) ,
+                "_timestamp" TIMESTAMP
+            );',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_ACCOUNTS_3:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                "id" VARCHAR(4000) ,
+                "idTwitter" VARCHAR(4000) ,
+                "name" VARCHAR(4000) ,
+                "import" VARCHAR(4000) ,
+                "isImported" VARCHAR(4000) ,
+                "apiLimitExceededDatetime" VARCHAR(4000) ,
+                "analyzeSentiment" VARCHAR(4000) ,
+                "importKloutScore" VARCHAR(4000) ,
+                "timestamp" VARCHAR(4000) ,
+                "oauthToken" VARCHAR(4000) ,
+                "oauthSecret" VARCHAR(4000) ,
+                "idApp" VARCHAR(4000) ,
+                "_timestamp" TIMESTAMP,
+                CONSTRAINT PRIMARY KEY ("id")
+            );',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_TABLE:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                                "column" VARCHAR(4000)         ,
+                                "table" VARCHAR(4000)      ,
+                                "lemmaIndex" VARCHAR(4000) ,
+                "_timestamp" TIMESTAMP
+            );',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                                "col1" VARCHAR(4000)         ,
+                                "col2" VARCHAR(4000)      
+            );',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+
+            case self::TABLE_TYPES:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s."types" (
+              "charCol"  VARCHAR(4000) ,
+              "numCol"   VARCHAR(4000) ,
+              "floatCol" VARCHAR(4000) ,
+              "boolCol"  VARCHAR(4000) ,
+              "_timestamp" TIMESTAMP
+            );',
+                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName())
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE  %s."types" (
+              "charCol"  VARCHAR(4000) ,
+              "numCol" decimal(10,1) ,
+              "floatCol" float ,
+              "boolCol" tinyint 
+            );',
+                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName())
+                ));
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO  %s."types" VALUES
+              (\'a\', \'10.5\', \'0.3\', 1)
+           ;',
+                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName())
+                ));
+                break;
+            default:
+                throw new \Exception('unknown table');
         }
     }
 
