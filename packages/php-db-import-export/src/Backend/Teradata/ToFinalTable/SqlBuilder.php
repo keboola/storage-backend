@@ -134,4 +134,9 @@ class SqlBuilder
             return $alias . TeradataQuote::quoteSingleIdentifier($columns);
         }, $columns));
     }
+
+    public function getDeleteOldItemsCommand()
+    {
+        throw new \Exception('not implemented yet');
+    }
 }

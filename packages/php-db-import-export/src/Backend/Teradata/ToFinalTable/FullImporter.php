@@ -62,10 +62,6 @@ final class FullImporter implements ToFinalTableImporterInterface
             $sql
         );
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
-
-//        $this->connection->executeStatement(
-//            $this->sqlBuilder->getCommitTransaction()
-//        );
     }
 
     public function importToTable(

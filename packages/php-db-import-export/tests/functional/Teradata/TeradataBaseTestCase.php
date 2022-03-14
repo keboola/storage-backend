@@ -26,8 +26,6 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     protected const TERADATA_SOURCE_DATABASE_NAME = 'tests_source';
     protected const TERADATA_DESTINATION_DATABASE_NAME = 'tests_source';
     // TODO move somewhere else
-    protected const EXASOL_DEST_SCHEMA_NAME = 'in_c-tests';
-    protected const EXASOL_SOURCE_SCHEMA_NAME = 'some_tests';
     public const TABLE_ACCOUNTS_3 = 'accounts-3';
     public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
     public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
@@ -199,6 +197,26 @@ CREATE DATABASE %s AS
             $queryResult,
             $sortKey,
             $message
+        );
+    }
+
+    protected function initSingleTable(
+        string $db = self::TERADATA_SOURCE_DATABASE_NAME,
+        string $table = self::TABLE_TABLE
+    ): void {
+        if (!$this->dbExists($db)) {
+            $this->createDatabase($db);
+        }
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+            (
+"Other"     VARCHAR(4000)
+    );',
+                TeradataQuote::quoteSingleIdentifier($db),
+                TeradataQuote::quoteSingleIdentifier($table)
+            )
         );
     }
 
