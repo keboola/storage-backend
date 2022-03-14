@@ -22,6 +22,13 @@ message CreateTableCommand {
     string length = 3;
     bool nullable = 4;
     string default = 5;
+    google.protobuf.Any meta = 6; // metadata specific for each backend
+    /**
+     * Teradata table column metadata
+     */
+    message TeradataTableColumnMeta {
+      bool isLatin = 1;
+    }
   }
   repeated TableColumn columns = 3; // table columns definitions
   repeated string primaryKeysNames = 4; // primary key columns names
@@ -31,7 +38,7 @@ message CreateTableCommand {
   }
 }
 
-message RemoveTableCommand {
+message DropTableCommand {
   repeated string path = 1;
   string tableName = 2;
   bool ignoreErrors = 3;
@@ -97,4 +104,3 @@ message PreviewTableResponse {
   }
   repeated Row rows = 2;
 }
-

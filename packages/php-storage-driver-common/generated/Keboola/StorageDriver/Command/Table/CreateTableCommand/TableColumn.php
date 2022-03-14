@@ -37,6 +37,12 @@ class TableColumn extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string default = 5;</code>
      */
     protected $default = '';
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
+     */
+    protected $meta = null;
 
     /**
      * Constructor.
@@ -49,6 +55,8 @@ class TableColumn extends \Google\Protobuf\Internal\Message
      *     @type string $length
      *     @type bool $nullable
      *     @type string $default
+     *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -162,6 +170,42 @@ class TableColumn extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->default = $var;
+
+        return $this;
+    }
+
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
+     * @return \Google\Protobuf\Any|null
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    public function hasMeta()
+    {
+        return isset($this->meta);
+    }
+
+    public function clearMeta()
+    {
+        unset($this->meta);
+    }
+
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
+     * @param \Google\Protobuf\Any $var
+     * @return $this
+     */
+    public function setMeta($var)
+    {
+        GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
+        $this->meta = $var;
 
         return $this;
     }
