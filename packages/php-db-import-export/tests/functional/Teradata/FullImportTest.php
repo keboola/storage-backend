@@ -14,6 +14,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\Teradata\Table;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
@@ -138,22 +139,22 @@ class FullImportTest extends TeradataBaseTestCase
             1501,
             self::TABLE_OUT_CSV_2COLS,
         ];
-//
-//        yield 'empty manifest' => [
-//            $this->createS3SourceInstance(
-//                'empty.manifest',
-//                $escapingHeader,
-//                true,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getImportOptions(),
-//            [],
-//            0,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
-//
+
+        yield 'empty manifest' => [
+            $this->createS3SourceInstance(
+                'empty.manifest',
+                $escapingHeader,
+                true,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getImportOptions(),
+            [],
+            0,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
+
         yield 'lemma' => [
             $this->createS3SourceInstance(
                 'lemma.csv',
@@ -279,130 +280,130 @@ class FullImportTest extends TeradataBaseTestCase
             3,
             self::TABLE_ACCOUNTS_3,
         ];
-//
-//        yield 'accounts sliced gzip' => [
-//            $this->createS3SourceInstance(
-//                'sliced/accounts-gzip/S3.accounts-gzip.csvmanifest',
-//                $accountsHeader,
-//                true,
-//                false,
-//                ['id']
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-//            $this->getImportOptions(),
-//            $expectedAccounts,
-//            3,
-//            self::TABLE_ACCOUNTS_3,
-//        ];
-//
-//        // folder
-//        yield 'accounts sliced folder import' => [
-//            $this->createS3SourceInstance(
-//                'sliced_accounts_no_manifest/',
-//                $accountsHeader,
-//                true,
-//                true,
-//                ['id']
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-//            $this->getImportOptions(),
-//            $expectedAccounts,
-//            3,
-//            self::TABLE_ACCOUNTS_3,
-//        ];
-//
-//        // reserved words
-//        yield 'reserved words' => [
-//            $this->createS3SourceInstance(
-//                'reserved-words.csv',
-//                ['column', 'table'],
-//                false,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_TABLE],
-//            $this->getImportOptions(),
-//            [['table', 'column', null]],
-//            1,
-//            self::TABLE_TABLE,
-//        ];
-//        // import table with _timestamp columns - used by snapshots
-//        yield 'import with _timestamp columns' => [
-//            $this->createS3SourceInstance(
-//                'with-ts.csv',
-//                [
-//                    'col1',
-//                    'col2',
-//                    '_timestamp',
-//                ],
-//                false,
-//                false,
-//                []
-//            ),
-//            [
-//                $this->getDestinationDbName(),
-//                self::TABLE_OUT_CSV_2COLS,
-//            ],
-//            $this->getImportOptions(),
-//            [
-//                ['a', 'b', '2014-11-10 13:12:06.000000'],
-//                ['c', 'd', '2014-11-10 14:12:06.000000'],
-//            ],
-//            2,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
-//        // test creating table without _timestamp column
-//        yield 'table without _timestamp column' => [
-//            $this->createS3SourceInstance(
-//                'standard-with-enclosures.csv',
-//                $escapingHeader,
-//                false,
-//                false,
-//                []
-//            ),
-//            [
-//                $this->getDestinationDbName(),
-//                self::TABLE_OUT_NO_TIMESTAMP_TABLE,
-//            ],
-//            $this->getImportOptions(
-//                [],
-//                false,
-//                false, // don't use timestamp
-//                ImportOptions::SKIP_FIRST_LINE
-//            ),
-//            $expectedEscaping,
-//            7,
-//            self::TABLE_OUT_NO_TIMESTAMP_TABLE,
-//        ];
-//        // copy from table
-//        yield 'copy from table' => [
-//            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getImportOptions(),
-//            [['a', 'b'], ['c', 'd']],
-//            2,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
-//        yield 'copy from table 2' => [
-//            new Table(
-//                $this->getSourceDbName(),
-//                self::TABLE_TYPES,
-//                [
-//                    'charCol',
-//                    'numCol',
-//                    'floatCol',
-//                    'boolCol',
-//                ]
-//            ),
-//            [
-//                $this->getDestinationDbName(),
-//                self::TABLE_TYPES,
-//            ],
-//            $this->getImportOptions(),
-//            [['a', '10.5', '0.3', '1']],
-//            1,
-//            self::TABLE_TYPES,
-//        ];
+
+        yield 'accounts sliced gzip' => [
+            $this->createS3SourceInstance(
+                'sliced/accounts-gzip/S3.accounts-gzip.csvmanifest',
+                $accountsHeader,
+                true,
+                false,
+                ['id']
+            ),
+            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            $this->getImportOptions(),
+            $expectedAccounts,
+            3,
+            self::TABLE_ACCOUNTS_3,
+        ];
+
+        // folder
+        yield 'accounts sliced folder import' => [
+            $this->createS3SourceInstance(
+                'sliced_accounts_no_manifest/',
+                $accountsHeader,
+                true,
+                true,
+                ['id']
+            ),
+            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            $this->getImportOptions(),
+            $expectedAccounts,
+            3,
+            self::TABLE_ACCOUNTS_3,
+        ];
+
+        // reserved words
+        yield 'reserved words' => [
+            $this->createS3SourceInstance(
+                'reserved-words.csv',
+                ['column', 'table'],
+                false,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_TABLE],
+            $this->getSimpleImportOptions(),
+            [['table', 'column', null]],
+            1,
+            self::TABLE_TABLE,
+        ];
+        // import table with _timestamp columns - used by snapshots
+        yield 'import with _timestamp columns' => [
+            $this->createS3SourceInstance(
+                'with-ts.csv',
+                [
+                    'col1',
+                    'col2',
+                    '_timestamp',
+                ],
+                false,
+                false,
+                []
+            ),
+            [
+                $this->getDestinationDbName(),
+                self::TABLE_OUT_CSV_2COLS,
+            ],
+            $this->getImportOptions(),
+            [
+                ['a', 'b', '2014-11-10 13:12:06.000000'],
+                ['c', 'd', '2014-11-10 14:12:06.000000'],
+            ],
+            2,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
+        // test creating table without _timestamp column
+        yield 'table without _timestamp column' => [
+            $this->createS3SourceInstance(
+                'standard-with-enclosures.csv',
+                $escapingHeader,
+                false,
+                false,
+                []
+            ),
+            [
+                $this->getDestinationDbName(),
+                self::TABLE_OUT_NO_TIMESTAMP_TABLE,
+            ],
+            $this->getImportOptions(
+                [],
+                false,
+                false, // don't use timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
+            $expectedEscaping,
+            7,
+            self::TABLE_OUT_NO_TIMESTAMP_TABLE,
+        ];
+        // copy from table
+        yield 'copy from table' => [
+            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getImportOptions(),
+            [['a', 'b'], ['c', 'd']],
+            2,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
+        yield 'copy from table 2' => [
+            new Table(
+                $this->getSourceDbName(),
+                self::TABLE_TYPES,
+                [
+                    'charCol',
+                    'numCol',
+                    'floatCol',
+                    'boolCol',
+                ]
+            ),
+            [
+                $this->getDestinationDbName(),
+                self::TABLE_TYPES,
+            ],
+            $this->getImportOptions(),
+            [['a', '10.5', '0.3', '1']],
+            1,
+            self::TABLE_TYPES,
+        ];
     }
 
     /**
@@ -467,12 +468,12 @@ class FullImportTest extends TeradataBaseTestCase
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-//        $this->assertTeradataTableEqualsExpected(
-//            $source,
-//            $destination,
-//            $options,
-//            $expected,
-//            0
-//        );
+        $this->assertTeradataTableEqualsExpected(
+            $source,
+            $destination,
+            $options,
+            $expected,
+            0
+        );
     }
 }

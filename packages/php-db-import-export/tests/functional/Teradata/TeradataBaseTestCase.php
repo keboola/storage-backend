@@ -415,7 +415,8 @@ PRIMARY INDEX ("VisitID");
     }
 
     protected function getSimpleImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
+        bool $useTimestamp = true
     ): TeradataImportOptions {
         return
             new TeradataImportOptions(
@@ -425,8 +426,66 @@ PRIMARY INDEX ("VisitID");
                 (int) getenv('TERADATA_PORT'),
                 [],
                 false,
-                false,
+                $useTimestamp,
                 $skipLines,
             );
+    }
+
+    /**
+     * @param int|string $sortKey
+     * @param array<mixed> $expected
+     * @param string|int $sortKey
+     */
+    protected function assertTeradataTableEqualsExpected(
+        SourceInterface $source,
+        TeradataTableDefinition $destination,
+        TeradataImportOptions $options,
+        array $expected,
+        $sortKey,
+        string $message = 'Imported tables are not the same as expected'
+    ): void {
+        $tableColumns = (new TeradataTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        ))->getColumnsNames();
+
+        if ($options->useTimestamp()) {
+            self::assertContains('_timestamp', $tableColumns);
+        } else {
+            self::assertNotContains('_timestamp', $tableColumns);
+        }
+
+        if (!in_array('_timestamp', $source->getColumnsNames(), true)) {
+            $tableColumns = array_filter($tableColumns, static function ($column) {
+                return $column !== '_timestamp';
+            });
+        }
+
+        $tableColumns = array_map(static function ($column) {
+            return sprintf('%s', $column);
+        }, $tableColumns);
+
+        $sql = sprintf(
+            'SELECT %s FROM %s.%s',
+            implode(', ', array_map(static function ($item) {
+                return TeradataQuote::quoteSingleIdentifier($item);
+            }, $tableColumns)),
+            TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($destination->getTableName())
+        );
+
+        $queryResult = array_map(static function ($row) {
+            return array_map(static function ($column) {
+                return $column;
+            }, array_values($row));
+        }, $this->connection->fetchAllAssociative($sql));
+
+        $this->assertArrayEqualsSorted(
+            $expected,
+            $queryResult,
+            $sortKey,
+            $message
+        );
     }
 }
