@@ -415,7 +415,7 @@ PRIMARY INDEX ("VisitID");
     }
 
     protected function getSimpleImportOptions(
-        int $skipLines = 0
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): TeradataImportOptions {
         return
             new TeradataImportOptions(

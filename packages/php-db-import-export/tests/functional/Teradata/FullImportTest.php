@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 
 use Generator;
 use Keboola\Csv\CsvFile;
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
@@ -153,35 +154,35 @@ class FullImportTest extends TeradataBaseTestCase
 //            self::TABLE_OUT_CSV_2COLS,
 //        ];
 //
-//        yield 'lemma' => [
-//            $this->createS3SourceInstance(
-//                'lemma.csv',
-//                $lemmaHeader,
-//                false,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_LEMMA],
-//            $this->getImportOptions(),
-//            $expectedLemma,
-//            5,
-//            self::TABLE_OUT_LEMMA,
-//        ];
-//
-//        yield 'standard with enclosures' => [
-//            $this->createS3SourceInstance(
-//                'standard-with-enclosures.csv',
-//                $escapingHeader,
-//                false,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getImportOptions(),
-//            $expectedEscaping,
-//            7,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
+        yield 'lemma' => [
+            $this->createS3SourceInstance(
+                'lemma.csv',
+                $lemmaHeader,
+                false,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_OUT_LEMMA],
+            $this->getSimpleImportOptions(),
+            $expectedLemma,
+            5,
+            self::TABLE_OUT_LEMMA,
+        ];
+
+        yield 'standard with enclosures' => [
+            $this->createS3SourceInstance(
+                'standard-with-enclosures.csv',
+                $escapingHeader,
+                false,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getSimpleImportOptions(),
+            $expectedEscaping,
+            7,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
 //
 //        yield 'gzipped standard with enclosure' => [
 //            $this->createS3SourceInstance(
@@ -208,29 +209,30 @@ class FullImportTest extends TeradataBaseTestCase
 //                []
 //            ),
 //            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getImportOptions(),
+//            $this->getSimpleImportOptions(),
 //            $expectedEscaping,
 //            7,
 //            self::TABLE_OUT_CSV_2COLS,
 //        ];
-//
-//        yield 'accounts changedColumnsOrder' => [
-//            $this->createS3SourceInstance(
-//                'tw_accounts.changedColumnsOrder.csv',
-//                $accountChangedColumnsOrderHeader,
-//                false,
-//                false,
-//                ['id']
-//            ),
-//            [
-//                $this->getDestinationDbName(),
-//                self::TABLE_ACCOUNTS_3,
-//            ],
-//            $this->getImportOptions(),
-//            $expectedAccounts,
-//            3,
-//            self::TABLE_ACCOUNTS_3,
-//        ];
+
+        yield 'accounts changedColumnsOrder' => [
+            $this->createS3SourceInstance(
+                'tw_accounts.changedColumnsOrder.csv',
+                $accountChangedColumnsOrderHeader,
+                false,
+                false,
+                ['id']
+            ),
+            [
+                $this->getDestinationDbName(),
+                self::TABLE_ACCOUNTS_3,
+            ],
+            $this->getSimpleImportOptions(),
+            $expectedAccounts,
+            3,
+            self::TABLE_ACCOUNTS_3,
+        ];
+
         yield 'accounts' => [
             $this->createS3SourceInstance(
                 'tw_accounts.csv',
@@ -240,7 +242,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE),
+            $this->getSimpleImportOptions(),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
