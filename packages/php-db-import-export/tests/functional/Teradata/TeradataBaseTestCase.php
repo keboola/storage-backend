@@ -332,9 +332,8 @@ PRIMARY INDEX ("VisitID");
                 "oauthToken" VARCHAR(4000) ,
                 "oauthSecret" VARCHAR(4000) ,
                 "idApp" VARCHAR(4000) ,
-                "_timestamp" TIMESTAMP,
-                CONSTRAINT PRIMARY KEY ("id")
-            );',
+                "_timestamp" TIMESTAMP
+            ) PRIMARY INDEX ("id");',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
