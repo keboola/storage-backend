@@ -137,7 +137,6 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         $temp = new Temp();
         $temp->initRunFolder();
         $folder = $temp->getTmpFolder();
-
         $target = sprintf(
             "%s.%s",
             TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
@@ -145,11 +144,13 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         );
 
         if ($source->isSliced()) {
+
             $moduleStr = sprintf(
-                'AccessModuleInitStr = \'S3Region=%s S3Bucket=%s S3Prefix="%s/" S3SinglePartFile=False\'',
+                'AccessModuleInitStr = \'S3Region=%s S3Bucket=%s S3Prefix="%s" S3Object=%s S3SinglePartFile=True\'',
                 $source->getRegion(),
                 $source->getBucket(),
-                $source->getPrefix()
+                $source->getPrefix(),
+                BackendHelper::getMask($source)
             );
         } else {
             $moduleStr = sprintf(
