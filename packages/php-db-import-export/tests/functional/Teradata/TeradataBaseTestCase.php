@@ -413,4 +413,20 @@ PRIMARY INDEX ("VisitID");
                 $numberOfIgnoredLines,
             );
     }
+
+    protected function getSimpleImportOptions(
+        int $skipLines = 0
+    ): TeradataImportOptions {
+        return
+            new TeradataImportOptions(
+                (string) getenv('TERADATA_HOST'),
+                (string) getenv('TERADATA_USERNAME'),
+                (string) getenv('TERADATA_PASSWORD'),
+                (int) getenv('TERADATA_PORT'),
+                [],
+                false,
+                false,
+                $skipLines,
+            );
+    }
 }
