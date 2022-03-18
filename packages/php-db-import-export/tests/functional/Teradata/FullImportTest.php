@@ -134,7 +134,7 @@ class FullImportTest extends TeradataBaseTestCase
                 []
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getImportOptions(),
+            $this->getSimpleImportOptions(),
             $expectedLargeSlicedManifest,
             1501,
             self::TABLE_OUT_CSV_2COLS,
@@ -275,7 +275,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getImportOptions(),
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
@@ -290,7 +290,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getImportOptions(),
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
@@ -306,7 +306,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getImportOptions(),
+            $this->getSimpleImportOptions(),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
@@ -453,17 +453,17 @@ class FullImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-            if ($this->connection->fetchOne(
-                    (new SqlBuilder())->getTableExistsCommand(
-                        $stagingTable->getSchemaName(),
-                        $stagingTable->getTableName()
-                    )
-                ) > 0) {
-                $this->connection->executeStatement((new SqlBuilder())->getDropTableUnsafe(
-                    $stagingTable->getSchemaName(),
-                    $stagingTable->getTableName()
-                ));
-            }
+//            if ($this->connection->fetchOne(
+//                    (new SqlBuilder())->getTableExistsCommand(
+//                        $stagingTable->getSchemaName(),
+//                        $stagingTable->getTableName()
+//                    )
+//                ) > 0) {
+//                $this->connection->executeStatement((new SqlBuilder())->getDropTableUnsafe(
+//                    $stagingTable->getSchemaName(),
+//                    $stagingTable->getTableName()
+//                ));
+//            }
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
@@ -476,4 +476,27 @@ class FullImportTest extends TeradataBaseTestCase
             0
         );
     }
+//
+//    public function testFetch()
+//    {
+//        $db = self::TERADATA_SOURCE_DATABASE_NAME;
+//        $name = "jirka" . time();
+//        $this->initSingleTable($name, "transactions");
+//        $this->connection->fetchAllAssociative(sprintf(
+//            'SELECT * FROM "'.$name.'"."transactions";'
+//        ));
+////        $this->connection->fetchAllAssociative(sprintf(
+////            'SELECT * FROM "jirkadatabazeaa"."jirkatabulka";'
+////        ));
+//
+//
+////        $this->cleanDatabase($db);
+////        $this->createDatabase($db);
+////        $table = self::TABLE_TABLE;
+////        $this->initSingleTable();
+////        $count = $this->connection->fetchOne(sprintf("select count(*) from %s.%s", TeradataQuote::quoteSingleIdentifier($db),
+////            TeradataQuote::quoteSingleIdentifier($table)));
+////       $data = $this->connection->fetchAllAssociative(sprintf('select "Other" from %s.%s', TeradataQuote::quoteSingleIdentifier($db),
+////            TeradataQuote::quoteSingleIdentifier($table)));
+//    }
 }

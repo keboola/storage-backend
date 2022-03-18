@@ -96,9 +96,9 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             $err2Content = $this->connection->fetchAllAssociative('SELECT * FROM ' . TeradataQuote::quoteSingleIdentifier($errTable2));
             $this->connection->executeStatement('DROP TABLE ' . $errTable2);
         }
-        // find the way how to get this out
+        // TODO find the way how to get this out
 
-        if ($process->getExitCode() !== 0) {
+        if ($process->getExitCode() !== 0 || $errContent || $err2Content) {
             $qb = new TeradataTableQueryBuilder();
             // drop destination table it's not usable
             $this->connection->executeStatement($qb->getDropTableCommand(
@@ -162,6 +162,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             );
         }
         $tptScript = <<<EOD
+USING CHARACTER SET UTF8
 DEFINE JOB IMPORT_TO_TERADATA
 DESCRIPTION 'Import data to Teradata from Amazon S3'
 (

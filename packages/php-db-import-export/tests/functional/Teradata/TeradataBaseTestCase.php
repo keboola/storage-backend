@@ -126,7 +126,9 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     {
         $this->connection->executeQuery(sprintf('
 CREATE DATABASE %s AS
-       PERM = 5e6;
+       PERM = 5e7
+       SPOOL = 5e7;
+       
        ', TeradataQuote::quoteSingleIdentifier($dbName)));
     }
 
@@ -212,7 +214,7 @@ CREATE DATABASE %s AS
             sprintf(
                 'CREATE MULTISET TABLE %s.%s, NO FALLBACK
             (
-"Other"     VARCHAR(4000)
+"Other"     VARCHAR(50)
     );',
                 TeradataQuote::quoteSingleIdentifier($db),
                 TeradataQuote::quoteSingleIdentifier($table)
@@ -228,11 +230,11 @@ CREATE DATABASE %s AS
                     sprintf(
                         'CREATE MULTISET TABLE %s.%s, NO FALLBACK
             (
-"VisitID"   VARCHAR(4000) ,
-"Value"     VARCHAR(4000),
-"MenuItem"  VARCHAR(4000),
-"Something" VARCHAR(4000),
-"Other"     VARCHAR(4000),
+"VisitID"   VARCHAR(50) CHARACTER SET UNICODE,
+"Value"     VARCHAR(50),
+"MenuItem"  VARCHAR(50),
+"Something" VARCHAR(50),
+"Other"     VARCHAR(50),
     )
 PRIMARY INDEX ("VisitID");
         );',
@@ -245,8 +247,8 @@ PRIMARY INDEX ("VisitID");
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s, NO FALLBACK
             (
-              "id" VARCHAR(4000) ,
-              "row_number" VARCHAR(4000) 
+              "id" VARCHAR(50) CHARACTER SET UNICODE,
+              "row_number" VARCHAR(50) 
            )',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
                     TeradataQuote::quoteSingleIdentifier($tableName)
@@ -257,7 +259,7 @@ PRIMARY INDEX ("VisitID");
                     'CREATE MULTISET TABLE %s.%s, NO FALLBACK
             (
               "id" INT ,
-              "name" VARCHAR(4000) ,
+              "name" VARCHAR(50) CHARACTER SET UNICODE,
               "price" INT ,
               "isDeleted" INT
            )',
@@ -286,8 +288,8 @@ PRIMARY INDEX ("VisitID");
 
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-          "col1" VARCHAR(4000) ,
-          "col2" VARCHAR(4000) 
+          "col1" VARCHAR(50) CHARACTER SET UNICODE,
+          "col2" VARCHAR(50) 
         );',
                     TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
                     TeradataQuote::quoteSingleIdentifier($tableName)
@@ -308,9 +310,9 @@ PRIMARY INDEX ("VisitID");
             case self::TABLE_OUT_LEMMA:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-          "ts" VARCHAR(4000)         ,
-          "lemma" VARCHAR(4000)      ,
-          "lemmaIndex" VARCHAR(4000) ,
+          "ts" VARCHAR(50)         ,
+          "lemma" VARCHAR(50)      ,
+          "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
                 "_timestamp" TIMESTAMP
             );',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
@@ -320,18 +322,18 @@ PRIMARY INDEX ("VisitID");
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-                "id" VARCHAR(4000) ,
-                "idTwitter" VARCHAR(4000) ,
-                "name" VARCHAR(4000) ,
-                "import" VARCHAR(4000) ,
-                "isImported" VARCHAR(4000) ,
-                "apiLimitExceededDatetime" VARCHAR(4000) ,
-                "analyzeSentiment" VARCHAR(4000) ,
-                "importKloutScore" VARCHAR(4000) ,
-                "timestamp" VARCHAR(4000) ,
-                "oauthToken" VARCHAR(4000) ,
-                "oauthSecret" VARCHAR(4000) ,
-                "idApp" VARCHAR(4000) ,
+                "id" VARCHAR(50) CHARACTER SET UNICODE,
+                "idTwitter" VARCHAR(50) CHARACTER SET UNICODE,
+                "name" VARCHAR(100) CHARACTER SET UNICODE,
+                "import" VARCHAR(50) CHARACTER SET UNICODE,
+                "isImported" VARCHAR(50) CHARACTER SET UNICODE,
+                "apiLimitExceededDatetime" VARCHAR(50) CHARACTER SET UNICODE,
+                "analyzeSentiment" VARCHAR(50) CHARACTER SET UNICODE,
+                "importKloutScore" VARCHAR(50) CHARACTER SET UNICODE,
+                "timestamp" VARCHAR(50) CHARACTER SET UNICODE,
+                "oauthToken" VARCHAR(50) CHARACTER SET UNICODE,
+                "oauthSecret" VARCHAR(50) CHARACTER SET UNICODE,
+                "idApp" VARCHAR(50) CHARACTER SET UNICODE,
                 "_timestamp" TIMESTAMP
             ) PRIMARY INDEX ("id");',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
@@ -341,9 +343,9 @@ PRIMARY INDEX ("VisitID");
             case self::TABLE_TABLE:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-                                "column" VARCHAR(4000)         ,
-                                "table" VARCHAR(4000)      ,
-                                "lemmaIndex" VARCHAR(4000) ,
+                                "column" VARCHAR(50)         ,
+                                "table" VARCHAR(50)      ,
+                                "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
                 "_timestamp" TIMESTAMP
             );',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
@@ -353,8 +355,8 @@ PRIMARY INDEX ("VisitID");
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-                                "col1" VARCHAR(4000)         ,
-                                "col2" VARCHAR(4000)      
+                                "col1" VARCHAR(50)         ,
+                                "col2" VARCHAR(50)      
             );',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
                     TeradataQuote::quoteSingleIdentifier($tableName)
@@ -364,10 +366,10 @@ PRIMARY INDEX ("VisitID");
             case self::TABLE_TYPES:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s."types" (
-              "charCol"  VARCHAR(4000) ,
-              "numCol"   VARCHAR(4000) ,
-              "floatCol" VARCHAR(4000) ,
-              "boolCol"  VARCHAR(4000) ,
+              "charCol"  VARCHAR(50) CHARACTER SET UNICODE,
+              "numCol"   VARCHAR(50) CHARACTER SET UNICODE,
+              "floatCol" VARCHAR(50) CHARACTER SET UNICODE,
+              "boolCol"  VARCHAR(50) CHARACTER SET UNICODE,
               "_timestamp" TIMESTAMP
             );',
                     TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName())
@@ -375,7 +377,7 @@ PRIMARY INDEX ("VisitID");
 
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE  %s."types" (
-              "charCol"  VARCHAR(4000) ,
+              "charCol"  VARCHAR(50) CHARACTER SET UNICODE,
               "numCol" decimal(10,1) ,
               "floatCol" float ,
               "boolCol" tinyint 
@@ -488,4 +490,5 @@ PRIMARY INDEX ("VisitID");
             $message
         );
     }
+
 }
