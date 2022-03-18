@@ -131,7 +131,6 @@ class Teradata extends Common
     const DEFAULT_NON_LATIN_CLOB_LENGTH = '999M';
     const DEFAULT_SECOND_PRECISION_LENGTH = 6;
     const DEFAULT_VALUE_TO_SECOND_PRECISION_LENGTH = '4,6';
-
     // types where length isnt at the end of the type
     const COMPLEX_LENGTH_DICT = [
         self::TYPE_TIME_WITH_ZONE => 'TIME (%d) WITH TIME ZONE',
@@ -193,6 +192,21 @@ class Teradata extends Common
         self::TYPE_CHARACTER_LARGE_OBJECT, //
         self::TYPE_INTERVAL_SECOND,
 
+    ];
+
+    // types where CHARAET can be defined
+    const CHARACTER_SET_TYPES = [
+        self::TYPE_CHAR,
+        self::TYPE_VARCHAR,
+        self::TYPE_CLOB,
+
+        self::TYPE_CHAR,
+        self::TYPE_CHARV,
+        self::TYPE_CHARACTERV,
+        self::TYPE_VARGRAPHIC,
+        self::TYPE_LONG_VARCHAR,
+        self::TYPE_LONG_VARGRAPHIC,
+        self::TYPE_CHARACTER_LARGE_OBJECT,
     ];
     //https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/6CYL2QcAvXykzEc8mG__Xg
     const CODE_TO_TYPE = [
@@ -290,12 +304,13 @@ class Teradata extends Common
 
     /** @var bool */
     private $isLatin = false;
+
     // depends on Char Type column in HELP TABLE column
     // 1 latin, 2 unicode, 3 kanjiSJIS, 4 graphic, 5 graphic, 0 others
 
     /**
      * @param string $type
-     * @param array  $options -- length, nullable, default
+     * @param array $options -- length, nullable, default
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
@@ -329,7 +344,6 @@ class Teradata extends Common
         return self::CODE_TO_TYPE[$code];
     }
 
-
     /**
      * @return string
      */
@@ -356,6 +370,11 @@ class Teradata extends Common
         if ($this->getDefault() !== null) {
             $definition .= ' DEFAULT ' . $this->getDefault();
         }
+
+        if (in_array($this->getType(), self::CHARACTER_SET_TYPES, true)) {
+            $definition .= ' CHARACTER SET ' . ($this->isLatin() ? 'LATIN' : 'UNICODE');
+        }
+
         return $definition;
     }
 
@@ -395,7 +414,7 @@ class Teradata extends Common
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
             case self::TYPE_DEC:
-            // number
+                // number
             case self::TYPE_NUMBER:
                 $out = self::DEFAULT_DECIMAL_LENGTH;
                 break;
@@ -458,7 +477,6 @@ class Teradata extends Common
         return $out;
     }
 
-
     /**
      * @return array
      */
@@ -484,7 +502,7 @@ class Teradata extends Common
     }
 
     /**
-     * @param string      $type
+     * @param string $type
      * @param string|null $length
      * @return void
      * @throws InvalidLengthException

@@ -104,7 +104,15 @@ class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
     public function testSqlDefinition($type, $options, $expectedDefinition)
     {
         $definition = new Teradata($type, $options);
-        self::assertEquals($expectedDefinition, $definition->getSQLDefinition());
+        $suffix = in_array($type, Teradata::CHARACTER_SET_TYPES) ? " CHARACTER SET UNICODE" : '';
+        self::assertEquals($expectedDefinition . $suffix, $definition->getSQLDefinition());
+    }
+
+
+    public function testSqlDefinitionWhenLatin()
+    {
+        $definition = new Teradata("VARCHAR", ['isLatin' => true]);
+        self::assertEquals('VARCHAR (64000) CHARACTER SET LATIN', $definition->getSQLDefinition());
     }
 
     public function expectedSqlDefinitions()
