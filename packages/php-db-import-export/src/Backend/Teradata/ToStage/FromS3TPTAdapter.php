@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Teradata\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
+use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\FailedTPTLoadException;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -68,6 +69,8 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             ]
         );
         $process->start();
+        // check end of process
+        $process->wait();
 
         // debug stuff
         foreach ($process as $type => $data) {
@@ -77,24 +80,39 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 echo "\nRead from stderr: " . $data;
             }
         }
-        $isTableExists = function (string $tableName, string $databaseName) {
-            return (bool) $this->connection->fetchOne(sprintf('SELECT 1 FROM dbc.TablesV WHERE TableName = %s AND DataBaseName = %s', TeradataQuote::quote($tableName), TeradataQuote::quote($databaseName)));
+        $qb = new SqlBuilder();
+        $isTableExists = function (string $databaseName, string $tableName) use ($qb) {
+            return (bool) $this->connection->fetchOne($qb->getTableExistsCommand($databaseName, $tableName));
         };
 
         $logContent = null;
-        if ($isTableExists($logTable, $destination->getSchemaName())) {
-            $logContent = $this->connection->fetchAllAssociative('SELECT * FROM ' . TeradataQuote::quoteSingleIdentifier($logTable));
-            $this->connection->executeStatement('DROP TABLE ' . $logTable);
+        if ($isTableExists($destination->getSchemaName(), $logTable)) {
+            $logContent = $this->connection->fetchAllAssociative(
+                sprintf(
+                    'SELECT * FROM %s.%s',
+                    TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
+                    TeradataQuote::quoteSingleIdentifier($logTable)
+                )
+            );
+            $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $logTable));
         }
         $errContent = null;
-        if ($isTableExists($errTable, $destination->getSchemaName())) {
-            $errContent = $this->connection->fetchAllAssociative('SELECT * FROM ' . TeradataQuote::quoteSingleIdentifier($errTable));
-            $this->connection->executeStatement('DROP TABLE ' . $errTable);
+        if ($isTableExists($destination->getSchemaName(), $errTable)) {
+            $errContent = $this->connection->fetchAllAssociative(sprintf(
+                'SELECT * FROM %s.%s',
+                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
+                TeradataQuote::quoteSingleIdentifier($errTable)
+            ));
+            $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $errTable));
         }
         $err2Content = null;
-        if ($isTableExists($errTable2, $destination->getSchemaName())) {
-            $err2Content = $this->connection->fetchAllAssociative('SELECT * FROM ' . TeradataQuote::quoteSingleIdentifier($errTable2));
-            $this->connection->executeStatement('DROP TABLE ' . $errTable2);
+        if ($isTableExists($destination->getSchemaName(), $errTable2)) {
+            $err2Content = $this->connection->fetchAllAssociative(sprintf(
+                'SELECT * FROM %s.%s',
+                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
+                TeradataQuote::quoteSingleIdentifier($errTable2)
+            ));
+            $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $errTable2));
         }
         // TODO find the way how to get this out
 
