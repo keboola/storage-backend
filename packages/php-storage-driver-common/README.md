@@ -19,7 +19,7 @@ DEFAULT DATABASE=<nickname>_driver_teradata;
 
 -- grant rights
 GRANT CREATE DATABASE, DROP DATABASE, CREATE USER, DROP USER ON <nickname>_driver_teradata TO <nickname>_driver_teradata;
-GRANT CREATE ROLE, DROP ROLE TO <nickname>_driver_teradata;
+GRANT CREATE ROLE, DROP ROLE TO <nickname>_driver_teradata WITH GRANT OPTION;
 
 -- Option 2: Create database and use you current user to run tests
 -- you use has to have CREATE DATABASE, DROP DATABASE, CREATE USER, DROP USER, CREATE ROLE, DROP ROLE grants

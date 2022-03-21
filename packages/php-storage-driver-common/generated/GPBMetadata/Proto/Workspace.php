@@ -14,16 +14,23 @@ class Workspace
         if (static::$is_initialized == true) {
           return;
         }
+        \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-û
-proto/workspace.proto\'keboola.storageDriver.command.workspace"“
-CreateWorkspaceCommand
-	projectId (	
-workspaceId (	
-projectUserName (	
-projectRoleName (	
-projectReadOnlyRoleName (	"‡
+ú	
+proto/workspace.proto\'keboola.storageDriver.command.workspace"’
+CreateWorkspaceCommand
+stackPrefix (	
+	projectId (	
+workspaceId (	
+projectUserName (	
+projectRoleName (	
+projectReadOnlyRoleName (	"
+meta (2.google.protobuf.AnyD
+CreateWorkspaceTeradataMeta
+	permSpace (	
+
+spoolSpace (	"‡
 CreateWorkspaceResponse
 workspaceUserName (	
 workspaceRoleName (	

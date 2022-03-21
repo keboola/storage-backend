@@ -17,6 +17,8 @@ use Google\Protobuf\Internal\GPBUtil;
 class ResetWorkspacePasswordCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * backend user associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      */
     protected $workspaceUserName = '';
@@ -28,6 +30,7 @@ class ResetWorkspacePasswordCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $workspaceUserName
+     *           backend user associated with workspace
      * }
      */
     public function __construct($data = NULL) {
@@ -36,6 +39,8 @@ class ResetWorkspacePasswordCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend user associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @return string
      */
@@ -45,6 +50,8 @@ class ResetWorkspacePasswordCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend user associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @param string $var
      * @return $this

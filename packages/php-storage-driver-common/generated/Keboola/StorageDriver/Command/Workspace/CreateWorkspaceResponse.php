@@ -17,18 +17,26 @@ use Google\Protobuf\Internal\GPBUtil;
 class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
 {
     /**
+     * newly created user name associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      */
     protected $workspaceUserName = '';
     /**
+     * newly created role name associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceRoleName = 2;</code>
      */
     protected $workspaceRoleName = '';
     /**
+     * workspace user password
+     *
      * Generated from protobuf field <code>string workspacePassword = 3;</code>
      */
     protected $workspacePassword = '';
     /**
+     * resulting object name actually stored in backend
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 4;</code>
      */
     protected $workspaceObjectName = '';
@@ -40,9 +48,13 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $workspaceUserName
+     *           newly created user name associated with workspace
      *     @type string $workspaceRoleName
+     *           newly created role name associated with workspace
      *     @type string $workspacePassword
+     *           workspace user password
      *     @type string $workspaceObjectName
+     *           resulting object name actually stored in backend
      * }
      */
     public function __construct($data = NULL) {
@@ -51,6 +63,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created user name associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @return string
      */
@@ -60,6 +74,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created user name associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @param string $var
      * @return $this
@@ -73,6 +89,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created role name associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceRoleName = 2;</code>
      * @return string
      */
@@ -82,6 +100,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * newly created role name associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceRoleName = 2;</code>
      * @param string $var
      * @return $this
@@ -95,6 +115,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * workspace user password
+     *
      * Generated from protobuf field <code>string workspacePassword = 3;</code>
      * @return string
      */
@@ -104,6 +126,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * workspace user password
+     *
      * Generated from protobuf field <code>string workspacePassword = 3;</code>
      * @param string $var
      * @return $this
@@ -117,6 +141,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * resulting object name actually stored in backend
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 4;</code>
      * @return string
      */
@@ -126,6 +152,8 @@ class CreateWorkspaceResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * resulting object name actually stored in backend
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 4;</code>
      * @param string $var
      * @return $this
