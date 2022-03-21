@@ -34,6 +34,12 @@ class FullImportTest extends TeradataBaseTestCase
         $this->createDatabase($this->getSourceDbName());
     }
 
+    protected function tearDown()
+    {
+        $this->connection->close();
+        parent::tearDown();
+    }
+
     public function testLoadToFinalTableWithoutDedup(): void
     {
         // table translations checks numeric and string-ish data

@@ -23,8 +23,6 @@ use Symfony\Component\Process\Process;
 
 /**
  * @todo: get logs out on success
- * @todo: fix log tables exists statement
- * @todo: test sliced files
  */
 class FromS3TPTAdapter implements CopyAdapterInterface
 {
@@ -133,7 +131,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 $process->getErrorOutput(),
                 $process->getOutput(),
                 $process->getExitCode(),
-                file_get_contents($temp->getTmpFolder() . '/import-1.out'),
+                file_exists($temp->getTmpFolder() . '/import-1.out') ? file_get_contents($temp->getTmpFolder() . '/import-1.out') : 'unable to get error',
                 $logContent,
                 $errContent,
                 $err2Content
@@ -268,6 +266,7 @@ $escapedBy
 EOD;
 
         file_put_contents($folder . '/import_vars.txt', $jobVariableFile);
+        file_put_contents('./import_vars.txt', $jobVariableFile);
 
         return [
             $temp,
