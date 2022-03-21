@@ -10,9 +10,9 @@
         "keboola/php-csv-db-import": "^5.0",
         "keboola/php-file-storage-utils": ">=0.2",
         "keboola/table-backend-utils": "^0.18",
+        "keboola/php-temp": "^1.0",
         "microsoft/azure-storage-blob": "^1.4",
-        "symfony/process": "^4.4|^5.0",
-        "keboola/php-temp": "^1.0"
+        "symfony/process": "^4.4|^5.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12.54",
