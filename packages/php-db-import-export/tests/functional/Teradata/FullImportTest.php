@@ -149,7 +149,7 @@ class FullImportTest extends TeradataBaseTestCase
                 []
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getImportOptions(),
+            $this->getSimpleImportOptions(),
             [],
             0,
             self::TABLE_OUT_CSV_2COLS,

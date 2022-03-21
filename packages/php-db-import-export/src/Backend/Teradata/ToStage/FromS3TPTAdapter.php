@@ -49,6 +49,11 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         assert($destination instanceof TeradataTableDefinition);
         assert($importOptions instanceof TeradataImportOptions);
 
+        // empty manifest. TPT cannot import empty data
+        if($source->isSliced() && count($source->getManifestEntries()) === 0){
+            return 0;
+        }
+
         /**
          * @var Temp $temp
          */

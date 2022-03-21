@@ -30,6 +30,10 @@ final class BackendHelper
     public static function getMask(SourceFile $source): string
     {
         $entries = $source->getManifestEntries();
+        if (count($entries) === 0) {
+            // no entries -> no data to load
+            return '';
+        }
         $toRemove = $source->getS3Prefix() . '/' . $source->getPrefix();
         $entriesAsArrays = [];
         $min = 99999;
