@@ -184,37 +184,37 @@ class FullImportTest extends TeradataBaseTestCase
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
-//
-//        yield 'gzipped standard with enclosure' => [
-//            $this->createS3SourceInstance(
-//                'gzipped-standard-with-enclosures.csv.gz',
-//                $escapingHeader,
-//                false,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getImportOptions(),
-//            $expectedEscaping,
-//            7,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
-//
-//        yield 'standard with enclosures tabs' => [
-//            $this->createS3SourceInstanceFromCsv(
-//                'standard-with-enclosures.tabs.csv',
-//                new CsvOptions("\t"),
-//                $escapingHeader,
-//                false,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getSimpleImportOptions(),
-//            $expectedEscaping,
-//            7,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
+
+        yield 'gzipped standard with enclosure' => [
+            $this->createS3SourceInstance(
+                'gzipped-standard-with-enclosures.csv.gz',
+                $escapingHeader,
+                false,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getSimpleImportOptions(),
+            $expectedEscaping,
+            7,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
+
+        yield 'standard with enclosures tabs' => [
+            $this->createS3SourceInstanceFromCsv(
+                'standard-with-enclosures.tabs.csv',
+                new CsvOptions("\t"),
+                $escapingHeader,
+                false,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getSimpleImportOptions(),
+            $expectedEscaping,
+            7,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
 
         yield 'accounts changedColumnsOrder' => [
             $this->createS3SourceInstance(
@@ -248,22 +248,22 @@ class FullImportTest extends TeradataBaseTestCase
             3,
             self::TABLE_ACCOUNTS_3,
         ];
-//
-//        // line ending detection is not supported yet for S3
-//        //yield 'accounts crlf' => [
-//        //    $this->createS3SourceInstance(
-//        //        'tw_accounts.crlf.csv',
-//        //        $accountsHeader,
-//        //        false,
-//        //        false,
-//        //        ['id']
-//        //    ),
-//        //    [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-//        //    $this->getImportOptions(),
-//        //    $expectedAccounts,
-//        //    3,
-//        //    self::TABLE_ACCOUNTS_3,
-//        //];
+
+        // line ending detection is not supported yet for S3
+        //yield 'accounts crlf' => [
+        //    $this->createS3SourceInstance(
+        //        'tw_accounts.crlf.csv',
+        //        $accountsHeader,
+        //        false,
+        //        false,
+        //        ['id']
+        //    ),
+        //    [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+        //    $this->getImportOptions(),
+        //    $expectedAccounts,
+        //    3,
+        //    self::TABLE_ACCOUNTS_3,
+        //];
 
         // manifests
         yield 'accounts sliced' => [
@@ -454,17 +454,17 @@ class FullImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-//            if ($this->connection->fetchOne(
-//                    (new SqlBuilder())->getTableExistsCommand(
-//                        $stagingTable->getSchemaName(),
-//                        $stagingTable->getTableName()
-//                    )
-//                ) > 0) {
-//                $this->connection->executeStatement((new SqlBuilder())->getDropTableUnsafe(
-//                    $stagingTable->getSchemaName(),
-//                    $stagingTable->getTableName()
-//                ));
-//            }
+            if ($this->connection->fetchOne(
+                    (new SqlBuilder())->getTableExistsCommand(
+                        $stagingTable->getSchemaName(),
+                        $stagingTable->getTableName()
+                    )
+                ) > 0) {
+                $this->connection->executeStatement((new SqlBuilder())->getDropTableUnsafe(
+                    $stagingTable->getSchemaName(),
+                    $stagingTable->getTableName()
+                ));
+            }
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
