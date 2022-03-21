@@ -214,6 +214,9 @@ EOD;
         $pass = $importOptions->getTeradataPassword();
         $csvOptions = $source->getCsvOptions();
         $delimiter = $csvOptions->getDelimiter();
+        if ($delimiter === "\t") {
+            $delimiter = 'TAB';
+        }
         $enclosure = $csvOptions->getEnclosure();
         if ($enclosure === '\'') {
             $enclosure = '\\\'';
