@@ -271,8 +271,8 @@ PRIMARY INDEX ("VisitID");
                 $this->connection->executeQuery(
                     sprintf(
                         'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-          "col1" VARCHAR(20000)  ,
-          "col2" VARCHAR(20000)  ,
+          "col1" VARCHAR(200)  ,
+          "col2" VARCHAR(200)  ,
           "_timestamp" TIMESTAMP
         );',
                         TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
