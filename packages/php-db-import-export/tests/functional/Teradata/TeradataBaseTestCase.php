@@ -380,7 +380,7 @@ PRIMARY INDEX ("VisitID");
               "charCol"  VARCHAR(50) CHARACTER SET UNICODE,
               "numCol" decimal(10,1) ,
               "floatCol" float ,
-              "boolCol" tinyint 
+              "boolCol" BYTEINT 
             );',
                     TeradataQuote::quoteSingleIdentifier($this->getSourceDbName())
                 ));

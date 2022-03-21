@@ -376,34 +376,35 @@ class FullImportTest extends TeradataBaseTestCase
             self::TABLE_OUT_NO_TIMESTAMP_TABLE,
         ];
         // copy from table
-        yield 'copy from table' => [
-            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getImportOptions(),
-            [['a', 'b'], ['c', 'd']],
-            2,
-            self::TABLE_OUT_CSV_2COLS,
-        ];
-        yield 'copy from table 2' => [
-            new Table(
-                $this->getSourceDbName(),
-                self::TABLE_TYPES,
-                [
-                    'charCol',
-                    'numCol',
-                    'floatCol',
-                    'boolCol',
-                ]
-            ),
-            [
-                $this->getDestinationDbName(),
-                self::TABLE_TYPES,
-            ],
-            $this->getImportOptions(),
-            [['a', '10.5', '0.3', '1']],
-            1,
-            self::TABLE_TYPES,
-        ];
+        // TODO not implemented because we dont have Table adapter yet
+//        yield 'copy from table' => [
+//            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+//            $this->getImportOptions(),
+//            [['a', 'b'], ['c', 'd']],
+//            2,
+//            self::TABLE_OUT_CSV_2COLS,
+//        ];
+//        yield 'copy from table 2' => [
+//            new Table(
+//                $this->getSourceDbName(),
+//                self::TABLE_TYPES,
+//                [
+//                    'charCol',
+//                    'numCol',
+//                    'floatCol',
+//                    'boolCol',
+//                ]
+//            ),
+//            [
+//                $this->getDestinationDbName(),
+//                self::TABLE_TYPES,
+//            ],
+//            $this->getImportOptions(),
+//            [['a', '10.5', '0.3', '1']],
+//            1,
+//            self::TABLE_TYPES,
+//        ];
     }
 
     /**
