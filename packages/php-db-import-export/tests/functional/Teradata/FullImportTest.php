@@ -350,7 +350,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $this->getDestinationDbName(),
                 self::TABLE_OUT_CSV_2COLS,
             ],
-            $this->getImportOptions(),
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             [
                 ['a', 'b', '2014-11-10 13:12:06.000000'],
                 ['c', 'd', '2014-11-10 14:12:06.000000'],

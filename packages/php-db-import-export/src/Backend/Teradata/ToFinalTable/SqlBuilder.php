@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable;
 
 use Keboola\Datatype\Definition\BaseType;
+use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
@@ -83,9 +84,18 @@ class SqlBuilder
                 } else {
                     $columnsSetSql[] = TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
                 }
-            } else {
+            } elseif ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                 $columnsSetSql[] = sprintf(
-                    'CAST(COALESCE(%s, \'\') AS %s) AS %s',
+                    'CAST(COALESCE(%s, \'\') as %s) AS %s',
+                    TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    $columnDefinition->getColumnDefinition()->getSQLDefinition(),
+                    TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
+            } else {
+                // on columns other than string dont use COALESCE, use direct cast
+                // this will fail if the column is not null, but this is expected
+                $columnsSetSql[] = sprintf(
+                    'CAST(%s as %s) AS %s',
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $columnDefinition->getColumnDefinition()->getSQLDefinition(),
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
