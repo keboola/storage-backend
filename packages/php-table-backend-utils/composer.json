@@ -4,13 +4,14 @@
     "license": "MIT",
     "require": {
         "php": "^7.4",
-        "ext-pdo": "*",
         "ext-json": "*",
         "ext-odbc": "*",
-        "doctrine/dbal": "^3.2",
+        "ext-pdo": "*",
+        "doctrine/dbal": "^3.3",
         "keboola/common-exceptions": "^1",
         "keboola/php-datatypes": "^4.11.0",
-        "keboola/php-utils": "^4.1"
+        "keboola/php-utils": "^4.1",
+        "keboola/retry": "^0.5.0"
     },
     "require-dev": {
         "php-parallel-lint/php-parallel-lint": "^1",
