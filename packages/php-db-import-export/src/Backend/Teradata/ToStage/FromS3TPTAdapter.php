@@ -122,18 +122,16 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         if ($process->getExitCode() !== 0 || $errContent || $err2Content) {
             $qb = new TeradataTableQueryBuilder();
             // drop destination table it's not usable
-//            $this->connection->executeStatement($qb->getDropTableCommand(
-//                $destination->getSchemaName(),
-//                $destination->getTableName()
-//            ));
+            $this->connection->executeStatement($qb->getDropTableCommand(
+                $destination->getSchemaName(),
+                $destination->getTableName()
+            ));
 
             throw new FailedTPTLoadException(
                 $process->getErrorOutput(),
                 $process->getOutput(),
                 $process->getExitCode(),
-                file_exists($temp->getTmpFolder() . '/import-1.out')
-                    ? file_get_contents($temp->getTmpFolder() . '/import-1.out')
-                    : 'unable to get error',
+                $this->getLogData($temp),
                 $logContent,
                 $errContent,
                 $err2Content
@@ -147,6 +145,15 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         );
 
         return $ref->getRowsCount();
+    }
+
+    private function getLogData(Temp $temp): string
+    {
+        if (file_exists($temp->getTmpFolder() . '/import-1.out')) {
+            return file_get_contents($temp->getTmpFolder() . '/import-1.out') ?: 'unable to get error';
+        }
+
+        return 'unable to get error';
     }
 
     /**

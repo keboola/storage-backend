@@ -5,16 +5,22 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Teradata;
 
 use Keboola\Db\ImportExport\Backend\Teradata\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 use PHPUnit\Framework\TestCase;
 
 class HelperTest extends TestCase
 {
     /**
+     * @param string[] $entries
      * @dataProvider dataProvider
      */
-    public function testGetResult(string $expected, array $entries): void
+    public function testGetResult(string $expected, array $entriesData): void
     {
-        $this->assertEquals($expected, BackendHelper::getMask($entries));
+        $mock = $this->createMock(SourceFile::class);
+
+        $mock->method('getManifestEntries')
+            ->willReturn($entriesData);
+        $this->assertEquals($expected, BackendHelper::getMask($mock));
     }
 
     public function dataProvider(): array
