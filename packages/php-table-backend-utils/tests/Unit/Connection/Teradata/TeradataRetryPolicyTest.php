@@ -37,7 +37,14 @@ class TeradataRetryPolicyTest extends TestCase
         $policy = new TeradataRetryPolicy();
         $context = $this->createMock(RetryContextInterface::class);
         $context->method('getLastException')->willReturn(null);
+        $context->method('getRetryCount')->willReturn(1);
         $this->assertFalse($policy->canRetry($context));
+
+        // return true on first call
+        $context = $this->createMock(RetryContextInterface::class);
+        $context->method('getLastException')->willReturn(null);
+        $context->method('getRetryCount')->willReturn(0);
+        $this->assertTrue($policy->canRetry($context));
     }
 
     public function testShouldNotRetry(): void

@@ -13,7 +13,7 @@ class TeradataRetryPolicy extends AbstractRetryPolicy
     {
         $e = $context->getLastException();
         if ($e === null) {
-            return false;
+            return $context->getRetryCount() === 0;
         }
 
         $pattern = '/Concurrent change conflict on database -- try again/';
