@@ -134,7 +134,8 @@ class SourceFile extends BaseFile implements SourceInterface
     public function getPrefix(): string
     {
         $prefix = $this->filePath;
-        if (($prefixLength = strrpos($prefix, '/')) !== false) {
+        $prefixLength = strrpos($prefix, '/');
+        if ($prefixLength !== false) {
             // include / at the end
             return substr($prefix, 0, $prefixLength + 1);
         }

@@ -132,11 +132,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
         return $def;
     }
 
-    private function getDummyImportOptions(): TeradataImportOptions
-    {
-        return new TeradataImportOptions();
-    }
-
     public function testGetDeleteOldItemsCommand(): void
     {
         $this->createTestDb();
@@ -321,7 +316,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
-
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',

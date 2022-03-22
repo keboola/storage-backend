@@ -101,7 +101,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         array $columns,
         array $pks = []
     ): TeradataTableDefinition {
-        return new TeradataTableDefinition (
+        return new TeradataTableDefinition(
             $schemaName,
             $tableName,
             false,
@@ -117,9 +117,13 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         }
 
         // delete all objects in the DB
-        $this->connection->executeQuery(sprintf('DELETE DATABASE %s ALL', TeradataQuote::quoteSingleIdentifier($dbname)));
+        $this->connection->executeQuery(
+            sprintf('DELETE DATABASE %s ALL', TeradataQuote::quoteSingleIdentifier($dbname))
+        );
         // drop the empty db
-        $this->connection->executeQuery(sprintf('DROP DATABASE %s', TeradataQuote::quoteSingleIdentifier($dbname)));
+        $this->connection->executeQuery(
+            sprintf('DROP DATABASE %s', TeradataQuote::quoteSingleIdentifier($dbname))
+        );
     }
 
     public function createDatabase(string $dbName): void
@@ -139,7 +143,7 @@ CREATE DATABASE %s AS
             return true;
         } catch (\Doctrine\DBAL\Exception $e) {
             // https://docs.teradata.com/r/GVKfXcemJFkTJh_89R34UQ/j2TdlzqRJ9LpndY3efMdlw
-            if (strpos($e->getMessage(), "3802")) {
+            if (strpos($e->getMessage(), '3802')) {
                 return false;
             }
             throw $e;
@@ -401,7 +405,6 @@ PRIMARY INDEX ("VisitID");
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0
-
     ): TeradataImportOptions {
         return
             new TeradataImportOptions(
@@ -490,5 +493,4 @@ PRIMARY INDEX ("VisitID");
             $message
         );
     }
-
 }

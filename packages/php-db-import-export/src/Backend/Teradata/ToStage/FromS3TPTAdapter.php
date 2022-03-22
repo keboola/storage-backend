@@ -48,7 +48,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         assert($importOptions instanceof TeradataImportOptions);
 
         // empty manifest. TPT cannot import empty data
-        if($source->isSliced() && count($source->getManifestEntries()) === 0){
+        if ($source->isSliced() && count($source->getManifestEntries()) === 0) {
             return 0;
         }
 
@@ -122,16 +122,18 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         if ($process->getExitCode() !== 0 || $errContent || $err2Content) {
             $qb = new TeradataTableQueryBuilder();
             // drop destination table it's not usable
-            $this->connection->executeStatement($qb->getDropTableCommand(
-                $destination->getSchemaName(),
-                $destination->getTableName()
-            ));
+//            $this->connection->executeStatement($qb->getDropTableCommand(
+//                $destination->getSchemaName(),
+//                $destination->getTableName()
+//            ));
 
             throw new FailedTPTLoadException(
                 $process->getErrorOutput(),
                 $process->getOutput(),
                 $process->getExitCode(),
-                file_exists($temp->getTmpFolder() . '/import-1.out') ? file_get_contents($temp->getTmpFolder() . '/import-1.out') : 'unable to get error',
+                file_exists($temp->getTmpFolder() . '/import-1.out')
+                    ? file_get_contents($temp->getTmpFolder() . '/import-1.out')
+                    : 'unable to get error',
                 $logContent,
                 $errContent,
                 $err2Content
@@ -159,13 +161,12 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         $temp->initRunFolder();
         $folder = $temp->getTmpFolder();
         $target = sprintf(
-            "%s.%s",
+            '%s.%s',
             TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
             TeradataQuote::quoteSingleIdentifier($destination->getTableName()),
         );
 
         if ($source->isSliced()) {
-
             $moduleStr = sprintf(
                 'AccessModuleInitStr = \'S3Region=%s S3Bucket=%s S3Prefix="" S3Object=%s S3SinglePartFile=True\'',
                 $source->getRegion(),
@@ -224,13 +225,14 @@ EOD;
         }
         $ignoredLines = $importOptions->getNumberOfIgnoredLines();
 
+        $quotedDestination = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName());
         $tablesPrefix = BackendHelper::generateTempTableName();
         $logTable = $tablesPrefix . '_log';
-        $logTableQuoted = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()) . '.' . TeradataQuote::quoteSingleIdentifier($logTable);
+        $logTableQuoted = $quotedDestination . '.' . TeradataQuote::quoteSingleIdentifier($logTable);
         $errTable1 = $tablesPrefix . '_e1';
-        $errTableQuoted = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()) . '.' . TeradataQuote::quoteSingleIdentifier($errTable1);
+        $errTableQuoted = $quotedDestination . '.' . TeradataQuote::quoteSingleIdentifier($errTable1);
         $errTable2 = $tablesPrefix . '_e2';
-        $errTable2Quoted = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()) . '.' . TeradataQuote::quoteSingleIdentifier($errTable2);
+        $errTable2Quoted = $quotedDestination . '.' . TeradataQuote::quoteSingleIdentifier($errTable2);
 
         $jobVariableFile = <<<EOD
 /********************************************************/

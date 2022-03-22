@@ -41,16 +41,16 @@ class StageImportTest extends TeradataBaseTestCase
             self::TABLE_GENERIC
         );
 
-       $state = $importer->importToStagingTable(
-           $this->createS3SourceInstanceFromCsv('csv/simple/a_b_c-1row.csv', new CsvOptions()),
-           $ref->getTableDefinition(),
-           $this->getImportOptions(
-               [],
-               false,
-               false,
-               1
-           )
-       );
+        $state = $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv('csv/simple/a_b_c-1row.csv', new CsvOptions()),
+            $ref->getTableDefinition(),
+            $this->getImportOptions(
+                [],
+                false,
+                false,
+                1
+            )
+        );
 
         $this->assertEquals(1, $state->getResult()->getImportedRowsCount());
     }

@@ -19,7 +19,7 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 final class FullImporter implements ToFinalTableImporterInterface
 {
     private const TIMER_COPY_TO_TARGET = 'copyFromStagingToTarget';
-    private const TIMER_DEDUP = 'fromStagingToTargetWithDedup';
+//    private const TIMER_DEDUP = 'fromStagingToTargetWithDedup';
     private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
     private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
@@ -74,7 +74,6 @@ final class FullImporter implements ToFinalTableImporterInterface
         assert($destinationTableDefinition instanceof TeradataTableDefinition);
         assert($options instanceof TeradataImportOptions);
 
-
         /** @var TeradataTableDefinition $destinationTableDefinition */
         try {
             //import files to staging table
@@ -121,7 +120,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         return $state->getResult();
     }
 
-    protected function tableExists($dbName, $tableName): bool
+    protected function tableExists(string $dbName, string $tableName): bool
     {
         $data = $this->connection->fetchOne($this->sqlBuilder->getTableExistsCommand($dbName, $tableName));
         return ((int) $data) > 0;

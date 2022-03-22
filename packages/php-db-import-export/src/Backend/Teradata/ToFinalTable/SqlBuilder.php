@@ -14,7 +14,7 @@ use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 
 class SqlBuilder
 {
-    const SRC_ALIAS = 'src';
+    private const SRC_ALIAS = 'src';
 
     public function getCommitTransaction(): string
     {
@@ -145,7 +145,7 @@ class SqlBuilder
         }, $columns));
     }
 
-    public function getDeleteOldItemsCommand()
+    public function getDeleteOldItemsCommand(): void
     {
         throw new \Exception('not implemented yet');
     }

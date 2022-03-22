@@ -12,7 +12,7 @@ class HelperTest extends TestCase
     /**
      * @dataProvider dataProvider
      */
-    public function testGetResult($expected, $entries): void
+    public function testGetResult(string $expected, array $entries): void
     {
         $this->assertEquals($expected, BackendHelper::getMask($entries));
     }
