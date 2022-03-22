@@ -382,7 +382,6 @@ class FullImportTest extends TeradataBaseTestCase
             self::TABLE_OUT_NO_TIMESTAMP_TABLE,
         ];
         // copy from table
-        // TODO not implemented because we dont have Table adapter yet
         yield 'copy from table' => [
             new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],

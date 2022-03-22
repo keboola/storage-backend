@@ -7,7 +7,7 @@ namespace Keboola\Db\ImportExport\Storage\Teradata;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
-use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
+use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 
 class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 {
@@ -45,7 +45,9 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         $colums = $this->getColumnsNames();
         if ($colums !== []) {
             $quotedColumns = array_map(static function ($column) {
-                return ExasolQuote::quoteSingleIdentifier($column);
+                // trim because implicit casting adds right padding spaces
+                // value 10.5 as DECIMAL(8,1) implicitly casted to varchar would be then "      10.5"
+                return sprintf("TRIM(%s)", TeradataQuote::quoteSingleIdentifier($column));
             }, $colums);
             $select = implode(', ', $quotedColumns);
         }
@@ -65,8 +67,8 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     {
         return sprintf(
             '%s.%s',
-            ExasolQuote::quoteSingleIdentifier($this->getSchema()),
-            ExasolQuote::quoteSingleIdentifier($this->getTableName())
+            TeradataQuote::quoteSingleIdentifier($this->getSchema()),
+            TeradataQuote::quoteSingleIdentifier($this->getTableName())
         );
     }
 
