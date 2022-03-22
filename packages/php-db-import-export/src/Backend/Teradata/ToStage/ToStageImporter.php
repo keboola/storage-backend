@@ -59,11 +59,10 @@ final class ToStageImporter implements ToStageImporterInterface
         switch (true) {
             case $source instanceof Storage\S3\SourceFile:
                 $adapter = new FromS3TPTAdapter($this->connection);
-                //$adapter = new FromLocalTPTAdapter($this->connection);
                 break;
-            //case $source instanceof Storage\SqlSourceInterface:
-            //    $adapter = new FromTableInsertIntoAdapter($this->connection);
-            //    break;
+            case $source instanceof Storage\SqlSourceInterface:
+                $adapter = new FromTableInsertIntoAdapter($this->connection);
+                break;
             default:
                 throw new LogicException(
                     sprintf(
