@@ -34,7 +34,8 @@ final class BackendHelper
             // no entries -> no data to load
             return '';
         }
-        $toRemove = $source->getS3Prefix() . '/' . $source->getPrefix();
+        // SourceDirectory returns fileName as directory/file.csv but SourceFile returns s3://bucket/directory/file.csv
+        $toRemove = $source->getS3Prefix() . '/';
         $entriesAsArrays = [];
         $min = 99999;
         $minIndex = 0;

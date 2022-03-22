@@ -7,6 +7,7 @@ namespace Keboola\Db\ImportExport\Storage\S3;
 class SourceDirectory extends SourceFile
 {
     /**
+     * returns all files in directory
      * @return string[]
      */
     public function getManifestEntries(): array

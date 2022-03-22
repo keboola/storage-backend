@@ -167,10 +167,9 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         if ($source->isSliced()) {
 
             $moduleStr = sprintf(
-                'AccessModuleInitStr = \'S3Region=%s S3Bucket=%s S3Prefix="%s" S3Object=%s S3SinglePartFile=True\'',
+                'AccessModuleInitStr = \'S3Region=%s S3Bucket=%s S3Prefix="" S3Object=%s S3SinglePartFile=True\'',
                 $source->getRegion(),
                 $source->getBucket(),
-                $source->getPrefix(),
                 BackendHelper::getMask($source)
             );
         } else {

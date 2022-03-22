@@ -312,7 +312,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(),
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
