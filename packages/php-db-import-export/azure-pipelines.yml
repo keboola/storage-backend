@@ -72,8 +72,8 @@ stages:
               docker-compose build --pull production
             displayName: 'Build project images'
             env:
-              AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-              AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+              AWS_ACCESS_KEY_ID: $(DRIVERS_AWS_ACCESS_KEY_ID)
+              AWS_SECRET_ACCESS_KEY: $(DRIVERS_AWS_SECRET_ACCESS_KEY)
           - script: |
               docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
