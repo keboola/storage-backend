@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 class HelperTest extends TestCase
 {
     /**
-     * @param string[] $entries
+     * @param string[] $entriesData
      * @dataProvider dataProvider
      */
     public function testGetResult(string $expected, array $entriesData): void
@@ -23,6 +23,9 @@ class HelperTest extends TestCase
         $this->assertEquals($expected, BackendHelper::getMask($mock));
     }
 
+    /**
+     * @return array[]
+     */
     public function dataProvider(): array
     {
         return [

@@ -150,62 +150,6 @@ CREATE DATABASE %s AS
         }
     }
 
-    /**
-     * @param int|string $sortKey
-     * @param array<mixed> $expected
-     * @param string|int $sortKey
-     */
-    protected function assertSynapseTableEqualsExpected(
-        SourceInterface $source,
-        TeradataTableDefinition $destination,
-        ImportOptions $options,
-        array $expected,
-        $sortKey,
-        string $message = 'Imported tables are not the same as expected'
-    ): void {
-        $tableColumns = (new TeradataTableReflection(
-            $this->connection,
-            $destination->getDbName(),
-            $destination->getTableName()
-        ))->getColumnsNames();
-
-        if ($options->useTimestamp()) {
-            self::assertContains('_timestamp', $tableColumns);
-        } else {
-            self::assertNotContains('_timestamp', $tableColumns);
-        }
-
-        if (!in_array('_timestamp', $source->getColumnsNames())) {
-            $tableColumns = array_filter($tableColumns, function ($column) {
-                return $column !== '_timestamp';
-            });
-        }
-
-        $tableColumns = array_map(function ($column) {
-            return sprintf('[%s]', $column);
-        }, $tableColumns);
-
-        $sql = sprintf(
-            'SELECT %s FROM [%s].[%s]',
-            implode(', ', $tableColumns),
-            $destination->getDbName(),
-            $destination->getTableName()
-        );
-
-        $queryResult = array_map(function ($row) {
-            return array_map(function ($column) {
-                return $column;
-            }, array_values($row));
-        }, $this->connection->fetchAll($sql));
-
-        $this->assertArrayEqualsSorted(
-            $expected,
-            $queryResult,
-            $sortKey,
-            $message
-        );
-    }
-
     protected function initSingleTable(
         string $db = self::TERADATA_SOURCE_DATABASE_NAME,
         string $table = self::TABLE_TABLE
@@ -400,6 +344,9 @@ PRIMARY INDEX ("VisitID");
         }
     }
 
+    /**
+     * @param string[] $convertEmptyValuesToNull
+     */
     protected function getImportOptions(
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,

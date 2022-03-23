@@ -66,6 +66,7 @@ class FullImportTest extends TeradataBaseTestCase
             $this->getDestinationDbName(),
             self::TABLE_TRANSLATIONS
         );
+        /** @var TeradataTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
             'id',

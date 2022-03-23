@@ -145,8 +145,10 @@ class SqlBuilder
         }, $columns));
     }
 
-    public function getDeleteOldItemsCommand(): void
-    {
+    public function getDeleteOldItemsCommand(
+        TeradataTableDefinition $stagingTableDefinition,
+        TeradataTableDefinition $destinationTableDefinition
+    ): void {
         throw new \Exception('not implemented yet');
     }
 }
