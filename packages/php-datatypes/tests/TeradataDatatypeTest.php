@@ -45,6 +45,8 @@ class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
                 break;
             case 'TIME':
             case 'TIME_WITH_ZONE':
+            case 'TIMESTAMP':
+            case 'TIMESTAMP_WITH_ZONE':
                 self::assertSame(BaseType::TIMESTAMP, $basetype);
                 break;
             default:

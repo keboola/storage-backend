@@ -643,6 +643,8 @@ class Teradata extends Common
                 break;
             case self::TYPE_TIME:
             case self::TYPE_TIME_WITH_ZONE:
+            case self::TYPE_TIMESTAMP:
+            case self::TYPE_TIMESTAMP_WITH_ZONE:
                 $basetype = BaseType::TIMESTAMP;
                 break;
             default:
