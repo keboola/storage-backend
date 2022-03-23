@@ -148,6 +148,14 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         TableDefinitionInterface $definition,
         bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
     ): string {
-        throw new \Exception('method is not implemented yet');
+        assert($definition instanceof TeradataTableDefinition);
+        return $this->getCreateTableCommand(
+            $definition->getSchemaName(),
+            $definition->getTableName(),
+            $definition->getColumnsDefinitions(),
+            $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
+                ? $definition->getPrimaryKeysNames()
+                : []
+        );
     }
 }
