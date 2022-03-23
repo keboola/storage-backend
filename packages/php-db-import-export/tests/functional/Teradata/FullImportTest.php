@@ -256,20 +256,20 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         // line ending detection is not supported yet for S3
-        //yield 'accounts crlf' => [
-        //    $this->createS3SourceInstance(
-        //        'tw_accounts.crlf.csv',
-        //        $accountsHeader,
-        //        false,
-        //        false,
-        //        ['id']
-        //    ),
-        //    [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-        //    $this->getImportOptions(),
-        //    $expectedAccounts,
-        //    3,
-        //    self::TABLE_ACCOUNTS_3,
-        //];
+        yield 'accounts crlf' => [
+            $this->createS3SourceInstance(
+                'tw_accounts.crlf.csv',
+                $accountsHeader,
+                false,
+                false,
+                ['id']
+            ),
+            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            $this->getSimpleImportOptions(),
+            $expectedAccounts,
+            3,
+            self::TABLE_ACCOUNTS_3,
+        ];
 
         // manifests
         yield 'accounts sliced' => [
