@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Table\Teradata;
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
@@ -150,8 +151,8 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
             'expectedPrimaryKeys' => [],
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR (32000) NOT NULL DEFAULT '',
-"col2" VARCHAR (32000) NOT NULL DEFAULT '');
+("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+"col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE) NO PRIMARY INDEX;
 EOT
             ,
         ];
@@ -165,8 +166,8 @@ EOT
             'expectedPrimaryKeys' => ['col1'],
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR (32000) NOT NULL DEFAULT '',
-"col2" VARCHAR (32000) NOT NULL DEFAULT '',
+("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+"col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
 PRIMARY KEY ("col1"));
 EOT
             ,
@@ -181,11 +182,137 @@ EOT
             'expectedPrimaryKeys' => ['col1', 'col2'],
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
-("col1" VARCHAR (32000) NOT NULL DEFAULT '',
-"col2" VARCHAR (32000) NOT NULL DEFAULT '',
+("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+"col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
 PRIMARY KEY ("col1", "col2"));
 EOT
             ,
         ];
+    }
+
+
+    /**
+     * @return \Generator<string, array{
+     *     definition: TeradataTableDefinition,
+     *     query: string,
+     *     createPrimaryKeys: bool
+     * }>
+     */
+    public function createTableTestFromDefinitionSqlProvider(): \Generator
+    {
+        $testDb = self::TEST_DATABASE;
+        $tableName = self::TABLE_GENERIC;
+
+        yield 'no keys' => [
+            'definition' => new TeradataTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        TeradataColumn::createGenericColumn('col1'),
+                        TeradataColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                []
+            ),
+            'query' => <<<EOT
+CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
+("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+"col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE) NO PRIMARY INDEX;
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+        yield 'with single pk' => [
+            'definition' => new TeradataTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        TeradataColumn::createGenericColumn('col1'),
+                        TeradataColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                ['col1']
+            ),
+            'query' => <<<EOT
+CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
+("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+"col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+PRIMARY KEY ("col1"));
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+        yield 'with multiple pks' => [
+            'definition' => new TeradataTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        TeradataColumn::createGenericColumn('col1'),
+                        TeradataColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                ['col1', 'col2']
+            ),
+            'query' => <<<EOT
+CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
+("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+"col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+PRIMARY KEY ("col1", "col2"));
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+
+        yield 'with multiple pks no definition' => [
+            'definition' => new TeradataTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        TeradataColumn::createGenericColumn('col1'),
+                        TeradataColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                ['col1', 'col2']
+            ),
+            'query' => <<<EOT
+CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
+("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
+"col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE) NO PRIMARY INDEX;
+EOT
+            ,
+            'createPrimaryKeys' => false,
+        ];
+    }
+
+    /**
+     * @dataProvider createTableTestFromDefinitionSqlProvider
+     */
+    public function testGetCreateTableCommandFromDefinition(
+        TeradataTableDefinition $definition,
+        string $expectedSql,
+        bool $createPrimaryKeys
+    ): void {
+        $this->cleanDatabase(self::TEST_DATABASE);
+        $this->createDatabase(self::TEST_DATABASE);
+        $sql = $this->qb->getCreateTableCommandFromDefinition($definition, $createPrimaryKeys);
+        self::assertSame($expectedSql, $sql);
+        $this->connection->executeQuery($sql);
+
+        // test table properties
+        $tableReflection = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());
+        if ($createPrimaryKeys === true) {
+            self::assertSame($definition->getPrimaryKeysNames(), $tableReflection->getPrimaryKeysNames());
+        } else {
+            self::assertSame([], $tableReflection->getPrimaryKeysNames());
+        }
     }
 }

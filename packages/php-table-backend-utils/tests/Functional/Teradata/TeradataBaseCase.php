@@ -15,7 +15,7 @@ class TeradataBaseCase extends TestCase
 {
     public const TESTS_PREFIX = 'utilsTest_';
 
-    private const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
+    public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
