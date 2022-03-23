@@ -17,7 +17,7 @@ class ProtobufHelper
     {
         $values = [];
         foreach ($repeated as $value) {
-            $values[] = strval($value);
+            $values[] = (string) $value;
         }
         return $values;
     }
