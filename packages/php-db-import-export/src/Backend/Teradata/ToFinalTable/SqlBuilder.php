@@ -88,7 +88,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'CAST(COALESCE(%s, \'\') as %s) AS %s',
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $columnDefinition->getColumnDefinition()->getSQLDefinition(),
+                    $columnDefinition->getColumnDefinition()->buildTypeWithLength(),
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             } else {
@@ -97,7 +97,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'CAST(%s as %s) AS %s',
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $columnDefinition->getColumnDefinition()->getSQLDefinition(),
+                    $columnDefinition->getColumnDefinition()->buildTypeWithLength(),
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             }
