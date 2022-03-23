@@ -110,6 +110,18 @@ class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
         self::assertEquals($expectedDefinition . $suffix, $definition->getSQLDefinition());
     }
 
+    /**
+     * @param string     $type
+     * @param array|null $options
+     * @param string     $expectedDefinition
+     * @dataProvider expectedSqlDefinitions
+     */
+    public function testBuildTypeWithLength($type, $options, $expectedDefinition)
+    {
+        $definition = new Teradata($type, $options);
+        self::assertEquals($expectedDefinition, $definition->buildTypeWithLength());
+    }
+
 
     public function testSqlDefinitionWhenLatin()
     {
