@@ -135,10 +135,12 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         // TODO add settings to TABLE such as JOURNAL etc...
         return sprintf(
             'CREATE MULTISET TABLE %s.%s, FALLBACK
-(%s);',
+(%s) %s;',
             TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
-            $columnsSql
+            $columnsSql,
+            // NoPI table support duplications in table
+            $primaryKeys ? '' : ' NO PRIMARY INDEX'
         );
     }
 
