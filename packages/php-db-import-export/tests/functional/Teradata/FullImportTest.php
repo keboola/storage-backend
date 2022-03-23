@@ -406,7 +406,8 @@ class FullImportTest extends TeradataBaseTestCase
                 self::TABLE_TYPES,
             ],
             $this->getSimpleImportOptions(),
-            [['a', '10.5', '0.3', '1']],
+            // TODO https://keboola.atlassian.net/browse/KBC-2526 it should cast 0.3 to "0.3"
+            [['a', '10.5', '3.00000000000000E-001', '1']],
             1,
             self::TABLE_TYPES,
         ];
