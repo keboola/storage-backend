@@ -349,6 +349,30 @@ class Teradata extends Common
      */
     public function getSQLDefinition()
     {
+        $definition = $this->buildTypeWithLength();
+
+        if (!$this->isNullable()) {
+            $definition .= ' NOT NULL';
+        }
+        if ($this->getDefault() !== null) {
+            $definition .= ' DEFAULT ' . $this->getDefault();
+        }
+
+        if (in_array($this->getType(), self::CHARACTER_SET_TYPES, true)) {
+            $definition .= ' CHARACTER SET ' . ($this->isLatin() ? 'LATIN' : 'UNICODE');
+        }
+
+        return $definition;
+    }
+
+    /**
+     * generates type with length
+     * most of the types just append it, but some of them are complex and some have no length...
+     * used here and in i/e lib
+     * @return string
+     */
+    public function buildTypeWithLength()
+    {
         $type = $this->getType();
         $definition = $type;
         if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
@@ -362,17 +386,6 @@ class Teradata extends Common
                     $definition = $this->buildComplexLength($type, $length);
                 }
             }
-        }
-
-        if (!$this->isNullable()) {
-            $definition .= ' NOT NULL';
-        }
-        if ($this->getDefault() !== null) {
-            $definition .= ' DEFAULT ' . $this->getDefault();
-        }
-
-        if (in_array($this->getType(), self::CHARACTER_SET_TYPES, true)) {
-            $definition .= ' CHARACTER SET ' . ($this->isLatin() ? 'LATIN' : 'UNICODE');
         }
 
         return $definition;
