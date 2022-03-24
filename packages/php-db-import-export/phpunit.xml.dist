@@ -61,7 +61,7 @@
             <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
         </testsuite>
 
-        <testsuite name="teradata">
+        <testsuite name="tests-teradata">
             <directory>tests/functional/Teradata</directory>
         </testsuite>
 
