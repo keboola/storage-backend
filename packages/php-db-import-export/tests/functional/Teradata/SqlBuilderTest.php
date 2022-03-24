@@ -183,7 +183,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') AS VARCHAR (4000)) AS "col1",CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src"',
+            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (4000)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src"',
             $sql
         );
 
@@ -303,7 +303,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src"',
+            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src"',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -365,7 +365,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2", "_timestamp") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import-export-test_schema"."stagingTable" AS "src"',
+            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2", "_timestamp") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import-export-test_schema"."stagingTable" AS "src"',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
