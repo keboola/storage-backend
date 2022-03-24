@@ -129,6 +129,18 @@ stages:
               EXASOL_USERNAME=devel
               docker-compose run production php -v
               parallel -j12 --joblog /tmp/parallel-joblog --linebuffer docker-compose run production composer ::: \
+              tests-storage \
+              tests-snowflake-abs \
+              tests-snowflake-s3 \
+              tests-synapse \
+              tests-synapse-mi \
+              tests-synapse-columnstoretemp \
+              tests-synapse-clusterdindextemp \
+              tests-synapse-heap4000temp \
+              tests-synapse-heap4000temp-hash \
+              tests-synapse-heap4000temp-optimized \
+              tests-synapse-heap4000temp-optimized-hash \
+              tests-synapse-next \
               tests-teradata
               PARALLEL_EXIT_CODE=$?
               cat /tmp/parallel-joblog
