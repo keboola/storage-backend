@@ -441,7 +441,7 @@ PRIMARY INDEX ("VisitID");
         );
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->cleanDatabase($this->getDestinationDbName());
         $this->cleanDatabase($this->getSourceDbName());
