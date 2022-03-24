@@ -170,6 +170,10 @@ stages:
               EXASOL_HOST: $(EXASOL_CLUSTER_DNS)
               EXASOL_USERNAME: devel
               EXASOL_PASSWORD: $(EXA_SAAS_TOKEN)
+              TERADATA_HOST: $(TERADATA_HOST)
+              TERADATA_PASSWORD: $(TERADATA_PASSWORD)
+              TERADATA_PORT: $(TERADATA_PORT)
+              TERADATA_USERNAME: $(TERADATA_USERNAME)
           - script: |
               docker-compose stop
               php ./provisioning/cli.php app:delete:synapse \
