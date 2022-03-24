@@ -209,7 +209,7 @@ class SqlBuilder
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($sourceTable, $destinationTable) {
             return sprintf(
-                '%s.%s = COALESCE(%s.%s, \'\')',
+                '%s.%s = %s.%s',
                 $destinationTable,
                 SynapseQuote::quoteSingleIdentifier($col),
                 $sourceTable,
