@@ -42,7 +42,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      */
     protected $fulltextSearch = '';
     /**
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableWhereFilter whereFilters = 8;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 8;</code>
      */
     private $whereFilters;
     /**
@@ -63,7 +63,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      *     @type string $changeUntil
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columns
      *     @type string $fulltextSearch
-     *     @type \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $whereFilters
+     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $whereFilters
      *     @type \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy $orderBy
      * }
      */
@@ -227,7 +227,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableWhereFilter whereFilters = 8;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 8;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getWhereFilters()
@@ -236,13 +236,13 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableWhereFilter whereFilters = 8;</code>
-     * @param \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $var
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 8;</code>
+     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setWhereFilters($var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableWhereFilter::class);
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter::class);
         $this->whereFilters = $arr;
 
         return $this;

@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package keboola.storageDriver.command.workspace;
+
+/**
+ * Command is used when new workspace is created in Keboola connection
+ * Command will:
+ * - create new workspace which is usually new schema
+ * - create role which should be owner of schema and has all needed grant's
+ * - create user with password which is used to connect into workspace
+ * - make project role member of workspace role, so project user has also all needed grants on workspace as it will perform data loads
+ * - if read only storage is supported project read only role is also assigned to workspace role so user can read from all project tables
+ */
+message CreateWorkspaceCommand {
+  string projectId = 1;
+  string workspaceId = 2;
+  string projectUserName = 3;
+  string projectRoleName = 4;
+  string projectReadOnlyRoleName = 5;
+}
+/**
+ * Response contain all resources names created by create workspace command
+ */
+message CreateWorkspaceResponse {
+  string workspaceUserName = 1;
+  string workspaceRoleName = 2;
+  string workspacePassword = 3;
+  string workspaceObjectName = 4;
+}
+/**
+ * Command will remove workspace, all it's content and resource
+ */
+message DropWorkspaceCommand {
+  string workspaceUserName = 1;
+  string workspaceRoleName = 2;
+  string workspaceObjectName = 3;
+  bool ignoreErrors = 4;
+}
+/**
+ * Command will remove workspace content
+ */
+message ClearWorkspaceCommand {
+  string workspaceObjectName = 1;
+  bool ignoreErrors = 2;
+}
+/**
+ * Command will remove workspace content
+ */
+message ResetWorkspacePasswordCommand {
+  string workspaceUserName = 1;
+}
+/**
+ * Response contain new password created by reset workspace password command
+ */
+message ResetWorkspacePasswordResponse {
+  string workspacePassword = 1;
+}
+
+/**
+ * Command will remove single workspace object
+ */
+message DropWorkspaceObjectCommand {
+  string workspaceObjectName = 1;
+  string objectNameToDrop = 2;
+  bool ignoreIfNotExists = 3;
+}
+
+/**
+ * Command will make some project role member of workspace role
+ * This way is handled load from linked bucket when parent project of the workspace has no access to other project bucket and load is performed by project where is source bucket
+ */
+message GrantWorkspaceAccessToProjectCommand {
+  string workspaceUserName = 1;
+  string workspaceRoleName = 2;
+  string workspaceObjectName = 3;
+  string projectUserName = 4;
+  string projectRoleName = 5;
+}
+
+/**
+ * Command will revert grant made by GrantWorkspaceAccessToProjectCommand
+ */
+message RevokeWorkspaceAccessToProjectCommand {
+  string workspaceUserName = 1;
+  string workspaceRoleName = 2;
+  string workspaceObjectName = 3;
+  string projectUserName = 4;
+  string projectRoleName = 5;
+}
