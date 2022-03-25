@@ -26,8 +26,8 @@ class StageImportTest extends TeradataBaseTestCase
                 'CREATE MULTISET TABLE %s.%s ,NO FALLBACK
      (
       "id" INTEGER NOT NULL,
-      "first_name" CHAR(32000),
-      "last_name" CHAR(32000)
+      "first_name" CHAR(50),
+      "last_name" CHAR(50)
      );',
                 TeradataQuote::quoteSingleIdentifier(self::TEST_DATABASE),
                 TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
