@@ -76,13 +76,13 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         $process->wait();
 
         // debug stuff
-        foreach ($process as $type => $data) {
-            if ($process::OUT === $type) {
-                echo "\nRead from stdout: " . $data;
-            } else { // $process::ERR === $type
-                echo "\nRead from stderr: " . $data;
-            }
-        }
+//        foreach ($process as $type => $data) {
+//            if ($process::OUT === $type) {
+//                echo "\nRead from stdout: " . $data;
+//            } else { // $process::ERR === $type
+//                echo "\nRead from stderr: " . $data;
+//            }
+//        }
         $qb = new SqlBuilder();
         $isTableExists = function (string $databaseName, string $tableName) use ($qb) {
             return (bool) $this->connection->fetchOne($qb->getTableExistsCommand($databaseName, $tableName));
