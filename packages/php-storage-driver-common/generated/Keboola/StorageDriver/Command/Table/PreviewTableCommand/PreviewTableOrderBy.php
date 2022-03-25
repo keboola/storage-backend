@@ -14,9 +14,9 @@ use Google\Protobuf\Internal\GPBUtil;
 class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string columnsName = 1;</code>
+     * Generated from protobuf field <code>string columnName = 1;</code>
      */
-    protected $columnsName = '';
+    protected $columnName = '';
     /**
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableOrderBy.Order order = 2;</code>
      */
@@ -32,7 +32,7 @@ class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $columnsName
+     *     @type string $columnName
      *     @type int $order
      *     @type int $dataType
      * }
@@ -43,23 +43,23 @@ class PreviewTableOrderBy extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string columnsName = 1;</code>
+     * Generated from protobuf field <code>string columnName = 1;</code>
      * @return string
      */
-    public function getColumnsName()
+    public function getColumnName()
     {
-        return $this->columnsName;
+        return $this->columnName;
     }
 
     /**
-     * Generated from protobuf field <code>string columnsName = 1;</code>
+     * Generated from protobuf field <code>string columnName = 1;</code>
      * @param string $var
      * @return $this
      */
-    public function setColumnsName($var)
+    public function setColumnName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->columnsName = $var;
+        $this->columnName = $var;
 
         return $this;
     }

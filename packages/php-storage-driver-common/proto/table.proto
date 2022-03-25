@@ -61,7 +61,7 @@ message PreviewTableCommand {
   repeated ImportExportShared.TableWhereFilter whereFilters = 8;
 
   message PreviewTableOrderBy {
-    string columnsName = 1;
+    string columnName = 1;
     enum Order {
       ASC = 0;
       DESC = 1;
