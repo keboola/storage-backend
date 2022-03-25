@@ -39,15 +39,17 @@ class FailedTPTLoadException extends Exception
         ?array $errTableContent,
         ?array $errTable2Content
     ) {
-        parent::__construct("Teradata TPT load ended with Error. \n\n 
+        parent::__construct(
+            "Teradata TPT load ended with Error. \n\n 
         StdErr :$stdErr \n\n 
         stdOut :$stdOut \n\n 
         logContent :$logContent \n\n 
-        logTableContent : ".implode($logTableContent) ." \n\n 
-        errTableContent : ".implode($errTableContent) ." \n\n 
-        errTable2Content : ".implode($errTable2Content) ." \n\n 
-        "
-            , $exitCode ?? 0);
+        logTableContent : " . ($logTableContent ? implode($logTableContent) : '') . " \n\n 
+        errTableContent : " . ($errTableContent ? implode($errTableContent) : '') . "\n\n 
+        errTable2Content : " . ($errTable2Content ? implode($errTable2Content) : '') . " \n\n 
+        ",
+            $exitCode ?? 0
+        );
         $this->stdErr = $stdErr;
         $this->stdOut = $stdOut;
         $this->logContent = $logContent;
