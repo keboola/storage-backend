@@ -37,7 +37,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
 
         $quotedColumns = array_map(static function ($column) {
             return TeradataQuote::quoteSingleIdentifier($column);
-        }, $source->getColumnsNames());
+        }, $destination->getColumnsNames());
 
         $sql = sprintf(
             'INSERT INTO %s.%s (%s) %s',
