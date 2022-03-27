@@ -440,11 +440,4 @@ PRIMARY INDEX ("VisitID");
             $message
         );
     }
-
-    protected function tearDown(): void
-    {
-        $this->cleanDatabase($this->getDestinationDbName());
-        $this->cleanDatabase($this->getSourceDbName());
-        parent::tearDown();
-    }
 }
