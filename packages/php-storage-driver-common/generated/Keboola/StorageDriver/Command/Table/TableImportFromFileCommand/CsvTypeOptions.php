@@ -27,39 +27,33 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
      */
     private $columnsNames;
     /**
-     * list of primary key columns
-     *
-     * Generated from protobuf field <code>repeated string primaryKeysNames = 2;</code>
-     */
-    private $primaryKeysNames;
-    /**
      * One character that separate fields in file. Delimiter must be single character and cannot be empty
      *
-     * Generated from protobuf field <code>string delimiter = 3;</code>
+     * Generated from protobuf field <code>string delimiter = 2;</code>
      */
     protected $delimiter = '';
     /**
      * Character used to enclose strings. Single quote character ('), or double quote character (")
      *
-     * Generated from protobuf field <code>string enclosure = 4;</code>
+     * Generated from protobuf field <code>string enclosure = 3;</code>
      */
     protected $enclosure = '';
     /**
      * Single character string used as the escape character for unenclosed field values only
      *
-     * Generated from protobuf field <code>string escapedBy = 5;</code>
+     * Generated from protobuf field <code>string escapedBy = 4;</code>
      */
     protected $escapedBy = '';
     /**
      * csv source type
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.SourceType sourceType = 6;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.SourceType sourceType = 5;</code>
      */
     protected $sourceType = 0;
     /**
      * used compression in files
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.Compression compression = 7;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.Compression compression = 6;</code>
      */
     protected $compression = 0;
 
@@ -71,8 +65,6 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
      *
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columnsNames
      *           list of columns expected in csv file
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
-     *           list of primary key columns
      *     @type string $delimiter
      *           One character that separate fields in file. Delimiter must be single character and cannot be empty
      *     @type string $enclosure
@@ -117,35 +109,9 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * list of primary key columns
-     *
-     * Generated from protobuf field <code>repeated string primaryKeysNames = 2;</code>
-     * @return \Google\Protobuf\Internal\RepeatedField
-     */
-    public function getPrimaryKeysNames()
-    {
-        return $this->primaryKeysNames;
-    }
-
-    /**
-     * list of primary key columns
-     *
-     * Generated from protobuf field <code>repeated string primaryKeysNames = 2;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
-     * @return $this
-     */
-    public function setPrimaryKeysNames($var)
-    {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
-        $this->primaryKeysNames = $arr;
-
-        return $this;
-    }
-
-    /**
      * One character that separate fields in file. Delimiter must be single character and cannot be empty
      *
-     * Generated from protobuf field <code>string delimiter = 3;</code>
+     * Generated from protobuf field <code>string delimiter = 2;</code>
      * @return string
      */
     public function getDelimiter()
@@ -156,7 +122,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * One character that separate fields in file. Delimiter must be single character and cannot be empty
      *
-     * Generated from protobuf field <code>string delimiter = 3;</code>
+     * Generated from protobuf field <code>string delimiter = 2;</code>
      * @param string $var
      * @return $this
      */
@@ -171,7 +137,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * Character used to enclose strings. Single quote character ('), or double quote character (")
      *
-     * Generated from protobuf field <code>string enclosure = 4;</code>
+     * Generated from protobuf field <code>string enclosure = 3;</code>
      * @return string
      */
     public function getEnclosure()
@@ -182,7 +148,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * Character used to enclose strings. Single quote character ('), or double quote character (")
      *
-     * Generated from protobuf field <code>string enclosure = 4;</code>
+     * Generated from protobuf field <code>string enclosure = 3;</code>
      * @param string $var
      * @return $this
      */
@@ -197,7 +163,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * Single character string used as the escape character for unenclosed field values only
      *
-     * Generated from protobuf field <code>string escapedBy = 5;</code>
+     * Generated from protobuf field <code>string escapedBy = 4;</code>
      * @return string
      */
     public function getEscapedBy()
@@ -208,7 +174,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * Single character string used as the escape character for unenclosed field values only
      *
-     * Generated from protobuf field <code>string escapedBy = 5;</code>
+     * Generated from protobuf field <code>string escapedBy = 4;</code>
      * @param string $var
      * @return $this
      */
@@ -223,7 +189,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * csv source type
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.SourceType sourceType = 6;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.SourceType sourceType = 5;</code>
      * @return int
      */
     public function getSourceType()
@@ -234,7 +200,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * csv source type
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.SourceType sourceType = 6;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.SourceType sourceType = 5;</code>
      * @param int $var
      * @return $this
      */
@@ -249,7 +215,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * used compression in files
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.Compression compression = 7;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.Compression compression = 6;</code>
      * @return int
      */
     public function getCompression()
@@ -260,7 +226,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
     /**
      * used compression in files
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.Compression compression = 7;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.TableImportFromFileCommand.CsvTypeOptions.Compression compression = 6;</code>
      * @param int $var
      * @return $this
      */
