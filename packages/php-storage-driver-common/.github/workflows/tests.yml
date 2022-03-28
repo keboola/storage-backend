@@ -20,6 +20,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: docker-compose build
 
+      - name: Prepare stubs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.S3_AWS_REGION }}
+        run: docker-compose run --rm production composer loadS3
+
       - name: Run Tests
         env:
           TERADATA_HOST: ${{ secrets.TERADATA_HOST }}

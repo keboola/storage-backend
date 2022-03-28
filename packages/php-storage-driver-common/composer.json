@@ -12,8 +12,10 @@
     "require": {
         "php": ">=7.4",
         "ext-odbc": "*",
-        "keboola/db-import-export": "^0.18",
-        "google/protobuf": "^3.20.0RC1"
+        "ext-json": "*",
+        "keboola/db-import-export": "dev-jirka-kbc-2394-full-load as v0.19",
+        "google/protobuf": "^3.20.0RC2",
+        "keboola/php-file-storage-utils": "^0.2.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",
@@ -21,7 +23,8 @@
         "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-symfony": "^1.1",
         "keboola/coding-standard": "^13.0",
-        "php-parallel-lint/php-parallel-lint": "^1.3"
+        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "symfony/finder": "^5.4"
     },
     "autoload": {
         "psr-4": {
@@ -37,7 +40,8 @@
             "Keboola\\StorageDriver\\FunctionalTests\\": "tests/functional",
             "Keboola\\StorageDriver\\UnitTests\\": "tests/unit",
             "GPBMetadata\\Tests\\": "tests/generated/GPBMetadata/Tests",
-            "Keboola\\StorageDriver\\GeneratedTests\\": "tests/generated/Keboola/StorageDriver/GeneratedTests"
+            "Keboola\\StorageDriver\\GeneratedTests\\": "tests/generated/Keboola/StorageDriver/GeneratedTests",
+            "Keboola\\StorageDriver\\TestsStubLoader\\": "tests/StubLoader"
         }
     },
     "config": {
@@ -56,6 +60,10 @@
         "tests": [
             "@protobufTests",
             "@phpunit"
+        ],
+        "loadS3": "php ./tests/StubLoader/loader.php s3",
+        "load-data": [
+            "@loadS3"
         ],
         "check": [
             "@composer validate --no-check-all --strict",
