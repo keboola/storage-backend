@@ -13,6 +13,8 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\FailedTPTLoadExce
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\FileStorage\Path\RelativePath;
+use Keboola\FileStorage\S3\S3Provider;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
@@ -174,15 +176,20 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         );
 
         if ($source->isSliced()) {
+            $mask = BackendHelper::getMask($source);
+            $path = RelativePath::createFromRootAndPath(new S3Provider(), $source->getBucket(), $mask);
             $moduleStr = sprintf(
-                'AccessModuleInitStr = \'S3Region=%s S3Bucket=%s S3Prefix="" S3Object=%s S3SinglePartFile=True\'',
+                // phpcs:ignore
+                'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=True\'',
                 $source->getRegion(),
-                $source->getBucket(),
-                BackendHelper::getMask($source)
+                $path->getRoot(),
+                $path->getPathWithoutRoot() . '/',
+                $path->getFileName()
             );
         } else {
             $moduleStr = sprintf(
-                'AccessModuleInitStr = \'S3Region=%s S3Bucket=%s S3Prefix="%s" S3Object=%s S3SinglePartFile=True\'',
+                // phpcs:ignore
+                'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=True\'',
                 $source->getRegion(),
                 $source->getBucket(),
                 $source->getPrefix(),

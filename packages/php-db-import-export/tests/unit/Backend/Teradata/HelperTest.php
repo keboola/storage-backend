@@ -20,6 +20,8 @@ class HelperTest extends TestCase
 
         $mock->method('getManifestEntries')
             ->willReturn($entriesData);
+        $mock->method('getS3Prefix')
+            ->willReturn('s3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy');
         $this->assertEquals($expected, BackendHelper::getMask($mock));
     }
 
@@ -29,6 +31,15 @@ class HelperTest extends TestCase
     public function dataProvider(): array
     {
         return [
+            [
+                'sliced/accounts-gzip/tw_accounts.csv.gz000*_part_00.gz',
+                [
+                    // phpcs:ignore
+                    's3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy/sliced/accounts-gzip/tw_accounts.csv.gz0001_part_00.gz',
+                    // phpcs:ignore
+                    's3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy/sliced/accounts-gzip/tw_accounts.csv.gz0002_part_00.gz',
+                ],
+            ],
             [
                 'sliced.csv_*',
                 [
