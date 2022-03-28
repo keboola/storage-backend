@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\StorageDriver\Shared\Utils;
 
+use Google\Protobuf\Internal\GPBType;
 use Google\Protobuf\Internal\RepeatedField;
 
 class ProtobufHelper
@@ -20,5 +21,19 @@ class ProtobufHelper
             $values[] = (string) $value;
         }
         return $values;
+    }
+
+    /**
+     * Convert array to RepeatedField
+     *
+     * @param string[] $repeated
+     */
+    public static function arrayToRepeatedString(array $repeated): RepeatedField
+    {
+        $out = new RepeatedField(GPBType::STRING);
+        foreach ($repeated as $value) {
+            $out[] = $value;
+        }
+        return $out;
     }
 }

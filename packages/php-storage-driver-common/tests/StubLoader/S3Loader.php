@@ -35,6 +35,7 @@ class S3Loader extends BaseStubLoader
             'Bucket' => $this->bucket,
             'Delimiter' => '/',
         ]);
+        /** @var array<array{Key: string}>|null $objects */
         $objects = $result->get('Contents');
         if ($objects) {
             $this->client->deleteObjects([
