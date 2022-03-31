@@ -18,6 +18,13 @@
 
 ## Development
 
+### Docker
+
+Prepare `.env` (copy of `.env.dist`) and set up AWS keys which has access to `keboola-drivers` bucket in order to build this image. Then run `docker-compose --env-file=.env.local build`
+
+The AWS credentials have to also have access to bucket specified in `AWS_S3_BUCKET`. This bucket has to contain testing data. Run `docker-compose run --rm dev  composer loadS3` to load them up.
+
+
 ### Preparation
 
 #### Azure
@@ -95,6 +102,15 @@ EXASOL_PASSWORD=
 **Exasol in SaaS**
 
 Obtain host (with port), username and password from Exasol SaaS for your testing DB and fill it in `.env` as desribed above. Make sure, that your account has enabled network for your IP.
+
+#### Teradata
+```bash
+TERADATA_HOST=
+TERADATA_USERNAME=
+TERADATA_PASSWORD=JirkaTdPassword+
+TERADATA_PORT=
+```
+
 
 ### Tests
 

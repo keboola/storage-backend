@@ -10,7 +10,9 @@
         "keboola/php-csv-db-import": "^5.0",
         "keboola/php-file-storage-utils": ">=0.2",
         "keboola/table-backend-utils": "^0.18",
-        "microsoft/azure-storage-blob": "^1.4"
+        "keboola/php-temp": "^1.0",
+        "microsoft/azure-storage-blob": "^1.4",
+        "symfony/process": "^4.4|^5.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12.54",
@@ -18,9 +20,7 @@
         "keboola/coding-standard": "^9.0",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpstan/extension-installer": "^1.0",
-        "keboola/datadir-tests": "^2.0",
-        "keboola/php-temp": "^1.0",
-        "symfony/process": "^4.4|^5.0"
+        "keboola/datadir-tests": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -49,6 +49,7 @@
         "tests-synapse-clusterdindextemp": "SUITE=tests-synapse-clusterdindextemp CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=CLUSTERED_INDEX DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite tests-synapse-clusterdindextemp",
         "tests-synapse-mi": "SUITE=tests-synapse-mi CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY TEMP_TABLE_TYPE=HEAP DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite synapse-mi",
         "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
+        "tests-teradata": "SUITE=tests-teradata STORAGE_TYPE=S3 phpunit --colors=always --testsuite tests-teradata",
         "tests-functional": [
             "@tests-snowflake-abs",
             "@tests-snowflake-s3",
@@ -58,7 +59,8 @@
             "@tests-synapse-clusterdindextemp",
             "@tests-synapse-heap4000temp",
             "@tests-synapse-heap4000temp-optimized",
-            "@tests-exasol"
+            "@tests-exasol",
+            "@tests-teradata"
         ],
         "tests": [
             "@tests-unit",

@@ -23,7 +23,7 @@ stages:
     displayName: Build and test
     jobs:
       - job: Build
-        timeoutInMinutes: 100
+        timeoutInMinutes: 200
         displayName: Build
         pool:
           vmImage: 'ubuntu-latest'
@@ -71,6 +71,9 @@ stages:
           - script: |
               docker-compose build --pull production
             displayName: 'Build project images'
+            env:
+              AWS_ACCESS_KEY_ID: $(DRIVERS_AWS_ACCESS_KEY_ID)
+              AWS_SECRET_ACCESS_KEY: $(DRIVERS_AWS_SECRET_ACCESS_KEY)
           - script: |
               docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
@@ -137,7 +140,8 @@ stages:
               tests-synapse-heap4000temp-hash \
               tests-synapse-heap4000temp-optimized \
               tests-synapse-heap4000temp-optimized-hash \
-              tests-synapse-next
+              tests-synapse-next \
+              tests-teradata
               PARALLEL_EXIT_CODE=$?
               cat /tmp/parallel-joblog
               sleep 1
@@ -166,6 +170,10 @@ stages:
               EXASOL_HOST: $(EXASOL_CLUSTER_DNS)
               EXASOL_USERNAME: devel
               EXASOL_PASSWORD: $(EXA_SAAS_TOKEN)
+              TERADATA_HOST: $(TERADATA_HOST)
+              TERADATA_PASSWORD: $(TERADATA_PASSWORD)
+              TERADATA_PORT: $(TERADATA_PORT)
+              TERADATA_USERNAME: $(TERADATA_USERNAME)
           - script: |
               docker-compose stop
               php ./provisioning/cli.php app:delete:synapse \
