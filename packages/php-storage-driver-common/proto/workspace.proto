@@ -46,6 +46,7 @@ message DropWorkspaceCommand {
   string workspaceRoleName = 2; // backend role associated with workspace
   string workspaceObjectName = 3; // object name in backend which will be removed
   bool ignoreErrors = 4; // if true all backend errors should be ignored and command will always pass
+  bool isCascade = 5; // drop all object workspace contains
 }
 /**
  * Command will remove workspace content

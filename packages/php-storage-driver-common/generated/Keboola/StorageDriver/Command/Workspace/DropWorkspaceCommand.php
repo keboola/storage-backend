@@ -40,6 +40,12 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>bool ignoreErrors = 4;</code>
      */
     protected $ignoreErrors = false;
+    /**
+     * drop all object workspace contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 5;</code>
+     */
+    protected $isCascade = false;
 
     /**
      * Constructor.
@@ -55,6 +61,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *           object name in backend which will be removed
      *     @type bool $ignoreErrors
      *           if true all backend errors should be ignored and command will always pass
+     *     @type bool $isCascade
+     *           drop all object workspace contains
      * }
      */
     public function __construct($data = NULL) {
@@ -162,6 +170,32 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkBool($var);
         $this->ignoreErrors = $var;
+
+        return $this;
+    }
+
+    /**
+     * drop all object workspace contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 5;</code>
+     * @return bool
+     */
+    public function getIsCascade()
+    {
+        return $this->isCascade;
+    }
+
+    /**
+     * drop all object workspace contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 5;</code>
+     * @param bool $var
+     * @return $this
+     */
+    public function setIsCascade($var)
+    {
+        GPBUtil::checkBool($var);
+        $this->isCascade = $var;
 
         return $this;
     }
