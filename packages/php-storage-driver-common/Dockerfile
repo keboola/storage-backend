@@ -1,4 +1,4 @@
-FROM quay.io/keboola/aws-cli
+FROM quay.io/keboola/aws-cli AS tpt
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_ACCESS_KEY_ID
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.17-1.x86_64.deb /tmp/teradata/tdodbc.deb
@@ -6,6 +6,7 @@ RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtili
 
 FROM php:7.4-cli
 
+ARG GITHUB_OAUTH_TOKEN
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER 1
@@ -49,7 +50,7 @@ RUN curl -sSLf \
     chmod +x /usr/local/bin/install-php-extensions
 
 # Teradata ODBC
-COPY --from=0 /tmp/teradata/tdodbc.deb /tmp/teradata/tdodbc.deb
+COPY --from=tpt /tmp/teradata/tdodbc.deb /tmp/teradata/tdodbc.deb
 COPY etc/docker/teradata/odbc.ini /tmp/teradata/odbc_td.ini
 COPY etc/docker/teradata/odbcinst.ini /tmp/teradata/odbcinst_td.ini
 
@@ -65,12 +66,18 @@ ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
 ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
 
 # Teradata Utils
-COPY --from=0 /tmp/teradata/tdutils.tar.gz /tmp/teradata/tdutils.tar.gz
+COPY --from=tpt /tmp/teradata/tdutils.tar.gz /tmp/teradata/tdutils.tar.gz
 RUN cd /tmp/teradata \
     && tar -xvaf tdutils.tar.gz \
     && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase s3axsmod \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/teradata
+# Custom SPT loader
+RUN curl -L -s https://github.com/gruntwork-io/fetch/releases/download/v0.4.4/fetch_linux_amd64 -o /usr/bin/fetch \
+    && chmod +x /usr/bin/fetch \
+    && /usr/bin/fetch --repo="https://github.com/keboola/teradata-spt" --tag="~>0.0.2" --release-asset="spt" /usr/bin \
+    && chmod +x /usr/bin/spt \
+    && rm /usr/bin/fetch
 
 ## Composer - deps always cached unless changed
 # First copy only composer files

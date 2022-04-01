@@ -13,7 +13,7 @@
         "php": ">=7.4",
         "ext-odbc": "*",
         "ext-json": "*",
-        "keboola/db-import-export": "dev-jirka-kbc-2394-full-load as v0.19",
+        "keboola/db-import-export": "dev-zajca-stp as v0.20",
         "google/protobuf": "^3.20.0RC2",
         "keboola/php-file-storage-utils": "^0.2.2"
     },

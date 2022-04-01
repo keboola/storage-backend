@@ -241,6 +241,14 @@ message TableImportFromFileCommand {
    * https://github.com/keboola/php-db-import-export/blob/master/src/ImportOptions.php
    */
   ImportExportShared.ImportOptions importOptions = 7;
+  google.protobuf.Any meta = 8; // additional import data specific for backend
+  message TeradataTableImportMeta {
+    ImportAdapter importAdapter = 1;
+    enum ImportAdapter {
+      TPT = 0;
+      SPT = 1;
+    }
+  }
 }
 
 /**
