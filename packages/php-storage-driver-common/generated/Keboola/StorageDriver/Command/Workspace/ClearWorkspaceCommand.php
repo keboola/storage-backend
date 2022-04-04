@@ -17,10 +17,14 @@ use Google\Protobuf\Internal\GPBUtil;
 class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 1;</code>
      */
     protected $workspaceObjectName = '';
     /**
+     * if true all backend errors should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      */
     protected $ignoreErrors = false;
@@ -32,7 +36,9 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $workspaceObjectName
+     *           object name in backend which will be removed
      *     @type bool $ignoreErrors
+     *           if true all backend errors should be ignored and command will always pass
      * }
      */
     public function __construct($data = NULL) {
@@ -41,6 +47,8 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 1;</code>
      * @return string
      */
@@ -50,6 +58,8 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 1;</code>
      * @param string $var
      * @return $this
@@ -63,6 +73,8 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * if true all backend errors should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      * @return bool
      */
@@ -72,6 +84,8 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * if true all backend errors should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      * @param bool $var
      * @return $this

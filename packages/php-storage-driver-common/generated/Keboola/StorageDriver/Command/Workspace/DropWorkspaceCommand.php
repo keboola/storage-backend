@@ -17,21 +17,29 @@ use Google\Protobuf\Internal\GPBUtil;
 class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * backend user associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      */
     protected $workspaceUserName = '';
     /**
+     * backend role associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceRoleName = 2;</code>
      */
     protected $workspaceRoleName = '';
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 3;</code>
      */
     protected $workspaceObjectName = '';
     /**
-     * Generated from protobuf field <code>bool ignoreErrors = 4;</code>
+     * drop all object workspace contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 4;</code>
      */
-    protected $ignoreErrors = false;
+    protected $isCascade = false;
 
     /**
      * Constructor.
@@ -40,9 +48,13 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $workspaceUserName
+     *           backend user associated with workspace
      *     @type string $workspaceRoleName
+     *           backend role associated with workspace
      *     @type string $workspaceObjectName
-     *     @type bool $ignoreErrors
+     *           object name in backend which will be removed
+     *     @type bool $isCascade
+     *           drop all object workspace contains
      * }
      */
     public function __construct($data = NULL) {
@@ -51,6 +63,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend user associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @return string
      */
@@ -60,6 +74,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend user associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @param string $var
      * @return $this
@@ -73,6 +89,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend role associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceRoleName = 2;</code>
      * @return string
      */
@@ -82,6 +100,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * backend role associated with workspace
+     *
      * Generated from protobuf field <code>string workspaceRoleName = 2;</code>
      * @param string $var
      * @return $this
@@ -95,6 +115,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 3;</code>
      * @return string
      */
@@ -104,6 +126,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 3;</code>
      * @param string $var
      * @return $this
@@ -117,23 +141,27 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>bool ignoreErrors = 4;</code>
+     * drop all object workspace contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 4;</code>
      * @return bool
      */
-    public function getIgnoreErrors()
+    public function getIsCascade()
     {
-        return $this->ignoreErrors;
+        return $this->isCascade;
     }
 
     /**
-     * Generated from protobuf field <code>bool ignoreErrors = 4;</code>
+     * drop all object workspace contains
+     *
+     * Generated from protobuf field <code>bool isCascade = 4;</code>
      * @param bool $var
      * @return $this
      */
-    public function setIgnoreErrors($var)
+    public function setIsCascade($var)
     {
         GPBUtil::checkBool($var);
-        $this->ignoreErrors = $var;
+        $this->isCascade = $var;
 
         return $this;
     }

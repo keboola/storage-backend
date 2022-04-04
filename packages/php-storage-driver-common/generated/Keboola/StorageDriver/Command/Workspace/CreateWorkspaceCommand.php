@@ -23,25 +23,47 @@ use Google\Protobuf\Internal\GPBUtil;
 class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string projectId = 1;</code>
+     * static prefix of stack used
+     *
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
+     */
+    protected $stackPrefix = '';
+    /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
+     * Generated from protobuf field <code>string projectId = 2;</code>
      */
     protected $projectId = '';
     /**
-     * Generated from protobuf field <code>string workspaceId = 2;</code>
+     * Keboola Connection workspace id
+     *
+     * Generated from protobuf field <code>string workspaceId = 3;</code>
      */
     protected $workspaceId = '';
     /**
-     * Generated from protobuf field <code>string projectUserName = 3;</code>
+     * backend user associated with project
+     *
+     * Generated from protobuf field <code>string projectUserName = 4;</code>
      */
     protected $projectUserName = '';
     /**
-     * Generated from protobuf field <code>string projectRoleName = 4;</code>
+     * backend role associated with project, role should contain all grants and be assigned to project user
+     *
+     * Generated from protobuf field <code>string projectRoleName = 5;</code>
      */
     protected $projectRoleName = '';
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
+     * backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 6;</code>
      */
     protected $projectReadOnlyRoleName = '';
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
+     */
+    protected $meta = null;
 
     /**
      * Constructor.
@@ -49,11 +71,20 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
+     *     @type string $stackPrefix
+     *           static prefix of stack used
      *     @type string $projectId
+     *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
      *     @type string $workspaceId
+     *           Keboola Connection workspace id
      *     @type string $projectUserName
+     *           backend user associated with project
      *     @type string $projectRoleName
+     *           backend role associated with project, role should contain all grants and be assigned to project user
      *     @type string $projectReadOnlyRoleName
+     *           backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -62,7 +93,35 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectId = 1;</code>
+     * static prefix of stack used
+     *
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
+     * @return string
+     */
+    public function getStackPrefix()
+    {
+        return $this->stackPrefix;
+    }
+
+    /**
+     * static prefix of stack used
+     *
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setStackPrefix($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->stackPrefix = $var;
+
+        return $this;
+    }
+
+    /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
+     * Generated from protobuf field <code>string projectId = 2;</code>
      * @return string
      */
     public function getProjectId()
@@ -71,7 +130,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectId = 1;</code>
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
+     * Generated from protobuf field <code>string projectId = 2;</code>
      * @param string $var
      * @return $this
      */
@@ -84,7 +145,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string workspaceId = 2;</code>
+     * Keboola Connection workspace id
+     *
+     * Generated from protobuf field <code>string workspaceId = 3;</code>
      * @return string
      */
     public function getWorkspaceId()
@@ -93,7 +156,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string workspaceId = 2;</code>
+     * Keboola Connection workspace id
+     *
+     * Generated from protobuf field <code>string workspaceId = 3;</code>
      * @param string $var
      * @return $this
      */
@@ -106,7 +171,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectUserName = 3;</code>
+     * backend user associated with project
+     *
+     * Generated from protobuf field <code>string projectUserName = 4;</code>
      * @return string
      */
     public function getProjectUserName()
@@ -115,7 +182,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectUserName = 3;</code>
+     * backend user associated with project
+     *
+     * Generated from protobuf field <code>string projectUserName = 4;</code>
      * @param string $var
      * @return $this
      */
@@ -128,7 +197,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectRoleName = 4;</code>
+     * backend role associated with project, role should contain all grants and be assigned to project user
+     *
+     * Generated from protobuf field <code>string projectRoleName = 5;</code>
      * @return string
      */
     public function getProjectRoleName()
@@ -137,7 +208,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectRoleName = 4;</code>
+     * backend role associated with project, role should contain all grants and be assigned to project user
+     *
+     * Generated from protobuf field <code>string projectRoleName = 5;</code>
      * @param string $var
      * @return $this
      */
@@ -150,7 +223,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
+     * backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 6;</code>
      * @return string
      */
     public function getProjectReadOnlyRoleName()
@@ -159,7 +234,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRoleName = 5;</code>
+     * backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *
+     * Generated from protobuf field <code>string projectReadOnlyRoleName = 6;</code>
      * @param string $var
      * @return $this
      */
@@ -167,6 +244,42 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->projectReadOnlyRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
+     * @return \Google\Protobuf\Any|null
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    public function hasMeta()
+    {
+        return isset($this->meta);
+    }
+
+    public function clearMeta()
+    {
+        unset($this->meta);
+    }
+
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
+     * @param \Google\Protobuf\Any $var
+     * @return $this
+     */
+    public function setMeta($var)
+    {
+        GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
+        $this->meta = $var;
 
         return $this;
     }

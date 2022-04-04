@@ -19,8 +19,8 @@ message CreateBucketCommand {
    * Teradata backend metadata
    */
   message CreateBucketTeradataMeta {
-    string permSpace = 1; // size of perm space allocated with project example `1e9`
-    string spoolSpace = 2; // size of spool space allocated with project example `1e9`
+    string permSpace = 1; // size of perm space allocated with bucket, example `1e9`
+    string spoolSpace = 2; // size of spool space allocated with bucket, example `1e9`
   }
 }
 
