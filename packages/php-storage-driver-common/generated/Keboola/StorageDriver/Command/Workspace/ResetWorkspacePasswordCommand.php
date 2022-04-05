@@ -10,7 +10,7 @@ use Google\Protobuf\Internal\GPBUtil;
 
 /**
  **
- * Command will remove workspace content
+ * Command reset workspace password
  *
  * Generated from protobuf message <code>keboola.storageDriver.command.workspace.ResetWorkspacePasswordCommand</code>
  */

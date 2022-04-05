@@ -55,7 +55,7 @@ message ClearWorkspaceCommand {
   bool ignoreErrors = 2; // if true all backend errors should be ignored and command will always pass
 }
 /**
- * Command will remove workspace content
+ * Command reset workspace password
  */
 message ResetWorkspacePasswordCommand {
   string workspaceUserName = 1; // backend user associated with workspace
