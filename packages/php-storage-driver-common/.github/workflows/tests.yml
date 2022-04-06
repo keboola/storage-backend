@@ -18,6 +18,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          GITHUB_OAUTH_TOKEN: ${{ secrets.BUILD_GITHUB_OAUTH_TOKEN }}
         run: docker-compose build
 
       - name: Prepare stubs
