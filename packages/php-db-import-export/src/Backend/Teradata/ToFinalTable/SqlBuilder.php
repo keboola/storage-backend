@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable;
 
 use Keboola\Datatype\Definition\BaseType;
-use Keboola\Datatype\Definition\Teradata;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
@@ -74,6 +74,25 @@ class SqlBuilder
 
         /** @var TeradataColumn $columnDefinition */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
+            $destinationColumn = null;
+            // case sensitive search
+            /** @var TeradataColumn $col */
+            foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
+                if ($col->getColumnName() === $columnDefinition->getColumnName()) {
+                    $destinationColumn = $col;
+                    break;
+                }
+            }
+            if ($destinationColumn === null) {
+                throw new Exception(
+                    sprintf(
+                        'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
+                        $columnDefinition->getColumnName(),
+                        implode(', ', $destinationTableDefinition->getColumnsNames())
+                    ),
+                    Exception::UNKNOWN_ERROR
+                );
+            }
             if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
@@ -88,7 +107,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'CAST(COALESCE(%s, \'\') as %s) AS %s',
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $columnDefinition->getColumnDefinition()->buildTypeWithLength(),
+                    $destinationColumn->getColumnDefinition()->buildTypeWithLength(),
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             } else {
@@ -97,7 +116,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'CAST(%s as %s) AS %s',
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $columnDefinition->getColumnDefinition()->buildTypeWithLength(),
+                    $destinationColumn->getColumnDefinition()->buildTypeWithLength(),
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             }
