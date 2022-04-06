@@ -6,6 +6,7 @@ services:
       args:
         - AWS_ACCESS_KEY_ID
         - AWS_SECRET_ACCESS_KEY
+        - GITHUB_OAUTH_TOKEN
     environment:
       - ABS_ACCOUNT_NAME
       - ABS_ACCOUNT_KEY
@@ -32,9 +33,12 @@ services:
       - TERADATA_USERNAME
       - TERADATA_PASSWORD
       - TERADATA_PORT
+      - TERADATA_ROOT_DATABASE
+      - GITHUB_OAUTH_TOKEN
   dev: &dev
     <<: *prod
     image: keboola/php-db-import-export
+    network_mode: host
     volumes:
       - ./:/code
   dev-xdebug:
