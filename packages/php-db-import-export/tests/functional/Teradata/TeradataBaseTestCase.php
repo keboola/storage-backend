@@ -75,6 +75,21 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     }
 
     /**
+     * @return TeradataImportOptions::CSV_ADAPTER_*
+     */
+    public function getCsvAdapter(): int
+    {
+        $adapter = (int) getenv('TERADATA_CSV_ADAPTER');
+        switch ($adapter) {
+            case TeradataImportOptions::CSV_ADAPTER_TPT:
+                return TeradataImportOptions::CSV_ADAPTER_TPT;
+            case TeradataImportOptions::CSV_ADAPTER_SPT:
+                return TeradataImportOptions::CSV_ADAPTER_SPT;
+        }
+        return TeradataImportOptions::CSV_ADAPTER_SPT;
+    }
+
+    /**
      * @param string[] $columnsNames
      */
     public function getColumnsWithoutTypes(array $columnsNames): ColumnCollection
@@ -363,6 +378,7 @@ PRIMARY INDEX ("VisitID");
                 $isIncremental,
                 $useTimestamp,
                 $numberOfIgnoredLines,
+                $this->getCsvAdapter()
             );
     }
 
@@ -380,6 +396,7 @@ PRIMARY INDEX ("VisitID");
                 false,
                 $useTimestamp,
                 $skipLines,
+                $this->getCsvAdapter()
             );
     }
 

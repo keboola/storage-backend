@@ -207,21 +207,24 @@ class FullImportTest extends TeradataBaseTestCase
             self::TABLE_OUT_CSV_2COLS,
         ];
 
-        yield 'standard with enclosures tabs' => [
-            $this->createS3SourceInstanceFromCsv(
-                'standard-with-enclosures.tabs.csv',
-                new CsvOptions("\t"),
-                $escapingHeader,
-                false,
-                false,
-                []
-            ),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(),
-            $expectedEscaping,
-            7,
-            self::TABLE_OUT_CSV_2COLS,
-        ];
+        if ($this->getCsvAdapter() !== TeradataImportOptions::CSV_ADAPTER_SPT) {
+            // ignore this use case STP doesn't support custom delimiter
+            yield 'standard with enclosures tabs' => [
+                $this->createS3SourceInstanceFromCsv(
+                    'standard-with-enclosures.tabs.csv',
+                    new CsvOptions("\t"),
+                    $escapingHeader,
+                    false,
+                    false,
+                    []
+                ),
+                [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+                $this->getSimpleImportOptions(),
+                $expectedEscaping,
+                7,
+                self::TABLE_OUT_CSV_2COLS,
+            ];
+        }
 
         yield 'accounts changedColumnsOrder' => [
             $this->createS3SourceInstance(
@@ -351,7 +354,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $this->getDestinationDbName(),
                 self::TABLE_OUT_CSV_2COLS,
             ],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $this->getSimpleImportOptions(),
             [
                 ['a', 'b', '2014-11-10 13:12:06.000000'],
                 ['c', 'd', '2014-11-10 14:12:06.000000'],
@@ -438,10 +441,20 @@ class FullImportTest extends TeradataBaseTestCase
             $tableName
         ))->getTableDefinition();
 
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $destination,
-            $source->getColumnsNames()
-        );
+        if ($this->getCsvAdapter() === TeradataImportOptions::CSV_ADAPTER_TPT) {
+            // TPT
+            $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+                $destination,
+                $source->getColumnsNames()
+            );
+        } else {
+            // SPT
+            $stagingTable = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
+                $destination,
+                $source->getColumnsNames()
+            );
+        }
+
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable)

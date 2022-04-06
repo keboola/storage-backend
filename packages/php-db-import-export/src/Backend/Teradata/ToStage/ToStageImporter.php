@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\ToStage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseException;
+use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -33,9 +35,10 @@ final class ToStageImporter implements ToStageImporterInterface
         ImportOptionsInterface $options
     ): ImportState {
         assert($destinationDefinition instanceof TeradataTableDefinition);
+        assert($options instanceof TeradataImportOptions);
         $state = new ImportState($destinationDefinition->getTableName());
 
-        $adapter = $this->getAdapter($source);
+        $adapter = $this->getAdapter($source, $options, $state);
 
         $state->startTimer(self::TIMER_TABLE_IMPORT);
         try {
@@ -46,7 +49,7 @@ final class ToStageImporter implements ToStageImporterInterface
                     $options
                 )
             );
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             throw SynapseException::covertException($e);
         }
         $state->stopTimer(self::TIMER_TABLE_IMPORT);
@@ -54,15 +57,19 @@ final class ToStageImporter implements ToStageImporterInterface
         return $state;
     }
 
-    private function getAdapter(Storage\SourceInterface $source): CopyAdapterInterface
-    {
+    private function getAdapter(
+        Storage\SourceInterface $source,
+        TeradataImportOptions $options,
+        ImportState $state
+    ): CopyAdapterInterface {
         switch (true) {
             case $source instanceof Storage\S3\SourceFile:
-                $adapter = new FromS3TPTAdapter($this->connection);
-                break;
+                if ($options->getCsvImportAdapter() === TeradataImportOptions::CSV_ADAPTER_TPT) {
+                    return new FromS3TPTAdapter($this->connection);
+                }
+                return new FromS3SPTAdapter($this->connection);
             case $source instanceof Storage\SqlSourceInterface:
-                $adapter = new FromTableInsertIntoAdapter($this->connection);
-                break;
+                return new FromTableInsertIntoAdapter($this->connection);
             default:
                 throw new LogicException(
                     sprintf(
@@ -71,6 +78,5 @@ final class ToStageImporter implements ToStageImporterInterface
                     )
                 );
         }
-        return $adapter;
     }
 }
