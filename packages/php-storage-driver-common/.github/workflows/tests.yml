@@ -31,6 +31,7 @@ jobs:
 
       - name: Run Tests
         env:
+          DEBUG: ${{ secrets.DEBUG }}
           TERADATA_HOST: ${{ secrets.TERADATA_HOST }}
           TERADATA_USERNAME: ${{ secrets.TERADATA_USERNAME }}
           TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
