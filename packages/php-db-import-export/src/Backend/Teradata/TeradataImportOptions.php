@@ -8,9 +8,9 @@ use Keboola\Db\ImportExport\ImportOptions;
 
 class TeradataImportOptions extends ImportOptions
 {
-    public const CSV_ADAPTER_TPT = 1;
-    public const CSV_ADAPTER_SPT = 2;
-    private const DEFAULT_CSV_ADAPTER = self::CSV_ADAPTER_SPT;
+    public const CSV_ADAPTER_TPT = 'TPT';
+    public const CSV_ADAPTER_SPT = 'SPT';
+    private const DEFAULT_CSV_ADAPTER = self::CSV_ADAPTER_TPT;
 
     private string $teradataHost;
 
@@ -23,7 +23,7 @@ class TeradataImportOptions extends ImportOptions
     /**
      * @var TeradataImportOptions::CSV_ADAPTER_*
      */
-    private int $csvImportAdapter;
+    private string $csvImportAdapter;
 
     /**
      * @param string[] $convertEmptyValuesToNull
@@ -38,7 +38,7 @@ class TeradataImportOptions extends ImportOptions
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        int $csvImportAdapter = self::DEFAULT_CSV_ADAPTER
+        string $csvImportAdapter = self::DEFAULT_CSV_ADAPTER
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -76,7 +76,7 @@ class TeradataImportOptions extends ImportOptions
     /**
      * @return TeradataImportOptions::CSV_ADAPTER_*
      */
-    public function getCsvImportAdapter(): int
+    public function getCsvImportAdapter(): string
     {
         return $this->csvImportAdapter;
     }

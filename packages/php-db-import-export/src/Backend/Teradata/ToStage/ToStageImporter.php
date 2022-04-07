@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseException;
+use Keboola\Db\ImportExport\Backend\Teradata\TeradataException;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -50,7 +50,7 @@ final class ToStageImporter implements ToStageImporterInterface
                 )
             );
         } catch (Exception $e) {
-            throw SynapseException::covertException($e);
+            throw TeradataException::covertException($e);
         }
         $state->stopTimer(self::TIMER_TABLE_IMPORT);
 

@@ -77,16 +77,16 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     /**
      * @return TeradataImportOptions::CSV_ADAPTER_*
      */
-    public function getCsvAdapter(): int
+    public function getCsvAdapter(): string
     {
-        $adapter = (int) getenv('TERADATA_CSV_ADAPTER');
+        $adapter = (string) getenv('TERADATA_CSV_ADAPTER');
         switch ($adapter) {
             case TeradataImportOptions::CSV_ADAPTER_TPT:
                 return TeradataImportOptions::CSV_ADAPTER_TPT;
             case TeradataImportOptions::CSV_ADAPTER_SPT:
                 return TeradataImportOptions::CSV_ADAPTER_SPT;
         }
-        return TeradataImportOptions::CSV_ADAPTER_SPT;
+        return TeradataImportOptions::CSV_ADAPTER_TPT;
     }
 
     /**
