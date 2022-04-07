@@ -31,7 +31,6 @@ jobs:
 
       - name: Run Tests
         env:
-          DEBUG: ${{ secrets.DEBUG }}
           TERADATA_HOST: ${{ secrets.TERADATA_HOST }}
           TERADATA_USERNAME: ${{ secrets.TERADATA_USERNAME }}
           TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
@@ -41,4 +40,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
           AWS_REGION: ${{ secrets.S3_AWS_REGION }}
-        run: docker-compose run --rm production composer ci
+        run: |
+          docker-compose run --rm production composer check
+          docker-compose run --rm production composer protobufTests
+          DEBUG=1 docker-compose run --rm production composer phpunit -- --filter=testImportTableToWorkspace --debug
