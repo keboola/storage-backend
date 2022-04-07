@@ -40,7 +40,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
           AWS_REGION: ${{ secrets.S3_AWS_REGION }}
-        run: |
-          docker-compose run --rm production composer check
-          docker-compose run --rm production composer protobufTests
-          DEBUG=1 docker-compose run --rm production composer phpunit -- --filter=testImportTableToWorkspace --debug
+        run: docker-compose run --rm production composer ci
