@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
@@ -379,6 +380,18 @@ PRIMARY INDEX ("VisitID");
                 $useTimestamp,
                 $numberOfIgnoredLines,
                 $this->getCsvAdapter()
+            );
+    }
+    protected function getExportOptions(
+        bool $isCompressed = false
+    ): TeradataExportOptions {
+        return
+            new TeradataExportOptions(
+                (string) getenv('TERADATA_HOST'),
+                (string) getenv('TERADATA_USERNAME'),
+                (string) getenv('TERADATA_PASSWORD'),
+                (int) getenv('TERADATA_PORT'),
+                $isCompressed
             );
     }
 

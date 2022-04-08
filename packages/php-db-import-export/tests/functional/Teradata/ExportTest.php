@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 
+use Keboola\Csv\CsvFile;
+use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Backend\Teradata\Exporter;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
+use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\S3;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 
 class ExportTest extends TeradataBaseTestCase
 {
@@ -60,16 +69,76 @@ class ExportTest extends TeradataBaseTestCase
      */
     private function importTable(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination,
+        Storage\DestinationInterface $destinationTable,
         ImportOptions $options
     ): void {
-        // TODO
+        $importer = new ToStageImporter($this->connection);
+        $destinationRef = new TeradataTableReflection(
+            $this->connection,
+            $destinationTable->getSchema(),
+            $destinationTable->getTableName()
+        );
+        /** @var TeradataTableDefinition $destination */
+        $destination = $destinationRef->getTableDefinition();
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            $source->getColumnsNames()
+        );
+        $qb = new TeradataTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importState = $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $options
+        );
+        $toFinalTableImporter = new FullImporter($this->connection);
+        $toFinalTableImporter->importToTable(
+            $stagingTable,
+            $destination,
+            $options,
+            $importState
+        );
 
     }
 
     public function testExportSimple(): void
     {
-        // TODO
+        // import
+        $this->initTable(self::TABLE_OUT_CSV_2COLS);
+        $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
+        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        $destination = new Storage\Teradata\Table(
+            $this->getDestinationDbName(),
+            'out_csv_2Cols'
+        );
+        $options = $this->getSimpleImportOptions();
+        $this->importTable($source, $destination, $options);
+
+        // export
+        $source = $destination;
+        $options = $this->getExportOptions();
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/ts_test/ts_test');
+
+        (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $files = $this->listFiles($this->getExportDir());
+        self::assertNotNull($files);
+
+        $actual = $this->getCsvFileFromStorage($files);
+        $expected = new CsvFile(
+            self::DATA_DIR . 'with-ts.expected.exasol.csv',
+            CsvOptions::DEFAULT_DELIMITER,
+            CsvOptions::DEFAULT_ENCLOSURE,
+            CsvOptions::DEFAULT_ESCAPED_BY,
+            1 // skip header
+        );
+        $this->assertCsvFilesSame($expected, $actual);
 
     }
 

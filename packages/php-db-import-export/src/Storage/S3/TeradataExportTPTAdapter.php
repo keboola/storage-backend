@@ -6,28 +6,17 @@ namespace Keboola\Db\ImportExport\Storage\S3;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
-use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\FailedTPTLoadException;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
-use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
-use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\Temp\Temp;
 use Symfony\Component\Process\Process;
 
 // TODO tests?
 class TeradataExportTPTAdapter implements BackendExportAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-    }
-
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
         if (!$source instanceof Storage\SqlSourceInterface) {
@@ -62,8 +51,8 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
             $processCmd,
             null,
             [
-                'AWS_ACCESS_KEY_ID' => $source->getKey(),
-                'AWS_SECRET_ACCESS_KEY' => $source->getSecret(),
+                'AWS_ACCESS_KEY_ID' => $destination->getKey(),
+                'AWS_SECRET_ACCESS_KEY' => $destination->getSecret(),
             ]
         );
         $process->start();
