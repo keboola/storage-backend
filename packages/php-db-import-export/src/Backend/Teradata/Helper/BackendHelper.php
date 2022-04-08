@@ -8,6 +8,11 @@ use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 
 final class BackendHelper
 {
+    public static function quoteValue(string $value): string
+    {
+        return "'" . addslashes($value) . "'";
+    }
+
     public static function generateTempTableName(): string
     {
         return '__temp_' . str_replace('.', '_', uniqid('csvimport', true));

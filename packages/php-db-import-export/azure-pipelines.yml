@@ -41,12 +41,19 @@ stages:
               composer --version
               parallel -j12 --linebuffer docker pull ::: \
                 quay.io/keboola/azure-cli \
-                php:7.1-cli \
+                php:7.4-cli \
                 exasol/docker-db:latest
               docker pull
               docker network create php-db-import-export_default
               cd provisioning && composer install
             displayName: 'Prepare environment'
+          - script: |
+              docker-compose build --pull production
+            displayName: 'Build project images'
+            env:
+              AWS_ACCESS_KEY_ID: $(DRIVERS_AWS_ACCESS_KEY_ID)
+              AWS_SECRET_ACCESS_KEY: $(DRIVERS_AWS_SECRET_ACCESS_KEY)
+              GITHUB_OAUTH_TOKEN: $(GITHUB_OAUTH_TOKEN)
           - script: |
               php ./provisioning/cli.php app:deploy:synapse \
               --serverName $SERVER_NAME \
@@ -55,8 +62,8 @@ stages:
               --principalName $AZURE_SERVICE_PRINCIPAL \
               --principalPassword $AZURE_SERVICE_PRINCIPAL_PASSWORD
               source ./provisioning/env_export
-#              bash docker/exasol/createDeleteServer.sh -w
-#              source /tmp/env_export_exasol
+            #              bash docker/exasol/createDeleteServer.sh -w
+            #              source /tmp/env_export_exasol
             displayName: 'Deploy resources'
             env:
               ABS_CONTAINER_NAME: $(ABS_CONTAINER_NAME)
@@ -68,12 +75,6 @@ stages:
               EXA_SAAS_HOST: $(EXA_SAAS_HOST)
               EXA_SAAS_USER_ID: $(EXA_SAAS_USER_ID)
               EXA_SAAS_TOKEN: $(EXA_SAAS_TOKEN)
-          - script: |
-              docker-compose build --pull production
-            displayName: 'Build project images'
-            env:
-              AWS_ACCESS_KEY_ID: $(DRIVERS_AWS_ACCESS_KEY_ID)
-              AWS_SECRET_ACCESS_KEY: $(DRIVERS_AWS_SECRET_ACCESS_KEY)
           - script: |
               docker-compose run production php -v
               parallel -j12 --linebuffer docker-compose run production composer ::: \
@@ -128,7 +129,7 @@ stages:
               EXASOL_HOST=$EXASOL_CLUSTER_DNS
               EXASOL_USERNAME=devel
               docker-compose run production php -v
-              parallel -j12 --joblog /tmp/parallel-joblog --linebuffer docker-compose run production composer ::: \
+              parallel -j15 --joblog /tmp/parallel-joblog --linebuffer docker-compose run production composer ::: \
               tests-storage \
               tests-snowflake-abs \
               tests-snowflake-s3 \
@@ -141,7 +142,8 @@ stages:
               tests-synapse-heap4000temp-optimized \
               tests-synapse-heap4000temp-optimized-hash \
               tests-synapse-next \
-              tests-teradata
+              tests-teradata-tpt \
+              tests-teradata-spt
               PARALLEL_EXIT_CODE=$?
               cat /tmp/parallel-joblog
               sleep 1
