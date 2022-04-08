@@ -54,7 +54,8 @@
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        },
+        "lock": false
     },
     "scripts": {
         "protobuf": "rm -rf ./generated/* && protoc $(find proto -iname \"*.proto\") --php_out=generated",
