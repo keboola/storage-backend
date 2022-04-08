@@ -5,3 +5,4 @@ composer.lock
 tests/generated/*
 !tests/generated/.gitkeep
 /docs/
+phpunit-retry.xml

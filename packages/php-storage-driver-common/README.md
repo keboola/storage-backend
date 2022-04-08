@@ -103,6 +103,11 @@ And than run phpunit
 docker-compose run --rm dev composer phpunit -- --filter=TeradataDriverClientTest
 ```
 
+To disable retry copy `phpunit-retry.xml.dist`
+```bash
+cp phpunit-retry.xml.dist phpunit-retry.xml
+```
+
 ### Debug queries
 
 To debug queries executed during test set DEBUG=1 env variable 
