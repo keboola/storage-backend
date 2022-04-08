@@ -20,6 +20,7 @@ use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class TeradataBaseTestCase extends ImportExportBaseTest
 {
+    public const BIGGER_TABLE = 'big_table';
     public const TESTS_PREFIX = 'ieLibTest_';
     public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
@@ -189,6 +190,30 @@ CREATE DATABASE %s AS
     protected function initTable(string $tableName): void
     {
         switch ($tableName) {
+            case self::BIGGER_TABLE:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+            (
+"FID" VARCHAR(500) CHARACTER SET UNICODE,
+"NAZEV" VARCHAR(500) CHARACTER SET UNICODE,
+"Y" VARCHAR(500) CHARACTER SET UNICODE,
+"X" VARCHAR(500) CHARACTER SET UNICODE,
+"KONTAKT" VARCHAR(500) CHARACTER SET UNICODE,
+"SUBKATEGORIE" VARCHAR(500) CHARACTER SET UNICODE,
+"KATEGORIE" VARCHAR(500) CHARACTER SET UNICODE,
+"Column6" VARCHAR(500) CHARACTER SET UNICODE,
+"Column7" VARCHAR(500) CHARACTER SET UNICODE,
+"Column8" VARCHAR(500) CHARACTER SET UNICODE,
+"Column9" VARCHAR(500) CHARACTER SET UNICODE,
+"GlobalID" VARCHAR(500) CHARACTER SET UNICODE
+    );',
+                        TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                        TeradataQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+
+                break;
             case self::TABLE_OUT_CSV_2COLS_WITHOUT_TS:
                 $this->connection->executeQuery(
                     sprintf(
@@ -200,8 +225,7 @@ CREATE DATABASE %s AS
 "Something" VARCHAR(50),
 "Other"     VARCHAR(50),
     )
-PRIMARY INDEX ("VisitID");
-        );',
+PRIMARY INDEX ("VisitID");',
                         TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
                         TeradataQuote::quoteSingleIdentifier($tableName)
                     )
@@ -235,8 +259,8 @@ PRIMARY INDEX ("VisitID");
                 $this->connection->executeQuery(
                     sprintf(
                         'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-          "col1" VARCHAR(200)  ,
-          "col2" VARCHAR(200)  ,
+          "col1" VARCHAR(500)  ,
+          "col2" VARCHAR(500)  ,
           "_timestamp" TIMESTAMP
         );',
                         TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),

@@ -119,7 +119,7 @@ DESCRIPTION 'Export data from Teradata to Amazon S3'
 );
 EOD,
             $destination->getBucket(),
-            $destination->getFilePath(),
+            $destination->getFilePath() . ($exportOptions->isCompressed() ? '.gz' : ''),
             $destination->getRegion(),
             $source->getFromStatement()
         );

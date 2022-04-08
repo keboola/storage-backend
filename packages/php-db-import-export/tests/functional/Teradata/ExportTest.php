@@ -57,7 +57,33 @@ class ExportTest extends TeradataBaseTestCase
 
     public function testExportGzip(): void
     {
-        // TODO
+        // import
+        $schema = $this->getDestinationDbName();
+        $this->initTable(self::BIGGER_TABLE);
+        $file = new CsvFile(self::DATA_DIR . 'big_table.csv');
+        $source = $this->getSourceInstance('big_table.csv', $file->getHeader());
+        $destination = new Storage\Teradata\Table(
+            $schema,
+            self::BIGGER_TABLE
+        );
+        $options = $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE, false);
+
+        $this->importTable($source, $destination, $options);
+
+        // export
+        $source = $destination;
+        $options = $this->getExportOptions(false);
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/gz_test/gzip.csv');
+
+        (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $files = $this->listFiles($this->getExportDir());
+        self::assertNotNull($files);
+        self::assertCount(10, $files);
     }
 
 
