@@ -28,6 +28,8 @@ use Symfony\Component\Process\Process;
  */
 class FromS3TPTAdapter implements CopyAdapterInterface
 {
+    private const TPT_TIMEOUT = 60 * 60 * 6; // 6 hours
+
     private Connection $connection;
 
     public function __construct(Connection $connection)
@@ -73,6 +75,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 'AWS_SECRET_ACCESS_KEY' => $source->getSecret(),
             ]
         );
+        $process->setTimeout(self::TPT_TIMEOUT);
         $process->start();
         // check end of process
         $process->wait();

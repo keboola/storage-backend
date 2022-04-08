@@ -26,6 +26,8 @@ use Symfony\Component\Process\Process;
  */
 class FromS3SPTAdapter implements CopyAdapterInterface
 {
+    private const SPT_TIMEOUT = 60 * 60 * 6; // 6 hours
+
     private Connection $connection;
 
     public function __construct(Connection $connection)
@@ -62,7 +64,7 @@ class FromS3SPTAdapter implements CopyAdapterInterface
 
         foreach ($this->generateCmd($source, $destination, $importOptions) as $cmd) {
             $process = Process::fromShellCommandline($cmd);
-            $process->setTimeout(60 * 60 * 24); // 24h
+            $process->setTimeout(self::SPT_TIMEOUT);
             $process->start();
             // check end of process
             $process->wait();
