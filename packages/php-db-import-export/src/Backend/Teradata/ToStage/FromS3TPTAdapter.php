@@ -155,11 +155,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
     private function getLogData(Temp $temp): string
     {
         if (file_exists($temp->getTmpFolder() . '/import-1.out')) {
-
-            $data = file_get_contents($temp->getTmpFolder() . '/import-1.out') ?: 'unable to get error';
-            file_put_contents(__DIR__ . 'out.txt', $data);
-            file_put_contents('/code/out.txt', $data);
-            return $data;
+            return file_get_contents($temp->getTmpFolder() . '/import-1.out') ?: 'unable to get error';
         }
 
         return 'unable to get error';
@@ -294,8 +290,6 @@ $escapedBy
 EOD;
 
         file_put_contents($folder . '/import_vars.txt', $jobVariableFile);
-        file_put_contents('/code/import_vars.txt', $jobVariableFile);
-        file_put_contents('/code/import_script.tpt', $jobVariableFile);
 
         return [
             $temp,

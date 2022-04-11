@@ -21,6 +21,7 @@ class TeradataExportOptions extends ExportOptions
 
     private int $teradataPort;
 
+    // TD settings for sliced files
     private string $bufferSize;
 
     private string $maxObjectSize;
@@ -54,17 +55,11 @@ class TeradataExportOptions extends ExportOptions
         $this->singlePartFile = $singlePartFile;
     }
 
-    /**
-     * @return string
-     */
     public function getBufferSize(): string
     {
         return $this->bufferSize;
     }
 
-    /**
-     * @return string
-     */
     public function getMaxObjectSize(): string
     {
         return $this->maxObjectSize;
@@ -90,6 +85,9 @@ class TeradataExportOptions extends ExportOptions
         return $this->teradataPort;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getTeradataCredentials(): array
     {
         return [
@@ -99,6 +97,10 @@ class TeradataExportOptions extends ExportOptions
         ];
     }
 
+    /**
+     * generates part of TPT which defines settings for sliced files
+     * @return string
+     */
     public function generateS3SizeOptions(): string
     {
         return sprintf(

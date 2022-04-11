@@ -59,16 +59,15 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
         $process->wait();
 
         // debug stuff
-        foreach ($process as $type => $data) {
-            if ($process::OUT === $type) {
-                echo "\nRead from stdout: " . $data;
-            } else { // $process::ERR === $type
-                echo "\nRead from stderr: " . $data;
-            }
-        }
+//        foreach ($process as $type => $data) {
+//            if ($process::OUT === $type) {
+//                echo "\nRead from stdout: " . $data;
+//            } else { // $process::ERR === $type
+//                echo "\nRead from stderr: " . $data;
+//            }
+//        }
 
         if ($process->getExitCode() !== 0) {
-
             throw new FailedTPTLoadException(
                 $process->getErrorOutput(),
                 $process->getOutput(),
@@ -83,7 +82,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
     /**
      * generates params to run TPT script
      *
-     * @return array
+     * @return array{Temp, array<int, string>}
      */
     private function generateTPTExportScript(
         Storage\SourceInterface $source,
@@ -161,7 +160,6 @@ TargetTdpId = '%s'
 EOD,
             ...$exportOptions->getTeradataCredentials(),
             ...$exportOptions->getTeradataCredentials(),
-
         );
         $temp = new Temp();
         $temp->initRunFolder();
