@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\Exporter;
+use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
@@ -301,6 +302,46 @@ class ExportTest extends TeradataBaseTestCase
 
     public function testExportSimpleWithQuery(): void
     {
-        // TODO
+        // import
+        $this->initTable(self::TABLE_ACCOUNTS_3);
+        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
+        $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
+        $destination = new Storage\Teradata\Table(
+            $this->getDestinationDbName(),
+            'accounts-3'
+        );
+        $options = $this->getSimpleImportOptions();
+
+        $this->importTable($source, $destination, $options);
+
+        // export
+        // query needed otherwise timestamp is downloaded
+        $query = sprintf(
+            'SELECT %s FROM %s',
+            (new SqlBuilder)->getColumnsString($file->getHeader()),
+            $destination->getQuotedTableWithScheme()
+        );
+        $source = new Storage\Teradata\SelectSource($query);
+        $options = $this->getExportOptions();
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/tw_test');
+
+        (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $files = $this->listFiles($this->getExportDir());
+        self::assertNotNull($files);
+
+        $actual = $this->getCsvFileFromStorage($files);
+        $expected = new CsvFile(
+            self::DATA_DIR . 'tw_accounts.csv',
+            CsvOptions::DEFAULT_DELIMITER,
+            CsvOptions::DEFAULT_ENCLOSURE,
+            CsvOptions::DEFAULT_ESCAPED_BY,
+            1 // skip header
+        );
+        $this->assertCsvFilesSame($expected, $actual);
     }
 }
