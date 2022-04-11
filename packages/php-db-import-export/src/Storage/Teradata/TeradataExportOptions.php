@@ -8,6 +8,11 @@ use Keboola\Db\ImportExport\ExportOptions;
 
 class TeradataExportOptions extends ExportOptions
 {
+    public const DEFAULT_BUFFER_SIZE = '8M';
+    public const DEFAULT_MAX_OBJECT_SIZE = '8000M'; // default of TD BUFFER size * 1000
+    public const DEFAULT_SINGLE_PART_FILE = false;
+    public const DEFAULT_SPLIT_ROWS = true;
+
     private string $teradataHost;
 
     private string $teradataUser;
@@ -16,12 +21,24 @@ class TeradataExportOptions extends ExportOptions
 
     private int $teradataPort;
 
+    private string $bufferSize;
+
+    private string $maxObjectSize;
+
+    private bool $dontSplitRows;
+
+    private bool $singlePartFile;
+
     public function __construct(
         string $teradataHost,
         string $teradataUser,
         string $teradataPassword,
         int $teradataPort,
-        bool $isCompressed
+        bool $isCompressed,
+        string $bufferSize = self::DEFAULT_BUFFER_SIZE,
+        string $maxObjectSize = self::DEFAULT_MAX_OBJECT_SIZE,
+        bool $dontSplitRows = self::DEFAULT_SPLIT_ROWS,
+        bool $singlePartFile = self::DEFAULT_SINGLE_PART_FILE
     ) {
         parent::__construct(
             $isCompressed
@@ -30,6 +47,27 @@ class TeradataExportOptions extends ExportOptions
         $this->teradataUser = $teradataUser;
         $this->teradataPassword = $teradataPassword;
         $this->teradataPort = $teradataPort;
+
+        $this->bufferSize = $bufferSize;
+        $this->maxObjectSize = $maxObjectSize;
+        $this->dontSplitRows = $dontSplitRows;
+        $this->singlePartFile = $singlePartFile;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBufferSize(): string
+    {
+        return $this->bufferSize;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMaxObjectSize(): string
+    {
+        return $this->maxObjectSize;
     }
 
     public function getTeradataHost(): string
@@ -59,5 +97,16 @@ class TeradataExportOptions extends ExportOptions
             $this->teradataUser,
             $this->teradataPassword,
         ];
+    }
+
+    public function generateS3SizeOptions(): string
+    {
+        return sprintf(
+            'S3DontSplitRows=%s S3SinglePartFile=%s S3MaxObjectSize=%s S3BufferSize=%s',
+            $this->dontSplitRows ? 'True' : 'False',
+            $this->singlePartFile ? 'True' : 'False',
+            $this->maxObjectSize,
+            $this->bufferSize
+        );
     }
 }

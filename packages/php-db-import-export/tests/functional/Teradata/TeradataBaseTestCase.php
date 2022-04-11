@@ -406,8 +406,13 @@ PRIMARY INDEX ("VisitID");',
                 $this->getCsvAdapter()
             );
     }
+
     protected function getExportOptions(
-        bool $isCompressed = false
+        bool $isCompressed = false,
+        string $bufferSize = TeradataExportOptions::DEFAULT_BUFFER_SIZE,
+        string $maxObjectSize = TeradataExportOptions::DEFAULT_MAX_OBJECT_SIZE,
+        bool $dontSplitRows = TeradataExportOptions::DEFAULT_SPLIT_ROWS,
+        bool $singlePartFile = TeradataExportOptions::DEFAULT_SINGLE_PART_FILE
     ): TeradataExportOptions {
         return
             new TeradataExportOptions(
@@ -415,7 +420,11 @@ PRIMARY INDEX ("VisitID");',
                 (string) getenv('TERADATA_USERNAME'),
                 (string) getenv('TERADATA_PASSWORD'),
                 (int) getenv('TERADATA_PORT'),
-                $isCompressed
+                $isCompressed,
+                $bufferSize,
+                $maxObjectSize,
+                $dontSplitRows,
+                $singlePartFile
             );
     }
 

@@ -106,7 +106,7 @@ DESCRIPTION 'Export data from Teradata to Amazon S3'
             ATTR
             (
                 AccessModuleName = 'libs3axsmod.so',
-                AccessModuleInitStr = 'S3Bucket="%s" S3Object="%s" S3SinglePartFile=True S3Region="%s"'
+                AccessModuleInitStr = 'S3Bucket="%s" S3Object="%s" S3Region="%s" %s'
             )
         )
         SELECT * FROM OPERATOR ( \$EXPORT
@@ -121,6 +121,7 @@ EOD,
             $destination->getBucket(),
             $destination->getFilePath() . ($exportOptions->isCompressed() ? '.gz' : ''),
             $destination->getRegion(),
+            $exportOptions->generateS3SizeOptions(),
             $source->getFromStatement()
         );
 
