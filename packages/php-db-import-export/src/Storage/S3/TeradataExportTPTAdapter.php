@@ -14,7 +14,6 @@ use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
 use Keboola\Temp\Temp;
 use Symfony\Component\Process\Process;
 
-// TODO tests?
 class TeradataExportTPTAdapter implements BackendExportAdapterInterface
 {
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -97,6 +96,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
 
         $tptScript = sprintf(
             <<<EOD
+USING CHARACTER SET UTF8
 DEFINE JOB EXPORT_FROM_TERADATA
 DESCRIPTION 'Export data from Teradata to Amazon S3'
 (
