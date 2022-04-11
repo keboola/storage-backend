@@ -251,18 +251,16 @@ message TableImportFromFileCommand {
   }
 }
 
-/**
- * Response of TableImportFromFileCommand
- */
-message TableImportFromFileResponse {
+message TableImportResponse {
   int64 importedRowsCount = 1; // number of rows imported into final table
-  repeated Timer timers = 2; // list of timers captured by driver
+  int64 tableRowsCount = 2; // number of rows imported into final table
+  repeated Timer timers = 3; // list of timers captured by driver
   message Timer {
     string name = 1; // name of timer
     string duration = 2; // duration in seconds
   }
-  repeated string importedColumns = 3; // list of imported columns
-  google.protobuf.Any meta = 4; // additional import data
+  repeated string importedColumns = 4; // list of imported columns
+  google.protobuf.Any meta = 5; // additional import data
   /**
    * Teradata import metadata information's
    * Teradata backed provides additional import information's from error tables and import log which can be used for import debugging
