@@ -18,7 +18,16 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          GITHUB_OAUTH_TOKEN: ${{ secrets.BUILD_GITHUB_OAUTH_TOKEN }}
         run: docker-compose build
+
+      - name: Prepare stubs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.S3_AWS_REGION }}
+        run: docker-compose run --rm production composer loadS3
 
       - name: Run Tests
         env:
@@ -27,8 +36,8 @@ jobs:
           TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
           TERADATA_PORT: 1025
           TERADATA_ROOT_DATABASE: ci_driver_teradata
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.S3_AWS_REGION }}
         run: docker-compose run --rm production composer ci

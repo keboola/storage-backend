@@ -53,6 +53,13 @@ AWS_S3_BUCKET=
 AWS_REGION=eu-central-1
 ```
 
+## Add github token
+
+SPT is currently in private keboola repository add github token to access it otherwise comment out `# Custom SPT loader` part in Dockerfile.
+
+Personal token can be created [Here](https://github.com/settings/tokens)
+Check `repo (Full control of private repositories)` scope and set GITHUB_OAUTH_TOKEN in `.env` 
+
 ## Build docker images
 
 ```bash
@@ -94,6 +101,11 @@ docker-compose run --rm dev composer protobufTests
 And than run phpunit
 ```bash
 docker-compose run --rm dev composer phpunit -- --filter=TeradataDriverClientTest
+```
+
+To disable retry copy `phpunit-retry.xml.dist`
+```bash
+cp phpunit-retry.xml.dist phpunit-retry.xml
 ```
 
 ### Debug queries

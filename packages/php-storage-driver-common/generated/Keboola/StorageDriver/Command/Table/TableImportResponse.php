@@ -9,12 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- **
- * Response of TableImportFromFileCommand
- *
- * Generated from protobuf message <code>keboola.storageDriver.command.table.TableImportFromFileResponse</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.table.TableImportResponse</code>
  */
-class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
+class TableImportResponse extends \Google\Protobuf\Internal\Message
 {
     /**
      * number of rows imported into final table
@@ -23,21 +20,27 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
      */
     protected $importedRowsCount = 0;
     /**
+     * number of rows imported into final table
+     *
+     * Generated from protobuf field <code>int64 tableRowsCount = 2;</code>
+     */
+    protected $tableRowsCount = 0;
+    /**
      * list of timers captured by driver
      *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportFromFileResponse.Timer timers = 2;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportResponse.Timer timers = 3;</code>
      */
     private $timers;
     /**
      * list of imported columns
      *
-     * Generated from protobuf field <code>repeated string importedColumns = 3;</code>
+     * Generated from protobuf field <code>repeated string importedColumns = 4;</code>
      */
     private $importedColumns;
     /**
      * additional import data
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      */
     protected $meta = null;
 
@@ -49,7 +52,9 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
      *
      *     @type int|string $importedRowsCount
      *           number of rows imported into final table
-     *     @type \Keboola\StorageDriver\Command\Table\TableImportFromFileResponse\Timer[]|\Google\Protobuf\Internal\RepeatedField $timers
+     *     @type int|string $tableRowsCount
+     *           number of rows imported into final table
+     *     @type \Keboola\StorageDriver\Command\Table\TableImportResponse\Timer[]|\Google\Protobuf\Internal\RepeatedField $timers
      *           list of timers captured by driver
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $importedColumns
      *           list of imported columns
@@ -89,9 +94,35 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * number of rows imported into final table
+     *
+     * Generated from protobuf field <code>int64 tableRowsCount = 2;</code>
+     * @return int|string
+     */
+    public function getTableRowsCount()
+    {
+        return $this->tableRowsCount;
+    }
+
+    /**
+     * number of rows imported into final table
+     *
+     * Generated from protobuf field <code>int64 tableRowsCount = 2;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setTableRowsCount($var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->tableRowsCount = $var;
+
+        return $this;
+    }
+
+    /**
      * list of timers captured by driver
      *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportFromFileResponse.Timer timers = 2;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportResponse.Timer timers = 3;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getTimers()
@@ -102,13 +133,13 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
     /**
      * list of timers captured by driver
      *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportFromFileResponse.Timer timers = 2;</code>
-     * @param \Keboola\StorageDriver\Command\Table\TableImportFromFileResponse\Timer[]|\Google\Protobuf\Internal\RepeatedField $var
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportResponse.Timer timers = 3;</code>
+     * @param \Keboola\StorageDriver\Command\Table\TableImportResponse\Timer[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setTimers($var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\TableImportFromFileResponse\Timer::class);
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\TableImportResponse\Timer::class);
         $this->timers = $arr;
 
         return $this;
@@ -117,7 +148,7 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
     /**
      * list of imported columns
      *
-     * Generated from protobuf field <code>repeated string importedColumns = 3;</code>
+     * Generated from protobuf field <code>repeated string importedColumns = 4;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getImportedColumns()
@@ -128,7 +159,7 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
     /**
      * list of imported columns
      *
-     * Generated from protobuf field <code>repeated string importedColumns = 3;</code>
+     * Generated from protobuf field <code>repeated string importedColumns = 4;</code>
      * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
@@ -143,7 +174,7 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
     /**
      * additional import data
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @return \Google\Protobuf\Any|null
      */
     public function getMeta()
@@ -164,7 +195,7 @@ class TableImportFromFileResponse extends \Google\Protobuf\Internal\Message
     /**
      * additional import data
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */

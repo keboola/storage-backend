@@ -67,6 +67,12 @@ class TableImportFromFileCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions importOptions = 7;</code>
      */
     protected $importOptions = null;
+    /**
+     * additional import data specific for backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 8;</code>
+     */
+    protected $meta = null;
 
     /**
      * Constructor.
@@ -96,6 +102,8 @@ class TableImportFromFileCommand extends \Google\Protobuf\Internal\Message
      *           Import options may vary based on backend
      *           based on:
      *           https://github.com/keboola/php-db-import-export/blob/master/src/ImportOptions.php
+     *     @type \Google\Protobuf\Any $meta
+     *           additional import data specific for backend
      * }
      */
     public function __construct($data = NULL) {
@@ -347,6 +355,42 @@ class TableImportFromFileCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions::class);
         $this->importOptions = $var;
+
+        return $this;
+    }
+
+    /**
+     * additional import data specific for backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 8;</code>
+     * @return \Google\Protobuf\Any|null
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    public function hasMeta()
+    {
+        return isset($this->meta);
+    }
+
+    public function clearMeta()
+    {
+        unset($this->meta);
+    }
+
+    /**
+     * additional import data specific for backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 8;</code>
+     * @param \Google\Protobuf\Any $var
+     * @return $this
+     */
+    public function setMeta($var)
+    {
+        GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
+        $this->meta = $var;
 
         return $this;
     }

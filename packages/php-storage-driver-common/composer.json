@@ -9,19 +9,29 @@
             "email": "martin.zajic@keboola.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/keboola/phpunit-retry-annotations"
+        }
+    ],
     "require": {
         "php": ">=7.4",
         "ext-odbc": "*",
-        "keboola/db-import-export": "^0.18",
-        "google/protobuf": "^3.20.0RC1"
+        "ext-json": "*",
+        "keboola/db-import-export": "^0.20",
+        "google/protobuf": "^3.20",
+        "keboola/php-file-storage-utils": "^0.2.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "9.4.*",
         "phpstan/phpstan": "^1.4",
         "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-symfony": "^1.1",
         "keboola/coding-standard": "^13.0",
-        "php-parallel-lint/php-parallel-lint": "^1.3"
+        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "symfony/finder": "^5.4",
+        "bshaffer/phpunit-retry-annotations": "dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -37,13 +47,15 @@
             "Keboola\\StorageDriver\\FunctionalTests\\": "tests/functional",
             "Keboola\\StorageDriver\\UnitTests\\": "tests/unit",
             "GPBMetadata\\Tests\\": "tests/generated/GPBMetadata/Tests",
-            "Keboola\\StorageDriver\\GeneratedTests\\": "tests/generated/Keboola/StorageDriver/GeneratedTests"
+            "Keboola\\StorageDriver\\GeneratedTests\\": "tests/generated/Keboola/StorageDriver/GeneratedTests",
+            "Keboola\\StorageDriver\\TestsStubLoader\\": "tests/StubLoader"
         }
     },
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        },
+        "lock": false
     },
     "scripts": {
         "protobuf": "rm -rf ./generated/* && protoc $(find proto -iname \"*.proto\") --php_out=generated",
@@ -56,6 +68,10 @@
         "tests": [
             "@protobufTests",
             "@phpunit"
+        ],
+        "loadS3": "php ./tests/StubLoader/loader.php s3",
+        "load-data": [
+            "@loadS3"
         ],
         "check": [
             "@composer validate --no-check-all --strict",

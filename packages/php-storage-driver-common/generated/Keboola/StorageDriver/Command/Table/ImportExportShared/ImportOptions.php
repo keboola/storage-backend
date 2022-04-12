@@ -45,6 +45,12 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.DedupType dedupType = 5;</code>
      */
     protected $dedupType = 0;
+    /**
+     * columns on which base will be deduplication performed
+     *
+     * Generated from protobuf field <code>repeated string dedupColumnsNames = 6;</code>
+     */
+    private $dedupColumnsNames;
 
     /**
      * Constructor.
@@ -62,6 +68,8 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *     @type int $dedupType
      *          *
      *           Deduplication logic type for handling duplicate values
+     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $dedupColumnsNames
+     *           columns on which base will be deduplication performed
      * }
      */
     public function __construct($data = NULL) {
@@ -193,6 +201,32 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\DedupType::class);
         $this->dedupType = $var;
+
+        return $this;
+    }
+
+    /**
+     * columns on which base will be deduplication performed
+     *
+     * Generated from protobuf field <code>repeated string dedupColumnsNames = 6;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getDedupColumnsNames()
+    {
+        return $this->dedupColumnsNames;
+    }
+
+    /**
+     * columns on which base will be deduplication performed
+     *
+     * Generated from protobuf field <code>repeated string dedupColumnsNames = 6;</code>
+     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setDedupColumnsNames($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $this->dedupColumnsNames = $arr;
 
         return $this;
     }

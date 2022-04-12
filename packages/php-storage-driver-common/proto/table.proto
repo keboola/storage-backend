@@ -146,6 +146,7 @@ message ImportExportShared {
       INSERT_DUPLICATES = 1; // Will not do deduplication and only insert duplicate values without any checking, this could lead to fail of import query if backend enforce unique keys for example
       FAIL_ON_DUPLICATES = 2; // Will check if import contains duplicate keys and fail before inserting into final table
     }
+    repeated string dedupColumnsNames = 6; // columns on which base will be deduplication performed
   }
   /**
    * Depends on driver implementation which provider is supported
@@ -200,11 +201,10 @@ message TableImportFromFileCommand {
    */
   message CsvTypeOptions {
     repeated string columnsNames = 1; // list of columns expected in csv file
-    repeated string primaryKeysNames = 2; // list of primary key columns
-    string delimiter = 3; // One character that separate fields in file. Delimiter must be single character and cannot be empty
-    string enclosure = 4; // Character used to enclose strings. Single quote character ('), or double quote character (")
-    string escapedBy = 5; // Single character string used as the escape character for unenclosed field values only
-    SourceType sourceType = 6; // csv source type
+    string delimiter = 2; // One character that separate fields in file. Delimiter must be single character and cannot be empty
+    string enclosure = 3; // Character used to enclose strings. Single quote character ('), or double quote character (")
+    string escapedBy = 4; // Single character string used as the escape character for unenclosed field values only
+    SourceType sourceType = 5; // csv source type
     /**
      * File path can point into different kinds of sources
      */
@@ -213,7 +213,7 @@ message TableImportFromFileCommand {
       SLICED_FILE = 1; // sliced file, path points on manifest file
       DIRECTORY = 2; // directory, path points on directory of files
     }
-    Compression compression = 7; // used compression in files
+    Compression compression = 6; // used compression in files
     /**
      * Files can be compressed or in plain form
      * only gzip is now supported compression
@@ -241,20 +241,26 @@ message TableImportFromFileCommand {
    * https://github.com/keboola/php-db-import-export/blob/master/src/ImportOptions.php
    */
   ImportExportShared.ImportOptions importOptions = 7;
+  google.protobuf.Any meta = 8; // additional import data specific for backend
+  message TeradataTableImportMeta {
+    ImportAdapter importAdapter = 1;
+    enum ImportAdapter {
+      TPT = 0;
+      SPT = 1;
+    }
+  }
 }
 
-/**
- * Response of TableImportFromFileCommand
- */
-message TableImportFromFileResponse {
+message TableImportResponse {
   int64 importedRowsCount = 1; // number of rows imported into final table
-  repeated Timer timers = 2; // list of timers captured by driver
+  int64 tableRowsCount = 2; // number of rows imported into final table
+  repeated Timer timers = 3; // list of timers captured by driver
   message Timer {
     string name = 1; // name of timer
     string duration = 2; // duration in seconds
   }
-  repeated string importedColumns = 3; // list of imported columns
-  google.protobuf.Any meta = 4; // additional import data
+  repeated string importedColumns = 4; // list of imported columns
+  google.protobuf.Any meta = 5; // additional import data
   /**
    * Teradata import metadata information's
    * Teradata backed provides additional import information's from error tables and import log which can be used for import debugging
