@@ -177,26 +177,31 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
             TeradataQuote::quoteSingleIdentifier($destination->getTableName()),
         );
-
+        // when $HOME env is not set TPT will fail as it using this env to set S3ConfigDir
+        // we set S3 access using own envs, so file is empty anyway
+        $s3ConfigDir = $folder . '/.aws';
+        touch($s3ConfigDir);
         if ($source->isSliced()) {
             $mask = BackendHelper::getMask($source);
             $path = RelativePath::createFromRootAndPath(new S3Provider(), $source->getBucket(), $mask);
             $moduleStr = sprintf(
                 // phpcs:ignore
-                'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=True\'',
+                'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=True S3ConfigDir=%s\'',
                 $source->getRegion(),
                 $path->getRoot(),
                 $path->getPathWithoutRoot() . '/',
-                $path->getFileName()
+                $path->getFileName(),
+                $s3ConfigDir
             );
         } else {
             $moduleStr = sprintf(
                 // phpcs:ignore
-                'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=True\'',
+                'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=True S3ConfigDir=%s\'',
                 $source->getRegion(),
                 $source->getBucket(),
                 $source->getPrefix(),
-                $source->getFileName()
+                $source->getFileName(),
+                $s3ConfigDir
             );
         }
         $tptScript = <<<EOD
