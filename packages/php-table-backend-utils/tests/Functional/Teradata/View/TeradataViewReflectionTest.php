@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\View\Teradata;
+namespace Tests\Keboola\TableBackendUtils\Functional\Teradata\View;
 
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\View\Teradata\TeradataViewReflection;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Table\Teradata;
+namespace Tests\Keboola\TableBackendUtils\Functional\Teradata\Table;
 
 use Generator;
 use Keboola\Datatype\Definition\Teradata;

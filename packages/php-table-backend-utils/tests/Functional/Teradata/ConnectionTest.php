@@ -7,7 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Teradata;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 
-class TestConnectionTest extends TeradataBaseCase
+class ConnectionTest extends TeradataBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'qb-schema';
     public const TEST_SCHEMA_2 = self::TESTS_PREFIX . 'qb-schema2';
