@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\View\Exasol;
+namespace Tests\Keboola\TableBackendUtils\Functional\Exasol\View;
 
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;

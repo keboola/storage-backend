@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Exasol;
 
-class TestConnectionTest extends ExasolBaseCase
+class ConnectionTest extends ExasolBaseCase
 {
     public function test(): void
     {

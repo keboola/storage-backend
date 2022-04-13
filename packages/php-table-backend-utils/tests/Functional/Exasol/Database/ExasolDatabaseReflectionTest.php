@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Database\Exasol;
+namespace Tests\Keboola\TableBackendUtils\Functional\Exasol\Database;
 
 use Keboola\TableBackendUtils\Database\Exasol\ExasolDatabaseReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;

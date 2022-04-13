@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Table\Exasol;
+namespace Tests\Keboola\TableBackendUtils\Functional\Exasol\Table;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
