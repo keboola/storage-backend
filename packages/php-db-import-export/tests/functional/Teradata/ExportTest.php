@@ -84,7 +84,6 @@ class ExportTest extends TeradataBaseTestCase
 
         /** @var array<int, array> $files */
         $files = $this->listFiles($this->getExportDir(). '/gz_test');
-        var_export($files);
         self::assertNotNull($files);
         self::assertCount(1, $files);
         // the ~ 16M table was compressed under 1M
