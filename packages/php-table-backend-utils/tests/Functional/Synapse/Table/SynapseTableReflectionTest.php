@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Table\Synapse;
+namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Table;
 
 use Generator;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -10,7 +10,7 @@ use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
-use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
+use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
 /**
  * @covers SynapseTableReflection

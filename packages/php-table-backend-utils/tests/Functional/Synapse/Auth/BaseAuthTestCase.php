@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Auth;
+namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Auth;
 
-use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
+use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
 class BaseAuthTestCase extends SynapseBaseCase
 {

@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Auth\Synapse;
+namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Auth;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Auth\SynapseUserReflection;
-use Tests\Keboola\TableBackendUtils\Functional\Auth\BaseAuthTestCase;
 
 class SynapseUserReflectionTest extends BaseAuthTestCase
 {

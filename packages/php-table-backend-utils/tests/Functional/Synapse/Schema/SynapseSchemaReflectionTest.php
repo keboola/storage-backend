@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Schema\Synapse;
+namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Schema;
 
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
-use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
+use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
 /**
  * @covers SynapseSchemaReflection

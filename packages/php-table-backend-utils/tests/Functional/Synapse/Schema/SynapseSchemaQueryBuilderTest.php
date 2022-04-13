@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Schema\Synapse;
+namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Schema;
 
 use Keboola\TableBackendUtils\Schema\SynapseSchemaQueryBuilder;
-use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
+use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
 /**
  * @covers SynapseSchemaQueryBuilder

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Table\Synapse;
+namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Table;
 
 use Doctrine\DBAL\Exception;
 use Keboola\Datatype\Definition\Synapse;
@@ -12,7 +12,7 @@ use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
-use Tests\Keboola\TableBackendUtils\Functional\SynapseBaseCase;
+use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
 /**
  * @covers SynapseTableQueryBuilder
