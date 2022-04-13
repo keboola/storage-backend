@@ -156,7 +156,7 @@ final class TeradataTableReflection implements TableReflectionInterface
     {
         $sql = sprintf(
             "
-        SELECT ColumnName FROM DBC.IndicesV WHERE
+        SELECT ColumnName FROM DBC.IndicesVX WHERE
          IndexType = 'K'
          AND DatabaseName = %s 
          AND TableName = %s ORDER BY ColumnName;",
@@ -172,7 +172,7 @@ final class TeradataTableReflection implements TableReflectionInterface
     {
         $sql = sprintf(
             '
-SELECT CURRENTPERM FROM DBC.ALLSPACE
+SELECT CURRENTPERM FROM DBC.AllSpaceVX
 WHERE  DATABASENAME = %s AND TABLENAME = %s 
 ',
             TeradataQuote::quote($this->dbName),
