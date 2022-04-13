@@ -96,7 +96,8 @@ RUN dpkg -i /tmp/teradata/tdodbc.deb \
     && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
     && rm -r /tmp/teradata \
     && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
-    && docker-php-ext-install pdo_odbc
+    && docker-php-ext-install pdo_odbc \
+    && docker-php-source delete
 
 ENV ODBCHOME = /opt/teradata/client/ODBC_64/
 ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini

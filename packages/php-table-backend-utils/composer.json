@@ -32,7 +32,16 @@
     },
     "scripts": {
         "tests-unit": "phpunit --colors=always --testsuite unit",
-        "tests-functional": "phpunit --colors=always --testsuite functional",
+        "tests-exasol": "phpunit --colors=always --testsuite Exasol",
+        "tests-snowflake": "phpunit --colors=always --testsuite Snowflake",
+        "tests-synapse": "phpunit --colors=always --testsuite Synapse",
+        "tests-teradata": "phpunit --colors=always --testsuite Teradata",
+        "tests-functional": [
+            "@tests-exasol",
+            "@tests-snowflake",
+            "@tests-synapse",
+            "@tests-teradata"
+        ],
         "tests": [
             "@tests-unit",
             "@tests-functional"
@@ -41,16 +50,12 @@
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor .",
-        "build": [
+        "check": [
+            "@composer validate --no-check-publish --no-check-all",
             "@phplint",
             "@phpcs",
             "@phpstan",
-            "@tests-unit",
-            "@tests-functional"
-        ],
-        "ci": [
-            "@composer validate --no-check-publish --no-check-all",
-            "@build"
+            "@tests-unit"
         ]
     },
     "config": {

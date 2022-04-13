@@ -10,10 +10,17 @@
          bootstrap="tests/bootstrap.php">
 
     <testsuites>
-        <testsuite name="functional">
-            <directory>tests/Functional</directory>
-            <!-- temporarily disabled because TD user has not rights to create role -->
-            <exclude>tests/Functional/Database/Teradata</exclude>
+        <testsuite name="Exasol">
+            <directory>tests/Functional/Exasol</directory>
+        </testsuite>
+        <testsuite name="Snowflake">
+            <directory>tests/Functional/Snowflake</directory>
+        </testsuite>
+        <testsuite name="Synapse">
+            <directory>tests/Functional/Synapse</directory>
+        </testsuite>
+        <testsuite name="Teradata">
+            <directory>tests/Functional/Teradata</directory>
         </testsuite>
 
         <testsuite name="unit">

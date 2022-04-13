@@ -1,0 +1,118 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  # Snowflake
+  SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
+  SNOWFLAKE_PORT: 443
+  SNOWFLAKE_USER: KEBOOLA_CI_TABLE_UTILS
+  SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+  SNOWFLAKE_DATABASE: KEBOOLA_CI_TABLE_UTILS
+  SNOWFLAKE_WAREHOUSE: DEV
+  # Synapse
+  SYNAPSE_UID: ci
+  SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
+  SYNAPSE_DATABASE: ci-github-actions
+  SYNAPSE_SERVER: ci-github-actions.database.windows.net
+  SYNAPSE_PRINCIPAL: 9a024e58-4bc6-403a-b6a0-78b1ffdaefd6
+  SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
+  SYNAPSE_PRINCIPAL_TENANT: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
+  SYNAPSE_RESOURCE_GROUP: ci-php-table-backend-utils
+  SYNAPSE_SQL_SERVER_NAME: ci-github-actions
+  SYNAPSE_DW_SERVER_NAME: ci-github-actions
+  # Teradata
+  TERADATA_HOST: 20.105.40.100
+  TERADATA_USERNAME: ci_table_utils
+  TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
+  TERADATA_PORT: 1025
+  # Exasol
+  EXASOL_HOST: exasol:8563
+  EXASOL_USERNAME: sys
+  EXASOL_PASSWORD: exasol
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Build docker image
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker-compose build production
+          docker save -o /tmp/image.tar table-utils:latest
+      -
+        name: Check
+        run: |
+          docker-compose run production composer check
+      -
+        name: Upload docker image
+        uses: actions/upload-artifact@v2
+        with:
+          name: image
+          path: /tmp/image.tar
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: build
+    concurrency: ${{ matrix.suite }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [exasol, snowflake, synapse, teradata]
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+#
+# Before tests, start services
+      -
+        name: Synapse start
+        if: ${{ matrix.suite == 'synapse' }}
+        run: |
+          bash ./ci/synapse.sh -r
+          bash ./ci/synapse.sh -w
+      -
+        name: Exasol start
+        if: ${{ matrix.suite == 'exasol' }}
+        run: |
+          docker-compose up -d exasol
+          sleep 60
+#
+# TESTS
+#
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run production composer tests-${{ matrix.suite }}
+#
+# After tests, stop services
+      -
+        name: Exasol stop
+        if: ${{ always() && matrix.suite == 'exasol' }}
+        run: docker-compose stop exasol
+      -
+        name: Synapse stop
+        if: ${{ always() && matrix.suite == 'synapse' }}
+        run: | 
+          bash ./ci/synapse.sh -p

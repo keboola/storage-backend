@@ -6,6 +6,7 @@ services:
       args:
         - AWS_ACCESS_KEY_ID
         - AWS_SECRET_ACCESS_KEY
+    image: table-utils
     environment:
       - ABS_ACCOUNT_NAME
       - ABS_ACCOUNT_KEY
@@ -29,7 +30,8 @@ services:
       - EXASOL_PASSWORD
   dev: &dev
     <<: *prod
-    image: keboola/php-db-import-export
+    extra_hosts:
+      - host.docker.internal:host-gateway
     volumes:
       - ./:/code
   dev-xdebug:
