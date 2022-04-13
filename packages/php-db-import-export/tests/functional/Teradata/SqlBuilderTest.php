@@ -136,7 +136,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             );
             $this->connection->executeStatement($sql);
         } catch (DriverException $e) {
-            $this->assertContains('Base table or view not found', $e->getMessage());
+            $this->assertContains('import-export-test_test\' does not exist', $e->getMessage());
         }
 
         // create table
