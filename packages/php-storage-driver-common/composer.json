@@ -24,7 +24,7 @@
         "keboola/php-file-storage-utils": "^0.2.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "9.4.*",
+        "phpunit/phpunit": "9.2.*",
         "phpstan/phpstan": "^1.4",
         "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-symfony": "^1.1",
