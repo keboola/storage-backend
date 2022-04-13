@@ -22,8 +22,8 @@ class TeradataRetryPolicy extends AbstractRetryPolicy
             return $context->getRetryCount() === 0;
         }
 
-        foreach (self::PATTERNS as $pattern){
-            $pattern = '/'.$pattern.'/';
+        foreach (self::PATTERNS as $pattern) {
+            $pattern = '/' . $pattern . '/';
             $matches = null;
             if (preg_match($pattern, $e->getMessage(), $matches)) {
                 return true;
