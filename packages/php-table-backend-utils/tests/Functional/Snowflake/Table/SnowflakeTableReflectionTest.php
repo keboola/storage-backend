@@ -2,24 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Table\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Table;
 
 use Generator;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
-use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
-use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
 
 /**
  * @covers SnowflakeTableReflection
  * @uses   ColumnCollection
  */
-class SnowflakeTableReflectionTest extends SnowflakeBaseCase
+class SnowflakeTableReflectionTest extends \Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase
 {
     protected function setUp(): void
     {

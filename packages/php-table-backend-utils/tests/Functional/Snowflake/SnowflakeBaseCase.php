@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake;
 
 use Doctrine\DBAL\Connection;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;

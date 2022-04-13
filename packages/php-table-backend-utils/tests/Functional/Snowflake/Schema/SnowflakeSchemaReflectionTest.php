@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Schema\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Schema;
 
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaReflection;
-use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
 
-class SnowflakeSchemaReflectionTest extends SnowflakeBaseCase
+class SnowflakeSchemaReflectionTest extends \Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase
 {
     /** @var SnowflakeSchemaReflection */
     private $schemaRef;

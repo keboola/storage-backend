@@ -2,17 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\View\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\View;
 
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\View\Snowflake\SnowflakeViewReflection;
-use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
 
 /**
  * @covers SnowflakeViewReflection
  */
-class SnowflakeViewReflectionTest extends SnowflakeBaseCase
+class SnowflakeViewReflectionTest extends \Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase
 {
 
     protected function setUp(): void

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Database\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Database;
 
 use Keboola\TableBackendUtils\Database\Snowflake\SnowflakeDatabaseReflection;
-use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
+use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 class SnowflakeDatabaseReflectionTest extends SnowflakeBaseCase
 {

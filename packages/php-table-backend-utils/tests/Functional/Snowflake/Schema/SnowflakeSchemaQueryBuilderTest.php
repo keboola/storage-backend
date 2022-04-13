@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Schema\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Schema;
 
 use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaQueryBuilder;
-use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
+use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 /**
  * @covers SnowflakeSchemaQueryBuilder

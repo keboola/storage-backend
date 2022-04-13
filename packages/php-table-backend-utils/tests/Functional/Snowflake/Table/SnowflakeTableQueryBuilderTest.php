@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Table\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Table;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -10,14 +10,13 @@ use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
-use Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake\SnowflakeBaseCase;
 
 // TODO we dont use DEFAULT values in columns.
 /**
  * @covers SnowflakeTableQueryBuilder
  * @uses   ColumnCollection
  */
-class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
+class SnowflakeTableQueryBuilderTest extends \Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase
 {
     /** @var SnowflakeTableQueryBuilder */
     private $qb;

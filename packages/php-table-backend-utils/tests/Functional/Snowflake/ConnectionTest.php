@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\TableBackendUtils\Functional\Connection\Snowflake;
+namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake;
 
 use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
@@ -10,7 +10,7 @@ use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutRea
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
-class TestConnectionTest extends SnowflakeBaseCase
+class ConnectionTest extends SnowflakeBaseCase
 {
     protected function setUp(): void
     {
