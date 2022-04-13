@@ -199,13 +199,21 @@ class TestConnectionTest extends TeradataBaseCase
             'port' => (int) getenv('TERADATA_PORT'),
             'dbname' => '',
         ]);
+        $wrappedConnection->connect(); // create odbc resource
+
+        // get retry wrapper
         $wrappedConnectionRef = new \ReflectionClass($wrappedConnection);
         $wrappedConnectionPropRef = $wrappedConnectionRef->getProperty('_conn');
         $wrappedConnectionPropRef->setAccessible(true);
-        $wrappedConnection->connect(); // create odbc resource
-        $teradataConnection = $wrappedConnectionPropRef->getValue($wrappedConnection);
-        $teradataConnectionPropRef = new \ReflectionClass($teradataConnection);
-        $teradataConnectionPropRef = $teradataConnectionPropRef->getProperty('conn');
+        $retryWrappedConnection = $wrappedConnectionPropRef->getValue($wrappedConnection);
+        // now get teradata connection from retry wrapper
+        $retryWrappedConnectionRef = new \ReflectionClass($retryWrappedConnection);
+        $retryWrappedConnectionPropRef = $retryWrappedConnectionRef->getProperty('connection');
+        $retryWrappedConnectionPropRef->setAccessible(true);
+        $teradataConnection = $retryWrappedConnectionPropRef->getValue($retryWrappedConnection);
+        // now get odbc connection
+        $teradataConnectionRef = new \ReflectionClass($teradataConnection);
+        $teradataConnectionPropRef = $teradataConnectionRef->getProperty('conn');
         $teradataConnectionPropRef->setAccessible(true);
         // check resource exists
         $this->assertIsResource($teradataConnectionPropRef->getValue($teradataConnection));
