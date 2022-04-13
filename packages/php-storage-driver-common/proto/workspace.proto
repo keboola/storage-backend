@@ -71,9 +71,9 @@ message ResetWorkspacePasswordResponse {
  * Command will remove single workspace object
  */
 message DropWorkspaceObjectCommand {
-  string workspaceObjectName = 1;
-  string objectNameToDrop = 2;
-  bool ignoreIfNotExists = 3;
+  string workspaceObjectName = 1; // database or user name in backend
+  string objectNameToDrop = 2; // object name in backend which will be removed
+  bool ignoreIfNotExists = 3; // if true non-existing object should be ignored and command will always pass
 }
 
 /**
