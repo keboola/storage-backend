@@ -12,6 +12,8 @@ class TeradataRetryPolicy extends AbstractRetryPolicy
     private const PATTERNS = [
         'Concurrent change conflict on database -- try again',
         'Connection reset by peer',
+        'Neither TLS port nor Legacy Port has any response',
+        'TLS connection failed',
     ];
     public function canRetry(RetryContextInterface $context): bool
     {
