@@ -55,12 +55,16 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     {
         return self::TERADATA_SOURCE_DATABASE_NAME
             . '-'
+            . $this->getBuildPrefix()
+            . '-'
             . getenv('SUITE');
     }
 
     protected function getDestinationDbName(): string
     {
         return self::TERADATA_DESTINATION_DATABASE_NAME
+            . '-'
+            . $this->getBuildPrefix()
             . '-'
             . getenv('SUITE');
     }
@@ -177,7 +181,7 @@ CREATE DATABASE %s AS
         // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
-                'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                'CREATE MULTISET TABLE %s.%s
             (
 "Other"     VARCHAR(50)
     );',
@@ -193,7 +197,7 @@ CREATE DATABASE %s AS
             case self::BIGGER_TABLE:
                 $this->connection->executeQuery(
                     sprintf(
-                        'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                        'CREATE MULTISET TABLE %s.%s
             (
 "FID" VARCHAR(500) CHARACTER SET UNICODE,
 "NAZEV" VARCHAR(500) CHARACTER SET UNICODE,
@@ -217,7 +221,7 @@ CREATE DATABASE %s AS
             case self::TABLE_OUT_CSV_2COLS_WITHOUT_TS:
                 $this->connection->executeQuery(
                     sprintf(
-                        'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                        'CREATE MULTISET TABLE %s.%s
             (
 "VisitID"   VARCHAR(50) CHARACTER SET UNICODE,
 "Value"     VARCHAR(50),
@@ -233,7 +237,7 @@ PRIMARY INDEX ("VisitID");',
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                    'CREATE MULTISET TABLE %s.%s
             (
               "id" VARCHAR(50) CHARACTER SET UNICODE,
               "row_number" VARCHAR(50) 
@@ -244,7 +248,7 @@ PRIMARY INDEX ("VisitID");',
                 break;
             case self::TABLE_TRANSLATIONS:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                    'CREATE MULTISET TABLE %s.%s
             (
               "id" INT ,
               "name" VARCHAR(50) CHARACTER SET UNICODE,
@@ -258,7 +262,7 @@ PRIMARY INDEX ("VisitID");',
             case self::TABLE_OUT_CSV_2COLS:
                 $this->connection->executeQuery(
                     sprintf(
-                        'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                        'CREATE MULTISET TABLE %s.%s (
           "col1" VARCHAR(500)  ,
           "col2" VARCHAR(500)  ,
           "_timestamp" TIMESTAMP
@@ -275,7 +279,7 @@ PRIMARY INDEX ("VisitID");',
                 ));
 
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
           "col1" VARCHAR(50) CHARACTER SET UNICODE,
           "col2" VARCHAR(50) 
         );',
@@ -297,7 +301,7 @@ PRIMARY INDEX ("VisitID");',
                 break;
             case self::TABLE_OUT_LEMMA:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
           "ts" VARCHAR(50)         ,
           "lemma" VARCHAR(50)      ,
           "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
@@ -309,7 +313,7 @@ PRIMARY INDEX ("VisitID");',
                 break;
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
                 "id" VARCHAR(50) CHARACTER SET UNICODE,
                 "idTwitter" VARCHAR(50) CHARACTER SET UNICODE,
                 "name" VARCHAR(100) CHARACTER SET UNICODE,
@@ -330,7 +334,7 @@ PRIMARY INDEX ("VisitID");',
                 break;
             case self::TABLE_TABLE:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
                                 "column" VARCHAR(50)         ,
                                 "table" VARCHAR(50)      ,
                                 "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
@@ -342,7 +346,7 @@ PRIMARY INDEX ("VisitID");',
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
                                 "col1" VARCHAR(50)         ,
                                 "col2" VARCHAR(50)      
             );',

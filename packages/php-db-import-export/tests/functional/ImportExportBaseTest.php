@@ -155,4 +155,13 @@ abstract class ImportExportBaseTest extends TestCase
             $expectedRows,
         ];
     }
+
+    protected function getBuildPrefix(): string
+    {
+        $buildPrefix = '';
+        if (getenv('BUILD_PREFIX') !== false) {
+            $buildPrefix = getenv('BUILD_PREFIX');
+        }
+        return $buildPrefix;
+    }
 }

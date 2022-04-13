@@ -41,14 +41,9 @@ class ExportTest extends TeradataBaseTestCase
 
     private function getExportDir(): string
     {
-        $buildPrefix = '';
-        if (getenv('BUILD_PREFIX') !== false) {
-            $buildPrefix = getenv('BUILD_PREFIX');
-        }
-
         return self::EXPORT_DIR
             . '-'
-            . $buildPrefix
+            . $this->getBuildPrefix()
             . '-'
             . getenv('SUITE');
     }
@@ -88,7 +83,8 @@ class ExportTest extends TeradataBaseTestCase
         );
 
         /** @var array<int, array> $files */
-        $files = $this->listFiles($this->getExportDir());
+        $files = $this->listFiles($this->getExportDir(). '/gz_test');
+        var_export($files);
         self::assertNotNull($files);
         self::assertCount(1, $files);
         // the ~ 16M table was compressed under 1M
@@ -121,7 +117,7 @@ class ExportTest extends TeradataBaseTestCase
         // export
         $source = $destination;
         $exportOptions = $this->getExportOptions(false, ...$providedExportOptions);
-        $destination = $this->getDestinationInstance($this->getExportDir() . '/gz_test/gzip.csv');
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/slice_test/gzip.csv');
 
         (new Exporter($this->connection))->exportTable(
             $source,
@@ -130,7 +126,7 @@ class ExportTest extends TeradataBaseTestCase
         );
 
         /** @var array<int, array> $files */
-        $files = $this->listFiles($this->getExportDir());
+        $files = $this->listFiles($this->getExportDir().'/slice_test');
         self::assertFilesMatch($expectedFiles, $files);
     }
 
@@ -240,7 +236,7 @@ class ExportTest extends TeradataBaseTestCase
             $options
         );
 
-        $files = $this->listFiles($this->getExportDir());
+        $files = $this->listFiles($this->getExportDir() . '/ts_test');
         self::assertNotNull($files);
 
         $actual = $this->getCsvFileFromStorage($files);
@@ -286,7 +282,7 @@ class ExportTest extends TeradataBaseTestCase
             $options
         );
 
-        $files = $this->listFiles($this->getExportDir());
+        $files = $this->listFiles($this->getExportDir() . '/tw_test');
         self::assertNotNull($files);
 
         $actual = $this->getCsvFileFromStorage($files);

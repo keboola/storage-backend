@@ -23,7 +23,7 @@ class StageImportTest extends TeradataBaseTestCase
     {
         $this->connection->executeQuery(
             sprintf(
-                'CREATE MULTISET TABLE %s.%s ,NO FALLBACK
+                'CREATE MULTISET TABLE %s.%s
      (
       "id" INTEGER NOT NULL,
       "first_name" CHAR(50),
