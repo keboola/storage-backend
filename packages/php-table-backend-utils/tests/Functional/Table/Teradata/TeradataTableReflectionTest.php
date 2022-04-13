@@ -77,7 +77,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ?string $expectedNullable
     ): void {
         $sql = sprintf(
-            'CREATE MULTISET TABLE %s.%s ,NO FALLBACK ,
+            'CREATE MULTISET TABLE %s.%s ,
      NO BEFORE JOURNAL,
      NO AFTER JOURNAL,
      CHECKSUM = DEFAULT,
@@ -139,7 +139,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ];
         yield 'CHAR WITH LENGTH' => [
             'CHAR (20)', // SQL to create column
-            'CHAR (20) CHARACTER SET LATIN', // expected SQL
+            'CHAR (20)', // expected SQL
             'CHAR', // type
             null, // default
             20, // length
@@ -279,7 +279,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ];
         yield 'VARCHAR' => [
             'VARCHAR (32000)',
-            'VARCHAR (32000) CHARACTER SET LATIN',
+            'VARCHAR (32000)',
             'VARCHAR',
             null,
             32000,
@@ -287,7 +287,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ];
         yield 'LONG VARCHAR' => [
             'VARCHAR (64000)',
-            'VARCHAR (64000) CHARACTER SET LATIN',
+            'VARCHAR (64000)',
             'VARCHAR',
             null,
             64000,
@@ -295,7 +295,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ];
         yield 'LONG VARCHAR with UNICODE' => [
             'VARCHAR (32000) CHARACTER SET UNICODE',
-            'VARCHAR (32000) CHARACTER SET UNICODE',
+            'VARCHAR (32000)',
             'VARCHAR',
             null,
             32000,
@@ -303,7 +303,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ];
         yield 'CLOB' => [
             'CLOB (2M)',
-            'CLOB (2097152) CHARACTER SET LATIN',
+            'CLOB (2097152)',
             'CLOB',
             null,
             '2097152',
@@ -311,7 +311,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         ];
         yield 'CLOB with Unicode' => [
             'CLOB (2M)  CHARACTER SET UNICODE',
-            'CLOB (2097152) CHARACTER SET UNICODE',
+            'CLOB (2097152)',
             'CLOB',
             null,
             '2097152',

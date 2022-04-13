@@ -50,6 +50,14 @@ class TeradataViewReflection implements ViewReflectionInterface
                 )
             );
 
+            var_export($this->connection->fetchAllAssociative(
+                sprintf(
+                    'SHOW VIEW %s.%s',
+                    TeradataQuote::quoteSingleIdentifier($this->databaseName),
+                    TeradataQuote::quoteSingleIdentifier(trim($view['TableName']))
+                )
+            ));
+
             // trim table name from teradata, returned with whitespaces
             $viewNameWithDatabase = sprintf(
                 '%s.%s',

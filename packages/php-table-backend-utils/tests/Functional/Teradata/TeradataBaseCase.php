@@ -40,11 +40,11 @@ class TeradataBaseCase extends TestCase
         // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
-                'CREATE MULTISET TABLE %s.%s ,NO FALLBACK
+                'CREATE MULTISET TABLE %s.%s
      (
       "id" INTEGER NOT NULL,
-      "first_name" CHAR(10000),
-      "last_name" CHAR(10000)
+      "first_name" VARCHAR(10000),
+      "last_name" VARCHAR(10000)
      );',
                 TeradataQuote::quoteSingleIdentifier($database),
                 TeradataQuote::quoteSingleIdentifier($table)
@@ -98,11 +98,11 @@ CREATE DATABASE %s AS
         ]);
     }
 
-    public function testConnection(): void
+    public function assertConnectionIsWorking(Connection $connection): void
     {
         self::assertEquals(
             1,
-            $this->connection->fetchOne('SELECT 1')
+            $connection->fetchOne('SELECT 1')
         );
     }
 
@@ -210,5 +210,27 @@ CREATE DATABASE %s AS
 
         //shuffle the password string before returning!
         return str_shuffle($password);
+    }
+
+    /**
+     * @param array<int|string, mixed> $expected
+     * @param array<int|string, mixed> $actual
+     * @param int|string $sortKey
+     */
+    protected function assertArrayEqualsSorted(
+        array $expected,
+        array $actual,
+        $sortKey,
+        string $message = ''
+    ): void {
+        $comparison = function ($attrLeft, $attrRight) use ($sortKey) {
+            if ($attrLeft[$sortKey] === $attrRight[$sortKey]) {
+                return 0;
+            }
+            return $attrLeft[$sortKey] < $attrRight[$sortKey] ? -1 : 1;
+        };
+        usort($expected, $comparison);
+        usort($actual, $comparison);
+        $this->assertEqualsCanonicalizing($expected, $actual, $message);
     }
 }

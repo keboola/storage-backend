@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\PDO as PDODriver;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Keboola\TableBackendUtils\Connection\ConnectionRetryWrapper;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use PDO;
 use PDOException;
 use Retry\RetryProxy;
@@ -34,27 +35,14 @@ class TeradataDriver implements Driver
         $password = null,
         array $driverOptions = []
     ): Connection {
-        $odbcDSN = sprintf(
+        $dsn = sprintf(
             'DRIVER={Teradata};DBCName=%s;TDMSTPortNumber=%s;Charset=UTF8',
             $params['host'],
             $params['port']
         );
 
-        $pdoDSN = "odbc:{$odbcDSN}";
-
-        try {
-            $pdo = new PDO(
-                $pdoDSN,
-                $params['user'] ?? '',
-                $params['password'] ?? '',
-                $driverOptions
-            );
-        } catch (PDOException $exception) {
-            throw Exception::new($exception);
-        }
-
         return new ConnectionRetryWrapper(
-            new PDODriver\Connection($pdo),
+            new TeradataConnectionWrapper($dsn, $params['user'] ?? '', $params['password'] ?? ''),
             new RetryProxy(
                 new TeradataRetryPolicy()
             )
