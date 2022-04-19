@@ -142,6 +142,13 @@ interface GrantQueryBuilderInterface
 
 ### Preparation
 
+Set up envs:
+```shell
+cp .env.dist .env
+```
+
+Set `TEST_PREFIX=` ENV
+
 #### SYNAPSE
 
 Create synapse server on Azure portal or using CLI.
