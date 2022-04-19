@@ -200,7 +200,7 @@ EOT
      */
     public function createTableTestFromDefinitionSqlProvider(): \Generator
     {
-        $testDb = self::TEST_DATABASE;
+        $testDb = $this->getDatabaseName();
         $tableName = self::TABLE_GENERIC;
 
         yield 'no keys' => [
@@ -300,14 +300,18 @@ EOT
         string $expectedSql,
         bool $createPrimaryKeys
     ): void {
-        $this->cleanDatabase(self::TEST_DATABASE);
-        $this->createDatabase(self::TEST_DATABASE);
+        $this->cleanDatabase($this->getDatabaseName());
+        $this->createDatabase($this->getDatabaseName());
         $sql = $this->qb->getCreateTableCommandFromDefinition($definition, $createPrimaryKeys);
         self::assertSame($expectedSql, $sql);
         $this->connection->executeQuery($sql);
 
         // test table properties
-        $tableReflection = new TeradataTableReflection($this->connection, self::TEST_DATABASE, self::TABLE_GENERIC);
+        $tableReflection = new TeradataTableReflection(
+            $this->connection,
+            $this->getDatabaseName(),
+            self::TABLE_GENERIC
+        );
         self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());
         if ($createPrimaryKeys === true) {
             self::assertSame($definition->getPrimaryKeysNames(), $tableReflection->getPrimaryKeysNames());

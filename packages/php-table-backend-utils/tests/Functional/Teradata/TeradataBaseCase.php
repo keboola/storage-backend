@@ -83,7 +83,7 @@ class TeradataBaseCase extends TestCase
     {
         $this->connection->executeQuery(sprintf('
 CREATE DATABASE %s AS
-       PERM = 1e9;
+       PERM = 1e8;
        ', $dbName));
     }
 
@@ -151,7 +151,7 @@ CREATE DATABASE %s AS
     {
         // list existing roles
         $existingUsers = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT RoleName FROM DBC.RoleInfo WHERE RoleName = %s',
+            'SELECT RoleName FROM DBC.RoleInfoVX WHERE RoleName = %s',
             TeradataQuote::quote($roleName)
         ));
 

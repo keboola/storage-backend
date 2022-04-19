@@ -83,7 +83,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
 
         // load data
         $roles = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT RoleName FROM RoleInfo %s',
+            'SELECT RoleName FROM DBC.RoleInfoVX %s',
             $where
         ));
 

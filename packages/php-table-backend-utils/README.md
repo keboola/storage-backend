@@ -158,12 +158,20 @@ SYNAPSE_SERVER=<synapse>.database.windows.net
 
 Prepare Teradata servers on AWS/Azure and set following properties. See 
 
+create new database for tests:
+```sql
+CREATE DATABASE <nick>_utils_tests FROM dbc
+    AS PERMANENT = 1e8,
+       SPOOL = 1e8;
+```
+
 set up env variables:
 ```bash
 TERADATA_HOST=
 TERADATA_PORT=1025
 TERADATA_USERNAME=
 TERADATA_PASSWORD=
+TERADATA_DATABASE=
 ```
 
 #### AWS
