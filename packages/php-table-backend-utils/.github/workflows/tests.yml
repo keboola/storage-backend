@@ -7,6 +7,7 @@ on:
   pull_request:
 
 env:
+  TEST_PREFIX: gh_
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
@@ -27,9 +28,10 @@ env:
   SYNAPSE_DW_SERVER_NAME: ci-github-actions
   # Teradata
   TERADATA_HOST: 20.105.40.100
-  TERADATA_USERNAME: ci_table_utils
+  TERADATA_USERNAME: dbc
   TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
   TERADATA_PORT: 1025
+  TERADATA_DATABASE: ci_table_utils
   # Exasol
   EXASOL_HOST: exasol:8563
   EXASOL_USERNAME: sys

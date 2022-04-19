@@ -54,7 +54,7 @@ class TeradataBaseCase extends TestCase
 
     public function getDatabaseName(): string
     {
-        return getenv('TERADATA_DB_PREFIX') . self::TEST_DATABASE;
+        return getenv('TEST_PREFIX') . getenv('TERADATA_DB_PREFIX') . self::TEST_DATABASE;
     }
 
     protected function dbExists(string $dbname): bool
@@ -89,13 +89,23 @@ CREATE DATABASE %s AS
 
     private function getTeradataConnection(): Connection
     {
-        return TeradataConnection::getConnection([
+        $db = TeradataConnection::getConnection([
             'host' => (string) getenv('TERADATA_HOST'),
             'user' => (string) getenv('TERADATA_USERNAME'),
             'password' => (string) getenv('TERADATA_PASSWORD'),
             'port' => (int) getenv('TERADATA_PORT'),
             'dbname' => '',
         ]);
+
+        if ((string) getenv('TERADATA_DATABASE') === '') {
+            throw new \Exception('Variable "TERADATA_DATABASE" is missing.');
+        }
+        $db->executeStatement(sprintf(
+            'SET SESSION DATABASE %s;',
+            TeradataQuote::quoteSingleIdentifier((string) getenv('TERADATA_DATABASE'))
+        ));
+
+        return $db;
     }
 
     public function assertConnectionIsWorking(Connection $connection): void

@@ -8,6 +8,7 @@ services:
         - AWS_SECRET_ACCESS_KEY
     image: table-utils
     environment:
+      - TEST_PREFIX
       - ABS_ACCOUNT_NAME
       - ABS_ACCOUNT_KEY
       - ABS_CONTAINER_NAME
@@ -25,6 +26,7 @@ services:
       - TERADATA_PORT
       - TERADATA_USERNAME
       - TERADATA_PASSWORD
+      - TERADATA_DATABASE
       - EXASOL_HOST
       - EXASOL_USERNAME
       - EXASOL_PASSWORD
