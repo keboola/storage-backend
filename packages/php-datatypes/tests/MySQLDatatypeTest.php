@@ -5,8 +5,9 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\MySQL;
+use PHPUnit\Framework\TestCase;
 
-class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
+class MySQLDatatypeTest extends TestCase
 {
     public function testValid()
     {
@@ -242,7 +243,7 @@ class MySQLDatatypeTest extends \PHPUnit_Framework_TestCase
             ["66,66"]
         ];
     }
-    
+
     public function invalidIntegerLengths()
     {
         return [

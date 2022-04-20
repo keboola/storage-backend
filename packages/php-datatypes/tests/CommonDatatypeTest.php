@@ -2,8 +2,9 @@
 namespace Keboola\DataypeTest;
 
 use Keboola\Datatype\Definition\Common;
+use PHPUnit\Framework\TestCase;
 
-class CommonDatatypeTest extends \PHPUnit_Framework_TestCase
+class CommonDatatypeTest extends TestCase
 {
     public function testConstructor()
     {

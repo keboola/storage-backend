@@ -5,8 +5,9 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
+use PHPUnit\Framework\TestCase;
 
-class SnowflakeDatatypeTest extends \PHPUnit_Framework_TestCase
+class SnowflakeDatatypeTest extends TestCase
 {
     public function testValid()
     {

@@ -7,8 +7,9 @@ use Keboola\Datatype\Definition\Exasol;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use PHPUnit\Framework\TestCase;
 
-class ExasolDatatypeTest extends \PHPUnit_Framework_TestCase
+class ExasolDatatypeTest extends TestCase
 {
     /**
      * @dataProvider typesProvider
