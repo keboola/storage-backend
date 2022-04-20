@@ -12,12 +12,13 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 /**
  * @covers SnowflakeTableReflection
  * @uses   ColumnCollection
  */
-class SnowflakeTableReflectionTest extends \Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase
+class SnowflakeTableReflectionTest extends SnowflakeBaseCase
 {
     protected function setUp(): void
     {

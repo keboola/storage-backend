@@ -10,13 +10,14 @@ use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 // TODO we dont use DEFAULT values in columns.
 /**
  * @covers SnowflakeTableQueryBuilder
  * @uses   ColumnCollection
  */
-class SnowflakeTableQueryBuilderTest extends \Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase
+class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
 {
     /** @var SnowflakeTableQueryBuilder */
     private $qb;
