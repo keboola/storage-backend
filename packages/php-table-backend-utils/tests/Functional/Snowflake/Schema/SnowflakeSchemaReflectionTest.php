@@ -6,8 +6,9 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Schema;
 
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaReflection;
+use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
-class SnowflakeSchemaReflectionTest extends \Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase
+class SnowflakeSchemaReflectionTest extends SnowflakeBaseCase
 {
     /** @var SnowflakeSchemaReflection */
     private $schemaRef;
