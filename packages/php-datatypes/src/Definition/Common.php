@@ -101,7 +101,7 @@ abstract class Common implements DefinitionInterface
     abstract public function toArray();
 
     /**
-     * @param string|null $length
+     * @param string|int|null $length
      * @return bool
      */
     protected function isEmpty($length)
@@ -177,7 +177,7 @@ abstract class Common implements DefinitionInterface
     }
 
     /**
-     * @param mixed $length
+     * @param string|int|null $length
      * @param int $max
      * @param int $min
      * @return bool

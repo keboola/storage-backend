@@ -61,7 +61,7 @@ class Redshift extends Common
     public function getSQLDefinition()
     {
         $definition =  $this->getType();
-        if ($this->getLength() && $this->getLength() != "") {
+        if ($this->getLength() && $this->getLength() !== '') {
             $definition .= "(" . $this->getLength() . ")";
         }
         if (!$this->isNullable()) {
