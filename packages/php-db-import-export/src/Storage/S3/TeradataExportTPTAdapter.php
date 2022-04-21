@@ -16,6 +16,8 @@ use Symfony\Component\Process\Process;
 
 class TeradataExportTPTAdapter implements BackendExportAdapterInterface
 {
+    private const TPT_TIMEOUT = 60 * 60 * 6; // 6 hours
+
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
     {
         if (!$source instanceof Storage\SqlSourceInterface) {
@@ -55,6 +57,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
                 'AWS_SECRET_ACCESS_KEY' => $destination->getSecret(),
             ]
         );
+        $process->setTimeout(self::TPT_TIMEOUT);
         $process->start();
         // check end of process
         $process->wait();
