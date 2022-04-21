@@ -20,7 +20,7 @@ class AbsLoader extends BaseStubLoader
 
     private string $connectionString;
 
-    private ?BlobRestProxy $blobService;
+    private ?BlobRestProxy $blobService = null;
 
     public function __construct(
         string $accountName,
