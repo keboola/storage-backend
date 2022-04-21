@@ -19,6 +19,7 @@ services:
       - TERADATA_PASSWORD
       - TERADATA_PORT
       - TERADATA_ROOT_DATABASE
+      - GITHUB_OAUTH_TOKEN
   dev: &dev
     <<: *prod
     image: keboola/php-storage-driver-teradata
