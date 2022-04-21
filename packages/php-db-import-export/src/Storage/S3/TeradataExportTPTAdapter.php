@@ -37,6 +37,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
     ): array {
         assert($source instanceof Storage\SqlSourceInterface);
         assert($destination instanceof DestinationFile);
+        assert($exportOptions instanceof TeradataExportOptions);
 
         /**
          * @var Temp $temp
@@ -85,13 +86,15 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
      * @return array{Temp, array<int, string>}
      */
     private function generateTPTExportScript(
-        Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        SqlSourceInterface $source,
+        DestinationFile $destination,
+        TeradataExportOptions $exportOptions
     ): array {
-        /** @var DestinationFile $destination */
-        /** @var SqlSourceInterface $source */
-        /** @var TeradataExportOptions $exportOptions */
+        $temp = new Temp();
+        $temp->initRunFolder();
+        $folder = $temp->getTmpFolder();
+        $s3ConfigDir = $folder . '/.aws';
+        touch($s3ConfigDir);
 
         $tptScript = sprintf(
             <<<EOD
@@ -105,7 +108,7 @@ DESCRIPTION 'Export data from Teradata to Amazon S3'
             ATTR
             (
                 AccessModuleName = 'libs3axsmod.so',
-                AccessModuleInitStr = 'S3Bucket="%s" S3Object="%s" S3Region="%s" %s'
+                AccessModuleInitStr = 'S3Bucket="%s" S3Object="%s" S3Region="%s" S3ConfigDir="%s" %s'
             )
         )
         SELECT * FROM OPERATOR ( \$EXPORT
@@ -120,6 +123,7 @@ EOD,
             $destination->getBucket(),
             $destination->getFilePath() . ($exportOptions->isCompressed() ? '.gz' : ''),
             $destination->getRegion(),
+            $s3ConfigDir,
             $exportOptions->generateS3SizeOptions(),
             $source->getFromStatement()
         );
@@ -161,9 +165,6 @@ EOD,
             ...$exportOptions->getTeradataCredentials(),
             ...$exportOptions->getTeradataCredentials(),
         );
-        $temp = new Temp();
-        $temp->initRunFolder();
-        $folder = $temp->getTmpFolder();
 
         file_put_contents($folder . '/export_script.tpt', $tptScript);
         file_put_contents($folder . '/export_vars.txt', $jobVariableFile);
