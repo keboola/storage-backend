@@ -13,19 +13,18 @@ class S3Loader extends BaseStubLoader
 {
     private const MANIFEST_SUFFIX = 'S3';
 
-    /**
-     * @var string
-     */
-    private $bucket;
+    private string $bucket;
 
-    /**
-     * @var S3Client
-     */
-    private $client;
+    private S3Client $client;
+
+    private string $key;
+
+    private string $path;
 
     public function __construct(
         string $region,
-        string $bucket
+        string $bucket,
+        string $key
     ) {
         $this->client = new S3Client([
             'region' => $region,
@@ -33,12 +32,15 @@ class S3Loader extends BaseStubLoader
         ]);
 
         $this->bucket = $bucket;
+        $this->key = $key;
+        $this->path = $this->bucket . '/' . $this->key . '/';
     }
 
     public function clearBucket(): void
     {
         $result = $this->client->listObjects([
             'Bucket' => $this->bucket,
+            'Prefix' => $this->key,
             'Delimiter' => '/',
         ]);
         $objects = $result->get('Contents');
@@ -67,7 +69,7 @@ class S3Loader extends BaseStubLoader
         $manager = new \Aws\S3\Transfer(
             $this->client,
             self::BASE_DIR,
-            's3://' . $this->bucket,
+            's3://' . $this->path,
             [
                 'debug' => true,
             ]
@@ -83,8 +85,8 @@ class S3Loader extends BaseStubLoader
                 'entries' => [
                     [
                         'url' => sprintf(
-                            's3://%s/not-exists.csv',
-                            $this->bucket
+                            's3://%snot-exists.csv',
+                            $this->path
                         ),
                         'mandatory' => true,
                     ],
@@ -112,8 +114,8 @@ class S3Loader extends BaseStubLoader
             foreach ($files as $file) {
                 $manifest['entries'][] = [
                     'url' => sprintf(
-                        's3://%s/sliced/%s/%s',
-                        $this->bucket,
+                        's3://%ssliced/%s/%s',
+                        $this->path,
                         $directory->getBasename(),
                         $file->getFilename()
                     ),

@@ -63,12 +63,13 @@ trait S3SourceTrait
         } else {
             $class = Storage\S3\SourceFile::class;
         }
+        $key = (string) getenv('AWS_S3_KEY');
         return new $class(
             (string) getenv('AWS_ACCESS_KEY_ID'),
             (string) getenv('AWS_SECRET_ACCESS_KEY'),
             (string) getenv('AWS_REGION'),
             (string) getenv('AWS_S3_BUCKET'),
-            $filePath,
+            $key . '/' . $filePath,
             $options,
             $isSliced,
             $columns,
