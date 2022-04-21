@@ -51,7 +51,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         $this->connection = $this->getTeradataConnection();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->connection->close();
         parent::tearDown();
