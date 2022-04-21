@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport\StubLoader;
+namespace Tests\Keboola\Db\ImportExportCommon\StubLoader;
 
 use Aws\S3\S3Client;
 use Symfony\Component\Finder\Finder;

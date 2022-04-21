@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;

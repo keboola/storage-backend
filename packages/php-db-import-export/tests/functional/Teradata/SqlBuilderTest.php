@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 
-use DateTime;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
-use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;

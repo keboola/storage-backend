@@ -7,12 +7,31 @@ namespace Tests\Keboola\Db\ImportExportFunctional;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
-use Tests\Keboola\Db\ImportExport\StorageTrait;
+use Tests\Keboola\Db\ImportExportCommon\ExportTrait;
+use Tests\Keboola\Db\ImportExportCommon\ImportTrait;
+use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 
 abstract class ImportExportBaseTest extends TestCase
 {
     protected const DATA_DIR = __DIR__ . '/../data/';
     use StorageTrait;
+    use ImportTrait;
+    use ExportTrait;
+
+    protected function getExportBlobDir(): string
+    {
+        return 'test_export';
+    }
+
+    protected function getDestinationSchema(): string
+    {
+        return 'destination';
+    }
+
+    protected function getSourceSchema(): string
+    {
+        return 'source';
+    }
 
     /**
      * @param CsvFile[] $expected
@@ -154,14 +173,5 @@ abstract class ImportExportBaseTest extends TestCase
             $expectedColumns,
             $expectedRows,
         ];
-    }
-
-    protected function getBuildPrefix(): string
-    {
-        $buildPrefix = '';
-        if (getenv('BUILD_PREFIX') !== false) {
-            $buildPrefix = getenv('BUILD_PREFIX');
-        }
-        return $buildPrefix;
     }
 }

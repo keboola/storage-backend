@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport;
+namespace Tests\Keboola\Db\ImportExportCommon;
 
 use DateTime;
 use Keboola\CsvOptions\CsvOptions;
 use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Storage;
 
 trait ABSSourceTrait

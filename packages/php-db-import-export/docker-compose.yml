@@ -33,7 +33,7 @@ services:
       - TERADATA_USERNAME
       - TERADATA_PASSWORD
       - TERADATA_PORT
-      - TERADATA_ROOT_DATABASE
+      - TERADATA_DATABASE
       - GITHUB_OAUTH_TOKEN
       - STORAGE_TYPE
   dev: &dev

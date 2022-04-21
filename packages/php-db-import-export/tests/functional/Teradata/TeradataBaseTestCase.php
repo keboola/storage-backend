@@ -51,6 +51,12 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         $this->connection = $this->getTeradataConnection();
     }
 
+    protected function tearDown()
+    {
+        $this->connection->close();
+        parent::tearDown();
+    }
+
     protected function getSourceDbName(): string
     {
         return self::TERADATA_SOURCE_DATABASE_NAME
@@ -71,13 +77,23 @@ class TeradataBaseTestCase extends ImportExportBaseTest
 
     private function getTeradataConnection(): Connection
     {
-        return TeradataConnection::getConnection([
+        $db = TeradataConnection::getConnection([
             'host' => (string) getenv('TERADATA_HOST'),
             'user' => (string) getenv('TERADATA_USERNAME'),
             'password' => (string) getenv('TERADATA_PASSWORD'),
             'port' => (int) getenv('TERADATA_PORT'),
             'dbname' => '',
         ]);
+
+        if ((string) getenv('TERADATA_DATABASE') === '') {
+            throw new \Exception('Variable "TERADATA_DATABASE" is missing.');
+        }
+        $db->executeStatement(sprintf(
+            'SET SESSION DATABASE %s;',
+            TeradataQuote::quoteSingleIdentifier((string) getenv('TERADATA_DATABASE'))
+        ));
+
+        return $db;
     }
 
     /**
@@ -151,8 +167,8 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     {
         $this->connection->executeQuery(sprintf('
 CREATE DATABASE %s AS
-       PERM = 5e7
-       SPOOL = 5e7;
+       PERM = 2e7
+       SPOOL = 2e7;
        
        ', TeradataQuote::quoteSingleIdentifier($dbName)));
     }

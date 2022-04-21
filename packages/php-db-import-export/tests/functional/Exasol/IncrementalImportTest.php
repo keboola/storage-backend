@@ -16,7 +16,7 @@ use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
-use Tests\Keboola\Db\ImportExport\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
 
 class IncrementalImportTest extends ExasolBaseTestCase
 {

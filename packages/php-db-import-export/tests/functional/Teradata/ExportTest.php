@@ -23,8 +23,6 @@ use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 
 class ExportTest extends TeradataBaseTestCase
 {
-    private const EXPORT_DIR = 'teradata_test_export';
-
 
     public function setUp(): void
     {
@@ -37,15 +35,6 @@ class ExportTest extends TeradataBaseTestCase
 
         $this->cleanDatabase($this->getSourceDbName());
         $this->createDatabase($this->getSourceDbName());
-    }
-
-    private function getExportDir(): string
-    {
-        return self::EXPORT_DIR
-            . '-'
-            . $this->getBuildPrefix()
-            . '-'
-            . getenv('SUITE');
     }
 
     public function tearDown(): void

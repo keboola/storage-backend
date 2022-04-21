@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport;
+namespace Tests\Keboola\Db\ImportExportCommon;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Storage;

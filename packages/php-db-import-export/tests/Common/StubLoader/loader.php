@@ -6,8 +6,8 @@ declare(strict_types=1);
  * Loads test fixtures into ABS
  */
 
-use Tests\Keboola\Db\ImportExport\StubLoader\AbsLoader;
-use Tests\Keboola\Db\ImportExport\StubLoader\S3Loader;
+use Tests\Keboola\Db\ImportExportCommon\StubLoader\AbsLoader;
+use Tests\Keboola\Db\ImportExportCommon\StubLoader\S3Loader;
 
 date_default_timezone_set('Europe/Prague');
 ini_set('display_errors', '1');
@@ -15,7 +15,7 @@ error_reporting(E_ALL);
 
 $basedir = dirname(__DIR__);
 
-require_once $basedir . '/../vendor/autoload.php';
+require_once $basedir . '/../../vendor/autoload.php';
 
 switch ($argv[1]) {
     case 'abs':

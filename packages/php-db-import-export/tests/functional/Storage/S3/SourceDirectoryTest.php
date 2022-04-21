@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Storage\S3;
 
 use Keboola\CsvOptions\CsvOptions;
-use Tests\Keboola\Db\ImportExport\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SourceDirectoryTest extends BaseTestCase

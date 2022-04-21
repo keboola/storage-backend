@@ -9,7 +9,7 @@ use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Tests\Keboola\Db\ImportExport\StorageType;
+use Tests\Keboola\Db\ImportExportCommon\StorageType;
 
 class OtherImportTest extends SnowflakeImportExportBaseTest
 {

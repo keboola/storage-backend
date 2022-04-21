@@ -35,7 +35,7 @@ class ExportTest extends ExasolBaseTestCase
         $this->createSchema($this->getDestinationSchemaName());
     }
 
-    private function getExportDir(): string
+    protected function getExportDir(): string
     {
         $buildPrefix = '';
         if (getenv('BUILD_PREFIX') !== false) {

@@ -9,7 +9,7 @@ use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
-use Tests\Keboola\Db\ImportExport\StorageTrait;
+use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
