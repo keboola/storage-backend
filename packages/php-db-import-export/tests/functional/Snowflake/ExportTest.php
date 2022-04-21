@@ -25,7 +25,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
      */
     private $blobClient;
 
-    private function getExportDir(): string
+    protected function getExportDir(): string
     {
         $buildPrefix = '';
         if (getenv('BUILD_PREFIX') !== false) {

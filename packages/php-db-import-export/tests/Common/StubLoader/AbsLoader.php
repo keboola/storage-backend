@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport\StubLoader;
+namespace Tests\Keboola\Db\ImportExportCommon\StubLoader;
 
 use Keboola\FileStorage\Abs\ClientFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
@@ -14,25 +14,13 @@ use function \GuzzleHttp\json_encode as guzzle_json_encode;
 
 class AbsLoader extends BaseStubLoader
 {
-    /**
-     * @var string
-     */
-    private $accountName;
+    private string $accountName;
 
-    /**
-     * @var string
-     */
-    private $containerName;
+    private string $containerName;
 
-    /**
-     * @var string
-     */
-    private $connectionString;
+    private string $connectionString;
 
-    /**
-     * @var BlobRestProxy
-     */
-    private $blobService;
+    private ?BlobRestProxy $blobService = null;
 
     public function __construct(
         string $accountName,
@@ -101,6 +89,7 @@ class AbsLoader extends BaseStubLoader
             "\"col1\",\"col2\"\n"
         );
         $fp = fopen($file, 'ab');
+        assert($fp !== false);
         fwrite($fp, '"');
         for ($i = 0; $i <= 6000; $i++) {
             fwrite($fp, 'a');
@@ -114,6 +103,7 @@ class AbsLoader extends BaseStubLoader
             "\"col1\",\"col2\"\n"
         );
         $fp = fopen($file, 'ab');
+        assert($fp !== false);
         fwrite($fp, '"');
         for ($i = 0; $i <= 10000; $i++) {
             fwrite($fp, 'a');
@@ -157,7 +147,7 @@ class AbsLoader extends BaseStubLoader
                         'mandatory' => true,
                     ],
                 ],
-            ])
+            ], JSON_THROW_ON_ERROR)
         );
 
         foreach ($promises as $promise) {

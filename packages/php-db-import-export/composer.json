@@ -5,11 +5,12 @@
     "require": {
         "php": "^7.4",
         "ext-pdo": "*",
+        "ext-json": "*",
         "doctrine/dbal": "^3.2.0",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^5.0",
         "keboola/php-file-storage-utils": ">=0.2",
-        "keboola/table-backend-utils": "^0.18",
+        "keboola/table-backend-utils": "^0.19",
         "keboola/php-temp": "^1.0",
         "microsoft/azure-storage-blob": "^1.4",
         "symfony/process": "^4.4|^5.0"
@@ -29,7 +30,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\Keboola\\Db\\ImportExport\\": "tests/",
+            "Tests\\Keboola\\Db\\ImportExportCommon\\": "tests/Common",
             "Tests\\Keboola\\Db\\ImportExportUnit\\": "tests/unit",
             "Tests\\Keboola\\Db\\ImportExportFunctional\\": "tests/functional/"
         }
@@ -72,8 +73,8 @@
         "phpcs": "phpcs -n --ignore=*/vendor/* --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=*/vendor/*  --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor --exclude provisioning .",
-        "loadAbs": "php ./tests/StubLoader/loader.php abs",
-        "loadS3": "php ./tests/StubLoader/loader.php s3",
+        "loadAbs": "php ./tests/Common/StubLoader/loader.php abs",
+        "loadS3": "php ./tests/Common/StubLoader/loader.php s3",
         "init-synapse": "php ./tests/InitSynapse.php",
         "load-data": [
             "@loadAbs",

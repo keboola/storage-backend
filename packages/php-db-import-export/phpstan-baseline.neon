@@ -296,21 +296,6 @@ parameters:
 			path: src/Storage/Synapse/Table.php
 
 		-
-			message: "#^Parameter \\#1 \\$fp of function fclose expects resource, resource\\|false given\\.$#"
-			count: 2
-			path: tests/StubLoader/AbsLoader.php
-
-		-
-			message: "#^Parameter \\#1 \\$fp of function fwrite expects resource, resource\\|false given\\.$#"
-			count: 6
-			path: tests/StubLoader/AbsLoader.php
-
-		-
-			message: "#^Parameter \\#3 \\$content of method MicrosoftAzure\\\\Storage\\\\Blob\\\\BlobRestProxy\\:\\:createBlockBlobAsync\\(\\) expects Psr\\\\Http\\\\Message\\\\StreamInterface\\|resource\\|string, string\\|false given\\.$#"
-			count: 1
-			path: tests/StubLoader/AbsLoader.php
-
-		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:assertArrayEqualsSorted\\(\\) has parameter \\$actual with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/functional/ImportExportBaseTest.php

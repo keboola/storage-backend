@@ -8,7 +8,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
 use Keboola\Db\ImportExport\Storage;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 
 class ImporterTest extends TestCase
 {

@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Storage\ABS;
 
 use Keboola\Db\Import\Exception;
-use Keboola\Db\ImportExport\Storage;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SourceFileTest extends BaseTestCase

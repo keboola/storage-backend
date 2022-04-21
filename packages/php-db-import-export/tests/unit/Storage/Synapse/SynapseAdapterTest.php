@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\Synapse;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
 use Keboola\Db\ImportExport\Storage;
-use PHPUnit\Framework\MockObject\MockObject;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 

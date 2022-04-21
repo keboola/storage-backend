@@ -9,7 +9,7 @@ use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\S3\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tests\Keboola\Db\ImportExport\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 

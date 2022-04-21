@@ -9,7 +9,7 @@ use Keboola\FileStorage\Abs\ClientFactory;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class BlobIteratorTest extends BaseTestCase

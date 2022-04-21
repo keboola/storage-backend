@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 
-use DateTime;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
-use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
@@ -136,7 +134,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             );
             $this->connection->executeStatement($sql);
         } catch (DriverException $e) {
-            $this->assertContains('Base table or view not found', $e->getMessage());
+            $this->assertContains('import-export-test_test\' does not exist', $e->getMessage());
         }
 
         // create table

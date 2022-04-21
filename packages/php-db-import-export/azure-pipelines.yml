@@ -16,6 +16,7 @@ variables:
   SNOWFLAKE_USER: KEBOOLA_DB_IMPORT_EXPORT
   SNOWFLAKE_WAREHOUSE: DEV
   SERVER_NAME: ci-testing-php-db-import-export
+  TERADATA_DATABASE: ci_ielib
 
 
 stages:
@@ -176,6 +177,7 @@ stages:
               TERADATA_PASSWORD: $(TERADATA_PASSWORD)
               TERADATA_PORT: $(TERADATA_PORT)
               TERADATA_USERNAME: $(TERADATA_USERNAME)
+              TERADATA_DATABASE: $(TERADATA_DATABASE)
           - script: |
               docker-compose stop
               php ./provisioning/cli.php app:delete:synapse \

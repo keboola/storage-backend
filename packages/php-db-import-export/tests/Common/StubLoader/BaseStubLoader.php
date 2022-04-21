@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport\StubLoader;
+namespace Tests\Keboola\Db\ImportExportCommon\StubLoader;
 
 use Symfony\Component\Finder\Finder;
 
 abstract class BaseStubLoader
 {
-    public const BASE_DIR = __DIR__ . '/../data/';
+    public const BASE_DIR = __DIR__ . '/../../data/';
 
     public function generateLargeSliced(): void
     {

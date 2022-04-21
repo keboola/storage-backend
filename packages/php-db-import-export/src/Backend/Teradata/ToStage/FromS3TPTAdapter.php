@@ -283,13 +283,13 @@ TargetTdpId = '$host'
 ,FileReaderTextDelimiter = '$delimiter'
 ,FileReaderSkipRows = $ignoredLines
 ,FileReaderOpenQuoteMark = '$enclosure'
+,FileReaderCloseQuoteMark = '$enclosure'
 ,FileReaderQuotedData = 'Optional'
 $escapedBy
 ,FileReaderTruncateColumns = 'Yes'
 EOD;
 
         file_put_contents($folder . '/import_vars.txt', $jobVariableFile);
-        file_put_contents('./import_vars.txt', $jobVariableFile);
 
         return [
             $temp,

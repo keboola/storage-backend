@@ -8,8 +8,7 @@ use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Snowflake\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
-use PHPUnit\Framework\MockObject\MockObject;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 

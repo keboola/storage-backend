@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExport;
+namespace Tests\Keboola\Db\ImportExportCommon;
 
 use Aws\S3\S3Client;
 use Keboola\Csv\CsvFile;
@@ -12,7 +12,6 @@ use Keboola\Db\ImportExport\Storage\S3;
 use Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\FileStorage\Abs\ClientFactory;
-use Keboola\StorageApi\ProcessPolyfill;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\Blob;
@@ -24,6 +23,17 @@ trait StorageTrait
 {
     use ABSSourceTrait;
     use S3SourceTrait;
+    use ImportTrait;
+    use ExportTrait;
+
+    protected function getBuildPrefix(): string
+    {
+        $buildPrefix = '';
+        if (getenv('BUILD_PREFIX') !== false) {
+            $buildPrefix = getenv('BUILD_PREFIX');
+        }
+        return $buildPrefix;
+    }
 
     protected function getDestinationInstance(
         string $filePath
@@ -128,23 +138,10 @@ trait StorageTrait
             case StorageType::STORAGE_S3:
                 /** @var S3Client $client */
                 $client = $this->createClient();
-                $result = $client->listObjects([
-                    'Bucket' => (string) getenv('AWS_S3_BUCKET'),
-                    'Prefix' => $dirToClear,
-                ]);
-                $objects = $result->get('Contents');
-                if ($objects) {
-                    $client->deleteObjects([
-                        'Bucket' => (string) getenv('AWS_S3_BUCKET'),
-                        'Delete' => [
-                            'Objects' => array_map(static function ($object) {
-                                return [
-                                    'Key' => $object['Key'],
-                                ];
-                            }, $objects),
-                        ],
-                    ]);
-                }
+                $client->deleteMatchingObjects(
+                    (string) getenv('AWS_S3_BUCKET'),
+                    $dirToClear
+                );
                 return;
             case StorageType::STORAGE_ABS:
                 /** @var BlobRestProxy $client */

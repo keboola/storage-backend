@@ -9,7 +9,7 @@ use Keboola\Db\ImportExport\Storage\ABS\SynapseImportAdapter;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tests\Keboola\Db\ImportExport\ABSSourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 

@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
@@ -19,6 +20,7 @@ use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class TeradataBaseTestCase extends ImportExportBaseTest
 {
+    public const BIGGER_TABLE = 'big_table';
     public const TESTS_PREFIX = 'ieLibTest_';
     public const TEST_DATABASE = self::TESTS_PREFIX . 'refTableDatabase';
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
@@ -49,6 +51,12 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         $this->connection = $this->getTeradataConnection();
     }
 
+    protected function tearDown(): void
+    {
+        $this->connection->close();
+        parent::tearDown();
+    }
+
     protected function getSourceDbName(): string
     {
         return self::TERADATA_SOURCE_DATABASE_NAME
@@ -65,13 +73,23 @@ class TeradataBaseTestCase extends ImportExportBaseTest
 
     private function getTeradataConnection(): Connection
     {
-        return TeradataConnection::getConnection([
+        $db = TeradataConnection::getConnection([
             'host' => (string) getenv('TERADATA_HOST'),
             'user' => (string) getenv('TERADATA_USERNAME'),
             'password' => (string) getenv('TERADATA_PASSWORD'),
             'port' => (int) getenv('TERADATA_PORT'),
             'dbname' => '',
         ]);
+
+        if ((string) getenv('TERADATA_DATABASE') === '') {
+            throw new \Exception('Variable "TERADATA_DATABASE" is missing.');
+        }
+        $db->executeStatement(sprintf(
+            'SET SESSION DATABASE %s;',
+            TeradataQuote::quoteSingleIdentifier((string) getenv('TERADATA_DATABASE'))
+        ));
+
+        return $db;
     }
 
     /**
@@ -145,8 +163,8 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     {
         $this->connection->executeQuery(sprintf('
 CREATE DATABASE %s AS
-       PERM = 5e7
-       SPOOL = 5e7;
+       PERM = 2e7
+       SPOOL = 2e7;
        
        ', TeradataQuote::quoteSingleIdentifier($dbName)));
     }
@@ -175,7 +193,7 @@ CREATE DATABASE %s AS
         // char because of Stats test
         $this->connection->executeQuery(
             sprintf(
-                'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                'CREATE MULTISET TABLE %s.%s
             (
 "Other"     VARCHAR(50)
     );',
@@ -188,10 +206,34 @@ CREATE DATABASE %s AS
     protected function initTable(string $tableName): void
     {
         switch ($tableName) {
+            case self::BIGGER_TABLE:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE MULTISET TABLE %s.%s
+            (
+"FID" VARCHAR(500) CHARACTER SET UNICODE,
+"NAZEV" VARCHAR(500) CHARACTER SET UNICODE,
+"Y" VARCHAR(500) CHARACTER SET UNICODE,
+"X" VARCHAR(500) CHARACTER SET UNICODE,
+"KONTAKT" VARCHAR(500) CHARACTER SET UNICODE,
+"SUBKATEGORIE" VARCHAR(500) CHARACTER SET UNICODE,
+"KATEGORIE" VARCHAR(500) CHARACTER SET UNICODE,
+"Column6" VARCHAR(500) CHARACTER SET UNICODE,
+"Column7" VARCHAR(500) CHARACTER SET UNICODE,
+"Column8" VARCHAR(500) CHARACTER SET UNICODE,
+"Column9" VARCHAR(500) CHARACTER SET UNICODE,
+"GlobalID" VARCHAR(500) CHARACTER SET UNICODE
+    );',
+                        TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                        TeradataQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+
+                break;
             case self::TABLE_OUT_CSV_2COLS_WITHOUT_TS:
                 $this->connection->executeQuery(
                     sprintf(
-                        'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                        'CREATE MULTISET TABLE %s.%s
             (
 "VisitID"   VARCHAR(50) CHARACTER SET UNICODE,
 "Value"     VARCHAR(50),
@@ -199,8 +241,7 @@ CREATE DATABASE %s AS
 "Something" VARCHAR(50),
 "Other"     VARCHAR(50),
     )
-PRIMARY INDEX ("VisitID");
-        );',
+PRIMARY INDEX ("VisitID");',
                         TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
                         TeradataQuote::quoteSingleIdentifier($tableName)
                     )
@@ -208,7 +249,7 @@ PRIMARY INDEX ("VisitID");
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                    'CREATE MULTISET TABLE %s.%s
             (
               "id" VARCHAR(50) CHARACTER SET UNICODE,
               "row_number" VARCHAR(50) 
@@ -219,7 +260,7 @@ PRIMARY INDEX ("VisitID");
                 break;
             case self::TABLE_TRANSLATIONS:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK
+                    'CREATE MULTISET TABLE %s.%s
             (
               "id" INT ,
               "name" VARCHAR(50) CHARACTER SET UNICODE,
@@ -233,9 +274,9 @@ PRIMARY INDEX ("VisitID");
             case self::TABLE_OUT_CSV_2COLS:
                 $this->connection->executeQuery(
                     sprintf(
-                        'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
-          "col1" VARCHAR(200)  ,
-          "col2" VARCHAR(200)  ,
+                        'CREATE MULTISET TABLE %s.%s (
+          "col1" VARCHAR(500)  ,
+          "col2" VARCHAR(500)  ,
           "_timestamp" TIMESTAMP
         );',
                         TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
@@ -250,7 +291,7 @@ PRIMARY INDEX ("VisitID");
                 ));
 
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
           "col1" VARCHAR(50) CHARACTER SET UNICODE,
           "col2" VARCHAR(50) 
         );',
@@ -272,7 +313,7 @@ PRIMARY INDEX ("VisitID");
                 break;
             case self::TABLE_OUT_LEMMA:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
           "ts" VARCHAR(50)         ,
           "lemma" VARCHAR(50)      ,
           "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
@@ -284,7 +325,7 @@ PRIMARY INDEX ("VisitID");
                 break;
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
                 "id" VARCHAR(50) CHARACTER SET UNICODE,
                 "idTwitter" VARCHAR(50) CHARACTER SET UNICODE,
                 "name" VARCHAR(100) CHARACTER SET UNICODE,
@@ -305,7 +346,7 @@ PRIMARY INDEX ("VisitID");
                 break;
             case self::TABLE_TABLE:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
                                 "column" VARCHAR(50)         ,
                                 "table" VARCHAR(50)      ,
                                 "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
@@ -317,7 +358,7 @@ PRIMARY INDEX ("VisitID");
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
                 $this->connection->executeQuery(sprintf(
-                    'CREATE MULTISET TABLE %s.%s, NO FALLBACK (
+                    'CREATE MULTISET TABLE %s.%s (
                                 "col1" VARCHAR(50)         ,
                                 "col2" VARCHAR(50)      
             );',
@@ -379,6 +420,27 @@ PRIMARY INDEX ("VisitID");
                 $useTimestamp,
                 $numberOfIgnoredLines,
                 $this->getCsvAdapter()
+            );
+    }
+
+    protected function getExportOptions(
+        bool $isCompressed = false,
+        string $bufferSize = TeradataExportOptions::DEFAULT_BUFFER_SIZE,
+        string $maxObjectSize = TeradataExportOptions::DEFAULT_MAX_OBJECT_SIZE,
+        bool $dontSplitRows = TeradataExportOptions::DEFAULT_SPLIT_ROWS,
+        bool $singlePartFile = TeradataExportOptions::DEFAULT_SINGLE_PART_FILE
+    ): TeradataExportOptions {
+        return
+            new TeradataExportOptions(
+                (string) getenv('TERADATA_HOST'),
+                (string) getenv('TERADATA_USERNAME'),
+                (string) getenv('TERADATA_PASSWORD'),
+                (int) getenv('TERADATA_PORT'),
+                $isCompressed,
+                $bufferSize,
+                $maxObjectSize,
+                $dontSplitRows,
+                $singlePartFile
             );
     }
 

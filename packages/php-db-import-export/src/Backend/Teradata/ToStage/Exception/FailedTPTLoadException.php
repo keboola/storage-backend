@@ -33,11 +33,11 @@ class FailedTPTLoadException extends Exception
     public function __construct(
         string $stdErr,
         string $stdOut,
-        ?int $exitCode,
-        ?string $logContent,
-        ?array $logTableContent,
-        ?array $errTableContent,
-        ?array $errTable2Content
+        ?int $exitCode = null,
+        ?string $logContent = null,
+        ?array $logTableContent = null,
+        ?array $errTableContent = null,
+        ?array $errTable2Content = null
     ) {
         parent::__construct(
             "Teradata TPT load ended with Error. \n\n 

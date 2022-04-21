@@ -114,11 +114,22 @@ EXASOL_PASSWORD=
 Obtain host (with port), username and password from Exasol SaaS for your testing DB and fill it in `.env` as desribed above. Make sure, that your account has enabled network for your IP.
 
 #### Teradata
+
+Prepare Teradata servers on AWS/Azure and set following properties. See
+
+create new database for tests:
+```sql
+CREATE DATABASE <nick>_ie_lib_tests FROM dbc
+    AS PERMANENT = 1e8,
+       SPOOL = 1e8;
+```
+
 ```bash
 TERADATA_HOST=
 TERADATA_USERNAME=
-TERADATA_PASSWORD=JirkaTdPassword+
+TERADATA_PASSWORD=
 TERADATA_PORT=
+TERADATA_DATABASE=
 ```
 
 
