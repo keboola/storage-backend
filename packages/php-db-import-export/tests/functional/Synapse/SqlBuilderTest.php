@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\SynapseNext;
+namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
 use DateTime;
 use Keboola\Datatype\Definition\Synapse;

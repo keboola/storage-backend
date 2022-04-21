@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\SynapseNext\OtherImports;
+namespace Tests\Keboola\Db\ImportExportFunctional\Synapse\OtherImports;
 
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
@@ -14,7 +14,7 @@ use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
-use Tests\Keboola\Db\ImportExportFunctional\SynapseNext\SynapseBaseTestCase;
+use Tests\Keboola\Db\ImportExportFunctional\Synapse\SynapseBaseTestCase;
 
 class StageImportTest extends SynapseBaseTestCase
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\SynapseNext;
+namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;

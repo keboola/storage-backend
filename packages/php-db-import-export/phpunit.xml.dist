@@ -27,38 +27,13 @@
             <exclude>tests/functional/Snowflake/ExportTest.php</exclude>
         </testsuite>
 
-        <testsuite name="synapse">
+        <testsuite name="tests-synapse">
             <directory>tests/functional/Synapse</directory>
-        </testsuite>
-
-        <testsuite name="tests-synapse-next">
-            <directory>tests/functional/SynapseNext</directory>
         </testsuite>
 
         <testsuite name="synapse-mi">
             <directory>tests/functional/Synapse</directory>
-            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
-        </testsuite>
-
-        <testsuite name="tests-synapse-columnstoretemp">
-            <directory>tests/functional/Synapse</directory>
-            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
-        </testsuite>
-
-        <testsuite name="tests-synapse-clusterdindextemp">
-            <directory>tests/functional/Synapse</directory>
-            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
-        </testsuite>
-
-        <testsuite name="tests-synapse-heap4000temp">
-            <directory>tests/functional/Synapse</directory>
-            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
-        </testsuite>
-
-        <testsuite name="tests-synapse-heap4000temp-optimized">
-            <directory>tests/functional/Synapse</directory>
-            <exclude>tests/functional/Synapse/ExportTest.php</exclude>
-            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
+            <exclude>tests/functional/SynapseNext/SqlCommandBuilderTest.php</exclude>
         </testsuite>
 
         <testsuite name="tests-teradata">

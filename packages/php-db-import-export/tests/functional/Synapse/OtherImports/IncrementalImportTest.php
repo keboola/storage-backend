@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\SynapseNext\OtherImports;
+namespace Tests\Keboola\Db\ImportExportFunctional\Synapse\OtherImports;
 
-use Keboola\Db\ImportExport\Backend\Synapse\Importer;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
@@ -14,7 +13,7 @@ use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
-use Tests\Keboola\Db\ImportExportFunctional\SynapseNext\SynapseBaseTestCase;
+use Tests\Keboola\Db\ImportExportFunctional\Synapse\SynapseBaseTestCase;
 
 class IncrementalImportTest extends SynapseBaseTestCase
 {
