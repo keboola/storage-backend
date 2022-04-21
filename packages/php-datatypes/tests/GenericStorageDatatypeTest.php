@@ -4,8 +4,9 @@ namespace Keboola\DataypeTest;
 
 use Keboola\Datatype\Definition\Common;
 use Keboola\Datatype\Definition\GenericStorage;
+use PHPUnit\Framework\TestCase;
 
-class GenericStorageDatatypeTest extends \PHPUnit_Framework_TestCase
+class GenericStorageDatatypeTest extends TestCase
 {
     public function testGetBasetype()
     {

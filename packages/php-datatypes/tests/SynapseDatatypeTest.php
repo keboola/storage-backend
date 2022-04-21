@@ -7,8 +7,9 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Synapse;
+use PHPUnit\Framework\TestCase;
 
-class SynapseDatatypeTest extends \PHPUnit_Framework_TestCase
+class SynapseDatatypeTest extends TestCase
 {
     public function invalidLengths()
     {

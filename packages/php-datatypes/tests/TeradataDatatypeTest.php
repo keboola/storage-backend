@@ -7,8 +7,9 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Teradata;
+use PHPUnit\Framework\TestCase;
 
-class TeradataDatatypeTest extends \PHPUnit_Framework_TestCase
+class TeradataDatatypeTest extends TestCase
 {
     /**
      * @dataProvider typesProvider
