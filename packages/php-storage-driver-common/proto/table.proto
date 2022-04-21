@@ -148,6 +148,10 @@ message ImportExportShared {
     }
     repeated string dedupColumnsNames = 6; // columns on which base will be deduplication performed
   }
+  // TODO dopsat dokumentaci
+  message ExportOptions {
+    bool isCompressed = 1;
+  }
   /**
    * Depends on driver implementation which provider is supported
    */
@@ -306,4 +310,29 @@ message TableImportFromTableCommand {
    * https://github.com/keboola/php-db-import-export/blob/master/src/ImportOptions.php
    */
   ImportExportShared.ImportOptions importOptions = 3;
+}
+
+/**
+ * Command is used when export file from Keboola connection
+ * Command will take backend table and export it into destination file based on provided options
+ */
+message TableExportToFileCommand {
+  ImportExportShared.Table source = 1; // Source table on the backend
+  ImportExportShared.FileProvider fileProvider = 2; // Type of file storage provider
+  ImportExportShared.FileFormat fileFormat = 3; // Specifies the format of the data files containing source data
+  ImportExportShared.FilePath filePath = 4; // path to file on cloud storage
+  /**
+   * credentials used to access file on file storage
+   * Use ImportExportShared.{S3Credentials, ABSCredentials}
+   */
+  google.protobuf.Any fileCredentials = 5;
+  // TODO dopsat dokumentaci
+  ImportExportShared.ExportOptions exportOptions = 6;
+  google.protobuf.Any meta = 7; // additional export data specific for backend
+  message TeradataTableExportMeta {
+    ExportAdapter exportAdapter = 1;
+    enum ExportAdapter {
+      TPT = 0;
+    }
+  }
 }
