@@ -102,7 +102,6 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
 
         [
             $multiPkColumns,
-            $expectedMultiPkRows,
         ] = $this->getExpectationFileData(
             'expectation.multi-pk.increment.csv',
             self::EXPECTATION_FILE_DATA_CONVERT_NULLS
@@ -179,7 +178,9 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
             ),
             $this->getSynapseIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'multi-pk'],
-            $expectedMultiPkRows,
+            // Synapse is not comparing empty strings and null same as other backends
+            // this can't be tested as dedup in full import is not deterministic, so we test only expected row count
+            6,
             3,
             [self::TABLE_MULTI_PK],
         ];
@@ -189,7 +190,7 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
     /**
      * @dataProvider  incrementalImportData
      * @param array<string,string> $table
-     * @param array<mixed> $expected
+     * @param array<mixed>|int $expected
      * @param string[] $tablesToInit
      */
     public function testIncrementalImport(
@@ -198,7 +199,7 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
         Storage\SourceInterface $incrementalSource,
         SynapseImportOptions $incrementalOptions,
         array $table,
-        array $expected,
+        $expected,
         int $expectedImportedRowCount,
         array $tablesToInit
     ): void {
@@ -275,12 +276,20 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-        $this->assertSynapseTableEqualsExpected(
-            $fullLoadSource,
-            $destination,
-            $incrementalOptions,
-            $expected,
-            0
-        );
+        if (is_array($expected)) {
+            $this->assertSynapseTableEqualsExpected(
+                $fullLoadSource,
+                $destination,
+                $incrementalOptions,
+                $expected,
+                0
+            );
+        } else {
+            $this->assertSynapseTableExpectedRowCount(
+                $destination,
+                $incrementalOptions,
+                $expected
+            );
+        }
     }
 }

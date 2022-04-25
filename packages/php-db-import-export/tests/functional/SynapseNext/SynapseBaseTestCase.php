@@ -109,4 +109,27 @@ class SynapseBaseTestCase extends \Tests\Keboola\Db\ImportExportFunctional\Synap
             $message
         );
     }
+
+
+    protected function assertSynapseTableExpectedRowCount(
+        SynapseTableDefinition $destination,
+        SynapseImportOptions $options,
+        int $expectedCount,
+        string $message = 'Imported tables don\'t have expected number of rows'
+    ): void {
+        $destRef = new SynapseTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
+        $tableColumns = $destRef->getColumnsNames();
+
+        if ($options->useTimestamp()) {
+            self::assertContains('_timestamp', $tableColumns);
+        } else {
+            self::assertNotContains('_timestamp', $tableColumns);
+        }
+
+        self::assertEquals($expectedCount, $destRef->getRowsCount(), $message);
+    }
 }
