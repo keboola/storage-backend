@@ -38,7 +38,7 @@ final class ToStageImporter implements ToStageImporterInterface
         assert($options instanceof TeradataImportOptions);
         $state = new ImportState($destinationDefinition->getTableName());
 
-        $adapter = $this->getAdapter($source, $options, $state);
+        $adapter = $this->getAdapter($source);
 
         $state->startTimer(self::TIMER_TABLE_IMPORT);
         try {
@@ -58,16 +58,11 @@ final class ToStageImporter implements ToStageImporterInterface
     }
 
     private function getAdapter(
-        Storage\SourceInterface $source,
-        TeradataImportOptions $options,
-        ImportState $state
+        Storage\SourceInterface $source
     ): CopyAdapterInterface {
         switch (true) {
             case $source instanceof Storage\S3\SourceFile:
-                if ($options->getCsvImportAdapter() === TeradataImportOptions::CSV_ADAPTER_TPT) {
-                    return new FromS3TPTAdapter($this->connection);
-                }
-                return new FromS3SPTAdapter($this->connection);
+                return new FromS3TPTAdapter($this->connection);
             case $source instanceof Storage\SqlSourceInterface:
                 return new FromTableInsertIntoAdapter($this->connection);
             default:

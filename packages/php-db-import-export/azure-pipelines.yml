@@ -143,8 +143,7 @@ stages:
               tests-synapse-heap4000temp-optimized \
               tests-synapse-heap4000temp-optimized-hash \
               tests-synapse-next \
-              tests-teradata-tpt \
-              tests-teradata-spt
+              tests-teradata-tpt
               PARALLEL_EXIT_CODE=$?
               cat /tmp/parallel-joblog
               sleep 1
