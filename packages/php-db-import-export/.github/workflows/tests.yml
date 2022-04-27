@@ -208,7 +208,7 @@ jobs:
 # Clean up uploaded data
   clean-data:
     runs-on: ubuntu-latest
-    needs: tests
+    needs: [tests, synapse-tests]
     if: ${{ always() }}
     steps:
       - name: Azure Login
