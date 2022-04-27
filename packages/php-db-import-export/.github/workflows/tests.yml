@@ -79,6 +79,12 @@ jobs:
   load-data:
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      fail-fast: true
+      matrix:
+        storage:
+          - S3
+          - ABS
     steps:
       -
         name: Checkout
@@ -94,9 +100,10 @@ jobs:
         run: |
           docker load --input /tmp/image.tar
       -
-        name: Load data to storage
+        name: Load data to ${{ matrix.storage }}
         run: |
-          docker-compose run production composer load-data
+          docker-compose run production composer load${{ matrix.storage }}
+
 #
 # Test matrix
   tests:
@@ -140,11 +147,9 @@ jobs:
     concurrency: synapse-tests
     steps:
       - name: Azure Login
-        if: ${{ matrix.suite == 'synapse' }}
         uses: azure/login@v1
       -
         name: Synapse start
-        if: ${{ matrix.suite == 'synapse' }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
@@ -156,7 +161,6 @@ jobs:
   synapse-tests:
     runs-on: ubuntu-latest
     needs: pre-synapse-tests
-    concurrency: synapse-tests
     strategy:
       fail-fast: false
       matrix:
