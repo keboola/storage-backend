@@ -218,7 +218,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
 
         $this->assertEquals(
         // phpcs:ignore
-            'DELETE [import-export-test-ng_schema].[#stagingTable] WHERE EXISTS (SELECT * FROM [import-export-test-ng_schema].[import-export-test-ng_test] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[pk1] = COALESCE([import-export-test-ng_schema].[#stagingTable].[pk1], \'\') AND [import-export-test-ng_schema].[import-export-test-ng_test].[pk2] = COALESCE([import-export-test-ng_schema].[#stagingTable].[pk2], \'\'))',
+            'DELETE [import-export-test-ng_schema].[#stagingTable] WHERE EXISTS (SELECT * FROM [import-export-test-ng_schema].[import-export-test-ng_test] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[pk1] = [import-export-test-ng_schema].[#stagingTable].[pk1] AND [import-export-test-ng_schema].[import-export-test-ng_test].[pk2] = [import-export-test-ng_schema].[#stagingTable].[pk2])',
             $sql
         );
         $this->connection->exec($sql);
@@ -696,7 +696,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
+            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
             $sql
         );
         $this->connection->exec($sql);
@@ -783,7 +783,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = [src].[col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NUMERIC) != [src].[col2]) ',
+            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = [src].[col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NUMERIC) != [src].[col2]) ',
             $sql
         );
         $this->connection->exec($sql);
@@ -876,7 +876,7 @@ EOT
         );
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
+            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
             $sql
         );
         $this->connection->exec($sql);
@@ -981,7 +981,7 @@ EOT
 
         $this->assertEquals(
         // phpcs:ignore
-            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = COALESCE([src].[col1], \'\') AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
+            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col1] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col1], \'\') OR COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
             $sql
         );
         $this->connection->exec($sql);

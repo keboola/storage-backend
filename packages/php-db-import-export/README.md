@@ -28,8 +28,6 @@ If you don't have access to `keboola-drivers` you have to change Dockerfile.
   - Driver: https://downloads.teradata.com/download/connectivity/odbc-driver/linux
   - Change `COPY --from=td` commands in Dockerfile with copy of you local Teradata packages
 
-To use SPT loader you have to have access to Keboola github private repository add env `GITHUB_OAUTH_TOKEN` which can be generated [Here](https://github.com/settings/tokens) and set `repo (Full control of private repositories)` scope. Otherwise comment out `# Custom SPT loader` section in Dockerfile.
-
 Then run `docker-compose build`
 
 The AWS credentials have to also have access to bucket specified in `AWS_S3_BUCKET`. This bucket has to contain testing data. Run `docker-compose run --rm dev  composer loadS3` to load them up.

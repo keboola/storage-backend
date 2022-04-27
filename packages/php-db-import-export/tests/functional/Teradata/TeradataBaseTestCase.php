@@ -101,8 +101,6 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         switch ($adapter) {
             case TeradataImportOptions::CSV_ADAPTER_TPT:
                 return TeradataImportOptions::CSV_ADAPTER_TPT;
-            case TeradataImportOptions::CSV_ADAPTER_SPT:
-                return TeradataImportOptions::CSV_ADAPTER_SPT;
         }
         return TeradataImportOptions::CSV_ADAPTER_TPT;
     }

@@ -9,7 +9,6 @@ use Keboola\Db\ImportExport\ImportOptions;
 class TeradataImportOptions extends ImportOptions
 {
     public const CSV_ADAPTER_TPT = 'TPT';
-    public const CSV_ADAPTER_SPT = 'SPT';
     private const DEFAULT_CSV_ADAPTER = self::CSV_ADAPTER_TPT;
 
     private string $teradataHost;
