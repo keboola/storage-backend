@@ -22,8 +22,6 @@ use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 
 class ExportTest extends ExasolBaseTestCase
 {
-    private const EXPORT_DIR = 'exasol_test_export';
-
     public function setUp(): void
     {
         parent::setUp();
@@ -33,20 +31,6 @@ class ExportTest extends ExasolBaseTestCase
         $this->cleanSchema($this->getSourceSchemaName());
         $this->createSchema($this->getSourceSchemaName());
         $this->createSchema($this->getDestinationSchemaName());
-    }
-
-    protected function getExportDir(): string
-    {
-        $buildPrefix = '';
-        if (getenv('BUILD_PREFIX') !== false) {
-            $buildPrefix = getenv('BUILD_PREFIX');
-        }
-
-        return self::EXPORT_DIR
-            . '-'
-            . $buildPrefix
-            . '-'
-            . getenv('SUITE');
     }
 
     public function tearDown(): void

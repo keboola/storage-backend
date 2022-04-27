@@ -51,13 +51,12 @@ trait StorageTrait
     ): DestinationInterface {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
-                $key = (string) getenv('AWS_S3_KEY');
                 return new Storage\S3\DestinationFile(
                     (string) getenv('AWS_ACCESS_KEY_ID'),
                     (string) getenv('AWS_SECRET_ACCESS_KEY'),
                     (string) getenv('AWS_REGION'),
                     (string) getenv('AWS_S3_BUCKET'),
-                    $key . '/' . $filePath
+                    $filePath
                 );
             case StorageType::STORAGE_ABS:
                 return new Storage\ABS\DestinationFile(

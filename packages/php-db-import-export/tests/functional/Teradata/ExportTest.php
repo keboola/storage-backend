@@ -27,7 +27,6 @@ class ExportTest extends TeradataBaseTestCase
     public function setUp(): void
     {
         parent::setUp();
-
         $this->clearDestination($this->getExportDir());
 
         $this->cleanDatabase($this->getDestinationDbName());

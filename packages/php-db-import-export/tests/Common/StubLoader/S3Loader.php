@@ -80,7 +80,7 @@ class S3Loader extends BaseStubLoader
 
         $this->client->putObject([
             'Bucket' => $this->bucket,
-            'Key' => '02_tw_accounts.csv.invalid.manifest',
+            'Key' => $this->key . '/02_tw_accounts.csv.invalid.manifest',
             'Body' => json_encode([
                 'entries' => [
                     [
