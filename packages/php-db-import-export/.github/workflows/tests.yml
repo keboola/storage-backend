@@ -137,10 +137,10 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-          az sql dw resume \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
-          --name ${{ env.SYNAPSE_DW_SERVER_NAME }}")
+            az sql dw resume \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
+            --name ${{ env.SYNAPSE_DW_SERVER_NAME }}")
 #
 # TESTS
 #
@@ -157,10 +157,10 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-          az sql dw pause \
-          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-          --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
-          --name ${{ env.SYNAPSE_DW_SERVER_NAME }}")
+            az sql dw pause \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
+            --name ${{ env.SYNAPSE_DW_SERVER_NAME }}")
 
   clean-data:
     runs-on: ubuntu-latest
@@ -175,10 +175,10 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-          az storage container delete \
-          --account-key ${{ env.ABS_ACCOUNT_KEY }} \
-          --account-name ${{ env.ABS_ACCOUNT_NAME }} \
-          --name ${{ env.ABS_CONTAINER_NAME }}
+            az storage container delete \
+            --account-key ${{ env.ABS_ACCOUNT_KEY }} \
+            --account-name ${{ env.ABS_ACCOUNT_NAME }} \
+            --name ${{ env.ABS_CONTAINER_NAME }}
       -
         name: 'Clean S3'
         run: |
