@@ -44,9 +44,6 @@ env:
   ABS_CONTAINER_NAME: ${{ github.run_id }}-${{ github.run_number }}
   GITHUB_OAUTH_TOKEN: ${{ secrets.OAUTH_TOKEN_GITHUB }}
   # Azure cli
-  AZURE_TENANT_ID: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
-  AZURE_CLIENT_ID: 355a3e15-5251-42a9-8266-85c3e17ae82d
-  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
   AZURE_RESOURCE_GROUP: ci-import-export-lib
   AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
