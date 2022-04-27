@@ -135,7 +135,7 @@ jobs:
         name: Synapse start
         if: ${{ matrix.suite == 'synapse' }}
         uses: azure/CLI@v1
-        run: |
+        inlineScript: |
           az sql dw resume \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
@@ -154,7 +154,7 @@ jobs:
         name: Synapse stop
         if: ${{ always() && matrix.suite == 'synapse' }}
         uses: azure/CLI@v1
-        run: |
+        inlineScript: |
           az sql dw pause \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
@@ -171,7 +171,7 @@ jobs:
       -
         name: 'Clean blob storage'
         uses: azure/CLI@v1
-        run: |
+        inlineScript: |
           az storage container delete \
           --account-key ${{ env.ABS_ACCOUNT_KEY }} \
           --account-name ${{ env.ABS_ACCOUNT_NAME }} \
