@@ -167,7 +167,6 @@ jobs:
         suite:
           - synapse
           - synapse-mi
-          - synapse
     steps:
       -
         name: Checkout
