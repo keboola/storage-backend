@@ -63,8 +63,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build --pull production
-          docker images
-          docker save -o /tmp/image.tar db_import_export:latest
+          docker save -o /tmp/image.tar php-db-import-export_production:latest
       -
         name: Check
         run: |
