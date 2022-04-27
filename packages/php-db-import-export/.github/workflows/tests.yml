@@ -212,7 +212,6 @@ jobs:
     if: ${{ always() }}
     steps:
       - name: Azure Login
-        if: ${{ matrix.suite == 'synapse' }}
         uses: azure/login@v1
       -
         name: 'Clean blob storage'
