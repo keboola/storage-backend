@@ -110,9 +110,6 @@ jobs:
           - storage
           - snowflake-abs
           - snowflake-s3
-          - synapse
-          - synapse-mi
-          - synapse
           - teradata-tpt
     steps:
       -
@@ -129,7 +126,19 @@ jobs:
         run: |
           docker load --input /tmp/image.tar
 #
-# Before tests, start services
+# TESTS
+#
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run production composer tests-${{ matrix.suite }}
+
+  pre-synapse-tests:
+    runs-on: ubuntu-latest
+    needs: load-data
+    concurrency: synapse-tests
+    steps:
       - name: Azure Login
         if: ${{ matrix.suite == 'synapse' }}
         uses: azure/login@v1
@@ -143,19 +152,51 @@ jobs:
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
             --name ${{ env.SYNAPSE_DW_SERVER_NAME }}")
-#
-# TESTS
-#
+
+  synapse-tests:
+    runs-on: ubuntu-latest
+    needs: pre-synapse-tests
+    concurrency: synapse-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - synapse
+          - synapse-mi
+          - synapse
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      #
+      # TESTS
+      #
       -
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
         run: docker-compose run production composer tests-${{ matrix.suite }}
-#
-# After tests, stop services
+
+  post-synapse-tests:
+    runs-on: ubuntu-latest
+    needs: synapse-tests
+    concurrency: synapse-tests
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
       -
         name: Synapse stop
-        if: ${{ always() && matrix.suite == 'synapse' }}
+        if: ${{ always() }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
