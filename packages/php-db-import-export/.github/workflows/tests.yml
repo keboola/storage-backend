@@ -193,6 +193,7 @@ jobs:
   post-synapse-tests:
     runs-on: ubuntu-latest
     needs: synapse-tests
+    if: ${{ always() }}
     concurrency: synapse-tests
     steps:
       - name: Azure Login
