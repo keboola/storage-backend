@@ -53,6 +53,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Azure Login
+        uses: azure/login@v1
       -
         name: Checkout
         uses: actions/checkout@v2
