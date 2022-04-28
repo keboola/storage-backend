@@ -41,7 +41,7 @@
         "tests-snowflake-abs": "SUITE=tests-snowflake STORAGE_TYPE=ABS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake",
         "tests-snowflake-s3": "SUITE=tests-snowflake-s3  STORAGE_TYPE=S3 BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-s3",
         "tests-synapse": "SUITE=tests-synapse CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TEMP_TABLE_TYPE=HEAP4000 DEDUP_TYPE=CTAS TABLE_DISTRIBUTION=HASH phpunit --colors=always --testsuite tests-synapse",
-        "tests-synapse-mi": "SUITE=tests-synapse-mi CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY TEMP_TABLE_TYPE=HEAP DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite synapse-mi",
+        "tests-synapse-mi": "SUITE=tests-synapse-mi CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY TEMP_TABLE_TYPE=HEAP4000 DEDUP_TYPE=TMP_TABLE phpunit --colors=always --testsuite synapse-mi",
         "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
         "tests-teradata-tpt": "SUITE=tests-teradata-tpt TERADATA_CSV_ADAPTER=TPT STORAGE_TYPE=S3 phpunit --colors=always --testsuite tests-teradata",
         "tests-functional": [
