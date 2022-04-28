@@ -8,6 +8,7 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 {
@@ -16,9 +17,6 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 
     /** @var string */
     private $tableName;
-
-    /** @var SQLServerPlatform */
-    private $platform;
 
     /** @var string[] */
     private $columnsNames;
@@ -38,7 +36,6 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
-        $this->platform = new SQLServerPlatform();
         $this->columnsNames = $columns;
         $this->primaryKeysNames = $primaryKeysNames;
     }
@@ -46,7 +43,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     public function getFromStatement(): string
     {
         $quotedColumns = array_map(function ($column) {
-            return $this->platform->quoteSingleIdentifier($column);
+            return SynapseQuote::quoteSingleIdentifier($column);
         }, $this->getColumnsNames());
 
         $select = '*';
@@ -55,6 +52,45 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         }
 
         return sprintf('SELECT %s FROM %s', $select, $this->getQuotedTableWithScheme());
+    }
+
+    public function getFromStatementForStaging(bool $castValues): string
+    {
+        $quotedColumns = array_map(
+            static fn(string $column) => SynapseQuote::quoteSingleIdentifier($column),
+            $this->getColumnsNames()
+        );
+
+        $castedColumns = [];
+        if ($castValues === true) {
+            $castedColumns = array_map(
+                static fn(string $column): string => sprintf(
+                    'CAST(%s as NVARCHAR(4000)) AS %s',
+                    $column,
+                    $column
+                ),
+                $quotedColumns
+            );
+        }
+
+        $from = $this->getQuotedTableWithScheme();
+        $select = '*';
+        if (count($quotedColumns) > 0) {
+            $select = implode(', ', $quotedColumns);
+            if ($castValues === true) {
+                $quotedColumns = array_map(
+                    static fn(string $column) => sprintf('a.%s', $column),
+                    $quotedColumns
+                );
+                $select = implode(', ', $quotedColumns);
+                $from = sprintf(
+                    '(SELECT %s FROM %s) AS a',
+                    implode(', ', $castedColumns),
+                    $from
+                );
+            }
+        }
+        return sprintf('SELECT %s FROM %s', $select, $from);
     }
 
     /**
@@ -69,8 +105,8 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     {
         return sprintf(
             '%s.%s',
-            $this->platform->quoteSingleIdentifier($this->schema),
-            $this->platform->quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->schema),
+            SynapseQuote::quoteSingleIdentifier($this->tableName)
         );
     }
 

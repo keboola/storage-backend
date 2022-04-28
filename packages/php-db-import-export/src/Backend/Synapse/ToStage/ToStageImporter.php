@@ -76,7 +76,7 @@ final class ToStageImporter implements ToStageImporterInterface
                 $adapter = new FromABSCopyIntoAdapter($this->connection);
                 break;
             case $source instanceof Storage\SqlSourceInterface:
-                $adapter = new FromTableInsertIntoAdapter($this->connection);
+                $adapter = new FromTableCTASAdapter($this->connection);
                 break;
             default:
                 throw new LogicException(
