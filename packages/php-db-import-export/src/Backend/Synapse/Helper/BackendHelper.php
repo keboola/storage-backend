@@ -10,4 +10,9 @@ final class BackendHelper
     {
         return '#__temp_' . str_replace('.', '_', uniqid('csvimport', true));
     }
+
+    public static function generateRandom(): string
+    {
+        return str_replace('.', '_', uniqid('tmp', true));
+    }
 }
