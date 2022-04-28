@@ -20,7 +20,6 @@
         "ext-odbc": "*",
         "ext-json": "*",
         "keboola/db-import-export": "^0.21",
-        "keboola/table-backend-utils": "^0.19",
         "google/protobuf": "^3.20",
         "keboola/php-file-storage-utils": "^0.2.2"
     },
