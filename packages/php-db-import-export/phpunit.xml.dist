@@ -33,7 +33,7 @@
 
         <testsuite name="synapse-mi">
             <directory>tests/functional/Synapse</directory>
-            <exclude>tests/functional/SynapseNext/SqlCommandBuilderTest.php</exclude>
+            <exclude>tests/functional/Synapse/SqlCommandBuilderTest.php</exclude>
         </testsuite>
 
         <testsuite name="tests-teradata">

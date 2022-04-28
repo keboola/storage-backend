@@ -80,20 +80,6 @@ EOT
         }
     }
 
-    public function getSourceSchemaName(): string
-    {
-        return self::SYNAPSE_SOURCE_SCHEMA_NAME
-            . '-'
-            . getenv('SUITE');
-    }
-
-    public function getDestinationSchemaName(): string
-    {
-        return self::SYNAPSE_DEST_SCHEMA_NAME
-            . '-'
-            . getenv('SUITE');
-    }
-
     protected function initTables(array $tables): void
     {
         foreach ($tables as $table) {
