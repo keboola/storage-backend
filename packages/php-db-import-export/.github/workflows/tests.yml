@@ -6,6 +6,8 @@ on:
       - master
   pull_request:
 
+concurrency: tests
+
 env:
   TEST_PREFIX: gh_
   # Snowflake
