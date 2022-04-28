@@ -17,14 +17,20 @@ use Google\Protobuf\Internal\GPBUtil;
 class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * database or user name in backend
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 1;</code>
      */
     protected $workspaceObjectName = '';
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string objectNameToDrop = 2;</code>
      */
     protected $objectNameToDrop = '';
     /**
+     * if true non-existing object should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreIfNotExists = 3;</code>
      */
     protected $ignoreIfNotExists = false;
@@ -36,8 +42,11 @@ class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $workspaceObjectName
+     *           database or user name in backend
      *     @type string $objectNameToDrop
+     *           object name in backend which will be removed
      *     @type bool $ignoreIfNotExists
+     *           if true non-existing object should be ignored and command will always pass
      * }
      */
     public function __construct($data = NULL) {
@@ -46,6 +55,8 @@ class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database or user name in backend
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 1;</code>
      * @return string
      */
@@ -55,6 +66,8 @@ class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * database or user name in backend
+     *
      * Generated from protobuf field <code>string workspaceObjectName = 1;</code>
      * @param string $var
      * @return $this
@@ -68,6 +81,8 @@ class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string objectNameToDrop = 2;</code>
      * @return string
      */
@@ -77,6 +92,8 @@ class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * object name in backend which will be removed
+     *
      * Generated from protobuf field <code>string objectNameToDrop = 2;</code>
      * @param string $var
      * @return $this
@@ -90,6 +107,8 @@ class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * if true non-existing object should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreIfNotExists = 3;</code>
      * @return bool
      */
@@ -99,6 +118,8 @@ class DropWorkspaceObjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * if true non-existing object should be ignored and command will always pass
+     *
      * Generated from protobuf field <code>bool ignoreIfNotExists = 3;</code>
      * @param bool $var
      * @return $this
