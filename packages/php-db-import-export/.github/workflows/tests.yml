@@ -16,12 +16,12 @@ env:
   SNOWFLAKE_DATABASE: KEBOOLA_CI_PHP_IE_LIB
   SNOWFLAKE_WAREHOUSE: DEV
   # Synapse
-  SYNAPSE_UID: ci-php-ei-lib
+  SYNAPSE_UID: keboola
   SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
-  SYNAPSE_DATABASE: ci-php-ei-lib
-  SYNAPSE_SERVER: ci-php-ei-lib.database.windows.net
-  SYNAPSE_SQL_SERVER_NAME: ci-php-ei-lib
-  SYNAPSE_DW_SERVER_NAME: ci-php-ei-lib
+  SYNAPSE_DATABASE: ci-php-ei-lib-gh-db-7nybfrempo4vcbd4248b7ca
+  SYNAPSE_SERVER: ci-php-ei-lib-gh-sql-7nybfrempo4vcbd4248b7ca.database.windows.net
+  SYNAPSE_SQL_SERVER_NAME: ci-php-ei-lib-gh-sql-7nybfrempo4vcbd4248b7ca
+  SYNAPSE_DW_SERVER_NAME: ci-php-ei-lib-gh-db-7nybfrempo4vcbd4248b7ca
   SYNAPSE_PRINCIPAL_TENANT: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
   SYNAPSE_PRINCIPAL: 355a3e15-5251-42a9-8266-85c3e17ae82d
   SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -45,7 +45,7 @@ env:
   AWS_REGION: us-east-1
   # ABS
   ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
-  ABS_ACCOUNT_NAME: cixxxphpxxxiexxxlib
+  ABS_ACCOUNT_NAME: 7nybfrempo4vcbd4248b7ca
   ABS_CONTAINER_NAME: ${{ github.run_id }}-${{ github.run_number }}
   GITHUB_OAUTH_TOKEN: ${{ secrets.OAUTH_TOKEN_GITHUB }}
 
