@@ -22,6 +22,11 @@ env:
   SYNAPSE_SERVER: ci-php-ei-lib.database.windows.net
   SYNAPSE_SQL_SERVER_NAME: ci-php-ei-lib
   SYNAPSE_DW_SERVER_NAME: ci-php-ei-lib
+  SYNAPSE_PRINCIPAL_TENANT: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
+  SYNAPSE_PRINCIPAL: 355a3e15-5251-42a9-8266-85c3e17ae82d
+  SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.AZURE_CLIENT_SECRET }}
+  AZURE_RESOURCE_GROUP: ci-import-export-lib
+  SYNAPSE_RESOURCE_GROUP: ci-import-export-lib
   # Teradata
   TERADATA_HOST: 20.105.40.100
   TERADATA_USERNAME: ci_ielib
@@ -43,16 +48,11 @@ env:
   ABS_ACCOUNT_NAME: cixxxphpxxxiexxxlib
   ABS_CONTAINER_NAME: ${{ github.run_id }}-${{ github.run_number }}
   GITHUB_OAUTH_TOKEN: ${{ secrets.OAUTH_TOKEN_GITHUB }}
-  # Azure cli
-  AZURE_RESOURCE_GROUP: ci-import-export-lib
-  AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
       -
         name: Checkout
         uses: actions/checkout@v2
@@ -146,17 +146,10 @@ jobs:
     needs: load-data
     concurrency: synapse-tests
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
-      -
-        name: Synapse start
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az sql dw resume \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
-            --name ${{ env.SYNAPSE_DW_SERVER_NAME }}")
+      - name: Synapse start
+        run: |
+          bash ./.github/scripts/synapseRun.sh -r
+          bash ./.github/scripts/synapseRun.sh -w
 
   synapse-tests:
     runs-on: ubuntu-latest
@@ -196,18 +189,11 @@ jobs:
     if: ${{ always() }}
     concurrency: synapse-tests
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
-      -
-        name: Synapse stop
+      - name: Synapse stop
         if: ${{ always() }}
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az sql dw pause \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --server ${{ env.SYNAPSE_SQL_SERVER_NAME }} \
-            --name ${{ env.SYNAPSE_DW_SERVER_NAME }}")
+        run: |
+          bash ./.github/scripts/synapseRun.sh -p
+
 #
 # Clean up uploaded data
   clean-data:
@@ -215,8 +201,6 @@ jobs:
     needs: [tests, synapse-tests]
     if: ${{ always() }}
     steps:
-      - name: Azure Login
-        uses: azure/login@v1
       -
         name: 'Clean blob storage'
         uses: azure/CLI@v1
