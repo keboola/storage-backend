@@ -21,7 +21,7 @@ class SourceFileTest extends BaseTestCase
 
     public function testGetManifestEntriesIncremental(): void
     {
-        $source = $this->createS3SourceInstance('sliced/accounts/accounts.csvmanifest', [], true);
+        $source = $this->createS3SourceInstance('sliced/accounts/S3.accounts.csvmanifest', [], true);
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
     }
