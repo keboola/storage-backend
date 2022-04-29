@@ -73,12 +73,6 @@ RUN cd /tmp/teradata \
     && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase s3axsmod \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/teradata
-# Custom SPT loader
-RUN curl -L -s https://github.com/gruntwork-io/fetch/releases/download/v0.4.4/fetch_linux_amd64 -o /usr/bin/fetch \
-    && chmod +x /usr/bin/fetch \
-    && /usr/bin/fetch --repo="https://github.com/keboola/teradata-spt" --tag="~>0.0.2" --release-asset="spt" /usr/bin \
-    && chmod +x /usr/bin/spt \
-    && rm /usr/bin/fetch
 
 ## Composer - deps always cached unless changed
 # First copy only composer files
