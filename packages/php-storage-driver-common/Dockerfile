@@ -6,7 +6,6 @@ RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtili
 
 FROM php:7.4-cli-buster
 
-ARG GITHUB_OAUTH_TOKEN
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER 1
