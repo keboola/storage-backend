@@ -9,13 +9,16 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * TODO dopsat dokumentaci
+ **
+ * Common export options
  *
  * Generated from protobuf message <code>keboola.storageDriver.command.table.ImportExportShared.ExportOptions</code>
  */
 class ExportOptions extends \Google\Protobuf\Internal\Message
 {
     /**
+     * export file is compressed
+     *
      * Generated from protobuf field <code>bool isCompressed = 1;</code>
      */
     protected $isCompressed = false;
@@ -27,6 +30,7 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type bool $isCompressed
+     *           export file is compressed
      * }
      */
     public function __construct($data = NULL) {
@@ -35,6 +39,8 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * export file is compressed
+     *
      * Generated from protobuf field <code>bool isCompressed = 1;</code>
      * @return bool
      */
@@ -44,6 +50,8 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * export file is compressed
+     *
      * Generated from protobuf field <code>bool isCompressed = 1;</code>
      * @param bool $var
      * @return $this

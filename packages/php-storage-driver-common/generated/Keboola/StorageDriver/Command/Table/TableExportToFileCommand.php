@@ -50,7 +50,10 @@ class TableExportToFileCommand extends \Google\Protobuf\Internal\Message
      */
     protected $fileCredentials = null;
     /**
-     * TODO dopsat dokumentaci
+     **
+     * Export options may vary based on backend
+     * based on:
+     * https://github.com/keboola/php-db-import-export/blob/master/src/ExportOptions.php
      *
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportOptions exportOptions = 6;</code>
      */
@@ -81,7 +84,10 @@ class TableExportToFileCommand extends \Google\Protobuf\Internal\Message
      *           credentials used to access file on file storage
      *           Use ImportExportShared.{S3Credentials, ABSCredentials}
      *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOptions $exportOptions
-     *           TODO dopsat dokumentaci
+     *          *
+     *           Export options may vary based on backend
+     *           based on:
+     *           https://github.com/keboola/php-db-import-export/blob/master/src/ExportOptions.php
      *     @type \Google\Protobuf\Any $meta
      *           additional export data specific for backend
      * }
@@ -256,7 +262,10 @@ class TableExportToFileCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * TODO dopsat dokumentaci
+     **
+     * Export options may vary based on backend
+     * based on:
+     * https://github.com/keboola/php-db-import-export/blob/master/src/ExportOptions.php
      *
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportOptions exportOptions = 6;</code>
      * @return \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOptions|null
@@ -277,7 +286,10 @@ class TableExportToFileCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * TODO dopsat dokumentaci
+     **
+     * Export options may vary based on backend
+     * based on:
+     * https://github.com/keboola/php-db-import-export/blob/master/src/ExportOptions.php
      *
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportOptions exportOptions = 6;</code>
      * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOptions $var
