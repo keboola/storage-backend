@@ -116,59 +116,9 @@ parameters:
 			path: src/Backend/Synapse/Exporter.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\Importer\\:\\:doIncrementalLoad\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/Importer.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\Importer\\:\\:setAdapters\\(\\) has parameter \\$adapters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/Importer.php
-
-		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 1
-			path: src/Backend/Synapse/Importer.php
-
-		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\PolyBaseCommandBuilder\\:\\:getPolyBaseCleanUpQueries\\(\\) return type has no value type specified in iterable type Generator\\.$#"
 			count: 1
 			path: src/Backend/Synapse/PolyBaseCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getColumnsString\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getCreateTempTableCommand\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getDedupCommand\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getDeleteOldItemsCommand\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getPrimaryKeyWhereConditions\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getTablePrimaryKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SqlCommandBuilder\\:\\:getUpdateWithPkCommand\\(\\) has parameter \\$primaryKeys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Synapse/SqlCommandBuilder.php
 
 		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\ImportOptions\\:\\:__construct\\(\\) has parameter \\$convertEmptyValuesToNull with no value type specified in iterable type array\\.$#"
@@ -359,61 +309,6 @@ parameters:
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\SnowflakeImportExportBaseTest\\:\\:assertTableEqualsFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\ExportTest\\:\\:getCsvFileFromBlob\\(\\) return type has no value type specified in iterable type Keboola\\\\Csv\\\\CsvFile\\.$#"
-			count: 1
-			path: tests/functional/Synapse/ExportTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$exportCredentialsType of class Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseExportOptions constructor expects string, string\\|false given\\.$#"
-			count: 4
-			path: tests/functional/Synapse/ExportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:fullImportData\\(\\) return type has no value type specified in iterable type Generator\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\FullImportTest\\:\\:testFullImport\\(\\) has parameter \\$tablesToInit with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/FullImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:incrementalImportData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\IncrementalImportTest\\:\\:testIncrementalImport\\(\\) has parameter \\$tablesToInit with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/IncrementalImportTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SqlCommandBuilderTest\\:\\:createTempTableCommandProvider\\(\\) return type has no value type specified in iterable type Generator\\.$#"
-			count: 1
-			path: tests/functional/Synapse/SqlCommandBuilderTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SqlCommandBuilderTest\\:\\:testGetCreateTempTableCommand\\(\\) has parameter \\$distributionColumnsNames with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/SqlCommandBuilderTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SynapseBaseTestCase\\:\\:assertTableEqualsExpected\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/functional/Synapse/SynapseBaseTestCase.php
 
 		-
 			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Synapse\\\\SynapseBaseTestCase\\:\\:initTables\\(\\) has parameter \\$tables with no value type specified in iterable type array\\.$#"

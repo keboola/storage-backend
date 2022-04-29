@@ -35,6 +35,17 @@ trait StorageTrait
         return $buildPrefix;
     }
 
+    protected function getExportBlobDir(): string
+    {
+        $path = '';
+        switch (getenv('STORAGE_TYPE')) {
+            case StorageType::STORAGE_S3:
+                $path = getenv('AWS_S3_KEY') . '/';
+        }
+
+        return $path . 'test_export';
+    }
+
     protected function getDestinationInstance(
         string $filePath
     ): DestinationInterface {

@@ -6,12 +6,17 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\ImportExport\Backend\Synapse\Importer;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
-class FullImportTest extends SynapseBaseTestCase
+class FullImportNoTypesTest extends SynapseBaseTestCase
 {
     protected function setUp(): void
     {
@@ -22,34 +27,37 @@ class FullImportTest extends SynapseBaseTestCase
         $this->connection->exec(sprintf('CREATE SCHEMA [%s]', $this->getSourceSchemaName()));
     }
 
+    /**
+     * @return \Generator<string, array<mixed>>
+     */
     public function fullImportData(): \Generator
     {
-        $expectedEscaping = [];
-        $file = new CsvFile(self::DATA_DIR . 'escaping/standard-with-enclosures.csv');
-        foreach ($file as $row) {
-            $expectedEscaping[] = $row;
-        }
-        $escapingHeader = array_shift($expectedEscaping); // remove header
-        $expectedEscaping = array_values($expectedEscaping);
+        [
+            $escapingHeader,
+            $expectedEscaping,
+        ] = $this->getExpectationFileData(
+            'escaping/standard-with-enclosures.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
 
-        $expectedAccounts = [];
-        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        foreach ($file as $row) {
-            $expectedAccounts[] = $row;
-        }
-        $accountsHeader = array_shift($expectedAccounts); // remove header
-        $expectedAccounts = array_values($expectedAccounts);
+        [
+            $accountsHeader,
+            $expectedAccounts,
+        ] = $this->getExpectationFileData(
+            'tw_accounts.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
 
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.changedColumnsOrder.csv');
         $accountChangedColumnsOrderHeader = $file->getHeader();
 
-        $file = new CsvFile(self::DATA_DIR . 'lemma.csv');
-        $expectedLemma = [];
-        foreach ($file as $row) {
-            $expectedLemma[] = $row;
-        }
-        $lemmaHeader = array_shift($expectedLemma);
-        $expectedLemma = array_values($expectedLemma);
+        [
+            $lemmaHeader,
+            $expectedLemma,
+        ] = $this->getExpectationFileData(
+            'lemma.csv',
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        );
 
         // large sliced manifest
         $expectedLargeSlicedManifest = [];
@@ -66,7 +74,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
+            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedLargeSlicedManifest,
             1501,
@@ -81,7 +89,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
+            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
             [],
             0,
@@ -96,7 +104,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_LEMMA),
+            [$this->getDestinationSchemaName(), self::TABLE_OUT_LEMMA],
             $this->getSynapseImportOptions(),
             $expectedLemma,
             5,
@@ -111,7 +119,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
+            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSynapseImportOptions(),
             $expectedEscaping,
             7,
@@ -126,7 +134,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
+            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSynapseImportOptions(),
             $expectedEscaping,
             7,
@@ -142,7 +150,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
+            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSynapseImportOptions(),
             $expectedEscaping,
             7,
@@ -157,10 +165,10 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 ['id']
             ),
-            new Storage\Synapse\Table(
+            [
                 $this->getDestinationSchemaName(),
-                self::TABLE_ACCOUNTS_3
-            ),
+                self::TABLE_ACCOUNTS_3,
+            ],
             $this->getSynapseImportOptions(),
             $expectedAccounts,
             3,
@@ -174,7 +182,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 ['id']
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSynapseImportOptions(),
             $expectedAccounts,
             3,
@@ -188,7 +196,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 ['id']
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSynapseImportOptions(),
             $expectedAccounts,
             3,
@@ -203,7 +211,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 ['id']
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
@@ -218,7 +226,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 ['id']
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
@@ -234,7 +242,7 @@ class FullImportTest extends SynapseBaseTestCase
                 true,
                 ['id']
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3),
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSynapseImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
@@ -250,7 +258,7 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_TABLE),
+            [$this->getDestinationSchemaName(), self::TABLE_TABLE],
             $this->getSynapseImportOptions(),
             [['table', 'column']],
             1,
@@ -269,10 +277,10 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table(
+            [
                 $this->getDestinationSchemaName(),
-                self::TABLE_OUT_CSV_2COLS
-            ),
+                self::TABLE_OUT_CSV_2COLS,
+            ],
             $this->getSynapseImportOptions(),
             [
                 ['a', 'b', '2014-11-10 13:12:06.0000000'],
@@ -290,10 +298,10 @@ class FullImportTest extends SynapseBaseTestCase
                 false,
                 []
             ),
-            new Storage\Synapse\Table(
+            [
                 $this->getDestinationSchemaName(),
-                self::TABLE_OUT_NO_TIMESTAMP_TABLE
-            ),
+                self::TABLE_OUT_NO_TIMESTAMP_TABLE,
+            ],
             new SynapseImportOptions(
                 [],
                 false,
@@ -311,7 +319,7 @@ class FullImportTest extends SynapseBaseTestCase
         // copy from table
         yield 'copy from table' => [
             new Storage\Synapse\Table($this->getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
-            new Storage\Synapse\Table($this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS),
+            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
                 SynapseImportOptions::DEDUP_TYPE_TMP_TABLE
@@ -331,10 +339,10 @@ class FullImportTest extends SynapseBaseTestCase
                     'boolCol',
                 ]
             ),
-            new Storage\Synapse\Table(
+           [
                 $this->getDestinationSchemaName(),
-                'types'
-            ),
+                'types',
+            ],
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
                 SynapseImportOptions::DEDUP_TYPE_TMP_TABLE
@@ -347,11 +355,13 @@ class FullImportTest extends SynapseBaseTestCase
 
     /**
      * @dataProvider  fullImportData
-     * @param Storage\Synapse\Table $destination
+     * @param array<string, string> $table
+     * @param array<mixed> $expected
+     * @param string[] $tablesToInit
      */
     public function testFullImport(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination,
+        array $table,
         SynapseImportOptions $options,
         array $expected,
         int $expectedImportedRowCount,
@@ -359,15 +369,47 @@ class FullImportTest extends SynapseBaseTestCase
     ): void {
         $this->initTables($tablesToInit);
 
-        $result = (new Importer($this->connection))->importTable(
-            $source,
+        [$schemaName, $tableName] = $table;
+        $destination = (new SynapseTableReflection(
+            $this->connection,
+            $schemaName,
+            $tableName
+        ))->getTableDefinition();
+
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $options
+            $source->getColumnsNames()
         );
+        $qb = new SynapseTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $toStageImporter = new ToStageImporter($this->connection);
+        $toFinalTableImporter = new FullImporter($this->connection);
+        try {
+            $importState = $toStageImporter->importToStagingTable(
+                $source,
+                $stagingTable,
+                $options
+            );
+            $result = $toFinalTableImporter->importToTable(
+                $stagingTable,
+                $destination,
+                $options,
+                $importState
+            );
+        } finally {
+            $this->connection->executeStatement(
+                (new SqlBuilder())->getDropTableIfExistsCommand(
+                    $stagingTable->getSchemaName(),
+                    $stagingTable->getTableName()
+                )
+            );
+        }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-        $this->assertTableEqualsExpected(
+        $this->assertSynapseTableEqualsExpected(
             $source,
             $destination,
             $options,

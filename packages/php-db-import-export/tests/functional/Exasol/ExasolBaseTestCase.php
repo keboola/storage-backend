@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
-use Keboola\Db\ImportExport\Backend\Synapse\SqlCommandBuilder;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
@@ -38,12 +37,6 @@ class ExasolBaseTestCase extends ImportExportBaseTest
 
     /** @var Connection */
     protected $connection;
-
-    /** @var SqlCommandBuilder */
-    protected $qb;
-
-    /** @var OraclePlatform|AbstractPlatform */
-    protected $platform;
 
     protected function setUp(): void
     {

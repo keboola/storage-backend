@@ -18,26 +18,10 @@ use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
 class ExportTest extends SnowflakeImportExportBaseTest
 {
-    private const EXPORT_BLOB_DIR = 'snowflake_test_export';
-
     /**
      * @var BlobRestProxy
      */
     private $blobClient;
-
-    protected function getExportDir(): string
-    {
-        $buildPrefix = '';
-        if (getenv('BUILD_PREFIX') !== false) {
-            $buildPrefix = getenv('BUILD_PREFIX');
-        }
-
-        return self::EXPORT_BLOB_DIR
-            . '-'
-            . $buildPrefix
-            . '-'
-            . getenv('SUITE');
-    }
 
     public function setUp(): void
     {

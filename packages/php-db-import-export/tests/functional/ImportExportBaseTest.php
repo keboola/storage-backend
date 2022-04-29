@@ -7,21 +7,12 @@ namespace Tests\Keboola\Db\ImportExportFunctional;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
-use Tests\Keboola\Db\ImportExportCommon\ExportTrait;
-use Tests\Keboola\Db\ImportExportCommon\ImportTrait;
 use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 
 abstract class ImportExportBaseTest extends TestCase
 {
     protected const DATA_DIR = __DIR__ . '/../data/';
     use StorageTrait;
-    use ImportTrait;
-    use ExportTrait;
-
-    protected function getExportBlobDir(): string
-    {
-        return 'test_export';
-    }
 
     protected function getDestinationSchema(): string
     {
