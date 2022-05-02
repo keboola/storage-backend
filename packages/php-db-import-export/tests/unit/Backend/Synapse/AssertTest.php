@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse;
 
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
@@ -319,5 +320,174 @@ class AssertTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         Assert::assertStagingTable('#tempTableWithSharp');
+    }
+
+    public function testAssertSameColumns(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $sourceCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            new SynapseColumn(
+                'test2',
+                new Synapse(
+                    Synapse::TYPE_TIME,
+                    [
+                        'length' => '3',
+                    ]
+                )
+            ),
+        ];
+        $destCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            new SynapseColumn(
+                'test2',
+                new Synapse(
+                    Synapse::TYPE_TIME,
+                    [
+                        'length' => '3',
+                    ]
+                )
+            ),
+        ];
+
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols)
+        );
+    }
+
+    public function testAssertSameColumnsInvalidCountExtraSource(): void
+    {
+        $sourceCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            SynapseColumn::createGenericColumn('test2'),
+        ];
+        $destCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+        ];
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Tables don\'t have same number of columns.');
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols)
+        );
+    }
+
+    public function testAssertSameColumnsInvalidCountExtraDestination(): void
+    {
+        $sourceCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+        ];
+        $destCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            SynapseColumn::createGenericColumn('test2'),
+        ];
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Tables don\'t have same number of columns.');
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols)
+        );
+    }
+
+    public function testAssertSameColumnsInvalidColumnName(): void
+    {
+        $sourceCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1x'),
+        ];
+        $destCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+        ];
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Source destination columns mismatch. "test1x"->"test1"');
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols)
+        );
+    }
+
+    public function testAssertSameColumnsInvalidType(): void
+    {
+        $sourceCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            new SynapseColumn(
+                'test2',
+                new Synapse(
+                    Synapse::TYPE_TIME,
+                    [
+                        'length' => '3',
+                    ]
+                )
+            ),
+        ];
+        $destCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            new SynapseColumn(
+                'test2',
+                new Synapse(
+                    Synapse::TYPE_DATETIME2,
+                    [
+                        'length' => '3',
+                    ]
+                )
+            ),
+        ];
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Source destination columns mismatch. "TIME(3)"->"DATETIME2(3)"');
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols)
+        );
+    }
+
+    public function testAssertSameColumnsInvalidLength(): void
+    {
+        $sourceCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            new SynapseColumn(
+                'test2',
+                new Synapse(
+                    Synapse::TYPE_TIME,
+                    [
+                        'length' => '3',
+                    ]
+                )
+            ),
+        ];
+        $destCols = [
+            SynapseColumn::createGenericColumn('test'),
+            SynapseColumn::createGenericColumn('test1'),
+            new SynapseColumn(
+                'test2',
+                new Synapse(
+                    Synapse::TYPE_TIME,
+                    [
+                        'length' => '4',
+                    ]
+                )
+            ),
+        ];
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Source destination columns mismatch. "TIME(3)"->"TIME(4)"');
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols)
+        );
     }
 }

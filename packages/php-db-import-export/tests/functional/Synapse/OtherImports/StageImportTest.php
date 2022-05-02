@@ -310,4 +310,51 @@ class StageImportTest extends SynapseBaseTestCase
             $this->getSynapseImportOptions()
         );
     }
+
+    public function testInsertIntoInvalidTypes(): void
+    {
+        $this->initTables([self::TABLE_TYPES]);
+
+        $source = new Storage\Synapse\Table(
+            $this->getDestinationSchemaName(),
+            self::TABLE_TYPES,
+            [
+                'charCol',
+                'numCol',
+                'floatCol',
+                'boolCol',
+            ]
+        );
+        $this->connection->exec(sprintf(
+            'INSERT INTO [%s].[types] VALUES
+              (\'a\', \'test\', \'test\', 1, \'\')
+           ;',
+            $this->getDestinationSchemaName()
+        ));
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $this->getSourceSchemaName(),
+            self::TABLE_TYPES
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            $ref->getColumnsNames()
+        );
+        $qb = new SynapseTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            'Source destination columns mismatch. "NVARCHAR(4000) NOT NULL"->"DECIMAL(10,1)"'
+        );
+        $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $this->getSynapseImportOptions()
+        );
+    }
 }

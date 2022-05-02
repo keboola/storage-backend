@@ -13,6 +13,8 @@ use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\Db\Import\Exception;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 
 final class Assert
@@ -126,6 +128,54 @@ final class Assert
                 'Staging table must start with "#" table name "%s" supplied.',
                 $tableName
             ));
+        }
+    }
+
+    public static function assertSameColumns(
+        ColumnCollection $source,
+        ColumnCollection $destination
+    ): void {
+        $it0 = $source->getIterator();
+        $it1 = $destination->getIterator();
+        while ($it0->valid() || $it1->valid()) {
+            if ($it0->valid() && $it1->valid()) {
+                /** @var SynapseColumn $sourceCol */
+                $sourceCol = $it0->current();
+                /** @var SynapseColumn $destCol */
+                $destCol = $it1->current();
+                if ($sourceCol->getColumnName() !== $destCol->getColumnName()) {
+                    throw new Exception(sprintf(
+                        'Source destination columns mismatch. "%s"->"%s"',
+                        $sourceCol->getColumnName(),
+                        $destCol->getColumnName()
+                    ));
+                }
+                $sourceDef = $sourceCol->getColumnDefinition();
+                $destDef = $destCol->getColumnDefinition();
+
+                if ($sourceDef->getType() !== $destDef->getType()) {
+                    throw new Exception(sprintf(
+                        'Source destination columns mismatch. "%s"->"%s"',
+                        $sourceDef->getSQLDefinition(),
+                        $destDef->getSQLDefinition()
+                    ));
+                }
+
+                if ($sourceDef->getLength() !== $destDef->getLength()) {
+                    throw new Exception(sprintf(
+                        'Source destination columns mismatch. "%s"->"%s"',
+                        $sourceDef->getSQLDefinition(),
+                        $destDef->getSQLDefinition()
+                    ));
+                }
+            } else {
+                throw new Exception(
+                    'Tables don\'t have same number of columns.'
+                );
+            }
+
+            $it0->next();
+            $it1->next();
         }
     }
 }

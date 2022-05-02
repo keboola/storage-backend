@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Synapse\ToStage;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -36,6 +37,17 @@ class FromTableCTASAdapter implements CopyAdapterInterface
         assert($source instanceof SelectSource || $source instanceof Table);
         assert($destination instanceof SynapseTableDefinition);
         assert($importOptions instanceof SynapseImportOptions);
+
+        if ($source instanceof Table) {
+            Assert::assertSameColumns(
+                (new SynapseTableReflection(
+                    $this->connection,
+                    $source->getSchema(),
+                    $source->getTableName()
+                ))->getColumnsDefinitions(),
+                $destination->getColumnsDefinitions()
+            );
+        }
 
         try {
             (new SynapseTableReflection(
@@ -83,7 +95,9 @@ class FromTableCTASAdapter implements CopyAdapterInterface
         }
         $from = $source->getFromStatement();
         if ($source instanceof Table) {
-            $from = $source->getFromStatementForStaging($importOptions->getCastValueTypes() === false);
+            $from = $source->getFromStatementForStaging(
+                $importOptions->getCastValueTypes() === false
+            );
         }
 
         $sql = sprintf(
