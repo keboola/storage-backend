@@ -15,14 +15,9 @@ class ImportAdapter
      * Generated from protobuf enum <code>TPT = 0;</code>
      */
     const TPT = 0;
-    /**
-     * Generated from protobuf enum <code>SPT = 1;</code>
-     */
-    const SPT = 1;
 
     private static $valueToName = [
         self::TPT => 'TPT',
-        self::SPT => 'SPT',
     ];
 
     public static function name($value)
