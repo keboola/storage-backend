@@ -38,7 +38,8 @@ class FromTableCTASAdapter implements CopyAdapterInterface
         assert($destination instanceof SynapseTableDefinition);
         assert($importOptions instanceof SynapseImportOptions);
 
-        if ($source instanceof Table) {
+        if ($source instanceof Table && $importOptions->areSameTablesRequired()) {
+            // check this only if table is typed so the types are preserved
             Assert::assertSameColumns(
                 (new SynapseTableReflection(
                     $this->connection,
@@ -96,7 +97,8 @@ class FromTableCTASAdapter implements CopyAdapterInterface
         $from = $source->getFromStatement();
         if ($source instanceof Table) {
             $from = $source->getFromStatementForStaging(
-                $importOptions->getCastValueTypes() === false
+                // this will make types cast when tables is not typed
+                !$importOptions->areSameTablesRequired()
             );
         }
 
