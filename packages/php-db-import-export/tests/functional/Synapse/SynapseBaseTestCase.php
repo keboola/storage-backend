@@ -364,7 +364,7 @@ EOT
             // @phpstan-ignore-next-line
             $dedupType,
             $castValueTypes ?? SynapseImportOptions::TABLE_TYPES_PRESERVE,
-            $requireSameTables ?? SynapseImportOptions::SAME_TABLES_REQUIRED
+            $requireSameTables ?? SynapseImportOptions::SAME_TABLES_NOT_REQUIRED
         );
     }
 
