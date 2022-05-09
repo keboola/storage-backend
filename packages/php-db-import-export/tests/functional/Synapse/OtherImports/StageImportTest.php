@@ -7,9 +7,9 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse\OtherImports;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseException;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
@@ -354,7 +354,12 @@ class StageImportTest extends SynapseBaseTestCase
         $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(
+                ImportOptions::SKIP_FIRST_LINE,
+                null,
+                null,
+                SynapseImportOptions::SAME_TABLES_REQUIRED
+            )
         );
     }
 }
