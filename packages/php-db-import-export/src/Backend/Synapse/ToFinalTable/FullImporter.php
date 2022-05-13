@@ -44,7 +44,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         assert($destinationTableDefinition instanceof SynapseTableDefinition);
         assert($options instanceof SynapseImportOptions);
 
-        $random = BackendHelper::generateRandom();
+        $random = BackendHelper::generateRandomTablePrefix();
         try {
             //import files to staging table
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
