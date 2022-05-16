@@ -22,15 +22,20 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->dropAllWithinSchema($this->getSourceSchema());
-        $this->dropAllWithinSchema($this->getDestinationSchema());
-        $this->createSchema();
+        $this->dropAllWithinSchema($this->getSourceSchemaName());
+        $this->dropAllWithinSchema($this->getDestinationSchemaName());
+        $this->connection->executeStatement(sprintf('CREATE SCHEMA [%s]', $this->getDestinationSchemaName()));
+        $this->connection->executeStatement(sprintf('CREATE SCHEMA [%s]', $this->getSourceSchemaName()));
     }
 
-    protected function createSchema(): void
+    protected function getSourceSchemaName(): string
     {
-        $this->connection->executeStatement(sprintf('CREATE SCHEMA %s', $this->getSourceSchema()));
-        $this->connection->executeStatement(sprintf('CREATE SCHEMA %s', $this->getDestinationSchema()));
+        return $this->getSourceSchema();
+    }
+
+    protected function getDestinationSchemaName(): string
+    {
+        return $this->getDestinationSchema();
     }
 
     /**
@@ -82,7 +87,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
         yield 'simple no casting (typed tables but varchar)' => [
             'sourceColumns' => $this->getDefaultColumns(),
             'expectedDestination' => $this->getTableDefinition(
-                $this->getDestinationSchema(),
+                $this->getDestinationSchemaName(),
                 'dest',
                 $this->getDefaultColumns()
             ),
@@ -94,7 +99,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
         yield 'simple no casting custom index and distribution (typed tables but varchar)' => [
             'sourceColumns' => $this->getDefaultColumns(),
             'expectedDestination' => new SynapseTableDefinition(
-                $this->getDestinationSchema(),
+                $this->getDestinationSchemaName(),
                 'dest',
                 false,
                 new ColumnCollection($this->getDefaultColumns()),
@@ -116,7 +121,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
         yield 'simple with casting (not typed tables but varchar)' => [
             'sourceColumns' => $this->getDefaultColumns(),
             'expectedDestination' => $this->getTableDefinition(
-                $this->getDestinationSchema(),
+                $this->getDestinationSchemaName(),
                 'dest',
                 $this->getDefaultColumns()
             ),
@@ -143,7 +148,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
                 SynapseColumn::createGenericColumn('col2'),
             ],
             'expectedDestination' => $this->getTableDefinition(
-                $this->getDestinationSchema(),
+                $this->getDestinationSchemaName(),
                 'dest',
                 [
                     $pk1,
@@ -165,7 +170,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
                 SynapseColumn::createGenericColumn('col2'),
             ],
             'expectedDestination' => $this->getTableDefinition(
-                $this->getDestinationSchema(),
+                $this->getDestinationSchemaName(),
                 'dest',
                 $this->getDefaultColumns()
             ),
@@ -185,11 +190,11 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
         bool $requireSameTables,
         string $expectedSql
     ): void {
-        $source = $this->getTableDefinition($this->getSourceSchema(), 'source', $sourceColumns);
+        $source = $this->getTableDefinition($this->getSourceSchemaName(), 'source', $sourceColumns);
         $this->connection->executeStatement(
             (new SynapseTableQueryBuilder())->getCreateTableCommandFromDefinition($source)
         );
-        $this->insertData($this->getSourceSchema(), 'source');
+        $this->insertData($this->getSourceSchemaName(), 'source');
         $sql = FromTableCTASAdapterSqlBuilder::getCTASCommand(
             $expectedDest,
             new Table(

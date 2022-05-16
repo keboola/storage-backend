@@ -34,6 +34,7 @@
         <testsuite name="synapse-mi">
             <directory>tests/functional/Synapse</directory>
             <exclude>tests/functional/Synapse/SqlBuilderTest.php</exclude>
+            <exclude>tests/functional/Synapse/FromTableCTASAdapterSqlBuilderTest.php</exclude>
         </testsuite>
 
         <testsuite name="tests-teradata">
