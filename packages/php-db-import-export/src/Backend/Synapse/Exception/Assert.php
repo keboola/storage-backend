@@ -161,7 +161,11 @@ final class Assert
                     ));
                 }
 
-                if ($sourceDef->getLength() !== $destDef->getLength()) {
+                $isLengthEquals = $sourceDef->getLength() !== $destDef->getLength()
+                    && $sourceDef->getLength() !== (string) $destDef->getDefaultLength()
+                    && $destDef->getLength() !== (string) $sourceDef->getDefaultLength()
+                ;
+                if ($isLengthEquals) {
                     throw new Exception(sprintf(
                         'Source destination columns mismatch. "%s"->"%s"',
                         $sourceDef->getSQLDefinition(),
