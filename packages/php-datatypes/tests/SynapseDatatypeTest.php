@@ -400,4 +400,59 @@ class SynapseDatatypeTest extends TestCase
             ['datetime', null],
         ];
     }
+
+    public function typesForLengthsTest(): \Generator
+    {
+        yield 'TYPE_FLOAT' => [
+            Synapse::TYPE_FLOAT,
+            53
+        ];
+        yield 'TYPE_DECIMAL' => [
+            Synapse::TYPE_DECIMAL,
+            '38,0'
+        ];
+        yield 'TYPE_NUMERIC' => [
+            Synapse::TYPE_NUMERIC,
+            '38,0'
+        ];
+        yield 'TYPE_NCHAR' => [
+            Synapse::TYPE_NCHAR,
+            4000
+        ];
+        yield 'TYPE_NVARCHAR' => [
+            Synapse::TYPE_NVARCHAR,
+            4000
+        ];
+        yield 'TYPE_BINARY' => [
+            Synapse::TYPE_BINARY,
+            8000
+        ];
+        yield 'TYPE_CHAR' => [
+            Synapse::TYPE_CHAR,
+            8000
+        ];
+        yield 'TYPE_VARBINARY' => [
+            Synapse::TYPE_VARBINARY,
+            8000
+        ];
+        yield 'TYPE_VARCHAR' => [
+            Synapse::TYPE_VARCHAR,
+            8000
+        ];
+        yield 'TYPE_REAL' => [
+            Synapse::TYPE_REAL,
+            null
+        ];
+    }
+
+    /**
+     * @dataProvider typesForLengthsTest
+     * @param string $type
+     * @param string|int|null $expectedLength
+     */
+    public function testDefaultLengths(string $type, $expectedLength): void
+    {
+        $def = new Synapse($type, []);
+        $this->assertSame($expectedLength, $def->getDefaultLength());
+    }
 }

@@ -133,7 +133,7 @@ class Synapse extends Common
      *
      * @return int|string|null
      */
-    private function getDefaultLength()
+    public function getDefaultLength()
     {
         switch (strtoupper($this->getType())) {
             case self::TYPE_FLOAT:
