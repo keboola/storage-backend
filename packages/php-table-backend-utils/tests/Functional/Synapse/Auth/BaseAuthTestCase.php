@@ -61,7 +61,6 @@ class BaseAuthTestCase extends SynapseBaseCase
 
     protected function setUpUser(string $loginPrefix): void
     {
-        assert($this->currentLogin !== null);
         $masterDb = $this->getMasterDbConnection();
 
         // drop all users
