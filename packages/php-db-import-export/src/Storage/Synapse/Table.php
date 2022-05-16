@@ -54,6 +54,11 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return sprintf('SELECT %s FROM %s', $select, $this->getQuotedTableWithScheme());
     }
 
+    /**
+     * Select statement used for CTAS query for output mapping
+     * this select also handles type casting to default NVARCHAR used in storage
+     * @param bool $castValues if true each column is casted to default NVARCHAR(4000) used in storage
+     */
     public function getFromStatementForStaging(bool $castValues): string
     {
         $quotedColumns = array_map(
