@@ -47,13 +47,16 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         }
 
         // load the data
+        /** @var array<array{USER_NAME:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT "U"."USER_NAME" FROM "SYS"."EXA_ALL_USERS" "U" WHERE %s',
             $where
         ));
 
         // extract data to primitive array
-        return DataHelper::extractByKey($users, 'USER_NAME');
+        return array_map(static function ($record) {
+            return $record['USER_NAME'];
+        }, $users);
     }
 
     /**
@@ -71,11 +74,14 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         }
 
         // load data
+        /** @var array<array{ROLE_NAME:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT "ROLE_NAME" FROM "SYS"."EXA_ALL_ROLES" %s',
             $where
         ));
 
-        return DataHelper::extractByKey($roles, 'ROLE_NAME');
+        return array_map(static function ($record) {
+            return $record['ROLE_NAME'];
+        }, $roles);
     }
 }

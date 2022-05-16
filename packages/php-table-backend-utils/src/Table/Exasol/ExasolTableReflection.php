@@ -44,6 +44,7 @@ final class ExasolTableReflection implements TableReflectionInterface
      */
     public function getColumnsNames(): array
     {
+        /** @var array<array{COLUMN_NAME:string}> $columns */
         $columns = $this->connection->fetchAllAssociative(
             sprintf(
                 'DESCRIBE %s.%s',
@@ -52,11 +53,24 @@ final class ExasolTableReflection implements TableReflectionInterface
             )
         );
 
-        return DataHelper::extractByKey($columns, 'COLUMN_NAME');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($columns, 'COLUMN_NAME');
+        return $extracted;
     }
 
     public function getColumnsDefinitions(): ColumnCollection
     {
+        /** @var array<array{
+         *  COLUMN_DEFAULT: mixed,
+         *  COLUMN_NAME: string,
+         *  TYPE_NAME: string,
+         *  COLUMN_IS_NULLABLE: string,
+         *  COLUMN_TYPE: string,
+         *  TYPE_NAME: string,
+         *  COLUMN_NUM_PREC: ?string,
+         *  COLUMN_NUM_SCALE: ?string,
+         *  COLUMN_MAXSIZE: ?string,
+         * }> $columns */
         $columns = $this->connection->fetchAllAssociative(
             sprintf(
                 '
@@ -89,6 +103,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
 
     public function getRowsCount(): int
     {
+        /** @var int|string $result */
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
             ExasolQuote::quoteSingleIdentifier($this->schemaName),
@@ -118,7 +133,9 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
             ExasolQuote::quote('PRIMARY KEY')
         );
         $data = $this->connection->fetchAllAssociative($sql);
-        return DataHelper::extractByKey($data, 'COLUMN_NAME');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($data, 'COLUMN_NAME');
+        return $extracted;
     }
 
     public function getTableStats(): TableStatsInterface
@@ -133,6 +150,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
             ExasolQuote::quote($this->schemaName),
             ExasolQuote::quote('SCHEMA')
         );
+        /** @var int|string $result */
         $result = $this->connection->fetchOne($sql);
 
         return new TableStats((int) $result, $this->getRowsCount());

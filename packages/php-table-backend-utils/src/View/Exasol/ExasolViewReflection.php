@@ -59,7 +59,9 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
             ExasolQuote::quote($this->viewName)
         );
 
-        return $this->connection->fetchOne($sql);
+        /** @var string $definition */
+        $definition = $this->connection->fetchOne($sql);
+        return $definition;
     }
 
     public function refreshView(): void

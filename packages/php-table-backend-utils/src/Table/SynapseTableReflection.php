@@ -51,6 +51,7 @@ final class SynapseTableReflection implements TableReflectionInterface
         }
         $tableId = $this->getObjectId();
 
+        /** @var array<array{name:string}> $columns */
         $columns = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[columns] WHERE [object_id] = %s ORDER BY [column_id]',
             SynapseQuote::quote($tableId)
@@ -151,6 +152,7 @@ EOT;
 
     public function getRowsCount(): int
     {
+        /** @var string|int $count */
         $count = $this->connection->fetchOne(sprintf(
             'SELECT COUNT_BIG(*) AS [count] FROM %s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
@@ -171,6 +173,7 @@ EOT;
 
         $tableId = $this->getObjectId();
 
+        /** @var array<array{column_name:string}> $result */
         $result = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT COL_NAME(ic.OBJECT_ID,ic.column_id) AS column_name
@@ -231,6 +234,7 @@ EOT
     public function getDependentViews(): array
     {
         $sql = 'SELECT * FROM INFORMATION_SCHEMA.VIEWS';
+        /** @var array<array{VIEW_DEFINITION:string|null,TABLE_SCHEMA:string,TABLE_NAME:string}> $views */
         $views = $this->connection->fetchAllAssociative($sql);
 
         $objectNameWithSchema = sprintf(
@@ -269,13 +273,15 @@ EOT
     {
         $tableId = $this->getObjectId();
 
-        return $this->connection->fetchOne(
+        /** @var TableDistributionDefinition::TABLE_DISTRIBUTION_* $distribution */
+        $distribution = $this->connection->fetchOne(
             <<< EOT
 SELECT distribution_policy_desc
     FROM sys.pdw_table_distribution_properties AS dp
     WHERE dp.OBJECT_ID = '$tableId'
 EOT
         );
+        return $distribution;
     }
 
     /**
@@ -285,6 +291,7 @@ EOT
     {
         $tableId = $this->getObjectId();
 
+        /** @var array<array{name: string}> $result */
         $result = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT c.name
@@ -327,6 +334,7 @@ EOT
     public function getTableIndex(): string
     {
         $tableId = $this->getObjectId();
+        /** @var array{0: string} $result */
         $result = $this->connection->fetchFirstColumn(
             <<< EOT
         select i.type_desc from sys.tables t
@@ -364,6 +372,7 @@ EOT
     public function getTableIndexColumnsNames(): array
     {
         $tableId = $this->getObjectId();
+        /** @var array{0?: string} $result */
         $result = $this->connection->fetchFirstColumn(
             <<< EOT
 SELECT

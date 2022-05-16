@@ -25,6 +25,7 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
 
     public function getTablesNames(): array
     {
+        /** @var array<array{name:string,kind:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW TABLES IN SCHEMA %s',
@@ -34,11 +35,14 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
 
         $tables = array_filter($tables, fn($item) => $item['kind'] === 'TABLE');
 
-        return DataHelper::extractByKey($tables, 'name');
+        return array_map(static function ($table) {
+            return $table['name'];
+        }, $tables);
     }
 
     public function getViewsNames(): array
     {
+        /** @var array<array{name:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW VIEWS IN SCHEMA %s',
@@ -46,6 +50,8 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
             )
         );
 
-        return DataHelper::extractByKey($tables, 'name');
+        return array_map(static function ($table) {
+            return $table['name'];
+        }, $tables);
     }
 }

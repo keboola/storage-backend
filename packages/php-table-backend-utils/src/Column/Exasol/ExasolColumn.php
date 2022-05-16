@@ -53,7 +53,17 @@ final class ExasolColumn implements ColumnInterface
     }
 
     /**
-     * @inheritDoc
+     * @param array{
+     *  COLUMN_DEFAULT: mixed,
+     *  COLUMN_NAME: string,
+     *  TYPE_NAME: string,
+     *  COLUMN_IS_NULLABLE: string,
+     *  COLUMN_TYPE: string,
+     *  TYPE_NAME: string,
+     *  COLUMN_NUM_PREC: ?string,
+     *  COLUMN_NUM_SCALE: ?string,
+     *  COLUMN_MAXSIZE: ?string,
+     * } $dbResponse
      */
     public static function createFromDB(array $dbResponse): ExasolColumn
     {
@@ -72,13 +82,12 @@ final class ExasolColumn implements ColumnInterface
     }
 
     /**
-     * @param array<string, mixed> $colData
-     * array{
-     * COLUMN_TYPE: string,
-     * TYPE_NAME: string,
-     * COLUMN_NUM_PREC: ?string,
-     * COLUMN_NUM_SCALE: ?string,
-     * COLUMN_MAXSIZE: ?string,
+     * @param array{
+     *  COLUMN_TYPE: string,
+     *  TYPE_NAME: string,
+     *  COLUMN_NUM_PREC: ?string,
+     *  COLUMN_NUM_SCALE: ?string,
+     *  COLUMN_MAXSIZE: ?string,
      * } $colData
      * @return string
      */
@@ -88,14 +97,19 @@ final class ExasolColumn implements ColumnInterface
         if ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_DAY_TO_SECOND) {
             preg_match('/INTERVAL DAY\((?P<valDays>\d)\) TO SECOND\((?P<valSeconds>\d)\)/', $colType, $output_array);
             return $output_array['valDays'] . ',' . $output_array['valSeconds'];
-        } elseif ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_YEAR_TO_MONTH) {
+        }
+
+        if ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_YEAR_TO_MONTH) {
             preg_match('/INTERVAL YEAR\((?P<val>\d)\) TO MONTH/', $colType, $output_array);
             return $output_array['val'];
-        } else {
-            $precision = $colData['COLUMN_NUM_PREC'];
-            $scale = $colData['COLUMN_NUM_SCALE'];
-            $maxLength = $colData['COLUMN_MAXSIZE'];
-            return ($precision === null && $scale === null) ? $maxLength : "{$precision},{$scale}";
         }
+
+        $precision = $colData['COLUMN_NUM_PREC'];
+        $scale = $colData['COLUMN_NUM_SCALE'];
+        $maxLength = $colData['COLUMN_MAXSIZE'];
+        if ($precision === null && $scale === null) {
+            return $maxLength ?? '';
+        }
+        return "{$precision},{$scale}";
     }
 }

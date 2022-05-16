@@ -24,6 +24,7 @@ final class SynapseSchemaReflection implements SchemaReflectionInterface
     public function getTablesNames(): array
     {
         $schema = SynapseQuote::quote($this->schemaName);
+        /** @var array<array{name:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT name
@@ -41,6 +42,7 @@ EOT
     public function getViewsNames(): array
     {
         $schema = SynapseQuote::quote($this->schemaName);
+        /** @var array<array{name:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT name

@@ -9,7 +9,7 @@ use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Exception;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
-use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 
 class TeradataConnectionWrapper implements Connection
 {
@@ -46,7 +46,8 @@ class TeradataConnectionWrapper implements Connection
      */
     public function quote($value, $type = ParameterType::STRING): string
     {
-        return SnowflakeQuote::quote($value);
+        assert(is_string($value));
+        return TeradataQuote::quote($value);
     }
 
     public function exec(string $sql): int
@@ -71,7 +72,7 @@ class TeradataConnectionWrapper implements Connection
         if ($this->inTransaction()) {
             throw new DriverException('There is already an active transaction');
         }
-        return odbc_autocommit($this->conn, false);
+        return (bool) odbc_autocommit($this->conn, false);
     }
 
 

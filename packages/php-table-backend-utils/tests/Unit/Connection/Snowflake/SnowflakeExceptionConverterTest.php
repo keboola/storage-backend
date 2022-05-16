@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 class SnowflakeExceptionConverterTest extends TestCase
 {
     /**
-     * @return \Generator<string, array>
+     * @return \Generator<string, array<mixed>>
      */
     public function exceptionProvider(): \Generator
     {

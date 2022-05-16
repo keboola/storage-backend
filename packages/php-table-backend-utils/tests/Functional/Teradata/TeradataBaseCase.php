@@ -125,6 +125,7 @@ CREATE DATABASE %s AS
     protected function setUpUser(string $userName): void
     {
         // list existing users
+        /** @var array{array{RoleName: string, UserName: string}} $existingUsers */
         $existingUsers = $this->connection->fetchAllAssociative(sprintf(
             'SELECT  UserName FROM DBC.UsersV U WHERE "U"."Username" = %s',
             TeradataQuote::quote($userName)
@@ -150,6 +151,7 @@ CREATE DATABASE %s AS
     protected function setUpRole(string $roleName): void
     {
         // list existing roles
+        /** @var array{array{RoleName: string}} $existingUsers */
         $existingUsers = $this->connection->fetchAllAssociative(sprintf(
             'SELECT RoleName FROM DBC.RoleInfoVX WHERE RoleName = %s',
             TeradataQuote::quote($roleName)

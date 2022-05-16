@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Teradata;
 
+use Keboola\TableBackendUtils\Connection\ConnectionRetryWrapper;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 
@@ -205,11 +206,13 @@ class ConnectionTest extends TeradataBaseCase
         $wrappedConnectionRef = new \ReflectionClass($wrappedConnection);
         $wrappedConnectionPropRef = $wrappedConnectionRef->getProperty('_conn');
         $wrappedConnectionPropRef->setAccessible(true);
+        /** @var ConnectionRetryWrapper $retryWrappedConnection */
         $retryWrappedConnection = $wrappedConnectionPropRef->getValue($wrappedConnection);
         // now get teradata connection from retry wrapper
         $retryWrappedConnectionRef = new \ReflectionClass($retryWrappedConnection);
         $retryWrappedConnectionPropRef = $retryWrappedConnectionRef->getProperty('connection');
         $retryWrappedConnectionPropRef->setAccessible(true);
+        /** @var TeradataConnection $teradataConnection */
         $teradataConnection = $retryWrappedConnectionPropRef->getValue($retryWrappedConnection);
         // now get odbc connection
         $teradataConnectionRef = new \ReflectionClass($teradataConnection);

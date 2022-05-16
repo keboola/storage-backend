@@ -26,6 +26,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
     public function getDependentViews(): array
     {
         $sql = 'SELECT * FROM INFORMATION_SCHEMA.VIEWS';
+        /** @var array{array{VIEW_DEFINITION:string,TABLE_SCHEMA:string,TABLE_NAME:string}} $views */
         $views = $this->connection->fetchAllAssociative($sql);
 
         $objectNameWithSchema = sprintf(
@@ -68,6 +69,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
             SynapseQuote::quote($this->viewName)
         );
 
+        /** @var string $definition */
         $definition = $this->connection->fetchOne($sql);
         $isValid = preg_match('/CREATE[\s\S]*VIEW[\s\S]*AS[\s\S]*SELECT[\s\S]*FROM[\s\S]*/', $definition);
         if ($isValid === 0) {

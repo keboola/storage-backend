@@ -25,6 +25,7 @@ class TeradataViewReflection implements ViewReflectionInterface
 
     public function getDependentViews(): array
     {
+        /** @var array{array{TableName:string,DatabaseName:string}} $views */
         $views = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM dbc.tables WHERE tablekind=%s AND databasename=%s',
@@ -42,6 +43,7 @@ class TeradataViewReflection implements ViewReflectionInterface
         $dependencies = [];
         foreach ($views as $view) {
             // trim table name from teradata, returned with whitespaces
+            /** @var array{array{'Request Text':string}} $viewDefinition */
             $viewDefinition = $this->connection->fetchAllAssociative(
                 sprintf(
                     'SHOW VIEW %s.%s',

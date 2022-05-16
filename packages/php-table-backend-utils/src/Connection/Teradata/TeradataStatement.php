@@ -98,7 +98,10 @@ class TeradataStatement implements Statement
      */
     private function repairBinding(array $bind): array
     {
-        return array_map(function ($value) {
+        return array_map(static function ($value) {
+            if (!is_string($value)) {
+                return $value;
+            }
             if (preg_match("/^'.*'$/", $value)) {
                 return " {$value} ";
             }

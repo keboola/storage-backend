@@ -52,11 +52,25 @@ final class TeradataTableReflection implements TableReflectionInterface
             )
         );
 
-        return DataHelper::extractByKey($columns, 'Column Name');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($columns, 'Column Name');
+        return $extracted;
     }
 
     public function getColumnsDefinitions(): ColumnCollection
     {
+        /**
+         * @var array<array{
+         * 'Column Name': string,
+         * 'Type': string,
+         * 'Default value': string|null,
+         * 'Max Length': int|null,
+         * 'Char Type': string,
+         * 'Decimal Total Digits': int|null,
+         * 'Decimal Fractional Digits': int|null,
+         * 'Nullable': string
+         * }> $columns
+         */
         $columns = $this->connection->fetchAllAssociative(
             sprintf(
                 'HELP TABLE %s.%s',
@@ -99,7 +113,7 @@ final class TeradataTableReflection implements TableReflectionInterface
         ];
 
         $charTypes = ['CF', 'CV', 'CO'];
-        $columns = array_map(static function ($col) use ($fractionalTypes, $timeTypes, $charTypes, $totalTypes) {
+        $columns = array_map(static function (array $col) use ($fractionalTypes, $timeTypes, $charTypes, $totalTypes) {
             $colName = trim($col['Column Name']);
             $colType = trim($col['Type']);
             $defaultvalue = $col['Default value'];
@@ -107,19 +121,18 @@ final class TeradataTableReflection implements TableReflectionInterface
             $isLatin = $col['Char Type'] === '1';
             // 1 latin, 2 unicode, 3 kanjiSJIS, 4 graphic, 5 graphic, 0 others
 
-            if (in_array($colType, $fractionalTypes, true)) {
-                $length = "{$col['Decimal Total Digits']},{$col['Decimal Fractional Digits']}";
-            }
             if (in_array($colType, $timeTypes, true)) {
                 $length = $col['Decimal Fractional Digits'];
             }
             if (in_array($colType, $totalTypes, true)) {
                 $length = $col['Decimal Total Digits'];
             }
-
             if (!$isLatin && in_array($colType, $charTypes, true)) {
                 $length /= 2;
                 // non latin chars (unicode etc) declares double of space for data
+            }
+            if (in_array($colType, $fractionalTypes, true)) {
+                $length = "{$col['Decimal Total Digits']},{$col['Decimal Fractional Digits']}";
             }
             return new TeradataColumn(
                 $colName,
@@ -140,6 +153,7 @@ final class TeradataTableReflection implements TableReflectionInterface
 
     public function getRowsCount(): int
     {
+        /** @var string|int $result */
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($this->dbName),
@@ -150,6 +164,7 @@ final class TeradataTableReflection implements TableReflectionInterface
 
     /**
      * returns list of column names where PK is defined on
+     *
      * @return string[]
      */
     public function getPrimaryKeysNames(): array
@@ -165,7 +180,9 @@ final class TeradataTableReflection implements TableReflectionInterface
         );
 
         $data = $this->connection->fetchAllAssociative($sql);
-        return DataHelper::extractByKey($data, 'ColumnName');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($data, 'ColumnName');
+        return $extracted;
     }
 
     public function getTableStats(): TableStatsInterface
@@ -178,6 +195,7 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
             TeradataQuote::quote($this->dbName),
             TeradataQuote::quote($this->tableName)
         );
+        /** @var string|int $result */
         $result = $this->connection->fetchOne($sql);
 
         return new TableStats((int) $result, $this->getRowsCount());
@@ -199,7 +217,6 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
 //        TODO
         throw new \Exception('method is not implemented yet');
     }
-
 
     public function getTableDefinition(): TableDefinitionInterface
     {

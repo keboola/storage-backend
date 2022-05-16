@@ -56,7 +56,12 @@ final class SnowflakeColumn implements ColumnInterface
     }
 
     /**
-     * @inheritDoc
+     * @param array{
+     *     name: string,
+     *     type: string,
+     *     default: string,
+     *     'null?': string
+     * } $dbResponse
      */
     public static function createFromDB(array $dbResponse): SnowflakeColumn
     {
@@ -73,7 +78,7 @@ final class SnowflakeColumn implements ColumnInterface
         return new self($dbResponse['name'], new Snowflake(
             $type,
             [
-                'nullable' => $dbResponse['null?'] === 'Y' ? true : false,
+                'nullable' => $dbResponse['null?'] === 'Y',
                 'length' => $length,
                 'default' => $default,
             ]

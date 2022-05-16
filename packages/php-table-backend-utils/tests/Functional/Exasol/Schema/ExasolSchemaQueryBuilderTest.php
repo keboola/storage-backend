@@ -51,7 +51,9 @@ class ExasolSchemaQueryBuilderTest extends ExasolBaseCase
             )
         );
 
-        return DataHelper::extractByKey($schemas, 'SCHEMA_NAME');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($schemas, 'SCHEMA_NAME');
+        return $extracted;
     }
 
     public function testGetDropSchemaCommandWithCascade(): void

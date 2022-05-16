@@ -83,6 +83,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
             $this->platform->quoteSingleIdentifier($this->currentLogin . '_ROLE')
         ));
 
+        assert($this->currentLogin !== null);
         $this->connection->exec(sprintf(
             'CREATE SCHEMA %s AUTHORIZATION %s',
             $this->platform->quoteSingleIdentifier(self::TEST_SCHEMA),
@@ -344,10 +345,10 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
         string $expectedGrant,
         string $expectedRevoke
     ): void {
+        assert($this->currentLogin !== null);
         if ($useCurrentLoginOnEndPath === true) {
             $grantOnTargetPath[] = $this->currentLogin;
         }
-
         $grantTo = $this->currentLogin . ($grantToRole === true ? '_ROLE' : '');
 
         $options = (new GrantOptions(

@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake;
 use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
+use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnection;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
@@ -271,6 +272,7 @@ class ConnectionTest extends SnowflakeBaseCase
         $wrappedConnectionPropRef = $wrappedConnectionRef->getProperty('_conn');
         $wrappedConnectionPropRef->setAccessible(true);
         $wrappedConnection->connect(); // create odbc resource
+        /** @var SnowflakeConnection $snowflakeConnection */
         $snowflakeConnection = $wrappedConnectionPropRef->getValue($wrappedConnection);
         $snowflakeConnectionPropRef = new \ReflectionClass($snowflakeConnection);
         $snowflakeConnectionPropRef = $snowflakeConnectionPropRef->getProperty('conn');

@@ -56,6 +56,7 @@ class SnowflakeConnection implements Connection
      */
     public function quote($value, $type = ParameterType::STRING): string
     {
+        assert(is_string($value));
         return SnowflakeQuote::quote($value);
     }
 
@@ -81,7 +82,7 @@ class SnowflakeConnection implements Connection
         if ($this->inTransaction()) {
             throw new DriverException('There is already an active transaction');
         }
-        return odbc_autocommit($this->conn, false);
+        return (bool) odbc_autocommit($this->conn, false);
     }
 
 

@@ -46,7 +46,9 @@ class SnowflakeSchemaQueryBuilderTest extends SnowflakeBaseCase
             'SHOW SCHEMAS'
         );
 
-        return DataHelper::extractByKey($schemas, 'name');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($schemas, 'name');
+        return $extracted;
     }
 
     public function testGetDropSchemaCommandWithCascade(): void

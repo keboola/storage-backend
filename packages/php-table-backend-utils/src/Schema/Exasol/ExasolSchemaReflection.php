@@ -25,6 +25,7 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
 
     public function getTablesNames(): array
     {
+        /** @var array<array{TABLE_NAME:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT "TABLE_NAME" FROM "SYS"."EXA_ALL_TABLES" WHERE "TABLE_SCHEMA" = %s',
@@ -32,11 +33,14 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
             )
         );
 
-        return DataHelper::extractByKey($tables, 'TABLE_NAME');
+        return array_map(static function ($table) {
+            return $table['TABLE_NAME'];
+        }, $tables);
     }
 
     public function getViewsNames(): array
     {
+        /** @var array<array{VIEW_NAME:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT "VIEW_NAME" FROM "SYS"."EXA_ALL_VIEWS" WHERE "VIEW_SCHEMA" = %s',
@@ -44,6 +48,8 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
             )
         );
 
-        return DataHelper::extractByKey($tables, 'VIEW_NAME');
+        return array_map(static function ($table) {
+            return $table['VIEW_NAME'];
+        }, $tables);
     }
 }

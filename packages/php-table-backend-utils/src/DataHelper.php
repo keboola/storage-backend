@@ -9,10 +9,11 @@ use Exception;
 class DataHelper
 {
     /**
-     * @param array<mixed> $data
+     * @param array<array<mixed>> $data
      * @param string $key
      * @return array<mixed>
      * @throws Exception
+     * @deprecated use array_map
      */
     public static function extractByKey(array $data, string $key): array
     {

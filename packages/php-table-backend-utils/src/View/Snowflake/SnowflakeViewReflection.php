@@ -48,6 +48,7 @@ final class SnowflakeViewReflection implements ViewReflectionInterface
 
     public function getViewDefinition(): string
     {
+        /** @var array{text:string}|null $result */
         $result = $this->connection->fetchAssociative(sprintf(
             'SHOW VIEWS LIKE %s IN %s',
             SnowflakeQuote::quote($this->viewName),

@@ -32,13 +32,16 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         }
 
         // load the data
+        /** @var array<array{name:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SHOW USERS%s',
             $likeSql
         ));
 
         // extract data to primitive array
-        return DataHelper::extractByKey($users, 'name');
+        return array_map(static function ($record) {
+            return $record['name'];
+        }, $users);
     }
 
     /**
@@ -55,12 +58,15 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         }
 
         // load the data
+        /** @var array<array{name:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SHOW ROLES%s',
             $likeSql
         ));
 
         // extract data to primitive array
-        return DataHelper::extractByKey($roles, 'name');
+        return array_map(static function ($record) {
+            return $record['name'];
+        }, $roles);
     }
 }

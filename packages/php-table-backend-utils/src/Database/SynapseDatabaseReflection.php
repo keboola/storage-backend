@@ -29,6 +29,7 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
                 SynapseQuote::quote($like)
             );
         }
+        /** @var array<array{name:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers]%s',
             $where
@@ -52,6 +53,7 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
             );
         }
 
+        /** @var array<array{name:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers]%s',
             $where

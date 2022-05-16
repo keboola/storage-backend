@@ -37,10 +37,11 @@ class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
     }
 
     /**
-     * @return string[]
+     * @return array<int,string>
      */
     private function getSchemaFromDatabase(): array
     {
+        /** @var array{array{name:string}} $schemas */
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',

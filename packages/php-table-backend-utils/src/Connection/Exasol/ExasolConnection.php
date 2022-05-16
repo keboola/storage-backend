@@ -82,6 +82,7 @@ class ExasolConnection implements Connection
      */
     public function quote($value, $type = ParameterType::STRING)
     {
+        assert(is_string($value));
         return ExasolQuote::quote($value);
     }
 

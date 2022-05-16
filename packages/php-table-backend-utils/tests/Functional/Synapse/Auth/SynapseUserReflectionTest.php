@@ -4,22 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Auth;
 
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\Auth\SynapseUserReflection;
 
 class SynapseUserReflectionTest extends BaseAuthTestCase
 {
     private const LOGIN_PREFIX = 'UTILS_TEST_AUTH_LOGIN_';
-
-    /**
-     * @var string
-     *
-     * User name has to be generated because when new user is created
-     * deleted and created it has no access to db :/
-     * there is some time to propagate these changes and test are too fast
-     */
-    protected $currentLogin;
 
     protected function setUp(): void
     {
@@ -29,6 +19,7 @@ class SynapseUserReflectionTest extends BaseAuthTestCase
 
     public function testEndAllUserSessions(): void
     {
+        assert($this->currentLogin !== null);
         $ref = new SynapseUserReflection($this->connection, $this->currentLogin);
         $this->assertCount(0, $ref->getAllSessionIds());
 
@@ -36,6 +27,7 @@ class SynapseUserReflectionTest extends BaseAuthTestCase
         $dbUser = $this->getTestLoginConnection();
         $dbUser->connect();
 
+        assert($this->currentLogin !== null);
         $ref = new SynapseUserReflection($this->connection, $this->currentLogin);
 
         $this->assertGreaterThan(0, count($ref->getAllSessionIds()));

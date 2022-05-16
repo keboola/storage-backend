@@ -99,6 +99,9 @@ class SnowflakeStatement implements Statement
     private function repairBinding(array $bind): array
     {
         return array_map(function ($value) {
+            if (!is_string($value)) {
+                return $value;
+            }
             if (preg_match("/^'.*'$/", $value)) {
                 return " {$value} ";
             }

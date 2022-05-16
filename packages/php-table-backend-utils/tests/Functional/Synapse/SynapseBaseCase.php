@@ -46,6 +46,7 @@ class SynapseBaseCase extends TestCase
             $this->connection->exec(sprintf('DROP VIEW [%s].[%s]', $schema, $view));
         }
 
+        /** @var array{array{name:string}} $schemas */
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',
@@ -54,7 +55,9 @@ class SynapseBaseCase extends TestCase
         );
 
         foreach ($schemas as $item) {
-            $this->connection->exec($this->schemaQb->getDropSchemaCommand($item['name']));
+            $this->connection->executeStatement(
+                $this->schemaQb->getDropSchemaCommand($item['name'])
+            );
         }
     }
 
@@ -70,10 +73,10 @@ class SynapseBaseCase extends TestCase
     private function getSynapseConnection(): Connection
     {
         return \Doctrine\DBAL\DriverManager::getConnection([
-            'user' => getenv('SYNAPSE_UID'),
-            'password' => getenv('SYNAPSE_PWD'),
-            'host' => getenv('SYNAPSE_SERVER'),
-            'dbname' => getenv('SYNAPSE_DATABASE'),
+            'user' => (string) getenv('SYNAPSE_UID'),
+            'password' => (string) getenv('SYNAPSE_PWD'),
+            'host' => (string) getenv('SYNAPSE_SERVER'),
+            'dbname' => (string) getenv('SYNAPSE_DATABASE'),
             'port' => 1433,
             'driver' => 'pdo_sqlsrv',
             'driverOptions' => [

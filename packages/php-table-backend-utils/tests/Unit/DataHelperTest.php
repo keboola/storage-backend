@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 class DataHelperTest extends TestCase
 {
     /**
-     * @param mixed[] $inputData
+     * @param array<array<mixed>> $inputData
      * @param string $key
      * @param mixed[] $expectedResult
      * @throws Exception
@@ -43,7 +43,7 @@ class DataHelperTest extends TestCase
     }
 
     /**
-     * @param mixed[] $inputData
+     * @param array<array<mixed>> $inputData
      * @param string $key
      * @param string $expectedMessage
      * @throws Exception

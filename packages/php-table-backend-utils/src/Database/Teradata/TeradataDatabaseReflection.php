@@ -56,6 +56,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         }
 
         // load the data
+        /** @var array<array{UserName:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT U.UserName FROM DBC.UsersV U WHERE %s',
             $where
@@ -63,7 +64,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
 
         // extract data to primitive array
         return array_map(static function ($record) {
-            return $record['UserName'];
+            return trim($record['UserName']);
         }, $users);
     }
 
@@ -82,6 +83,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         }
 
         // load data
+        /** @var array<array{RoleName:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT RoleName FROM DBC.RoleInfoVX %s',
             $where

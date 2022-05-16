@@ -34,7 +34,9 @@ WHERE "TableKind" = 'T' AND "DataBaseName"=$database
 EOT
         );
 
-        return DataHelper::extractByKey($tables, 'TableName');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($tables, 'TableName');
+        return $extracted;
     }
 
     public function getViewsNames(): array
@@ -48,6 +50,8 @@ WHERE "TableKind" = 'V' AND "DataBaseName"=$database
 EOT
         );
 
-        return DataHelper::extractByKey($tables, 'TableName');
+        /** @var string[] $extracted */
+        $extracted = DataHelper::extractByKey($tables, 'TableName');
+        return $extracted;
     }
 }

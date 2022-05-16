@@ -63,6 +63,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
      */
     public function getColumnsNames(): array
     {
+        /** @var array<array{column_name: string}> $columnsData */
         $columnsData = $this->connection->fetchAllAssociative(
             sprintf(
                 // case-sensitive
@@ -78,6 +79,13 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function getColumnsDefinitions(): ColumnCollection
     {
+        /** @var array<array{
+         *     name: string,
+         *     kind: string,
+         *     type: string,
+         *     default: string,
+         *     'null?': string
+         * }> $columnsMeta */
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'DESC TABLE %s',
@@ -100,6 +108,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     public function getRowsCount(): int
     {
+        /** @var int|string $result */
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s',
             SnowflakeQuote::createQuotedIdentifierFromParts([
@@ -117,6 +126,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
      */
     public function getPrimaryKeysNames(): array
     {
+        /** @var array<array{column_name:string}> $columnsMeta */
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW PRIMARY KEYS IN TABLE %s',
@@ -137,6 +147,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
             ExasolQuote::quoteSingleIdentifier($this->schemaName),
             ExasolQuote::quote($this->tableName)
         );
+        /** @var array{bytes:int|string}|null $result */
         $result = $this->connection->fetchAssociative($sql);
         if (!$result) {
             throw new TableNotExistsReflectionException('Table does not exist');
@@ -166,7 +177,9 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         string $schemaName,
         string $objectType = self::DEPENDENT_OBJECT_TABLE
     ): array {
+        /** @var string $databaseName */
         $databaseName = $connection->fetchOne('SELECT CURRENT_DATABASE()');
+        /** @var array<array{text:string,database_name:string,schema_name:string,name:string}> $views */
         $views = $connection->fetchAllAssociative(
             sprintf(
                 'SHOW VIEWS IN DATABASE %s',

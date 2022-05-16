@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class SnowflakeDSNGeneratorTest extends TestCase
 {
     /**
-     * @return \Generator<array<int, array<string, array|bool|int|string>|string>>
+     * @return \Generator<array<int, array<string, array<mixed>|bool|int|string>|string>>
      */
     public function dsnOptionsProvider(): \Generator
     {
