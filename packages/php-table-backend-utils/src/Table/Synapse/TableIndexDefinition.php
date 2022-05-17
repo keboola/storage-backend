@@ -17,7 +17,7 @@ final class TableIndexDefinition
     ];
 
     /** @var self::TABLE_INDEX_TYPE_* */
-    private $indexType;
+    private string $indexType;
 
     /** @var String[] */
     private array $indexedColumnsNames;

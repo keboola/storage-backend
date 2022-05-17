@@ -26,7 +26,7 @@ final class RevokeOptions implements RevokeOptionsInterface
     private array $revokeOnTargetPath = [];
 
     /** @var null|GrantOn::ON_* */
-    private $subject;
+    private ?string $subject = null;
 
     /**
      * @param array<Permission::GRANT_*> $permissions
@@ -83,6 +83,9 @@ final class RevokeOptions implements RevokeOptionsInterface
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getPermissions(): array
     {
         return $this->permissions;

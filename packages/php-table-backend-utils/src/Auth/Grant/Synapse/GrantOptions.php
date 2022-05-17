@@ -19,7 +19,7 @@ final class GrantOptions implements GrantOptionsInterface
     private string $grantTo;
 
     /** @var null|GrantOn::ON_* */
-    private $subject;
+    private ?string $subject = null;
 
     /** @var string[] */
     private array $grantOnTargetPath = [];
@@ -57,6 +57,9 @@ final class GrantOptions implements GrantOptionsInterface
         return $this->allowGrantOption;
     }
 
+    /**
+     * @return string[]
+     */
     public function getPermissions(): array
     {
         return $this->permissions;

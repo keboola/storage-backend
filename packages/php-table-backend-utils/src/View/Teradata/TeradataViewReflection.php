@@ -23,6 +23,9 @@ class TeradataViewReflection implements ViewReflectionInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @return array<mixed, array{schema_name: string, name: string}>
+     */
     public function getDependentViews(): array
     {
         /** @var array{array{TableName:string,DatabaseName:string}} $views */

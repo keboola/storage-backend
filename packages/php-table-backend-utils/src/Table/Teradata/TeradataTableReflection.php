@@ -104,7 +104,12 @@ final class TeradataTableReflection implements TableReflectionInterface
         ];
 
         $charTypes = ['CF', 'CV', 'CO'];
-        $columns = array_map(static function (array $col) use ($fractionalTypes, $timeTypes, $charTypes, $totalTypes) {
+        $columns = array_map(static function (array $col) use (
+            $fractionalTypes,
+            $timeTypes,
+            $charTypes,
+            $totalTypes
+        ): \Keboola\TableBackendUtils\Column\Teradata\TeradataColumn {
             $colName = trim($col['Column Name']);
             $colType = trim($col['Type']);
             $defaultvalue = $col['Default value'];

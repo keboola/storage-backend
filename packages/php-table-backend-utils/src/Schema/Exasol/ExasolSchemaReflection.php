@@ -21,6 +21,9 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTablesNames(): array
     {
         /** @var array<array{TABLE_NAME:string}> $tables */
@@ -34,6 +37,9 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
         return array_map(static fn($table) => $table['TABLE_NAME'], $tables);
     }
 
+    /**
+     * @return string[]
+     */
     public function getViewsNames(): array
     {
         /** @var array<array{VIEW_NAME:string}> $tables */

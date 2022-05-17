@@ -48,6 +48,9 @@ final class TeradataTableDefinition implements TableDefinitionInterface
         return $this->schemaName;
     }
 
+    /**
+     * @return string[]
+     */
     public function getColumnsNames(): array
     {
         $names = [];
@@ -64,6 +67,9 @@ final class TeradataTableDefinition implements TableDefinitionInterface
         return $this->columns;
     }
 
+    /**
+     * @return string[]
+     */
     public function getPrimaryKeysNames(): array
     {
         return $this->primaryKeysNames;

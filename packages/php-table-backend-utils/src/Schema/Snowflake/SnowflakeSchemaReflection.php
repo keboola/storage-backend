@@ -21,6 +21,9 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTablesNames(): array
     {
         /** @var array<array{name:string,kind:string}> $tables */
@@ -36,6 +39,9 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         return array_map(static fn($table) => $table['name'], $tables);
     }
 
+    /**
+     * @return string[]
+     */
     public function getViewsNames(): array
     {
         /** @var array<array{name:string}> $tables */

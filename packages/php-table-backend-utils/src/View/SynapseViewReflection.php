@@ -23,6 +23,9 @@ final class SynapseViewReflection implements ViewReflectionInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @return array<mixed, array{schema_name: string, name: string}>
+     */
     public function getDependentViews(): array
     {
         $sql = 'SELECT * FROM INFORMATION_SCHEMA.VIEWS';

@@ -21,6 +21,9 @@ final class TeradataSchemaReflection implements SchemaReflectionInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTablesNames(): array
     {
         $database = TeradataQuote::quote($this->databaseName);
@@ -36,6 +39,9 @@ EOT
         return array_map(static fn($table) => trim($table['TableName']), $tables);
     }
 
+    /**
+     * @return string[]
+     */
     public function getViewsNames(): array
     {
         $database = TeradataQuote::quote($this->databaseName);

@@ -19,6 +19,9 @@ final class SynapseSchemaReflection implements SchemaReflectionInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTablesNames(): array
     {
         $schema = SynapseQuote::quote($this->schemaName);
@@ -35,6 +38,9 @@ EOT
         return array_map(static fn($table) => $table['name'], $tables);
     }
 
+    /**
+     * @return string[]
+     */
     public function getViewsNames(): array
     {
         $schema = SynapseQuote::quote($this->schemaName);
