@@ -87,7 +87,6 @@ final class ExasolColumn implements ColumnInterface
      *  COLUMN_NUM_SCALE: ?string,
      *  COLUMN_MAXSIZE: ?string,
      * } $colData
-     * @return string
      */
     private static function extractColumnLength(array $colData): string
     {

@@ -32,7 +32,6 @@ final class Assert
     }
 
     /**
-     * @param string $tableDistributionName
      * @param string[] $hashDistributionColumnsNames
      */
     public static function assertValidHashDistribution(

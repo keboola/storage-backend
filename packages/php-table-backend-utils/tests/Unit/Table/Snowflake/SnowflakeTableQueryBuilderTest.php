@@ -27,7 +27,6 @@ class SnowflakeTableQueryBuilderTest extends TestCase
     /**
      * @param SnowflakeColumn[] $columns
      * @param string[] $PKs
-     * @param string $exceptionString
      * @dataProvider createTableInvalidPKsProvider
      * @throws \Exception
      */

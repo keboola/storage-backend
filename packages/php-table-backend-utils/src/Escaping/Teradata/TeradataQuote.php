@@ -11,9 +11,6 @@ class TeradataQuote implements QuoteInterface
     /**
      * TD quotes strings by single quote
      * uses '' for escaping
-     *
-     * @param string $value
-     * @return string
      */
     public static function quote(string $value): string
     {
@@ -24,8 +21,6 @@ class TeradataQuote implements QuoteInterface
      * TD quotes strings by double quote
      * uses "" for escaping
      * https://docs.teradata.com/r/j4dzSri4DSHlIGdmgL_EvQ/xpojqfx2HVgFFhrFt_hCBA
-     * @param string $str
-     * @return string
      */
     public static function quoteSingleIdentifier(string $str): string
     {

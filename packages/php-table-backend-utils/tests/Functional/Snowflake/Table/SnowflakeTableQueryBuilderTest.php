@@ -105,7 +105,6 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
      * @param string[] $primaryKeys
      * @param string[] $expectedColumnNames
      * @param string[] $expectedPKs
-     * @param string $expectedSql
      * @throws DBALException
      * @dataProvider createTableTestSqlProvider
      */

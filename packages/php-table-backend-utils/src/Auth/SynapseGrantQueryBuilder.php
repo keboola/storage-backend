@@ -74,7 +74,6 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
     /**
      * @param null|GrantOn::ON_* $grantSubject
      * @param string[] $grantOnTargetPath
-     * @return string
      */
     private function getOnStatement(?string $grantSubject, array $grantOnTargetPath): string
     {

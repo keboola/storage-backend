@@ -27,7 +27,6 @@ class TeradataTableQueryBuilderTest extends TestCase
     /**
      * @param TeradataColumn[] $columns
      * @param string[] $PKs
-     * @param string $exceptionString
      * @dataProvider createTableInvalidPKsProvider
      * @throws \Exception
      */

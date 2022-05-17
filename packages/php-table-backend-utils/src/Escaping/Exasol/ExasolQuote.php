@@ -11,9 +11,6 @@ class ExasolQuote implements QuoteInterface
     /**
      * Exasol quotes strings by single quote
      * uses '' for escaping
-     *
-     * @param string $value
-     * @return string
      */
     public static function quote(string $value): string
     {
@@ -29,8 +26,6 @@ class ExasolQuote implements QuoteInterface
      *  AaA   | AAA
      *  "AaA" | AaA
      * uses "" for escaping
-     * @param string $str
-     * @return string
      */
     public static function quoteSingleIdentifier(string $str): string
     {

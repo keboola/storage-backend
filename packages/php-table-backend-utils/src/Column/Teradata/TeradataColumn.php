@@ -21,7 +21,6 @@ final class TeradataColumn implements ColumnInterface
     }
 
     /**
-     * @param string $columnName
      * @return TeradataColumn
      */
     public static function createGenericColumn(string $columnName): ColumnInterface

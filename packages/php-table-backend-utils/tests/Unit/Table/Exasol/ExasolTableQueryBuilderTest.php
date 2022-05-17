@@ -27,7 +27,6 @@ class ExasolTableQueryBuilderTest extends TestCase
     /**
      * @param ExasolColumn[] $columns
      * @param string[] $PKs
-     * @param string $exceptionString
      * @dataProvider createTableInvalidPKsProvider
      * @throws \Exception
      */

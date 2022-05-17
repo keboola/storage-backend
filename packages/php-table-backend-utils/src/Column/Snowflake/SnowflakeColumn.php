@@ -21,7 +21,6 @@ final class SnowflakeColumn implements ColumnInterface
     }
 
     /**
-     * @param string $columnName
      * @return SnowflakeColumn
      */
     public static function createGenericColumn(string $columnName): ColumnInterface
