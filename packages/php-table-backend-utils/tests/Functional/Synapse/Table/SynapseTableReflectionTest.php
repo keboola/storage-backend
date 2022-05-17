@@ -568,7 +568,6 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         yield 'getColumnsNames' => ['getColumnsNames'];
         yield 'getColumnsDefinitions' => ['getColumnsDefinitions'];
         yield 'getPrimaryKeysNames' => ['getPrimaryKeysNames'];
-        yield 'getPrimaryKeysNames' => ['getPrimaryKeysNames'];
         yield 'getTableStats' => ['getTableStats'];
     }
 

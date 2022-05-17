@@ -114,7 +114,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         string $expectedType,
         ?string $expectedDefault,
         ?string $expectedLength,
-        ?string $expectedNullable
+        bool $expectedNullable
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);

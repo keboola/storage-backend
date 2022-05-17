@@ -75,7 +75,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
         string $expectedType,
         ?string $expectedDefault,
         ?string $expectedLength,
-        ?string $expectedNullable
+        bool $expectedNullable
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);
@@ -182,14 +182,6 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             true, // nullable
         ];
 
-        yield 'DEC' => [
-            'DEC', // sql which goes to table
-            'DECIMAL (18,0)', // expected sql from getSQLDefinition
-            'DECIMAL', // expected type from db
-            null, // default
-            '18,0', // length
-            true, // nullable
-        ];
         yield 'DECIMAL (p)' => [
             'DECIMAL (9)', // sql which goes to table
             'DECIMAL (9,0)', // expected sql from getSQLDefinition
@@ -351,7 +343,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             true, // nullable
         ];
 
-        yield 'CHAR' => [
+        yield 'CHAR (1)' => [
             'CHAR', // sql which goes to table
             'CHAR (1)', // expected sql from getSQLDefinition
             'CHAR', // expected type from db
@@ -359,7 +351,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '1', // length
             true, // nullable
         ];
-        yield 'CHAR' => [
+        yield 'CHAR (300)' => [
             'CHAR (300)', // sql which goes to table
             'CHAR (300)', // expected sql from getSQLDefinition
             'CHAR', // expected type from db
@@ -368,7 +360,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             true, // nullable
         ];
 
-        yield 'CHARACTER' => [
+        yield 'CHARACTER (2000)' => [
             'CHARACTER (2000)', // sql which goes to table
             'CHAR (2000)', // expected sql from getSQLDefinition
             'CHAR', // expected type from db
@@ -376,7 +368,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             '2000', // length
             true, // nullable
         ];
-        yield 'CHARACTER' => [
+        yield 'CHARACTER (1)' => [
             'CHARACTER', // sql which goes to table
             'CHAR (1)', // expected sql from getSQLDefinition
             'CHAR', // expected type from db

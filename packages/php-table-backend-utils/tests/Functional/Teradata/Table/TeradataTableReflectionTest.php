@@ -74,7 +74,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         string $expectedType,
         ?string $expectedDefault,
         ?string $expectedLength,
-        ?string $expectedNullable
+        bool $expectedNullable
     ): void {
         $sql = sprintf(
             'CREATE MULTISET TABLE %s.%s ,
