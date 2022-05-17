@@ -53,6 +53,7 @@ class SynapseDatatypeTest extends TestCase
             ['nvarchar', 'notANumber'],
             ['nvarchar', '0'],
             ['nvarchar', '4001'],
+            ['nvarchar', '1.0'],
 
             ['nchar', 'notANumber'],
             ['nchar', '0'],

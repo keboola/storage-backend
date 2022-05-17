@@ -154,6 +154,9 @@ abstract class Common implements DefinitionInterface
         if (!is_numeric($length)) {
             return false;
         }
+        if (filter_var($length, FILTER_VALIDATE_INT) === false) {
+            return false;
+        }
         return (int) $length >= $min && (int) $length <= $max;
     }
 }
