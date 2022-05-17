@@ -487,7 +487,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
             $sqlDef
         );
 
-        if ($useHeapTable === true) {
+        if ($useHeapTable) {
             $sql .= ' WITH (HEAP)';
         }
 

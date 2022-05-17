@@ -385,7 +385,7 @@ WHERE
 EOT
         );
 
-        if (count($result) === 0) {
+        if ($result === []) {
             return [];
         }
 

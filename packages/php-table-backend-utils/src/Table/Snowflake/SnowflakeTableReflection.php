@@ -203,7 +203,7 @@ WHERE REFERENCED_OBJECT_TYPE = %s
                         )
                     );
 
-                    if (count($dependentObjects)) {
+                    if ($dependentObjects !== []) {
                         $dependentViews[] = [
                             'schema_name' => $viewRow['schema_name'],
                             'name' => $viewRow['name'],

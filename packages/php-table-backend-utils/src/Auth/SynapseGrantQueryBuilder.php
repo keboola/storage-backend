@@ -22,7 +22,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
         $on = $this->getOnStatement($options->getSubject(), $options->getOnTargetPath());
 
         $with = '';
-        if ($options->isAllowGrantOption() === true) {
+        if ($options->isAllowGrantOption()) {
             $with = ' WITH GRANT OPTION';
         }
 
@@ -43,13 +43,13 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
         $on = $this->getOnStatement($options->getSubject(), $options->getOnTargetPath());
 
         $with = '';
-        if ($options->isRevokedInCascade() === true) {
+        if ($options->isRevokedInCascade()) {
             $with = ' CASCADE';
         }
 
         $permissions = implode(', ', $options->getPermissions());
 
-        if ($options->isGrantOptionRevoked() === true) {
+        if ($options->isGrantOptionRevoked()) {
             $permissions = 'GRANT OPTION FOR '.$permissions;
         }
 
@@ -80,7 +80,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
         $on = '';
         if ($grantSubject !== null) {
             $path = '';
-            if (count($grantOnTargetPath) !== 0) {
+            if ($grantOnTargetPath !== []) {
                 $path = '::' . implode('.', $this->getQuotedTargetPath($grantOnTargetPath));
             }
 

@@ -113,7 +113,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 
         $primaryKeySql = '';
         if ($definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
-            && count($definition->getPrimaryKeysNames()) !== 0
+            && $definition->getPrimaryKeysNames() !== []
         ) {
             $quotedPrimaryKeys = array_map(
                 static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),

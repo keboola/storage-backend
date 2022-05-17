@@ -317,7 +317,7 @@ EOT
         // test table properties
         $tableReflection = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());
-        if ($createPrimaryKeys === true) {
+        if ($createPrimaryKeys) {
             self::assertSame($definition->getPrimaryKeysNames(), $tableReflection->getPrimaryKeysNames());
         } else {
             self::assertSame([], $tableReflection->getPrimaryKeysNames());

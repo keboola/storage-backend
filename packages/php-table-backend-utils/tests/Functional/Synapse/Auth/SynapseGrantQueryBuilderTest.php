@@ -346,10 +346,10 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
         string $expectedRevoke
     ): void {
         assert($this->currentLogin !== null);
-        if ($useCurrentLoginOnEndPath === true) {
+        if ($useCurrentLoginOnEndPath) {
             $grantOnTargetPath[] = $this->currentLogin;
         }
-        $grantTo = $this->currentLogin . ($grantToRole === true ? '_ROLE' : '');
+        $grantTo = $this->currentLogin . ($grantToRole ? '_ROLE' : '');
 
         $options = (new GrantOptions(
             $permissions,
@@ -364,7 +364,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
         $this->connection->executeStatement($sql);
         $this->assertSame(sprintf($expectedGrant, $this->currentLogin, $this->currentLogin), $sql);
 
-        if ($allowGrantOption === true) {
+        if ($allowGrantOption) {
             $this->markTestIncomplete('Revoking grant options doesn\'t work on Synapse.');
         }
 

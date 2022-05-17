@@ -120,7 +120,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
 
         $columnsSql = implode(",\n", $columnsSqlDefinitions);
 
-        if ($primaryKeys) {
+        if ($primaryKeys !== []) {
             $columnsSql .= sprintf(
                 ",\nPRIMARY KEY (%s)",
                 implode(
@@ -138,7 +138,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             TeradataQuote::quoteSingleIdentifier($tableName),
             $columnsSql,
             // NoPI table support duplications in table
-            $primaryKeys ? '' : ' NO PRIMARY INDEX'
+            $primaryKeys !== [] ? '' : ' NO PRIMARY INDEX'
         );
     }
 

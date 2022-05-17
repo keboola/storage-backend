@@ -268,7 +268,7 @@ EOT
         SynapseTableDefinition $actualDefinition,
         bool $expectPrimaryKeys = true
     ): void {
-        if ($expectPrimaryKeys === true) {
+        if ($expectPrimaryKeys) {
             self::assertCount(
                 count($expectedDefinition->getPrimaryKeysNames()),
                 $actualDefinition->getPrimaryKeysNames()

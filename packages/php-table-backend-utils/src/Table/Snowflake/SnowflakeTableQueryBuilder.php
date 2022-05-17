@@ -127,7 +127,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             );
         }
 
-        if ($primaryKeys) {
+        if ($primaryKeys !== []) {
             $columnsSqlDefinitions[] =
                 sprintf(
                     'PRIMARY KEY (%s)',

@@ -119,7 +119,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
             );
         }
 
-        if ($primaryKeys) {
+        if ($primaryKeys !== []) {
             $columnsSqlDefinitions[] =
                 sprintf(
                     'CONSTRAINT PRIMARY KEY (%s)',
