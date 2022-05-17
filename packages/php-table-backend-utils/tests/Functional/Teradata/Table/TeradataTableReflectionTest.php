@@ -67,13 +67,15 @@ class TeradataTableReflectionTest extends TeradataBaseCase
 
     /**
      * @dataProvider tableColsDataProvider
+     * @param null|string|int $expectedDefault
+     * @param null|string|int $expectedLength
      */
     public function testColumnDefinition(
         string $sqlDef,
         string $expectedSqlDefinition,
         string $expectedType,
-        ?string $expectedDefault,
-        ?string $expectedLength,
+        $expectedDefault,
+        $expectedLength,
         bool $expectedNullable
     ): void {
         $sql = sprintf(
