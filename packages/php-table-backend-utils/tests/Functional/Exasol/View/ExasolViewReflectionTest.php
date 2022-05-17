@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Exasol\View;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 use Keboola\TableBackendUtils\View\Exasol\ExasolViewReflection;
+use Keboola\TableBackendUtils\View\InvalidViewDefinitionException;
 use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;
 
 /**
@@ -72,6 +73,13 @@ EOT
         );
     }
 
+    public function testGetViewDefinitionForNotExistingView(): void
+    {
+        $viewRef = new ExasolViewReflection($this->connection, self::TEST_SCHEMA, 'notExistingView');
+        $this->expectException(InvalidViewDefinitionException::class);
+        $this->expectExceptionMessage('View "notExistingView" in schema "utilsTest_refTableSchema" does not exists.');
+        $viewRef->getViewDefinition();
+    }
 
     public function testRefreshView(): void
     {

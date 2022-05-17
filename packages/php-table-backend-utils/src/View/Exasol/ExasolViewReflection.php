@@ -56,8 +56,14 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
             ExasolQuote::quote($this->viewName)
         );
 
-        /** @var string $definition */
+        /** @var false|string $definition */
         $definition = $this->connection->fetchOne($sql);
+        if ($definition === false) {
+            throw InvalidViewDefinitionException::createForNotExistingView(
+                $this->schemaName,
+                $this->viewName
+            );
+        }
         return $definition;
     }
 

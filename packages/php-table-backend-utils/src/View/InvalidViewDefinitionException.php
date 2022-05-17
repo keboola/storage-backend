@@ -15,6 +15,19 @@ class InvalidViewDefinitionException extends RuntimeException implements Applica
         parent::__construct($message, 0, $previous);
     }
 
+    public static function createForNotExistingView(
+        string $schemaName,
+        string $viewName
+    ): InvalidViewDefinitionException {
+        return new self(
+            sprintf(
+                'View "%s" in schema "%s" does not exists.',
+                $viewName,
+                $schemaName
+            )
+        );
+    }
+
     public static function createForMissingDefinition(
         string $schemaName,
         string $viewName
