@@ -18,8 +18,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
  */
 class TeradataTableQueryBuilderTest extends TeradataBaseCase
 {
-    /** @var TeradataTableQueryBuilder */
-    private $qb;
+    private \Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder $qb;
 
     public function setUp(): void
     {

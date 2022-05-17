@@ -11,10 +11,7 @@ class ColumnException extends RuntimeException implements ApplicationExceptionIn
 {
     public const STRING_CODE_TO_MANY_COLUMNS = 'tooManyColumns';
 
-    /**
-     * @var string
-     */
-    private $stringCode;
+    private string $stringCode;
 
     public function __construct(
         string $message,

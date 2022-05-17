@@ -12,14 +12,11 @@ use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 
 final class ExasolViewReflection implements ViewReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
-    /** @var string */
-    private $viewName;
+    private string $viewName;
 
     public function __construct(Connection $connection, string $schemaName, string $viewName)
     {

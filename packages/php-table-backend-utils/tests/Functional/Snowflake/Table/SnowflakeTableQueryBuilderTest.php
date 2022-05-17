@@ -19,8 +19,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
  */
 class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
 {
-    /** @var SnowflakeTableQueryBuilder */
-    private $qb;
+    private \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder $qb;
 
     public function setUp(): void
     {

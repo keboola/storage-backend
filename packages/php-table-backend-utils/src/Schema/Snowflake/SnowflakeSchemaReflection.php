@@ -11,11 +11,9 @@ use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 
 final class SnowflakeSchemaReflection implements SchemaReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
     public function __construct(Connection $connection, string $schemaName)
     {
@@ -35,9 +33,7 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
 
         $tables = array_filter($tables, fn($item) => $item['kind'] === 'TABLE');
 
-        return array_map(static function ($table) {
-            return $table['name'];
-        }, $tables);
+        return array_map(static fn($table) => $table['name'], $tables);
     }
 
     public function getViewsNames(): array
@@ -50,8 +46,6 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
             )
         );
 
-        return array_map(static function ($table) {
-            return $table['name'];
-        }, $tables);
+        return array_map(static fn($table) => $table['name'], $tables);
     }
 }

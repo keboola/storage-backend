@@ -39,9 +39,7 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         ));
 
         // extract data to primitive array
-        return array_map(static function ($record) {
-            return $record['name'];
-        }, $users);
+        return array_map(static fn($record) => $record['name'], $users);
     }
 
     /**
@@ -65,8 +63,6 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         ));
 
         // extract data to primitive array
-        return array_map(static function ($record) {
-            return $record['name'];
-        }, $roles);
+        return array_map(static fn($record) => $record['name'], $roles);
     }
 }

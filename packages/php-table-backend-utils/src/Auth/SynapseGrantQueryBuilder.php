@@ -68,9 +68,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
      */
     private function getQuotedTargetPath(array $onTargetPath): array
     {
-        return array_map(function (string $pathPart) {
-            return SynapseQuote::quoteSingleIdentifier($pathPart);
-        }, $onTargetPath);
+        return array_map(fn(string $pathPart) => SynapseQuote::quoteSingleIdentifier($pathPart), $onTargetPath);
     }
 
     /**

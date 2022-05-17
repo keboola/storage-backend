@@ -36,7 +36,7 @@ class SnowflakeConnection implements Connection
             $queryTag = [
                 'runId' => $options['runId'],
             ];
-            $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag) . "';");
+            $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag, JSON_THROW_ON_ERROR) . "';");
         }
     }
 

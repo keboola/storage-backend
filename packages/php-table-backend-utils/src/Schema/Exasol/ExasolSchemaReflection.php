@@ -11,11 +11,9 @@ use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 
 final class ExasolSchemaReflection implements SchemaReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
     public function __construct(Connection $connection, string $schemaName)
     {
@@ -33,9 +31,7 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
             )
         );
 
-        return array_map(static function ($table) {
-            return $table['TABLE_NAME'];
-        }, $tables);
+        return array_map(static fn($table) => $table['TABLE_NAME'], $tables);
     }
 
     public function getViewsNames(): array
@@ -48,8 +44,6 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
             )
         );
 
-        return array_map(static function ($table) {
-            return $table['VIEW_NAME'];
-        }, $tables);
+        return array_map(static fn($table) => $table['VIEW_NAME'], $tables);
     }
 }

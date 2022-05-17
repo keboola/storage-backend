@@ -11,10 +11,7 @@ class QueryBuilderException extends RuntimeException implements ApplicationExcep
 {
     public const STRING_CODE_INVALID_TEMP_TABLE = 'invalidTempTable';
 
-    /**
-     * @var string
-     */
-    private $stringCode;
+    private string $stringCode;
 
     public function __construct(
         string $message,

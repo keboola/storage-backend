@@ -9,11 +9,9 @@ use Keboola\Datatype\Definition\Synapse;
 
 final class SynapseColumn implements ColumnInterface
 {
-    /** @var string */
-    private $columnName;
+    private string $columnName;
 
-    /** @var Synapse */
-    private $columnDefinition;
+    private \Keboola\Datatype\Definition\Synapse $columnDefinition;
 
     public function __construct(string $columnName, Synapse $columnDefinition)
     {

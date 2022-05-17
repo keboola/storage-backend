@@ -13,20 +13,17 @@ final class RevokeOptions implements RevokeOptionsInterface
     public const OPTION_REVOKE_CASCADE = true;
     public const OPTION_DONT_REVOKE_CASCADE = false;
 
-    /** @var bool|self::OPTION_REVOKE_GRANT_OPTION|self::OPTION_DONT_REVOKE_GRANT_OPTION */
-    private $revokeGrantOption = self::OPTION_DONT_REVOKE_GRANT_OPTION;
+    private bool $revokeGrantOption = self::OPTION_DONT_REVOKE_GRANT_OPTION;
 
-    /** @var bool|self::OPTION_REVOKE_CASCADE|self::OPTION_DONT_REVOKE_CASCADE */
-    private $isCascade = self::OPTION_DONT_REVOKE_CASCADE;
+    private bool $isCascade = self::OPTION_DONT_REVOKE_CASCADE;
 
     /** @var array<Permission::GRANT_*> */
-    private $permissions;
+    private array $permissions;
 
-    /** @var string */
-    private $revokeFrom;
+    private string $revokeFrom;
 
     /** @var string[] */
-    private $revokeOnTargetPath = [];
+    private array $revokeOnTargetPath = [];
 
     /** @var null|GrantOn::ON_* */
     private $subject;

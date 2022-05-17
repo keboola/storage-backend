@@ -22,13 +22,10 @@ final class TeradataTableReflection implements TableReflectionInterface
 
     private string $tableName;
 
-    private bool $isTemporary;
+    private bool $isTemporary = false;
 
     public function __construct(Connection $connection, string $dbName, string $tableName)
     {
-        // TODO detect temp tables
-        $this->isTemporary = false;
-
         $this->tableName = $tableName;
         $this->dbName = $dbName;
         $this->connection = $connection;

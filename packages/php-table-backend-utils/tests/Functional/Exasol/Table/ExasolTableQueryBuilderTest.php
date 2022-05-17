@@ -18,8 +18,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;
  */
 class ExasolTableQueryBuilderTest extends ExasolBaseCase
 {
-    /** @var ExasolTableQueryBuilder */
-    private $qb;
+    private \Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder $qb;
 
     public function setUp(): void
     {

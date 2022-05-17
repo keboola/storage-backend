@@ -23,7 +23,7 @@ class TeradataStatement implements Statement
     /**
      * @var array<mixed>
      */
-    private $params = [];
+    private array $params = [];
 
     private string $query;
 

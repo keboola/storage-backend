@@ -10,11 +10,10 @@ use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 
 final class TeradataDatabaseReflection implements DatabaseReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
     /** @var string[] */
-    private static $excludedUsers = [
+    private static array $excludedUsers = [
         'TDPUSER',
         'Crashdumps',
         'tdwm',
@@ -42,9 +41,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         // build escaped list of system users
         $where = sprintf(
             'U.UserName NOT IN (%s)',
-            implode(', ', array_map(static function ($item) {
-                return TeradataQuote::quote($item);
-            }, self::$excludedUsers))
+            implode(', ', array_map(static fn($item) => TeradataQuote::quote($item), self::$excludedUsers))
         );
 
         // add LIKE
@@ -63,9 +60,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         ));
 
         // extract data to primitive array
-        return array_map(static function ($record) {
-            return trim($record['UserName']);
-        }, $users);
+        return array_map(static fn($record) => trim($record['UserName']), $users);
     }
 
     /**
@@ -90,8 +85,6 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         ));
 
         // extract data to primitive array. Has to be trimmed because it comes with some extra spaces
-        return array_map(static function ($record) {
-            return trim($record['RoleName']);
-        }, $roles);
+        return array_map(static fn($record) => trim($record['RoleName']), $roles);
     }
 }

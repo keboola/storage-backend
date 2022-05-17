@@ -20,7 +20,7 @@ final class TableIndexDefinition
     private $indexType;
 
     /** @var String[] */
-    private $indexedColumnsNames;
+    private array $indexedColumnsNames;
 
     /**
      * @param self::TABLE_INDEX_TYPE_* $indexType

@@ -20,17 +20,13 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     public const DEPENDENT_OBJECT_TABLE = 'TABLE';
     public const DEPENDENT_OBJECT_VIEW = 'VIEW';
 
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
-    /** @var bool */
-    private $isTemporary;
+    private ?bool $isTemporary = null;
 
     public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
@@ -72,9 +68,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
             )
         );
 
-        return array_values(array_map(function ($column) {
-            return $column['column_name'];
-        }, $columnsData));
+        return array_values(array_map(fn($column) => $column['column_name'], $columnsData));
     }
 
     public function getColumnsDefinitions(): ColumnCollection
@@ -134,9 +128,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
             )
         );
 
-        return array_map(function ($pkRow) {
-            return $pkRow['column_name'];
-        }, $columnsMeta);
+        return array_map(fn($pkRow) => $pkRow['column_name'], $columnsMeta);
     }
 
     public function getTableStats(): TableStatsInterface

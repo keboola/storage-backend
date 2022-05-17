@@ -17,8 +17,7 @@ use PHPUnit\Framework\TestCase;
  */
 class SnowflakeTableQueryBuilderTest extends TestCase
 {
-    /** @var SnowflakeTableQueryBuilder */
-    private $qb;
+    private \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder $qb;
 
     public function setUp(): void
     {

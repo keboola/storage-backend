@@ -17,8 +17,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ExasolTableQueryBuilderTest extends TestCase
 {
-    /** @var ExasolTableQueryBuilder */
-    private $qb;
+    private \Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder $qb;
 
     public function setUp(): void
     {

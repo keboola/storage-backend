@@ -6,11 +6,9 @@ namespace Keboola\TableBackendUtils\Table;
 
 final class TableStats implements TableStatsInterface
 {
-    /** @var int */
-    private $dataSizeBytes;
+    private int $dataSizeBytes;
 
-    /** @var int */
-    private $rowsCount;
+    private int $rowsCount;
 
     public function __construct(int $dataSizeBytes, int $rowsCount)
     {

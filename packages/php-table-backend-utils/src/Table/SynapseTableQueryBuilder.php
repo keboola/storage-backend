@@ -75,9 +75,10 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
 
         $primaryKeySql = '';
         if (!empty($primaryKeys)) {
-            $quotedPrimaryKeys = array_map(function ($columnName) {
-                return SynapseQuote::quoteSingleIdentifier($columnName);
-            }, $primaryKeys);
+            $quotedPrimaryKeys = array_map(
+                static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
+                $primaryKeys
+            );
             $primaryKeySql = sprintf(
                 ', PRIMARY KEY NONCLUSTERED(%s) NOT ENFORCED',
                 implode(',', $quotedPrimaryKeys)
@@ -114,18 +115,20 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         if ($definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
             && count($definition->getPrimaryKeysNames()) !== 0
         ) {
-            $quotedPrimaryKeys = array_map(function ($columnName) {
-                return SynapseQuote::quoteSingleIdentifier($columnName);
-            }, $definition->getPrimaryKeysNames());
+            $quotedPrimaryKeys = array_map(
+                static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
+                $definition->getPrimaryKeysNames()
+            );
             $primaryKeySql = sprintf(
                 ', PRIMARY KEY NONCLUSTERED(%s) NOT ENFORCED',
                 implode(',', $quotedPrimaryKeys)
             );
         }
         if ($definition->getTableDistribution()->isHashDistribution()) {
-            $quotedColumns = array_map(function ($columnName) {
-                return SynapseQuote::quoteSingleIdentifier($columnName);
-            }, $definition->getTableDistribution()->getDistributionColumnsNames());
+            $quotedColumns = array_map(
+                static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
+                $definition->getTableDistribution()->getDistributionColumnsNames()
+            );
             $distributionSql = sprintf(
                 'DISTRIBUTION = %s(%s)',
                 $definition->getTableDistribution()->getDistributionName(),
@@ -138,9 +141,10 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             );
         }
         if ($definition->getTableIndex()->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
-            $quotedColumns = array_map(function ($columnName) {
-                return SynapseQuote::quoteSingleIdentifier($columnName);
-            }, $definition->getTableIndex()->getIndexedColumnsNames());
+            $quotedColumns = array_map(
+                static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
+                $definition->getTableIndex()->getIndexedColumnsNames()
+            );
             $indexSql = sprintf(
                 '%s(%s)',
                 $definition->getTableIndex()->getIndexType(),

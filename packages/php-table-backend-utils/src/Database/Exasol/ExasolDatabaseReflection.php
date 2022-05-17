@@ -11,12 +11,10 @@ use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 
 final class ExasolDatabaseReflection implements DatabaseReflectionInterface
 {
-    // role and user names are transformed to UPPERCASE. Quoting has no effect
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
     /** @var string[] */
-    private static $excludedUsers = [
+    private static array $excludedUsers = [
         'SYS',
     ];
 
@@ -33,9 +31,7 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         // build escaped list of system users
         $where = sprintf(
             '"U"."USER_NAME" NOT IN (%s)',
-            implode(', ', array_map(static function ($item) {
-                return ExasolQuote::quote($item);
-            }, self::$excludedUsers))
+            implode(', ', array_map(static fn($item) => ExasolQuote::quote($item), self::$excludedUsers))
         );
 
         // add LIKE
@@ -54,9 +50,7 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         ));
 
         // extract data to primitive array
-        return array_map(static function ($record) {
-            return $record['USER_NAME'];
-        }, $users);
+        return array_map(static fn($record) => $record['USER_NAME'], $users);
     }
 
     /**
@@ -80,8 +74,6 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
             $where
         ));
 
-        return array_map(static function ($record) {
-            return $record['ROLE_NAME'];
-        }, $roles);
+        return array_map(static fn($record) => $record['ROLE_NAME'], $roles);
     }
 }

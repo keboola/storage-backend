@@ -11,20 +11,18 @@ final class GrantOptions implements GrantOptionsInterface
     public const OPTION_ALLOW_GRANT_OPTION = true;
     public const OPTION_DONT_ALLOW_GRANT_OPTION = false;
 
-    /** @var bool|self::OPTION_ALLOW_GRANT_OPTION|self::OPTION_DONT_ALLOW_GRANT_OPTION */
-    private $allowGrantOption = self::OPTION_DONT_ALLOW_GRANT_OPTION;
+    private bool $allowGrantOption = self::OPTION_DONT_ALLOW_GRANT_OPTION;
 
     /** @var array<Permission::GRANT_*> */
-    private $permissions;
+    private array $permissions;
 
-    /** @var string */
-    private $grantTo;
+    private string $grantTo;
 
     /** @var null|GrantOn::ON_* */
     private $subject;
 
     /** @var string[] */
-    private $grantOnTargetPath = [];
+    private array $grantOnTargetPath = [];
 
     /**
      * @param array<Permission::GRANT_*> $permissions

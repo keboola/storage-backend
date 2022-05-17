@@ -17,20 +17,15 @@ use function Keboola\Utils\returnBytes;
 
 final class SynapseTableReflection implements TableReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
-    /** @var string */
-    private $objectId;
+    private ?string $objectId = null;
 
-    /** @var bool */
-    private $isTemporary;
+    private bool $isTemporary;
 
     public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
@@ -57,9 +52,7 @@ final class SynapseTableReflection implements TableReflectionInterface
             SynapseQuote::quote($tableId)
         ));
 
-        return array_map(static function ($column) {
-            return $column['name'];
-        }, $columns);
+        return array_map(static fn($column) => $column['name'], $columns);
     }
 
     /**
@@ -143,9 +136,7 @@ EOT;
          * }[] $columns */
         $columns = $this->connection->fetchAllAssociative($sql);
 
-        $columns = array_map(static function ($col) {
-            return SynapseColumn::createFromDB($col);
-        }, $columns);
+        $columns = array_map(static fn($col) => SynapseColumn::createFromDB($col), $columns);
 
         return new ColumnCollection($columns);
     }
@@ -184,9 +175,7 @@ SELECT COL_NAME(ic.OBJECT_ID,ic.column_id) AS column_name
 EOT
         );
 
-        return array_map(static function ($item) {
-            return $item['column_name'];
-        }, $result);
+        return array_map(static fn($item) => $item['column_name'], $result);
     }
 
     public function getTableStats(): TableStatsInterface
@@ -301,9 +290,7 @@ WHERE dp.distribution_ordinal = 1 AND dp.OBJECT_ID = '$tableId' AND c.object_id 
 EOT
         );
 
-        return array_map(static function ($item) {
-            return $item['name'];
-        }, $result);
+        return array_map(static fn($item) => $item['name'], $result);
     }
 
     /**

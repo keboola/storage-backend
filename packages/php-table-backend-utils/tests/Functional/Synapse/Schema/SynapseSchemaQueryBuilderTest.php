@@ -49,9 +49,7 @@ class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
             )
         );
 
-        return array_map(static function (array $schema) {
-            return $schema['name'];
-        }, $schemas);
+        return array_map(static fn(array $schema) => $schema['name'], $schemas);
     }
 
     public function testGetDropSchemaCommand(): void

@@ -9,8 +9,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
 
 class TeradataSchemaReflectionTest extends TeradataBaseCase
 {
-    /** @var TeradataSchemaReflection */
-    private $schemaRef;
+    private \Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection $schemaRef;
 
     public function setUp(): void
     {

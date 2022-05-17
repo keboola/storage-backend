@@ -123,9 +123,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSqlDefinitions[] =
                 sprintf(
                     'CONSTRAINT PRIMARY KEY (%s)',
-                    implode(',', array_map(static function ($item) {
-                        return ExasolQuote::quoteSingleIdentifier($item);
-                    }, $primaryKeys))
+                    implode(',', array_map(static fn($item) => ExasolQuote::quoteSingleIdentifier($item), $primaryKeys))
                 );
         }
 

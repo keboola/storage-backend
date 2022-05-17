@@ -131,9 +131,10 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSqlDefinitions[] =
                 sprintf(
                     'PRIMARY KEY (%s)',
-                    implode(',', array_map(static function ($item) {
-                        return SnowflakeQuote::quoteSingleIdentifier($item);
-                    }, $primaryKeys))
+                    implode(',', array_map(
+                        static fn($item) => SnowflakeQuote::quoteSingleIdentifier($item),
+                        $primaryKeys
+                    ))
                 );
         }
 

@@ -10,11 +10,9 @@ use Keboola\TableBackendUtils\Column\ColumnInterface;
 
 final class SnowflakeColumn implements ColumnInterface
 {
-    /** @var string */
-    private $columnName;
+    private string $columnName;
 
-    /** @var Snowflake */
-    private $columnDefinition;
+    private \Keboola\Datatype\Definition\Snowflake $columnDefinition;
 
     public function __construct(string $columnName, Snowflake $columnDefinition)
     {

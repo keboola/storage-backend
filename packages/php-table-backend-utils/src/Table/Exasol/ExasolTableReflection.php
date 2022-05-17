@@ -17,23 +17,16 @@ use Keboola\TableBackendUtils\Table\TableStatsInterface;
 
 final class ExasolTableReflection implements TableReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
-    /** @var bool */
-    private $isTemporary;
+    private bool $isTemporary = false;
 
     public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
-        // TODO detect temp tables
-        $this->isTemporary = false;
-
         $this->tableName = $tableName;
         $this->schemaName = $schemaName;
         $this->connection = $connection;
@@ -53,9 +46,7 @@ final class ExasolTableReflection implements TableReflectionInterface
             )
         );
 
-        return array_map(static function ($column) {
-            return $column['COLUMN_NAME'];
-        }, $columns);
+        return array_map(static fn($column) => $column['COLUMN_NAME'], $columns);
     }
 
     public function getColumnsDefinitions(): ColumnCollection
@@ -94,9 +85,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
             )
         );
 
-        $columns = array_map(static function ($col) {
-            return ExasolColumn::createFromDB($col);
-        }, $columns);
+        $columns = array_map(static fn($col) => ExasolColumn::createFromDB($col), $columns);
 
         return new ColumnCollection($columns);
     }
@@ -135,9 +124,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
         /** @var array<array{COLUMN_NAME:string}> $data */
         $data = $this->connection->fetchAllAssociative($sql);
 
-        return array_map(static function ($column) {
-            return $column['COLUMN_NAME'];
-        }, $data);
+        return array_map(static fn($column) => $column['COLUMN_NAME'], $data);
     }
 
     public function getTableStats(): TableStatsInterface

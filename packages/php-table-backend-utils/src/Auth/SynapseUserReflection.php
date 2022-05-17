@@ -9,11 +9,9 @@ use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 class SynapseUserReflection implements UserReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $userName;
+    private string $userName;
 
     public function __construct(Connection $connection, string $userName)
     {

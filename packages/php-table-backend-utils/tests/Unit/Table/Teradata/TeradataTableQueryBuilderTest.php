@@ -17,8 +17,7 @@ use PHPUnit\Framework\TestCase;
  */
 class TeradataTableQueryBuilderTest extends TestCase
 {
-    /** @var TeradataTableQueryBuilder */
-    private $qb;
+    private \Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder $qb;
 
     public function setUp(): void
     {

@@ -11,26 +11,20 @@ use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 
 final class SynapseTableDefinition implements TableDefinitionInterface
 {
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
-    /** @var ColumnCollection */
-    private $columns;
+    private \Keboola\TableBackendUtils\Column\ColumnCollection $columns;
 
     /** @var string[] */
-    private $primaryKeysNames;
+    private array $primaryKeysNames;
 
-    /** @var TableDistributionDefinition */
-    private $tableDistribution;
+    private \Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition $tableDistribution;
 
-    /** @var bool */
-    private $isTemporary;
+    private bool $isTemporary;
 
-    /** @var TableIndexDefinition */
-    private $tableIndex;
+    private \Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition $tableIndex;
 
     /**
      * @param string[] $primaryKeysNames

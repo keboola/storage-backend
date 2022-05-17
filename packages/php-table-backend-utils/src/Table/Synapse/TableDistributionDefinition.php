@@ -16,11 +16,10 @@ final class TableDistributionDefinition
         self::TABLE_DISTRIBUTION_ROUND_ROBIN,
     ];
 
-    /** @var string */
-    private $distributionName;
+    private string $distributionName;
 
     /** @var String[] */
-    private $distributionColumnsNames;
+    private array $distributionColumnsNames;
 
     /**
      * @param self::TABLE_DISTRIBUTION_* $distributionName

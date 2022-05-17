@@ -125,9 +125,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
                 ",\nPRIMARY KEY (%s)",
                 implode(
                     ', ',
-                    array_map(static function ($item) {
-                        return TeradataQuote::quoteSingleIdentifier($item);
-                    }, $primaryKeys)
+                    array_map(static fn($item) => TeradataQuote::quoteSingleIdentifier($item), $primaryKeys)
                 )
             );
         }

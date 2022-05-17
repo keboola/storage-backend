@@ -29,9 +29,7 @@ class SnowflakeQuote implements QuoteInterface
     public static function createQuotedIdentifierFromParts(array $parts): string
     {
         return implode('.', array_map(
-            function (string $part) {
-                return self::quoteSingleIdentifier($part);
-            },
+            fn(string $part) => self::quoteSingleIdentifier($part),
             $parts
         ));
     }

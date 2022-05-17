@@ -10,11 +10,9 @@ use Keboola\TableBackendUtils\Column\ColumnInterface;
 
 final class ExasolColumn implements ColumnInterface
 {
-    /** @var string */
-    private $columnName;
+    private string $columnName;
 
-    /** @var Exasol */
-    private $columnDefinition;
+    private \Keboola\Datatype\Definition\Exasol $columnDefinition;
 
     public function __construct(string $columnName, Exasol $columnDefinition)
     {

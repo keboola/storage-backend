@@ -9,11 +9,9 @@ use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseSchemaReflection implements SchemaReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
-    /** @var string */
-    private $schemaName;
+    private string $schemaName;
 
     public function __construct(Connection $connection, string $schemaName)
     {
@@ -34,9 +32,7 @@ order by name;
 EOT
         );
 
-        return array_map(static function ($table) {
-            return $table['name'];
-        }, $tables);
+        return array_map(static fn($table) => $table['name'], $tables);
     }
 
     public function getViewsNames(): array
@@ -52,8 +48,6 @@ order by name;
 EOT
         );
 
-        return array_map(static function ($table) {
-            return $table['name'];
-        }, $tables);
+        return array_map(static fn($table) => $table['name'], $tables);
     }
 }

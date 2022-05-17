@@ -10,11 +10,9 @@ use Keboola\TableBackendUtils\Column\ColumnInterface;
 
 final class TeradataColumn implements ColumnInterface
 {
-    /** @var string */
-    private $columnName;
+    private string $columnName;
 
-    /** @var Teradata */
-    private $columnDefinition;
+    private \Keboola\Datatype\Definition\Teradata $columnDefinition;
 
     public function __construct(string $columnName, Teradata $columnDefinition)
     {

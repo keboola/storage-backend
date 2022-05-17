@@ -235,12 +235,7 @@ CREATE DATABASE %s AS
         $sortKey,
         string $message = ''
     ): void {
-        $comparison = function ($attrLeft, $attrRight) use ($sortKey) {
-            if ($attrLeft[$sortKey] === $attrRight[$sortKey]) {
-                return 0;
-            }
-            return $attrLeft[$sortKey] < $attrRight[$sortKey] ? -1 : 1;
-        };
+        $comparison = fn($attrLeft, $attrRight) => $attrLeft[$sortKey] <=> $attrRight[$sortKey];
         usort($expected, $comparison);
         usort($actual, $comparison);
         $this->assertEqualsCanonicalizing($expected, $actual, $message);

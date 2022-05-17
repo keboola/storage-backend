@@ -9,8 +9,7 @@ use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseDatabaseReflection implements DatabaseReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private \Doctrine\DBAL\Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -35,9 +34,7 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
             $where
         ));
 
-        return array_map(static function ($record) {
-            return $record['name'];
-        }, $users);
+        return array_map(static fn($record) => $record['name'], $users);
     }
 
     /**
@@ -59,8 +56,6 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
             $where
         ));
 
-        return array_map(static function ($record) {
-            return $record['name'];
-        }, $roles);
+        return array_map(static fn($record) => $record['name'], $roles);
     }
 }
