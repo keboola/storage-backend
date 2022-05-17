@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
+use Generator;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
@@ -11,7 +13,6 @@ use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
@@ -29,7 +30,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function incrementalImportData(): \Generator
+    public function incrementalImportData(): Generator
     {
         [
             $accountColumns,

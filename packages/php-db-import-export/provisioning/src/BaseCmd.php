@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Provisioning;
 
 use Keboola\Provisioning\Azure\AzCli;
+use LogicException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -55,6 +56,9 @@ abstract class BaseCmd extends Command
         );
     }
 
+    /**
+     * @return array<mixed>
+     */
     protected function getOptions(InputInterface $input): array
     {
         $principalTenant = $input->getOption(self::OPTION_AZURE_SERVICE_PRINCIPAL_TENANT);
@@ -79,7 +83,7 @@ abstract class BaseCmd extends Command
         if (is_string($optionValue)) {
             return;
         }
-        throw new \LogicException(sprintf('Option "%s" must be string.', $optionName));
+        throw new LogicException(sprintf('Option "%s" must be string.', $optionName));
     }
 
     protected function runCmdSingleLineOutput(string $cmd): string

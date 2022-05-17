@@ -8,8 +8,8 @@ use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
-use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -104,6 +104,7 @@ class FullImportTest extends TeradataBaseTestCase
         foreach ($file as $row) {
             $expectedEscaping[] = $row;
         }
+        /** @var string[] $escapingHeader */
         $escapingHeader = array_shift($expectedEscaping); // remove header
         $expectedEscaping = array_values($expectedEscaping);
 
@@ -112,6 +113,7 @@ class FullImportTest extends TeradataBaseTestCase
         foreach ($file as $row) {
             $expectedAccounts[] = $row;
         }
+        /** @var string[] $accountsHeader */
         $accountsHeader = array_shift($expectedAccounts); // remove header
         $expectedAccounts = array_values($expectedAccounts);
 
@@ -123,6 +125,7 @@ class FullImportTest extends TeradataBaseTestCase
         foreach ($file as $row) {
             $expectedLemma[] = $row;
         }
+        /** @var string[] $lemmaHeader */
         $lemmaHeader = array_shift($expectedLemma);
         $expectedLemma = array_values($expectedLemma);
 
@@ -416,9 +419,8 @@ class FullImportTest extends TeradataBaseTestCase
 
     /**
      * @dataProvider  fullImportData
-     * @param array<string, string> $table
+     * @param array{0:string, 1:string} $table
      * @param array<mixed> $expected
-     * @param string $tablesToInit
      */
     public function testFullImportWithDataSet(
         SourceInterface $source,

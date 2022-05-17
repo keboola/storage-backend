@@ -23,6 +23,9 @@ class SqlCommandBuilder
         return 'COMMIT';
     }
 
+    /**
+     * @param string[] $columns
+     */
     public function getCreateStagingTableCommand(
         string $schema,
         string $tableName,
@@ -39,6 +42,9 @@ class SqlCommandBuilder
         );
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
     public function getDedupCommand(
         SourceInterface $source,
         Table $destination,
@@ -78,6 +84,9 @@ class SqlCommandBuilder
         );
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
     public function getDeleteOldItemsCommand(
         Table $destination,
         string $stagingTableName,
@@ -93,6 +102,9 @@ class SqlCommandBuilder
         );
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
     private function getPrimayKeyWhereConditions(
         array $primaryKeys
     ): string {
@@ -245,6 +257,9 @@ class SqlCommandBuilder
         );
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
     public function getUpdateWithPkCommand(
         SourceInterface $source,
         Table $destination,

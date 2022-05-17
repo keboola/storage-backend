@@ -12,26 +12,30 @@ use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Abs\ClientFactory;
 use Keboola\FileStorage\Abs\LineEnding\LineEndingDetector;
+use Keboola\FileStorage\FileNotFoundException as FIleStorageFileNotFoundException;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
 use Keboola\FileStorage\Path\RelativePath;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
+use function GuzzleHttp\json_decode;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
-    /** @var bool */
-    private $isSliced;
+    private bool $isSliced;
 
-    /** @var CsvOptions */
-    private $csvOptions;
+    private CsvOptions $csvOptions;
 
     /** @var string[] */
-    private $columnsNames;
+    private array $columnsNames;
 
     /** @var string[]|null */
-    private $primaryKeysNames;
+    private ?array $primaryKeysNames = null;
 
+    /**
+     * @param string[] $columnsNames
+     * @param string[]|null $primaryKeysNames
+     */
     public function __construct(
         string $container,
         string $filePath,
@@ -55,7 +59,6 @@ class SourceFile extends BaseFile implements SourceInterface
     }
 
     /**
-     * @param BlobRestProxy $blobClient
      * @return mixed
      * @throws Exception
      */
@@ -66,7 +69,7 @@ class SourceFile extends BaseFile implements SourceInterface
         } catch (ServiceException $e) {
             throw new ManifestNotFoundException($e);
         }
-        return \GuzzleHttp\json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
+        return json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
     }
 
     /**
@@ -82,6 +85,9 @@ class SourceFile extends BaseFile implements SourceInterface
         return $this->csvOptions;
     }
 
+    /**
+     * @return string[]
+     */
     public function getManifestEntries(
         string $protocol = self::PROTOCOL_AZURE
     ): array {
@@ -122,6 +128,10 @@ class SourceFile extends BaseFile implements SourceInterface
         );
     }
 
+    /**
+     * @param string[] $entries
+     * @return string[]
+     */
     protected function transformManifestEntries(
         array $entries,
         string $protocol,
@@ -176,7 +186,7 @@ class SourceFile extends BaseFile implements SourceInterface
 
         try {
             return $detector->getLineEnding($file);
-        } catch (\Keboola\FileStorage\FileNotFoundException $e) {
+        } catch (FIleStorageFileNotFoundException $e) {
             throw FileNotFoundException::createFromFileNotFoundException($e);
         }
     }

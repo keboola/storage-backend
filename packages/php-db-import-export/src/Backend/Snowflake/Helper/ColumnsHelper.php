@@ -8,6 +8,9 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 
 final class ColumnsHelper
 {
+    /**
+     * @param string[] $columns
+     */
     public static function getColumnsString(
         array $columns,
         string $delimiter = ', ',

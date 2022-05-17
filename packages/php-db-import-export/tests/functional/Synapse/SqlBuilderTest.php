@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
 use DateTime;
+use Generator;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
-use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
@@ -1027,7 +1028,7 @@ EOT
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function ctasFunctionsProvider(): \Generator
+    public function ctasFunctionsProvider(): Generator
     {
         yield 'getCtasDedupCommand' => [
             'getCtasDedupCommand',
@@ -1198,7 +1199,7 @@ EOT
      *  4?: bool
      * }>
      */
-    public function ctasDedupProvider(): \Generator
+    public function ctasDedupProvider(): Generator
     {
         $stage = $this->getStagingTableDefinition();
 
@@ -1497,7 +1498,7 @@ EOT
     /**
      * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
      */
-    public function getCTASInsertAllIntoTargetTableCommandProvider(): \Generator
+    public function getCTASInsertAllIntoTargetTableCommandProvider(): Generator
     {
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
@@ -1608,7 +1609,7 @@ EOT
     /**
      * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
      */
-    public function getCTASInsertAllIntoTargetTableCommandNotStringProvider(): \Generator
+    public function getCTASInsertAllIntoTargetTableCommandNotStringProvider(): Generator
     {
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
@@ -1729,7 +1730,7 @@ EOT
     /**
      * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
      */
-    public function getCTASInsertAllIntoTargetTableCommandConvertToNullProvider(): \Generator
+    public function getCTASInsertAllIntoTargetTableCommandConvertToNullProvider(): Generator
     {
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
@@ -1836,7 +1837,7 @@ EOT
     /**
      * @return \Generator<string, array{SynapseImportOptions::TABLE_TYPES_*, string}>
      */
-    public function getCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): \Generator
+    public function getCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): Generator
     {
         yield 'no type casting' => [
             SynapseImportOptions::TABLE_TYPES_PRESERVE,

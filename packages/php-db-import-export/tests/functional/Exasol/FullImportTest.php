@@ -578,7 +578,6 @@ class FullImportTest extends ExasolBaseTestCase
      * @dataProvider  fullImportData
      * @param array<string, string> $table
      * @param array<mixed> $expected
-     * @param string $tablesToInit
      */
     public function testFullImportWithDataSet(
         SourceInterface $source,

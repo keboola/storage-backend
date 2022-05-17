@@ -72,9 +72,7 @@ final class StageTableDefinitionFactory
     }
 
     /**
-     * @param ExasolTableDefinition $destination
      * @param string[] $pkNames
-     * @return ExasolTableDefinition
      */
     public static function createDedupTableDefinition(
         ExasolTableDefinition $destination,

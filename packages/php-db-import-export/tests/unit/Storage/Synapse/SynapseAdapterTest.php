@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\Synapse;
 
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
 use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;

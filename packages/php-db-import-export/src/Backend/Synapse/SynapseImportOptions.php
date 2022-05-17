@@ -47,9 +47,6 @@ class SynapseImportOptions extends ImportOptions
 
     /**
      * @param string[] $convertEmptyValuesToNull
-     * @param bool $isIncremental
-     * @param bool $useTimestamp
-     * @param int $numberOfIgnoredLines
      * @param self::CREDENTIALS_* $importCredentialsType
      * @param self::TEMP_TABLE_* $tempTableType @deprecated staging table is created by user
      * @param self::DEDUP_TYPE_* $dedupType @deprecated CTAS is always used

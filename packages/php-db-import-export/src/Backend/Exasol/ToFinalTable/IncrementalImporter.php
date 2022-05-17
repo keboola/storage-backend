@@ -8,10 +8,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
-use Keboola\Db\ImportExport\Backend\ImportState;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Backend\ImportState;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
@@ -26,11 +26,9 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
     private const TIMER_DEDUP_STAGING = 'dedupStaging';
     private const TIMER_INSERT_INTO_TARGET = 'insertIntoTargetFromStaging';
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var SqlBuilder */
-    private $sqlBuilder;
+    private SqlBuilder $sqlBuilder;
 
     public function __construct(
         Connection $connection

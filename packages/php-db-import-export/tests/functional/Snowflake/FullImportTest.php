@@ -12,6 +12,9 @@ use Keboola\Db\ImportExport\Storage;
 
 class FullImportTest extends SnowflakeImportExportBaseTest
 {
+    /**
+     * @return array<mixed>
+     */
     public function fullImportData(): array
     {
         $expectedEscaping = [];
@@ -239,6 +242,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
     /**
      * @dataProvider  fullImportData
      * @param Storage\Snowflake\Table $destination
+     * @param array<mixed> $expected
      */
     public function testFullImport(
         Storage\SourceInterface $source,

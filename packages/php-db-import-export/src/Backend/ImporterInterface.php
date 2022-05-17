@@ -19,5 +19,8 @@ interface ImporterInterface
         ImportOptionsInterface $options
     ): Result;
 
+    /**
+     * @param array<class-string<BackendImportAdapterInterface>> $adapters
+     */
     public function setAdapters(array $adapters): void;
 }

@@ -11,8 +11,8 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
-use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 
 class SqlBuilderTest extends TeradataBaseTestCase
@@ -134,7 +134,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             );
             $this->connection->executeStatement($sql);
         } catch (DriverException $e) {
-            $this->assertContains('import-export-test_test\' does not exist', $e->getMessage());
+            $this->assertStringContainsString('import-export-test_test\' does not exist', $e->getMessage());
         }
 
         // create table

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Exasol\ToStage;
 
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\FromS3CopyIntoAdapter;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use PHPUnit\Framework\MockObject\MockObject;

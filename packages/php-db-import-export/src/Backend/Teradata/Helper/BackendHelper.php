@@ -28,8 +28,6 @@ final class BackendHelper
      * [file01.csv, file01.csv] => file0*
      * TODO
      *  - has to fix edgecases a) [1_file.csv, 2_file.csv] b) not all the files matched in WC have to be on s3
-     * @param SourceFile $source
-     * @return string
      * @throws \Keboola\Db\Import\Exception
      */
     public static function getMask(SourceFile $source): string

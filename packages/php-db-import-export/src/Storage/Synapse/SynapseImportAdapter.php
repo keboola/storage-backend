@@ -9,19 +9,15 @@ use Doctrine\DBAL\Platforms\SQLServerPlatform;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
-    /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
-    private $platform;
-
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
-        $this->platform = $connection->getDatabasePlatform();
         $this->connection = $connection;
     }
 
@@ -49,13 +45,13 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
         string $stagingTableName
     ): int {
         $quotedColumns = array_map(function ($column) {
-            return $this->platform->quoteSingleIdentifier($column);
+            return SynapseQuote::quoteSingleIdentifier($column);
         }, $source->getColumnsNames());
 
         $sql = sprintf(
             'INSERT INTO %s.%s (%s) %s',
-            $this->platform->quoteSingleIdentifier($destination->getSchema()),
-            $this->platform->quoteSingleIdentifier($stagingTableName),
+            SynapseQuote::quoteSingleIdentifier($destination->getSchema()),
+            SynapseQuote::quoteSingleIdentifier($stagingTableName),
             implode(', ', $quotedColumns),
             $source->getFromStatement()
         );

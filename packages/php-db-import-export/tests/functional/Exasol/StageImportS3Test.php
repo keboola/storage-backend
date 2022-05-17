@@ -6,8 +6,8 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
 use Doctrine\DBAL\Exception;
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
@@ -45,11 +45,7 @@ class StageImportS3Test extends ExasolBaseTestCase
 
     /**
      * @dataProvider s3ImportSettingProvider
-     * @param string $table
-     * @param array{string, CsvOptions, array, bool, bool} $s3Setting
-     * @param int $expectedRowsNumber
-     * @param int $expectedFirstLine
-     * @param int $skippedLines
+     * @param array{string, CsvOptions, array<mixed>, bool, bool} $s3Setting
      * @throws Exception
      */
     public function testImportS3(
@@ -95,7 +91,7 @@ class StageImportS3Test extends ExasolBaseTestCase
     }
 
     /**
-     * @return array[]
+     * @return array<mixed>
      */
     public function s3ImportSettingProvider(): array
     {

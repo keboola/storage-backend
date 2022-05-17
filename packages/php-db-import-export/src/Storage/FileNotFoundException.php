@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Storage;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\Db\Import\Exception;
+use Keboola\FileStorage\FileNotFoundException as FileStorageFileNotFoundException;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use Throwable;
 
@@ -17,7 +18,7 @@ class FileNotFoundException extends Exception
     }
 
     public static function createFromFileNotFoundException(
-        \Keboola\FileStorage\FileNotFoundException $e
+        FileStorageFileNotFoundException $e
     ): FileNotFoundException {
         return new self($e->getMessage(), $e);
     }

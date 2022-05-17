@@ -7,14 +7,14 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 use DateTime;
 use Doctrine\DBAL\Exception;
 use Keboola\Datatype\Definition\Exasol;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
-use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
+use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
-use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
+use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 
 class SqlBuilderTest extends ExasolBaseTestCase

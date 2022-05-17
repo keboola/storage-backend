@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportCommon;
 
 use Aws\S3\S3Client;
+use Exception;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\S3;
-use Keboola\Db\ImportExport\Storage\ABS;
-use Keboola\Db\ImportExport\Storage;
 use Keboola\FileStorage\Abs\ClientFactory;
 use Keboola\Temp\Temp;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
@@ -67,7 +68,7 @@ trait StorageTrait
                     (string) getenv('ABS_ACCOUNT_KEY')
                 );
             default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
     }
 
@@ -93,7 +94,7 @@ trait StorageTrait
                 $manifestPrefix = '';
                 break;
             default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
 
         $filePath = str_replace('%MANIFEST_PREFIX%', $manifestPrefix, $filePath);
@@ -129,7 +130,7 @@ trait StorageTrait
                 $manifestPrefix = '';
                 break;
             default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
 
         $filePath = str_replace('%MANIFEST_PREFIX%', $manifestPrefix, $filePath);
@@ -167,7 +168,7 @@ trait StorageTrait
                 }
                 return;
             default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
     }
 
@@ -196,7 +197,7 @@ trait StorageTrait
                     $connectionString
                 );
             default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
     }
 
@@ -222,7 +223,7 @@ trait StorageTrait
                 $blobs = $client->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions);
                 return $blobs->getBlobs();
             default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
     }
 
@@ -264,9 +265,9 @@ trait StorageTrait
 
                 return new CsvFile($finalFile);
             case StorageType::STORAGE_ABS:
-                throw new \Exception('Implement this for ABS');
+                throw new Exception('Implement this for ABS');
             default:
-                throw new \Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
     }
 }

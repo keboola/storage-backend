@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Exasol\ToStage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\ImportState;
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -20,11 +21,9 @@ final class ToStageImporter implements ToStageImporterInterface
 {
     private const TIMER_TABLE_IMPORT = 'copyToStaging';
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var CopyAdapterInterface|null */
-    private $adapter;
+    private ?CopyAdapterInterface $adapter = null;
 
     public function __construct(
         Connection $connection,
@@ -55,7 +54,7 @@ final class ToStageImporter implements ToStageImporterInterface
                     $options
                 )
             );
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             throw $e;
 //            throw ExasolException::covertException($e);
         }

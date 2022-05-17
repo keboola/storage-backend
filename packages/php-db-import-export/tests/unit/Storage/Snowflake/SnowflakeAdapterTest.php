@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\Snowflake;
 
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\Snowflake\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\Snowflake\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
 use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;

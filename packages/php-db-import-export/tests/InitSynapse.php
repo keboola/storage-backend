@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Doctrine\DBAL\DriverManager;
+
 /**
  * Set up synapse
  */
@@ -11,7 +13,7 @@ date_default_timezone_set('Europe/Prague');
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-$db = \Doctrine\DBAL\DriverManager::getConnection([
+$db = DriverManager::getConnection([
     'user' => (string) getenv('SYNAPSE_UID'),
     'password' => (string) getenv('SYNAPSE_PWD'),
     'host' => (string) getenv('SYNAPSE_SERVER'),

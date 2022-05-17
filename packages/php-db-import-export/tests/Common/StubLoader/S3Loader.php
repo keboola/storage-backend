@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportCommon\StubLoader;
 
 use Aws\S3\S3Client;
+use Aws\S3\Transfer;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use function \GuzzleHttp\json_encode as guzzle_json_encode;
+use function GuzzleHttp\json_encode as guzzle_json_encode;
 
 class S3Loader extends BaseStubLoader
 {
@@ -66,7 +67,7 @@ class S3Loader extends BaseStubLoader
         echo "Creating blobs ...\n";
         //UPLOAD ALL FILES TO S3
         // Create a transfer object.
-        $manager = new \Aws\S3\Transfer(
+        $manager = new Transfer(
             $this->client,
             self::BASE_DIR,
             's3://' . $this->path,

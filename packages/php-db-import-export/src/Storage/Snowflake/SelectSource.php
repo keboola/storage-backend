@@ -9,21 +9,21 @@ use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 
 class SelectSource implements SourceInterface, SqlSourceInterface
 {
-    /** @var string */
-    private $query;
+    private string $query;
 
-    /** @var array */
-    private $queryBindings;
+    /** @var array<mixed> */
+    private array $queryBindings;
 
     /** @var string[] */
-    private $columnsNames;
+    private array $columnsNames;
 
     /** @var string[]|null */
-    private $primaryKeysNames;
+    private ?array $primaryKeysNames = null;
 
     /**
      * @param string[] $columnsNames
      * @param string[]|null $primaryKeysNames
+     * @param array<mixed> $queryBindings
      */
     public function __construct(
         string $query,
@@ -37,6 +37,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         $this->primaryKeysNames = $primaryKeysNames;
     }
 
+    /** @return string[] */
     public function getColumnsNames(): array
     {
         return $this->columnsNames;
@@ -52,11 +53,13 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         return $this->query;
     }
 
+    /** @return string[]|null */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
     }
 
+    /** @return array<mixed> */
     public function getQueryBindings(): array
     {
         return $this->queryBindings;

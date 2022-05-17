@@ -18,10 +18,9 @@ class Exporter implements ExporterInterface
     ];
 
     /** @var class-string<BackendExportAdapterInterface>[] */
-    private $adapters = self::DEFAULT_ADAPTERS;
+    private array $adapters = self::DEFAULT_ADAPTERS;
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(
         Connection $connection

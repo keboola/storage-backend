@@ -9,20 +9,18 @@ use Tracy\Debugger;
 
 class ImportState
 {
-    /** @var array */
-    protected $warnings = [];
+    /** @var array<mixed> */
+    protected array $warnings = [];
 
-    /** @var int */
-    protected $importedRowsCount = 0;
+    protected int $importedRowsCount = 0;
 
-    /** @var array */
-    private $timers = [];
+    /** @var array<mixed> */
+    private array $timers = [];
 
-    /** @var array */
-    private $importedColumns = [];
+    /** @var string[] */
+    private array $importedColumns = [];
 
-    /** @var string */
-    private $stagingTableName = '';
+    private string $stagingTableName = '';
 
     public function __construct(string $stagingTableName)
     {
@@ -54,6 +52,9 @@ class ImportState
         $this->stagingTableName = $stagingTableName;
     }
 
+    /**
+     * @param string[] $importedColumns
+     */
     public function setImportedColumns(array $importedColumns): void
     {
         $this->importedColumns = $importedColumns;

@@ -6,25 +6,22 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use InvalidArgumentException;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
 class SynapseImportAdapter implements SynapseImportAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
-
-    /** @var \Doctrine\DBAL\Platforms\AbstractPlatform|SQLServerPlatform */
-    private $platform;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->platform = $connection->getDatabasePlatform();
     }
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -69,8 +66,8 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
         string $stagingTableName
     ): ?string {
 
-        $destinationSchema = $this->platform->quoteSingleIdentifier($destination->getSchema());
-        $destinationTable = $this->platform->quoteSingleIdentifier($stagingTableName);
+        $destinationSchema = SynapseQuote::quoteSingleIdentifier($destination->getSchema());
+        $destinationTable = SynapseQuote::quoteSingleIdentifier($stagingTableName);
 
         switch ($importOptions->getImportCredentialsType()) {
             case SynapseImportOptions::CREDENTIALS_SAS:
@@ -81,7 +78,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
                 $credentials = 'IDENTITY=\'Managed Identity\'';
                 break;
             default:
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'Unknown Synapse import credentials type "%s".',
                     $importOptions->getImportCredentialsType()
                 ));
@@ -92,12 +89,12 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
             $rowTerminator = 'ROWTERMINATOR=\'0x0A\',';
         }
 
-        $fieldDelimiter = $this->connection->quote($source->getCsvOptions()->getDelimiter());
+        $fieldDelimiter = SynapseQuote::quote(addslashes($source->getCsvOptions()->getDelimiter()));
         $firstRow = '';
         if ($importOptions->getNumberOfIgnoredLines() !== 0) {
             $firstRow = sprintf(',FIRSTROW=%s', $importOptions->getNumberOfIgnoredLines() + 1);
         }
-        $enclosure = $this->connection->quote($source->getCsvOptions()->getEnclosure());
+        $enclosure = SynapseQuote::quote(addslashes($source->getCsvOptions()->getEnclosure()));
 
         $entries = $source->getManifestEntries(SourceFile::PROTOCOL_HTTPS);
 
@@ -106,7 +103,7 @@ class SynapseImportAdapter implements SynapseImportAdapterInterface
         }
 
         $entries = array_map(function ($entry) {
-            return $this->connection->quote($entry);
+            return SynapseQuote::quote(addslashes($entry));
         }, $entries);
 
         $entries = implode(', ', $entries);

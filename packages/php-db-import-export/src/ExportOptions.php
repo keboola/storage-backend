@@ -8,13 +8,9 @@ use Keboola\Db\ImportExport\Backend\BackendHelper;
 
 class ExportOptions implements ExportOptionsInterface
 {
-    /**
-     * @var bool
-     */
-    private $isCompressed;
+    private bool $isCompressed;
 
-    /** @var string */
-    private $exportId;
+    private string $exportId;
 
     public function __construct(
         bool $isCompressed = false

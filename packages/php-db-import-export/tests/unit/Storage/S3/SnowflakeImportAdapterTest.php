@@ -6,8 +6,8 @@ namespace Tests\Keboola\Db\ImportExportUnit\Storage\S3;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\S3\SnowflakeImportAdapter;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\S3\SnowflakeImportAdapter;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;

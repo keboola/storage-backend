@@ -13,8 +13,7 @@ use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 
 class DestinationFile extends BaseFile implements DestinationInterface
 {
-    /** @var null|string */
-    private $blobMasterKey;
+    private ?string $blobMasterKey = null;
 
     public function __construct(
         string $container,

@@ -7,6 +7,7 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Abs\LineEnding\LineEndingDetector;
+use Keboola\FileStorage\FileNotFoundException as FileStorageFileNotFoundException;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
 use Keboola\FileStorage\Path\RelativePath;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
@@ -35,7 +36,7 @@ class SourceDirectory extends SourceFile
 
         try {
             return $detector->getLineEnding($file);
-        } catch (\Keboola\FileStorage\FileNotFoundException $e) {
+        } catch (FileStorageFileNotFoundException $e) {
             throw FileNotFoundException::createFromFileNotFoundException($e);
         }
     }

@@ -4,37 +4,31 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
+use Iterator;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\Blob;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
-final class BlobIterator implements \Iterator
+final class BlobIterator implements Iterator
 {
     private const DEFAULT_PAGE_SIZE = 1000;
 
-    /** @var BlobRestProxy */
-    private $client;
+    private BlobRestProxy $client;
 
-    /** @var ListBlobsOptions */
-    private $options;
+    private ListBlobsOptions $options;
 
-    /** @var string */
-    private $container;
+    private string $container;
 
-    /** @var string|null */
-    private $offsetMarker;
+    private ?string $offsetMarker = null;
 
-    /** @var int */
-    private $position = 0;
+    private int $position = 0;
 
-    /** @var int */
-    private $currentListIndexPointer = 0;
+    private int $currentListIndexPointer = 0;
 
     /** @var Blob[] */
-    private $blobs = [];
+    private array $blobs = [];
 
-    /** @var bool */
-    private $isFirstPageLoaded = false;
+    private bool $isFirstPageLoaded = false;
 
     public function __construct(
         BlobRestProxy $blobRestProxy,

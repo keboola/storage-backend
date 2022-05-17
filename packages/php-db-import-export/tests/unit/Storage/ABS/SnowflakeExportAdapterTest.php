@@ -6,8 +6,8 @@ namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ExportOptions;
-use PHPUnit\Framework\MockObject\MockObject;
 use Keboola\Db\ImportExport\Storage;
+use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SnowflakeExportAdapterTest extends BaseTestCase

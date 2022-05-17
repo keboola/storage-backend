@@ -4,32 +4,19 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\S3;
 
+use Aws\S3\S3Client;
+
 abstract class BaseFile
 {
-    /**
-     * @var string
-     */
-    protected $bucket;
+    protected string $bucket;
 
-    /**
-     * @var string
-     */
-    protected $filePath;
+    protected string $filePath;
 
-    /**
-     * @var string
-     */
-    private $key;
+    private string $key;
 
-    /**
-     * @var string
-     */
-    private $secret;
+    private string $secret;
 
-    /**
-     * @var string
-     */
-    private $region;
+    private string $region;
 
     public function __construct(
         string $key,
@@ -45,9 +32,9 @@ abstract class BaseFile
         $this->filePath = $filePath;
     }
 
-    protected function getClient(): \Aws\S3\S3Client
+    protected function getClient(): S3Client
     {
-        return new \Aws\S3\S3Client([
+        return new S3Client([
             'credentials' => [
                 'key' => $this->key,
                 'secret' => $this->secret,

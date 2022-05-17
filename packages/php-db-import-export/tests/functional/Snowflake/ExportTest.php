@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
-use Keboola\CsvOptions\CsvOptions;
+use Exception;
 use Keboola\Csv\CsvFile;
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Exporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
@@ -18,10 +19,7 @@ use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
 class ExportTest extends SnowflakeImportExportBaseTest
 {
-    /**
-     * @var BlobRestProxy
-     */
-    private $blobClient;
+    private BlobRestProxy $blobClient;
 
     public function setUp(): void
     {
@@ -94,7 +92,6 @@ class ExportTest extends SnowflakeImportExportBaseTest
     }
 
     /**
-     * @param string $blob
      * @return resource
      */
     private function getBlobResource(string $blob)
@@ -181,7 +178,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
     ): string {
         $content = stream_get_contents($this->getBlobResource($blob));
         if ($content === false) {
-            throw new \Exception();
+            throw new Exception();
         }
         return $content;
     }

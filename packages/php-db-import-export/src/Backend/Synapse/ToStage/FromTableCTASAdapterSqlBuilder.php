@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse\ToStage;
 
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
+use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\Synapse\SelectSource;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
-use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;

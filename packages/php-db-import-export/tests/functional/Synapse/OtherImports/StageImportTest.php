@@ -7,14 +7,15 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse\OtherImports;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\Synapse\SynapseBaseTestCase;
+use Throwable;
 
 class StageImportTest extends SynapseBaseTestCase
 {
@@ -45,7 +46,7 @@ class StageImportTest extends SynapseBaseTestCase
             self::TABLE_OUT_CSV_2COLS
         );
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.');
         $importer->importToStagingTable(
             $this->createABSSourceInstanceFromCsv('raw.rs.csv', new CsvOptions("\t", '', '\\')),

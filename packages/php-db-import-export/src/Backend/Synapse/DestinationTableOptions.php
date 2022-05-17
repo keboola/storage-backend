@@ -9,18 +9,17 @@ namespace Keboola\Db\ImportExport\Backend\Synapse;
  */
 final class DestinationTableOptions
 {
-    /** @var String[] */
-    private $columnNamesInOrder;
+    /** @var string[] */
+    private array $columnNamesInOrder;
 
-    /** @var String[] */
-    private $primaryKeys;
+    /** @var string[] */
+    private array $primaryKeys;
 
-    /** @var TableDistribution */
-    private $distribution;
+    private TableDistribution $distribution;
 
     /**
-     * @param String[] $columnNamesInOrder
-     * @param String[] $primaryKeys
+     * @param string[] $columnNamesInOrder
+     * @param string[] $primaryKeys
      */
     public function __construct(
         array $columnNamesInOrder,
@@ -32,6 +31,9 @@ final class DestinationTableOptions
         $this->distribution = $distribution;
     }
 
+    /**
+     * @return string[]
+     */
     public function getColumnNamesInOrder(): array
     {
         return $this->columnNamesInOrder;
@@ -42,6 +44,9 @@ final class DestinationTableOptions
         return $this->distribution;
     }
 
+    /**
+     * @return string[]
+     */
     public function getPrimaryKeys(): array
     {
         return $this->primaryKeys;

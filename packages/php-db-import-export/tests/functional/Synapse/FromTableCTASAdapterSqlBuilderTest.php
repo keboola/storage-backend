@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
+use Generator;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
@@ -82,7 +83,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
     /**
      * @return \Generator<string,mixed>
      */
-    public function ctasProvider(): \Generator
+    public function ctasProvider(): Generator
     {
         yield 'simple no casting (typed tables but varchar)' => [
             'sourceColumns' => $this->getDefaultColumns(),

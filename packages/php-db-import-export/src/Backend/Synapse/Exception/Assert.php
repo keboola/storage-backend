@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Synapse\Exception;
 
+use Exception as InternalException;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\TableDistribution;
@@ -12,10 +14,10 @@ use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
-use Keboola\Db\Import\Exception;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
+use LogicException;
 
 final class Assert
 {
@@ -62,7 +64,7 @@ final class Assert
     public static function assertIsSynapseTableDestination(DestinationInterface $destination): void
     {
         if (!$destination instanceof Table) {
-            throw new \Exception(sprintf(
+            throw new InternalException(sprintf(
                 'Only "%s" is supported as destination "%s" provided.',
                 Table::class,
                 get_class($destination)
@@ -73,7 +75,7 @@ final class Assert
     public static function assertSynapseImportOptions(ImportOptionsInterface $options): void
     {
         if (!$options instanceof SynapseImportOptions) {
-            throw new \Exception(sprintf(
+            throw new InternalException(sprintf(
                 'Synapse importer expect $options to be instance of "%s", "%s" given.',
                 SynapseImportOptions::class,
                 get_class($options)
@@ -86,14 +88,13 @@ final class Assert
         if ($source instanceof SourceFile
             && $source->getCsvOptions()->getEnclosure() === ''
         ) {
-            throw new \Exception(
+            throw new InternalException(
                 'CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.'
             );
         }
     }
 
     /**
-     * @param string $tableDistributionName
      * @param string[] $hashDistributionColumnsNames
      */
     public static function assertValidHashDistribution(
@@ -103,7 +104,7 @@ final class Assert
         if ($tableDistributionName === TableDistribution::TABLE_DISTRIBUTION_HASH
             && count($hashDistributionColumnsNames) !== 1
         ) {
-            throw new \LogicException('HASH table distribution must have one distribution key specified.');
+            throw new LogicException('HASH table distribution must have one distribution key specified.');
         }
     }
 
@@ -114,7 +115,7 @@ final class Assert
             TableDistribution::TABLE_DISTRIBUTION_ROUND_ROBIN,
             TableDistribution::TABLE_DISTRIBUTION_REPLICATE,
         ], true)) {
-            throw new \LogicException(sprintf(
+            throw new LogicException(sprintf(
                 'Unknown table distribution "%s" specified.',
                 $tableDistributionName
             ));

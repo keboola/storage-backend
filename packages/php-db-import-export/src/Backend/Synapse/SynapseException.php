@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Synapse;
 
+use Doctrine\DBAL\Exception as DBALException;
 use Keboola\Db\Import\Exception;
+use Throwable;
 
 class SynapseException extends Exception
 {
     private const BULK_LOAD_EXCEPTION_BEGINNING = '[SQL Server]Bulk load';
     private const DATA_TYPE_CONVERSION_EXCEPTION_BEGINNING = '[SQL Server]Error converting data type';
 
-    public static function covertException(\Doctrine\DBAL\Exception $e): \Throwable
+    public static function covertException(DBALException $e): Throwable
     {
         if (strpos($e->getMessage(), self::BULK_LOAD_EXCEPTION_BEGINNING) !== false) {
             // - these are errors which appear during COPY INTO

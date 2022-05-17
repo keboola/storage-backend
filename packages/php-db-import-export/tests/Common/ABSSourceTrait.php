@@ -6,9 +6,9 @@ namespace Tests\Keboola\Db\ImportExportCommon;
 
 use DateTime;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Storage;
 use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use Keboola\Db\ImportExport\Storage;
 
 trait ABSSourceTrait
 {

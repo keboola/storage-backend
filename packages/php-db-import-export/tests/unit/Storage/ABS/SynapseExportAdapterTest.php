@@ -5,21 +5,26 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\Connection as DBALIConnection;
 use Doctrine\DBAL\Driver\PDO\SQLSrv;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
+use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
 use PHPUnit\Framework\MockObject\MockObject;
-use Keboola\Db\ImportExport\Storage;
+use Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class SynapseExportAdapterTest extends BaseTestCase
 {
+    use MockConnectionTrait;
+
     public function testGetCopyCommandQuery(): void
     {
         $destination = $this->getDestinationMock();
         $options = $this->getOptionsMock(true);
-        $conn = $this->getConnectionMock();
+        $conn = $this->mockConnection();
 
         $conn->expects($this->once())->method('executeQuery')->with(
             <<<EOT
@@ -130,45 +135,11 @@ EOT
         return $options;
     }
 
-    /**
-     * @return Connection|MockObject
-     */
-    private function getConnectionMock()
-    {
-        $driverConnectionMock = $this->createMock(SQLSrv\Connection::class);
-        $driverConnectionMock->expects($this->any())
-            ->method('quote')
-            ->willReturnCallback(function ($string) {
-                return sprintf('\'%s\'', $string);
-            });
-
-        $driverMock = $this->createMock(SQLSrv\Driver::class);
-        $driverMock->expects($this->any())
-            ->method('connect')
-            ->willReturn($driverConnectionMock);
-
-        /** @var Connection|MockObject $conn */
-        $conn = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([['platform' => new SQLServer2012Platform()], $driverMock])
-            ->disableOriginalClone()
-            ->disableArgumentCloning()
-            ->disallowMockingUnknownTypes()
-            ->setMethods([
-                'exec',
-                'prepare',
-                'query',
-                'execute',
-                'executeQuery',
-            ])
-            ->getMock();
-        return $conn;
-    }
-
     public function testRunCopyCommand(): void
     {
         $destination = $this->getDestinationMock();
         $options = $this->getOptionsMock(false);
-        $conn = $this->getConnectionMock();
+        $conn = $this->mockConnection();
 
         $conn->expects($this->once())->method('executeQuery')->with(
             <<<EOT
@@ -265,7 +236,7 @@ EOT
     {
         $destination = $this->getDestinationMock();
         $options = $this->getOptionsMock(true);
-        $conn = $this->getConnectionMock();
+        $conn = $this->mockConnection();
 
         $conn->expects($this->once())->method('executeQuery')->with(
             <<<EOT
@@ -362,7 +333,7 @@ EOT
     {
         $destination = $this->getDestinationMock();
         $options = $this->getOptionsMock(false, 'MANAGED_IDENTITY');
-        $conn = $this->getConnectionMock();
+        $conn = $this->mockConnection();
 
         $conn->expects($this->once())->method('executeQuery')->with(
             <<<EOT

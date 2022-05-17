@@ -6,8 +6,8 @@ namespace Tests\Keboola\Db\ImportExportUnit\Storage\S3;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\ExportOptions;
-use PHPUnit\Framework\MockObject\MockObject;
 use Keboola\Db\ImportExport\Storage;
+use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
 class ExasolExportAdapterTest extends BaseTestCase

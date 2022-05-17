@@ -18,8 +18,7 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 class FromTableInsertIntoAdapter implements CopyAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

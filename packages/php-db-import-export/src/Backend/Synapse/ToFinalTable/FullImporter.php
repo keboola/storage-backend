@@ -15,6 +15,7 @@ use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 final class FullImporter implements ToFinalTableImporterInterface
 {
@@ -132,7 +133,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $destinationTableDefinition->getTableName()
                 )
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if (!$this->isTableInSchema(
                 $destinationTableDefinition->getSchemaName(),
                 $destinationTableDefinition->getTableName()
@@ -203,7 +204,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $destinationTableDefinition->getTableName()
                 )
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if (!$this->isTableInSchema(
                 $destinationTableDefinition->getSchemaName(),
                 $destinationTableDefinition->getTableName()

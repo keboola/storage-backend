@@ -7,9 +7,9 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\Exporter;
-use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -81,7 +81,7 @@ class ExportTest extends TeradataBaseTestCase
     /**
      * @dataProvider exportOptionsProvider
      * @param string[] $providedExportOptions
-     * @param array[] $expectedFiles
+     * @param array<mixed> $expectedFiles
      * @throws \Doctrine\DBAL\Exception
      * @throws \Keboola\Csv\InvalidArgumentException
      */
@@ -118,8 +118,8 @@ class ExportTest extends TeradataBaseTestCase
     }
 
     /**
-     * @param array<int, array> $expectedFiles
-     * @param array<int, array> $files
+     * @param array<int, array{fileName:string,size:string}> $expectedFiles
+     * @param array<int, array{Size:string,Key:string}> $files
      */
     public static function assertFilesMatch(array $expectedFiles, array $files): void
     {
@@ -284,7 +284,7 @@ class ExportTest extends TeradataBaseTestCase
     }
 
     /**
-     * @return array[]
+     * @return array<mixed>
      */
     public function exportOptionsProvider(): array
     {

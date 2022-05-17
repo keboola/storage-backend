@@ -99,7 +99,6 @@ class TeradataExportOptions extends ExportOptions
 
     /**
      * generates part of TPT which defines settings for sliced files
-     * @return string
      */
     public function generateS3SizeOptions(): string
     {
