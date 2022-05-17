@@ -1,24 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\DatatypeTest;
 
+use Generator;
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Teradata;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class TeradataDatatypeTest extends TestCase
 {
     /**
      * @dataProvider typesProvider
-     * @param $type
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testBasetypes($type)
+    public function testBasetypes(string $type): void
     {
         $basetype = (new Teradata($type))->getBasetype();
 
@@ -56,7 +59,10 @@ class TeradataDatatypeTest extends TestCase
         }
     }
 
-    public function typesProvider()
+    /**
+     * @return Generator<string, string>
+     */
+    public function typesProvider(): Generator
     {
         foreach (Teradata::TYPES as $type) {
             yield [$type => $type];
@@ -65,14 +71,13 @@ class TeradataDatatypeTest extends TestCase
 
     /**
      * @dataProvider invalidLengths
-     *
-     * @param string $type
-     * @param string|null $length
+     * @param array<mixed> $extraOption
+     * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testInvalidLengths($type, $length, $extraOption = [])
+    public function testInvalidLengths(string $type, $length, ?array $extraOption = []): void
     {
         $options = $extraOption;
         $options['length'] = $length;
@@ -81,56 +86,55 @@ class TeradataDatatypeTest extends TestCase
         new Teradata($type, $options);
     }
 
-    public function testInvalidOption()
+    public function testInvalidOption(): void
     {
         try {
             new Teradata('numeric', ['myoption' => 'value']);
             self::fail('Exception not caught');
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             self::assertEquals(InvalidOptionException::class, get_class($e));
         }
     }
 
-    public function testInvalidType()
+    public function testInvalidType(): void
     {
         $this->expectException(InvalidTypeException::class);
         new Teradata('UNKNOWN');
     }
 
     /**
-     * @param string     $type
-     * @param array|null $options
-     * @param string     $expectedDefinition
+     * @param array<mixed>|null $options
      *
      * @dataProvider expectedSqlDefinitions
      */
-    public function testSqlDefinition($type, $options, $expectedDefinition)
+    public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void
     {
         $definition = new Teradata($type, $options);
-        $suffix = in_array($type, Teradata::CHARACTER_SET_TYPES) ? " CHARACTER SET UNICODE" : '';
+        $suffix = in_array($type, Teradata::CHARACTER_SET_TYPES) ? ' CHARACTER SET UNICODE' : '';
         self::assertEquals($expectedDefinition . $suffix, $definition->getSQLDefinition());
     }
 
     /**
-     * @param string     $type
-     * @param array|null $options
-     * @param string     $expectedDefinition
+     * @param array<mixed>|null $options
      * @dataProvider expectedSqlDefinitions
      */
-    public function testBuildTypeWithLength($type, $options, $expectedDefinition)
+    public function testBuildTypeWithLength(string $type, ?array $options, string $expectedDefinition): void
     {
         $definition = new Teradata($type, $options);
         self::assertEquals($expectedDefinition, $definition->buildTypeWithLength());
     }
 
 
-    public function testSqlDefinitionWhenLatin()
+    public function testSqlDefinitionWhenLatin(): void
     {
-        $definition = new Teradata("VARCHAR", ['isLatin' => true]);
+        $definition = new Teradata('VARCHAR', ['isLatin' => true]);
         self::assertEquals('VARCHAR (64000) CHARACTER SET LATIN', $definition->getSQLDefinition());
     }
 
-    public function expectedSqlDefinitions()
+    /**
+     * @return array<string, array<array{}|string>>
+     */
+    public function expectedSqlDefinitions(): array
     {
         return [
             'BYTEINT' => ['BYTEINT', [], 'BYTEINT'],
@@ -192,20 +196,23 @@ class TeradataDatatypeTest extends TestCase
 
     /**
      * @dataProvider validLengths
-     * @param string      $type
-     * @param string|null $length
+     * @param array<mixed> $extraOptions
+     * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testValidLengths($type, $length, $extraOptions = [])
+    public function testValidLengths(string $type, $length, ?array $extraOptions = []): void
     {
         $options = $extraOptions;
         $options['length'] = $length;
         new Teradata($type, $options);
     }
 
-    public function validLengths()
+    /**
+     * @return array<int, mixed[]>
+     */
+    public function validLengths(): array
     {
         return [
             ['BYTEINT', null],
@@ -296,7 +303,10 @@ class TeradataDatatypeTest extends TestCase
         ];
     }
 
-    public function invalidLengths()
+    /**
+     * @return array<int, mixed[]>
+     */
+    public function invalidLengths(): array
     {
         return [
             ['DECIMAL', '100'],

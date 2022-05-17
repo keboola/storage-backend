@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
@@ -8,29 +11,27 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Redshift extends Common
 {
-    const TYPES = [
-        "SMALLINT", "INT2", "INTEGER", "INT", "INT4", "BIGINT", "INT8",
-        "DECIMAL", "NUMERIC",
-        "REAL", "FLOAT4", "DOUBLE PRECISION", "FLOAT8", "FLOAT",
-        "BOOLEAN", "BOOL",
-        "CHAR", "CHARACTER", "NCHAR", "BPCHAR",
-        "VARCHAR", "CHARACTER VARYING", "NVARCHAR", "TEXT",
-        "DATE",
-        "TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE",
-        "TIMESTAMPTZ", "TIMESTAMP WITH TIME ZONE"
+    public const TYPES = [
+        'SMALLINT', 'INT2', 'INTEGER', 'INT', 'INT4', 'BIGINT', 'INT8',
+        'DECIMAL', 'NUMERIC',
+        'REAL', 'FLOAT4', 'DOUBLE PRECISION', 'FLOAT8', 'FLOAT',
+        'BOOLEAN', 'BOOL',
+        'CHAR', 'CHARACTER', 'NCHAR', 'BPCHAR',
+        'VARCHAR', 'CHARACTER VARYING', 'NVARCHAR', 'TEXT',
+        'DATE',
+        'TIMESTAMP', 'TIMESTAMP WITHOUT TIME ZONE',
+        'TIMESTAMPTZ', 'TIMESTAMP WITH TIME ZONE',
     ];
 
-    /** @var mixed  */
-    protected $compression;
+    protected ?string $compression = null;
 
     /**
      * Redshift constructor.
      *
-     * @param string $type
-     * @param array $options -- length, nullable, default, compression
+     * @param array{length?:string|null, nullable?:bool, default?:string|null, compression?:string|null} $options
      * @throws InvalidOptionException
      */
-    public function __construct($type, $options = [])
+    public function __construct(string $type, array $options = [])
     {
         $this->validateType($type);
         $options['length'] = $this->processLength($options);
@@ -40,58 +41,51 @@ class Redshift extends Common
             $this->validateCompression($type, $options['compression']);
             $this->compression = $options['compression'];
         }
-        $diff = array_diff(array_keys($options), ["length", "nullable", "default", "compression"]);
+        $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'compression']);
         if (count($diff) > 0) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCompression()
+    public function getCompression(): ?string
     {
         return $this->compression;
     }
 
-    /**
-     * @return string
-     */
-    public function getSQLDefinition()
+    public function getSQLDefinition(): string
     {
         $definition =  $this->getType();
         if ($this->getLength() && $this->getLength() !== '') {
-            $definition .= "(" . $this->getLength() . ")";
+            $definition .= '(' . $this->getLength() . ')';
         }
         if (!$this->isNullable()) {
-            $definition .= " NOT NULL";
+            $definition .= ' NOT NULL';
         }
-        if ($this->getCompression() && $this->getCompression() != "") {
-            $definition .= " ENCODE " . $this->getCompression();
+        if ($this->getCompression() && $this->getCompression() !== '') {
+            $definition .= ' ENCODE ' . $this->getCompression();
         }
         return $definition;
     }
 
     /**
-     * @return array
+     * @return array{type:string,length:string|null,nullable:bool,compression:string|null}
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
-            "type" => $this->getType(),
-            "length" => $this->getLength(),
-            "nullable" => $this->isNullable(),
-            "compression" => $this->getCompression()
+            'type' => $this->getType(),
+            'length' => $this->getLength(),
+            'nullable' => $this->isNullable(),
+            'compression' => $this->getCompression(),
         ];
     }
 
     /**
-     * @param array $options
-     * @return string|null
+     * @param array{length?:string|array|null} $options
      * @throws InvalidOptionException
      */
-    private function processLength($options)
+    private function processLength(array $options): ?string
     {
         if (!isset($options['length'])) {
             return null;
@@ -99,15 +93,18 @@ class Redshift extends Common
         if (is_array($options['length'])) {
             return $this->getLengthFromArray($options['length']);
         }
-        return $options['length'];
+        return (string) $options['length'];
     }
 
     /**
-     * @param array $lengthOptions
+     * @param array{
+     *     character_maximum?:string|int|null,
+     *     numeric_precision?:string|int|null,
+     *     numeric_scale?:string|int|null
+     * } $lengthOptions
      * @throws InvalidOptionException
-     * @return null|string
      */
-    private function getLengthFromArray($lengthOptions)
+    private function getLengthFromArray(array $lengthOptions): ?string
     {
         $expectedOptions = ['character_maximum', 'numeric_precision', 'numeric_scale'];
         $diff = array_diff(array_keys($lengthOptions), $expectedOptions);
@@ -115,25 +112,23 @@ class Redshift extends Common
             throw new InvalidOptionException(sprintf('Length option "%s" not supported', $diff[0]));
         }
 
-        $characterMaximum = isset($lengthOptions['character_maximum']) ? $lengthOptions['character_maximum'] : null;
-        $numericPrecision = isset($lengthOptions['numeric_precision']) ? $lengthOptions['numeric_precision'] : null;
-        $numericScale = isset($lengthOptions['numeric_scale']) ? $lengthOptions['numeric_scale'] : null;
+        $characterMaximum = $lengthOptions['character_maximum'] ?? null;
+        $numericPrecision = $lengthOptions['numeric_precision'] ?? null;
+        $numericScale = $lengthOptions['numeric_scale'] ?? null;
 
         if (!is_null($characterMaximum)) {
-            return $characterMaximum;
+            return (string) $characterMaximum;
         }
         if (!is_null($numericPrecision) && !is_null($numericScale)) {
             return $numericPrecision . ',' . $numericScale;
         }
-        return $numericPrecision;
+        return $numericPrecision === null ? null : (string) $numericPrecision;
     }
 
     /**
-     * @param string $type
      * @throws InvalidTypeException
-     * @return void
      */
-    private function validateType($type)
+    private function validateType(string $type): void
     {
         if (!in_array(strtoupper($type), $this::TYPES)) {
             throw new InvalidTypeException("'{$type}' is not a valid type");
@@ -141,21 +136,19 @@ class Redshift extends Common
     }
 
     /**
-     * @param string $type
-     * @param string|null $length
+     * @param null|int|string $length
      * @throws InvalidLengthException
-     * @return void
      */
-    private function validateLength($type, $length = null)
+    private function validateLength(string $type, $length = null): void
     {
         $valid = true;
         switch (strtoupper($type)) {
-            case "DECIMAL":
-            case "NUMERIC":
-                if (is_null($length) || $length == "") {
+            case 'DECIMAL':
+            case 'NUMERIC':
+                if (is_null($length) || $length === '') {
                     break;
                 }
-                $parts = explode(",", $length);
+                $parts = explode(',', (string) $length);
                 if (!in_array(count($parts), [1, 2])) {
                     $valid = false;
                     break;
@@ -168,36 +161,36 @@ class Redshift extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$parts[0] <= 0 || (int)$parts[0] > 37) {
+                if ((int) $parts[0] <= 0 || (int) $parts[0] > 37) {
                     $valid = false;
                     break;
                 }
-                if (isset($parts[1]) && ((int)$parts[1] > (int)$parts[0] || (int)$parts[1] > 37)) {
+                if (isset($parts[1]) && ((int) $parts[1] > (int) $parts[0] || (int) $parts[1] > 37)) {
                     $valid = false;
                     break;
                 }
                 break;
-            case "VARCHAR":
-            case "CHARACTER VARYING":
-            case "TEXT":
-            case "NVARCHAR":
-            case "TEXT":
-                if (is_null($length) || $length == "") {
+            case 'VARCHAR':
+            case 'CHARACTER VARYING':
+            case 'TEXT':
+            case 'NVARCHAR':
+            case 'TEXT':
+                if (is_null($length) || $length === '') {
                     break;
                 }
                 if (!is_numeric($length)) {
                     $valid = false;
                     break;
                 }
-                if ((int)$length <= 0 || (int)$length > 65535) {
+                if ((int) $length <= 0 || (int) $length > 65535) {
                     $valid = false;
                     break;
                 }
                 break;
-            case "CHAR":
-            case "CHARACTER":
-            case "NCHAR":
-            case "BPCHAR":
+            case 'CHAR':
+            case 'CHARACTER':
+            case 'NCHAR':
+            case 'BPCHAR':
                 if (is_null($length)) {
                     break;
                 }
@@ -205,29 +198,29 @@ class Redshift extends Common
                     $valid = false;
                     break;
                 }
-                if ((int)$length <= 0 || (int)$length > 4096) {
+                if ((int) $length <= 0 || (int) $length > 4096) {
                     $valid = false;
                     break;
                 }
                 break;
-            case "TIMESTAMP":
-            case "TIMESTAMP WITHOUT TIME ZONE":
-            case "TIMESTAMPTZ":
-            case "TIMESTAMP WITH TIME ZONE":
-                if (is_null($length) || $length == "") {
+            case 'TIMESTAMP':
+            case 'TIMESTAMP WITHOUT TIME ZONE':
+            case 'TIMESTAMPTZ':
+            case 'TIMESTAMP WITH TIME ZONE':
+                if (is_null($length) || $length === '') {
                     break;
                 }
                 if (!is_numeric($length)) {
                     $valid = false;
                     break;
                 }
-                if ((int)$length <= 0 || (int)$length > 11) {
+                if ((int) $length <= 0 || (int) $length > 11) {
                     $valid = false;
                     break;
                 }
                 break;
             default:
-                if (!is_null($length) && $length != "") {
+                if (!is_null($length) && $length !== '') {
                     $valid = false;
                     break;
                 }
@@ -239,60 +232,95 @@ class Redshift extends Common
     }
 
     /**
-     * @param string $type
-     * @param string $compression
      * @throws InvalidCompressionException
-     * @return void
      */
-    private function validateCompression($type, $compression)
+    private function validateCompression(string $type, string $compression): void
     {
         $valid = true;
         $type = strtoupper($type);
         switch (strtoupper($compression)) {
-            case "RAW":
-            case "ZSTD":
-            case "RUNLENGTH":
+            case 'RAW':
+            case 'ZSTD':
+            case 'RUNLENGTH':
             case null:
-            case "":
+            case '':
                 break;
-            case "BYTEDICT":
-                if (in_array($type, ["BOOLEAN", "BOOL"])) {
+            case 'BYTEDICT':
+                if (in_array($type, ['BOOLEAN', 'BOOL'])) {
                     $valid = false;
                 }
                 break;
-            case "DELTA":
-                if (!in_array($type, ["SMALLINT", "INT2", "INT", "INTEGER", "INT4", "BIGINT", "INT8", "DATE", "TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE", "TIMESTAMPTZ", "TIMESTAMP WITH TIMEZONE", "DECIMAL", "NUMERIC"])) {
+            case 'DELTA':
+                if (!in_array($type, [
+                    'SMALLINT',
+                    'INT2',
+                    'INT',
+                    'INTEGER',
+                    'INT4',
+                    'BIGINT',
+                    'INT8',
+                    'DATE',
+                    'TIMESTAMP',
+                    'TIMESTAMP WITHOUT TIME ZONE',
+                    'TIMESTAMPTZ',
+                    'TIMESTAMP WITH TIMEZONE',
+                    'DECIMAL',
+                    'NUMERIC',
+                ])) {
                     $valid = false;
                 }
                 break;
-            case "DELTA32K":
-                if (!in_array($type, ["INT", "INTEGER", "INT4", "BIGINT", "INT8", "DATE", "TIMESTAMP", "TIMESTAMP WITHOUT TIME ZONE", "TIMESTAMPTZ", "TIMESTAMP WITH TIMEZONE", "DECIMAL", "NUMERIC"])) {
+            case 'DELTA32K':
+                if (!in_array($type, [
+                    'INT',
+                    'INTEGER',
+                    'INT4',
+                    'BIGINT',
+                    'INT8',
+                    'DATE',
+                    'TIMESTAMP',
+                    'TIMESTAMP WITHOUT TIME ZONE',
+                    'TIMESTAMPTZ',
+                    'TIMESTAMP WITH TIMEZONE',
+                    'DECIMAL',
+                    'NUMERIC',
+                ])) {
                     $valid = false;
                 }
                 break;
-            case "LZO":
-                if (in_array($type, ["BOOLEAN", "BOOL", "REAL", "FLOAT4", "DOUBLE PRECISION", "FLOAT8", "FLOAT"])) {
+            case 'LZO':
+                if (in_array($type, ['BOOLEAN', 'BOOL', 'REAL', 'FLOAT4', 'DOUBLE PRECISION', 'FLOAT8', 'FLOAT'])) {
                     $valid = false;
                 }
                 break;
-            case "MOSTLY8":
-                if (!in_array($type, ["SMALLINT", "INT2", "INT", "INTEGER", "INT4", "BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
+            case 'MOSTLY8':
+                if (!in_array($type, [
+                    'SMALLINT',
+                    'INT2',
+                    'INT',
+                    'INTEGER',
+                    'INT4',
+                    'BIGINT',
+                    'INT8',
+                    'DECIMAL',
+                    'NUMERIC',
+                ])) {
                     $valid = false;
                 }
                 break;
-            case "MOSTLY16":
-                if (!in_array($type, ["INT", "INTEGER", "INT4", "BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
+            case 'MOSTLY16':
+                if (!in_array($type, ['INT', 'INTEGER', 'INT4', 'BIGINT', 'INT8', 'DECIMAL', 'NUMERIC'])) {
                     $valid = false;
                 }
                 break;
-            case "MOSTLY32":
-                if (!in_array($type, ["BIGINT", "INT8", "DECIMAL", "NUMERIC"])) {
+            case 'MOSTLY32':
+                if (!in_array($type, ['BIGINT', 'INT8', 'DECIMAL', 'NUMERIC'])) {
                     $valid = false;
                 }
                 break;
-            case "TEXT255":
-            case "TEXT32K":
-                if (!in_array($type, ["VARCHAR", "CHARACTER VARYING", "NVARCHAR", "TEXT"])) {
+            case 'TEXT255':
+            case 'TEXT32K':
+                if (!in_array($type, ['VARCHAR', 'CHARACTER VARYING', 'NVARCHAR', 'TEXT'])) {
                     $valid = false;
                 }
                 break;
@@ -305,43 +333,40 @@ class Redshift extends Common
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getBasetype()
+    public function getBasetype(): string
     {
         switch (strtoupper($this->type)) {
-            case "SMALLINT":
-            case "INT2":
-            case "INTEGER":
-            case "INT":
-            case "INT4":
-            case "BIGINT":
-            case "INT8":
+            case 'SMALLINT':
+            case 'INT2':
+            case 'INTEGER':
+            case 'INT':
+            case 'INT4':
+            case 'BIGINT':
+            case 'INT8':
                 $basetype = BaseType::INTEGER;
                 break;
-            case "DECIMAL":
-            case "NUMERIC":
+            case 'DECIMAL':
+            case 'NUMERIC':
                 $basetype = BaseType::NUMERIC;
                 break;
-            case "REAL":
-            case "FLOAT4":
-            case "DOUBLE PRECISION":
-            case "FLOAT8":
-            case "FLOAT":
+            case 'REAL':
+            case 'FLOAT4':
+            case 'DOUBLE PRECISION':
+            case 'FLOAT8':
+            case 'FLOAT':
                 $basetype = BaseType::FLOAT;
                 break;
-            case "BOOLEAN":
-            case "BOOL":
+            case 'BOOLEAN':
+            case 'BOOL':
                 $basetype = BaseType::BOOLEAN;
                 break;
-            case "DATE":
+            case 'DATE':
                 $basetype = BaseType::DATE;
                 break;
-            case "TIMESTAMP":
-            case "TIMESTAMP WITHOUT TIME ZONE":
-            case "TIMESTAMPTZ":
-            case "TIMESTAMP WITH TIME ZONE":
+            case 'TIMESTAMP':
+            case 'TIMESTAMP WITHOUT TIME ZONE':
+            case 'TIMESTAMPTZ':
+            case 'TIMESTAMP WITH TIME ZONE':
                 $basetype = BaseType::TIMESTAMP;
                 break;
             default:
@@ -352,15 +377,15 @@ class Redshift extends Common
     }
 
     /**
-     * @return array
+     * @return array<int, array{key:string,value:mixed}>
      */
-    public function toMetadata()
+    public function toMetadata(): array
     {
         $metadata = parent::toMetadata();
         if ($this->getCompression()) {
             $metadata[] = [
-                "key" => Common::KBC_METADATA_KEY_COMPRESSION,
-                "value" => $this->getCompression()
+                'key' => Common::KBC_METADATA_KEY_COMPRESSION,
+                'value' => $this->getCompression(),
             ];
         }
         return $metadata;

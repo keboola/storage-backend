@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
 class BaseType
 {
-    const BOOLEAN = "BOOLEAN";
-    const DATE = "DATE";
-    const FLOAT = "FLOAT";
-    const INTEGER = "INTEGER";
-    const NUMERIC = "NUMERIC";
-    const STRING = "STRING";
-    const TIMESTAMP = "TIMESTAMP";
+    public const BOOLEAN = 'BOOLEAN';
+    public const DATE = 'DATE';
+    public const FLOAT = 'FLOAT';
+    public const INTEGER = 'INTEGER';
+    public const NUMERIC = 'NUMERIC';
+    public const STRING = 'STRING';
+    public const TIMESTAMP = 'TIMESTAMP';
 }

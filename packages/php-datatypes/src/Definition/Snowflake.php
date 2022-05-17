@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
@@ -7,38 +10,38 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 
 class Snowflake extends Common
 {
-    const TYPE_NUMBER = 'NUMBER';
-    const TYPE_DECIMAL = 'DECIMAL';
-    const TYPE_NUMERIC = 'NUMERIC';
-    const TYPE_INT = 'INT';
-    const TYPE_INTEGER = 'INTEGER';
-    const TYPE_BIGINT = 'BIGINT';
-    const TYPE_SMALLINT = 'SMALLINT';
-    const TYPE_TINYINT = 'TINYINT';
-    const TYPE_BYTEINT = 'BYTEINT';
-    const TYPE_FLOAT = 'FLOAT';
-    const TYPE_FLOAT4 = 'FLOAT4';
-    const TYPE_FLOAT8 = 'FLOAT8';
-    const TYPE_DOUBLE = 'DOUBLE';
-    const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION';
-    const TYPE_REAL = 'REAL';
-    const TYPE_VARCHAR = 'VARCHAR';
-    const TYPE_CHAR = 'CHAR';
-    const TYPE_CHARACTER = 'CHARACTER';
-    const TYPE_STRING = 'STRING';
-    const TYPE_TEXT = 'TEXT';
-    const TYPE_BOOLEAN = 'BOOLEAN';
-    const TYPE_DATE = 'DATE';
-    const TYPE_DATETIME = 'DATETIME';
-    const TYPE_TIME = 'TIME';
-    const TYPE_TIMESTAMP = 'TIMESTAMP';
-    const TYPE_TIMESTAMP_NTZ = 'TIMESTAMP_NTZ';
-    const TYPE_TIMESTAMP_LTZ = 'TIMESTAMP_LTZ';
-    const TYPE_TIMESTAMP_TZ = 'TIMESTAMP_TZ';
-    const TYPE_VARIANT = 'VARIANT';
-    const TYPE_BINARY = 'BINARY';
-    const TYPE_VARBINARY = 'VARBINARY';
-    const TYPES = [
+    public const TYPE_NUMBER = 'NUMBER';
+    public const TYPE_DECIMAL = 'DECIMAL';
+    public const TYPE_NUMERIC = 'NUMERIC';
+    public const TYPE_INT = 'INT';
+    public const TYPE_INTEGER = 'INTEGER';
+    public const TYPE_BIGINT = 'BIGINT';
+    public const TYPE_SMALLINT = 'SMALLINT';
+    public const TYPE_TINYINT = 'TINYINT';
+    public const TYPE_BYTEINT = 'BYTEINT';
+    public const TYPE_FLOAT = 'FLOAT';
+    public const TYPE_FLOAT4 = 'FLOAT4';
+    public const TYPE_FLOAT8 = 'FLOAT8';
+    public const TYPE_DOUBLE = 'DOUBLE';
+    public const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION';
+    public const TYPE_REAL = 'REAL';
+    public const TYPE_VARCHAR = 'VARCHAR';
+    public const TYPE_CHAR = 'CHAR';
+    public const TYPE_CHARACTER = 'CHARACTER';
+    public const TYPE_STRING = 'STRING';
+    public const TYPE_TEXT = 'TEXT';
+    public const TYPE_BOOLEAN = 'BOOLEAN';
+    public const TYPE_DATE = 'DATE';
+    public const TYPE_DATETIME = 'DATETIME';
+    public const TYPE_TIME = 'TIME';
+    public const TYPE_TIMESTAMP = 'TIMESTAMP';
+    public const TYPE_TIMESTAMP_NTZ = 'TIMESTAMP_NTZ';
+    public const TYPE_TIMESTAMP_LTZ = 'TIMESTAMP_LTZ';
+    public const TYPE_TIMESTAMP_TZ = 'TIMESTAMP_TZ';
+    public const TYPE_VARIANT = 'VARIANT';
+    public const TYPE_BINARY = 'BINARY';
+    public const TYPE_VARBINARY = 'VARBINARY';
+    public const TYPES = [
         self::TYPE_NUMBER,
         self::TYPE_DECIMAL,
         self::TYPE_NUMERIC,
@@ -75,55 +78,54 @@ class Snowflake extends Common
     /**
      * Snowflake constructor.
      *
-     * @param string $type
-     * @param array $options -- length, nullable, default
+     * @param array{
+     *     length?:string|null|array,
+     *     nullable?:bool,
+     *     default?:string|null
+     * } $options
      * @throws InvalidOptionException
      */
-    public function __construct($type, $options = [])
+    public function __construct(string $type, array $options = [])
     {
         $this->validateType($type);
         $options['length'] = $this->processLength($options);
         $this->validateLength($type, $options['length']);
-        $diff = array_diff(array_keys($options), ["length", "nullable", "default"]);
+        $diff = array_diff(array_keys($options), ['length', 'nullable', 'default']);
         if (count($diff) > 0) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
     }
 
-    /**
-     * @return string
-     */
-    public function getSQLDefinition()
+    public function getSQLDefinition(): string
     {
         $definition =  $this->getType();
-        if ($this->getLength() !== null && $this->getLength() !== "") {
-            $definition .= "(" . $this->getLength() . ")";
+        if ($this->getLength() !== null && $this->getLength() !== '') {
+            $definition .= '(' . $this->getLength() . ')';
         }
         if (!$this->isNullable()) {
-            $definition .= " NOT NULL";
+            $definition .= ' NOT NULL';
         }
         return $definition;
     }
 
     /**
-     * @return array
+     * @return array{type:string,length:string|null,nullable:bool}
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
-            "type" => $this->getType(),
-            "length" => $this->getLength(),
-            "nullable" => $this->isNullable()
+            'type' => $this->getType(),
+            'length' => $this->getLength(),
+            'nullable' => $this->isNullable(),
         ];
     }
 
     /**
-     * @param array $options
-     * @return string|null
+     * @param array{length?: string|null|array} $options
      * @throws InvalidOptionException
      */
-    private function processLength($options)
+    private function processLength(array $options): ?string
     {
         if (!isset($options['length'])) {
             return null;
@@ -131,15 +133,18 @@ class Snowflake extends Common
         if (is_array($options['length'])) {
             return $this->getLengthFromArray($options['length']);
         }
-        return $options['length'];
+        return (string) $options['length'];
     }
 
     /**
-     * @param array $lengthOptions
+     * @param array{
+     *     character_maximum?:string|int|null,
+     *     numeric_precision?:string|int|null,
+     *     numeric_scale?:string|int|null
+     * } $lengthOptions
      * @throws InvalidOptionException
-     * @return null|string
      */
-    private function getLengthFromArray($lengthOptions)
+    private function getLengthFromArray(array $lengthOptions): ?string
     {
         $expectedOptions = ['character_maximum', 'numeric_precision', 'numeric_scale'];
         $diff = array_diff(array_keys($lengthOptions), $expectedOptions);
@@ -147,25 +152,23 @@ class Snowflake extends Common
             throw new InvalidOptionException(sprintf('Length option "%s" not supported', $diff[0]));
         }
 
-        $characterMaximum = isset($lengthOptions['character_maximum']) ? $lengthOptions['character_maximum'] : null;
-        $numericPrecision = isset($lengthOptions['numeric_precision']) ? $lengthOptions['numeric_precision'] : null;
-        $numericScale = isset($lengthOptions['numeric_scale']) ? $lengthOptions['numeric_scale'] : null;
+        $characterMaximum = $lengthOptions['character_maximum'] ?? null;
+        $numericPrecision = $lengthOptions['numeric_precision'] ?? null;
+        $numericScale = $lengthOptions['numeric_scale'] ?? null;
 
         if (!is_null($characterMaximum)) {
-            return $characterMaximum;
+            return (string) $characterMaximum;
         }
         if (!is_null($numericPrecision) && !is_null($numericScale)) {
             return $numericPrecision . ',' . $numericScale;
         }
-        return $numericPrecision;
+        return $numericPrecision === null ? null : (string) $numericPrecision;
     }
 
     /**
-     * @param string $type
      * @throws InvalidTypeException
-     * @return void
      */
-    private function validateType($type)
+    private function validateType(string $type): void
     {
         if (!in_array(strtoupper($type), $this::TYPES)) {
             throw new InvalidTypeException("'{$type}' is not a valid type");
@@ -173,22 +176,20 @@ class Snowflake extends Common
     }
 
     /**
-     * @param string $type
-     * @param string|null $length
+     * @param null|int|string $length
      * @throws InvalidLengthException
-     * @return void
      */
-    private function validateLength($type, $length = null)
+    private function validateLength(string $type, $length = null): void
     {
         $valid = true;
         switch (strtoupper($type)) {
             case self::TYPE_NUMBER:
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
-                if (is_null($length) || $length === "") {
+                if (is_null($length) || $length === '') {
                     break;
                 }
-                $parts = explode(",", $length);
+                $parts = explode(',', (string) $length);
                 if (!in_array(count($parts), [1, 2])) {
                     $valid = false;
                     break;
@@ -215,14 +216,14 @@ class Snowflake extends Common
             case self::TYPE_CHARACTER:
             case self::TYPE_STRING:
             case self::TYPE_TEXT:
-                if (is_null($length) || $length == "") {
+                if (is_null($length) || $length === '') {
                     break;
                 }
                 if (!is_numeric($length)) {
                     $valid = false;
                     break;
                 }
-                if ((int) $length <= 0 || (int) $length > 16777216) {
+                if ((int) $length <= 0 || (int) $length > 16_777_216) {
                     $valid = false;
                     break;
                 }
@@ -233,7 +234,7 @@ class Snowflake extends Common
             case self::TYPE_TIMESTAMP_NTZ:
             case self::TYPE_TIMESTAMP_LTZ:
             case self::TYPE_TIMESTAMP_TZ:
-                if (is_null($length) || $length == "") {
+                if (is_null($length) || $length === '') {
                     break;
                 }
                 if (!is_numeric($length)) {
@@ -247,20 +248,20 @@ class Snowflake extends Common
                 break;
             case self::TYPE_BINARY:
             case self::TYPE_VARBINARY:
-                if (is_null($length) || $length == "") {
+                if (is_null($length) || $length === '') {
                     break;
                 }
                 if (!is_numeric($length)) {
                     $valid = false;
                     break;
                 }
-                if ((int) $length < 1 || (int) $length > 8388608) {
+                if ((int) $length < 1 || (int) $length > 8_388_608) {
                     $valid = false;
                     break;
                 }
                 break;
             default:
-                if (!is_null($length) && $length != "") {
+                if (!is_null($length) && $length !== '') {
                     $valid = false;
                     break;
                 }
@@ -271,10 +272,7 @@ class Snowflake extends Common
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getBasetype()
+    public function getBasetype(): string
     {
         switch (strtoupper($this->type)) {
             case self::TYPE_INT:

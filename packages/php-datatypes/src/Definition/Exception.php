@@ -1,6 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
-class Exception extends \Exception
+use Exception as InternalException;
+
+class Exception extends InternalException
 {
 }

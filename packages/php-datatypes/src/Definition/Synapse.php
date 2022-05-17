@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
@@ -14,32 +17,32 @@ use Keboola\Datatype\Definition\Exception\InvalidTypeException;
  */
 class Synapse extends Common
 {
-    const TYPE_DECIMAL = 'DECIMAL';
-    const TYPE_NUMERIC = 'NUMERIC';
-    const TYPE_FLOAT = 'FLOAT';
-    const TYPE_REAL = 'REAL';
-    const TYPE_MONEY = 'MONEY';
-    const TYPE_SMALLMONEY = 'SMALLMONEY';
-    const TYPE_BIGINT = 'BIGINT';
-    const TYPE_INT = 'INT';
-    const TYPE_SMALLINT = 'SMALLINT';
-    const TYPE_TINYINT = 'TINYINT';
-    const TYPE_BIT = 'BIT';
-    const TYPE_NVARCHAR = 'NVARCHAR';
-    const TYPE_NCHAR = 'NCHAR';
-    const TYPE_VARCHAR = 'VARCHAR';
-    const TYPE_CHAR = 'CHAR';
-    const TYPE_VARBINARY = 'VARBINARY';
-    const TYPE_BINARY = 'BINARY';
-    const TYPE_UNIQUEIDENTIFIER = 'UNIQUEIDENTIFIER';
-    const TYPE_DATETIMEOFFSET = 'DATETIMEOFFSET';
-    const TYPE_DATETIME2 = 'DATETIME2';
-    const TYPE_DATETIME = 'DATETIME';
-    const TYPE_SMALLDATETIME = 'SMALLDATETIME';
-    const TYPE_DATE = 'DATE';
-    const TYPE_TIME = 'TIME';
+    public const TYPE_DECIMAL = 'DECIMAL';
+    public const TYPE_NUMERIC = 'NUMERIC';
+    public const TYPE_FLOAT = 'FLOAT';
+    public const TYPE_REAL = 'REAL';
+    public const TYPE_MONEY = 'MONEY';
+    public const TYPE_SMALLMONEY = 'SMALLMONEY';
+    public const TYPE_BIGINT = 'BIGINT';
+    public const TYPE_INT = 'INT';
+    public const TYPE_SMALLINT = 'SMALLINT';
+    public const TYPE_TINYINT = 'TINYINT';
+    public const TYPE_BIT = 'BIT';
+    public const TYPE_NVARCHAR = 'NVARCHAR';
+    public const TYPE_NCHAR = 'NCHAR';
+    public const TYPE_VARCHAR = 'VARCHAR';
+    public const TYPE_CHAR = 'CHAR';
+    public const TYPE_VARBINARY = 'VARBINARY';
+    public const TYPE_BINARY = 'BINARY';
+    public const TYPE_UNIQUEIDENTIFIER = 'UNIQUEIDENTIFIER';
+    public const TYPE_DATETIMEOFFSET = 'DATETIMEOFFSET';
+    public const TYPE_DATETIME2 = 'DATETIME2';
+    public const TYPE_DATETIME = 'DATETIME';
+    public const TYPE_SMALLDATETIME = 'SMALLDATETIME';
+    public const TYPE_DATE = 'DATE';
+    public const TYPE_TIME = 'TIME';
 
-    const TYPES = [
+    public const TYPES = [
         self::TYPE_DECIMAL, self::TYPE_NUMERIC,
         self::TYPE_FLOAT, self::TYPE_REAL,
         self::TYPE_MONEY, self::TYPE_SMALLMONEY,
@@ -52,16 +55,16 @@ class Synapse extends Common
         self::TYPE_TIME,
     ];
 
-    const MAX_LENGTH_NVARCHAR = 4000;
-    const MAX_LENGTH_BINARY = 8000;
-    const MAX_LENGTH_FLOAT = 53;
-    const MAX_LENGTH_NUMERIC = '38,0';
+    public const MAX_LENGTH_NVARCHAR = 4000;
+    public const MAX_LENGTH_BINARY = 8000;
+    public const MAX_LENGTH_FLOAT = 53;
+    public const MAX_LENGTH_NUMERIC = '38,0';
 
     /**
      * Types with precision and scale
      * This used to separate (precision,scale) types from length types when column is retrieved from database
      */
-    const TYPES_WITH_COMPLEX_LENGTH = [
+    public const TYPES_WITH_COMPLEX_LENGTH = [
         self::TYPE_DECIMAL, self::TYPE_NUMERIC,
     ];
 
@@ -69,7 +72,7 @@ class Synapse extends Common
      * Types without precision, scale, or length
      * This used to separate types when column is retrieved from database
      */
-    const TYPES_WITHOUT_LENGTH = [
+    public const TYPES_WITHOUT_LENGTH = [
         Synapse::TYPE_DATETIME,
         Synapse::TYPE_REAL,
         Synapse::TYPE_SMALLDATETIME,
@@ -85,16 +88,15 @@ class Synapse extends Common
     ];
 
     /**
-     * @param string $type
-     * @param array $options -- length, nullable, default
+     * @param array{length?:string|null, nullable?:bool, default?:string|null} $options
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function __construct($type, $options = [])
+    public function __construct(string $type, array $options = [])
     {
         $this->validateType($type);
-        $this->validateLength($type, isset($options['length']) ? $options['length'] : null);
+        $this->validateLength($type, $options['length'] ?? null);
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default']);
         if (count($diff) > 0) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
@@ -102,10 +104,7 @@ class Synapse extends Common
         parent::__construct($type, $options);
     }
 
-    /**
-     * @return string
-     */
-    public function getSQLDefinition()
+    public function getSQLDefinition(): string
     {
         $definition = $this->getType();
         $length = $this->getLength();
@@ -113,7 +112,7 @@ class Synapse extends Common
             $definition .= sprintf('(%s)', $length);
         } else {
             $length = $this->getDefaultLength();
-            if (null !== $length) {
+            if ($length !== null) {
                 $definition .= sprintf('(%s)', $length);
             }
         }
@@ -155,9 +154,9 @@ class Synapse extends Common
     }
 
     /**
-     * @return array
+     * @return array{type:string,length:string|null,nullable:bool}
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'type' => $this->getType(),
@@ -167,11 +166,9 @@ class Synapse extends Common
     }
 
     /**
-     * @param string $type
-     * @return void
      * @throws InvalidTypeException
      */
-    private function validateType($type)
+    private function validateType(string $type): void
     {
         if (!in_array(strtoupper($type), $this::TYPES, true)) {
             throw new InvalidTypeException(sprintf('"%s" is not a valid type', $type));
@@ -179,12 +176,10 @@ class Synapse extends Common
     }
 
     /**
-     * @param string $type
-     * @param string|null $length
-     * @return void
+     * @param null|int|string $length
      * @throws InvalidLengthException
      */
-    private function validateLength($type, $length = null)
+    private function validateLength(string $type, $length = null): void
     {
         $valid = true;
         switch (strtoupper($type)) {
@@ -238,10 +233,7 @@ class Synapse extends Common
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getBasetype()
+    public function getBasetype(): string
     {
         switch (strtoupper($this->type)) {
             case self::TYPE_INT:

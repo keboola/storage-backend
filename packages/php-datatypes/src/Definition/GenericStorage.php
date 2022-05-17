@@ -1,42 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
 class GenericStorage extends Common
 {
-    const DATE_TYPES = ["date"];
-    const TIMESTAMP_TYPES = [
-        "datetime", "datetime2", "smalldatetime", "datetimeoffset", "timestamp_LTZ", "timestamp_NTZ", "TIMESTAMP_TZ",
-        "timestamptz", "timestamp", "timestamp with time zone", "timestamp with local time zone", "timestamp without time zone"
+    public const DATE_TYPES = ['date'];
+    public const TIMESTAMP_TYPES = [
+        'datetime',
+        'datetime2',
+        'smalldatetime',
+        'datetimeoffset',
+        'timestamp_LTZ',
+        'timestamp_NTZ',
+        'TIMESTAMP_TZ',
+        'timestamptz',
+        'timestamp',
+        'timestamp with time zone',
+        'timestamp with local time zone',
+        'timestamp without time zone',
     ];
-    const FLOATING_POINT_TYPES = [
-        "real", "float", "float4", "double precision", "float8", "binary_float", "binary_double", "double",
-        "d_float", "quad"
+    public const FLOATING_POINT_TYPES = [
+        'real', 'float', 'float4', 'double precision', 'float8', 'binary_float', 'binary_double', 'double',
+        'd_float', 'quad',
     ];
     // NOTE: "bit" is used in mssql as a 1/0 type boolean, but in pgsql as a bit(n) ie 10110.
     // also in mysql bit is equivalent to tinyint
-    const BOOLEAN_TYPES = ["boolean", "bool"];
+    public const BOOLEAN_TYPES = ['boolean', 'bool'];
 
-    const INTEGER_TYPES = [
-        "integer", "int", "smallint", "mediumint",
-        "int2", "tinyint", "bigint", "int8", "bigserial", "serial8", "int4", "int64"
+    public const INTEGER_TYPES = [
+        'integer', 'int', 'smallint', 'mediumint',
+        'int2', 'tinyint', 'bigint', 'int8', 'bigserial', 'serial8', 'int4', 'int64',
     ];
 
-    const FIXED_NUMERIC_TYPES = [
-        "numeric", "decimal", "dec", "fixed", "money", "smallmoney", "number"
+    public const FIXED_NUMERIC_TYPES = [
+        'numeric', 'decimal', 'dec', 'fixed', 'money', 'smallmoney', 'number',
     ];
 
-    /**
-     * @var string
-     */
-    protected $format = null;
+    protected ?string $format = null;
 
     /**
      * Base constructor.
-     * @param string $type
-     * @param array $options
+     * @param array{length?:string|null, nullable?:bool, default?:string|null, format?:string|null} $options
      */
-    public function __construct($type, array $options = [])
+    public function __construct(string $type, array $options = [])
     {
         parent::__construct($type, $options);
         if (isset($options['format'])) {
@@ -44,70 +52,61 @@ class GenericStorage extends Common
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getSQLDefinition()
+    public function getSQLDefinition(): string
     {
         $sql = $this->getType();
         if ($this->getLength() && $this->getLength() !== '') {
-            $sql .= "(" . $this->getLength() . ")";
+            $sql .= '(' . $this->getLength() . ')';
         }
-        $sql .= ($this->isNullable()) ? " NULL" : " NOT NULL";
+        $sql .= ($this->isNullable()) ? ' NULL' : ' NOT NULL';
         if (!is_null($this->getDefault())) {
             $sql .= " DEFAULT '" . $this->default . "'";
-        } else if ($this->isNullable()) {
-            $sql .= " DEFAULT NULL";
+        } elseif ($this->isNullable()) {
+            $sql .= ' DEFAULT NULL';
         }
         return $sql;
     }
 
     /**
-     * @return array
+     * @return array<int, array{key:string,value:mixed}>
      */
-    public function toMetadata()
+    public function toMetadata(): array
     {
         $metadata = parent::toMetadata();
         if (!is_null($this->getFormat())) {
             $metadata[] = [
-                "key" => Common::KBC_METADATA_KEY_FORMAT,
-                "value" => $this->format
+                'key' => Common::KBC_METADATA_KEY_FORMAT,
+                'value' => $this->format,
             ];
         }
         return $metadata;
     }
 
     /**
-     * @return array
+     * @return array{type:string,length:string|null,nullable:bool,default?:string,format?:string}
      */
-    public function toArray()
+    public function toArray(): array
     {
         $result = [
-            "type" => $this->getType(),
-            "length" => $this->getLength(),
-            "nullable" => $this->isNullable()
+            'type' => $this->getType(),
+            'length' => $this->getLength(),
+            'nullable' => $this->isNullable(),
         ];
         if (!is_null($this->getDefault())) {
-            $result["default"] = $this->getDefault();
+            $result['default'] = $this->getDefault();
         }
         if ($this->getFormat()) {
-            $result["format"] = $this->getFormat();
+            $result['format'] = $this->getFormat();
         }
         return $result;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getFormat()
+    public function getFormat(): ?string
     {
         return $this->format;
     }
 
-    /**
-     * @return string
-     */
-    public function getBasetype()
+    public function getBasetype(): string
     {
         $type = strtolower($this->type);
         $baseType = BaseType::STRING;
