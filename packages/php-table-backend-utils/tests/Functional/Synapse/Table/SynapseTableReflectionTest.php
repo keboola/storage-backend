@@ -33,7 +33,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
 
     protected function createTestSchema(string $schemaName = self::TEST_SCHEMA): void
     {
-        $this->connection->exec($this->schemaQb->getCreateSchemaCommand($schemaName));
+        $this->connection->executeStatement($this->schemaQb->getCreateSchemaCommand($schemaName));
     }
 
     public function testGetTableColumnsNames(): void
@@ -53,7 +53,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         string $schema = self::TEST_SCHEMA,
         string $table = self::TABLE_GENERIC
     ): void {
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'CREATE TABLE %s.%s (
           [int_def] INT NOT NULL DEFAULT 0,
@@ -103,7 +103,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->initTable();
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         $this->assertEmpty($ref->getPrimaryKeysNames());
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'ALTER TABLE %s.%s ADD CONSTRAINT [PK_1] PRIMARY KEY NONCLUSTERED ([_time], [int_def]) NOT ENFORCED',
             SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
@@ -116,12 +116,12 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->initTable();
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         $this->assertEquals(0, $ref->getRowsCount());
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
             SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
             SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
@@ -455,7 +455,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
             'table_defs'
         );
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, 'table_defs');
 
         /** @var SynapseColumn[] $definitions */
@@ -491,7 +491,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
             $sql .= ' WITH (HEAP)';
         }
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, 'table_defs');
         $definitions = $ref->getColumnsDefinitions();
         $this->assertCount(1, $definitions);
@@ -531,7 +531,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
 
     public function testTemporaryTableGetObjectId(): void
     {
-        $this->connection->exec($this->tableQb->getCreateTempTableCommand(
+        $this->connection->executeStatement($this->tableQb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#table_defs',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
@@ -543,7 +543,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
 
     public function testTemporaryTableGetRowsCount(): void
     {
-        $this->connection->exec($this->tableQb->getCreateTempTableCommand(
+        $this->connection->executeStatement($this->tableQb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#table_defs',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
@@ -551,7 +551,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, '#table_defs');
         $count = $ref->getRowsCount();
         $this->assertEquals(0, $count);
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'INSERT INTO [%s].[%s] VALUES (\'xxx\')',
             self::TEST_SCHEMA,
             '#table_defs'
@@ -577,7 +577,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
      */
     public function testTemporaryTableGetColumnsNames(string $operation): void
     {
-        $this->connection->exec($this->tableQb->getCreateTempTableCommand(
+        $this->connection->executeStatement($this->tableQb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
             '#table_defs',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
@@ -615,12 +615,12 @@ class SynapseTableReflectionTest extends SynapseBaseCase
         $this->assertEquals(0, $stats1->getRowsCount());
         $this->assertGreaterThan(1024, $stats1->getDataSizeBytes()); // empty tables take up some space
 
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
             SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
         ));
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'INSERT INTO %s.%s VALUES (10, \'xxx\', 10,\'2020-02-01 00:00:00\')',
             SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SynapseQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
@@ -658,7 +658,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
      */
     public function testGetTableDistribution(string $with, string $expectedDistribution): void
     {
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'CREATE TABLE %s.%s (
           [int_def] INT
@@ -702,7 +702,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
      */
     public function testGetTableDistributionColumnsNames(string $with, array $expectedDistributionKeys): void
     {
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'CREATE TABLE %s.%s (
           [int_def] INT,
@@ -776,7 +776,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
 
     private function initView(string $viewName, string $parentName): void
     {
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'CREATE VIEW %s.%s AS SELECT * FROM %s.%s;',
                 SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),

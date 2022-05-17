@@ -24,7 +24,7 @@ class SynapseUserReflection implements UserReflectionInterface
         $ids = $this->getAllSessionIds();
 
         foreach ($ids as $id) {
-            $this->connection->exec(sprintf(
+            $this->connection->executeStatement(sprintf(
                 'KILL %s;',
                 SynapseQuote::quote($id)
             ));

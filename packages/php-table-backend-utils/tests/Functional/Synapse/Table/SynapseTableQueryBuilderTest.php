@@ -51,16 +51,16 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             'CREATE TABLE [utils-test_qb-schema].[#utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\') WITH (HEAP, LOCATION = USER_DB)',
             $sql
         );
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         // try to create same table
         $this->expectException(Exception::class);
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
     }
 
     private function createTestSchema(): void
     {
-        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
-        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
+        $this->connection->executeStatement($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->executeStatement($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
     }
 
     public function testGetCreateTableCommand(): void
@@ -77,13 +77,13 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\')',
             $sql
         );
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $ref = $this->getSynapseTableReflection();
         $this->assertNotNull($ref->getObjectId());
         $this->assertEqualsCanonicalizing(['col1', 'col2'], $ref->getColumnsNames());
 
         $this->expectException(Exception::class);
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
     }
 
     private function getSynapseTableReflection(
@@ -108,7 +108,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\', [_timestamp] DATETIME2)',
             $sql
         );
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $ref = $this->getSynapseTableReflection();
         $this->assertNotNull($ref->getObjectId());
         $this->assertEqualsCanonicalizing(['col1', 'col2', '_timestamp'], $ref->getColumnsNames());
@@ -135,7 +135,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([pk1] INT, [col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\', [_timestamp] DATETIME2, PRIMARY KEY NONCLUSTERED([pk1],[col1]) NOT ENFORCED)',
             $sql
         );
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $ref = $this->getSynapseTableReflection();
         $this->assertNotNull($ref->getObjectId());
         $this->assertEqualsCanonicalizing(['pk1', 'col1', 'col2', '_timestamp'], $ref->getColumnsNames());
@@ -238,20 +238,20 @@ EOT
 
         $schema = self::TEST_SCHEMA;
         $tableName = 'createTableTest';
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         // get table definition
         $ref = new SynapseTableReflection($this->connection, $schema, $tableName);
         $definitionSource = $ref->getTableDefinition();
         $qb = new SynapseTableQueryBuilder();
         // drop source table
         $sql = $qb->getDropTableCommand($schema, $tableName);
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         // create table from definition
         $sql = $qb->getCreateTableCommandFromDefinition(
             $definitionSource,
             $definePrimaryKeys
         );
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $ref = new SynapseTableReflection($this->connection, $schema, $tableName);
         $definitionCreated = $ref->getTableDefinition();
@@ -333,7 +333,7 @@ EOT
             $sql
         );
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $ref = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::TEST_TABLE_2);
         $this->assertNotNull($ref->getObjectId());
@@ -348,7 +348,7 @@ EOT
     {
         foreach ([self::TEST_TABLE, self::TEST_TABLE_2] as $t) {
             $schema = self::TEST_SCHEMA;
-            $this->connection->exec(<<<EOT
+            $this->connection->executeStatement(<<<EOT
 CREATE TABLE [$schema].[$t] (
     id int NOT NULL
 )  
@@ -375,7 +375,7 @@ EOT
             $sql
         );
 
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $ref = $this->getSynapseTableReflection(self::TEST_SCHEMA, $renameTo);
         $this->assertNotFalse($ref->getObjectId());
@@ -398,7 +398,7 @@ EOT
             $idDeclaration = 'id INT PRIMARY KEY NONCLUSTERED NOT ENFORCED';
         }
 
-        $this->connection->exec(<<<EOT
+        $this->connection->executeStatement(<<<EOT
 CREATE TABLE $table (  
     $idDeclaration,
     col1 varchar,
@@ -430,7 +430,7 @@ EOT
             'TRUNCATE TABLE [utils-test_qb-schema].[#stagingTable]',
             $sql
         );
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $this->assertEquals(0, $ref->getRowsCount());
         $this->assertEquals(3, $ref2->getRowsCount());
@@ -443,17 +443,17 @@ EOT
         $this->createTestTable();
 
         foreach ([self::TEST_TABLE, self::TEST_TABLE_2] as $t) {
-            $this->connection->exec(sprintf(
+            $this->connection->executeStatement(sprintf(
                 'INSERT INTO [%s].[%s]([id]) VALUES (1)',
                 self::TEST_SCHEMA,
                 $t
             ));
-            $this->connection->exec(sprintf(
+            $this->connection->executeStatement(sprintf(
                 'INSERT INTO [%s].[%s]([id]) VALUES (2)',
                 self::TEST_SCHEMA,
                 $t
             ));
-            $this->connection->exec(sprintf(
+            $this->connection->executeStatement(sprintf(
                 'INSERT INTO [%s].[%s]([id]) VALUES (3)',
                 self::TEST_SCHEMA,
                 $t
@@ -471,7 +471,7 @@ EOT
             'TRUNCATE TABLE [utils-test_qb-schema].[utils-test_test]',
             $sql
         );
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
 
         $this->assertEquals(0, $ref->getRowsCount());
         $this->assertEquals(3, $ref2->getRowsCount());
@@ -480,7 +480,7 @@ EOT
     private function createCreateTempTableCommandWithData(bool $includeEmptyValues = false): void
     {
         foreach ([self::TEST_STAGING_TABLE, self::TEST_STAGING_TABLE_2] as $t) {
-            $this->connection->exec($this->tableQb->getCreateTempTableCommand(
+            $this->connection->executeStatement($this->tableQb->getCreateTempTableCommand(
                 self::TEST_SCHEMA,
                 $t,
                 new ColumnCollection([
@@ -490,21 +490,21 @@ EOT
                     SynapseColumn::createGenericColumn('col2'),
                 ])
             ));
-            $this->connection->exec(
+            $this->connection->executeStatement(
                 sprintf(
                     'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                     self::TEST_SCHEMA,
                     $t
                 )
             );
-            $this->connection->exec(
+            $this->connection->executeStatement(
                 sprintf(
                     'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                     self::TEST_SCHEMA,
                     $t
                 )
             );
-            $this->connection->exec(
+            $this->connection->executeStatement(
                 sprintf(
                     'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
                     self::TEST_SCHEMA,
@@ -513,7 +513,7 @@ EOT
             );
 
             if ($includeEmptyValues) {
-                $this->connection->exec(
+                $this->connection->executeStatement(
                     sprintf(
                         'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'\',NULL)',
                         self::TEST_SCHEMA,

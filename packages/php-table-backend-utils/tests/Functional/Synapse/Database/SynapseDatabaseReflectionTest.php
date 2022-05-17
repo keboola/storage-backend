@@ -22,7 +22,7 @@ class SynapseDatabaseReflectionTest extends BaseAuthTestCase
         $this->dropRoles(self::LOGIN_PREFIX);
         $roleName = $this->currentLogin . '_ROLE';
 
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE ROLE %s',
             $this->platform->quoteSingleIdentifier($this->currentLogin . '_ROLE')
         ));

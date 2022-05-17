@@ -29,7 +29,7 @@ class SynapseViewReflectionTest extends SynapseBaseCase
 
     private function createTestSchema(): void
     {
-        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->executeStatement($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
     }
 
     public function testGetDependentViews(): void
@@ -55,7 +55,7 @@ class SynapseViewReflectionTest extends SynapseBaseCase
 
     private function initTable(): void
     {
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'CREATE TABLE [%s].[%s] (
           [int_def] INT NOT NULL DEFAULT 0,
@@ -71,7 +71,7 @@ class SynapseViewReflectionTest extends SynapseBaseCase
 
     private function initView(string $viewName, string $parentName): void
     {
-        $this->connection->exec(
+        $this->connection->executeStatement(
             sprintf(
                 'CREATE VIEW [%s].[%s] AS SELECT * FROM [%s].[%s];',
                 self::TEST_SCHEMA,
@@ -121,13 +121,13 @@ EOT
             );
         }
 
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE TABLE [%s].[%s] (%s);',
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             implode(',', $cols)
         ));
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[%s] AS SELECT %s FROM [%s].[%s];',
             self::TEST_SCHEMA,
             self::VIEW_GENERIC,
@@ -142,7 +142,7 @@ EOT
         $this->initTable();
         $this->initView(self::VIEW_GENERIC, self::TABLE_GENERIC);
         // add new column
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'ALTER TABLE [%s].[%s] ADD [xxx] varchar NULL;',
             self::TEST_SCHEMA,
             self::TABLE_GENERIC

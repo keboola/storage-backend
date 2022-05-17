@@ -34,7 +34,7 @@ class SynapseBaseCase extends TestCase
         $tables = $ref->getTablesNames();
 
         foreach ($tables as $table) {
-            $this->connection->exec(
+            $this->connection->executeStatement(
                 $this->tableQb->getDropTableCommand($schema, $table)
             );
         }
@@ -43,7 +43,7 @@ class SynapseBaseCase extends TestCase
         $views = $ref->getViewsNames();
 
         foreach ($views as $view) {
-            $this->connection->exec(sprintf('DROP VIEW [%s].[%s]', $schema, $view));
+            $this->connection->executeStatement(sprintf('DROP VIEW [%s].[%s]', $schema, $view));
         }
 
         /** @var array{array{name:string}} $schemas */

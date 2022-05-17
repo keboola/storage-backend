@@ -28,8 +28,8 @@ class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
         $schemas = $this->getSchemaFromDatabase();
         $this->assertEmpty($schemas);
 
-        $this->connection->exec($qb->getCreateSchemaCommand(self::TEST_SCHEMA));
-        $this->connection->exec($qb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
+        $this->connection->executeStatement($qb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->executeStatement($qb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
 
         $schemas = $this->getSchemaFromDatabase();
         $this->assertCount(1, $schemas);
@@ -56,13 +56,13 @@ class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
     {
         $qb = new SynapseSchemaQueryBuilder();
 
-        $this->connection->exec($qb->getCreateSchemaCommand(self::TEST_SCHEMA));
-        $this->connection->exec($qb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
+        $this->connection->executeStatement($qb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->executeStatement($qb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
         $schemas = $this->getSchemaFromDatabase();
         $this->assertCount(1, $schemas);
 
         // drop testing schema leave schema2
-        $this->connection->exec($qb->getDropSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->executeStatement($qb->getDropSchemaCommand(self::TEST_SCHEMA));
         $schemas = $this->getSchemaFromDatabase();
         $this->assertEmpty($schemas);
     }

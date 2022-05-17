@@ -78,19 +78,19 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
         $this->dropRoles(self::LOGIN_PREFIX);
         $this->setUpUser(self::LOGIN_PREFIX);
 
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE ROLE %s',
             $this->platform->quoteSingleIdentifier($this->currentLogin . '_ROLE')
         ));
 
         assert($this->currentLogin !== null);
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE SCHEMA %s AUTHORIZATION %s',
             $this->platform->quoteSingleIdentifier(self::TEST_SCHEMA),
             $this->platform->quoteSingleIdentifier($this->currentLogin)
         ));
 
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE TABLE %s.%s ([col1] nvarchar(4000) NOT NULL DEFAULT \'\')',
             $this->platform->quoteSingleIdentifier(self::TEST_SCHEMA),
             $this->platform->quoteSingleIdentifier(self::TEST_TABLE)
@@ -361,7 +361,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 
         $qb = new SynapseGrantQueryBuilder();
         $sql = $qb->getGrantSql($options);
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $this->assertSame(sprintf($expectedGrant, $this->currentLogin, $this->currentLogin), $sql);
 
         if ($allowGrantOption === true) {
@@ -379,13 +379,13 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 
         // revoke with cascade
         $sql = $qb->getRevokeSql($options);
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $this->assertSame(sprintf($expectedRevoke . ' CASCADE', $this->currentLogin, $this->currentLogin), $sql);
 
         // revoke without cascade
         $options->revokeInCascade(false);
         $sql = $qb->getRevokeSql($options);
-        $this->connection->exec($sql);
+        $this->connection->executeStatement($sql);
         $this->assertSame(sprintf($expectedRevoke, $this->currentLogin, $this->currentLogin), $sql);
     }
 }

@@ -28,8 +28,8 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
 
     protected function createTestSchema(): void
     {
-        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
-        $this->connection->exec($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
+        $this->connection->executeStatement($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA));
+        $this->connection->executeStatement($this->schemaQb->getCreateSchemaCommand(self::TEST_SCHEMA_2));
     }
 
     public function testGetTablesNames(): void
@@ -40,23 +40,23 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
 
         $qb = new SynapseTableQueryBuilder();
         // init tables in testing schema
-        $this->connection->exec($qb->getCreateTableCommand(
+        $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
-        $this->connection->exec($qb->getCreateTableCommand(
+        $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table2',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
         // init tables in testing schema 2
-        $this->connection->exec($qb->getCreateTableCommand(
+        $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA_2,
             'table1',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
-        $this->connection->exec($qb->getCreateTableCommand(
+        $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA_2,
             'table2',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
@@ -77,31 +77,31 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $this->assertEmpty($tables);
 
         $qb = new SynapseTableQueryBuilder();
-        $this->connection->exec($qb->getCreateTableCommand(
+        $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',
             new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
         ));
 
         // init view in testing schema
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view1] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA,
             self::TEST_SCHEMA
         ));
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view2] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA,
             self::TEST_SCHEMA
         ));
 
         // init view in testing schema 2
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view1] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA_2,
             self::TEST_SCHEMA
         ));
-        $this->connection->exec(sprintf(
+        $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view2] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA_2,
             self::TEST_SCHEMA
