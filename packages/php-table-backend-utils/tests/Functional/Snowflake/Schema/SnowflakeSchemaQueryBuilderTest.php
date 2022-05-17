@@ -42,13 +42,12 @@ class SnowflakeSchemaQueryBuilderTest extends SnowflakeBaseCase
      */
     private function getSchemaFromDatabase(): array
     {
+        /** @var array<array{name:string}> $schemas */
         $schemas = $this->connection->fetchAllAssociative(
             'SHOW SCHEMAS'
         );
 
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($schemas, 'name');
-        return $extracted;
+        return array_map(static fn(array $schema) => trim($schema['name']), $schemas);
     }
 
     public function testGetDropSchemaCommandWithCascade(): void

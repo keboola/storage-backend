@@ -44,6 +44,7 @@ class ExasolSchemaQueryBuilderTest extends ExasolBaseCase
      */
     private function getSchemaFromDatabase(): array
     {
+        /** @var array<array{SCHEMA_NAME:string}> $schemas */
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT "SCHEMA_NAME" FROM "SYS"."EXA_ALL_SCHEMAS" WHERE "SCHEMA_NAME" = %s',
@@ -51,9 +52,7 @@ class ExasolSchemaQueryBuilderTest extends ExasolBaseCase
             )
         );
 
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($schemas, 'SCHEMA_NAME');
-        return $extracted;
+        return array_map(static fn(array $schema) => trim($schema['SCHEMA_NAME']), $schemas);
     }
 
     public function testGetDropSchemaCommandWithCascade(): void

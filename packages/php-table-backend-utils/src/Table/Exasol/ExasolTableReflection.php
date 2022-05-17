@@ -53,9 +53,9 @@ final class ExasolTableReflection implements TableReflectionInterface
             )
         );
 
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($columns, 'COLUMN_NAME');
-        return $extracted;
+        return array_map(static function ($column) {
+            return $column['COLUMN_NAME'];
+        }, $columns);
     }
 
     public function getColumnsDefinitions(): ColumnCollection
@@ -132,10 +132,12 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
             ExasolQuote::quote($this->tableName),
             ExasolQuote::quote('PRIMARY KEY')
         );
+        /** @var array<array{COLUMN_NAME:string}> $data */
         $data = $this->connection->fetchAllAssociative($sql);
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($data, 'COLUMN_NAME');
-        return $extracted;
+
+        return array_map(static function ($column) {
+            return $column['COLUMN_NAME'];
+        }, $data);
     }
 
     public function getTableStats(): TableStatsInterface

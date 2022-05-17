@@ -8,7 +8,6 @@ use Doctrine\DBAL\Connection;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
-use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
@@ -17,17 +16,13 @@ use Keboola\TableBackendUtils\Table\TableStatsInterface;
 
 final class TeradataTableReflection implements TableReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var string */
-    private $dbName;
+    private string $dbName;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
-    /** @var bool */
-    private $isTemporary;
+    private bool $isTemporary;
 
     public function __construct(Connection $connection, string $dbName, string $tableName)
     {
@@ -44,6 +39,7 @@ final class TeradataTableReflection implements TableReflectionInterface
      */
     public function getColumnsNames(): array
     {
+        /** @var array<array{'Column Name':string}> $columns */
         $columns = $this->connection->fetchAllAssociative(
             sprintf(
                 'HELP TABLE %s.%s',
@@ -52,9 +48,7 @@ final class TeradataTableReflection implements TableReflectionInterface
             )
         );
 
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($columns, 'Column Name');
-        return $extracted;
+        return array_map(static fn($table) => trim($table['Column Name']), $columns);
     }
 
     public function getColumnsDefinitions(): ColumnCollection
@@ -179,10 +173,10 @@ final class TeradataTableReflection implements TableReflectionInterface
             TeradataQuote::quote($this->tableName)
         );
 
+        /** @var array<array{'ColumnName':string}> $data */
         $data = $this->connection->fetchAllAssociative($sql);
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($data, 'ColumnName');
-        return $extracted;
+
+        return array_map(static fn(array $table) => trim($table['ColumnName']), $data);
     }
 
     public function getTableStats(): TableStatsInterface

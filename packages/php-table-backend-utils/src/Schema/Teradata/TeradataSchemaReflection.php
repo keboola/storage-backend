@@ -11,11 +11,9 @@ use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 
 final class TeradataSchemaReflection implements SchemaReflectionInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var string */
-    private $databaseName;
+    private string $databaseName;
 
     public function __construct(Connection $connection, string $databaseName)
     {
@@ -26,32 +24,30 @@ final class TeradataSchemaReflection implements SchemaReflectionInterface
     public function getTablesNames(): array
     {
         $database = TeradataQuote::quote($this->databaseName);
+        /** @var array<array{TableName:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT "TableName" 
-FROM "DBC"."TablesV" 
+FROM "DBC"."TablesVX" 
 WHERE "TableKind" = 'T' AND "DataBaseName"=$database
 EOT
         );
 
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($tables, 'TableName');
-        return $extracted;
+        return array_map(static fn($table) => trim($table['TableName']), $tables);
     }
 
     public function getViewsNames(): array
     {
         $database = TeradataQuote::quote($this->databaseName);
+        /** @var array<array{TableName:string}> $tables */
         $tables = $this->connection->fetchAllAssociative(
             <<< EOT
 SELECT "TableName" 
-FROM "DBC"."TablesV" 
+FROM "DBC"."TablesVX" 
 WHERE "TableKind" = 'V' AND "DataBaseName"=$database
 EOT
         );
 
-        /** @var string[] $extracted */
-        $extracted = DataHelper::extractByKey($tables, 'TableName');
-        return $extracted;
+        return array_map(static fn(array $table) => trim($table['TableName']), $tables);
     }
 }
