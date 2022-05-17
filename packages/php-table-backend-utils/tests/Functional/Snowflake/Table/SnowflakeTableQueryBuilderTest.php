@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Table;
 
 use Doctrine\DBAL\Exception as DBALException;
+use Generator;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
@@ -19,7 +20,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
  */
 class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
 {
-    private \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder $qb;
+    private SnowflakeTableQueryBuilder $qb;
 
     public function setUp(): void
     {
@@ -165,7 +166,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
     /**
      * @return \Generator<string, mixed, mixed, mixed>
      */
-    public function createTableTestSqlProvider(): \Generator
+    public function createTableTestSqlProvider(): Generator
     {
         $testDb = self::TEST_SCHEMA;
         $tableName = self::TABLE_GENERIC;
@@ -232,7 +233,7 @@ EOT
      *     createPrimaryKeys: bool
      * }>
      */
-    public function createTableTestFromDefinitionSqlProvider(): \Generator
+    public function createTableTestFromDefinitionSqlProvider(): Generator
     {
         $testDb = self::TEST_SCHEMA;
         $tableName = self::TABLE_GENERIC;

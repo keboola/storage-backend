@@ -6,6 +6,7 @@ namespace Keboola\TableBackendUtils\Connection\Teradata;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Exception;
 use Throwable;
 
@@ -19,7 +20,6 @@ class TeradataConnection
      *     port:int,
      *     dbname:?string,
      * } $params
-     * @return Connection
      * @throws Exception
      */
     public static function getConnection(array $params, ?Configuration $config = null): Connection
@@ -29,7 +29,7 @@ class TeradataConnection
         ]);
 
         try {
-            return \Doctrine\DBAL\DriverManager::getConnection($params, $config);
+            return DriverManager::getConnection($params, $config);
         } catch (Throwable $e) {
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }

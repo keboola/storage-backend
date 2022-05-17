@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Auth;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
@@ -18,10 +20,10 @@ class BaseAuthTestCase extends SynapseBaseCase
      */
     protected ?string $currentLogin = null;
 
-    protected function getTestLoginConnection(): \Doctrine\DBAL\Connection
+    protected function getTestLoginConnection(): Connection
     {
         assert($this->currentLogin !== null);
-        return \Doctrine\DBAL\DriverManager::getConnection([
+        return DriverManager::getConnection([
             'user' => $this->currentLogin,
             'password' => self::LOGIN_PASSWORD,
             'host' => (string) getenv('SYNAPSE_SERVER'),
@@ -31,9 +33,9 @@ class BaseAuthTestCase extends SynapseBaseCase
         ]);
     }
 
-    protected function getMasterDbConnection(): \Doctrine\DBAL\Connection
+    protected function getMasterDbConnection(): Connection
     {
-        return \Doctrine\DBAL\DriverManager::getConnection([
+        return DriverManager::getConnection([
             'user' => (string) getenv('SYNAPSE_UID'),
             'password' => (string) getenv('SYNAPSE_PWD'),
             'host' => (string) getenv('SYNAPSE_SERVER'),

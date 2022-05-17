@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Table\Teradata;
 
 use Doctrine\DBAL\Connection;
+use Exception;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
@@ -109,7 +110,7 @@ final class TeradataTableReflection implements TableReflectionInterface
             $timeTypes,
             $charTypes,
             $totalTypes
-        ): \Keboola\TableBackendUtils\Column\Teradata\TeradataColumn {
+        ): TeradataColumn {
             $colName = trim($col['Column Name']);
             $colType = trim($col['Type']);
             $defaultvalue = $col['Default value'];
@@ -211,7 +212,7 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
     public function getDependentViews(): array
     {
 //        TODO
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
     }
 
     public function getTableDefinition(): TableDefinitionInterface

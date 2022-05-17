@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Connection\Snowflake;
 
+use Generator;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeDSNGenerator;
 use LogicException;
@@ -14,7 +15,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
     /**
      * @return \Generator<array<int, array<string, array<mixed>|bool|int|string>|string>>
      */
-    public function dsnOptionsProvider(): \Generator
+    public function dsnOptionsProvider(): Generator
     {
         $options = [
             'host' => 'snowflakecomputing.com',

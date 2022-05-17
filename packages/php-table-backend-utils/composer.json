@@ -14,7 +14,7 @@
         "keboola/retry": "^0.5.0"
     },
     "require-dev": {
-        "keboola/coding-standard": "^9",
+        "keboola/coding-standard": "^13",
         "php-parallel-lint/php-parallel-lint": "^1",
         "phpstan/phpstan": "^1",
         "phpstan/phpstan-phpunit": "^1",
@@ -48,6 +48,7 @@
         ],
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+        "phpcs-report": "phpcs -n --report=source -s --ignore=vendor --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor .",
         "check": [

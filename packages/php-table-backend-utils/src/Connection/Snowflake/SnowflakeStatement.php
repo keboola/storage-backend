@@ -7,6 +7,7 @@ namespace Keboola\TableBackendUtils\Connection\Snowflake;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
+use Throwable;
 
 class SnowflakeStatement implements Statement
 {
@@ -29,7 +30,6 @@ class SnowflakeStatement implements Statement
 
     /**
      * @param resource $dbh database handle
-     * @param string $query
      */
     public function __construct($dbh, string $query)
     {
@@ -83,7 +83,7 @@ class SnowflakeStatement implements Statement
 
         try {
             odbc_execute($this->stmt, $this->repairBinding($this->params));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw DriverException::newFromHandle($this->dbh);
         }
 

@@ -6,6 +6,7 @@ namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use InvalidArgumentException;
 
 class Result implements ResultInterface
 {
@@ -110,7 +111,7 @@ class Result implements ResultInterface
                 }
                 break;
             default:
-                throw new \InvalidArgumentException(sprintf('Unsupported fetch mode "%s"', $fetchMode));
+                throw new InvalidArgumentException(sprintf('Unsupported fetch mode "%s"', $fetchMode));
         }
 
         return $row;

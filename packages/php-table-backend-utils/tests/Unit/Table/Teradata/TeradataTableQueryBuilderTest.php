@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Table\Teradata;
 
+use Generator;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
@@ -17,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class TeradataTableQueryBuilderTest extends TestCase
 {
-    private \Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder $qb;
+    private TeradataTableQueryBuilder $qb;
 
     public function setUp(): void
     {
@@ -41,7 +42,7 @@ class TeradataTableQueryBuilderTest extends TestCase
     /**
      * @return \Generator<string, mixed, mixed, mixed>
      */
-    public function createTableInvalidPKsProvider(): \Generator
+    public function createTableInvalidPKsProvider(): Generator
     {
         yield 'key of ouf columns' => [
             'cols' => [

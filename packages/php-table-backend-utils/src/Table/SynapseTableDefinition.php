@@ -15,16 +15,16 @@ final class SynapseTableDefinition implements TableDefinitionInterface
 
     private string $tableName;
 
-    private \Keboola\TableBackendUtils\Column\ColumnCollection $columns;
+    private ColumnCollection $columns;
 
     /** @var string[] */
     private array $primaryKeysNames;
 
-    private \Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition $tableDistribution;
+    private TableDistributionDefinition $tableDistribution;
 
     private bool $isTemporary;
 
-    private \Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition $tableIndex;
+    private TableIndexDefinition $tableIndex;
 
     /**
      * @param string[] $primaryKeysNames

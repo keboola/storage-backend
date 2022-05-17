@@ -9,7 +9,7 @@ use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseSchemaReflection implements SchemaReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     private string $schemaName;
 

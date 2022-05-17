@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Table;
 
 use Doctrine\DBAL\Exception;
+use Generator;
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
@@ -144,7 +145,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
     /**
      * @return \Generator<string, array<int, string|bool>>
      */
-    public function createTableTestSqlProvider(): \Generator
+    public function createTableTestSqlProvider(): Generator
     {
         $schema = self::TEST_SCHEMA;
         $tableName = 'createTableTest';

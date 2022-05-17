@@ -9,7 +9,7 @@ use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 final class SynapseDatabaseReflection implements DatabaseReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

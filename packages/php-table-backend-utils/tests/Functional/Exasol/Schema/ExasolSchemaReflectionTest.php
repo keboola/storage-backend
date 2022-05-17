@@ -10,7 +10,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;
 
 class ExasolSchemaReflectionTest extends ExasolBaseCase
 {
-    private \Keboola\TableBackendUtils\Schema\Exasol\ExasolSchemaReflection $schemaRef;
+    private ExasolSchemaReflection $schemaRef;
 
     public function setUp(): void
     {

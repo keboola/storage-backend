@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Exasol\Table;
 
 use Doctrine\DBAL\Exception as DBALException;
+use Generator;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
@@ -18,7 +19,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Exasol\ExasolBaseCase;
  */
 class ExasolTableQueryBuilderTest extends ExasolBaseCase
 {
-    private \Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder $qb;
+    private ExasolTableQueryBuilder $qb;
 
     public function setUp(): void
     {
@@ -131,7 +132,7 @@ class ExasolTableQueryBuilderTest extends ExasolBaseCase
     /**
      * @return \Generator<string, mixed, mixed, mixed>
      */
-    public function createTableTestSqlProvider(): \Generator
+    public function createTableTestSqlProvider(): Generator
     {
         $testDb = self::TEST_SCHEMA;
         $tableName = self::TABLE_GENERIC;
@@ -198,7 +199,7 @@ EOT
      *     createPrimaryKeys: bool
      * }>
      */
-    public function createTableTestFromDefinitionSqlProvider(): \Generator
+    public function createTableTestFromDefinitionSqlProvider(): Generator
     {
         $testDb = self::TEST_SCHEMA;
         $tableName = self::TABLE_GENERIC;

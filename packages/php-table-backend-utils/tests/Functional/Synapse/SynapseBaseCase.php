@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Synapse;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaQueryBuilder;
@@ -16,17 +17,14 @@ class SynapseBaseCase extends TestCase
 {
     public const TESTS_PREFIX = 'utils-test_';
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
     /** @var SQLServer2012Platform|AbstractPlatform */
     protected $platform;
 
-    /** @var SynapseSchemaQueryBuilder */
-    protected $schemaQb;
+    protected SynapseSchemaQueryBuilder $schemaQb;
 
-    /** @var SynapseTableQueryBuilder */
-    protected $tableQb;
+    protected SynapseTableQueryBuilder $tableQb;
 
     protected function dropAllWithinSchema(string $schema): void
     {
@@ -72,7 +70,7 @@ class SynapseBaseCase extends TestCase
 
     private function getSynapseConnection(): Connection
     {
-        return \Doctrine\DBAL\DriverManager::getConnection([
+        return DriverManager::getConnection([
             'user' => (string) getenv('SYNAPSE_UID'),
             'password' => (string) getenv('SYNAPSE_PWD'),
             'host' => (string) getenv('SYNAPSE_SERVER'),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Teradata\Table;
 
 use Doctrine\DBAL\Exception as DBALException;
+use Generator;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
@@ -18,7 +19,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Teradata\TeradataBaseCase;
  */
 class TeradataTableQueryBuilderTest extends TeradataBaseCase
 {
-    private \Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder $qb;
+    private TeradataTableQueryBuilder $qb;
 
     public function setUp(): void
     {
@@ -134,7 +135,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
     /**
      * @return \Generator<string, mixed, mixed, mixed>
      */
-    public function createTableTestSqlProvider(): \Generator
+    public function createTableTestSqlProvider(): Generator
     {
         $testDb = $this->getDatabaseName();
         $tableName = self::TABLE_GENERIC;
@@ -196,7 +197,7 @@ EOT
      *     createPrimaryKeys: bool
      * }>
      */
-    public function createTableTestFromDefinitionSqlProvider(): \Generator
+    public function createTableTestFromDefinitionSqlProvider(): Generator
     {
         $testDb = $this->getDatabaseName();
         $tableName = self::TABLE_GENERIC;

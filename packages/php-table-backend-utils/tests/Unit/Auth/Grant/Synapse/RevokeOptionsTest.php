@@ -8,6 +8,7 @@ use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOn;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\Permission;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\RevokeOptions;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class RevokeOptionsTest extends TestCase
 {
@@ -45,7 +46,7 @@ class RevokeOptionsTest extends TestCase
 
     public function testFailAllowGrantOption(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Revoking grant option is not supported on Synapse.');
         (new RevokeOptions([Permission::GRANT_VIEW_DEFINITION], 'ToMyUser'))
             ->revokeGrantOption(RevokeOptions::OPTION_REVOKE_GRANT_OPTION);

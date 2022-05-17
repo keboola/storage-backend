@@ -10,6 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use Exception;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
+use Throwable;
 
 class TeradataConnectionWrapper implements Connection
 {
@@ -25,7 +26,7 @@ class TeradataConnectionWrapper implements Connection
             $handle = odbc_connect($dsn, $user, $password);
             assert($handle !== false);
             $this->conn = $handle;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
         }
     }

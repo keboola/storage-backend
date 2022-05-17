@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Connection\Teradata;
 
-class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Exception;
+
+class TeradataPlatform extends AbstractPlatform
 {
     /**
      * @inheritDoc
      */
     public function getBooleanTypeDeclarationSQL(array $columnDef)
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getBooleanTypeDeclarationSQL() method.
     }
 
@@ -20,7 +23,7 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getIntegerTypeDeclarationSQL(array $columnDef)
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getIntegerTypeDeclarationSQL() method.
     }
 
@@ -29,7 +32,7 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getBigIntTypeDeclarationSQL(array $columnDef)
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getBigIntTypeDeclarationSQL() method.
     }
 
@@ -38,7 +41,7 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getSmallIntTypeDeclarationSQL(array $columnDef)
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getSmallIntTypeDeclarationSQL() method.
     }
 
@@ -47,7 +50,7 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement _getCommonIntegerTypeDeclarationSQL() method.
     }
 
@@ -56,7 +59,7 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     protected function initializeDoctrineTypeMappings()
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement initializeDoctrineTypeMappings() method.
     }
 
@@ -65,7 +68,7 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getClobTypeDeclarationSQL(array $field)
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getClobTypeDeclarationSQL() method.
     }
 
@@ -74,7 +77,7 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getBlobTypeDeclarationSQL() method.
     }
 
@@ -83,13 +86,13 @@ class TeradataPlatform extends \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     public function getName()
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getName() method.
     }
 
     public function getCurrentDatabaseExpression(): string
     {
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
         // TODO: Implement getCurrentDatabaseExpression() method.
     }
 }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Teradata;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Exception as InternalException;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataPlatform;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
@@ -19,8 +21,7 @@ class TeradataBaseCase extends TestCase
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
     /** @var TeradataPlatform|AbstractPlatform */
     protected $platform;
@@ -62,7 +63,7 @@ class TeradataBaseCase extends TestCase
         try {
             $this->connection->executeQuery(sprintf('HELP DATABASE %s', $dbname));
             return true;
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -98,7 +99,7 @@ CREATE DATABASE %s AS
         ]);
 
         if ((string) getenv('TERADATA_DATABASE') === '') {
-            throw new \Exception('Variable "TERADATA_DATABASE" is missing.');
+            throw new InternalException('Variable "TERADATA_DATABASE" is missing.');
         }
         $db->executeStatement(sprintf(
             'SET SESSION DATABASE %s;',
@@ -198,7 +199,7 @@ CREATE DATABASE %s AS
         }
 
         //define character libraries - remove ambiguous characters like iIl|1 0oO
-        $sets = array();
+        $sets = [];
         $sets[] = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
         $sets[] = 'abcdefghjkmnpqrstuvwxyz';
         $sets[] = '23456789';

@@ -12,7 +12,7 @@ final class ExasolColumn implements ColumnInterface
 {
     private string $columnName;
 
-    private \Keboola\Datatype\Definition\Exasol $columnDefinition;
+    private Exasol $columnDefinition;
 
     public function __construct(string $columnName, Exasol $columnDefinition)
     {

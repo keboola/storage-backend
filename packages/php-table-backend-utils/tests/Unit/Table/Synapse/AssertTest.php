@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Table\Synapse;
 
+use Generator;
 use Keboola\TableBackendUtils\Table\Synapse\Assert;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,7 @@ class AssertTest extends TestCase
     /**
      * @return \Generator<string,array<int,string>>
      */
-    public function validIndexes(): \Generator
+    public function validIndexes(): Generator
     {
         yield 'CLUSTERED COLUMNSTORE INDEX' => ['CLUSTERED COLUMNSTORE INDEX'];
         yield 'HEAP' => ['HEAP'];
@@ -40,7 +41,7 @@ class AssertTest extends TestCase
     /**
      * @return \Generator<string,array<int, string[]>>
      */
-    public function invalidClusteredIndexes(): \Generator
+    public function invalidClusteredIndexes(): Generator
     {
         yield 'More than one column' => [['id1', 'id2']];
         yield 'No column' => [[]];
@@ -78,7 +79,7 @@ class AssertTest extends TestCase
     /**
      * @return \Generator<string,array<int, string>>
      */
-    public function validDistributions(): \Generator
+    public function validDistributions(): Generator
     {
         yield 'HASH' => ['HASH'];
         yield 'REPLICATE' => ['REPLICATE'];
@@ -96,7 +97,7 @@ class AssertTest extends TestCase
     /**
      * @return \Generator<string,array<int, string[]>>
      */
-    public function invalidHashDistributions(): \Generator
+    public function invalidHashDistributions(): Generator
     {
         yield 'More than one column' => [['id1', 'id2']];
         yield 'No column' => [[]];

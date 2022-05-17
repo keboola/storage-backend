@@ -16,7 +16,7 @@ class Collection implements IteratorAggregate, Countable
 {
 
     /** @var Item[] */
-    protected $items;
+    protected array $items;
 
     /**
      * @param Item[] $items

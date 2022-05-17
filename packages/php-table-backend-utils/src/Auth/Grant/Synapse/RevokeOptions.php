@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Auth\Grant\Synapse;
 
+use Exception;
 use Keboola\TableBackendUtils\Auth\Grant\RevokeOptionsInterface;
 
 final class RevokeOptions implements RevokeOptionsInterface
@@ -66,7 +67,7 @@ final class RevokeOptions implements RevokeOptionsInterface
     public function revokeGrantOption(bool $revoke): self
     {
         if ($revoke === self::OPTION_REVOKE_GRANT_OPTION) {
-            throw new \Exception('Revoking grant option is not supported on Synapse.');
+            throw new Exception('Revoking grant option is not supported on Synapse.');
         }
 
         $this->revokeGrantOption = $revoke;

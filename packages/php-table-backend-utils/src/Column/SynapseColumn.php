@@ -11,7 +11,7 @@ final class SynapseColumn implements ColumnInterface
 {
     private string $columnName;
 
-    private \Keboola\Datatype\Definition\Synapse $columnDefinition;
+    private Synapse $columnDefinition;
 
     public function __construct(string $columnName, Synapse $columnDefinition)
     {

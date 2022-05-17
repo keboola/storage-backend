@@ -12,7 +12,7 @@ final class TeradataColumn implements ColumnInterface
 {
     private string $columnName;
 
-    private \Keboola\Datatype\Definition\Teradata $columnDefinition;
+    private Teradata $columnDefinition;
 
     public function __construct(string $columnName, Teradata $columnDefinition)
     {

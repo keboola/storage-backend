@@ -6,6 +6,7 @@ namespace Keboola\TableBackendUtils;
 
 use Keboola\CommonExceptions\ApplicationExceptionInterface;
 use RuntimeException;
+use Throwable;
 
 class QueryBuilderException extends RuntimeException implements ApplicationExceptionInterface
 {
@@ -16,7 +17,7 @@ class QueryBuilderException extends RuntimeException implements ApplicationExcep
     public function __construct(
         string $message,
         string $stringCode,
-        ?\Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         parent::__construct($message, 0, $previous);
         $this->stringCode = $stringCode;

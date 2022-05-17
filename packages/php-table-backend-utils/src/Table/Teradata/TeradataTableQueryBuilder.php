@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Table\Teradata;
 
+use Exception;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
@@ -26,7 +27,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
     public function getCreateTempTableCommand(string $schemaName, string $tableName, ColumnCollection $columns): string
     {
         // TODO: Implement getCreateTempTableCommand() method.
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
     }
 
     public function getDropTableCommand(string $schemaName, string $tableName): string

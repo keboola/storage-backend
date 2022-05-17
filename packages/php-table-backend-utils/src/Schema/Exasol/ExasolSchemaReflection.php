@@ -11,7 +11,7 @@ use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 
 final class ExasolSchemaReflection implements SchemaReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     private string $schemaName;
 

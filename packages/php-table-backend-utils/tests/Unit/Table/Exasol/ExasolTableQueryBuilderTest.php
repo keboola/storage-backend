@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Table\Exasol;
 
+use Generator;
 use Keboola\Datatype\Definition\Exasol;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
@@ -17,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ExasolTableQueryBuilderTest extends TestCase
 {
-    private \Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder $qb;
+    private ExasolTableQueryBuilder $qb;
 
     public function setUp(): void
     {
@@ -41,7 +42,7 @@ class ExasolTableQueryBuilderTest extends TestCase
     /**
      * @return \Generator<string, mixed, mixed, mixed>
      */
-    public function createTableInvalidPKsProvider(): \Generator
+    public function createTableInvalidPKsProvider(): Generator
     {
         yield 'key of ouf columns' => [
             'cols' => [

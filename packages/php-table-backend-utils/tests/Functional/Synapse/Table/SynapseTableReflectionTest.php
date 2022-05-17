@@ -563,7 +563,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
     /**
      * @return Generator<array{string}>
      */
-    public function unsupportedOperationsOnTemporaryTableProvider(): \Generator
+    public function unsupportedOperationsOnTemporaryTableProvider(): Generator
     {
         yield 'getColumnsNames' => ['getColumnsNames'];
         yield 'getColumnsDefinitions' => ['getColumnsDefinitions'];
@@ -636,7 +636,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
      *     string,
      * }>
      */
-    public function tableDistributionProvider(): \Generator
+    public function tableDistributionProvider(): Generator
     {
         yield 'ROUND_ROBIN' => [
             'DISTRIBUTION = ROUND_ROBIN',
@@ -679,7 +679,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
      *     string[],
      * }>
      */
-    public function tableDistributionColumnsProvider(): \Generator
+    public function tableDistributionColumnsProvider(): Generator
     {
         yield 'ROUND_ROBIN' => [
             'DISTRIBUTION = ROUND_ROBIN',
@@ -726,7 +726,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
      *     string[]
      * }>
      */
-    public function tableIndexProvider(): \Generator
+    public function tableIndexProvider(): Generator
     {
         yield 'CLUSTERED COLUMNSTORE INDEX' => [
             'CLUSTERED COLUMNSTORE INDEX',

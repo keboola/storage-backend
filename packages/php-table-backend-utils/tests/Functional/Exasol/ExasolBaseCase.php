@@ -16,8 +16,7 @@ class ExasolBaseCase extends TestCase
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
     protected function setUp(): void
     {

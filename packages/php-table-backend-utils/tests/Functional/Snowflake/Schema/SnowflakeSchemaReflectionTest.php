@@ -10,7 +10,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 class SnowflakeSchemaReflectionTest extends SnowflakeBaseCase
 {
-    private \Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaReflection $schemaRef;
+    private SnowflakeSchemaReflection $schemaRef;
 
     public function setUp(): void
     {

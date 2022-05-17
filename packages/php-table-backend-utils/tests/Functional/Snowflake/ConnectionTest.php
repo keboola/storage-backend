@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake;
 
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Exception\DriverException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnection;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use ReflectionClass;
 
 class ConnectionTest extends SnowflakeBaseCase
 {
@@ -226,7 +228,7 @@ class ConnectionTest extends SnowflakeBaseCase
             ]
         );
 
-        $this->expectException(\Doctrine\DBAL\Exception\DriverException::class);
+        $this->expectException(DriverException::class);
         $this->expectExceptionMessage(
             'An exception occurred in the driver: Incorrect username or password was specified.',
         );
@@ -268,13 +270,13 @@ class ConnectionTest extends SnowflakeBaseCase
                 'database' => (string) getenv('SNOWFLAKE_DATABASE'),
             ],
         );
-        $wrappedConnectionRef = new \ReflectionClass($wrappedConnection);
+        $wrappedConnectionRef = new ReflectionClass($wrappedConnection);
         $wrappedConnectionPropRef = $wrappedConnectionRef->getProperty('_conn');
         $wrappedConnectionPropRef->setAccessible(true);
         $wrappedConnection->connect(); // create odbc resource
         /** @var SnowflakeConnection $snowflakeConnection */
         $snowflakeConnection = $wrappedConnectionPropRef->getValue($wrappedConnection);
-        $snowflakeConnectionPropRef = new \ReflectionClass($snowflakeConnection);
+        $snowflakeConnectionPropRef = new ReflectionClass($snowflakeConnection);
         $snowflakeConnectionPropRef = $snowflakeConnectionPropRef->getProperty('conn');
         $snowflakeConnectionPropRef->setAccessible(true);
         // check resource exists

@@ -10,7 +10,7 @@ use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 
 final class TeradataDatabaseReflection implements DatabaseReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     /** @var string[] */
     private static array $excludedUsers = [

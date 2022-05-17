@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Unit\Connection\Snowflake;
 
 use Doctrine\DBAL\Query;
+use Generator;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\ConnectionException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
@@ -18,7 +19,7 @@ class SnowflakeExceptionConverterTest extends TestCase
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function exceptionProvider(): \Generator
+    public function exceptionProvider(): Generator
     {
         yield 'Incorrect username' => [
             ConnectionException::class,

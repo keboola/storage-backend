@@ -14,13 +14,14 @@ use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use Throwable;
 
 final class SnowflakeTableReflection implements TableReflectionInterface
 {
     public const DEPENDENT_OBJECT_TABLE = 'TABLE';
     public const DEPENDENT_OBJECT_VIEW = 'VIEW';
 
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     private string $schemaName;
 
@@ -209,7 +210,7 @@ WHERE REFERENCED_OBJECT_TYPE = %s
                             'name' => $viewRow['name'],
                         ];
                     }
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     continue;
                 }
             }

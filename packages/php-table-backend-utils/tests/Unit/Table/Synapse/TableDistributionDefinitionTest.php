@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Table\Synapse;
 
+use Generator;
 use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +38,7 @@ class TableDistributionDefinitionTest extends TestCase
     /**
      * @return \Generator<string,array<int, string[]>>
      */
-    public function invalidHashDistributionColumns(): \Generator
+    public function invalidHashDistributionColumns(): Generator
     {
         yield 'More than one column' => [['id1', 'id2']];
         yield 'No column' => [[]];

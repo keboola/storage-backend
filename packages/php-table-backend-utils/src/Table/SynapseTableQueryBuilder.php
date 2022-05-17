@@ -54,6 +54,9 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         }
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
     public function getCreateTableCommand(
         string $schemaName,
         string $tableName,

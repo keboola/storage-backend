@@ -17,7 +17,7 @@ use Keboola\TableBackendUtils\Table\TableStatsInterface;
 
 final class ExasolTableReflection implements TableReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     private string $schemaName;
 

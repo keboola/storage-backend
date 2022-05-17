@@ -12,7 +12,7 @@ final class SnowflakeColumn implements ColumnInterface
 {
     private string $columnName;
 
-    private \Keboola\Datatype\Definition\Snowflake $columnDefinition;
+    private Snowflake $columnDefinition;
 
     public function __construct(string $columnName, Snowflake $columnDefinition)
     {

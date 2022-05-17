@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Table\Exasol;
 
+use Exception;
 use Keboola\Datatype\Definition\Exasol;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
@@ -20,7 +21,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
     public function getCreateTempTableCommand(string $schemaName, string $tableName, ColumnCollection $columns): string
     {
         // TODO: Implement getCreateTempTableCommand() method.
-        throw new \Exception('method is not implemented yet');
+        throw new Exception('method is not implemented yet');
     }
 
     public function getDropTableCommand(string $schemaName, string $tableName): string

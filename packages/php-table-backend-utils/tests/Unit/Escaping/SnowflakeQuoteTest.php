@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Escaping;
 
+use Generator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use PHPUnit\Framework\TestCase;
 
@@ -12,7 +13,7 @@ class SnowflakeQuoteTest extends TestCase
     /**
      * @return \Generator<string, array<int, string>>
      */
-    public function valueQuoteProvider(): \Generator
+    public function valueQuoteProvider(): Generator
     {
         yield 'simple' => [
             'valueToQuote',
@@ -39,7 +40,7 @@ class SnowflakeQuoteTest extends TestCase
     /**
      * @return \Generator<string, array<int, string>>
      */
-    public function valueQuoteIdentifierProvider(): \Generator
+    public function valueQuoteIdentifierProvider(): Generator
     {
         yield 'simple' => [
             'valueToQuote',

@@ -13,7 +13,7 @@ use Keboola\TableBackendUtils\View\ViewReflectionInterface;
 
 final class SnowflakeViewReflection implements ViewReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     private string $schemaName;
 

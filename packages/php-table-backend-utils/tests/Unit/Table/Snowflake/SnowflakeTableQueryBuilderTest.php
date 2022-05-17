@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\TableBackendUtils\Unit\Table\Snowflake;
 
+use Generator;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
@@ -17,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 class SnowflakeTableQueryBuilderTest extends TestCase
 {
-    private \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder $qb;
+    private SnowflakeTableQueryBuilder $qb;
 
     public function setUp(): void
     {
@@ -41,7 +42,7 @@ class SnowflakeTableQueryBuilderTest extends TestCase
     /**
      * @return \Generator<string, mixed, mixed, mixed>
      */
-    public function createTableInvalidPKsProvider(): \Generator
+    public function createTableInvalidPKsProvider(): Generator
     {
         yield 'key of ouf columns' => [
             'cols' => [

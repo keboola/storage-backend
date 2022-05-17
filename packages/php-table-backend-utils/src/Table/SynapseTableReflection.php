@@ -17,7 +17,7 @@ use function Keboola\Utils\returnBytes;
 
 final class SynapseTableReflection implements TableReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     private string $schemaName;
 

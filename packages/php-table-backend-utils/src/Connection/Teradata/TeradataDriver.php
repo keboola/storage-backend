@@ -6,8 +6,8 @@ namespace Keboola\TableBackendUtils\Connection\Teradata;
 
 use Doctrine\DBAL\Connection as DBALConnection;
 use Doctrine\DBAL\Driver;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\PDO as PDODriver;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -23,16 +23,14 @@ class TeradataDriver implements Driver
 
     /**
      * @param string[] $params
-     * @param string|null $username
-     * @param string|null $password
      * @param string[] $driverOptions
      */
     // ignores type in $username and $password because it woudn't be compatible with interface
     // phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint
     public function connect(
         array $params,
-        $username = null,
-        $password = null,
+        ?string $username = null,
+        ?string $password = null,
         array $driverOptions = []
     ): Connection {
         $dsn = sprintf(

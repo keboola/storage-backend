@@ -17,7 +17,7 @@ class TeradataSchemaManager extends AbstractSchemaManager
      * @throws Exception
      */
     // because of compatibility with interface
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint, SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint
+    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint, SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
         throw new Exception('method is not implemented yet');

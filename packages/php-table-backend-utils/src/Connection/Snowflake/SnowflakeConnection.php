@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
 use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Exception;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Throwable;
 
 class SnowflakeConnection implements Connection
 {
@@ -28,7 +30,7 @@ class SnowflakeConnection implements Connection
             $handle = odbc_connect($dsn, $user, $password);
             assert($handle !== false);
             $this->conn = $handle;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
         }
 
@@ -40,7 +42,7 @@ class SnowflakeConnection implements Connection
         }
     }
 
-    public function query(string $sql): \Doctrine\DBAL\Driver\Result
+    public function query(string $sql): Result
     {
         $stmt = $this->prepare($sql);
         return $stmt->execute();

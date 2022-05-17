@@ -11,7 +11,7 @@ use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 
 final class ExasolDatabaseReflection implements DatabaseReflectionInterface
 {
-    private \Doctrine\DBAL\Connection $connection;
+    private Connection $connection;
 
     /** @var string[] */
     private static array $excludedUsers = [

@@ -14,7 +14,7 @@ final class TeradataTableDefinition implements TableDefinitionInterface
 
     private string $tableName;
 
-    private \Keboola\TableBackendUtils\Column\ColumnCollection $columns;
+    private ColumnCollection $columns;
 
     /** @var string[] */
     private array $primaryKeysNames;
