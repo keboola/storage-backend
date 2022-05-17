@@ -2,6 +2,7 @@ FROM quay.io/keboola/aws-cli
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_ACCESS_KEY_ID
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
+RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.0.11.tar.gz /tmp/exasol/odbc.tar.gz
 
 FROM php:7.4-cli-buster
 
@@ -105,9 +106,9 @@ ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
 ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
 
 #Exasol
+COPY --from=0 /tmp/exasol/odbc.tar.gz /tmp/exasol/odbc.tar.gz
 RUN set -ex; \
     mkdir -p /tmp/exasol/odbc /opt/exasol ;\
-    curl https://www.exasol.com/support/secure/attachment/155337/EXASOL_ODBC-7.0.11.tar.gz --output /tmp/exasol/odbc.tar.gz; \
     tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
     cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
     echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
