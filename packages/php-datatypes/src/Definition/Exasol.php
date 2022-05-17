@@ -174,7 +174,7 @@ class Exasol extends Common
         }
 
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default']);
-        if (count($diff) > 0) {
+        if ($diff !== []) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);

@@ -139,11 +139,7 @@ abstract class Common implements DefinitionInterface
         if (isset($parts[1]) && ((int) $parts[1] > $secondMax)) {
             return false;
         }
-
-        if ($firstMustBeBigger && isset($parts[1]) && (int) $parts[1] > (int) $parts[0]) {
-            return false;
-        }
-        return true;
+        return !($firstMustBeBigger && isset($parts[1]) && (int) $parts[1] > (int) $parts[0]);
     }
 
     /**
@@ -158,9 +154,6 @@ abstract class Common implements DefinitionInterface
         if (!is_numeric($length)) {
             return false;
         }
-        if ((int) $length < $min || (int) $length > $max) {
-            return false;
-        }
-        return true;
+        return (int) $length >= $min && (int) $length <= $max;
     }
 }

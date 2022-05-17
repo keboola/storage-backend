@@ -173,8 +173,6 @@ class SynapseDatatypeTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|null $options
-     *
      * @dataProvider expectedSqlDefinitions
      */
     public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void

@@ -119,9 +119,8 @@ class ExasolDatatypeTest extends TestCase
     }
 
     /**
-     * @param mixed[]|null $options
-     *
      * @dataProvider expectedSqlDefinitions
+     * @param mixed[]|array<string, string>|null $options
      */
     public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void
     {

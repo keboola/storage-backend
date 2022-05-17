@@ -15,14 +15,14 @@ class CommonDatatypeTest extends TestCase
         $this->assertEquals('VARCHAR', $datatype->getType());
         $this->assertNull($datatype->getLength());
         $this->assertNull($datatype->getDefault());
-        $this->assertTrue($datatype->isNullable() === true);
+        $this->assertTrue($datatype->isNullable());
 
         $datatype = $this->getMockForAbstractClass(
             Common::class,
             ['VARCHAR', ['length' => '50', 'nullable' => false, 'default' => '']]
         );
         $this->assertTrue($datatype->getLength() === '50');
-        $this->assertTrue($datatype->isNullable() === false);
+        $this->assertTrue(!$datatype->isNullable());
         $this->assertTrue($datatype->getDefault() === '');
 
         $datatype = $this->getMockForAbstractClass(
@@ -30,7 +30,7 @@ class CommonDatatypeTest extends TestCase
             ['VARCHAR', ['length' => 50, 'nullable' => false, 'default' => 123]]
         );
         $this->assertTrue($datatype->getLength() === '50');
-        $this->assertTrue($datatype->isNullable() === false);
+        $this->assertTrue(!$datatype->isNullable());
         $this->assertTrue($datatype->getDefault() === '123');
     }
 

@@ -42,7 +42,7 @@ class Redshift extends Common
             $this->compression = $options['compression'];
         }
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'compression']);
-        if (count($diff) > 0) {
+        if ($diff !== []) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
@@ -108,7 +108,7 @@ class Redshift extends Common
     {
         $expectedOptions = ['character_maximum', 'numeric_precision', 'numeric_scale'];
         $diff = array_diff(array_keys($lengthOptions), $expectedOptions);
-        if (count($diff) > 0) {
+        if ($diff !== []) {
             throw new InvalidOptionException(sprintf('Length option "%s" not supported', $diff[0]));
         }
 

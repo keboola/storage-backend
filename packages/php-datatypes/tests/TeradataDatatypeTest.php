@@ -71,7 +71,6 @@ class TeradataDatatypeTest extends TestCase
 
     /**
      * @dataProvider invalidLengths
-     * @param array<mixed> $extraOption
      * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
@@ -103,8 +102,6 @@ class TeradataDatatypeTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|null $options
-     *
      * @dataProvider expectedSqlDefinitions
      */
     public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void
@@ -115,7 +112,6 @@ class TeradataDatatypeTest extends TestCase
     }
 
     /**
-     * @param array<mixed>|null $options
      * @dataProvider expectedSqlDefinitions
      */
     public function testBuildTypeWithLength(string $type, ?array $options, string $expectedDefinition): void
@@ -196,7 +192,6 @@ class TeradataDatatypeTest extends TestCase
 
     /**
      * @dataProvider validLengths
-     * @param array<mixed> $extraOptions
      * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException

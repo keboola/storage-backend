@@ -330,7 +330,7 @@ class Teradata extends Common
         $this->validateType($type);
         $this->validateLength($type, $options['length'] ?? null);
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'isLatin']);
-        if (count($diff) > 0) {
+        if ($diff !== []) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
