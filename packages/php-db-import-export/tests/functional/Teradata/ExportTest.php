@@ -126,7 +126,7 @@ class ExportTest extends TeradataBaseTestCase
         self::assertCount(count($expectedFiles), $files);
         foreach ($expectedFiles as $i => $expectedFile) {
             $actualFile = $files[$i];
-            self::assertContains($expectedFile['fileName'], $actualFile['Key']);
+            self::assertStringContainsString($expectedFile['fileName'], $actualFile['Key']);
             $fileSize = (int) $actualFile['Size'];
             $expectedFileSize = ((int) $expectedFile['size']) * 1024 * 1024;
             // check that the file size is in range xMB +- 10 000B
