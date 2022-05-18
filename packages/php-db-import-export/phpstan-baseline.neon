@@ -171,11 +171,6 @@ parameters:
 			path: src/Storage/Synapse/SelectSource.php
 
 		-
-			message: "#^Parameter \\#3 \\$types of method Doctrine\\\\DBAL\\\\Connection\\:\\:executeQuery\\(\\) expects array\\<int\\|string, Doctrine\\\\DBAL\\\\Types\\\\Type\\|int\\|string\\|null\\>, array given\\.$#"
-			count: 1
-			path: src/Storage/Synapse/SynapseImportAdapter.php
-
-		-
 			message: "#^Cannot access offset 'Key' on mixed\\.$#"
 			count: 1
 			path: tests/Common/StubLoader/S3Loader.php
@@ -339,11 +334,6 @@ parameters:
 			message: "#^Offset 1 does not exist on array\\<string, string\\>\\.$#"
 			count: 1
 			path: tests/functional/Synapse/IncrementalImportWithTypesTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$string of function strlen expects string, mixed given\\.$#"
-			count: 2
-			path: tests/functional/Synapse/OtherImports/StageImportTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$sourceColumnsNames of static method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\ToStage\\\\StageTableDefinitionFactory\\:\\:createStagingTableDefinition\\(\\) expects array\\<string\\>, mixed given\\.$#"

@@ -7,7 +7,6 @@ namespace Tests\Keboola\Db\ImportExportUnit\Storage\Snowflake;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\Snowflake\SnowflakeImportAdapter;
-use Keboola\Db\ImportExport\Storage\Synapse\SynapseImportAdapter;
 use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake\MockConnectionTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
@@ -41,13 +40,6 @@ class SnowflakeAdapterTest extends BaseTestCase
         $this->assertFalse(
             SnowflakeImportAdapter::isSupported(
                 $absSource,
-                $synapseTable
-            )
-        );
-
-        $this->assertFalse(
-            SynapseImportAdapter::isSupported(
-                $snowflakeTable,
                 $synapseTable
             )
         );

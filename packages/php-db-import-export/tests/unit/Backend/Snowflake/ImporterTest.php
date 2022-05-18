@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Snowflake;
 
+use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\TestCase;
 use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
@@ -57,7 +59,23 @@ class ImporterTest extends TestCase
         $destination = new Storage\Snowflake\Table('', '');
 
         $importer = new Importer($this->mockConnection());
-        $importer->setAdapters([Storage\Synapse\SynapseImportAdapter::class]);
+        $importer->setAdapters([get_class(new class implements BackendImportAdapterInterface{
+            public static function isSupported(
+                Storage\SourceInterface $source,
+                Storage\DestinationInterface $destination
+            ): bool {
+                return false;
+            }
+
+            public function runCopyCommand(
+                Storage\SourceInterface $source,
+                Storage\DestinationInterface $destination,
+                ImportOptionsInterface $importOptions,
+                string $stagingTableName
+            ): int {
+                return 0;
+            }
+        })]);
 
         $this->expectExceptionMessage(
         // phpcs:ignore

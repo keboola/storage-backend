@@ -8,6 +8,9 @@ use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
+/**
+ * @deprecated use ToStageImporterInterface and ToFinalTableImporterInterface combination
+ */
 interface ImporterInterface
 {
     public const TIMESTAMP_COLUMN_NAME = '_timestamp';
