@@ -189,6 +189,7 @@ class ExasolDatatypeTest extends TestCase
         $options = $extraOptions;
         $options['length'] = $length;
         new Exasol($type, $options);
+        $this->expectNotToPerformAssertions();
     }
 
     /**

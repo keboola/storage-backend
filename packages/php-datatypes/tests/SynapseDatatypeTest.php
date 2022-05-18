@@ -321,6 +321,7 @@ class SynapseDatatypeTest extends TestCase
             $options['length'] = $length;
         }
         new Synapse($type, $options);
+        $this->expectNotToPerformAssertions();
     }
 
     /**

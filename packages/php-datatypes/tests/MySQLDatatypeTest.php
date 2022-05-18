@@ -16,6 +16,7 @@ class MySQLDatatypeTest extends TestCase
     public function testValid(): void
     {
         new MySQL('VARCHAR', ['length' => '50']);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidType(): void
@@ -68,6 +69,7 @@ class MySQLDatatypeTest extends TestCase
                 'numeric_scale' => '20',
             ],
         ]);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -91,6 +93,7 @@ class MySQLDatatypeTest extends TestCase
         new MySQL('INTEGER');
         new MySQL('INTEGER', ['length' => '']);
         new MySQL('INTEGER', ['length' => '255']);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -116,6 +119,7 @@ class MySQLDatatypeTest extends TestCase
         new MySQL('FLOAT', ['length' => '']);
         new MySQL('FLOAT', ['length' => '255']);
         new MySQL('FLOAT', ['length' => '255,0']);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -144,6 +148,7 @@ class MySQLDatatypeTest extends TestCase
                 'character_maximum' => '16777216',
             ],
         ]);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testValidFixedCharacterLengths(): void
@@ -153,6 +158,7 @@ class MySQLDatatypeTest extends TestCase
         new MySQL('CHAR', ['length' => '']);
         new MySQL('CHAR', ['length' => '1']);
         new MySQL('CHAR', ['length' => '255']);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testVariableCharacterWithoutLength(): void

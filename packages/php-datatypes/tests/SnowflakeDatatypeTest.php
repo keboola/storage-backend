@@ -16,6 +16,7 @@ class SnowflakeDatatypeTest extends TestCase
     public function testValid(): void
     {
         new Snowflake('VARCHAR', ['length' => '50']);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidType(): void
@@ -61,6 +62,7 @@ class SnowflakeDatatypeTest extends TestCase
                 'numeric_scale' => '38',
             ],
         ]);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -88,6 +90,7 @@ class SnowflakeDatatypeTest extends TestCase
         new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
         new Snowflake('TIMESTAMP_NTZ', ['length' => '9']);
         new Snowflake('TIME', ['length' => '9']);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testValidBinaryLengths(): void
@@ -101,6 +104,7 @@ class SnowflakeDatatypeTest extends TestCase
         new Snowflake('VARBINARY', ['length' => '1']);
         new Snowflake('BINARY', ['length' => '8388608']);
         new Snowflake('VARBINARY', ['length' => '8388608']);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testSqlDefinition(): void
@@ -168,6 +172,7 @@ class SnowflakeDatatypeTest extends TestCase
         new Snowflake('STRING', [
             'length' => [],
         ]);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -256,6 +261,7 @@ class SnowflakeDatatypeTest extends TestCase
     public function testVariant(): void
     {
         new Snowflake('VARIANT');
+        $this->expectNotToPerformAssertions();
     }
 
     /**

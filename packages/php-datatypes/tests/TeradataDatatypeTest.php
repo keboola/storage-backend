@@ -205,6 +205,7 @@ class TeradataDatatypeTest extends TestCase
         $options = $extraOptions;
         $options['length'] = $length;
         new Teradata($type, $options);
+        $this->expectNotToPerformAssertions();
     }
 
     /**

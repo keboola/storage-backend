@@ -17,6 +17,7 @@ class RedshiftDatatypeTest extends TestCase
     public function testValid(): void
     {
         new Redshift('VARCHAR', ['length' => '50']);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidType(): void
@@ -73,6 +74,7 @@ class RedshiftDatatypeTest extends TestCase
         new Redshift('VARCHAR', ['compression' => 'TEXT255']);
         new Redshift('VARCHAR', ['compression' => 'TEXT32K']);
         new Redshift('VARCHAR', ['compression' => 'ZSTD']);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidOption(): void
