@@ -1,298 +1,324 @@
 <?php
-namespace Keboola\DataypeTest;
+
+declare(strict_types=1);
+
+namespace Keboola\DatatypeTest;
 
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class SnowflakeDatatypeTest extends TestCase
 {
-    public function testValid()
+    public function testValid(): void
     {
-        new Snowflake("VARCHAR", ["length" => "50"]);
+        new Snowflake('VARCHAR', ['length' => '50']);
+        $this->expectNotToPerformAssertions();
     }
 
-    public function testInvalidType()
+    public function testInvalidType(): void
     {
         try {
-            new Snowflake("UNKNOWN");
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
+            new Snowflake('UNKNOWN');
+            $this->fail('Exception not caught');
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidTypeException::class, get_class($e));
         }
     }
 
-    public function testValidNumericLengths()
+    public function testValidNumericLengths(): void
     {
-        new Snowflake("numeric");
-        new Snowflake("NUMERIC");
-        new Snowflake("NUMERIC", ["length" => ""]);
-        new Snowflake("NUMERIC", ["length" => []]);
-        new Snowflake("INTEGER", ["length" => ""]);
-        new Snowflake("INTEGER", ["length" => []]);
-        new Snowflake("NUMERIC", ["length" => "38,0"]);
-        new Snowflake("NUMERIC", ["length" => "38,38"]);
-        new Snowflake("NUMERIC", ["length" => "38"]);
+        new Snowflake('numeric');
+        new Snowflake('NUMERIC');
+        new Snowflake('NUMERIC', ['length' => '']);
+        new Snowflake('NUMERIC', ['length' => []]);
+        new Snowflake('INTEGER', ['length' => '']);
+        new Snowflake('INTEGER', ['length' => []]);
+        new Snowflake('NUMERIC', ['length' => '38,0']);
+        new Snowflake('NUMERIC', ['length' => '38,38']);
+        new Snowflake('NUMERIC', ['length' => '38']);
         new Snowflake('NUMERIC', [
             'length' => [
                 'numeric_precision' => '38',
-                'numeric_scale' => '0'
-            ]
+                'numeric_scale' => '0',
+            ],
         ]);
         new Snowflake('NUMERIC', [
             'length' => [
                 'numeric_precision' => '38',
-                'numeric_scale' => '38'
-            ]
+                'numeric_scale' => '38',
+            ],
         ]);
         new Snowflake('NUMERIC', [
             'length' => [
-                'numeric_precision' => '38'
-            ]
+                'numeric_precision' => '38',
+            ],
         ]);
         new Snowflake('NUMERIC', [
             'length' => [
-                'numeric_scale' => '38'
-            ]
+                'numeric_scale' => '38',
+            ],
         ]);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
      * @dataProvider invalidNumericLengths
-     * @param $length
+     * @param string|int|null $length
      */
-    public function testInvalidNumericLengths($length)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testInvalidNumericLengths($length): void
     {
         try {
-            new Snowflake("NUMERIC", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
+            new Snowflake('NUMERIC', ['length' => $length]);
+            $this->fail('Exception not caught');
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
         }
     }
 
-    public function testValidDateTimeLengths()
+    public function testValidDateTimeLengths(): void
     {
-        new Snowflake("datetime");
-        new Snowflake("DATETIME");
-        new Snowflake("DATETIME", ["length" => ""]);
-        new Snowflake("TIMESTAMP", ["length" => ""]);
-        new Snowflake("TIMESTAMP_LTZ", ["length" => "4"]);
-        new Snowflake("TIMESTAMP_TZ", ["length" => "0"]);
-        new Snowflake("TIMESTAMP_NTZ", ["length" => "9"]);
-        new Snowflake("TIME", ["length" => "9"]);
+        new Snowflake('datetime');
+        new Snowflake('DATETIME');
+        new Snowflake('DATETIME', ['length' => '']);
+        new Snowflake('TIMESTAMP', ['length' => '']);
+        new Snowflake('TIMESTAMP_LTZ', ['length' => '4']);
+        new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
+        new Snowflake('TIMESTAMP_NTZ', ['length' => '9']);
+        new Snowflake('TIME', ['length' => '9']);
+        $this->expectNotToPerformAssertions();
     }
 
-    public function testValidBinaryLengths()
+    public function testValidBinaryLengths(): void
     {
-        new Snowflake("binary");
-        new Snowflake("varbinary");
-        new Snowflake("VARBINARY");
-        new Snowflake("BINARY", ["length" => ""]);
-        new Snowflake("VARBINARY", ["length" => ""]);
-        new Snowflake("BINARY", ["length" => "1"]);
-        new Snowflake("VARBINARY", ["length" => "1"]);
-        new Snowflake("BINARY", ["length" => "8388608"]);
-        new Snowflake("VARBINARY", ["length" => "8388608"]);
+        new Snowflake('binary');
+        new Snowflake('varbinary');
+        new Snowflake('VARBINARY');
+        new Snowflake('BINARY', ['length' => '']);
+        new Snowflake('VARBINARY', ['length' => '']);
+        new Snowflake('BINARY', ['length' => '1']);
+        new Snowflake('VARBINARY', ['length' => '1']);
+        new Snowflake('BINARY', ['length' => '8388608']);
+        new Snowflake('VARBINARY', ['length' => '8388608']);
+        $this->expectNotToPerformAssertions();
     }
 
-    public function testSqlDefinition()
+    public function testSqlDefinition(): void
     {
-        $definition = new Snowflake("NUMERIC", ["length" => ""]);
-        $this->assertTrue($definition->getSQLDefinition() === "NUMERIC");
+        $definition = new Snowflake('NUMERIC', ['length' => '']);
+        $this->assertTrue($definition->getSQLDefinition() === 'NUMERIC');
 
-        $definition = new Snowflake("TIMESTAMP_TZ", ["length" => "0"]);
-        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ(0)");
+        $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
+        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ(0)');
 
-        $definition = new Snowflake("TIMESTAMP_TZ", ["length" => "9"]);
-        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ(9)");
+        $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '9']);
+        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ(9)');
 
-        $definition = new Snowflake("TIMESTAMP_TZ", ["length" => ""]);
-        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ");
+        $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '']);
+        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ');
 
-        $definition = new Snowflake("TIMESTAMP_TZ");
-        $this->assertTrue($definition->getSQLDefinition() === "TIMESTAMP_TZ");
+        $definition = new Snowflake('TIMESTAMP_TZ');
+        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ');
     }
 
     /**
      * @dataProvider invalidDateTimeLengths
-     * @param $length
+     * @param string|int|null $length
      */
-    public function testInvalidDateTimeLengths($length)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testInvalidDateTimeLengths($length): void
     {
         try {
-            new Snowflake("DATETIME", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
+            new Snowflake('DATETIME', ['length' => $length]);
+            $this->fail('Exception not caught');
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
         }
     }
 
-    public function testInvalidOption()
+    public function testInvalidOption(): void
     {
         try {
-            new Snowflake("NUMERIC", ["myoption" => "value"]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
+            new Snowflake('NUMERIC', ['myoption' => 'value']);
+            $this->fail('Exception not caught');
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidOptionException::class, get_class($e));
         }
     }
 
-    public function testInvalidLengthOption()
+    public function testInvalidLengthOption(): void
     {
         $this->expectException(InvalidOptionException::class);
         $this->expectExceptionMessage('Length option "invalidOption" not supported');
-        new Snowflake("NUMERIC", ["length" => ["invalidOption" => '123']]);
+        new Snowflake('NUMERIC', ['length' => ['invalidOption' => '123']]);
     }
 
-    public function testValidCharacterLengths()
+    public function testValidCharacterLengths(): void
     {
-        new Snowflake("string");
-        new Snowflake("STRING");
-        new Snowflake("STRING", ["length" => ""]);
-        new Snowflake("STRING", ["length" => "1"]);
-        new Snowflake("STRING", ["length" => "16777216"]);
+        new Snowflake('string');
+        new Snowflake('STRING');
+        new Snowflake('STRING', ['length' => '']);
+        new Snowflake('STRING', ['length' => '1']);
+        new Snowflake('STRING', ['length' => '16777216']);
         new Snowflake('STRING', [
             'length' => [
-                'character_maximum' => '16777216'
-            ]
+                'character_maximum' => '16777216',
+            ],
         ]);
         new Snowflake('STRING', [
-            'length' => []
+            'length' => [],
         ]);
+        $this->expectNotToPerformAssertions();
     }
 
     /**
      * @dataProvider invalidCharacterLengths
-     * @param $length
+     * @param string|int|null $length
      */
-    public function testInvalidCharacterLengths($length)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testInvalidCharacterLengths($length): void
     {
         try {
-            new Snowflake("STRING", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
+            new Snowflake('STRING', ['length' => $length]);
+            $this->fail('Exception not caught');
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
         }
     }
 
     /**
      * @dataProvider invalidBinaryLengths
-     * @param $length
+     * @param string|int|null $length
      */
-    public function testInvalidBinaryLengths($length)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testInvalidBinaryLengths($length): void
     {
         try {
-            new Snowflake("BINARY", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
+            new Snowflake('BINARY', ['length' => $length]);
+            $this->fail('Exception not caught');
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
         }
 
         try {
-            new Snowflake("VARBINARY", ["length" => $length]);
-            $this->fail("Exception not caught");
-        } catch (\Exception $e) {
+            new Snowflake('VARBINARY', ['length' => $length]);
+            $this->fail('Exception not caught');
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidLengthException::class, get_class($e));
         }
     }
 
-    public function testBasetypes()
+    public function testBasetypes(): void
     {
         foreach (Snowflake::TYPES as $type) {
             $basetype = (new Snowflake($type))->getBasetype();
             switch ($type) {
-                case "INT":
-                case "INTEGER":
-                case "BIGINT":
-                case "SMALLINT":
-                case "TINYINT":
-                case "BYTEINT":
-                    $this->assertEquals("INTEGER", $basetype);
+                case 'INT':
+                case 'INTEGER':
+                case 'BIGINT':
+                case 'SMALLINT':
+                case 'TINYINT':
+                case 'BYTEINT':
+                    $this->assertEquals('INTEGER', $basetype);
                     break;
-                case "NUMBER":
-                case "DECIMAL":
-                case "NUMERIC":
-                    $this->assertEquals("NUMERIC", $basetype);
+                case 'NUMBER':
+                case 'DECIMAL':
+                case 'NUMERIC':
+                    $this->assertEquals('NUMERIC', $basetype);
                     break;
-                case "FLOAT":
-                case "FLOAT4":
-                case "FLOAT8":
-                case "DOUBLE":
-                case "DOUBLE PRECISION":
-                case "REAL":
-                    $this->assertEquals("FLOAT", $basetype);
+                case 'FLOAT':
+                case 'FLOAT4':
+                case 'FLOAT8':
+                case 'DOUBLE':
+                case 'DOUBLE PRECISION':
+                case 'REAL':
+                    $this->assertEquals('FLOAT', $basetype);
                     break;
-                case "BOOLEAN":
-                    $this->assertEquals("BOOLEAN", $basetype);
+                case 'BOOLEAN':
+                    $this->assertEquals('BOOLEAN', $basetype);
                     break;
-                case "DATE":
-                    $this->assertEquals("DATE", $basetype);
+                case 'DATE':
+                    $this->assertEquals('DATE', $basetype);
                     break;
-                case "DATETIME":
-                case "TIMESTAMP":
-                case "TIMESTAMP_NTZ":
-                case "TIMESTAMP_LTZ":
-                case "TIMESTAMP_TZ":
-                    $this->assertEquals("TIMESTAMP", $basetype);
+                case 'DATETIME':
+                case 'TIMESTAMP':
+                case 'TIMESTAMP_NTZ':
+                case 'TIMESTAMP_LTZ':
+                case 'TIMESTAMP_TZ':
+                    $this->assertEquals('TIMESTAMP', $basetype);
                     break;
                 default:
-                    $this->assertEquals("STRING", $basetype);
+                    $this->assertEquals('STRING', $basetype);
                     break;
             }
         }
     }
 
-    public function testVariant()
+    public function testVariant(): void
     {
-        new Snowflake("VARIANT");
+        new Snowflake('VARIANT');
+        $this->expectNotToPerformAssertions();
     }
 
-    public function invalidNumericLengths()
+    /**
+     * @return array<int, array<string>>
+     */
+    public function invalidNumericLengths(): array
     {
         return [
-            ["notANumber"],
-            ["0,0"],
-            ["39,0"],
-            ["-10,-5"],
-            ["-5,-10"],
-            ["38,a"],
-            ["a,38"],
-            ["a,a"]
+            ['notANumber'],
+            ['0,0'],
+            ['39,0'],
+            ['-10,-5'],
+            ['-5,-10'],
+            ['38,a'],
+            ['a,38'],
+            ['a,a'],
         ];
     }
 
-    public function invalidCharacterLengths()
+    /**
+     * @return array<int, array<string>>
+     */
+    public function invalidCharacterLengths(): array
     {
         return [
-            ["a"],
-            ["0"],
-            ["16777217"],
-            ["-1"]
+            ['a'],
+            ['0'],
+            ['16777217'],
+            ['-1'],
         ];
     }
 
-    public function invalidDateTimeLengths()
+    /**
+     * @return array<int, array<string>>
+     */
+    public function invalidDateTimeLengths(): array
     {
         return [
-            ["notANumber"],
-            ["0,0"],
-            ["-1"],
-            ["10"],
-            ["a"],
-            ["a,a"]
+            ['notANumber'],
+            ['0,0'],
+            ['-1'],
+            ['10'],
+            ['a'],
+            ['a,a'],
         ];
     }
 
-    public function invalidBinaryLengths()
+    /**
+     * @return array<int, array<string>>
+     */
+    public function invalidBinaryLengths(): array
     {
         return [
-            ["a"],
-            ["0"],
-            ["8388609"],
-            ["-1"]
+            ['a'],
+            ['0'],
+            ['8388609'],
+            ['-1'],
         ];
     }
 }

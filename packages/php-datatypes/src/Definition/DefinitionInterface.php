@@ -1,21 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
 interface DefinitionInterface
 {
-    /**
-     * @return string
-     */
-    public function getSQLDefinition();
+    public function getSQLDefinition(): string;
 
     /**
      * @return array{type:string, length:string|null, nullable:bool, compression?:mixed}
      */
-    public function toArray();
+    public function toArray(): array;
 
-    /**
-     * @return string
-     */
-    public function getBasetype();
+    public function getBasetype(): string;
 }

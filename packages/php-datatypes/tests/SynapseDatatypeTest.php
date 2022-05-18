@@ -1,17 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\DatatypeTest;
 
+use Generator;
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Synapse;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class SynapseDatatypeTest extends TestCase
 {
-    public function invalidLengths()
+    /**
+     * @return array<int, array<class-string<\datetime>|string>>
+     */
+    public function invalidLengths(): array
     {
         return [
             ['float', 'notANumber'],
@@ -46,6 +53,7 @@ class SynapseDatatypeTest extends TestCase
             ['nvarchar', 'notANumber'],
             ['nvarchar', '0'],
             ['nvarchar', '4001'],
+            ['nvarchar', '1.0'],
 
             ['nchar', 'notANumber'],
             ['nchar', '0'],
@@ -93,7 +101,7 @@ class SynapseDatatypeTest extends TestCase
         ];
     }
 
-    public function testBasetypes()
+    public function testBasetypes(): void
     {
         foreach (Synapse::TYPES as $type) {
             $basetype = (new Synapse($type))->getBasetype();
@@ -134,13 +142,13 @@ class SynapseDatatypeTest extends TestCase
 
     /**
      * @dataProvider invalidLengths
-     * @param string $type
-     * @param string|null $length
+     * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testInvalidLengths($type, $length)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testInvalidLengths(string $type, $length): void
     {
         $options = [];
         if ($length !== null) {
@@ -150,36 +158,35 @@ class SynapseDatatypeTest extends TestCase
         new Synapse($type, $options);
     }
 
-    public function testInvalidOption()
+    public function testInvalidOption(): void
     {
         try {
             new Synapse('numeric', ['myoption' => 'value']);
             $this->fail('Exception not caught');
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             $this->assertEquals(InvalidOptionException::class, get_class($e));
         }
     }
 
-    public function testInvalidType()
+    public function testInvalidType(): void
     {
         $this->expectException(InvalidTypeException::class);
         new Synapse('UNKNOWN');
     }
 
     /**
-     * @param string $type
-     * @param array|null $options
-     * @param string $expectedDefinition
-     *
      * @dataProvider expectedSqlDefinitions
      */
-    public function testSqlDefinition($type, $options, $expectedDefinition)
+    public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void
     {
         $definition = new Synapse($type, $options);
         $this->assertEquals($expectedDefinition, $definition->getSQLDefinition());
     }
 
-    public function expectedSqlDefinitions()
+    /**
+     * @return array<int, mixed[]>
+     */
+    public function expectedSqlDefinitions(): array
     {
         $tests = [];
 
@@ -301,22 +308,26 @@ class SynapseDatatypeTest extends TestCase
 
     /**
      * @dataProvider validLengths
-     * @param string $type
-     * @param string|null $length
+     * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testValidLengths($type, $length)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testValidLengths(string $type, $length): void
     {
         $options = [];
         if ($length !== null) {
             $options['length'] = $length;
         }
         new Synapse($type, $options);
+        $this->expectNotToPerformAssertions();
     }
 
-    public function validLengths()
+    /**
+     * @return array<int, array<class-string<\datetime>|string|null>>
+     */
+    public function validLengths(): array
     {
         return [
             ['float', null],
@@ -401,55 +412,55 @@ class SynapseDatatypeTest extends TestCase
         ];
     }
 
-    public function typesForLengthsTest(): \Generator
+    public function typesForLengthsTest(): Generator
     {
         yield 'TYPE_FLOAT' => [
             Synapse::TYPE_FLOAT,
-            53
+            53,
         ];
         yield 'TYPE_DECIMAL' => [
             Synapse::TYPE_DECIMAL,
-            '38,0'
+            '38,0',
         ];
         yield 'TYPE_NUMERIC' => [
             Synapse::TYPE_NUMERIC,
-            '38,0'
+            '38,0',
         ];
         yield 'TYPE_NCHAR' => [
             Synapse::TYPE_NCHAR,
-            4000
+            4000,
         ];
         yield 'TYPE_NVARCHAR' => [
             Synapse::TYPE_NVARCHAR,
-            4000
+            4000,
         ];
         yield 'TYPE_BINARY' => [
             Synapse::TYPE_BINARY,
-            8000
+            8000,
         ];
         yield 'TYPE_CHAR' => [
             Synapse::TYPE_CHAR,
-            8000
+            8000,
         ];
         yield 'TYPE_VARBINARY' => [
             Synapse::TYPE_VARBINARY,
-            8000
+            8000,
         ];
         yield 'TYPE_VARCHAR' => [
             Synapse::TYPE_VARCHAR,
-            8000
+            8000,
         ];
         yield 'TYPE_REAL' => [
             Synapse::TYPE_REAL,
-            null
+            null,
         ];
     }
 
     /**
      * @dataProvider typesForLengthsTest
-     * @param string $type
      * @param string|int|null $expectedLength
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testDefaultLengths(string $type, $expectedLength): void
     {
         $def = new Synapse($type, []);

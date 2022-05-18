@@ -1,45 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
 abstract class Common implements DefinitionInterface
 {
-    const KBC_METADATA_KEY_TYPE = "KBC.datatype.type";
-    const KBC_METADATA_KEY_NULLABLE = "KBC.datatype.nullable";
-    const KBC_METADATA_KEY_BASETYPE = "KBC.datatype.basetype";
-    const KBC_METADATA_KEY_LENGTH = "KBC.datatype.length";
-    const KBC_METADATA_KEY_DEFAULT = "KBC.datatype.default";
+    public const KBC_METADATA_KEY_TYPE = 'KBC.datatype.type';
+    public const KBC_METADATA_KEY_NULLABLE = 'KBC.datatype.nullable';
+    public const KBC_METADATA_KEY_BASETYPE = 'KBC.datatype.basetype';
+    public const KBC_METADATA_KEY_LENGTH = 'KBC.datatype.length';
+    public const KBC_METADATA_KEY_DEFAULT = 'KBC.datatype.default';
 
-    const KBC_METADATA_KEY_COMPRESSION = "KBC.datatype.compression";
-    const KBC_METADATA_KEY_FORMAT = "KBC.datatype.format";
+    public const KBC_METADATA_KEY_COMPRESSION = 'KBC.datatype.compression';
+    public const KBC_METADATA_KEY_FORMAT = 'KBC.datatype.format';
 
-    /**
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * @var string
-     */
-    protected $length = null;
+    protected ?string $length = null;
 
-    /**
-     * @var bool
-     */
-    protected $nullable = true;
+    protected bool $nullable = true;
 
-    /**
-     * @var string
-     */
-    protected $default = null;
+    protected ?string $default = null;
 
     /**
      * Common constructor.
      *
-     * @param string $type
-     * @param array $options -- length, nullable, default
+     * @param array{length?:string|null, nullable?:bool, default?:string|null} $options
      */
-    public function __construct($type, $options = [])
+    public function __construct(string $type, array $options = [])
     {
         $this->type = $type;
         if (isset($options['length'])) {
@@ -53,103 +42,86 @@ abstract class Common implements DefinitionInterface
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getLength()
+    public function getLength(): ?string
     {
         return $this->length;
     }
 
-    /**
-     * @return boolean
-     */
-    public function isNullable()
+    public function isNullable(): bool
     {
         return $this->nullable;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getDefault()
+    public function getDefault(): ?string
     {
         return $this->default;
     }
 
-    /**
-     * @return string
-     */
-    abstract public function getSQLDefinition();
+    abstract public function getSQLDefinition(): string;
+
+    abstract public function getBasetype(): string;
 
     /**
-     * @return string
+     * @return array<mixed>
      */
-    abstract public function getBasetype();
-
-    /**
-     * @return array
-     */
-    abstract public function toArray();
+    abstract public function toArray(): array;
 
     /**
      * @param string|int|null $length
-     * @return bool
      */
-    protected function isEmpty($length)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    protected function isEmpty($length): bool
     {
         return $length === null || $length === '';
     }
 
     /**
-     * @return array
+     * @return array<int, array{key:string,value:mixed}>
      */
-    public function toMetadata()
+    public function toMetadata(): array
     {
         $metadata = [
             [
-                "key" => self::KBC_METADATA_KEY_TYPE,
-                "value" => $this->getType(),
+                'key' => self::KBC_METADATA_KEY_TYPE,
+                'value' => $this->getType(),
             ],[
-                "key" => self::KBC_METADATA_KEY_NULLABLE,
-                "value" => $this->isNullable()
+                'key' => self::KBC_METADATA_KEY_NULLABLE,
+                'value' => $this->isNullable(),
             ],[
-                "key" => self::KBC_METADATA_KEY_BASETYPE,
-                "value" => $this->getBasetype()
-            ]
+                'key' => self::KBC_METADATA_KEY_BASETYPE,
+                'value' => $this->getBasetype(),
+            ],
         ];
         if ($this->getLength()) {
             $metadata[] = [
-                "key" => self::KBC_METADATA_KEY_LENGTH,
-                "value" => $this->getLength()
+                'key' => self::KBC_METADATA_KEY_LENGTH,
+                'value' => $this->getLength(),
             ];
         }
         if (!is_null($this->getDefault())) {
             $metadata[] = [
-                "key" => self::KBC_METADATA_KEY_DEFAULT,
-                "value" => $this->getDefault(),
+                'key' => self::KBC_METADATA_KEY_DEFAULT,
+                'value' => $this->getDefault(),
             ];
         }
         return $metadata;
     }
 
     /**
-     * @param string|null $length
-     * @param int $firstMax
-     * @param int $secondMax
-     * @param bool $firstMustBeBigger
-     * @return bool
+     * @param null|int|string $length
      */
-    protected function validateNumericLength($length, $firstMax, $secondMax, $firstMustBeBigger = true)
-    {
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    protected function validateNumericLength(
+        $length,
+        int $firstMax,
+        int $secondMax,
+        bool $firstMustBeBigger = true
+    ): bool {
         if ($this->isEmpty($length)) {
             return true;
         }
@@ -169,20 +141,14 @@ abstract class Common implements DefinitionInterface
         if (isset($parts[1]) && ((int) $parts[1] > $secondMax)) {
             return false;
         }
-
-        if ($firstMustBeBigger && isset($parts[1]) && (int) $parts[1] > (int) $parts[0]) {
-            return false;
-        }
-        return true;
+        return !($firstMustBeBigger && isset($parts[1]) && (int) $parts[1] > (int) $parts[0]);
     }
 
     /**
      * @param string|int|null $length
-     * @param int $max
-     * @param int $min
-     * @return bool
      */
-    protected function validateMaxLength($length, $max, $min = 1)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    protected function validateMaxLength($length, int $max, int $min = 1): bool
     {
         if ($this->isEmpty($length)) {
             return true;
@@ -191,9 +157,9 @@ abstract class Common implements DefinitionInterface
         if (!is_numeric($length)) {
             return false;
         }
-        if ((int) $length < $min || (int) $length > $max) {
+        if (filter_var($length, FILTER_VALIDATE_INT) === false) {
             return false;
         }
-        return true;
+        return (int) $length >= $min && (int) $length <= $max;
     }
 }

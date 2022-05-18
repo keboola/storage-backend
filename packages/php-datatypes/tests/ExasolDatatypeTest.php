@@ -1,24 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\DatatypeTest;
 
+use Generator;
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Exasol;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class ExasolDatatypeTest extends TestCase
 {
     /**
      * @dataProvider typesProvider
-     * @param $type
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testBasetypes($type)
+    public function testBasetypes(string $type): void
     {
         $basetype = (new Exasol($type))->getBasetype();
 
@@ -60,7 +63,7 @@ class ExasolDatatypeTest extends TestCase
         }
     }
 
-    public function testDefaultTypeForNumberBasedOnLength()
+    public function testDefaultTypeForNumberBasedOnLength(): void
     {
         self::assertSame(
             BaseType::NUMERIC,
@@ -72,7 +75,10 @@ class ExasolDatatypeTest extends TestCase
         );
     }
 
-    public function typesProvider()
+    /**
+     * @return Generator<string[]&mixed[]>
+     */
+    public function typesProvider(): Generator
     {
         foreach (Exasol::TYPES as $type) {
             yield [$type => $type];
@@ -81,14 +87,14 @@ class ExasolDatatypeTest extends TestCase
 
     /**
      * @dataProvider invalidLengths
-     *
-     * @param string $type
-     * @param string|null $length
+     * @param mixed[] $extraOption
+     * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testInvalidLengths($type, $length, $extraOption = [])
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testInvalidLengths(string $type, $length, array $extraOption = []): void
     {
         $options = $extraOption;
         $options['length'] = $length;
@@ -97,36 +103,36 @@ class ExasolDatatypeTest extends TestCase
         new Exasol($type, $options);
     }
 
-    public function testInvalidOption()
+    public function testInvalidOption(): void
     {
         try {
             new Exasol('numeric', ['myoption' => 'value']);
             self::fail('Exception not caught');
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             self::assertEquals(InvalidOptionException::class, get_class($e));
         }
     }
 
-    public function testInvalidType()
+    public function testInvalidType(): void
     {
         $this->expectException(InvalidTypeException::class);
         new Exasol('UNKNOWN');
     }
 
     /**
-     * @param string     $type
-     * @param array|null $options
-     * @param string     $expectedDefinition
-     *
      * @dataProvider expectedSqlDefinitions
+     * @param mixed[] $options
      */
-    public function testSqlDefinition($type, $options, $expectedDefinition)
+    public function testSqlDefinition(string $type, array $options, string $expectedDefinition): void
     {
         $definition = new Exasol($type, $options);
         self::assertEquals($expectedDefinition, $definition->getSQLDefinition());
     }
 
-    public function expectedSqlDefinitions()
+    /**
+     * @return array<string, mixed[]>
+     */
+    public function expectedSqlDefinitions(): array
     {
         return [
             'DECIMAL' => ['DECIMAL', [], 'DECIMAL (36,36)'],
@@ -171,20 +177,25 @@ class ExasolDatatypeTest extends TestCase
 
     /**
      * @dataProvider validLengths
-     * @param string      $type
-     * @param string|null $length
+     * @param mixed[] $extraOptions
+     * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function testValidLengths($type, $length, $extraOptions = [])
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    public function testValidLengths(string $type, $length, array $extraOptions = []): void
     {
         $options = $extraOptions;
         $options['length'] = $length;
         new Exasol($type, $options);
+        $this->expectNotToPerformAssertions();
     }
 
-    public function invalidLengths()
+    /**
+     * @return array<string, array<string|int>>
+     */
+    public function invalidLengths(): array
     {
         $out = [];
         $combinations = [
@@ -205,7 +216,7 @@ class ExasolDatatypeTest extends TestCase
                 ],
             ],
             'varchars' => [
-                'lengths' => [-1, 5000000],
+                'lengths' => [-1, 5_000_000],
                 'types' => [
                     'VARCHAR',
                     'CHAR VARYING',
@@ -237,14 +248,16 @@ class ExasolDatatypeTest extends TestCase
         $out['HASHTYPE-100b'] = ['HASHTYPE', '100b'];
         $out['HASHTYPE-10000 BIT'] = ['HASHTYPE', '10000 BIT'];
 
-
         $out['INTERVAL YEAR TO MONTH 12'] = ['INTERVAL YEAR TO MONTH', '12'];
         $out['INTERVAL DAY TO SECOND 0 0'] = ['INTERVAL DAY TO SECOND', '0,0'];
 
         return $out;
     }
 
-    public function validLengths()
+    /**
+     * @return array<string, array<string|null|int>>
+     */
+    public function validLengths(): array
     {
         $out = [];
         $combinations = [
@@ -265,7 +278,7 @@ class ExasolDatatypeTest extends TestCase
                 ],
             ],
             'varchars' => [
-                'lengths' => [null, 1, 1000, 2000000],
+                'lengths' => [null, 1, 1000, 2_000_000],
                 'types' => [
                     'VARCHAR',
                     'CHAR VARYING',

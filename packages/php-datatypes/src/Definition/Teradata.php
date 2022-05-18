@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\Datatype\Definition;
 
+use Exception;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
@@ -15,26 +18,26 @@ class Teradata extends Common
 {
     //https://docs.teradata.com/r/Ri8d7iL59tIPr1FZNKPLMw/DlfSbsVEC48atCIcADa5IA
     /* numbers */
-    const TYPE_BYTEINT = 'BYTEINT'; // -128 to 127, 1B, BYTEINT [ attributes [...] ]
-    const TYPE_BIGINT = 'BIGINT'; // 64bit signed, 7B, BIGINT [ attributes [...] ]
-    const TYPE_SMALLINT = 'SMALLINT'; //  -32768 to 32767, 2B, SMALLINT [ attributes [...] ]
-    const TYPE_INTEGER = 'INTEGER'; // 32bit signed, 4B, { INTEGER | INT } [ attributes [...] ]
-    const TYPE_INT = 'INT'; // = INTEGER
-    const TYPE_DECIMAL = 'DECIMAL'; // fixed length up to 16B
+    public const TYPE_BYTEINT = 'BYTEINT'; // -128 to 127, 1B, BYTEINT [ attributes [...] ]
+    public const TYPE_BIGINT = 'BIGINT'; // 64bit signed, 7B, BIGINT [ attributes [...] ]
+    public const TYPE_SMALLINT = 'SMALLINT'; //  -32768 to 32767, 2B, SMALLINT [ attributes [...] ]
+    public const TYPE_INTEGER = 'INTEGER'; // 32bit signed, 4B, { INTEGER | INT } [ attributes [...] ]
+    public const TYPE_INT = 'INT'; // = INTEGER
+    public const TYPE_DECIMAL = 'DECIMAL'; // fixed length up to 16B
     // DECIMAL [(n[,m])], { DECIMAL | DEC | NUMERIC } [ ( n [, m ] ) ] [ attributes [...] ], 12.4567 : n = 6; m = 4.
     // n: 1-38 ; m 0-n, default when no n nor m -> DECIMAL(5, 0)., default when n is specified -> DECIMAL(n, 0).
-    const TYPE_NUMERIC = 'NUMERIC'; // = DECIMAL
-    const TYPE_DEC = 'DEC'; // = DECIMAL
-    const TYPE_FLOAT = 'FLOAT'; // 8B, { FLOAT | REAL | DOUBLE PRECISION } [ attributes [...] ]
-    const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION'; // = FLOAT
-    const TYPE_REAL = 'REAL'; // = FLOAT
-    const TYPE_NUMBER = 'NUMBER'; // 1-20B,  NUMBER(n[,m]) / NUMBER[(*[,m])], as DECIMAL but variable-length
+    public const TYPE_NUMERIC = 'NUMERIC'; // = DECIMAL
+    public const TYPE_DEC = 'DEC'; // = DECIMAL
+    public const TYPE_FLOAT = 'FLOAT'; // 8B, { FLOAT | REAL | DOUBLE PRECISION } [ attributes [...] ]
+    public const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION'; // = FLOAT
+    public const TYPE_REAL = 'REAL'; // = FLOAT
+    public const TYPE_NUMBER = 'NUMBER'; // 1-20B,  NUMBER(n[,m]) / NUMBER[(*[,m])], as DECIMAL but variable-length
     // n: 1-38 ; m 0-n, default when no n nor m -> DECIMAL(5, 0)., default when n is specified DECIMAL(n, 0).
 
     /* Byte */
-    const TYPE_BYTE = 'BYTE'; // BYTE [ ( n ) ] [ attributes [...] ]; n Max 64000 Bytes; fixed length
-    const TYPE_VARBYTE = 'VARBYTE'; // VARBYTE ( n ) [ attributes [...] ]; n Max 64000 Bytes; VARIABLE length
-    const TYPE_BLOB = 'BLOB';
+    public const TYPE_BYTE = 'BYTE'; // BYTE [ ( n ) ] [ attributes [...] ]; n Max 64000 Bytes; fixed length
+    public const TYPE_VARBYTE = 'VARBYTE'; // VARBYTE ( n ) [ attributes [...] ]; n Max 64000 Bytes; VARIABLE length
+    public const TYPE_BLOB = 'BLOB';
     //  { BINARY LARGE OBJECT | BLOB }
     //  [ ( n [ K | M | G ] ) ]
     //  [ attribute [...] ]
@@ -43,21 +46,24 @@ class Teradata extends Common
     //  K - K - max 2047937
     //  M - M - max 1999
     //  G - G - 1 only
-    const TYPE_BINARY_LARGE_OBJECT = 'BINARY LARGE OBJECT';
+    public const TYPE_BINARY_LARGE_OBJECT = 'BINARY LARGE OBJECT';
     /* DateTime */
-    const TYPE_DATE = 'DATE'; // DATE [ attributes [...] ]
-    const TYPE_TIME = 'TIME'; // TIME [ ( n ) ] [ attributes [...] ]; n = A single digit representing the number of digits in the fractional portion of the SECOND field. '11:37:58.12345' n = 5; '11:37:58' n = 0
-    const TYPE_TIMESTAMP = 'TIMESTAMP'; //  TIMESTAMP [ ( n ) ] [ attributes [...] ]
+    public const TYPE_DATE = 'DATE'; // DATE [ attributes [...] ]
+    // TIME [ ( n ) ] [ attributes [...] ];
+    // n = A single digit representing the number of digits in the fractional portion of the SECOND field.
+    // '11:37:58.12345' n = 5; '11:37:58' n = 0
+    public const TYPE_TIME = 'TIME';
+    public const TYPE_TIMESTAMP = 'TIMESTAMP'; //  TIMESTAMP [ ( n ) ] [ attributes [...] ]
     // '1999-01-01 23:59:59.1234' n = 4
     // '1999-01-01 23:59:59' n = 0
 
-    const TYPE_TIME_WITH_ZONE = 'TIME_WITH_ZONE'; // as TIME but
+    public const TYPE_TIME_WITH_ZONE = 'TIME_WITH_ZONE'; // as TIME but
     // TIME [ ( n ) ] WITH ZONE [ attributes [...] ]
     // where insert value as a number from -12.59 to +14.00  23:59:59.1234 +02:00
-    const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP_WITH_ZONE'; // same as TYPE_TIME_WITH_ZONE
+    public const TYPE_TIMESTAMP_WITH_ZONE = 'TIMESTAMP_WITH_ZONE'; // same as TYPE_TIME_WITH_ZONE
     /* character */
-    const TYPE_CHAR = 'CHAR'; // [(n)]
-    const TYPE_CHARACTER = 'CHARACTER'; // = CHAR
+    public const TYPE_CHAR = 'CHAR'; // [(n)]
+    public const TYPE_CHARACTER = 'CHARACTER'; // = CHAR
     //  { { CHARACTER | CHAR } [ ( n ) ]
     //  [ { CHARACTER | CHAR } SET server_character_set ] |
     //      GRAPHIC [ ( n ) ]
@@ -65,7 +71,7 @@ class Teradata extends Common
     // n = length, static
     // 64000 for LATIN charset, 32000 for UNICODE,GRAPHIC,KANJISJIS
 
-    const TYPE_VARCHAR = 'VARCHAR';
+    public const TYPE_VARCHAR = 'VARCHAR';
     //  {
     //      { VARCHAR | { CHARACTER | CHAR } VARYING } ( n )
     //      [ { CHARACTER | CHAR } SET ] server_character_set |
@@ -75,13 +81,13 @@ class Teradata extends Common
     //  } [ attributes [...] ]
     // n = length, variable
     // 64000 for LATIN charset, 32000 for UNICODE,GRAPHIC,KANJISJIS
-    const TYPE_CHARV = 'CHAR VARYING'; // = VARCHAR
-    const TYPE_CHARACTERV = 'CHARACTER VARYING'; // = VARCHAR
-    const TYPE_VARGRAPHIC = 'VARGRAPHIC'; // = VARCHAR
+    public const TYPE_CHARV = 'CHAR VARYING'; // = VARCHAR
+    public const TYPE_CHARACTERV = 'CHARACTER VARYING'; // = VARCHAR
+    public const TYPE_VARGRAPHIC = 'VARGRAPHIC'; // = VARCHAR
     // = VARCHAR but without n
-    const TYPE_LONG_VARCHAR = 'LONG VARCHAR'; // = VARCHAR with max n
-    const TYPE_LONG_VARGRAPHIC = 'LONG VARGRAPHIC'; // = LONG VARCHAR
-    const TYPE_CLOB = 'CLOB';
+    public const TYPE_LONG_VARCHAR = 'LONG VARCHAR'; // = VARCHAR with max n
+    public const TYPE_LONG_VARGRAPHIC = 'LONG VARGRAPHIC'; // = LONG VARCHAR
+    public const TYPE_CLOB = 'CLOB';
     // { CHARACTER LARGE OBJECT | CLOB }
     // [ ( n [ K | M | G ] ) ]
     // [ { CHARACTER | CHAR } SET { LATIN | UNICODE } ]
@@ -91,48 +97,50 @@ class Teradata extends Common
     //   K - K - max 2047937 for Latin, 1023968 for Unicode
     //   M - M - max 1999 for Latin, 999 for Unicode
     //   G - G - 1 and for LATIN only
-    const TYPE_CHARACTER_LARGE_OBJECT = 'CHARACTER LARGE OBJECT'; // = CLOB
+    public const TYPE_CHARACTER_LARGE_OBJECT = 'CHARACTER LARGE OBJECT'; // = CLOB
     // Following types are listed due compatibility but they are treated as string
     /* Array */
     // not implemented, because arrays are considered as user defined types
 
     /* Period */
     // n represents fraction of seconds as in TIME / TIMESTAMP
-    const TYPE_PERIOD_DATE = 'PERIOD(DATE)'; // PERIOD(DATE)
-    const TYPE_PERIOD_TIME = 'PERIOD(TIME)';  // PERIOD(TIME [ ( n ) ] )
-    const TYPE_PERIOD_TIMESTAMP = 'PERIOD TIMESTAMP';  // PERIOD(TIMESTAMP [ ( n ) ] )
-    const TYPE_PERIOD_TIME_WITH_ZONE = 'PERIOD TIME WITH_ZONE';  // PERIOD(TIME [ ( n ) ] _WITH_ZONE )
-    const TYPE_PERIOD_TIMESTAMP_WITH_ZONE = 'PERIOD TIMESTAMP WITH_ZONE';  // PERIOD(TIMESTAMP [ ( n ) ] _WITH_ZONE )
+    public const TYPE_PERIOD_DATE = 'PERIOD(DATE)'; // PERIOD(DATE)
+    public const TYPE_PERIOD_TIME = 'PERIOD(TIME)';  // PERIOD(TIME [ ( n ) ] )
+    public const TYPE_PERIOD_TIMESTAMP = 'PERIOD TIMESTAMP';  // PERIOD(TIMESTAMP [ ( n ) ] )
+    public const TYPE_PERIOD_TIME_WITH_ZONE = 'PERIOD TIME WITH_ZONE';  // PERIOD(TIME [ ( n ) ] _WITH_ZONE )
+    // PERIOD(TIMESTAMP [ ( n ) ] _WITH_ZONE )
+    public const TYPE_PERIOD_TIMESTAMP_WITH_ZONE = 'PERIOD TIMESTAMP WITH_ZONE';
     /* Intervals */
-    // n is always number of digits, m number of decimal digits for seconds. INTERVAL HOUR(1) TO SECOND(2) = '9:59:59.99'
-    const TYPE_INTERVAL_SECOND = 'INTERVAL SECOND'; // INTERVAL SECOND [(n;[m])]
-    const TYPE_INTERVAL_MINUTE = 'INTERVAL MINUTE'; // INTERVAL MINUTE [(n)]
-    const TYPE_INTERVAL_MINUTE_TO_SECOND = 'INTERVAL MINUTE TO SECOND'; // INTERVAL MINUTE [(n)] TO SECOND [(m)]
-    const TYPE_INTERVAL_HOUR = 'INTERVAL HOUR'; // INTERVAL HOUR [(n)]
-    const TYPE_INTERVAL_HOUR_TO_SECOND = 'INTERVAL HOUR TO SECOND'; // INTERVAL HOUR [(n)] TO SECOND [(m)]
-    const TYPE_INTERVAL_HOUR_TO_MINUTE = 'INTERVAL HOUR TO MINUTE'; // INTERVAL HOUR [(n)] TO MINUTE
-    const TYPE_INTERVAL_DAY = 'INTERVAL DAY'; // INTERVAL DAY [(n)]
-    const TYPE_INTERVAL_DAY_TO_SECOND = 'INTERVAL DAY TO SECOND'; // INTERVAL DAY [(n)] TO SECOND [(m)]
-    const TYPE_INTERVAL_DAY_TO_MINUTE = 'INTERVAL DAY TO MINUTE'; // INTERVAL DAY [(n)] TO MINUTE
-    const TYPE_INTERVAL_DAY_TO_HOUR = 'INTERVAL DAY TO HOUR'; // INTERVAL DAY [(n)] TO HOUR
-    const TYPE_INTERVAL_MONTH = 'INTERVAL MONTH'; // INTERVAL MONTH
-    const TYPE_INTERVAL_YEAR = 'INTERVAL YEAR'; // INTERVAL YEAR [(n)]
-    const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL YEAR TO MONTH'; // INTERVAL YEAR [(n)] TO MONTH
+    // n is always number of digits, m number of decimal digits for seconds.
+    // INTERVAL HOUR(1) TO SECOND(2) = '9:59:59.99'
+    public const TYPE_INTERVAL_SECOND = 'INTERVAL SECOND'; // INTERVAL SECOND [(n;[m])]
+    public const TYPE_INTERVAL_MINUTE = 'INTERVAL MINUTE'; // INTERVAL MINUTE [(n)]
+    public const TYPE_INTERVAL_MINUTE_TO_SECOND = 'INTERVAL MINUTE TO SECOND'; // INTERVAL MINUTE [(n)] TO SECOND [(m)]
+    public const TYPE_INTERVAL_HOUR = 'INTERVAL HOUR'; // INTERVAL HOUR [(n)]
+    public const TYPE_INTERVAL_HOUR_TO_SECOND = 'INTERVAL HOUR TO SECOND'; // INTERVAL HOUR [(n)] TO SECOND [(m)]
+    public const TYPE_INTERVAL_HOUR_TO_MINUTE = 'INTERVAL HOUR TO MINUTE'; // INTERVAL HOUR [(n)] TO MINUTE
+    public const TYPE_INTERVAL_DAY = 'INTERVAL DAY'; // INTERVAL DAY [(n)]
+    public const TYPE_INTERVAL_DAY_TO_SECOND = 'INTERVAL DAY TO SECOND'; // INTERVAL DAY [(n)] TO SECOND [(m)]
+    public const TYPE_INTERVAL_DAY_TO_MINUTE = 'INTERVAL DAY TO MINUTE'; // INTERVAL DAY [(n)] TO MINUTE
+    public const TYPE_INTERVAL_DAY_TO_HOUR = 'INTERVAL DAY TO HOUR'; // INTERVAL DAY [(n)] TO HOUR
+    public const TYPE_INTERVAL_MONTH = 'INTERVAL MONTH'; // INTERVAL MONTH
+    public const TYPE_INTERVAL_YEAR = 'INTERVAL YEAR'; // INTERVAL YEAR [(n)]
+    public const TYPE_INTERVAL_YEAR_TO_MONTH = 'INTERVAL YEAR TO MONTH'; // INTERVAL YEAR [(n)] TO MONTH
     // User Defined Types (UDP) are not supported
 
     // default lengths for different kinds of types. Used max values
-    const DEFAULT_BLOB_LENGTH = '1G';
-    const DEFAULT_BYTE_LENGTH = 64000;
-    const DEFAULT_DATETIME_DIGIT_LENGTH = 4;
-    const DEFAULT_DECIMAL_LENGTH = '38,38';
-    const DEFAULT_LATIN_CHAR_LENGTH = 64000;
-    const DEFAULT_LATIN_CLOB_LENGTH = '1999M';
-    const DEFAULT_NON_LATIN_CHAR_LENGTH = 32000;
-    const DEFAULT_NON_LATIN_CLOB_LENGTH = '999M';
-    const DEFAULT_SECOND_PRECISION_LENGTH = 6;
-    const DEFAULT_VALUE_TO_SECOND_PRECISION_LENGTH = '4,6';
+    public const DEFAULT_BLOB_LENGTH = '1G';
+    public const DEFAULT_BYTE_LENGTH = 64000;
+    public const DEFAULT_DATETIME_DIGIT_LENGTH = 4;
+    public const DEFAULT_DECIMAL_LENGTH = '38,38';
+    public const DEFAULT_LATIN_CHAR_LENGTH = 64000;
+    public const DEFAULT_LATIN_CLOB_LENGTH = '1999M';
+    public const DEFAULT_NON_LATIN_CHAR_LENGTH = 32000;
+    public const DEFAULT_NON_LATIN_CLOB_LENGTH = '999M';
+    public const DEFAULT_SECOND_PRECISION_LENGTH = 6;
+    public const DEFAULT_VALUE_TO_SECOND_PRECISION_LENGTH = '4,6';
     // types where length isnt at the end of the type
-    const COMPLEX_LENGTH_DICT = [
+    public const COMPLEX_LENGTH_DICT = [
         self::TYPE_TIME_WITH_ZONE => 'TIME (%d) WITH TIME ZONE',
         self::TYPE_TIMESTAMP_WITH_ZONE => 'TIMESTAMP (%d) WITH TIME ZONE',
         self::TYPE_PERIOD_TIME => 'PERIOD(TIME (%d))',
@@ -152,7 +160,7 @@ class Teradata extends Common
      * Types without precision, scale, or length
      * This used to separate types when column is retrieved from database
      */
-    const TYPES_WITHOUT_LENGTH = [
+    public const TYPES_WITHOUT_LENGTH = [
         self::TYPE_BYTEINT,
         self::TYPE_BIGINT,
         self::TYPE_SMALLINT,
@@ -166,7 +174,7 @@ class Teradata extends Common
         self::TYPE_LONG_VARGRAPHIC,
     ];
     // syntax "TYPEXXX <length>" even if the length is not a single value, such as 38,38
-    const TYPES_WITH_SIMPLE_LENGTH = [
+    public const TYPES_WITH_SIMPLE_LENGTH = [
         self::TYPE_BYTE,
         self::TYPE_VARBYTE,
         self::TYPE_TIME,
@@ -195,7 +203,7 @@ class Teradata extends Common
     ];
 
     // types where CHARAET can be defined
-    const CHARACTER_SET_TYPES = [
+    public const CHARACTER_SET_TYPES = [
         self::TYPE_CHAR,
         self::TYPE_VARCHAR,
         self::TYPE_CLOB,
@@ -209,7 +217,7 @@ class Teradata extends Common
         self::TYPE_CHARACTER_LARGE_OBJECT,
     ];
     //https://docs.teradata.com/r/rgAb27O_xRmMVc_aQq2VGw/6CYL2QcAvXykzEc8mG__Xg
-    const CODE_TO_TYPE = [
+    public const CODE_TO_TYPE = [
         'I8' => self::TYPE_BIGINT,
         'BO' => self::TYPE_BLOB,
         'BF' => self::TYPE_BYTE,
@@ -247,7 +255,7 @@ class Teradata extends Common
         'TZ' => self::TYPE_TIME_WITH_ZONE,
         'SZ' => self::TYPE_TIMESTAMP_WITH_ZONE,
     ];
-    const TYPES = [
+    public const TYPES = [
         self::TYPE_BIGINT,
         self::TYPE_BLOB,
         self::TYPE_BYTE,
@@ -302,52 +310,45 @@ class Teradata extends Common
         self::TYPE_REAL,
     ];
 
-    /** @var bool */
-    private $isLatin = false;
+    private bool $isLatin = false;
 
     // depends on Char Type column in HELP TABLE column
     // 1 latin, 2 unicode, 3 kanjiSJIS, 4 graphic, 5 graphic, 0 others
 
     /**
-     * @param string $type
-     * @param array $options -- length, nullable, default
+     * @param array{length?:string|null, nullable?:bool, default?:string|null, isLatin?:bool} $options
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
-    public function __construct($type, $options = [])
+    public function __construct(string $type, array $options = [])
     {
         if (isset($options['isLatin'])) {
             $this->isLatin = (boolean) $options['isLatin'];
         }
 
         $this->validateType($type);
-        $this->validateLength($type, isset($options['length']) ? $options['length'] : null);
+        $this->validateLength($type, $options['length'] ?? null);
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'isLatin']);
-        if (count($diff) > 0) {
+        if ($diff !== []) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
     }
 
     /**
-     * @param string $code
-     * @return string
      * @throws \Exception
      */
-    public static function convertCodeToType($code)
+    public static function convertCodeToType(string $code): string
     {
         if (!array_key_exists($code, self::CODE_TO_TYPE)) {
-            throw new \Exception("Type code {$code} is not supported");
+            throw new Exception("Type code {$code} is not supported");
         }
 
         return self::CODE_TO_TYPE[$code];
     }
 
-    /**
-     * @return string
-     */
-    public function getSQLDefinition()
+    public function getSQLDefinition(): string
     {
         $definition = $this->buildTypeWithLength();
 
@@ -369,15 +370,14 @@ class Teradata extends Common
      * generates type with length
      * most of the types just append it, but some of them are complex and some have no length...
      * used here and in i/e lib
-     * @return string
      */
-    public function buildTypeWithLength()
+    public function buildTypeWithLength(): string
     {
         $type = $this->getType();
         $definition = $type;
         if (!in_array($definition, self::TYPES_WITHOUT_LENGTH)) {
             $length = $this->getLength();
-            $length = $length === null ? $this->getDefaultLength() : $length;
+            $length ??= $this->getDefaultLength();
             // length is set, use it
             if ($length !== null && $length !== '') {
                 if (in_array($definition, self::TYPES_WITH_SIMPLE_LENGTH)) {
@@ -394,20 +394,16 @@ class Teradata extends Common
     /**
      * builds SQL definition for types which don't just append the length behind the type name
      *
-     * @param string $type
      * @param string|int|null $lengthString
-     * @return string
      */
-    private function buildComplexLength($type, $lengthString)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    private function buildComplexLength(string $type, $lengthString): string
     {
         $parts = explode(',', (string) $lengthString);
         return sprintf(self::COMPLEX_LENGTH_DICT[$type], ...$parts);
     }
 
-    /**
-     * @return bool
-     */
-    private function isLatin()
+    private function isLatin(): bool
     {
         return $this->isLatin;
     }
@@ -419,6 +415,7 @@ class Teradata extends Common
      *
      * @return int|string|null
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
     private function getDefaultLength()
     {
         $out = null;
@@ -491,9 +488,9 @@ class Teradata extends Common
     }
 
     /**
-     * @return array
+     * @return array{type:string,length:string|null,nullable:bool}
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'type' => $this->getType(),
@@ -503,11 +500,9 @@ class Teradata extends Common
     }
 
     /**
-     * @param string $type
-     * @return void
      * @throws InvalidTypeException
      */
-    private function validateType($type)
+    private function validateType(string $type): void
     {
         if (!in_array(strtoupper($type), $this::TYPES, true)) {
             throw new InvalidTypeException(sprintf('"%s" is not a valid type', $type));
@@ -515,12 +510,11 @@ class Teradata extends Common
     }
 
     /**
-     * @param string $type
-     * @param string|null $length
-     * @return void
+     * @param null|int|string $length
      * @throws InvalidLengthException
      */
-    private function validateLength($type, $length = null)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    private function validateLength(string $type, $length = null): void
     {
         $valid = true;
 
@@ -577,8 +571,8 @@ class Teradata extends Common
                 $valid = $this->validateLOBLength(
                     $length,
                     [
-                        'noUnit' => $isLatin ? 2097088000 : 1048544000,
-                        'K' => $isLatin ? 2047937 : 1023968,
+                        'noUnit' => $isLatin ? 2_097_088_000 : 1_048_544_000,
+                        'K' => $isLatin ? 2_047_937 : 1_023_968,
                         'M' => $isLatin ? 1999 : 999,
                         'G' => $isLatin ? 1 : 0,
                     ]
@@ -589,8 +583,8 @@ class Teradata extends Common
                 $valid = $this->validateLOBLength(
                     $length,
                     [
-                        'noUnit' => 2097088000,
-                        'K' => 2047937,
+                        'noUnit' => 2_097_088_000,
+                        'K' => 2_047_937,
                         'M' => 1999,
                         'G' => 1,
                     ]
@@ -604,11 +598,11 @@ class Teradata extends Common
     }
 
     /**
-     * @param string|null $length
-     * @param array $maxTab table (array) with max values
-     * @return bool
+     * @param array<string, int> $maxTab table (array) with max values
+     * @param null|int|string $length
      */
-    private function validateLOBLength($length, $maxTab)
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    private function validateLOBLength($length, array $maxTab): bool
     {
         if ($this->isEmpty($length)) {
             return true;
@@ -627,10 +621,7 @@ class Teradata extends Common
         return false;
     }
 
-    /**
-     * @return string
-     */
-    public function getBasetype()
+    public function getBasetype(): string
     {
         switch (strtoupper($this->type)) {
             case self::TYPE_BYTEINT:
