@@ -83,11 +83,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
                 // @phpstan-ignore-next-line
-                getenv('CREDENTIALS_IMPORT_TYPE'),
-                // @phpstan-ignore-next-line
-                getenv('TEMP_TABLE_TYPE'),
-                // @phpstan-ignore-next-line
-                getenv('DEDUP_TYPE')
+                getenv('CREDENTIALS_IMPORT_TYPE')
             ),
             $this->createABSSourceInstance(
                 'tw_accounts.increment.csv',
@@ -102,11 +98,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
                 // @phpstan-ignore-next-line
-                getenv('CREDENTIALS_IMPORT_TYPE'),
-                // @phpstan-ignore-next-line
-                getenv('TEMP_TABLE_TYPE'),
-                // @phpstan-ignore-next-line
-                getenv('DEDUP_TYPE')
+                getenv('CREDENTIALS_IMPORT_TYPE')
             ),
             [$this->getDestinationSchemaName(), 'accounts-bez-ts'],
             $expectedAccountsRows,

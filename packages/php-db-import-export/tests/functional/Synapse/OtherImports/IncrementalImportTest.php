@@ -132,11 +132,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
@@ -218,11 +214,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             SynapseImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
@@ -319,11 +311,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
@@ -402,11 +390,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = $this->createABSSourceInstance(
             'nullify.csv',

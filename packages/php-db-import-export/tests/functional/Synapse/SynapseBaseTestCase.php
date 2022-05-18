@@ -347,13 +347,9 @@ EOT
      */
     protected function getSynapseImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
-        ?string $dedupType = null,
         ?string $castValueTypes = null,
         ?bool $requireSameTables = null
     ): SynapseImportOptions {
-        if ($dedupType === null) {
-            $dedupType = getenv('DEDUP_TYPE');
-        }
         return new SynapseImportOptions(
             [],
             false,
@@ -361,10 +357,6 @@ EOT
             $skipLines,
             // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            $dedupType,
             $castValueTypes ?? SynapseImportOptions::TABLE_TYPES_PRESERVE,
             $requireSameTables ?? SynapseImportOptions::SAME_TABLES_NOT_REQUIRED
         );
@@ -379,11 +371,7 @@ EOT
             true,
             $skipLines,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
     }
 

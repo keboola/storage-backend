@@ -1238,8 +1238,6 @@ EOT
                 true,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
@@ -1286,8 +1284,6 @@ EOT
                 true,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
@@ -1311,8 +1307,6 @@ EOT
                 true,            // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST // cast values
             ),
             // phpcs:ignore
@@ -1337,8 +1331,6 @@ EOT
                 true, // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_PRESERVE // dont cast values
             ),
             // phpcs:ignore
@@ -1362,8 +1354,6 @@ EOT
                 true, // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST // cast values
             ),
             // phpcs:ignore
@@ -1387,8 +1377,6 @@ EOT
                 true, // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_PRESERVE // don't cast values
             ),
             // phpcs:ignore
@@ -1412,8 +1400,6 @@ EOT
                 false, // don't use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
@@ -1438,8 +1424,6 @@ EOT
                 false, // don't use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_PRESERVE // don't cast
             ),
             // phpcs:ignore
@@ -1468,8 +1452,6 @@ EOT
                 true,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TEMP_TABLE_HEAP,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST
             ),
             // phpcs:ignore
@@ -1549,8 +1531,6 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            SynapseImportOptions::TEMP_TABLE_HEAP,
-            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
             $cast
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
@@ -1670,8 +1650,6 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            SynapseImportOptions::TEMP_TABLE_HEAP,
-            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
             $cast
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
@@ -1780,8 +1758,6 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            SynapseImportOptions::TEMP_TABLE_HEAP,
-            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
             $cast
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
@@ -1889,8 +1865,6 @@ EOT
             true,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            SynapseImportOptions::TEMP_TABLE_HEAP,
-            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
             $cast
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
@@ -2078,8 +2052,6 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            SynapseImportOptions::TEMP_TABLE_HEAP,
-            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
             SynapseImportOptions::TABLE_TYPES_CAST
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(

@@ -157,7 +157,6 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
             ],
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST,
                 SynapseImportOptions::SAME_TABLES_REQUIRED
             ),

@@ -154,15 +154,10 @@ class StageImportTest extends SynapseBaseTestCase
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
-        ) {
-            $this->expectException(Exception::class);
-            $this->expectExceptionMessage(
-                '[SQL Server]Bulk load data conversion error'
-            );
-        }
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            '[SQL Server]Bulk load data conversion error'
+        );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
@@ -193,36 +188,16 @@ class StageImportTest extends SynapseBaseTestCase
             $stagingTable,
             $this->getSynapseImportOptions()
         );
-
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP) {
-            $sql = sprintf(
-                'SELECT [col1],[col2] FROM [%s].[%s]',
-                $stagingTable->getSchemaName(),
-                $stagingTable->getTableName()
-            );
-            $queryResult = array_map(function ($row) {
-                return array_map(function ($column) {
-                    return $column;
-                }, array_values($row));
-            }, $this->connection->fetchAllAssociative($sql));
-
-            $this->assertEquals(4000, strlen($queryResult[0][0]));
-        }
     }
 
     public function testLongColumnImport10k(): void
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
-        ) {
-            $this->expectException(Exception::class);
-            $this->expectExceptionMessage(
-                '[SQL Server]Bulk load data conversion error'
-            );
-        }
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            '[SQL Server]Bulk load data conversion error'
+        );
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
@@ -252,21 +227,6 @@ class StageImportTest extends SynapseBaseTestCase
             $stagingTable,
             $this->getSynapseImportOptions()
         );
-
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP) {
-            $sql = sprintf(
-                'SELECT [col1],[col2] FROM [%s].[%s]',
-                $stagingTable->getSchemaName(),
-                $stagingTable->getTableName()
-            );
-            $queryResult = array_map(function ($row) {
-                return array_map(function ($column) {
-                    return $column;
-                }, array_values($row));
-            }, $this->connection->fetchAllAssociative($sql));
-
-            $this->assertEquals(4000, strlen($queryResult[0][0]));
-        }
     }
 
     public function testCopyIntoInvalidTypes(): void
@@ -357,7 +317,6 @@ class StageImportTest extends SynapseBaseTestCase
             $stagingTable,
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
-                null,
                 null,
                 SynapseImportOptions::SAME_TABLES_REQUIRED
             )

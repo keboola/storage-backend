@@ -227,8 +227,6 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            SynapseImportOptions::TEMP_TABLE_HEAP,
-            SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
             $requireSameTables
         );
