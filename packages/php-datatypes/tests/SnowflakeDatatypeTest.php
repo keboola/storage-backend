@@ -67,6 +67,7 @@ class SnowflakeDatatypeTest extends TestCase
      * @dataProvider invalidNumericLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidNumericLengths($length): void
     {
         try {
@@ -124,6 +125,7 @@ class SnowflakeDatatypeTest extends TestCase
      * @dataProvider invalidDateTimeLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidDateTimeLengths($length): void
     {
         try {
@@ -172,6 +174,7 @@ class SnowflakeDatatypeTest extends TestCase
      * @dataProvider invalidCharacterLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidCharacterLengths($length): void
     {
         try {
@@ -186,6 +189,7 @@ class SnowflakeDatatypeTest extends TestCase
      * @dataProvider invalidBinaryLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidBinaryLengths($length): void
     {
         try {

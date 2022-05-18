@@ -396,6 +396,7 @@ class Teradata extends Common
      *
      * @param string|int|null $lengthString
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     private function buildComplexLength(string $type, $lengthString): string
     {
         $parts = explode(',', (string) $lengthString);
@@ -414,6 +415,7 @@ class Teradata extends Common
      *
      * @return int|string|null
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
     private function getDefaultLength()
     {
         $out = null;
@@ -511,6 +513,7 @@ class Teradata extends Common
      * @param null|int|string $length
      * @throws InvalidLengthException
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     private function validateLength(string $type, $length = null): void
     {
         $valid = true;
@@ -598,6 +601,7 @@ class Teradata extends Common
      * @param array<string, int> $maxTab table (array) with max values
      * @param null|int|string $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     private function validateLOBLength($length, array $maxTab): bool
     {
         if ($this->isEmpty($length)) {

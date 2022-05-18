@@ -74,6 +74,7 @@ abstract class Common implements DefinitionInterface
     /**
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     protected function isEmpty($length): bool
     {
         return $length === null || $length === '';
@@ -114,6 +115,7 @@ abstract class Common implements DefinitionInterface
     /**
      * @param null|int|string $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     protected function validateNumericLength(
         $length,
         int $firstMax,
@@ -145,6 +147,7 @@ abstract class Common implements DefinitionInterface
     /**
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     protected function validateMaxLength($length, int $max, int $min = 1): bool
     {
         if ($this->isEmpty($length)) {

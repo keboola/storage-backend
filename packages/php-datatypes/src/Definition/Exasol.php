@@ -226,6 +226,7 @@ class Exasol extends Common
      *
      * @return int|string|null
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
     private function getDefaultLength()
     {
         $out = null;
@@ -293,6 +294,7 @@ class Exasol extends Common
      * @param null|int|string $length
      *@throws InvalidLengthException
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     private function validateLength(string $type, $length = null): void
     {
         $valid = true;

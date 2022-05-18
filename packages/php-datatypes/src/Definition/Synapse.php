@@ -132,6 +132,7 @@ class Synapse extends Common
      *
      * @return int|string|null
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
     public function getDefaultLength()
     {
         switch (strtoupper($this->getType())) {
@@ -179,6 +180,7 @@ class Synapse extends Common
      * @param null|int|string $length
      * @throws InvalidLengthException
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     private function validateLength(string $type, $length = null): void
     {
         $valid = true;

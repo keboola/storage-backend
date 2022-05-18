@@ -74,6 +74,7 @@ class MySQLDatatypeTest extends TestCase
      * @dataProvider invalidNumericLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidNumericLengths($length): void
     {
         try {
@@ -96,6 +97,7 @@ class MySQLDatatypeTest extends TestCase
      * @dataProvider invalidIntegerLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidIntegerLengths($length): void
     {
         try {
@@ -120,6 +122,7 @@ class MySQLDatatypeTest extends TestCase
      * @dataProvider invalidFloatLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidFloatLengths($length): void
     {
         try {
@@ -166,6 +169,7 @@ class MySQLDatatypeTest extends TestCase
      * @dataProvider invalidVariableCharacterLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidVariableCharacterLengths($length): void
     {
         try {
@@ -180,6 +184,7 @@ class MySQLDatatypeTest extends TestCase
      * @dataProvider invalidFixedCharacterLengths
      * @param string|int|null $length
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidFixedCharacterLengths($length): void
     {
         try {

@@ -147,6 +147,7 @@ class SynapseDatatypeTest extends TestCase
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidLengths(string $type, $length): void
     {
         $options = [];
@@ -312,6 +313,7 @@ class SynapseDatatypeTest extends TestCase
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testValidLengths(string $type, $length): void
     {
         $options = [];
@@ -457,6 +459,7 @@ class SynapseDatatypeTest extends TestCase
      * @dataProvider typesForLengthsTest
      * @param string|int|null $expectedLength
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testDefaultLengths(string $type, $expectedLength): void
     {
         $def = new Synapse($type, []);

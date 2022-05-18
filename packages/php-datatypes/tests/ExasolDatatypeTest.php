@@ -93,6 +93,7 @@ class ExasolDatatypeTest extends TestCase
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testInvalidLengths(string $type, $length, array $extraOption = []): void
     {
         $options = $extraOption;
@@ -120,9 +121,9 @@ class ExasolDatatypeTest extends TestCase
 
     /**
      * @dataProvider expectedSqlDefinitions
-     * @param mixed[]|array<string, string>|null $options
+     * @param mixed[] $options
      */
-    public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void
+    public function testSqlDefinition(string $type, array $options, string $expectedDefinition): void
     {
         $definition = new Exasol($type, $options);
         self::assertEquals($expectedDefinition, $definition->getSQLDefinition());
@@ -182,6 +183,7 @@ class ExasolDatatypeTest extends TestCase
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
+    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
     public function testValidLengths(string $type, $length, array $extraOptions = []): void
     {
         $options = $extraOptions;
