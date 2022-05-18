@@ -381,11 +381,6 @@ parameters:
 			path: tests/functional/Teradata/ExportTest.php
 
 		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertContains\\(\\) expects iterable, string given\\.$#"
-			count: 1
-			path: tests/functional/Teradata/ExportTest.php
-
-		-
 			message: "#^You should use assertFalse\\(\\) instead of assertSame\\(\\) when expecting \"false\"$#"
 			count: 1
 			path: tests/unit/ExportOptionsTest.php
