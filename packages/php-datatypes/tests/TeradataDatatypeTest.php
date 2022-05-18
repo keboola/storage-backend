@@ -60,7 +60,7 @@ class TeradataDatatypeTest extends TestCase
     }
 
     /**
-     * @return Generator<string, string>
+     * @return Generator<int, array<string,string>>
      */
     public function typesProvider(): Generator
     {
@@ -114,6 +114,7 @@ class TeradataDatatypeTest extends TestCase
 
     /**
      * @dataProvider expectedSqlDefinitions
+     * @param array<mixed>|null $options
      */
     public function testBuildTypeWithLength(string $type, ?array $options, string $expectedDefinition): void
     {
