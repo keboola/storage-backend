@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
+use Keboola\Db\ImportExport\Backend\Synapse\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -19,15 +20,12 @@ final class FullImporter implements ToFinalTableImporterInterface
 {
     private const TIMER_DEDUP_CTAS = 'CTAS_dedup';
     private const TIMER_COPY_TO_TARGET = 'copyFromStagingToTarget';
-
     private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
     private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var SqlBuilder */
-    private $sqlBuilder;
+    private SqlBuilder $sqlBuilder;
 
     public function __construct(
         Connection $connection
@@ -46,6 +44,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         assert($destinationTableDefinition instanceof SynapseTableDefinition);
         assert($options instanceof SynapseImportOptions);
 
+        $random = BackendHelper::generateRandomTablePrefix();
         try {
             //import files to staging table
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
@@ -53,14 +52,16 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    $state
+                    $state,
+                    $random
                 );
             } else {
                 $this->doLoadFullWithoutDedup(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    $state
+                    $state,
+                    $random
                 );
             }
         } finally {
@@ -68,14 +69,14 @@ final class FullImporter implements ToFinalTableImporterInterface
             $this->connection->executeStatement(
                 $this->sqlBuilder->getDropTableIfExistsCommand(
                     $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
+                    $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
                 )
             );
             // drop optimized load rename table if exists
             $this->connection->executeStatement(
                 $this->sqlBuilder->getDropTableIfExistsCommand(
                     $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
+                    $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
                 )
             );
         }
@@ -89,11 +90,12 @@ final class FullImporter implements ToFinalTableImporterInterface
         SynapseTableDefinition $stagingTableDefinition,
         SynapseTableDefinition $destinationTableDefinition,
         SynapseImportOptions $options,
-        ImportState $state
+        ImportState $state,
+        string $random
     ): void {
         $tmpDestination = new SynapseTableDefinition(
             $destinationTableDefinition->getSchemaName(),
-            $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
+            $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
             false,
             $destinationTableDefinition->getColumnsDefinitions(),
             $destinationTableDefinition->getPrimaryKeysNames(),
@@ -113,7 +115,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         $state->stopTimer(self::TIMER_DEDUP_CTAS);
 
         $tmpDestinationToRemove = $destinationTableDefinition->getTableName()
-            . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
+            . $random . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
 
         try {
             $this->connection->executeStatement(
@@ -159,11 +161,12 @@ final class FullImporter implements ToFinalTableImporterInterface
         SynapseTableDefinition $stagingTableDefinition,
         SynapseTableDefinition $destinationTableDefinition,
         SynapseImportOptions $options,
-        ImportState $state
+        ImportState $state,
+        string $random
     ): void {
         $tmpDestination = new SynapseTableDefinition(
             $destinationTableDefinition->getSchemaName(),
-            $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
+            $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
             false,
             $destinationTableDefinition->getColumnsDefinitions(),
             $destinationTableDefinition->getPrimaryKeysNames(),
@@ -183,7 +186,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
 
         $tmpDestinationToRemove = $destinationTableDefinition->getTableName()
-            . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
+            . $random . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
 
         try {
             $this->connection->executeStatement(

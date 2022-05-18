@@ -12,10 +12,10 @@ ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
 $db = \Doctrine\DBAL\DriverManager::getConnection([
-    'user' => getenv('SYNAPSE_UID'),
-    'password' => getenv('SYNAPSE_PWD'),
-    'host' => getenv('SYNAPSE_SERVER'),
-    'dbname' => getenv('SYNAPSE_DATABASE'),
+    'user' => (string) getenv('SYNAPSE_UID'),
+    'password' => (string) getenv('SYNAPSE_PWD'),
+    'host' => (string) getenv('SYNAPSE_SERVER'),
+    'dbname' => (string) getenv('SYNAPSE_DATABASE'),
     'port' => 1433,
     'driver' => 'pdo_sqlsrv',
     'driverOptions' => [

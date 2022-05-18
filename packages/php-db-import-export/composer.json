@@ -9,8 +9,9 @@
         "doctrine/dbal": "^3.2.0",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^5.0",
+        "keboola/php-datatypes": ">=5.1",
         "keboola/php-file-storage-utils": ">=0.2",
-        "keboola/table-backend-utils": "^0.19",
+        "keboola/table-backend-utils": "^1",
         "keboola/php-temp": "^1.0",
         "microsoft/azure-storage-blob": "^1.4",
         "symfony/process": "^4.4|^5.0"
@@ -84,7 +85,8 @@
         "optimize-autoloader": true,
         "lock": false,
         "allow-plugins": {
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }

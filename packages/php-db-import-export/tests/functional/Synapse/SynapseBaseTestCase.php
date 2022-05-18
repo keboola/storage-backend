@@ -271,10 +271,10 @@ EOT
     private function getSynapseConnection(): Connection
     {
         return \Doctrine\DBAL\DriverManager::getConnection([
-            'user' => getenv('SYNAPSE_UID'),
-            'password' => getenv('SYNAPSE_PWD'),
-            'host' => getenv('SYNAPSE_SERVER'),
-            'dbname' => getenv('SYNAPSE_DATABASE'),
+            'user' => (string) getenv('SYNAPSE_UID'),
+            'password' => (string) getenv('SYNAPSE_PWD'),
+            'host' => (string) getenv('SYNAPSE_SERVER'),
+            'dbname' => (string) getenv('SYNAPSE_DATABASE'),
             'port' => 1433,
             'driver' => 'pdo_sqlsrv',
             'driverOptions'=>[
@@ -339,9 +339,15 @@ EOT
         );
     }
 
+    /**
+     * @param null|SynapseImportOptions::TABLE_TYPES_* $castValueTypes
+     * @param null|SynapseImportOptions::SAME_TABLES_* $requireSameTables
+     */
     protected function getSynapseImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
-        ?string $dedupType = null
+        ?string $dedupType = null,
+        ?string $castValueTypes = null,
+        ?bool $requireSameTables = null
     ): SynapseImportOptions {
         if ($dedupType === null) {
             $dedupType = getenv('DEDUP_TYPE');
@@ -356,7 +362,9 @@ EOT
             // @phpstan-ignore-next-line
             getenv('TEMP_TABLE_TYPE'),
             // @phpstan-ignore-next-line
-            $dedupType
+            $dedupType,
+            $castValueTypes ?? SynapseImportOptions::TABLE_TYPES_PRESERVE,
+            $requireSameTables ?? SynapseImportOptions::SAME_TABLES_NOT_REQUIRED
         );
     }
 
