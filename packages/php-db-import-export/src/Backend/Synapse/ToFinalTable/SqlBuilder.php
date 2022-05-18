@@ -643,10 +643,8 @@ class SqlBuilder
         } else {
             $colSql = SynapseQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
         }
-        $isNullable = $destinationColumn->getColumnDefinition()->isNullable();
-        $basetype = $destinationColumn->getColumnDefinition()->getBasetype();
-        if ($basetype === BaseType::STRING) {
-            if ($isNullable) {
+        if ($destinationColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+            if ($destinationColumn->getColumnDefinition()->isNullable()) {
                 // Columns with coalesce are nullable in CTAS
                 $colSql = sprintf(
                     'COALESCE(%s, \'\')',
@@ -659,19 +657,6 @@ class SqlBuilder
                     $colSql
                 );
             }
-        } elseif (!$isNullable
-            && in_array($basetype, [
-                BaseType::FLOAT,
-                BaseType::INTEGER,
-                BaseType::NUMERIC,
-                BaseType::BOOLEAN,
-            ], true)
-        ) {
-            // Columns with isnull are not null in CTAS
-            $colSql = sprintf(
-                'ISNULL(%s, 0)',
-                $colSql
-            );
         }
         return sprintf(
             '%s AS %s',
