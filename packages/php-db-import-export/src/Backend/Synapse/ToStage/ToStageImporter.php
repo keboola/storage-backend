@@ -77,11 +77,7 @@ final class ToStageImporter implements ToStageImporterInterface
                 $adapter = new FromABSCopyIntoAdapter($this->connection);
                 break;
             case $source instanceof Storage\SqlSourceInterface:
-                if ($importOptions->getTableToTableAdapter() === SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS) {
-                    $adapter = new FromTableCTASAdapter($this->connection);
-                } else {
-                    $adapter = new FromTableInsertIntoAdapter($this->connection);
-                }
+                $adapter = $this->getAdapterForSqlSource($importOptions);
                 break;
             default:
                 throw new LogicException(
@@ -92,5 +88,22 @@ final class ToStageImporter implements ToStageImporterInterface
                 );
         }
         return $adapter;
+    }
+
+    private function getAdapterForSqlSource(SynapseImportOptions $importOptions): CopyAdapterInterface
+    {
+        switch ($importOptions->getTableToTableAdapter()) {
+            case SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS:
+                return new FromTableCTASAdapter($this->connection);
+            case SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO:
+                return new FromTableInsertIntoAdapter($this->connection);
+        }
+
+        throw new LogicException(
+            sprintf(
+                'No suitable table to table adapter "%s".',
+                $importOptions->getTableToTableAdapter()
+            )
+        );
     }
 }
