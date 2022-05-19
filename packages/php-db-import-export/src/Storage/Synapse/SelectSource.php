@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\Synapse;
 
+use Doctrine\DBAL\Types\Type;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 
@@ -14,7 +15,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     /** @var array<mixed> */
     private array $queryBindings;
 
-    /** @var array<mixed> */
+    /** @var array<int|string, Type|int|string|null> */
     private array $dataTypes;
 
     /** @var string[] */
@@ -26,7 +27,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     /**
      * @param string[] $columnsNames
      * @param string[]|null $primaryKeysNames
-     * @param array<mixed> $dataTypes
+     * @param array<int|string, Type|int|string|null> $dataTypes
      * @param array<mixed>|null $queryBindings
      */
     public function __construct(
@@ -49,7 +50,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         return $this->columnsNames;
     }
 
-    /** @return array<mixed> */
+    /** @return array<int|string, Type|int|string|null> */
     public function getDataTypes(): array
     {
         return $this->dataTypes;

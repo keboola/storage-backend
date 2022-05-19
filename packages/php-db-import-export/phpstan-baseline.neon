@@ -46,11 +46,6 @@ parameters:
 			path: src/Backend/Synapse/ToFinalTable/SqlBuilder.php
 
 		-
-			message: "#^Parameter \\#3 \\$types of method Doctrine\\\\DBAL\\\\Connection\\:\\:executeQuery\\(\\) expects array\\<int\\|string, Doctrine\\\\DBAL\\\\Types\\\\Type\\|int\\|string\\|null\\>, array given\\.$#"
-			count: 1
-			path: src/Backend/Synapse/ToStage/FromTableCTASAdapter.php
-
-		-
 			message: "#^Cannot cast mixed to int\\.$#"
 			count: 1
 			path: src/Backend/Teradata/ToFinalTable/FullImporter.php
@@ -117,11 +112,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$sql of method Doctrine\\\\DBAL\\\\Connection\\:\\:exec\\(\\) expects string, mixed given\\.$#"
-			count: 1
-			path: src/Storage/ABS/SynapseExportAdapter.php
-
-		-
-			message: "#^Parameter \\#3 \\$types of method Doctrine\\\\DBAL\\\\Connection\\:\\:executeQuery\\(\\) expects array\\<int\\|string, Doctrine\\\\DBAL\\\\Types\\\\Type\\|int\\|string\\|null\\>, array given\\.$#"
 			count: 1
 			path: src/Storage/ABS/SynapseExportAdapter.php
 
