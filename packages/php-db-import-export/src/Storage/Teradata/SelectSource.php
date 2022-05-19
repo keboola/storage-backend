@@ -9,23 +9,21 @@ use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 
 class SelectSource implements SourceInterface, SqlSourceInterface
 {
-    /** @var string */
-    private $query;
+    private string $query;
 
     /** @var string[] */
-    private $queryBindings;
+    private array $queryBindings;
 
     /** @var string[] */
-    private $dataTypes;
+    private array $dataTypes;
 
     /** @var string[] */
-    private $columnsNames;
+    private array $columnsNames;
 
     /** @var string[]|null */
-    private $primaryKeysNames;
+    private ?array $primaryKeysNames = null;
 
     /**
-     * @param string $query
      * @param string[] $queryBindings
      * @param string[] $dataTypes
      * @param string[] $columnsNames

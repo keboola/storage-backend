@@ -64,6 +64,8 @@ abstract class ImportExportBaseTest extends TestCase
     }
 
     /**
+     * @param array<mixed> $expected
+     * @param array<mixed> $actual
      * @param int|string $sortKey
      */
     protected function assertArrayEqualsSorted(

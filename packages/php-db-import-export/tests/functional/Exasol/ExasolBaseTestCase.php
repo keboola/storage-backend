@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\OraclePlatform;
+use Exception;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Connection\Exasol\ExasolConnectionFactory;
@@ -35,8 +36,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     public const TABLE_TYPES = 'types';
     public const TESTS_PREFIX = 'import-export-test_';
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
     protected function setUp(): void
     {
@@ -324,7 +324,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 ));
                 break;
             default:
-                throw new \Exception("unknown table {$tableName}");
+                throw new Exception("unknown table {$tableName}");
         }
     }
 

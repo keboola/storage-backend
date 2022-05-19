@@ -9,6 +9,9 @@ use Keboola\Db\ImportExport\Storage;
 
 interface ExporterInterface
 {
+    /**
+     * @return array<mixed>
+     */
     public function exportTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,

@@ -18,7 +18,6 @@ class SynapseImportOptionsTest extends TestCase
         self::assertFalse($options->useTimestamp());
         self::assertEquals(0, $options->getNumberOfIgnoredLines());
         self::assertEquals('SAS', $options->getImportCredentialsType());
-        self::assertFalse($options->useOptimizedDedup());
         self::assertFalse($options->getCastValueTypes());
     }
 
@@ -30,20 +29,13 @@ class SynapseImportOptionsTest extends TestCase
             true,
             SynapseImportOptions::SKIP_FIRST_LINE,
             SynapseImportOptions::CREDENTIALS_MANAGED_IDENTITY,
-            SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX,
-            SynapseImportOptions::DEDUP_TYPE_CTAS,
             SynapseImportOptions::TABLE_TYPES_CAST
         );
 
         self::assertSame(['col1'], $options->getConvertEmptyValuesToNull());
         self::assertTrue($options->isIncremental());
         self::assertTrue($options->useTimestamp());
-        self::assertTrue($options->useOptimizedDedup());
         self::assertTrue($options->getCastValueTypes());
-        self::assertEquals(
-            SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX,
-            $options->getTempTableType()
-        );
         self::assertEquals(1, $options->getNumberOfIgnoredLines());
         self::assertEquals('MANAGED_IDENTITY', $options->getImportCredentialsType());
     }

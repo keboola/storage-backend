@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
+use DateTime;
+use DateTimeZone;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -19,11 +21,11 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
 
     use StorageTrait;
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
     /**
      * @param int|string $sortKey
+     * @param array<mixed> $expected
      */
     protected function assertTableEqualsExpected(
         SourceInterface $source,
@@ -72,6 +74,9 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         );
     }
 
+    /**
+     * @param array<mixed> $files
+     */
     protected function assertTableEqualsFiles(
         string $tableName,
         array $files,
@@ -130,7 +135,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
 
     private function initData(): void
     {
-        $currentDate = new \DateTime('now', new \DateTimeZone('UTC'));
+        $currentDate = new DateTime('now', new DateTimeZone('UTC'));
         $now = $currentDate->format('Y-m-d H:i:s');
 
         foreach ([

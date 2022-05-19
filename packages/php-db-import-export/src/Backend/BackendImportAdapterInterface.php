@@ -7,6 +7,9 @@ namespace Keboola\Db\ImportExport\Backend;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
+/**
+ * @deprecated use CopyAdapterInterface
+ */
 interface BackendImportAdapterInterface
 {
     public static function isSupported(

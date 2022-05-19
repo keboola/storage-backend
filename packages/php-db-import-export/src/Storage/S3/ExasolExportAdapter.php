@@ -12,8 +12,7 @@ use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 
 class ExasolExportAdapter implements BackendExportAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

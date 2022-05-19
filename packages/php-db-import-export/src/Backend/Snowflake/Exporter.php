@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use ReflectionClass;
 
 class Exporter implements ExporterInterface
 {
@@ -18,10 +19,9 @@ class Exporter implements ExporterInterface
     ];
 
     /** @var string[] */
-    private $adapters = self::DEFAULT_ADAPTERS;
+    private array $adapters = self::DEFAULT_ADAPTERS;
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(
         Connection $connection
@@ -31,6 +31,7 @@ class Exporter implements ExporterInterface
 
     /**
      * @param Storage\SqlSourceInterface $source
+     * @return array<mixed>
      */
     public function exportTable(
         Storage\SourceInterface $source,
@@ -47,7 +48,7 @@ class Exporter implements ExporterInterface
     ): SnowflakeExportAdapterInterface {
         $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
-            $ref = new \ReflectionClass($adapter);
+            $ref = new ReflectionClass($adapter);
             if (!$ref->implementsInterface(SnowflakeExportAdapterInterface::class)) {
                 throw new Exception(
                     sprintf(

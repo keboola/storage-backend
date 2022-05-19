@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Datatype\Definition\Synapse;
+use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
@@ -21,7 +22,7 @@ use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use PHPUnit\Framework\TestCase;
-use Keboola\Db\Import\Exception;
+use Throwable;
 
 class AssertTest extends TestCase
 {
@@ -30,11 +31,12 @@ class AssertTest extends TestCase
         $this->expectNotToPerformAssertions();
         Assert::assertColumnsOnTableDefinition(
             new class implements SourceInterface {
+                /** @return string[] */
                 public function getColumnsNames(): array
                 {
                     return ['name', 'id'];
                 }
-
+                /** @return string[]|null */
                 public function getPrimaryKeysNames(): ?array
                 {
                     return null;
@@ -61,11 +63,12 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('No columns found in CSV file.');
         Assert::assertColumnsOnTableDefinition(
             new class implements SourceInterface {
+                /** @return string[] */
                 public function getColumnsNames(): array
                 {
                     return [];
                 }
-
+                /** @return string[]|null */
                 public function getPrimaryKeysNames(): ?array
                 {
                     return null;
@@ -92,11 +95,12 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('Columns doest not match. Non existing columns: unexpected');
         Assert::assertColumnsOnTableDefinition(
             new class implements SourceInterface {
+                /** @return string[] */
                 public function getColumnsNames(): array
                 {
                     return ['name', 'id', 'unexpected'];
                 }
-
+                /** @return string[]|null */
                 public function getPrimaryKeysNames(): ?array
                 {
                     return null;
@@ -122,11 +126,12 @@ class AssertTest extends TestCase
         $this->expectNotToPerformAssertions();
         Assert::assertColumns(
             new class implements SourceInterface {
+                /** @return string[] */
                 public function getColumnsNames(): array
                 {
                     return ['name', 'id'];
                 }
-
+                /** @return string[]|null */
                 public function getPrimaryKeysNames(): ?array
                 {
                     return null;
@@ -149,11 +154,12 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('No columns found in CSV file.');
         Assert::assertColumns(
             new class implements SourceInterface {
+                /** @return string[] */
                 public function getColumnsNames(): array
                 {
                     return [];
                 }
-
+                /** @return string[]|null */
                 public function getPrimaryKeysNames(): ?array
                 {
                     return null;
@@ -176,11 +182,13 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('Columns doest not match. Non existing columns: unexpected');
         Assert::assertColumns(
             new class implements SourceInterface {
+                /** @return string[] */
                 public function getColumnsNames(): array
                 {
                     return ['name', 'id', 'unexpected'];
                 }
 
+                /** @return string[]|null */
                 public function getPrimaryKeysNames(): ?array
                 {
                     return null;
@@ -205,7 +213,7 @@ class AssertTest extends TestCase
 
     public function testAssertIsSynapseTableDestinationNoTable(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
         // phpcs:ignore
             'Only "Keboola\Db\ImportExport\Storage\Synapse\Table" is supported as destination "Keboola\Db\ImportExport\Storage\ABS\DestinationFile" provided.'
@@ -221,7 +229,7 @@ class AssertTest extends TestCase
 
     public function testAssertSynapseImportOptionsFail(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
         // phpcs:ignore
             'Synapse importer expect $options to be instance of "Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions", "Keboola\Db\ImportExport\ImportOptions" given.'
@@ -248,7 +256,7 @@ class AssertTest extends TestCase
 
     public function testAssertValidSourceFail(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
         // phpcs:ignore
             'CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.'
@@ -268,7 +276,7 @@ class AssertTest extends TestCase
 
     public function testAssertHashDistributionFailNoHashKey(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
             'HASH table distribution must have one distribution key specified.'
         );
@@ -277,7 +285,7 @@ class AssertTest extends TestCase
 
     public function testAssertHashDistributionFailMoreThanOneHashKey(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
             'HASH table distribution must have one distribution key specified.'
         );
@@ -292,7 +300,7 @@ class AssertTest extends TestCase
 
     public function testAssertTableDistributionFail(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
             'Unknown table distribution "UNKNOWN" specified.'
         );
@@ -309,7 +317,7 @@ class AssertTest extends TestCase
 
     public function testAssertStagingTableFail(): void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
             'Staging table must start with "#" table name "normalNotTempTable" supplied.'
         );

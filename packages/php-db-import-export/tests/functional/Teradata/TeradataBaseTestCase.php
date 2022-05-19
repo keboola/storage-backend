@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DBALException;
+use Exception;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -82,7 +84,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         ]);
 
         if ((string) getenv('TERADATA_DATABASE') === '') {
-            throw new \Exception('Variable "TERADATA_DATABASE" is missing.');
+            throw new Exception('Variable "TERADATA_DATABASE" is missing.');
         }
         $db->executeStatement(sprintf(
             'SET SESSION DATABASE %s;',
@@ -172,7 +174,7 @@ CREATE DATABASE %s AS
         try {
             $this->connection->executeQuery(sprintf('HELP DATABASE %s', TeradataQuote::quoteSingleIdentifier($dbname)));
             return true;
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (DBALException $e) {
             // https://docs.teradata.com/r/GVKfXcemJFkTJh_89R34UQ/j2TdlzqRJ9LpndY3efMdlw
             if (strpos($e->getMessage(), '3802')) {
                 return false;
@@ -394,7 +396,7 @@ PRIMARY INDEX ("VisitID");',
                 ));
                 break;
             default:
-                throw new \Exception('unknown table');
+                throw new Exception('unknown table');
         }
     }
 

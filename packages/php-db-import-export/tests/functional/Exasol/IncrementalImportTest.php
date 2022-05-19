@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
+use Generator;
 use Keboola\Csv\CsvFile;
+use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\SqlBuilder;
@@ -12,7 +14,6 @@ use Keboola\Db\ImportExport\Backend\Exasol\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
@@ -45,7 +46,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function incrementalImportData(): \Generator
+    public function incrementalImportData(): Generator
     {
         // accounts
         $expectationAccountsFile = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts.increment.csv');
@@ -149,7 +150,6 @@ class IncrementalImportTest extends ExasolBaseTestCase
      * @dataProvider  incrementalImportData
      * @param array<string,string> $table
      * @param array<mixed> $expected
-     * @param string $tablesToInit
      */
     public function testIncrementalImport(
         Storage\SourceInterface $fullLoadSource,

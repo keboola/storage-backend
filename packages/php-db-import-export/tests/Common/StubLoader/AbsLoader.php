@@ -10,7 +10,7 @@ use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use function \GuzzleHttp\json_encode as guzzle_json_encode;
+use function GuzzleHttp\json_encode as guzzle_json_encode;
 
 class AbsLoader extends BaseStubLoader
 {
@@ -44,7 +44,7 @@ class AbsLoader extends BaseStubLoader
                 $this->getBlobService()->createContainer($this->containerName);
                 echo "Container created \n";
                 $created = true;
-            } catch (\MicrosoftAzure\Storage\Common\Exceptions\ServiceException $e) {
+            } catch (ServiceException $e) {
                 if (preg_match('~The specified container is being deleted.~', $e->getMessage())) {
                     echo "Waiting, because old container is being deleted ... \n";
                     sleep(2);

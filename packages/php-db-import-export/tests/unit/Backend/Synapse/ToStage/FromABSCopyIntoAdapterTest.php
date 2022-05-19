@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Synapse\ToStage;
 
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\FromABSCopyIntoAdapter;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;

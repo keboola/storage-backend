@@ -11,25 +11,13 @@ abstract class BaseFile
     public const PROTOCOL_AZURE = 'azure';
     public const PROTOCOL_HTTPS = 'https';
 
-    /**
-     * @var string
-     */
-    protected $container;
+    protected string $container;
 
-    /**
-     * @var string
-     */
-    protected $sasToken;
+    protected string $sasToken;
 
-    /**
-     * @var string
-     */
-    protected $accountName;
+    protected string $accountName;
 
-    /**
-     * @var string
-     */
-    protected $filePath;
+    protected string $filePath;
 
     public function __construct(
         string $container,

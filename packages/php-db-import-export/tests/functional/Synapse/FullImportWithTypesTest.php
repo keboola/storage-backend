@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
+use Generator;
 use Keboola\Csv\CsvFile;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
@@ -93,7 +94,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function fullImportData(): \Generator
+    public function fullImportData(): Generator
     {
         [
             $accountsHeader,
@@ -156,7 +157,6 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
             ],
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE,
                 SynapseImportOptions::TABLE_TYPES_CAST,
                 SynapseImportOptions::SAME_TABLES_REQUIRED
             ),

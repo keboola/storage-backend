@@ -7,19 +7,17 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\CopyCommandCsvOptionsHelper;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SqlCommandBuilder;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
 class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var SqlCommandBuilder */
-    private $sqlBuilder;
+    private SqlCommandBuilder $sqlBuilder;
 
     public function __construct(Connection $connection)
     {

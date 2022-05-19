@@ -12,14 +12,13 @@ use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\Teradata\SelectSource;
 use Keboola\Db\ImportExport\Storage\Teradata\Table;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
-use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 class FromTableInsertIntoAdapter implements CopyAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

@@ -17,8 +17,7 @@ final class Delete extends BaseCmd
     private const OPTION_SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID = 'synapseServicePrincipalObjectId';
     private const OPTION_SYNAPSE_SQL_SERVER_NAME = 'synapseSqlServerName';
 
-    /** @var string */
-    protected static $defaultName = 'app:delete:synapse';
+    protected static string $defaultName = 'app:delete:synapse';
 
     protected function configure(): void
     {

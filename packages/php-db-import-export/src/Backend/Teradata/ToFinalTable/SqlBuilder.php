@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable;
 
+use Exception as InternalException;
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
@@ -19,15 +20,12 @@ class SqlBuilder
     public function getCommitTransaction(): string
     {
         //TODO
-        throw new \Exception('not implemented yet');
+        throw new InternalException('not implemented yet');
     }
 
     /**
      * SQL to drop table. DOES NOT check existence of table
      *
-     * @param string $dbName
-     * @param string $tableName
-     * @return string
      */
     public function getDropTableUnsafe(string $dbName, string $tableName): string
     {
@@ -168,6 +166,6 @@ class SqlBuilder
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $destinationTableDefinition
     ): void {
-        throw new \Exception('not implemented yet');
+        throw new InternalException('not implemented yet');
     }
 }

@@ -14,6 +14,9 @@ interface BackendExportAdapterInterface
         Storage\DestinationInterface $destination
     ): bool;
 
+    /**
+     * @return array<mixed>
+     */
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,

@@ -11,6 +11,9 @@ use Keboola\Db\ImportExport\Storage;
 
 class IncrementalImportTest extends SnowflakeImportExportBaseTest
 {
+    /**
+     * @return array<mixed>
+     */
     public function incrementalImportData(): array
     {
         // accounts
@@ -75,6 +78,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
     /**
      * @dataProvider  incrementalImportData
      * @param Storage\Snowflake\Table $destination
+     * @param array<mixed> $expected
      */
     public function testIncrementalImport(
         Storage\SourceInterface $initialSource,

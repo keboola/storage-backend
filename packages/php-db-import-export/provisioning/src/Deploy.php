@@ -13,8 +13,7 @@ final class Deploy extends BaseCmd
     private const OPTION_AZURE_RESOURCE_GROUP = 'resourceGroup';
     private const OPTION_SERVER_NAME = 'serverName';
 
-    /** @var string */
-    protected static $defaultName = 'app:deploy:synapse';
+    protected static string $defaultName = 'app:deploy:synapse';
 
     protected function configure(): void
     {
@@ -177,7 +176,6 @@ EOT
     }
 
     /**
-     * @param string $outDeployment
      * @return array<mixed>
      */
     protected function getDeploymentResult(string $outDeployment): array

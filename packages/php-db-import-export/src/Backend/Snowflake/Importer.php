@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Snowflake;
 
+use Exception as InternalException;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\Import\Snowflake\Connection;
+use Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use ReflectionClass;
+use Throwable;
 
 class Importer implements ImporterInterface
 {
@@ -23,20 +27,13 @@ class Importer implements ImporterInterface
     ];
 
     /** @var string[] */
-    private $adapters = self::DEFAULT_ADAPTERS;
+    private array $adapters = self::DEFAULT_ADAPTERS;
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var SqlCommandBuilder
-     */
-    private $sqlBuilder;
+    private SqlCommandBuilder $sqlBuilder;
 
-    /**
-     * @var ImportState
-     */
-    private $importState;
+    private ImportState $importState;
 
     public function __construct(
         Connection $connection
@@ -145,7 +142,7 @@ class Importer implements ImporterInterface
             );
             $this->importState->stopTimer('copyToStaging');
             $this->importState->addImportedRowsCount($rowsCount);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if ($e instanceof Exception) {
                 throw $e;
             }
@@ -153,6 +150,9 @@ class Importer implements ImporterInterface
         }
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
     private function doIncrementalLoad(
         ImportOptionsInterface $importOptions,
         Storage\SourceInterface $source,
@@ -241,6 +241,9 @@ class Importer implements ImporterInterface
         );
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
     private function doNonIncrementalLoad(
         ImportOptionsInterface $importOptions,
         Storage\SourceInterface $source,
@@ -275,6 +278,9 @@ class Importer implements ImporterInterface
         );
     }
 
+    /**
+     * @param array<class-string<BackendImportAdapterInterface>> $adapters
+     */
     public function setAdapters(array $adapters): void
     {
         $this->adapters = $adapters;
@@ -286,9 +292,9 @@ class Importer implements ImporterInterface
     ): SnowflakeImportAdapterInterface {
         $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
-            $ref = new \ReflectionClass($adapter);
+            $ref = new ReflectionClass($adapter);
             if (!$ref->implementsInterface(SnowflakeImportAdapterInterface::class)) {
-                throw new \Exception(
+                throw new InternalException(
                     sprintf(
                         'Each snowflake import adapter must implement "%s".',
                         SnowflakeImportAdapterInterface::class
@@ -297,7 +303,7 @@ class Importer implements ImporterInterface
             }
             if ($adapter::isSupported($source, $destination)) {
                 if ($adapterForUse !== null) {
-                    throw new \Exception(
+                    throw new InternalException(
                         sprintf(
                             'More than one suitable adapter found for Snowflake importer with source: '
                             . '"%s", destination "%s".',
@@ -310,7 +316,7 @@ class Importer implements ImporterInterface
             }
         }
         if ($adapterForUse === null) {
-            throw new \Exception(
+            throw new InternalException(
                 sprintf(
                     'No suitable adapter found for Snowflake importer with source: "%s", destination "%s".',
                     get_class($source),

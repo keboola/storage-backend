@@ -25,11 +25,9 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
     private const TIMER_DEDUP_STAGING = 'dedupStaging';
     private const TIMER_INSERT_INTO_TARGET = 'insertIntoTargetFromStaging';
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var SqlBuilder */
-    private $sqlBuilder;
+    private SqlBuilder $sqlBuilder;
 
     public function __construct(
         Connection $connection

@@ -16,9 +16,6 @@ class ExasolImportOptions extends ImportOptions
 
     /**
      * @param string[] $convertEmptyValuesToNull
-     * @param bool $isIncremental
-     * @param bool $useTimestamp
-     * @param int $numberOfIgnoredLines
      * @param self::TABLE_TYPES_* $castValueTypes
      */
     public function __construct(

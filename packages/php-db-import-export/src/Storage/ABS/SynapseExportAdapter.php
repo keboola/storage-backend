@@ -7,22 +7,21 @@ namespace Keboola\Db\ImportExport\Storage\ABS;
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\Synapse\PolyBaseCommandBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseExportOptions;
+use Throwable;
 
 class SynapseExportAdapter implements SynapseExportAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var PolyBaseCommandBuilder */
-    private $polyBase;
+    private PolyBaseCommandBuilder $polyBase;
 
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->polyBase = new PolyBaseCommandBuilder($connection);
+        $this->polyBase = new PolyBaseCommandBuilder();
     }
 
     public static function isSupported(Storage\SourceInterface $source, Storage\DestinationInterface $destination): bool
@@ -40,6 +39,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
      * @param Storage\SqlSourceInterface $source
      * @param Storage\ABS\DestinationFile $destination
      * @param SynapseExportOptions $exportOptions
+     * @return array<mixed>
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,
@@ -83,7 +83,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
             }
 
             $this->connection->executeQuery($sql, $source->getQueryBindings(), $dataTypes);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             //exception is saved for later while we try to clean created resources
             $exception = $e;
         }
@@ -97,7 +97,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         ) {
             try {
                 $this->connection->exec($sql);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // we want to perform whole clean up
             }
         }

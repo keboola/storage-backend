@@ -7,14 +7,15 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Synapse\OtherImports;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\Synapse\SynapseBaseTestCase;
+use Throwable;
 
 class StageImportTest extends SynapseBaseTestCase
 {
@@ -45,7 +46,7 @@ class StageImportTest extends SynapseBaseTestCase
             self::TABLE_OUT_CSV_2COLS
         );
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.');
         $importer->importToStagingTable(
             $this->createABSSourceInstanceFromCsv('raw.rs.csv', new CsvOptions("\t", '', '\\')),
@@ -153,15 +154,10 @@ class StageImportTest extends SynapseBaseTestCase
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
-        ) {
-            $this->expectException(Exception::class);
-            $this->expectExceptionMessage(
-                '[SQL Server]Bulk load data conversion error'
-            );
-        }
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            '[SQL Server]Bulk load data conversion error'
+        );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
@@ -192,36 +188,16 @@ class StageImportTest extends SynapseBaseTestCase
             $stagingTable,
             $this->getSynapseImportOptions()
         );
-
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP) {
-            $sql = sprintf(
-                'SELECT [col1],[col2] FROM [%s].[%s]',
-                $stagingTable->getSchemaName(),
-                $stagingTable->getTableName()
-            );
-            $queryResult = array_map(function ($row) {
-                return array_map(function ($column) {
-                    return $column;
-                }, array_values($row));
-            }, $this->connection->fetchAllAssociative($sql));
-
-            $this->assertEquals(4000, strlen($queryResult[0][0]));
-        }
     }
 
     public function testLongColumnImport10k(): void
     {
         $this->initTables([self::TABLE_OUT_CSV_2COLS]);
 
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_COLUMNSTORE
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_CLUSTERED_INDEX
-            || getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP_4000
-        ) {
-            $this->expectException(Exception::class);
-            $this->expectExceptionMessage(
-                '[SQL Server]Bulk load data conversion error'
-            );
-        }
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            '[SQL Server]Bulk load data conversion error'
+        );
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
@@ -251,21 +227,6 @@ class StageImportTest extends SynapseBaseTestCase
             $stagingTable,
             $this->getSynapseImportOptions()
         );
-
-        if (getenv('TEMP_TABLE_TYPE') === SynapseImportOptions::TEMP_TABLE_HEAP) {
-            $sql = sprintf(
-                'SELECT [col1],[col2] FROM [%s].[%s]',
-                $stagingTable->getSchemaName(),
-                $stagingTable->getTableName()
-            );
-            $queryResult = array_map(function ($row) {
-                return array_map(function ($column) {
-                    return $column;
-                }, array_values($row));
-            }, $this->connection->fetchAllAssociative($sql));
-
-            $this->assertEquals(4000, strlen($queryResult[0][0]));
-        }
     }
 
     public function testCopyIntoInvalidTypes(): void
@@ -356,7 +317,6 @@ class StageImportTest extends SynapseBaseTestCase
             $stagingTable,
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
-                null,
                 null,
                 SynapseImportOptions::SAME_TABLES_REQUIRED
             )

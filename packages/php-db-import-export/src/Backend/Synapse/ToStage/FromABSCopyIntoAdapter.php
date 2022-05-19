@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse\ToStage;
 
 use Doctrine\DBAL\Connection;
+use InvalidArgumentException;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
-use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
@@ -18,8 +19,7 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 class FromABSCopyIntoAdapter implements CopyAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -72,7 +72,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
                 $credentials = 'IDENTITY=\'Managed Identity\'';
                 break;
             default:
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'Unknown Synapse import credentials type "%s".',
                     $importOptions->getImportCredentialsType()
                 ));

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Exasol;
 
-use Keboola\CsvOptions\CsvOptions;
 use Keboola\Csv\CsvFile;
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Exasol\Exporter;
 use Keboola\Db\ImportExport\Backend\Exasol\ToFinalTable\FullImporter;
@@ -15,8 +15,8 @@ use Keboola\Db\ImportExport\Backend\Exasol\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Storage\S3;
 use Keboola\Db\ImportExport\Storage\ABS;
+use Keboola\Db\ImportExport\Storage\S3;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableReflection;
 

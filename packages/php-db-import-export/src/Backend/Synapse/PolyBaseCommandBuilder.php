@@ -7,29 +7,20 @@ namespace Keboola\Db\ImportExport\Backend\Synapse;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Generator;
+use InvalidArgumentException;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 class PolyBaseCommandBuilder
 {
-    /** @var Connection */
-    private $connection;
-
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    private $platform;
-
-    public function __construct(Connection $connection)
-    {
-        $this->connection = $connection;
-        $this->platform = $connection->getDatabasePlatform();
-    }
 
     public function getCredentialsQuery(
         string $credentialsId,
         string $exportCredentialsType,
         ?string $blobMasterKey = null
     ): string {
-        $credentialsId = $this->platform->quoteSingleIdentifier($credentialsId);
-        $blobMasterKey = $this->connection->quote($blobMasterKey);
+        $credentialsId = SynapseQuote::quoteSingleIdentifier($credentialsId);
 
         switch ($exportCredentialsType) {
             case SynapseExportOptions::CREDENTIALS_MANAGED_IDENTITY:
@@ -40,6 +31,8 @@ WITH
 ;
 EOT;
             case SynapseExportOptions::CREDENTIALS_MASTER_KEY:
+                assert($blobMasterKey !== null);
+                $blobMasterKey = SynapseQuote::quote($blobMasterKey);
                 return <<< EOT
 CREATE DATABASE SCOPED CREDENTIAL $credentialsId
 WITH
@@ -48,7 +41,7 @@ WITH
 ;
 EOT;
             default:
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'Unknown Synapse export credentials type "%s".',
                     $exportCredentialsType
                 ));
@@ -60,9 +53,9 @@ EOT;
         string $containerUrl,
         string $credentialsId
     ): string {
-        $dataSourceId = $this->platform->quoteSingleIdentifier($dataSourceId);
-        $containerUrl = $this->connection->quote($containerUrl);
-        $credentialsId = $this->platform->quoteSingleIdentifier($credentialsId);
+        $dataSourceId = SynapseQuote::quoteSingleIdentifier($dataSourceId);
+        $containerUrl = SynapseQuote::quote($containerUrl);
+        $credentialsId = SynapseQuote::quoteSingleIdentifier($credentialsId);
 
         return <<<EOT
 CREATE EXTERNAL DATA SOURCE $dataSourceId
@@ -77,7 +70,7 @@ EOT;
 
     public function getFileFormatQuery(string $fileFormatId, string $dateFormat, string $compression): string
     {
-        $fileFormatId = $this->platform->quoteSingleIdentifier($fileFormatId);
+        $fileFormatId = SynapseQuote::quoteSingleIdentifier($fileFormatId);
 
         return <<<EOT
 CREATE EXTERNAL FILE FORMAT $fileFormatId
@@ -101,16 +94,16 @@ EOT;
         string $dataSourceId,
         string $credentialsId,
         ?string $tableId
-    ): \Generator {
+    ): Generator {
         if ($tableId !== null) {
-            $tableId = $this->platform->quoteSingleIdentifier($tableId);
+            $tableId = SynapseQuote::quoteSingleIdentifier($tableId);
             yield sprintf('DROP EXTERNAL TABLE %s', $tableId);
         }
-        $fileFormatId = $this->platform->quoteSingleIdentifier($fileFormatId);
+        $fileFormatId = SynapseQuote::quoteSingleIdentifier($fileFormatId);
         yield sprintf('DROP EXTERNAL FILE FORMAT %s', $fileFormatId);
-        $dataSourceId = $this->platform->quoteSingleIdentifier($dataSourceId);
+        $dataSourceId = SynapseQuote::quoteSingleIdentifier($dataSourceId);
         yield sprintf('DROP EXTERNAL DATA SOURCE %s', $dataSourceId);
-        $credentialsId = $this->platform->quoteSingleIdentifier($credentialsId);
+        $credentialsId = SynapseQuote::quoteSingleIdentifier($credentialsId);
         yield sprintf('DROP DATABASE SCOPED CREDENTIAL %s', $credentialsId);
     }
 
@@ -121,9 +114,9 @@ EOT;
         string $dataSourceId,
         string $fileFormatId
     ): string {
-        $tableId = $this->platform->quoteSingleIdentifier($tableId);
-        $dataSourceId = $this->platform->quoteSingleIdentifier($dataSourceId);
-        $fileFormatId = $this->platform->quoteSingleIdentifier($fileFormatId);
+        $tableId = SynapseQuote::quoteSingleIdentifier($tableId);
+        $dataSourceId = SynapseQuote::quoteSingleIdentifier($dataSourceId);
+        $fileFormatId = SynapseQuote::quoteSingleIdentifier($fileFormatId);
         $from = $source->getFromStatement();
 
         return <<<EOT

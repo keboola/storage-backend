@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
+use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 
@@ -30,7 +31,7 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function fullImportData(): \Generator
+    public function fullImportData(): Generator
     {
         [
             $escapingHeader,
@@ -308,9 +309,7 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
                 false, // don't use timestamp
                 ImportOptions::SKIP_FIRST_LINE,
                 // @phpstan-ignore-next-line
-                (string) getenv('CREDENTIALS_IMPORT_TYPE'),
-                // @phpstan-ignore-next-line
-                (string) getenv('TEMP_TABLE_TYPE')
+                (string) getenv('CREDENTIALS_IMPORT_TYPE')
             ),
             $expectedEscaping,
             7,
@@ -321,8 +320,7 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
             new Storage\Synapse\Table($this->getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSynapseImportOptions(
-                ImportOptions::SKIP_FIRST_LINE,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE
+                ImportOptions::SKIP_FIRST_LINE
             ),
             [['a', 'b'], ['c', 'd']],
             2,
@@ -344,8 +342,7 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
                 'types',
             ],
             $this->getSynapseImportOptions(
-                ImportOptions::SKIP_FIRST_LINE,
-                SynapseImportOptions::DEDUP_TYPE_TMP_TABLE
+                ImportOptions::SKIP_FIRST_LINE
             ),
             [['a', '10.5', '0.3', '1']],
             1,

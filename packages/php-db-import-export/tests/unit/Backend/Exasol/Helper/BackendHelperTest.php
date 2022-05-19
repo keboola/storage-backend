@@ -12,6 +12,6 @@ class BackendHelperTest extends TestCase
     public function testGenerateStagingTableName(): void
     {
         $tableName = BackendHelper::generateTempTableName();
-        self::assertContains('__temp_csvimport', $tableName);
+        self::assertStringContainsString('__temp_csvimport', $tableName);
     }
 }

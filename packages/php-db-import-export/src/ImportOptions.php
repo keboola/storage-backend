@@ -9,18 +9,18 @@ class ImportOptions implements ImportOptionsInterface
     public const SKIP_NO_LINE = 0;
     public const SKIP_FIRST_LINE = 1;
 
-    /** @var boolean */
-    private $useTimestamp;
+    private bool $useTimestamp;
 
-    /** @var array */
-    private $convertEmptyValuesToNull = [];
+    /** @var string[] */
+    private array $convertEmptyValuesToNull = [];
 
-    /** @var bool */
-    private $isIncremental;
+    private bool $isIncremental;
 
-    /** @var int */
-    private $numberOfIgnoredLines = 0;
+    private int $numberOfIgnoredLines = 0;
 
+    /**
+     * @param string[] $convertEmptyValuesToNull
+     */
     public function __construct(
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,
@@ -33,6 +33,9 @@ class ImportOptions implements ImportOptionsInterface
         $this->numberOfIgnoredLines = $numberOfIgnoredLines;
     }
 
+    /**
+     * @return string[]
+     */
     public function getConvertEmptyValuesToNull(): array
     {
         return $this->convertEmptyValuesToNull;

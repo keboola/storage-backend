@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Exasol\Exception;
 
-use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
 
 final class Assert

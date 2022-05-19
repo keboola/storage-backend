@@ -65,11 +65,12 @@ class SqlCommandBuilderTest extends TestCase
     private function getDummySource(): SourceInterface
     {
         return new class implements SourceInterface {
+            /** @return string[] */
             public function getColumnsNames(): array
             {
                 return ['col1', 'col2'];
             }
-
+            /** @return string[]|null */
             public function getPrimaryKeysNames(): ?array
             {
                 return [];

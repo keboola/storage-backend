@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse\OtherImports;
 
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\Synapse\SynapseBaseTestCase;
@@ -132,11 +132,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
@@ -218,11 +214,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             SynapseImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
@@ -319,11 +311,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
@@ -402,11 +390,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
         $source = $this->createABSSourceInstance(
             'nullify.csv',

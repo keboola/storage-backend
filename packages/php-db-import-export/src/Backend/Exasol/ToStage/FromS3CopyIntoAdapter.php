@@ -6,13 +6,14 @@ namespace Keboola\Db\ImportExport\Backend\Exasol\ToStage;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Generator;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\S3\SourceDirectory;
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
-use Keboola\Db\ImportExport\Storage;
 use Keboola\FileStorage\LineEnding\StringLineEndingDetectorHelper;
 use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
@@ -26,8 +27,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
     // Exasol should provide us way to calculate maximum for large clusters and make it dynamic
     // https://keboolaglobal.slack.com/archives/C02988ZV06M/p1628665432001900?thread_ts=1628517612.015800&cid=C02988ZV06M
     private const SLICED_FILES_CHUNK_SIZE = 32;
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -55,7 +55,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
                 }
                 $this->connection->executeStatement($sql);
             }
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             throw ExasolException::covertException($e);
         }
 
@@ -75,7 +75,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         Storage\S3\SourceFile $source,
         ExasolTableDefinition $destination,
         ExasolImportOptions $importOptions
-    ): \Generator {
+    ): Generator {
         $destinationSchema = ExasolQuote::quoteSingleIdentifier($destination->getSchemaName());
         $destinationTable = ExasolQuote::quoteSingleIdentifier($destination->getTableName());
 

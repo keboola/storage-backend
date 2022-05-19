@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Synapse\ToStage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Synapse\Exception\Assert;
@@ -21,11 +22,9 @@ final class ToStageImporter implements ToStageImporterInterface
 {
     private const TIMER_TABLE_IMPORT = 'copyToStaging';
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var CopyAdapterInterface|null */
-    private $adapter;
+    private ?CopyAdapterInterface $adapter = null;
 
     public function __construct(
         Connection $connection,
@@ -57,7 +56,7 @@ final class ToStageImporter implements ToStageImporterInterface
                     $options
                 )
             );
-        } catch (\Doctrine\DBAL\Exception $e) {
+        } catch (Exception $e) {
             throw SynapseException::covertException($e);
         }
         $state->stopTimer(self::TIMER_TABLE_IMPORT);

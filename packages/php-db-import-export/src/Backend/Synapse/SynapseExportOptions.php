@@ -11,8 +11,7 @@ class SynapseExportOptions extends ExportOptions
     public const CREDENTIALS_MASTER_KEY = 'MASTER_KEY';
     public const CREDENTIALS_MANAGED_IDENTITY = 'MANAGED_IDENTITY';
 
-    /** @var string */
-    private $exportCredentialsType;
+    private string $exportCredentialsType;
 
     public function __construct(
         bool $isCompressed = false,

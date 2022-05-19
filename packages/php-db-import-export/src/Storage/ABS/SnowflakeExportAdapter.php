@@ -11,8 +11,7 @@ use Keboola\Db\ImportExport\Storage;
 
 class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -33,6 +32,7 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
     /**
      * @param Storage\SqlSourceInterface $source
      * @param Storage\ABS\DestinationFile $destination
+     * @return array<mixed>
      */
     public function runCopyCommand(
         Storage\SourceInterface $source,

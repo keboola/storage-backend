@@ -10,8 +10,8 @@ use Keboola\Db\ImportExport\Backend\ImporterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\Exporter as SnowflakeExporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer as SnowflakeImporter;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\NoBackendAdapterException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

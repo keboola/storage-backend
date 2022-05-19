@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Exasol;
 
+use Doctrine\DBAL\Exception as DBALAlias;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
+use Throwable;
 
 class ExasolException extends Exception
 {
     private const MANIFEST_ENTRY_NOT_FOUND = 'failed with error code=404';
     private const CONSTRAINT_VIOLATION_NOT_NULL = 'constraint violation - not null';
 
-    public static function covertException(\Doctrine\DBAL\Exception $e): \Throwable
+    public static function covertException(DBALAlias $e): Throwable
     {
         if (strpos($e->getMessage(), self::MANIFEST_ENTRY_NOT_FOUND) !== false) {
             // file can not found during import

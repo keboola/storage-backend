@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Exasol;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\Backend\Exasol\Exporter as ExasolExporter;
+use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

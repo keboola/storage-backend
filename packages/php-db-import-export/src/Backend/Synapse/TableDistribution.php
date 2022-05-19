@@ -16,11 +16,10 @@ final class TableDistribution
     public const TABLE_DISTRIBUTION_REPLICATE = 'REPLICATE';
     public const TABLE_DISTRIBUTION_ROUND_ROBIN = 'ROUND_ROBIN';
 
-    /** @var string */
-    private $distributionName;
+    private string $distributionName;
 
     /** @var String[] */
-    private $distributionColumnsNames;
+    private array $distributionColumnsNames;
 
     /**
      * @param String[] $distributionColumnsNames

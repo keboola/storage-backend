@@ -50,7 +50,7 @@ class HelperTest extends TestCase
     }
 
     /**
-     * @return array[]
+     * @return array<mixed>
      */
     public function dataProvider(): array
     {

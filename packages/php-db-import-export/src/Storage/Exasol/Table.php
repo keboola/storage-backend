@@ -11,17 +11,15 @@ use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 
 class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 {
-    /** @var string */
-    private $schema;
+    private string $schema;
 
-    /** @var string */
-    private $tableName;
+    private string $tableName;
 
     /** @var string[] */
-    private $columnsNames;
+    private array $columnsNames;
 
     /** @var string[]|null */
-    private $primaryKeysNames;
+    private ?array $primaryKeysNames = null;
 
     /**
      * @param string[] $columns
@@ -70,6 +68,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         );
     }
 
+    /** @return string[] */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;

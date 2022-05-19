@@ -5,27 +5,22 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\S3;
 
 use Aws\Exception\AwsException;
+use Exception as InternalException;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
-    /**
-     * @var bool
-     */
-    private $isSliced;
+    private bool $isSliced;
 
-    /**
-     * @var CsvOptions
-     */
-    private $csvOptions;
+    private CsvOptions $csvOptions;
 
     /** @var string[] */
-    private $columnsNames;
+    private array $columnsNames;
 
     /** @var string[]|null */
-    private $primaryKeysNames;
+    private ?array $primaryKeysNames = null;
 
     /**
      * @param string[] $columnsNames
@@ -109,13 +104,13 @@ class SourceFile extends BaseFile implements SourceInterface
 
     /**
      * from path data/shared/file.csv to file.csv
-     * @return string
-     * @throws \Exception
+     *
+     * @throws InternalException
      */
     public function getFileName(): string
     {
         if ($this->isSliced) {
-            throw new \Exception('Not supported getFileName for sliced files.');
+            throw new InternalException('Not supported getFileName for sliced files.');
         }
         $fileName = $this->filePath;
         if (strrpos($fileName, '/') !== false) {
@@ -128,8 +123,8 @@ class SourceFile extends BaseFile implements SourceInterface
 
     /**
      * from path data/shared/file.csv to data/shared/
-     * @return string
-     * @throws \Exception
+     *
+     * @throws InternalException
      */
     public function getPrefix(): string
     {

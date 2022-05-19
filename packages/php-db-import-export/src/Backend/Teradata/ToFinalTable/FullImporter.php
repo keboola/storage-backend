@@ -6,15 +6,16 @@ namespace Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Exception as InternalException;
 use Keboola\Db\Import\Result;
+use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataException;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
-use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
-use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 
 final class FullImporter implements ToFinalTableImporterInterface
 {
@@ -23,11 +24,9 @@ final class FullImporter implements ToFinalTableImporterInterface
     private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
     private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var SqlBuilder */
-    private $sqlBuilder;
+    private SqlBuilder $sqlBuilder;
 
     public function __construct(
         Connection $connection
@@ -79,7 +78,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             //import files to staging table
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
                 // dedup
-                throw new \Exception('not implemented yet');
+                throw new InternalException('not implemented yet');
             } else {
                 $this->doLoadFullWithoutDedup(
                     $stagingTableDefinition,

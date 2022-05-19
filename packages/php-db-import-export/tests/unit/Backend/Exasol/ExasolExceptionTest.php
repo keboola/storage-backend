@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Exasol;
 
 use Doctrine\DBAL\Exception;
+use Keboola\Db\Import\Exception as DBException;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +47,7 @@ EOD;
         // @codingStandardsIgnoreEnd
         $exception = ExasolException::covertException(new Exception($exceptionMessage));
 
-        $this->assertInstanceOf(\Keboola\Db\Import\Exception::class, $exception);
+        $this->assertInstanceOf(DBException::class, $exception);
         // phpcs:ignore
         $this->assertSame('Load error: Constraint violation - not null (column name).', $exception->getMessage());
     }

@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Synapse;
 
+use DateTime;
+use DateTimeZone;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\Datatype\Definition\Synapse;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Storage\Synapse\Table;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
@@ -37,14 +41,9 @@ class SynapseBaseTestCase extends ImportExportBaseTest
     public const TABLE_TYPES = 'types';
     public const TESTS_PREFIX = 'import-export-test_';
 
-    /** @var Connection */
-    protected $connection;
+    protected Connection $connection;
 
-    /** @var SqlBuilder */
-    protected $qb;
-
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    protected $platform;
+    protected SqlBuilder $qb;
 
     protected function dropAllWithinSchema(string $schema): void
     {
@@ -63,6 +62,7 @@ EOT
             );
         }
 
+        /** @var array<array{name:string}> $schemas */
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',
@@ -74,12 +74,15 @@ EOT
             $this->connection->exec(
                 sprintf(
                     'DROP SCHEMA %s',
-                    $this->platform->quoteSingleIdentifier($item['name'])
+                    SynapseQuote::quoteSingleIdentifier($item['name'])
                 )
             );
         }
     }
 
+    /**
+     * @param string[] $tables
+     */
     protected function initTables(array $tables): void
     {
         foreach ($tables as $table) {
@@ -89,7 +92,7 @@ EOT
 
     protected function initTable(string $tableName): void
     {
-        $currentDate = new \DateTime('now', new \DateTimeZone('UTC'));
+        $currentDate = new DateTime('now', new DateTimeZone('UTC'));
         $now = $currentDate->format('Y-m-d H:i:s');
 
         $tableDistribution = 'ROUND_ROBIN';
@@ -259,7 +262,6 @@ EOT
         parent::setUp();
         $this->connection = $this->getSynapseConnection();
         $this->qb = new SqlBuilder();
-        $this->platform = $this->connection->getDatabasePlatform();
     }
 
     protected function tearDown(): void
@@ -270,7 +272,7 @@ EOT
 
     private function getSynapseConnection(): Connection
     {
-        return \Doctrine\DBAL\DriverManager::getConnection([
+        return DriverManager::getConnection([
             'user' => (string) getenv('SYNAPSE_UID'),
             'password' => (string) getenv('SYNAPSE_PWD'),
             'host' => (string) getenv('SYNAPSE_SERVER'),
@@ -345,13 +347,9 @@ EOT
      */
     protected function getSynapseImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
-        ?string $dedupType = null,
         ?string $castValueTypes = null,
         ?bool $requireSameTables = null
     ): SynapseImportOptions {
-        if ($dedupType === null) {
-            $dedupType = getenv('DEDUP_TYPE');
-        }
         return new SynapseImportOptions(
             [],
             false,
@@ -359,10 +357,6 @@ EOT
             $skipLines,
             // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            $dedupType,
             $castValueTypes ?? SynapseImportOptions::TABLE_TYPES_PRESERVE,
             $requireSameTables ?? SynapseImportOptions::SAME_TABLES_NOT_REQUIRED
         );
@@ -377,11 +371,7 @@ EOT
             true,
             $skipLines,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('TEMP_TABLE_TYPE'),
-            // @phpstan-ignore-next-line
-            getenv('DEDUP_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE')
         );
     }
 

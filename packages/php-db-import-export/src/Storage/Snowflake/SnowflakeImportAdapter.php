@@ -12,11 +12,9 @@ use Keboola\Db\ImportExport\Storage;
 
 class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var SqlCommandBuilder */
-    private $sqlBuilder;
+    private SqlCommandBuilder $sqlBuilder;
 
     public function __construct(Connection $connection)
     {
