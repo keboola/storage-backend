@@ -45,7 +45,7 @@ final class ToStageImporter implements ToStageImporterInterface
         Assert::assertColumnsOnTableDefinition($source, $destinationDefinition);
         $state = new ImportState($destinationDefinition->getTableName());
 
-        $adapter = $this->getAdapter($source);
+        $adapter = $this->getAdapter($source, $options);
 
         $state->startTimer(self::TIMER_TABLE_IMPORT);
         try {
@@ -64,8 +64,10 @@ final class ToStageImporter implements ToStageImporterInterface
         return $state;
     }
 
-    private function getAdapter(Storage\SourceInterface $source): CopyAdapterInterface
-    {
+    private function getAdapter(
+        Storage\SourceInterface $source,
+        SynapseImportOptions $importOptions
+    ): CopyAdapterInterface {
         if ($this->adapter !== null) {
             return $this->adapter;
         }
@@ -75,7 +77,7 @@ final class ToStageImporter implements ToStageImporterInterface
                 $adapter = new FromABSCopyIntoAdapter($this->connection);
                 break;
             case $source instanceof Storage\SqlSourceInterface:
-                $adapter = new FromTableCTASAdapter($this->connection);
+                $adapter = $this->getAdapterForSqlSource($importOptions);
                 break;
             default:
                 throw new LogicException(
@@ -86,5 +88,22 @@ final class ToStageImporter implements ToStageImporterInterface
                 );
         }
         return $adapter;
+    }
+
+    private function getAdapterForSqlSource(SynapseImportOptions $importOptions): CopyAdapterInterface
+    {
+        switch ($importOptions->getTableToTableAdapter()) {
+            case SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS:
+                return new FromTableCTASAdapter($this->connection);
+            case SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO:
+                return new FromTableInsertIntoAdapter($this->connection);
+        }
+
+        throw new LogicException(
+            sprintf(
+                'No suitable table to table adapter "%s".',
+                $importOptions->getTableToTableAdapter()
+            )
+        );
     }
 }

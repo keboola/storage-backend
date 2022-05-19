@@ -140,7 +140,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
         ];
 
         // copy from table
-        yield ' copy from table' => [
+        yield ' copy from table ctas' => [
             new Storage\Synapse\Table(
                 $this->getSourceSchemaName(),
                 'types',
@@ -158,7 +158,35 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
                 SynapseImportOptions::TABLE_TYPES_CAST,
-                SynapseImportOptions::SAME_TABLES_REQUIRED
+                SynapseImportOptions::SAME_TABLES_REQUIRED,
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS
+            ),
+            [['a', '10.5', '1.4', '1']],
+            1,
+            [self::TABLE_TYPES],
+        ];
+
+        // copy from table
+        yield ' copy from table insert into' => [
+            new Storage\Synapse\Table(
+                $this->getSourceSchemaName(),
+                'types',
+                [
+                    'charCol',
+                    'numCol',
+                    'floatCol',
+                    'boolCol',
+                ]
+            ),
+            [
+                $this->getDestinationSchemaName(),
+                'types',
+            ],
+            $this->getSynapseImportOptions(
+                ImportOptions::SKIP_FIRST_LINE,
+                SynapseImportOptions::TABLE_TYPES_CAST,
+                SynapseImportOptions::SAME_TABLES_REQUIRED,
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO
             ),
             [['a', '10.5', '1.4', '1']],
             1,

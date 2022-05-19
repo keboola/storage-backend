@@ -17,6 +17,9 @@ class SynapseImportOptions extends ImportOptions
     public const SAME_TABLES_REQUIRED = true;
     public const SAME_TABLES_NOT_REQUIRED = false;
 
+    public const TABLE_TO_TABLE_ADAPTER_INSERT_INTO = 'INSERT_INTO';
+    public const TABLE_TO_TABLE_ADAPTER_CTAS = 'CTAS';
+
     /** @var self::CREDENTIALS_* */
     private string $importCredentialsType;
 
@@ -26,11 +29,14 @@ class SynapseImportOptions extends ImportOptions
     /** @var self::SAME_TABLES_* */
     private bool $requireSameTables;
 
+    private string $tableToTableAdapter;
+
     /**
      * @param string[] $convertEmptyValuesToNull
      * @param self::CREDENTIALS_* $importCredentialsType
      * @param self::TABLE_TYPES_* $castValueTypes
      * @param self::SAME_TABLES_* $requireSameTables
+     * @param self::TABLE_TO_TABLE_ADAPTER_* $tableToTableAdapter
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -39,7 +45,8 @@ class SynapseImportOptions extends ImportOptions
         int $numberOfIgnoredLines = 0,
         string $importCredentialsType = self::CREDENTIALS_SAS,
         string $castValueTypes = self::TABLE_TYPES_PRESERVE,
-        bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED
+        bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED,
+        string $tableToTableAdapter = self::TABLE_TO_TABLE_ADAPTER_INSERT_INTO
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -50,6 +57,12 @@ class SynapseImportOptions extends ImportOptions
         $this->importCredentialsType = $importCredentialsType;
         $this->castValueTypes = $castValueTypes;
         $this->requireSameTables = $requireSameTables;
+        $this->tableToTableAdapter = $tableToTableAdapter;
+    }
+
+    public function getTableToTableAdapter(): string
+    {
+        return $this->tableToTableAdapter;
     }
 
     public function getImportCredentialsType(): string

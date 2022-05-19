@@ -344,11 +344,13 @@ EOT
     /**
      * @param null|SynapseImportOptions::TABLE_TYPES_* $castValueTypes
      * @param null|SynapseImportOptions::SAME_TABLES_* $requireSameTables
+     * @param null|SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_* $tableToTableAdapter
      */
     protected function getSynapseImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
         ?string $castValueTypes = null,
-        ?bool $requireSameTables = null
+        ?bool $requireSameTables = null,
+        ?string $tableToTableAdapter = null
     ): SynapseImportOptions {
         return new SynapseImportOptions(
             [],
@@ -358,7 +360,8 @@ EOT
             // @phpstan-ignore-next-line
             getenv('CREDENTIALS_IMPORT_TYPE'),
             $castValueTypes ?? SynapseImportOptions::TABLE_TYPES_PRESERVE,
-            $requireSameTables ?? SynapseImportOptions::SAME_TABLES_NOT_REQUIRED
+            $requireSameTables ?? SynapseImportOptions::SAME_TABLES_NOT_REQUIRED,
+            $tableToTableAdapter ?? SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO
         );
     }
 
