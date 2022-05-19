@@ -2,7 +2,7 @@ FROM quay.io/keboola/aws-cli
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_ACCESS_KEY_ID
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.0.11.tar.gz /tmp/exasol/odbc.tar.gz
+RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
 FROM php:7.4-cli-buster
 
