@@ -318,7 +318,8 @@ class StageImportTest extends SynapseBaseTestCase
             $this->getSynapseImportOptions(
                 ImportOptions::SKIP_FIRST_LINE,
                 null,
-                SynapseImportOptions::SAME_TABLES_REQUIRED
+                SynapseImportOptions::SAME_TABLES_REQUIRED,
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS
             )
         );
     }
