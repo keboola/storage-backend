@@ -106,20 +106,20 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         }
         $errContent = null;
         if ($isTableExists($destination->getSchemaName(), $errTable)) {
-            $errContent = $this->connection->fetchAllAssociative(sprintf(
-                'SELECT * FROM %s.%s',
-                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
-                TeradataQuote::quoteSingleIdentifier($errTable)
-            ));
+//            $errContent = $this->connection->fetchAllAssociative(sprintf(
+//                'SELECT * FROM %s.%s',
+//                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
+//                TeradataQuote::quoteSingleIdentifier($errTable)
+//            ));
             $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $errTable));
         }
         $err2Content = null;
         if ($isTableExists($destination->getSchemaName(), $errTable2)) {
-            $err2Content = $this->connection->fetchAllAssociative(sprintf(
-                'SELECT * FROM %s.%s',
-                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
-                TeradataQuote::quoteSingleIdentifier($errTable2)
-            ));
+//            $err2Content = $this->connection->fetchAllAssociative(sprintf(
+//                'SELECT * FROM %s.%s',
+//                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
+//                TeradataQuote::quoteSingleIdentifier($errTable2)
+//            ));
             $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $errTable2));
         }
         // TODO find the way how to get this out

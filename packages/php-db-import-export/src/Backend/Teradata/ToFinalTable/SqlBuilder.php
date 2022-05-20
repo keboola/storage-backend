@@ -39,7 +39,7 @@ class SqlBuilder
     public function getTableExistsCommand(string $dbName, string $tableName): string
     {
         return sprintf(
-            'SELECT COUNT(*) FROM DBC.Tables WHERE DatabaseName = %s AND TableName = %s;',
+            'SELECT COUNT(*) FROM DBC.TablesVX WHERE DatabaseName = %s AND TableName = %s;',
             TeradataQuote::quote($dbName),
             TeradataQuote::quote($tableName)
         );
