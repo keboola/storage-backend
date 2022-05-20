@@ -23,8 +23,19 @@ class TeradataSchemaReflectionTest extends TeradataBaseCase
     public function testListTables(): void
     {
         $this->initTable();
-        self::assertSame([self::TABLE_GENERIC], $this->schemaRef->getTablesNames());
+        // CREATE NO PRIMARY INDEX TABLE
+        $dbName = $this->getDatabaseName();
+        $sql = <<<EOT
+CREATE MULTISET TABLE $dbName."nopitable",
+FALLBACK ("amount" VARCHAR (32000) CHARACTER SET UNICODE) NO PRIMARY INDEX;
+EOT;
+        $this->connection->executeStatement($sql);
+        $expectedTables = [self::TABLE_GENERIC, 'nopitable'];
+        $actualTables = $this->schemaRef->getTablesNames();
+        $this->assertCount(0, array_diff($expectedTables, $actualTables));
+        $this->assertCount(0, array_diff($actualTables, $expectedTables));
     }
+
     public function testListViews(): void
     {
         $this->initTable();

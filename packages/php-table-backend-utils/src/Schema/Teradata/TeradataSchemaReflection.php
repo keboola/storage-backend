@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Schema\Teradata;
 
 use Doctrine\DBAL\Connection;
-use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 
@@ -32,7 +31,7 @@ final class TeradataSchemaReflection implements SchemaReflectionInterface
             <<< EOT
 SELECT "TableName" 
 FROM "DBC"."TablesVX" 
-WHERE "TableKind" = 'T' AND "DataBaseName"=$database
+WHERE ("TableKind" = 'T' OR "TableKind" = 'O') AND "DataBaseName"=$database
 EOT
         );
 
