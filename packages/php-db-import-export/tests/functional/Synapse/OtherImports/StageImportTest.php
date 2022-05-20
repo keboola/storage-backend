@@ -310,7 +310,7 @@ class StageImportTest extends SynapseBaseTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'Source destination columns mismatch. "NVARCHAR(4000) NOT NULL"->"DECIMAL(10,1)"'
+            'Source destination columns mismatch. "numCol NVARCHAR(4000) NOT NULL"->"numCol DECIMAL(10,1)"'
         );
         $importer->importToStagingTable(
             $source,

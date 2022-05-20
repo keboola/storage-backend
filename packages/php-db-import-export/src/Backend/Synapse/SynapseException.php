@@ -41,7 +41,7 @@ class SynapseException extends ImportExportException
         ColumnInterface $destDef
     ): Throwable {
         return new self(sprintf(
-            'Source destination columns mismatch. "%s %s"->" %s %s"',
+            'Source destination columns mismatch. "%s %s"->"%s %s"',
             $sourceDef->getColumnName(),
             $sourceDef->getColumnDefinition()->getSQLDefinition(),
             $destDef->getColumnName(),

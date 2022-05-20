@@ -455,7 +455,7 @@ class AssertTest extends TestCase
         ];
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME(3)"->" test2 DATETIME2(3)"');
+        $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME(3)"->"test2 DATETIME2(3)"');
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
             new ColumnCollection($destCols)
@@ -492,7 +492,7 @@ class AssertTest extends TestCase
         ];
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME(3)"->" test2 TIME(4)"');
+        $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME(3)"->"test2 TIME(4)"');
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
             new ColumnCollection($destCols)
