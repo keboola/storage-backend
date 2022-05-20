@@ -12,7 +12,7 @@ use Doctrine\DBAL\Driver\PDO as PDODriver;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Keboola\TableBackendUtils\Connection\ConnectionRetryWrapper;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
+use Keboola\TableBackendUtils\Connection\Exception\DriverException;
 use PDO;
 use PDOException;
 use Retry\RetryProxy;

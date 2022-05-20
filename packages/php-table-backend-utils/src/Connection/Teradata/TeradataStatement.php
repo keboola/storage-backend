@@ -6,7 +6,7 @@ namespace Keboola\TableBackendUtils\Connection\Teradata;
 
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
+use Keboola\TableBackendUtils\Connection\Exception\DriverException;
 use Throwable;
 
 class TeradataStatement implements Statement

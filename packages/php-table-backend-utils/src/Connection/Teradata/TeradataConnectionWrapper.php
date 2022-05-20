@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Exception;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
+use Keboola\TableBackendUtils\Connection\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Throwable;
 

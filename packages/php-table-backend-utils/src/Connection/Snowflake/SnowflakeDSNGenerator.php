@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Connection\Snowflake;
 
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
+use Keboola\TableBackendUtils\Connection\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 class SnowflakeDSNGenerator

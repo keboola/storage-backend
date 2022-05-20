@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Unit\Connection\Snowflake;
 
 use Generator;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\DriverException;
+use Keboola\TableBackendUtils\Connection\Exception\DriverException;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeDSNGenerator;
 use LogicException;
 use PHPUnit\Framework\TestCase;
