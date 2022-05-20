@@ -7,6 +7,7 @@ namespace Keboola\Db\ImportExport\Backend\Synapse\Exception;
 use Exception as InternalException;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Synapse\DestinationTableOptions;
+use Keboola\Db\ImportExport\Backend\Synapse\SynapseException;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\Synapse\TableDistribution;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -145,21 +146,13 @@ final class Assert
                 /** @var SynapseColumn $destCol */
                 $destCol = $it1->current();
                 if ($sourceCol->getColumnName() !== $destCol->getColumnName()) {
-                    throw new Exception(sprintf(
-                        'Source destination columns mismatch. "%s"->"%s"',
-                        $sourceCol->getColumnName(),
-                        $destCol->getColumnName()
-                    ));
+                    throw SynapseException::createColumnsNamesMismatch($sourceCol, $destCol);
                 }
                 $sourceDef = $sourceCol->getColumnDefinition();
                 $destDef = $destCol->getColumnDefinition();
 
                 if ($sourceDef->getType() !== $destDef->getType()) {
-                    throw new Exception(sprintf(
-                        'Source destination columns mismatch. "%s"->"%s"',
-                        $sourceDef->getSQLDefinition(),
-                        $destDef->getSQLDefinition()
-                    ));
+                    throw SynapseException::createColumnsMismatch($sourceCol, $destCol);
                 }
 
                 $isLengthEquals = $sourceDef->getLength() !== $destDef->getLength()
@@ -167,16 +160,10 @@ final class Assert
                     && $destDef->getLength() !== (string) $sourceDef->getDefaultLength()
                 ;
                 if ($isLengthEquals) {
-                    throw new Exception(sprintf(
-                        'Source destination columns mismatch. "%s"->"%s"',
-                        $sourceDef->getSQLDefinition(),
-                        $destDef->getSQLDefinition()
-                    ));
+                    throw SynapseException::createColumnsMismatch($sourceCol, $destCol);
                 }
             } else {
-                throw new Exception(
-                    'Tables don\'t have same number of columns.'
-                );
+                throw SynapseException::createColumnsCountMismatch();
             }
 
             $it0->next();

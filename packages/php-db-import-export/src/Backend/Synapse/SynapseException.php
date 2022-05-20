@@ -6,12 +6,48 @@ namespace Keboola\Db\ImportExport\Backend\Synapse;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Exception\ImportExportException;
+use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Throwable;
 
-class SynapseException extends Exception
+class SynapseException extends ImportExportException
 {
+    public const CODE_TABLE_COLUMNS_MISMATCH = 1501;
+
     private const BULK_LOAD_EXCEPTION_BEGINNING = '[SQL Server]Bulk load';
     private const DATA_TYPE_CONVERSION_EXCEPTION_BEGINNING = '[SQL Server]Error converting data type';
+
+    public static function createColumnsCountMismatch(): Throwable
+    {
+        return new self(
+            'Tables don\'t have same number of columns.',
+            self::CODE_TABLE_COLUMNS_MISMATCH
+        );
+    }
+
+    public static function createColumnsNamesMismatch(
+        ColumnInterface $sourceDef,
+        ColumnInterface $destDef
+    ): Throwable {
+        return new self(sprintf(
+            'Source destination columns name mismatch. "%s"->"%s"',
+            $sourceDef->getColumnName(),
+            $destDef->getColumnName()
+        ), self::CODE_TABLE_COLUMNS_MISMATCH);
+    }
+
+    public static function createColumnsMismatch(
+        ColumnInterface $sourceDef,
+        ColumnInterface $destDef
+    ): Throwable {
+        return new self(sprintf(
+            'Source destination columns mismatch. "%s %s"->" %s %s"',
+            $sourceDef->getColumnName(),
+            $sourceDef->getColumnDefinition()->getSQLDefinition(),
+            $destDef->getColumnName(),
+            $destDef->getColumnDefinition()->getSQLDefinition()
+        ), self::CODE_TABLE_COLUMNS_MISMATCH);
+    }
 
     public static function covertException(DBALException $e): Throwable
     {
@@ -23,7 +59,7 @@ class SynapseException extends Exception
 
             // strip query from message, there are things like SAS tokens and internal table names
             $message = (string) strstr($e->getMessage(), self::BULK_LOAD_EXCEPTION_BEGINNING);
-            return new Exception(
+            return new self(
                 $message,
                 Exception::UNKNOWN_ERROR
             );
@@ -32,7 +68,7 @@ class SynapseException extends Exception
         if (strpos($e->getMessage(), self::DATA_TYPE_CONVERSION_EXCEPTION_BEGINNING) !== false) {
             // strip query from message, there are things like SAS tokens and internal table names
             $message = (string) strstr($e->getMessage(), self::DATA_TYPE_CONVERSION_EXCEPTION_BEGINNING);
-            return new Exception(
+            return new self(
                 $message,
                 Exception::UNKNOWN_ERROR
             );
