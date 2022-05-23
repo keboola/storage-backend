@@ -29,7 +29,7 @@ class ExasolDriver implements Driver
         $dsn = 'odbc:Driver=exasol;EXAHOST=' . $params['host'];
 
         if ($params['skipCertCheck']) {
-            $dsn .= ';FINGERPRINT = NoCertCheck;';
+            $dsn .= ';FINGERPRINT=NoCertCheck;';
         }
 
         return new ExasolConnection($dsn, $params['user'], $params['password'], $params);
