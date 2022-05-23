@@ -14,7 +14,8 @@ class ExasolConnectionFactory
         string $host,
         string $user,
         string $password,
-        ?Configuration $config = null
+        ?Configuration $config = null,
+        bool $skipCertCheck = false
     ): Connection {
         return DriverManager::getConnection(
             [
@@ -22,6 +23,7 @@ class ExasolConnectionFactory
                 'host' => $host,
                 'user' => $user,
                 'password' => $password,
+                'skipCertCheck' => $skipCertCheck,
             ],
             $config
         );

@@ -8,9 +8,9 @@ use Doctrine\DBAL\Driver\API\ExceptionConverter;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Query;
-use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectException;
 use Keboola\TableBackendUtils\Connection\Exception\ConnectionException;
 use Keboola\TableBackendUtils\Connection\Exception\DriverException as SnowflakeDriverException;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
 
