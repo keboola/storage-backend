@@ -120,7 +120,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $sql = $this->getBuilder()->getTableExistsCommand(self::TEST_DB, self::TEST_TABLE);
         self::assertEquals(
         // phpcs:ignore
-            "SELECT COUNT(*) FROM DBC.Tables WHERE DatabaseName = 'import-export-test_schema' AND TableName = 'import-export-test_test';", $sql
+            "SELECT COUNT(*) FROM DBC.TablesVX WHERE DatabaseName = 'import-export-test_schema' AND TableName = 'import-export-test_test';", $sql
         );
         $this->assertEquals(0, $this->connection->fetchOne($sql));
 
