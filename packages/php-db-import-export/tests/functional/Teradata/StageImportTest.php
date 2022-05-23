@@ -8,6 +8,7 @@ use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\FailedTPTLoadException;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
+use Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 
 class StageImportTest extends TeradataBaseTestCase
@@ -52,12 +53,13 @@ class StageImportTest extends TeradataBaseTestCase
             )
         );
 
-        $this->assertEquals(1, $state->getResult()->getImportedRowsCount());
+        self::assertEquals(1, $state->getResult()->getImportedRowsCount());
     }
 
     public function testFailingImport(): void
     {
         $this->connection->executeQuery(
+            // table is one column short - import should fail
             sprintf(
                 'CREATE MULTISET TABLE %s.%s
      (
@@ -89,7 +91,10 @@ class StageImportTest extends TeradataBaseTestCase
             );
             $this->fail("should fail");
         } catch (FailedTPTLoadException $e) {
-            // TODO list tables in DB and no error tables shouldn't be present
+            // nor target table nor LOG/ERR tables should be present
+            $scheRef = new TeradataSchemaReflection($this->connection, self::TEST_DATABASE);
+            $tables = $scheRef->getTablesNames();
+            self::assertCount(0, $tables);
         }
     }
 }

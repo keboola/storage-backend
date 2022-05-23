@@ -104,27 +104,21 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             );
             $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $logTable));
         }
-        $errContent = null;
+        $err1Exists = false;
         if ($isTableExists($destination->getSchemaName(), $errTable)) {
-//            $errContent = $this->connection->fetchAllAssociative(sprintf(
-//                'SELECT * FROM %s.%s',
-//                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
-//                TeradataQuote::quoteSingleIdentifier($errTable)
-//            ));
+            // ERR content isn't readable -> skip the SELECT for now
+            $err1Exists = true;
             $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $errTable));
         }
-        $err2Content = null;
+        $err2Exists = false;
         if ($isTableExists($destination->getSchemaName(), $errTable2)) {
-//            $err2Content = $this->connection->fetchAllAssociative(sprintf(
-//                'SELECT * FROM %s.%s',
-//                TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
-//                TeradataQuote::quoteSingleIdentifier($errTable2)
-//            ));
+            // ERR content isn't readable -> skip the SELECT for now
+            $err2Exists = true;
             $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $errTable2));
         }
         // TODO find the way how to get this out
 
-        if ($process->getExitCode() !== 0 || $errContent || $err2Content) {
+        if ($err1Exists || $err2Exists || $process->getExitCode() !== 0) {
             $qb = new TeradataTableQueryBuilder();
             // drop destination table it's not usable
             $this->connection->executeStatement($qb->getDropTableCommand(
@@ -138,8 +132,8 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 $process->getExitCode(),
                 $this->getLogData($temp),
                 $logContent,
-                $errContent,
-                $err2Content
+                [],
+                []
             );
         }
 
