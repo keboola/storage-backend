@@ -7,20 +7,35 @@ namespace Keboola\Db\ImportExport\Backend\Synapse;
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Exception\ImportExportException;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Throwable;
 
-class SynapseException extends ImportExportException
+final class SynapseException extends ImportExportException
 {
     public const CODE_TABLE_COLUMNS_MISMATCH = 1501;
 
     private const BULK_LOAD_EXCEPTION_BEGINNING = '[SQL Server]Bulk load';
     private const DATA_TYPE_CONVERSION_EXCEPTION_BEGINNING = '[SQL Server]Error converting data type';
 
-    public static function createColumnsCountMismatch(): Throwable
-    {
+    public static function createColumnsCountMismatch(
+        ColumnCollection $source,
+        ColumnCollection $destination
+    ): Throwable {
+        $columnsSource = array_map(
+            static fn(ColumnInterface $col) => $col->getColumnName(),
+            iterator_to_array($source->getIterator())
+        );
+        $columnsDestination = array_map(
+            static fn(ColumnInterface $col) => $col->getColumnName(),
+            iterator_to_array($destination->getIterator())
+        );
         return new self(
-            'Tables don\'t have same number of columns.',
+            sprintf(
+                'Tables don\'t have same number of columns. Source columns: "%s", Destination columns: "%s"',
+                implode(',', $columnsSource),
+                implode(',', $columnsDestination)
+            ),
             self::CODE_TABLE_COLUMNS_MISMATCH
         );
     }

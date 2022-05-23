@@ -155,15 +155,15 @@ final class Assert
                     throw SynapseException::createColumnsMismatch($sourceCol, $destCol);
                 }
 
-                $isLengthEquals = $sourceDef->getLength() !== $destDef->getLength()
+                $isLengthMismatch = $sourceDef->getLength() !== $destDef->getLength()
                     && $sourceDef->getLength() !== (string) $destDef->getDefaultLength()
                     && $destDef->getLength() !== (string) $sourceDef->getDefaultLength()
                 ;
-                if ($isLengthEquals) {
+                if ($isLengthMismatch) {
                     throw SynapseException::createColumnsMismatch($sourceCol, $destCol);
                 }
             } else {
-                throw SynapseException::createColumnsCountMismatch();
+                throw SynapseException::createColumnsCountMismatch($source, $destination);
             }
 
             $it0->next();
