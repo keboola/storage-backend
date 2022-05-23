@@ -272,6 +272,53 @@ class StageImportTest extends SynapseBaseTestCase
         );
     }
 
+
+    public function testInsertIntoColumnsCountMismatch(): void
+    {
+        $this->initTables([self::TABLE_OUT_CSV_2COLS]);
+
+        $source = new Storage\Synapse\Table(
+            $this->getSourceSchemaName(),
+            self::TABLE_OUT_CSV_2COLS,
+            [
+                'col1',
+                'col2',
+                'invalidCol',
+            ]
+        );
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new SynapseTableReflection(
+            $this->connection,
+            $this->getSourceSchemaName(),
+            self::TABLE_OUT_CSV_2COLS
+        );
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $ref->getTableDefinition(),
+            [...$ref->getColumnsNames(), 'invalidCol']
+        );
+        $qb = new SynapseTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+        // phpcs:ignore
+            'Tables don\'t have same number of columns. Source columns: "col1,col2", Destination columns: "col1,col2,invalidCol"'
+        );
+        $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $this->getSynapseImportOptions(
+                ImportOptions::SKIP_FIRST_LINE,
+                null,
+                SynapseImportOptions::SAME_TABLES_REQUIRED,
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS
+            )
+        );
+    }
+
     public function testInsertIntoInvalidTypes(): void
     {
         $this->initTables([self::TABLE_TYPES]);
