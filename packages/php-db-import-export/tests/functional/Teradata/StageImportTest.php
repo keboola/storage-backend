@@ -89,7 +89,7 @@ class StageImportTest extends TeradataBaseTestCase
                     1
                 )
             );
-            $this->fail("should fail");
+            $this->fail('should fail');
         } catch (FailedTPTLoadException $e) {
             // nor target table nor LOG/ERR tables should be present
             $scheRef = new TeradataSchemaReflection($this->connection, self::TEST_DATABASE);
