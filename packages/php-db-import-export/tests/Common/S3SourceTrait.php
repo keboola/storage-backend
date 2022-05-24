@@ -69,7 +69,7 @@ trait S3SourceTrait
             (string) getenv('AWS_SECRET_ACCESS_KEY'),
             (string) getenv('AWS_REGION'),
             (string) getenv('AWS_S3_BUCKET'),
-            $key . '/' . $filePath,
+            $key ? ($key . '/' . $filePath) : $filePath,
             $options,
             $isSliced,
             $columns,

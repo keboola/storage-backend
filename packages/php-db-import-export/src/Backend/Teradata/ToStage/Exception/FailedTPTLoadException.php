@@ -44,9 +44,12 @@ class FailedTPTLoadException extends Exception
         StdErr :$stdErr \n\n 
         stdOut :$stdOut \n\n 
         logContent :$logContent \n\n 
-        logTableContent : " . ($logTableContent ? implode($logTableContent) : '') . " \n\n 
-        errTableContent : " . ($errTableContent ? implode($errTableContent) : '') . "\n\n 
-        errTable2Content : " . ($errTable2Content ? implode($errTable2Content) : '') . " \n\n 
+        logTableContent : "
+            . ($logTableContent ? json_encode($logTableContent, JSON_THROW_ON_ERROR) : 'no data') . " \n\n 
+        errTableContent : "
+            . ($errTableContent ? json_encode($errTableContent, JSON_THROW_ON_ERROR) : 'no data') . "\n\n 
+        errTable2Content : "
+            . ($errTable2Content ? json_encode($errTable2Content, JSON_THROW_ON_ERROR) : 'no data') . " \n\n 
         ",
             $exitCode ?? 0
         );
