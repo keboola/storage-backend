@@ -485,8 +485,17 @@ class SqlBuilder
             );
         }
 
+        // remove primary keys for columns used in where condition
+        $columnsForComparison = array_filter(
+            iterator_to_array($stagingTableDefinition->getColumnsDefinitions()),
+            static fn(SynapseColumn $columnDefinition): bool => !in_array(
+                $columnDefinition->getColumnName(),
+                $destinationDefinition->getPrimaryKeysNames()
+            )
+        );
+
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-        $columnsComparisionSql = array_map(
+        $columnsComparisonSql = array_map(
             function (SynapseColumn $columnDefinition) use ($dest) {
 
                 $useCoalesce = $columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING;
@@ -504,7 +513,7 @@ class SqlBuilder
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             },
-            iterator_to_array($stagingTableDefinition->getColumnsDefinitions())
+            $columnsForComparison
         );
 
         return sprintf(
@@ -514,7 +523,7 @@ class SqlBuilder
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
             $this->getPrimaryKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), '[src]', $dest),
-            implode(' OR ', $columnsComparisionSql)
+            implode(' OR ', $columnsComparisonSql)
         );
     }
 
