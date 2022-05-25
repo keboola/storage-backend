@@ -485,6 +485,12 @@ class SqlBuilder
             );
         }
 
+        if (count($columnsSet) === 0) {
+            // if it's a table only with primary keys then there is nothing to update
+            // as PK's are not updated
+            return '';
+        }
+
         // remove primary keys for columns used in where condition
         $columnsForComparison = array_filter(
             iterator_to_array($stagingTableDefinition->getColumnsDefinitions()),
@@ -516,14 +522,22 @@ class SqlBuilder
             $columnsForComparison
         );
 
+        $and = '';
+        if (count($columnsComparisonSql) !== 0) {
+            $and = sprintf(
+                ' AND (%s) ',
+                implode(' OR ', $columnsComparisonSql)
+            );
+        }
+
         return sprintf(
-            'UPDATE %s SET %s FROM %s.%s AS [src] WHERE %s AND (%s) ',
+            'UPDATE %s SET %s FROM %s.%s AS [src] WHERE %s %s',
             $dest,
             implode(', ', $columnsSet),
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
             $this->getPrimaryKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), '[src]', $dest),
-            implode(' OR ', $columnsComparisonSql)
+            $and
         );
     }
 

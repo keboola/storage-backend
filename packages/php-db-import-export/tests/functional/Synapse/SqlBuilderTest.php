@@ -716,6 +716,42 @@ EOT
         ], $result);
     }
 
+    public function testGetUpdateWithPkCommandOnlyPKs(): void
+    {
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            new SynapseTableDefinition(
+                self::TEST_SCHEMA,
+                self::TEST_STAGING_TABLE,
+                true,
+                new ColumnCollection([
+                    $this->createGenericColumn('id'),
+                ]),
+                [],
+                new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            ),
+            new SynapseTableDefinition(
+                self::TEST_SCHEMA,
+                self::TEST_TABLE,
+                true,
+                new ColumnCollection([
+                    $this->createGenericColumn('id'),
+                ]),
+                ['id'],
+                new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            ),
+            $this->getDummyImportOptions(),
+            '2020-01-01 00:00:00'
+        );
+
+        // only primary keys will result to empty string as there is nothing to update
+        $this->assertEquals(
+            '',
+            $sql
+        );
+    }
+
     public function testGetUpdateWithPkCommandNotString(): void
     {
         $col2 = new SynapseColumn(
@@ -996,6 +1032,133 @@ EOT
             $this->assertArrayHasKey('id', $item);
             $this->assertArrayHasKey('col1', $item);
             $this->assertArrayHasKey('col2', $item);
+            $this->assertArrayHasKey('_timestamp', $item);
+            $this->assertSame(
+                $timestampSet->format(DateTimeHelper::FORMAT),
+                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
+            );
+        }
+    }
+
+    public function testGetUpdateWithPkCommandOnlyPksWithTimestamp(): void
+    {
+        $timestampInit = new DateTime('2020-01-01 00:00:01');
+        $timestampSet = new DateTime('2020-01-01 01:01:01');
+        $this->createTestSchema();
+
+        // destination has only id column which is also PK and timestamp
+        $destDef = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                new SynapseColumn(
+                    'id',
+                    new Synapse(Synapse::TYPE_INT)
+                ),
+                new SynapseColumn(
+                    '_timestamp',
+                    new Synapse(Synapse::TYPE_DATETIME)
+                ),
+            ]),
+            ['id'],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+        );
+        $qb = new SynapseTableQueryBuilder();
+        $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($destDef));
+
+        // destination has only id column
+        $stageDef = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createGenericColumn('id'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stageDef));
+
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.%s([id]) VALUES (1)',
+                self::TEST_SCHEMA_QUOTED,
+                self::TEST_STAGING_TABLE
+            )
+        );
+
+        // create fake destination definition without timestamp column
+        $fakeDestination = new SynapseTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createGenericColumn('id'),
+            ]),
+            ['id'],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+
+        // insert values into destination
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s([id],[_timestamp]) VALUES (1,\'%s\')',
+                self::TEST_TABLE_IN_SCHEMA,
+                $timestampInit->format(DateTimeHelper::FORMAT)
+            )
+        );
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s([id],[_timestamp]) VALUES (1,\'%s\')',
+                self::TEST_TABLE_IN_SCHEMA,
+                $timestampInit->format(DateTimeHelper::FORMAT)
+            )
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        $this->assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT) . '.000',
+            ],
+            [
+                'id' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT) . '.000',
+            ],
+        ], $result);
+
+        // use timestamp
+        $options = new SynapseImportOptions([], false, true);
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $stageDef,
+            $fakeDestination,
+            $options,
+            $timestampSet->format(DateTimeHelper::FORMAT) . '.000'
+        );
+
+        $this->assertEquals(
+        // phpcs:ignore
+            'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[id] = [src].[id] ',
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        /** @var array{id:string,_timestamp:string} $item */
+        foreach ($result as $item) {
+            $this->assertArrayHasKey('id', $item);
             $this->assertArrayHasKey('_timestamp', $item);
             $this->assertSame(
                 $timestampSet->format(DateTimeHelper::FORMAT),
