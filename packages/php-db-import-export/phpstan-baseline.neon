@@ -46,6 +46,11 @@ parameters:
 			path: src/Backend/Synapse/ToFinalTable/SqlBuilder.php
 
 		-
+			message: "#^Parameter \\#2 \\$callback of function array_filter expects callable\\(Keboola\\\\TableBackendUtils\\\\Column\\\\ColumnInterface\\)\\: mixed, Closure\\(Keboola\\\\TableBackendUtils\\\\Column\\\\SynapseColumn\\)\\: bool given\\.$#"
+			count: 1
+			path: src/Backend/Synapse/ToFinalTable/SqlBuilder.php
+
+		-
 			message: "#^Cannot cast mixed to int\\.$#"
 			count: 1
 			path: src/Backend/Teradata/ToFinalTable/FullImporter.php
