@@ -68,17 +68,18 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getBeginTransaction()
             );
 
-            $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
             $sql = $this->sqlBuilder->getUpdateWithPkCommand(
                 $stagingTableDefinition,
                 $destinationTableDefinition,
                 $options,
                 $timestampValue
             );
+
             if ($sql !== '') {
+                $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
                 $this->connection->executeStatement($sql);
+                $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
             }
-            $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
 
             $state->startTimer(self::TIMER_DELETE_UPDATED_ROWS);
             $this->connection->executeStatement(
