@@ -525,7 +525,7 @@ class SqlBuilder
         $and = '';
         if (count($columnsComparisonSql) !== 0) {
             $and = sprintf(
-                ' AND (%s) ',
+                'AND (%s) ',
                 implode(' OR ', $columnsComparisonSql)
             );
         }
