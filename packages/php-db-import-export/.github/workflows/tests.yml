@@ -119,7 +119,7 @@ jobs:
       -
         name: Load data to ${{ matrix.storage }}
         run: |
-          docker-compose run production composer loadABS
+          docker-compose run production composer loadAbs
 #
 # Test matrix
   testsABS:
