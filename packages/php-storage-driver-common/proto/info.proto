@@ -4,33 +4,39 @@ import "google/protobuf/any.proto";
 
 package keboola.storageDriver.command.info;
 
-message ObjectInfoCommand {
-  repeated string path = 1;
+/**
+ * List of known object types
+ * unknown objects will return exception
+ */
+enum ObjectType {
+  DATABASE = 0;
+  SCHEMA = 1;
+  TABLE = 2;
+  VIEW = 3;
 }
 
-message ObjectResponse {
-  ObjectType objectType = 1; // type of object inspected
-  /**
-   * List of known object types
-   * unknown objects will return exception
-   */
-  enum ObjectType {
-    DATABASE = 0;
-    SCHEMA = 1;
-    TABLE = 2;
-    VIEW = 3;
-    FUNCTION = 4;
-  }
+message ObjectInfoCommand {
+  repeated string path = 1;
+  ObjectType expectedObjectType = 2;
+}
 
+message ObjectInfoResponse {
+  repeated string path = 1;
+  ObjectType objectType = 2;
   /**
    * object information's
    */
-  google.protobuf.Any objectReflection = 2;
+  oneof objectReflection {
+    DatabaseReflection databaseReflection = 3;
+    SchemaReflection schemaReflection = 4;
+    ViewReflection viewReflection = 5;
+    TableReflection tableReflection = 6;
+  }
 }
 
 message InternalObject {
-  repeated string objectName = 1; // Object name
-  ObjectResponse.ObjectType objectType = 2; // Type of object
+  string objectName = 1; // Object name
+  ObjectType objectType = 2; // Type of object
 }
 
 message DatabaseReflection {

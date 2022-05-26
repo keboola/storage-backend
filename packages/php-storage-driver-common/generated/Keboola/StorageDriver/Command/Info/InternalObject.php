@@ -16,13 +16,13 @@ class InternalObject extends \Google\Protobuf\Internal\Message
     /**
      * Object name
      *
-     * Generated from protobuf field <code>repeated string objectName = 1;</code>
+     * Generated from protobuf field <code>string objectName = 1;</code>
      */
-    private $objectName;
+    protected $objectName = '';
     /**
      * Type of object
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectResponse.ObjectType objectType = 2;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType objectType = 2;</code>
      */
     protected $objectType = 0;
 
@@ -32,7 +32,7 @@ class InternalObject extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $objectName
+     *     @type string $objectName
      *           Object name
      *     @type int $objectType
      *           Type of object
@@ -46,8 +46,8 @@ class InternalObject extends \Google\Protobuf\Internal\Message
     /**
      * Object name
      *
-     * Generated from protobuf field <code>repeated string objectName = 1;</code>
-     * @return \Google\Protobuf\Internal\RepeatedField
+     * Generated from protobuf field <code>string objectName = 1;</code>
+     * @return string
      */
     public function getObjectName()
     {
@@ -57,14 +57,14 @@ class InternalObject extends \Google\Protobuf\Internal\Message
     /**
      * Object name
      *
-     * Generated from protobuf field <code>repeated string objectName = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * Generated from protobuf field <code>string objectName = 1;</code>
+     * @param string $var
      * @return $this
      */
     public function setObjectName($var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
-        $this->objectName = $arr;
+        GPBUtil::checkString($var, True);
+        $this->objectName = $var;
 
         return $this;
     }
@@ -72,7 +72,7 @@ class InternalObject extends \Google\Protobuf\Internal\Message
     /**
      * Type of object
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectResponse.ObjectType objectType = 2;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType objectType = 2;</code>
      * @return int
      */
     public function getObjectType()
@@ -83,13 +83,13 @@ class InternalObject extends \Google\Protobuf\Internal\Message
     /**
      * Type of object
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectResponse.ObjectType objectType = 2;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType objectType = 2;</code>
      * @param int $var
      * @return $this
      */
     public function setObjectType($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Info\ObjectResponse\ObjectType::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Info\ObjectType::class);
         $this->objectType = $var;
 
         return $this;

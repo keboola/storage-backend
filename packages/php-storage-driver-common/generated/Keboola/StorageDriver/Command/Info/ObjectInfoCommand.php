@@ -17,6 +17,10 @@ class ObjectInfoCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string path = 1;</code>
      */
     private $path;
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType expectedObjectType = 2;</code>
+     */
+    protected $expectedObjectType = 0;
 
     /**
      * Constructor.
@@ -25,6 +29,7 @@ class ObjectInfoCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type int $expectedObjectType
      * }
      */
     public function __construct($data = NULL) {
@@ -50,6 +55,28 @@ class ObjectInfoCommand extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->path = $arr;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType expectedObjectType = 2;</code>
+     * @return int
+     */
+    public function getExpectedObjectType()
+    {
+        return $this->expectedObjectType;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType expectedObjectType = 2;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setExpectedObjectType($var)
+    {
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Info\ObjectType::class);
+        $this->expectedObjectType = $var;
 
         return $this;
     }
