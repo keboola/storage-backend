@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\FailedTPTLoadException;
+use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\NoMoreRoomInTDException;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -125,15 +126,18 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 $destination->getSchemaName(),
                 $destination->getTableName()
             ));
+            $stdOut = $process->getOutput();
+
+            if (strpos($stdOut, 'No more room in database') !== false) {
+                throw new NoMoreRoomInTDException($destination->getSchemaName());
+            }
 
             throw new FailedTPTLoadException(
                 $process->getErrorOutput(),
-                $process->getOutput(),
+                $stdOut,
                 $process->getExitCode(),
                 $this->getLogData($temp),
-                $logContent,
-                [],
-                []
+                $logContent
             );
         }
 

@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\FailedTPTLoadException;
+use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\NoMoreRoomInTDException;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Schema\Teradata\TeradataSchemaReflection;
@@ -79,7 +80,7 @@ class StageImportTest extends TeradataBaseTestCase
         );
 
         try {
-            $state = $importer->importToStagingTable(
+            $importer->importToStagingTable(
                 $this->createS3SourceInstanceFromCsv('csv/simple/a_b_c-1row.csv', new CsvOptions()),
                 $ref->getTableDefinition(),
                 $this->getImportOptions(
@@ -89,12 +90,36 @@ class StageImportTest extends TeradataBaseTestCase
                     1
                 )
             );
-            $this->fail('should fail');
+            self::fail('should fail');
         } catch (FailedTPTLoadException $e) {
             // nor target table nor LOG/ERR tables should be present
             $scheRef = new TeradataSchemaReflection($this->connection, self::TEST_DATABASE);
             $tables = $scheRef->getTablesNames();
             self::assertCount(0, $tables);
         }
+    }
+
+    public function testItWontFitIn(): void
+    {
+        // trying to immport big table to small DB via TPT -> should fail and throw custom exception
+        $dbName = self::TEST_DATABASE . '_small_db';
+        $this->cleanDatabase($dbName);
+        $this->createDatabase($dbName, '1e5', '1e5');
+
+        $this->initTable(self::BIGGER_TABLE, $dbName);
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new TeradataTableReflection(
+            $this->connection,
+            $dbName,
+            self::BIGGER_TABLE
+        );
+
+        $this->expectException(NoMoreRoomInTDException::class);
+        $importer->importToStagingTable(
+            $this->createS3SourceInstanceFromCsv('big_table.csv', new CsvOptions()),
+            $ref->getTableDefinition(),
+            $this->getImportOptions()
+        );
     }
 }
