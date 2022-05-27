@@ -13,9 +13,9 @@ use Google\Protobuf\Internal\GPBUtil;
  * Generic table information's
  * TODO dependent views
  *
- * Generated from protobuf message <code>keboola.storageDriver.command.info.TableReflection</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.info.TableInfo</code>
  */
-class TableReflection extends \Google\Protobuf\Internal\Message
+class TableInfo extends \Google\Protobuf\Internal\Message
 {
     /**
      * path where table is located
@@ -32,7 +32,7 @@ class TableReflection extends \Google\Protobuf\Internal\Message
     /**
      * table columns definitions
      *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableReflection.TableColumn columns = 3;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableInfo.TableColumn columns = 3;</code>
      */
     private $columns;
     /**
@@ -58,7 +58,7 @@ class TableReflection extends \Google\Protobuf\Internal\Message
      *           path where table is located
      *     @type string $tableName
      *           table name
-     *     @type \Keboola\StorageDriver\Command\Info\TableReflection\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $columns
+     *     @type \Keboola\StorageDriver\Command\Info\TableInfo\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $columns
      *           table columns definitions
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
      *           primary key columns names
@@ -126,7 +126,7 @@ class TableReflection extends \Google\Protobuf\Internal\Message
     /**
      * table columns definitions
      *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableReflection.TableColumn columns = 3;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableInfo.TableColumn columns = 3;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getColumns()
@@ -137,13 +137,13 @@ class TableReflection extends \Google\Protobuf\Internal\Message
     /**
      * table columns definitions
      *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableReflection.TableColumn columns = 3;</code>
-     * @param \Keboola\StorageDriver\Command\Info\TableReflection\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $var
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableInfo.TableColumn columns = 3;</code>
+     * @param \Keboola\StorageDriver\Command\Info\TableInfo\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setColumns($var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Info\TableReflection\TableColumn::class);
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Info\TableInfo\TableColumn::class);
         $this->columns = $arr;
 
         return $this;

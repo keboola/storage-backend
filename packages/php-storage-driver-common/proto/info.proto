@@ -26,36 +26,36 @@ message ObjectInfoResponse {
   /**
    * object information's
    */
-  oneof objectReflection {
-    DatabaseReflection databaseReflection = 3;
-    SchemaReflection schemaReflection = 4;
-    ViewReflection viewReflection = 5;
-    TableReflection tableReflection = 6;
+  oneof objectInfo {
+    DatabaseInfo databaseInfo = 3;
+    SchemaInfo schemaInfo = 4;
+    ViewInfo viewInfo = 5;
+    TableInfo tableInfo = 6;
   }
 }
 
-message InternalObject {
+message ObjectInfo {
   string objectName = 1; // Object name
   ObjectType objectType = 2; // Type of object
 }
 
-message DatabaseReflection {
-  repeated InternalObject objects = 1;
+message DatabaseInfo {
+  repeated ObjectInfo objects = 1;
 }
 
-message SchemaReflection {
-  repeated InternalObject objects = 1;
+message SchemaInfo {
+  repeated ObjectInfo objects = 1;
 }
 /**
  * TODO
  */
-message ViewReflection {}
+message ViewInfo {}
 
 /**
  * Generic table information's
  * TODO dependent views
  */
-message TableReflection {
+message TableInfo {
   repeated string path = 1; // path where table is located
   string tableName = 2; // table name
   /**

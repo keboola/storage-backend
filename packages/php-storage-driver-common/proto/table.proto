@@ -344,5 +344,5 @@ message TableExportToFileCommand {
 }
 
 message TableExportToFileResponse {
-  keboola.storageDriver.command.info.TableReflection tableInfo = 1;
+  keboola.storageDriver.command.info.TableInfo tableInfo = 1;
 }

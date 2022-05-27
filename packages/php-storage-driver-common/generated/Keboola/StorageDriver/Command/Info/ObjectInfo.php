@@ -9,9 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * Generated from protobuf message <code>keboola.storageDriver.command.info.InternalObject</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.info.ObjectInfo</code>
  */
-class InternalObject extends \Google\Protobuf\Internal\Message
+class ObjectInfo extends \Google\Protobuf\Internal\Message
 {
     /**
      * Object name

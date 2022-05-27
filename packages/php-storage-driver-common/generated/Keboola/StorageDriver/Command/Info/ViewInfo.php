@@ -12,9 +12,9 @@ use Google\Protobuf\Internal\GPBUtil;
  **
  * TODO
  *
- * Generated from protobuf message <code>keboola.storageDriver.command.info.ViewReflection</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.info.ViewInfo</code>
  */
-class ViewReflection extends \Google\Protobuf\Internal\Message
+class ViewInfo extends \Google\Protobuf\Internal\Message
 {
 
     /**

@@ -14,7 +14,7 @@ use Google\Protobuf\Internal\GPBUtil;
 class TableExportToFileResponse extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableReflection tableInfo = 1;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 1;</code>
      */
     protected $tableInfo = null;
 
@@ -24,7 +24,7 @@ class TableExportToFileResponse extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type \Keboola\StorageDriver\Command\Info\TableReflection $tableInfo
+     *     @type \Keboola\StorageDriver\Command\Info\TableInfo $tableInfo
      * }
      */
     public function __construct($data = NULL) {
@@ -33,8 +33,8 @@ class TableExportToFileResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableReflection tableInfo = 1;</code>
-     * @return \Keboola\StorageDriver\Command\Info\TableReflection|null
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 1;</code>
+     * @return \Keboola\StorageDriver\Command\Info\TableInfo|null
      */
     public function getTableInfo()
     {
@@ -52,13 +52,13 @@ class TableExportToFileResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableReflection tableInfo = 1;</code>
-     * @param \Keboola\StorageDriver\Command\Info\TableReflection $var
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 1;</code>
+     * @param \Keboola\StorageDriver\Command\Info\TableInfo $var
      * @return $this
      */
     public function setTableInfo($var)
     {
-        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\TableReflection::class);
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\TableInfo::class);
         $this->tableInfo = $var;
 
         return $this;

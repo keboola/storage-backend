@@ -21,7 +21,7 @@ class ObjectInfoResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType objectType = 2;</code>
      */
     protected $objectType = 0;
-    protected $objectReflection;
+    protected $objectInfo;
 
     /**
      * Constructor.
@@ -31,10 +31,10 @@ class ObjectInfoResponse extends \Google\Protobuf\Internal\Message
      *
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
      *     @type int $objectType
-     *     @type \Keboola\StorageDriver\Command\Info\DatabaseReflection $databaseReflection
-     *     @type \Keboola\StorageDriver\Command\Info\SchemaReflection $schemaReflection
-     *     @type \Keboola\StorageDriver\Command\Info\ViewReflection $viewReflection
-     *     @type \Keboola\StorageDriver\Command\Info\TableReflection $tableReflection
+     *     @type \Keboola\StorageDriver\Command\Info\DatabaseInfo $databaseInfo
+     *     @type \Keboola\StorageDriver\Command\Info\SchemaInfo $schemaInfo
+     *     @type \Keboola\StorageDriver\Command\Info\ViewInfo $viewInfo
+     *     @type \Keboola\StorageDriver\Command\Info\TableInfo $tableInfo
      * }
      */
     public function __construct($data = NULL) {
@@ -87,108 +87,108 @@ class ObjectInfoResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.DatabaseReflection databaseReflection = 3;</code>
-     * @return \Keboola\StorageDriver\Command\Info\DatabaseReflection|null
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.DatabaseInfo databaseInfo = 3;</code>
+     * @return \Keboola\StorageDriver\Command\Info\DatabaseInfo|null
      */
-    public function getDatabaseReflection()
+    public function getDatabaseInfo()
     {
         return $this->readOneof(3);
     }
 
-    public function hasDatabaseReflection()
+    public function hasDatabaseInfo()
     {
         return $this->hasOneof(3);
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.DatabaseReflection databaseReflection = 3;</code>
-     * @param \Keboola\StorageDriver\Command\Info\DatabaseReflection $var
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.DatabaseInfo databaseInfo = 3;</code>
+     * @param \Keboola\StorageDriver\Command\Info\DatabaseInfo $var
      * @return $this
      */
-    public function setDatabaseReflection($var)
+    public function setDatabaseInfo($var)
     {
-        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\DatabaseReflection::class);
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\DatabaseInfo::class);
         $this->writeOneof(3, $var);
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.SchemaReflection schemaReflection = 4;</code>
-     * @return \Keboola\StorageDriver\Command\Info\SchemaReflection|null
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.SchemaInfo schemaInfo = 4;</code>
+     * @return \Keboola\StorageDriver\Command\Info\SchemaInfo|null
      */
-    public function getSchemaReflection()
+    public function getSchemaInfo()
     {
         return $this->readOneof(4);
     }
 
-    public function hasSchemaReflection()
+    public function hasSchemaInfo()
     {
         return $this->hasOneof(4);
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.SchemaReflection schemaReflection = 4;</code>
-     * @param \Keboola\StorageDriver\Command\Info\SchemaReflection $var
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.SchemaInfo schemaInfo = 4;</code>
+     * @param \Keboola\StorageDriver\Command\Info\SchemaInfo $var
      * @return $this
      */
-    public function setSchemaReflection($var)
+    public function setSchemaInfo($var)
     {
-        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\SchemaReflection::class);
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\SchemaInfo::class);
         $this->writeOneof(4, $var);
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ViewReflection viewReflection = 5;</code>
-     * @return \Keboola\StorageDriver\Command\Info\ViewReflection|null
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ViewInfo viewInfo = 5;</code>
+     * @return \Keboola\StorageDriver\Command\Info\ViewInfo|null
      */
-    public function getViewReflection()
+    public function getViewInfo()
     {
         return $this->readOneof(5);
     }
 
-    public function hasViewReflection()
+    public function hasViewInfo()
     {
         return $this->hasOneof(5);
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ViewReflection viewReflection = 5;</code>
-     * @param \Keboola\StorageDriver\Command\Info\ViewReflection $var
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ViewInfo viewInfo = 5;</code>
+     * @param \Keboola\StorageDriver\Command\Info\ViewInfo $var
      * @return $this
      */
-    public function setViewReflection($var)
+    public function setViewInfo($var)
     {
-        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\ViewReflection::class);
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\ViewInfo::class);
         $this->writeOneof(5, $var);
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableReflection tableReflection = 6;</code>
-     * @return \Keboola\StorageDriver\Command\Info\TableReflection|null
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 6;</code>
+     * @return \Keboola\StorageDriver\Command\Info\TableInfo|null
      */
-    public function getTableReflection()
+    public function getTableInfo()
     {
         return $this->readOneof(6);
     }
 
-    public function hasTableReflection()
+    public function hasTableInfo()
     {
         return $this->hasOneof(6);
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableReflection tableReflection = 6;</code>
-     * @param \Keboola\StorageDriver\Command\Info\TableReflection $var
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 6;</code>
+     * @param \Keboola\StorageDriver\Command\Info\TableInfo $var
      * @return $this
      */
-    public function setTableReflection($var)
+    public function setTableInfo($var)
     {
-        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\TableReflection::class);
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\TableInfo::class);
         $this->writeOneof(6, $var);
 
         return $this;
@@ -197,9 +197,9 @@ class ObjectInfoResponse extends \Google\Protobuf\Internal\Message
     /**
      * @return string
      */
-    public function getObjectReflection()
+    public function getObjectInfo()
     {
-        return $this->whichOneof("objectReflection");
+        return $this->whichOneof("objectInfo");
     }
 
 }
