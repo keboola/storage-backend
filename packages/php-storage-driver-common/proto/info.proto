@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package keboola.storageDriver.command.info;
+
+/**
+ * List of known object types
+ * unknown objects will return exception
+ */
+enum ObjectType {
+  DATABASE = 0;
+  SCHEMA = 1;
+  TABLE = 2;
+  VIEW = 3;
+}
+
+message ObjectInfoCommand {
+  repeated string path = 1;
+  ObjectType expectedObjectType = 2;
+}
+
+message ObjectInfoResponse {
+  repeated string path = 1;
+  ObjectType objectType = 2;
+  /**
+   * object information's
+   */
+  oneof objectInfo {
+    DatabaseInfo databaseInfo = 3;
+    SchemaInfo schemaInfo = 4;
+    ViewInfo viewInfo = 5;
+    TableInfo tableInfo = 6;
+  }
+}
+
+message ObjectInfo {
+  string objectName = 1; // Object name
+  ObjectType objectType = 2; // Type of object
+}
+
+message DatabaseInfo {
+  repeated ObjectInfo objects = 1;
+}
+
+message SchemaInfo {
+  repeated ObjectInfo objects = 1;
+}
+/**
+ * TODO
+ */
+message ViewInfo {}
+
+/**
+ * Generic table information's
+ * TODO dependent views
+ */
+message TableInfo {
+  repeated string path = 1; // path where table is located
+  string tableName = 2; // table name
+  /**
+   * Table column definition
+   */
+  message TableColumn {
+    string name = 1;
+    string type = 2;
+    string length = 3;
+    bool nullable = 4;
+    string default = 5;
+    google.protobuf.Any meta = 6; // metadata specific for each backend
+    /**
+     * Teradata table column metadata
+     */
+    message TeradataTableColumnMeta {
+      bool isLatin = 1;
+    }
+  }
+  repeated TableColumn columns = 3; // table columns definitions
+  repeated string primaryKeysNames = 4; // primary key columns names
+  google.protobuf.Any meta = 5; // metadata specific for each backend
+}
