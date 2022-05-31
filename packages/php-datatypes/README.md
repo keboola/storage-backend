@@ -34,3 +34,7 @@ docker-compose run --rm dev ./vendor/bin/phpunit
 ```
 docker-compose run --rm dev ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
 ```
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
