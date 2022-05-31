@@ -62,6 +62,7 @@ class S3Loader extends BaseStubLoader
     public function load(): void
     {
         $this->generateLargeSliced();
+        $this->generateLongCol();
         $this->generateManifests();
 
         echo "Creating blobs ...\n";
