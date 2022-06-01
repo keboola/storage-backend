@@ -36,9 +36,13 @@ env:
   TERADATA_PORT: 1025
   TERADATA_DATABASE: ci_ielib
   # Exasol
-  EXASOL_HOST: m6xc56lzwffdzb6bvrzqwfn57u.clusters.exasol.com:8563
-  EXASOL_USERNAME: jiri_semmler
+  EXASOL_HOST: mbgghigkizhshorgb53ivhkrsu.clusters.exasol.com:8563
+  EXASOL_USERNAME: devel
   EXASOL_PASSWORD: ${{ secrets.EXASOL_PASSWORD }}
+  EXA_SAAS_DB_ID: 5ThvKt2NQEqTf-QVEBcNeg
+  EXA_SAAS_HOST: https://cloud.exasol.com
+  EXA_SAAS_USER_ID: oAVqZoHnSRO5rAjahTgAkg
+  EXA_SAAS_TOKEN: ${{ secrets.EXA_SAAS_TOKEN }}
   # S3
   AWS_ACCESS_KEY_ID: AKIASFZVQM6IHFATWR4X
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -267,6 +271,64 @@ jobs:
         if: ${{ always() }}
         run: |
           bash ./provisioning/scripts/synapseRun.sh -p || exit 1
+
+  pre-exasol-tests:
+    runs-on: ubuntu-latest
+    needs: load-s3
+    concurrency: exasol-tests
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Exasol start
+        run: |
+          bash ./docker/exasol/createDeleteServer.sh -w || exit 1
+
+  exasol-tests:
+    runs-on: ubuntu-latest
+    needs: pre-exasol-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - exasol
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      #
+      # TESTS
+      #
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run production composer tests-${{ matrix.suite }}
+  post-exasol-tests:
+    runs-on: ubuntu-latest
+    needs: exasol-tests
+    if: ${{ always() }}
+    concurrency: exasol-tests
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Exasol stop
+        if: ${{ always() }}
+        run: |
+          bash ./docker/exasol/createDeleteServer.sh -p || exit 1
 
 #
 # Clean up uploaded data
