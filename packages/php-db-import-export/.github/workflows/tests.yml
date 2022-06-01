@@ -274,7 +274,7 @@ jobs:
 
   pre-exasol-tests:
     runs-on: ubuntu-latest
-    needs: load-abs
+    needs: load-s3
     concurrency: exasol-tests
     steps:
       -
