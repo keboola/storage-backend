@@ -341,7 +341,7 @@ class Teradata extends Common
         parent::__construct($type, $options);
     }
 
-    private function consolidateLength(string $type, $length = null): ?string
+    private function consolidateLength(string $type, ?string $length = null): ?string
     {
         if ($length !== null
             && array_key_exists($type, self::TYPES_WITH_INVALID_DEFAULT_LENGTH)
