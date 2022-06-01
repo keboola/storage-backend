@@ -19,25 +19,15 @@ class FailedTPTLoadException extends Exception
     /** @var mixed[]|null */
     private ?array $logTableContent;
 
-    /** @var mixed[]|null */
-    private ?array $errTableContent;
-
-    /** @var mixed[]|null */
-    private ?array $errTable2Content;
-
     /**
      * @param mixed[]|null $logTableContent
-     * @param mixed[]|null $errTableContent
-     * @param mixed[]|null $errTable2Content
      */
     public function __construct(
         string $stdErr,
         string $stdOut,
         ?int $exitCode = null,
         ?string $logContent = null,
-        ?array $logTableContent = null,
-        ?array $errTableContent = null,
-        ?array $errTable2Content = null
+        ?array $logTableContent = null
     ) {
         parent::__construct(
             "Teradata TPT load ended with Error. \n\n 
@@ -45,12 +35,7 @@ class FailedTPTLoadException extends Exception
         stdOut :$stdOut \n\n 
         logContent :$logContent \n\n 
         logTableContent : "
-            . ($logTableContent ? json_encode($logTableContent, JSON_THROW_ON_ERROR) : 'no data') . " \n\n 
-        errTableContent : "
-            . ($errTableContent ? json_encode($errTableContent, JSON_THROW_ON_ERROR) : 'no data') . "\n\n 
-        errTable2Content : "
-            . ($errTable2Content ? json_encode($errTable2Content, JSON_THROW_ON_ERROR) : 'no data') . " \n\n 
-        ",
+            . ($logTableContent ? json_encode($logTableContent, JSON_THROW_ON_ERROR) : 'no data') . " \n\n",
             $exitCode ?? 0
         );
         $this->stdErr = $stdErr;
@@ -58,8 +43,6 @@ class FailedTPTLoadException extends Exception
         $this->logContent = $logContent;
         $this->exitCode = $exitCode;
         $this->logTableContent = $logTableContent;
-        $this->errTableContent = $errTableContent;
-        $this->errTable2Content = $errTable2Content;
     }
 
     public function getStdErr(): string
@@ -88,21 +71,5 @@ class FailedTPTLoadException extends Exception
     public function getLogTableContent(): ?array
     {
         return $this->logTableContent;
-    }
-
-    /**
-     * @return array|string[]|null
-     */
-    public function getErrTableContent(): ?array
-    {
-        return $this->errTableContent;
-    }
-
-    /**
-     * @return array|string[]|null
-     */
-    public function getErrTable2Content(): ?array
-    {
-        return $this->errTable2Content;
     }
 }

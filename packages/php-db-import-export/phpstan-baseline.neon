@@ -56,16 +56,6 @@ parameters:
 			path: src/Backend/Teradata/ToFinalTable/FullImporter.php
 
 		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Teradata\\\\ToStage\\\\Exception\\\\FailedTPTLoadException\\:\\:getErrTable2Content\\(\\) should return array\\<string\\>\\|null but returns array\\|null\\.$#"
-			count: 1
-			path: src/Backend/Teradata/ToStage/Exception/FailedTPTLoadException.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Teradata\\\\ToStage\\\\Exception\\\\FailedTPTLoadException\\:\\:getErrTableContent\\(\\) should return array\\<string\\>\\|null but returns array\\|null\\.$#"
-			count: 1
-			path: src/Backend/Teradata/ToStage/Exception/FailedTPTLoadException.php
-
-		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Teradata\\\\ToStage\\\\Exception\\\\FailedTPTLoadException\\:\\:getLogTableContent\\(\\) should return array\\<string\\>\\|null but returns array\\|null\\.$#"
 			count: 1
 			path: src/Backend/Teradata/ToStage/Exception/FailedTPTLoadException.php

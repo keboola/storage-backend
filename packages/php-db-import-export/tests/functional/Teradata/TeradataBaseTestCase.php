@@ -159,14 +159,14 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         );
     }
 
-    public function createDatabase(string $dbName): void
+    public function createDatabase(string $dbName, string $perm = '2e7', string $spool = '2e7'): void
     {
+        // 2e7 = 20MB
         $this->connection->executeQuery(sprintf('
 CREATE DATABASE %s AS
-       PERM = 2e7
-       SPOOL = 2e7;
-       
-       ', TeradataQuote::quoteSingleIdentifier($dbName)));
+       PERM = %s
+       SPOOL = %s;
+       ', TeradataQuote::quoteSingleIdentifier($dbName), $perm, $spool));
     }
 
     protected function dbExists(string $dbname): bool
@@ -203,8 +203,12 @@ CREATE DATABASE %s AS
         );
     }
 
-    protected function initTable(string $tableName): void
+    protected function initTable(string $tableName, string $dbName = ''): void
     {
+        if ($dbName === '') {
+            $dbName = $this->getDestinationDbName();
+        }
+
         switch ($tableName) {
             case self::BIGGER_TABLE:
                 $this->connection->executeQuery(
@@ -224,7 +228,7 @@ CREATE DATABASE %s AS
 "Column9" VARCHAR(500) CHARACTER SET UNICODE,
 "GlobalID" VARCHAR(500) CHARACTER SET UNICODE
     );',
-                        TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                        TeradataQuote::quoteSingleIdentifier($dbName),
                         TeradataQuote::quoteSingleIdentifier($tableName)
                     )
                 );
@@ -242,7 +246,7 @@ CREATE DATABASE %s AS
 "Other"     VARCHAR(50),
     )
 PRIMARY INDEX ("VisitID");',
-                        TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                        TeradataQuote::quoteSingleIdentifier($dbName),
                         TeradataQuote::quoteSingleIdentifier($tableName)
                     )
                 );
@@ -254,7 +258,7 @@ PRIMARY INDEX ("VisitID");',
               "id" VARCHAR(50) CHARACTER SET UNICODE,
               "row_number" VARCHAR(50) 
            )',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
@@ -267,7 +271,7 @@ PRIMARY INDEX ("VisitID");',
               "price" INT ,
               "isDeleted" INT
            )',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
@@ -279,14 +283,14 @@ PRIMARY INDEX ("VisitID");',
           "col2" VARCHAR(500)  ,
           "_timestamp" TIMESTAMP
         );',
-                        TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                        TeradataQuote::quoteSingleIdentifier($dbName),
                         TeradataQuote::quoteSingleIdentifier($tableName)
                     )
                 );
 
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO %s.%s VALUES (\'x\', \'y\', NOW());',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
 
@@ -319,7 +323,7 @@ PRIMARY INDEX ("VisitID");',
           "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
                 "_timestamp" TIMESTAMP
             );',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
@@ -340,7 +344,7 @@ PRIMARY INDEX ("VisitID");',
                 "idApp" VARCHAR(50) CHARACTER SET UNICODE,
                 "_timestamp" TIMESTAMP
             ) PRIMARY INDEX ("id");',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
@@ -352,7 +356,7 @@ PRIMARY INDEX ("VisitID");',
                                 "lemmaIndex" VARCHAR(50) CHARACTER SET UNICODE,
                 "_timestamp" TIMESTAMP
             );',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
@@ -362,7 +366,7 @@ PRIMARY INDEX ("VisitID");',
                                 "col1" VARCHAR(50)         ,
                                 "col2" VARCHAR(50)      
             );',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
@@ -376,7 +380,7 @@ PRIMARY INDEX ("VisitID");',
               "boolCol"  VARCHAR(50) CHARACTER SET UNICODE,
               "_timestamp" TIMESTAMP
             );',
-                    TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName())
+                    TeradataQuote::quoteSingleIdentifier($dbName)
                 ));
 
                 $this->connection->executeQuery(sprintf(

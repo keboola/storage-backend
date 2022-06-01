@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\S3;
 
-use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\FailedTPTLoadException;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
