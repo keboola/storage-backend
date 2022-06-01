@@ -132,7 +132,7 @@ class Teradata extends Common
     public const DEFAULT_BLOB_LENGTH = '1G';
     public const DEFAULT_BYTE_LENGTH = 64000;
     public const DEFAULT_DATETIME_DIGIT_LENGTH = 4;
-    public const DEFAULT_DECIMAL_LENGTH = '38,38';
+    public const DEFAULT_DECIMAL_LENGTH = '38,19';
     public const DEFAULT_LATIN_CHAR_LENGTH = 64000;
     public const DEFAULT_LATIN_CLOB_LENGTH = '1999M';
     public const DEFAULT_NON_LATIN_CHAR_LENGTH = 32000;
@@ -201,7 +201,6 @@ class Teradata extends Common
         self::TYPE_INTERVAL_SECOND,
 
     ];
-
     // types where CHARAET can be defined
     public const CHARACTER_SET_TYPES = [
         self::TYPE_CHAR,
@@ -310,6 +309,11 @@ class Teradata extends Common
         self::TYPE_REAL,
     ];
 
+    // these types expect invalid default length given TD. e.g. NUMBER returns -128,-128. -> has to be redefined
+    public const TYPES_WITH_INVALID_DEFAULT_LENGTH = [
+        self::TYPE_NUMBER => '-128,-128',
+    ];
+
     private bool $isLatin = false;
 
     // depends on Char Type column in HELP TABLE column
@@ -328,12 +332,30 @@ class Teradata extends Common
         }
 
         $this->validateType($type);
+        $options['length'] = $this->consolidateLength($type, $options['length'] ?? null);
         $this->validateLength($type, $options['length'] ?? null);
         $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'isLatin']);
         if ($diff !== []) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
         parent::__construct($type, $options);
+    }
+
+    /**
+     *
+     * @param string $type
+     * @param null $length
+     * @return string|null
+     */
+    private function consolidateLength(string $type, $length = null): ?string
+    {
+        if ($length !== null
+            && array_key_exists($type, self::TYPES_WITH_INVALID_DEFAULT_LENGTH)
+            && $length === self::TYPES_WITH_INVALID_DEFAULT_LENGTH[$type]
+        ) {
+            return $this->getDefaultLength();
+        }
+        return $length;
     }
 
     /**

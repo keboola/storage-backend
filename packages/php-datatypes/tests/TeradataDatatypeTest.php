@@ -228,6 +228,8 @@ class TeradataDatatypeTest extends TestCase
             ['REAL', null],
             ['NUMBER', null],
             ['NUMBER', '24,24'],
+            // comes from HELP TABLE
+            ['NUMBER', '-128,-128'],
             ['BYTE', null],
             ['BYTE', '5000'],
             ['VARBYTE', null],
