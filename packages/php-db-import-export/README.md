@@ -314,3 +314,7 @@ Adapter must implement:
 Backend can require own extended AdapterInterface (Synapse and Snowflake do now).
 
 
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
