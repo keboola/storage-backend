@@ -130,3 +130,7 @@ This command will run all checks and run tests
 ```bash
 docker-compose run --rm dev composer ci
 ```
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
