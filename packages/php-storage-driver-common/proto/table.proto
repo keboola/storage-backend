@@ -154,6 +154,7 @@ message ImportExportShared {
    */
   message ExportOptions {
     bool isCompressed = 1; // export file is compressed
+    repeated string columnsToExport = 2;
   }
   /**
    * Depends on driver implementation which provider is supported

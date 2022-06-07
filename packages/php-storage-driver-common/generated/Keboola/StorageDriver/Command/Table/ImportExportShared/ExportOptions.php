@@ -22,6 +22,10 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>bool isCompressed = 1;</code>
      */
     protected $isCompressed = false;
+    /**
+     * Generated from protobuf field <code>repeated string columnsToExport = 2;</code>
+     */
+    private $columnsToExport;
 
     /**
      * Constructor.
@@ -31,6 +35,7 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
      *
      *     @type bool $isCompressed
      *           export file is compressed
+     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columnsToExport
      * }
      */
     public function __construct($data = NULL) {
@@ -60,6 +65,28 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkBool($var);
         $this->isCompressed = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>repeated string columnsToExport = 2;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getColumnsToExport()
+    {
+        return $this->columnsToExport;
+    }
+
+    /**
+     * Generated from protobuf field <code>repeated string columnsToExport = 2;</code>
+     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setColumnsToExport($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $this->columnsToExport = $arr;
 
         return $this;
     }
