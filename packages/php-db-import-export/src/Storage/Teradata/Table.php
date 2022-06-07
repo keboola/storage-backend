@@ -42,11 +42,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         $select = '*';
         $colums = $this->getColumnsNames();
         if ($colums !== []) {
-            $quotedColumns = array_map(static function ($column) {
-                // trim because implicit casting adds right padding spaces
-                // value 10.5 as DECIMAL(8,1) implicitly casted to varchar would be then "      10.5"
-                return sprintf('TRIM(%s)', TeradataQuote::quoteSingleIdentifier($column));
-            }, $colums);
+            $quotedColumns = array_map(static fn($column) => TeradataQuote::quoteSingleIdentifier($column), $colums);
             $select = implode(', ', $quotedColumns);
         }
 
