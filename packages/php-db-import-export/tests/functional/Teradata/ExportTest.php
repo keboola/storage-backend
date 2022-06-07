@@ -373,8 +373,8 @@ class ExportTest extends TeradataBaseTestCase
         // export
         $source = $destinationTable;
         $exportOptions = $this->getExportOptions(true);
-        $xportedFilePath = $this->getExportDir() . '/gz_test/gzip.csv';
-        $destinationExport = $this->getDestinationInstance($xportedFilePath);
+        $exportedFilePath = $this->getExportDir() . '/gz_test/gzip.csv';
+        $destinationExport = $this->getDestinationInstance($exportedFilePath);
 
         (new Exporter($this->connection))->exportTable(
             $source,
@@ -400,7 +400,7 @@ class ExportTest extends TeradataBaseTestCase
         );
 
         $sourceReimport = $this->createS3SourceInstanceFromCsv(
-            $xportedFilePath,
+            $exportedFilePath . '.gz/F00000',
             new CsvOptions(),
             $file->getHeader()
         );
