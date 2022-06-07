@@ -41,7 +41,10 @@ trait StorageTrait
         $path = '';
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
-                $path = getenv('AWS_S3_KEY') . '/';
+                $key = getenv('AWS_S3_KEY');
+                if ($key) {
+                    $path = $key . '/';
+                }
         }
 
         return $path . 'test_export';

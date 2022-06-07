@@ -353,4 +353,59 @@ class ExportTest extends TeradataBaseTestCase
                 ],
             ];
     }
+
+    public function testExportImportPipeline(): void
+    {
+        // import
+        $schema = $this->getDestinationDbName();
+        $this->initTable(self::BIGGER_TABLE);
+        $file = new CsvFile(self::DATA_DIR . 'big_table.csv');
+        /** @var S3\SourceFile $source */
+        $source = $this->getSourceInstance('big_table.csv', $file->getHeader());
+        $destinationTable = new Table(
+            $schema,
+            self::BIGGER_TABLE
+        );
+        $importOptions = $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE, false);
+
+        $this->importTable($source, $destinationTable, $importOptions);
+
+        // export
+        $source = $destinationTable;
+        $exportOptions = $this->getExportOptions(true);
+        $xportedFilePath = $this->getExportDir() . '/gz_test/gzip.csv';
+        $destinationExport = $this->getDestinationInstance($xportedFilePath);
+
+        (new Exporter($this->connection))->exportTable(
+            $source,
+            $destinationExport,
+            $exportOptions
+        );
+
+        $reImportTableName = 'big_table_re-import';
+        // import to big_table_re-import from exported file
+        $this->connection->executeQuery(
+            sprintf(
+                "CREATE TABLE %s.%s AS %s.%s WITH NO DATA",
+                TeradataQuote::quoteSingleIdentifier($schema),
+                TeradataQuote::quoteSingleIdentifier($reImportTableName),
+                TeradataQuote::quoteSingleIdentifier($schema),
+                TeradataQuote::quoteSingleIdentifier(self::BIGGER_TABLE)
+            )
+        );
+
+        $destinationTableReImport = new Table(
+            $schema,
+            $reImportTableName
+        );
+
+        $sourceReimport = $this->createS3SourceInstanceFromCsv(
+            $xportedFilePath,
+            new CsvOptions(),
+            $file->getHeader()
+        );
+
+        $this->importTable($sourceReimport, $destinationTableReImport, $importOptions);
+
+    }
 }
