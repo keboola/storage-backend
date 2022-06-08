@@ -80,23 +80,24 @@ final class BackendHelper
         return (bool) preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
     }
 
-    public static function getFileFromTDMultipart(SourceFile $source): string
+    /**
+     * extracts filename and prefix from s3 url - removing bucket, protocol and Fxxx suffix
+     */
+    public static function buildPrefixAndObject(SourceFile $source): array
     {
         // docs say 6, but my files are created with 5
         $entries = $source->getManifestEntries();
         preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
-        return $out['filePath'] ?? '';
-    }
 
-    public static function buildPrefixAndObject(SourceFile $source): array
-    {
-        $filePath = BackendHelper::getFileFromTDMultipart($source);
+        $filePath = $out['filePath'] ?? '';
         $filePath = str_replace(($source->getS3Prefix() . '/'), '', $filePath);
 
         $exploded = explode('/', $filePath);
         $object = end($exploded);
+        // get all the parts of exploded path but without the last thing - the filename
         $prefix = implode('/', array_slice($exploded, 0, -1));
-
+        // prefix should end with / but only if it exists
+        $prefix = $prefix ? ($prefix . '/') : '';
         return [$prefix, $object];
     }
 }

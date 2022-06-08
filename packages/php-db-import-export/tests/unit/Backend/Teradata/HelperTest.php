@@ -139,7 +139,7 @@ class HelperTest extends TestCase
         return [
 
             'with prefix' => [
-                ['sliced/accounts-gzip', 'file.gz'],
+                ['sliced/accounts-gzip/', 'file.gz'],
                 [
                     's3://zajca-aaaaa/sliced/accounts-gzip/file.gz/F00000',
                 ],

@@ -192,7 +192,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             // extract real filepath from path -> remove F000000 and do just one load
             // load with SPF = false
 
-            [$object, $prefix] = BackendHelper::buildPrefixAndObject($source);
+            [$prefix, $object] = BackendHelper::buildPrefixAndObject($source);
             $moduleStr = sprintf(
             // phpcs:ignore
                 'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=False S3ConfigDir=%s\'',
