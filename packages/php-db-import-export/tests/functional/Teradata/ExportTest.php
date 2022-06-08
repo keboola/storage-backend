@@ -359,9 +359,9 @@ class ExportTest extends TeradataBaseTestCase
     {
         return [
             'compressed singleFile=false' => [
-                true,
-                false,
-                '.gz/F000000',
+                true, // gz
+                false, // use SinglePartFile
+                '.gz/F000000', // generated file name based on ^^
             ],
             'compressed singleFile=true' => [
                 true,
@@ -383,8 +383,9 @@ class ExportTest extends TeradataBaseTestCase
 
     /**
      * @dataProvider pipelineOptions
+     * tests pipeline - import -> export and import exported file
      */
-    public function testExportImportPipelineGz(
+    public function testExportImportPipeline(
         bool $compressed,
         bool $singlePartFile,
         string $exportedFilenameSuffix
