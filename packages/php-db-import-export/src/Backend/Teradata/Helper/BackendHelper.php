@@ -67,4 +67,22 @@ final class BackendHelper
         }
         return implode('', $out);
     }
+
+    public static function isMultipartFile(SourceFile $source): bool
+    {
+        $entries = $source->getManifestEntries();
+        if (count($entries) === 0) {
+            // no entries -> no data to load
+            return false;
+        }
+
+        return (bool) preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{6})/', $entries[0], $out);
+    }
+
+    public static function getFileFromTDMultipart(SourceFile $source): string
+    {
+        $entries = $source->getManifestEntries();
+        preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{6})/', $entries[0], $out);
+        return $out['filePath'] ?? '';
+    }
 }

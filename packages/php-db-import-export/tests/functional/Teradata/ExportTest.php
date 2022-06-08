@@ -400,7 +400,7 @@ class ExportTest extends TeradataBaseTestCase
         );
 
         $sourceReimport = $this->createS3SourceInstanceFromCsv(
-            $exportedFilePath . '.gz',
+            $exportedFilePath . '.gz/F000000',
             new CsvOptions(),
             $file->getHeader()
         );

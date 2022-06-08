@@ -55,7 +55,7 @@ class HelperTest extends TestCase
     public function dataProvider(): array
     {
         return [
-            [
+            'long slice' => [
                 'sliced/accounts-gzip/tw_accounts.csv.gz000*_part_00.gz',
                 [
                     // phpcs:ignore
@@ -64,7 +64,7 @@ class HelperTest extends TestCase
                     's3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy/sliced/accounts-gzip/tw_accounts.csv.gz0002_part_00.gz',
                 ],
             ],
-            [
+            'suffix style' => [
                 'sliced.csv_*',
                 [
                     'sliced.csv_1001',
@@ -75,7 +75,7 @@ class HelperTest extends TestCase
                     'sliced.csv_1002',
                 ],
             ],
-            [
+            'inner slice' => [
                 'sliced0****',
                 [
                     'sliced0122.csv',
@@ -84,6 +84,12 @@ class HelperTest extends TestCase
                     'sliced01999.csv',
                     'sliced0.csv',
                     'sliced034.csv',
+                ],
+            ],
+            'single file' => [
+                'singlFile.csv',
+                [
+                    'singlFile.csv',
                 ],
             ],
         ];
