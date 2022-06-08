@@ -87,4 +87,16 @@ final class BackendHelper
         preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
         return $out['filePath'] ?? '';
     }
+
+    public static function buildPrefixAndObject(SourceFile $source): array
+    {
+        $filePath = BackendHelper::getFileFromTDMultipart($source);
+        $filePath = str_replace(($source->getS3Prefix() . '/'), '', $filePath);
+
+        $exploded = explode('/', $filePath);
+        $object = end($exploded);
+        $prefix = implode('/', array_slice($exploded, 0, -1));
+
+        return [$prefix, $object];
+    }
 }

@@ -189,21 +189,10 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             // scenario c
 
             // file is s3://bucket/path/.../file.csv.gz/F000000
-
             // extract real filepath from path -> remove F000000 and do just one load
-
             // load with SPF = false
 
-            $filePath = BackendHelper::getFileFromTDMultipart($source);
-            $filePath = str_replace($source->getS3Prefix(), '', $filePath);
-            $prefixLength = strrpos($filePath, '/');
-            $prefix = '';
-            $object = '';
-            if ($prefixLength !== false) {
-                // include / at the end
-                $prefix = substr($filePath, 1, $prefixLength);
-                $object = substr($filePath, $prefixLength + 1);
-            }
+            [$object, $prefix] = BackendHelper::buildPrefixAndObject($source);
             $moduleStr = sprintf(
             // phpcs:ignore
                 'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=False S3ConfigDir=%s\'',

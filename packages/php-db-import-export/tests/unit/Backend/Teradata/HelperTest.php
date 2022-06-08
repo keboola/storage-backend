@@ -94,4 +94,79 @@ class HelperTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @return array<mixed>
+     */
+    public function isMultipartDataprovider(): array
+    {
+        return [
+
+            'multipart' => [
+                true,
+                [
+                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz/F00000',
+                ],
+            ],
+
+            'single file' => [
+                false,
+                [
+                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param string[] $entriesData
+     * @dataProvider isMultipartDataprovider
+     */
+    public function testIsMultipart(bool $expected, array $entriesData): void
+    {
+        $mock = $this->createMock(SourceFile::class);
+
+        $mock->method('getManifestEntries')
+            ->willReturn($entriesData);
+        self::assertEquals($expected, BackendHelper::isMultipartFile($mock));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function buildPrefixProvider(): array
+    {
+        return [
+
+            'with prefix' => [
+                ['sliced/accounts-gzip', 'file.gz'],
+                [
+                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz/F00000',
+                ],
+            ],
+
+            'without prefix' => [
+                ['', 'file.gz'],
+                [
+                    's3://zajca-aaaaa/file.gz/F00000',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param string[] $expected
+     * @param string[] $entries
+     * @dataProvider buildPrefixProvider
+     */
+    public function testBuildPrefixAndObject(array $expected, array $entries): void
+    {
+        $mock = $this->createMock(SourceFile::class);
+
+        $mock->method('getManifestEntries')
+            ->willReturn($entries);
+        $mock->method('getS3Prefix')
+            ->willReturn('s3://zajca-aaaaa');
+        self::assertEquals($expected, BackendHelper::buildPrefixAndObject($mock));
+    }
 }
