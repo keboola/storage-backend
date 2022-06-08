@@ -387,7 +387,7 @@ class ExportTest extends TeradataBaseTestCase
         // import to big_table_re-import from exported file
         $this->connection->executeQuery(
             sprintf(
-                "CREATE TABLE %s.%s AS %s.%s WITH NO DATA",
+                'CREATE TABLE %s.%s AS %s.%s WITH NO DATA',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
                 TeradataQuote::quoteSingleIdentifier($schema),
@@ -410,7 +410,7 @@ class ExportTest extends TeradataBaseTestCase
 
         $counter = $this->connection->fetchAllAssociative(
             sprintf(
-                "SELECT COUNT(*) AS counter FROM %s.%s",
+                'SELECT COUNT(*) AS counter FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
             )
@@ -450,7 +450,7 @@ class ExportTest extends TeradataBaseTestCase
         // import to big_table_re-import from exported file
         $this->connection->executeQuery(
             sprintf(
-                "CREATE TABLE %s.%s AS %s.%s WITH NO DATA",
+                'CREATE TABLE %s.%s AS %s.%s WITH NO DATA',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
                 TeradataQuote::quoteSingleIdentifier($schema),
@@ -473,13 +473,12 @@ class ExportTest extends TeradataBaseTestCase
 
         $counter = $this->connection->fetchAllAssociative(
             sprintf(
-                "SELECT COUNT(*) AS counter FROM %s.%s",
+                'SELECT COUNT(*) AS counter FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
             )
         );
         self::assertEquals(96271, $counter[0]['counter']);
-
     }
 
     public function testExportImportPipelineNonGz(): void
@@ -514,7 +513,7 @@ class ExportTest extends TeradataBaseTestCase
         // import to big_table_re-import from exported file
         $this->connection->executeQuery(
             sprintf(
-                "CREATE TABLE %s.%s AS %s.%s WITH NO DATA",
+                'CREATE TABLE %s.%s AS %s.%s WITH NO DATA',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
                 TeradataQuote::quoteSingleIdentifier($schema),
@@ -537,7 +536,7 @@ class ExportTest extends TeradataBaseTestCase
 
         $counter = $this->connection->fetchAllAssociative(
             sprintf(
-                "SELECT COUNT(*) AS counter FROM %s.%s",
+                'SELECT COUNT(*) AS counter FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
             )
@@ -583,7 +582,7 @@ class ExportTest extends TeradataBaseTestCase
         // import to big_table_re-import from exported file
         $this->connection->executeQuery(
             sprintf(
-                "CREATE TABLE %s.%s AS %s.%s WITH NO DATA",
+                'CREATE TABLE %s.%s AS %s.%s WITH NO DATA',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
                 TeradataQuote::quoteSingleIdentifier($schema),
@@ -606,7 +605,7 @@ class ExportTest extends TeradataBaseTestCase
 
         $counter = $this->connection->fetchAllAssociative(
             sprintf(
-                "SELECT COUNT(*) AS counter FROM %s.%s",
+                'SELECT COUNT(*) AS counter FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
             )
@@ -652,7 +651,7 @@ class ExportTest extends TeradataBaseTestCase
         // import to big_table_re-import from exported file
         $this->connection->executeQuery(
             sprintf(
-                "CREATE TABLE %s.%s AS %s.%s WITH NO DATA",
+                'CREATE TABLE %s.%s AS %s.%s WITH NO DATA',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
                 TeradataQuote::quoteSingleIdentifier($schema),
@@ -675,7 +674,7 @@ class ExportTest extends TeradataBaseTestCase
 
         $counter = $this->connection->fetchAllAssociative(
             sprintf(
-                "SELECT COUNT(*) AS counter FROM %s.%s",
+                'SELECT COUNT(*) AS counter FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
             )
