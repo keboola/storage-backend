@@ -355,6 +355,9 @@ class ExportTest extends TeradataBaseTestCase
             ];
     }
 
+    /**
+     * @return mixed[]
+     */
     public function pipelineOptions(): array
     {
         return [

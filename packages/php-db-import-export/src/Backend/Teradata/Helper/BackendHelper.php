@@ -82,6 +82,7 @@ final class BackendHelper
 
     /**
      * extracts filename and prefix from s3 url - removing bucket, protocol and Fxxx suffix
+     * @return string[]
      */
     public static function buildPrefixAndObject(SourceFile $source): array
     {
