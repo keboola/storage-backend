@@ -76,13 +76,15 @@ final class BackendHelper
             return false;
         }
 
-        return (bool) preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{6})/', $entries[0], $out);
+        // docs say 6, but my files are created with 5
+        return (bool) preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
     }
 
     public static function getFileFromTDMultipart(SourceFile $source): string
     {
+        // docs say 6, but my files are created with 5
         $entries = $source->getManifestEntries();
-        preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{6})/', $entries[0], $out);
+        preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
         return $out['filePath'] ?? '';
     }
 }
