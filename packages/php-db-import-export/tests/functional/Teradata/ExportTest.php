@@ -414,7 +414,8 @@ class ExportTest extends TeradataBaseTestCase
             TeradataExportOptions::DEFAULT_BUFFER_SIZE,
             TeradataExportOptions::DEFAULT_MAX_OBJECT_SIZE,
             TeradataExportOptions::DEFAULT_SPLIT_ROWS,
-            $singlePartFile);
+            $singlePartFile
+        );
         $exportedFilePath = $this->getExportDir() . '/gz_test/gzip.csv';
         $destinationExport = $this->getDestinationInstance($exportedFilePath);
 
