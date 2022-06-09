@@ -444,7 +444,8 @@ class ExportTest extends TeradataBaseTestCase
 
         $awsKey = (string) getenv('AWS_S3_KEY');
         if ($awsKey) {
-            // $exportedFilePath contains <key>/dirs/filename but createS3SourceInstanceFromCsv will add the key again -> it has to be removed
+            // $exportedFilePath contains <key>/dirs/filename but createS3SourceInstanceFromCsv will add the key again
+            // -> it has to be removed
             $exportedFilePath = str_replace($awsKey . '/', '', $exportedFilePath);
         }
 
