@@ -159,7 +159,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         );
     }
 
-    public function createDatabase(string $dbName, string $perm = '2e7', string $spool = '2e7'): void
+    public function createDatabase(string $dbName, string $perm = '5e7', string $spool = '5e7'): void
     {
         // 2e7 = 20MB
         $this->connection->executeQuery(sprintf('

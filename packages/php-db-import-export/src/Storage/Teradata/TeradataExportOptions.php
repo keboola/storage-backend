@@ -103,11 +103,12 @@ class TeradataExportOptions extends ExportOptions
     public function generateS3SizeOptions(): string
     {
         return sprintf(
-            'S3DontSplitRows=%s S3SinglePartFile=%s S3MaxObjectSize=%s S3BufferSize=%s',
+            'S3DontSplitRows=%s S3SinglePartFile=%s %s S3BufferSize=%s',
             $this->dontSplitRows ? 'True' : 'False',
             $this->singlePartFile ? 'True' : 'False',
-            $this->maxObjectSize,
+            $this->singlePartFile ? '' : (sprintf('S3MaxObjectSize=%s', $this->getMaxObjectSize())),
             $this->bufferSize
         );
+        // !Error! Setting S3MaxObjectSize when S3SinglePartFile=True is unsupported
     }
 }

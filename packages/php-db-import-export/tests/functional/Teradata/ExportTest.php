@@ -16,6 +16,7 @@ use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\S3;
 use Keboola\Db\ImportExport\Storage\Teradata\Table;
+use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
@@ -352,5 +353,117 @@ class ExportTest extends TeradataBaseTestCase
                     ], // expected files
                 ],
             ];
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function pipelineOptions(): array
+    {
+        return [
+            'compressed singleFile=false' => [
+                true, // gz
+                false, // use SinglePartFile
+                '.gz/F000000', // generated file name based on ^^
+            ],
+            'compressed singleFile=true' => [
+                true,
+                true,
+                '.gz',
+            ],
+            'non-compressed singleFile=true' => [
+                false,
+                true,
+                '',
+            ],
+            'non-compressed singleFile=false' => [
+                false,
+                false,
+                '/F000000',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider pipelineOptions
+     * tests pipeline - import -> export and import exported file
+     */
+    public function testExportImportPipeline(
+        bool $compressed,
+        bool $singlePartFile,
+        string $exportedFilenameSuffix
+    ): void {
+        // import
+        $schema = $this->getDestinationDbName();
+        $this->initTable(self::BIGGER_TABLE);
+        $file = new CsvFile(self::DATA_DIR . 'big_table.csv');
+        /** @var S3\SourceFile $source */
+        $source = $this->getSourceInstance('big_table.csv', $file->getHeader());
+        $destinationTable = new Table(
+            $schema,
+            self::BIGGER_TABLE
+        );
+        $importOptions = $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE, false);
+
+        $this->importTable($source, $destinationTable, $importOptions, 4);
+
+        // export
+        $sourceTable = $destinationTable;
+        $exportOptions = $this->getExportOptions(
+            $compressed,
+            TeradataExportOptions::DEFAULT_BUFFER_SIZE,
+            TeradataExportOptions::DEFAULT_MAX_OBJECT_SIZE,
+            TeradataExportOptions::DEFAULT_SPLIT_ROWS,
+            $singlePartFile
+        );
+        $exportedFilePath = $this->getExportDir() . '/gz_test/gzip.csv';
+        $destinationExport = $this->getDestinationInstance($exportedFilePath);
+
+        (new Exporter($this->connection))->exportTable(
+            $sourceTable,
+            $destinationExport,
+            $exportOptions
+        );
+
+        $reImportTableName = 'big_table_re-import';
+        // import to big_table_re-import from exported file
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE TABLE %s.%s AS %s.%s WITH NO DATA',
+                TeradataQuote::quoteSingleIdentifier($schema),
+                TeradataQuote::quoteSingleIdentifier($reImportTableName),
+                TeradataQuote::quoteSingleIdentifier($schema),
+                TeradataQuote::quoteSingleIdentifier(self::BIGGER_TABLE)
+            )
+        );
+
+        $destinationTableReImport = new Table(
+            $schema,
+            $reImportTableName
+        );
+
+        $awsKey = (string) getenv('AWS_S3_KEY');
+        if ($awsKey) {
+            // $exportedFilePath contains <key>/dirs/filename but createS3SourceInstanceFromCsv will add the key again
+            // -> it has to be removed
+            $exportedFilePath = str_replace($awsKey . '/', '', $exportedFilePath);
+        }
+
+        $sourceReimport = $this->createS3SourceInstanceFromCsv(
+            $exportedFilePath . $exportedFilenameSuffix,
+            new CsvOptions(),
+            $file->getHeader()
+        );
+
+        $this->importTable($sourceReimport, $destinationTableReImport, $importOptions);
+
+        $counter = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT COUNT(*) AS counter FROM %s.%s',
+                TeradataQuote::quoteSingleIdentifier($schema),
+                TeradataQuote::quoteSingleIdentifier($reImportTableName),
+            )
+        );
+        self::assertEquals(96271, $counter[0]['counter']);
     }
 }

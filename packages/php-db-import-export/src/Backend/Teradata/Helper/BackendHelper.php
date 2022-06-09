@@ -67,4 +67,38 @@ final class BackendHelper
         }
         return implode('', $out);
     }
+
+    public static function isMultipartFile(SourceFile $source): bool
+    {
+        $entries = $source->getManifestEntries();
+        if (count($entries) === 0) {
+            // no entries -> no data to load
+            return false;
+        }
+
+        // docs say 6, but my files are created with 5
+        return (bool) preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
+    }
+
+    /**
+     * extracts filename and prefix from s3 url - removing bucket, protocol and Fxxx suffix
+     * @return string[]
+     */
+    public static function buildPrefixAndObject(SourceFile $source): array
+    {
+        // docs say 6, but my files are created with 5
+        $entries = $source->getManifestEntries();
+        preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
+
+        $filePath = $out['filePath'] ?? '';
+        $filePath = str_replace(($source->getS3Prefix() . '/'), '', $filePath);
+
+        $exploded = explode('/', $filePath);
+        $object = end($exploded);
+        // get all the parts of exploded path but without the last thing - the filename
+        $prefix = implode('/', array_slice($exploded, 0, -1));
+        // prefix should end with / but only if it exists
+        $prefix = $prefix ? ($prefix . '/') : '';
+        return [$prefix, $object];
+    }
 }

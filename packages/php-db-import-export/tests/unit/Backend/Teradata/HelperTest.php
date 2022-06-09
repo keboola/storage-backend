@@ -55,7 +55,7 @@ class HelperTest extends TestCase
     public function dataProvider(): array
     {
         return [
-            [
+            'long slice' => [
                 'sliced/accounts-gzip/tw_accounts.csv.gz000*_part_00.gz',
                 [
                     // phpcs:ignore
@@ -64,7 +64,7 @@ class HelperTest extends TestCase
                     's3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy/sliced/accounts-gzip/tw_accounts.csv.gz0002_part_00.gz',
                 ],
             ],
-            [
+            'suffix style' => [
                 'sliced.csv_*',
                 [
                     'sliced.csv_1001',
@@ -75,7 +75,7 @@ class HelperTest extends TestCase
                     'sliced.csv_1002',
                 ],
             ],
-            [
+            'inner slice' => [
                 'sliced0****',
                 [
                     'sliced0122.csv',
@@ -86,6 +86,87 @@ class HelperTest extends TestCase
                     'sliced034.csv',
                 ],
             ],
+            'single file' => [
+                'singlFile.csv',
+                [
+                    'singlFile.csv',
+                ],
+            ],
         ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function isMultipartDataprovider(): array
+    {
+        return [
+
+            'multipart' => [
+                true,
+                [
+                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz/F00000',
+                ],
+            ],
+
+            'single file' => [
+                false,
+                [
+                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param string[] $entriesData
+     * @dataProvider isMultipartDataprovider
+     */
+    public function testIsMultipart(bool $expected, array $entriesData): void
+    {
+        $mock = $this->createMock(SourceFile::class);
+
+        $mock->method('getManifestEntries')
+            ->willReturn($entriesData);
+        self::assertEquals($expected, BackendHelper::isMultipartFile($mock));
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function buildPrefixProvider(): array
+    {
+        return [
+
+            'with prefix' => [
+                ['sliced/accounts-gzip/', 'file.gz'],
+                [
+                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz/F00000',
+                ],
+            ],
+
+            'without prefix' => [
+                ['', 'file.gz'],
+                [
+                    's3://zajca-aaaaa/file.gz/F00000',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param string[] $expected
+     * @param string[] $entries
+     * @dataProvider buildPrefixProvider
+     */
+    public function testBuildPrefixAndObject(array $expected, array $entries): void
+    {
+        $mock = $this->createMock(SourceFile::class);
+
+        $mock->method('getManifestEntries')
+            ->willReturn($entries);
+        $mock->method('getS3Prefix')
+            ->willReturn('s3://zajca-aaaaa');
+        self::assertEquals($expected, BackendHelper::buildPrefixAndObject($mock));
     }
 }
