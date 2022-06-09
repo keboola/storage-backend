@@ -47,6 +47,7 @@ trait S3SourceTrait
     }
 
     /**
+     * filePath is expected without AWS_S3_KEY
      * @param string[] $columns
      * @param string[]|null $primaryKeys
      */

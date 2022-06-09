@@ -408,7 +408,7 @@ class ExportTest extends TeradataBaseTestCase
         $this->importTable($source, $destinationTable, $importOptions, 4);
 
         // export
-        $source = $destinationTable;
+        $sourceTable = $destinationTable;
         $exportOptions = $this->getExportOptions(
             $compressed,
             TeradataExportOptions::DEFAULT_BUFFER_SIZE,
@@ -420,7 +420,7 @@ class ExportTest extends TeradataBaseTestCase
         $destinationExport = $this->getDestinationInstance($exportedFilePath);
 
         (new Exporter($this->connection))->exportTable(
-            $source,
+            $sourceTable,
             $destinationExport,
             $exportOptions
         );
@@ -441,6 +441,12 @@ class ExportTest extends TeradataBaseTestCase
             $schema,
             $reImportTableName
         );
+
+        $awsKey = (string) getenv('AWS_S3_KEY');
+        if ($awsKey) {
+            // $exportedFilePath contains <key>/dirs/filename but createS3SourceInstanceFromCsv will add the key again -> it has to be removed
+            $exportedFilePath = str_replace($awsKey . '/', '', $exportedFilePath);
+        }
 
         $sourceReimport = $this->createS3SourceInstanceFromCsv(
             $exportedFilePath . $exportedFilenameSuffix,
