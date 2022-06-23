@@ -48,7 +48,7 @@ final class StageTableDefinitionFactory
 
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateTempTableName(),
+            BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()
@@ -83,7 +83,7 @@ final class StageTableDefinitionFactory
 
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateTempTableName(),
+            BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()

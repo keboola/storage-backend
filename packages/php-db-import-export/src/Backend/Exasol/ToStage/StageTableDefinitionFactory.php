@@ -50,7 +50,7 @@ final class StageTableDefinitionFactory
 
         return new ExasolTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateTempTableName(),
+            BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()

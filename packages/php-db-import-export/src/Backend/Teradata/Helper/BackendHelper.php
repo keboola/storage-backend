@@ -5,22 +5,13 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\Helper;
 
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
+use Keboola\Db\ImportExport\Backend\Helper\BackendHelper as BaseHelper;
 
-final class BackendHelper
+final class BackendHelper extends BaseHelper
 {
     public static function quoteValue(string $value): string
     {
         return "'" . addslashes($value) . "'";
-    }
-
-    public static function generateTempTableName(): string
-    {
-        return '__temp_' . str_replace('.', '_', uniqid('csvimport', true));
-    }
-
-    public static function generateTempDedupTableName(): string
-    {
-        return '__temp_DEDUP_' . str_replace('.', '_', uniqid('csvimport', true));
     }
 
     /**
