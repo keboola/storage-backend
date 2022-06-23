@@ -7,6 +7,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\ToStage;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Helper\Assert;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
@@ -39,7 +40,7 @@ final class ToStageImporter implements ToStageImporterInterface
     ): ImportState {
         assert($options instanceof SnowflakeImportOptions);
         assert($destinationDefinition instanceof SnowflakeTableDefinition);
-//        Assert::assertColumnsOnTableDefinition($source, $destinationDefinition); TODO
+        Assert::assertColumnsOnTableDefinition($source, $destinationDefinition);
         $state = new ImportState($destinationDefinition->getTableName());
 
         $adapter = $this->getAdapter($source);
