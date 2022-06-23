@@ -38,15 +38,13 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             return SnowflakeQuote::quoteSingleIdentifier($column);
         }, $source->getColumnsNames());
 
-        // TODO
-        $sql = '';
-//        $sql = sprintf(
-//            'INSERT INTO %s.%s (%s) %s',
-//            SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
-//            SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
-//            implode(', ', $quotedColumns),
-//            $source->getFromStatement()
-//        );
+        $sql = sprintf(
+            'INSERT INTO %s.%s (%s) %s',
+            SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
+            implode(', ', $quotedColumns),
+            $source->getFromStatement()
+        );
 
         if ($source instanceof SelectSource) {
             $this->connection->executeQuery($sql, $source->getQueryBindings(), $source->getDataTypes());

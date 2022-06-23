@@ -347,28 +347,32 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
 
     protected function cleanSchema(string $schemaName): void
     {
-        if (!$this->schemaExists($schemaName)) {
-            return;
-        }
-
-        // drop schema TODO
-//        $this->connection->executeQuery(
-//            sprintf(
-//                'DROP SCHEMA %s CASCADE',
-//                SnowflakeQuote::quoteSingleIdentifier($schemaName)
-//            )
-//        );
+        $this->connection->executeQuery(
+            sprintf(
+                'DROP SCHEMA IF EXISTS %s CASCADE',
+                SnowflakeQuote::quoteSingleIdentifier($schemaName)
+            )
+        );
     }
 
     protected function schemaExists(string $schemaName): bool
     {
-        // TODO
-        return false;
+        return (bool) $this->connection->fetchOne(
+            sprintf(
+                "SHOW SCHEMAS LIKE %s;",
+                SnowflakeQuote::quote($schemaName)
+            )
+        );
     }
 
     public function createSchema(string $schemaName): void
     {
-        // TODO
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE SCHEMA %s;',
+                SnowflakeQuote::quoteSingleIdentifier($schemaName)
+            )
+        );
     }
 
     protected function getSnowflakeImportOptions(

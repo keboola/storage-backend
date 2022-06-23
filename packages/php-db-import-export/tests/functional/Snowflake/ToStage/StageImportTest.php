@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
+namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToStage;
 
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class StageImportTest extends SnowflakeBaseTestCase
 {
