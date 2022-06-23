@@ -1,0 +1,443 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
+
+use Doctrine\DBAL\Connection;
+use Exception;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
+
+class SnowflakeBaseTestCase extends ImportExportBaseTest
+{
+    protected const SNFLK_DEST_SCHEMA_NAME = 'in_c-tests';
+    protected const SNFLK_SOURCE_SCHEMA_NAME = 'some_tests';
+    public const TABLE_ACCOUNTS_3 = 'accounts-3';
+    public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
+    public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
+    public const TABLE_MULTI_PK = 'multi-pk';
+    public const TABLE_MULTI_PK_WITH_TS = 'multi-pk_ts';
+    public const TABLE_SINGLE_PK = 'single-pk';
+    public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
+    public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
+    public const TABLE_NULLIFY = 'nullify';
+    public const TABLE_OUT_LEMMA = 'out_lemma';
+    public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
+    public const TABLE_TABLE = 'table';
+    public const TABLE_TYPES = 'types';
+    public const TESTS_PREFIX = 'import-export-test_';
+
+    protected Connection $connection;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->connection = $this->getSnowflakeConnection();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->close();
+        parent::tearDown();
+    }
+
+    protected function getSnowflakeConnection(): Connection
+    {
+        return SnowflakeConnectionFactory::getConnection(
+            (string) getenv('SNOWFLAKE_HOST'),
+            (string) getenv('SNOWFLAKE_USER'),
+            (string) getenv('SNOWFLAKE_PASSWORD'),
+            [
+                'port' => (string) getenv('SNOWFLAKE_PORT'),
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+            ],
+        );
+    }
+
+    protected function insertRowToTable(
+        string $schemaName,
+        string $tableName,
+        int $id,
+        string $firstName,
+        string $lastName
+    ): void {
+        $this->connection->executeQuery(sprintf(
+            'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+            SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
+            $id,
+            SnowflakeQuote::quote($firstName),
+            SnowflakeQuote::quote($lastName)
+        ));
+    }
+
+    protected function initSingleTable(
+        string $schema = self::SNFLK_SOURCE_SCHEMA_NAME,
+        string $table = self::TABLE_TABLE
+    ): void {
+        if (!$this->schemaExists($schema)) {
+            $this->createSchema($schema);
+        }
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100)
+);',
+                SnowflakeQuote::quoteSingleIdentifier($schema),
+                SnowflakeQuote::quoteSingleIdentifier($table)
+            )
+        );
+    }
+
+    protected function initTable(string $tableName): void
+    {
+        // TODO - zatim jsou tady Exasol queries
+        switch ($tableName) {
+            case self::TABLE_OUT_CSV_2COLS_WITHOUT_TS:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE TABLE %s.%s (
+          "col1" VARCHAR(20000)  ,
+          "col2" VARCHAR(20000)  
+        );',
+                        SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                        SnowflakeQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+                break;
+            case self::TABLE_OUT_CSV_2COLS:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE TABLE %s.%s (
+          "col1" VARCHAR(20000)  ,
+          "col2" VARCHAR(20000)  ,
+          "_timestamp" TIMESTAMP
+        );',
+                        SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                        SnowflakeQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', NOW());',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+          "col1" VARCHAR(2000000) ,
+          "col2" VARCHAR(2000000) 
+        );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_ACCOUNTS_BEZ_TS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000) ,
+                "idTwitter" VARCHAR(2000000) ,
+                "name" VARCHAR(2000000) ,
+                "import" VARCHAR(2000000) ,
+                "isImported" VARCHAR(2000000) ,
+                "apiLimitExceededDatetime" VARCHAR(2000000) ,
+                "analyzeSentiment" VARCHAR(2000000) ,
+                "importKloutScore" VARCHAR(2000000) ,
+                "timestamp" VARCHAR(2000000) ,
+                "oauthToken" VARCHAR(2000000) ,
+                "oauthSecret" VARCHAR(2000000) ,
+                "idApp" VARCHAR(2000000),
+                 CONSTRAINT PRIMARY KEY ("id")
+            ) ',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_NULLIFY:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000)   ,
+                "col1" VARCHAR(2000000) ,
+                "col2" VARCHAR(2000000) 
+            ) ',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_TYPES:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s."types" (
+              "charCol"  VARCHAR(2000000) ,
+              "numCol"   VARCHAR(2000000) ,
+              "floatCol" VARCHAR(2000000) ,
+              "boolCol"  VARCHAR(2000000) ,
+              "_timestamp" TIMESTAMP
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+                ));
+
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE  %s."types" (
+              "charCol"  VARCHAR(4000) ,
+              "numCol" decimal(10,1) ,
+              "floatCol" float ,
+              "boolCol" tinyint 
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName())
+                ));
+                $this->connection->executeQuery(sprintf(
+                    'INSERT INTO  %s."types" VALUES
+              (\'a\', \'10.5\', \'0.3\', 1)
+           ;',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName())
+                ));
+                break;
+            case self::TABLE_COLUMN_NAME_ROW_NUMBER:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+              "id" VARCHAR(4000) ,
+              "row_number" VARCHAR(4000) ,
+              "_timestamp" TIMESTAMP
+           )',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_SINGLE_PK:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+            "VisitID"   VARCHAR(2000000) ,
+            "Value"     VARCHAR(2000000),
+            "MenuItem"  VARCHAR(2000000),
+            "Something" VARCHAR(2000000),
+            "Other"     VARCHAR(2000000),
+            CONSTRAINT PRIMARY KEY ("VisitID")
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_MULTI_PK:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+            "VisitID"   VARCHAR(2000000) ,
+            "Value"     VARCHAR(2000000),
+            "MenuItem"  VARCHAR(2000000),
+            "Something" VARCHAR(2000000),
+            "Other"     VARCHAR(2000000),
+            CONSTRAINT PRIMARY KEY ("VisitID", "Something")
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+                // table just for EXA because PK cannot have null nor ''
+            case self::TABLE_MULTI_PK_WITH_TS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+            "VisitID"   VARCHAR(2000000) ,
+            "Value"     VARCHAR(2000000),
+            "MenuItem"  VARCHAR(2000000),
+            "Something" VARCHAR(2000000),
+            "Other"     VARCHAR(2000000),
+            "_timestamp" TIMESTAMP,
+            CONSTRAINT PRIMARY KEY ("VisitID", "Value", "MenuItem")
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_ACCOUNTS_3:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                "id" VARCHAR(2000000) ,
+                "idTwitter" VARCHAR(2000000) ,
+                "name" VARCHAR(2000000) ,
+                "import" VARCHAR(2000000) ,
+                "isImported" VARCHAR(2000000) ,
+                "apiLimitExceededDatetime" VARCHAR(2000000) ,
+                "analyzeSentiment" VARCHAR(2000000) ,
+                "importKloutScore" VARCHAR(2000000) ,
+                "timestamp" VARCHAR(2000000) ,
+                "oauthToken" VARCHAR(2000000) ,
+                "oauthSecret" VARCHAR(2000000) ,
+                "idApp" VARCHAR(2000000) ,
+                "_timestamp" TIMESTAMP,
+                CONSTRAINT PRIMARY KEY ("id")
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_OUT_LEMMA:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+          "ts" VARCHAR(2000000)         ,
+          "lemma" VARCHAR(2000000)      ,
+          "lemmaIndex" VARCHAR(2000000) ,
+                "_timestamp" TIMESTAMP
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_TABLE:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                                "column" VARCHAR(2000000)         ,
+                                "table" VARCHAR(2000000)      ,
+                                "lemmaIndex" VARCHAR(2000000) ,
+                "_timestamp" TIMESTAMP
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                                "col1" VARCHAR(2000000)         ,
+                                "col2" VARCHAR(2000000)      
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            default:
+                throw new Exception("unknown table {$tableName}");
+        }
+    }
+
+    protected function getSourceSchemaName(): string
+    {
+        return self::SNFLK_DEST_SCHEMA_NAME
+            . '-'
+            . getenv('SUITE');
+    }
+
+    protected function getDestinationSchemaName(): string
+    {
+        return self::SNFLK_SOURCE_SCHEMA_NAME
+            . '-'
+            . getenv('SUITE');
+    }
+
+    protected function cleanSchema(string $schemaName): void
+    {
+        if (!$this->schemaExists($schemaName)) {
+            return;
+        }
+
+        // drop schema TODO
+//        $this->connection->executeQuery(
+//            sprintf(
+//                'DROP SCHEMA %s CASCADE',
+//                SnowflakeQuote::quoteSingleIdentifier($schemaName)
+//            )
+//        );
+    }
+
+    protected function schemaExists(string $schemaName): bool
+    {
+        // TODO
+        return false;
+    }
+
+    public function createSchema(string $schemaName): void
+    {
+        // TODO
+    }
+
+    protected function getSnowflakeImportOptions(
+        int $skipLines = 1,
+        bool $useTimeStamp = true
+    ): SnowflakeImportOptions {
+        return new SnowflakeImportOptions(
+            [],
+            false,
+            $useTimeStamp,
+            $skipLines
+        );
+    }
+
+    /**
+     * @param int|string $sortKey
+     * @param array<mixed> $expected
+     * @param string|int $sortKey
+     */
+    protected function assertSnowflakeTableEqualsExpected(
+        SourceInterface $source,
+        SnowflakeTableDefinition $destination,
+        SnowflakeImportOptions $options,
+        array $expected,
+        $sortKey,
+        string $message = 'Imported tables are not the same as expected'
+    ): void {
+        $tableColumns = (new SnowflakeTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        ))->getColumnsNames();
+
+        if ($options->useTimestamp()) {
+            self::assertContains('_timestamp', $tableColumns);
+        } else {
+            self::assertNotContains('_timestamp', $tableColumns);
+        }
+
+        if (!in_array('_timestamp', $source->getColumnsNames(), true)) {
+            $tableColumns = array_filter($tableColumns, static function ($column) {
+                return $column !== '_timestamp';
+            });
+        }
+
+        $tableColumns = array_map(static function ($column) {
+            return sprintf('%s', $column);
+        }, $tableColumns);
+
+        $sql = sprintf(
+            'SELECT %s FROM %s.%s',
+            implode(', ', array_map(static function ($item) {
+                return SnowflakeQuote::quoteSingleIdentifier($item);
+            }, $tableColumns)),
+            SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($destination->getTableName())
+        );
+
+        $queryResult = array_map(static function ($row) {
+            return array_map(static function ($column) {
+                return $column;
+            }, array_values($row));
+        }, $this->connection->fetchAllAssociative($sql));
+
+        $this->assertArrayEqualsSorted(
+            $expected,
+            $queryResult,
+            $sortKey,
+            $message
+        );
+    }
+}
