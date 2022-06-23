@@ -50,7 +50,7 @@ final class StageTableDefinitionFactory
 
         return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateStagingTableName(),
+            $destination->getTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()

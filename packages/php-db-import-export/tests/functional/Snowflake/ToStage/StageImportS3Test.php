@@ -68,8 +68,13 @@ class StageImportS3Test extends SnowflakeBaseTestCase
             $ref->getColumnsNames()
         );
         $qb = new SnowflakeTableQueryBuilder();
+
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTempTableCommand(
+                $stagingTable->getSchemaName(),
+                $stagingTable->getTableName(),
+                $stagingTable->getColumnsDefinitions()
+            )
         );
         $importer->importToStagingTable(
             $this->createS3SourceInstanceFromCsv(

@@ -5,19 +5,21 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Snowflake\ToStage;
 
 use Doctrine\DBAL\Connection;
-use Generator;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
-use Throwable;
 
 class FromS3CopyIntoAdapter implements CopyAdapterInterface
 {
     private Connection $connection;
+
+    private const SLICED_FILES_CHUNK_SIZE = 1000;
 
     public function __construct(Connection $connection)
     {
@@ -34,17 +36,67 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         TableDefinitionInterface $destination,
         ImportOptionsInterface $importOptions
     ): int {
-// todo
+        $files = $source->getManifestEntries();
+        foreach (array_chunk($files, self::SLICED_FILES_CHUNK_SIZE) as $files) {
+            $this->connection->executeStatement(
+                $this->getCopyCommand(
+                    $source,
+                    $destination,
+                    $importOptions,
+                    $files
+                )
+            );
+        }
+
+        $ref = new SnowflakeTableReflection(
+            $this->connection,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        );
+
+        return $ref->getRowsCount();
     }
 
-    /**
-     * @return \Generator<string|null>
-     */
     private function getCopyCommand(
         Storage\S3\SourceFile $source,
         SnowflakeTableDefinition $destination,
-        SnowflakeImportOptions $importOptions
-    ): Generator {
-        // TODO
+        SnowflakeImportOptions $importOptions,
+        array $files
+    ): string {
+        $s3Prefix = $source->getS3Prefix();
+        $csvOptions = $source->getCsvOptions();
+        return sprintf(
+            "COPY INTO %s.%s FROM %s 
+                CREDENTIALS = (AWS_KEY_ID = %s AWS_SECRET_KEY = %s)
+                REGION = %s
+                FILE_FORMAT = (TYPE=CSV %s)
+                FILES = (%s)",
+            SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
+            SnowflakeQuote::quote($s3Prefix),
+            SnowflakeQuote::quote($source->getKey()),
+            SnowflakeQuote::quote($source->getSecret()),
+            SnowflakeQuote::quote($source->getRegion()),
+            sprintf('
+        FIELD_DELIMITER = %s,
+        SKIP_HEADER = %d,
+        FIELD_OPTIONALLY_ENCLOSED_BY = %s,
+        ESCAPE_UNENCLOSED_FIELD = %s
+        ',
+                SnowflakeQuote::quote($csvOptions->getDelimiter()),
+                SnowflakeQuote::quote((string) $importOptions->getNumberOfIgnoredLines()),
+                SnowflakeQuote::quote($csvOptions->getEnclosure()),
+                $csvOptions->getEscapedBy() ? SnowflakeQuote::quote($csvOptions->getEscapedBy()) : 'NONE',
+            ),
+            implode(
+                ', ',
+                array_map(
+                    function ($file) use ($s3Prefix) {
+                        return SnowflakeQuote::quote(str_replace($s3Prefix . '/', '', $file));
+                    },
+                    $files
+                )
+            )
+        );
     }
 }
