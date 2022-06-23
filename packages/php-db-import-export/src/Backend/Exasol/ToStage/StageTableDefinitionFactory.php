@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Exasol\ToStage;
 
 use Keboola\Datatype\Definition\Exasol;
-use Keboola\Db\ImportExport\Backend\Exasol\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Backend\Helper\BackendHelper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;

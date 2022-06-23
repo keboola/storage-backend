@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Backend\Exasol\Helper;
+namespace Keboola\Db\ImportExport\Backend\Helper;
 
 final class BackendHelper
 {
