@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
+namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToStage;
 
 use Doctrine\DBAL\Exception;
 use Keboola\CsvOptions\CsvOptions;
@@ -13,6 +13,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class StageImportS3Test extends SnowflakeBaseTestCase
 {

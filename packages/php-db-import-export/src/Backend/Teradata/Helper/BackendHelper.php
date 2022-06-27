@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Teradata\Helper;
 
-use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 use Keboola\Db\ImportExport\Backend\Helper\BackendHelper as BaseHelper;
+use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 
 final class BackendHelper extends BaseHelper
 {

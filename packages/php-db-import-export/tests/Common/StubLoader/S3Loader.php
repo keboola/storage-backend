@@ -34,7 +34,7 @@ class S3Loader extends BaseStubLoader
 
         $this->bucket = $bucket;
         $this->key = $key;
-        $this->path = $this->bucket . '/' . $this->key . '/';
+        $this->path = $this->bucket . '/' . ($this->key ? ($this->key . '/') : '');
     }
 
     public function clearBucket(): void

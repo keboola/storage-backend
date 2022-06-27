@@ -16,14 +16,14 @@ use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class SnowflakeBaseTestCase extends ImportExportBaseTest
 {
-    protected const SNFLK_DEST_SCHEMA_NAME = 'in_c-tests';
+    protected const SNFLK_DEST_SCHEMA_NAME = 'in_c_tests';
     protected const SNFLK_SOURCE_SCHEMA_NAME = 'some_tests';
-    public const TABLE_ACCOUNTS_3 = 'accounts-3';
-    public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
-    public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
-    public const TABLE_MULTI_PK = 'multi-pk';
-    public const TABLE_MULTI_PK_WITH_TS = 'multi-pk_ts';
-    public const TABLE_SINGLE_PK = 'single-pk';
+    public const TABLE_ACCOUNTS_3 = 'accounts_3';
+    public const TABLE_ACCOUNTS_BEZ_TS = 'accounts_bez_ts';
+    public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column_name_row_number';
+    public const TABLE_MULTI_PK = 'multi_pk';
+    public const TABLE_MULTI_PK_WITH_TS = 'multi_pk_ts';
+    public const TABLE_SINGLE_PK = 'single_pk';
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
     public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
     public const TABLE_NULLIFY = 'nullify';
@@ -31,7 +31,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
     public const TABLE_TABLE = 'table';
     public const TABLE_TYPES = 'types';
-    public const TESTS_PREFIX = 'import-export-test_';
+    public const TESTS_PREFIX = 'import_export_test_';
 
     protected Connection $connection;
 
@@ -158,7 +158,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             case self::TABLE_ACCOUNTS_BEZ_TS:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-                "id" VARCHAR(2000000) ,
+                "id" VARCHAR(2000000) CONSTRAINT "accounts_pk" PRIMARY KEY,
                 "idTwitter" VARCHAR(2000000) ,
                 "name" VARCHAR(2000000) ,
                 "import" VARCHAR(2000000) ,
@@ -169,8 +169,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
                 "timestamp" VARCHAR(2000000) ,
                 "oauthToken" VARCHAR(2000000) ,
                 "oauthSecret" VARCHAR(2000000) ,
-                "idApp" VARCHAR(2000000),
-                 CONSTRAINT PRIMARY KEY ("id")
+                "idApp" VARCHAR(2000000)
             ) ',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
@@ -229,12 +228,12 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             case self::TABLE_SINGLE_PK:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-            "VisitID"   VARCHAR(2000000) ,
+            "VisitID"   VARCHAR(2000000),
             "Value"     VARCHAR(2000000),
             "MenuItem"  VARCHAR(2000000),
             "Something" VARCHAR(2000000),
             "Other"     VARCHAR(2000000),
-            CONSTRAINT PRIMARY KEY ("VisitID")
+            CONSTRAINT "visitidpk" PRIMARY KEY ("VisitID")
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
@@ -243,12 +242,12 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             case self::TABLE_MULTI_PK:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-            "VisitID"   VARCHAR(2000000) ,
+            "VisitID"   VARCHAR(2000000),
             "Value"     VARCHAR(2000000),
             "MenuItem"  VARCHAR(2000000),
             "Something" VARCHAR(2000000),
             "Other"     VARCHAR(2000000),
-            CONSTRAINT PRIMARY KEY ("VisitID", "Something")
+            CONSTRAINT "visit_something_pk" PRIMARY KEY ("VisitID", "Something")
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
@@ -258,13 +257,13 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             case self::TABLE_MULTI_PK_WITH_TS:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
-            "VisitID"   VARCHAR(2000000) ,
+            "VisitID"   VARCHAR(2000000),
             "Value"     VARCHAR(2000000),
             "MenuItem"  VARCHAR(2000000),
             "Something" VARCHAR(2000000),
             "Other"     VARCHAR(2000000),
             "_timestamp" TIMESTAMP,
-            CONSTRAINT PRIMARY KEY ("VisitID", "Value", "MenuItem")
+            CONSTRAINT "triple_pk" PRIMARY KEY ("VisitID", "Value", "MenuItem")
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
@@ -286,7 +285,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
                 "oauthSecret" VARCHAR(2000000) ,
                 "idApp" VARCHAR(2000000) ,
                 "_timestamp" TIMESTAMP,
-                CONSTRAINT PRIMARY KEY ("id")
+                CONSTRAINT "accounts_id_pk" PRIMARY KEY ("id")
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
@@ -359,7 +358,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
     {
         return (bool) $this->connection->fetchOne(
             sprintf(
-                "SHOW SCHEMAS LIKE %s;",
+                'SHOW SCHEMAS LIKE %s;',
                 SnowflakeQuote::quote($schemaName)
             )
         );
