@@ -109,7 +109,30 @@ EXASOL_PASSWORD=
 
 **Exasol in SaaS**
 
-Obtain host (with port), username and password from Exasol SaaS for your testing DB and fill it in `.env` as desribed above. Make sure, that your account has enabled network for your IP.
+Login to SaaS UI (or use a local client) and create user with following grants.
+```SQL
+
+CREATE USER "<nick>_ie" IDENTIFIED BY "password";
+
+GRANT 
+CREATE SESSION,
+CREATE SCHEMA,
+CREATE TABLE,
+CREATE VIEW,
+CREATE USER,
+CREATE ROLE,
+DROP USER,
+DROP ANY ROLE,
+GRANT ANY ROLE,
+ALTER ANY SCHEMA,
+ALTER USER,
+IMPORT,
+EXPORT
+TO "<nick>_ie"
+WITH ADMIN OPTION;
+```
+
+Obtain host (with port), username and password (from previous step) and fill it in `.env` as desribed above. Make sure, that your account has enabled network for your IP.
 
 #### Teradata
 
