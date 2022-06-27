@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\ToStage;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -14,6 +15,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 class FromS3CopyIntoAdapter implements CopyAdapterInterface
 {
@@ -36,16 +38,20 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         TableDefinitionInterface $destination,
         ImportOptionsInterface $importOptions
     ): int {
-        $files = $source->getManifestEntries();
-        foreach (array_chunk($files, self::SLICED_FILES_CHUNK_SIZE) as $files) {
-            $this->connection->executeStatement(
-                $this->getCopyCommand(
-                    $source,
-                    $destination,
-                    $importOptions,
-                    $files
-                )
-            );
+        try {
+            $files = $source->getManifestEntries();
+            foreach (array_chunk($files, self::SLICED_FILES_CHUNK_SIZE) as $files) {
+                $this->connection->executeStatement(
+                    $this->getCopyCommand(
+                        $source,
+                        $destination,
+                        $importOptions,
+                        $files
+                    )
+                );
+            }
+        } catch (Throwable $e) {
+            throw SnowflakeException::covertException($e);
         }
 
         $ref = new SnowflakeTableReflection(
