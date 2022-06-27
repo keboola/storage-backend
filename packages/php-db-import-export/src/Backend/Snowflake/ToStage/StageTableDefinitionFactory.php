@@ -65,8 +65,7 @@ final class StageTableDefinitionFactory
             new Snowflake(
                 Snowflake::TYPE_STRING,
                 [
-                    // TODO max length for snowflake
-                    'length' => 20000,
+                    'length' => (string) Snowflake::MAX_VARCHAR_LENGTH,
                     'nullable' => true, // set all columns to be nullable
                 ]
             )

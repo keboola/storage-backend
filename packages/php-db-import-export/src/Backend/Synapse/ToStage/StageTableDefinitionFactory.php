@@ -77,7 +77,7 @@ final class StageTableDefinitionFactory
             new Synapse(
                 Synapse::TYPE_NVARCHAR,
                 [
-                    'length' => Synapse::MAX_LENGTH_NVARCHAR,
+                    'length' => (string) Synapse::MAX_LENGTH_NVARCHAR,
                     // set all columns to be nullable except in clustered index
                     'nullable' => $isNullable,
                 ]

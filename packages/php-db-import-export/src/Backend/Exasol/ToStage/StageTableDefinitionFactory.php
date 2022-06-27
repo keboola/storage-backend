@@ -64,7 +64,7 @@ final class StageTableDefinitionFactory
             new Exasol(
                 Exasol::TYPE_NVARCHAR,
                 [
-                    'length' => Exasol::MAX_VARCHAR_LENGTH,
+                    'length' => (string) Exasol::MAX_VARCHAR_LENGTH,
                     'nullable' => true, // set all columns to be nullable
                 ]
             )

@@ -378,43 +378,6 @@ EOT
         );
     }
 
-    /**
-     * @param string[] $columnsNames
-     */
-    public function getColumnsWithoutTypes(array $columnsNames): ColumnCollection
-    {
-        $columns = array_map(function ($colName) {
-            return new SynapseColumn(
-                $colName,
-                new Synapse(
-                    'NVARCHAR',
-                    ['length' => 4000]
-                )
-            );
-        }, $columnsNames);
-        return new ColumnCollection($columns);
-    }
-
-    /**
-     * @param string[] $columns
-     * @param string[] $pks
-     */
-    public function getGenericTableDefinition(
-        string $schemaName,
-        string $tableName,
-        array $columns,
-        array $pks = []
-    ): SynapseTableDefinition {
-        return new SynapseTableDefinition(
-            $schemaName,
-            $tableName,
-            false,
-            $this->getColumnsWithoutTypes($columns),
-            $pks,
-            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN, []),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX, [])
-        );
-    }
 
     /**
      * @param int|string $sortKey

@@ -46,7 +46,7 @@ class StageImportS3Test extends SnowflakeBaseTestCase
 
     /**
      * @dataProvider s3ImportSettingProvider
-     * @param array{string, CsvOptions, array<mixed>, bool, bool} $s3Setting
+     * @param array{string, CsvOptions, array<string>, bool, bool} $s3Setting
      * @throws Exception
      */
     public function testImportS3(
@@ -234,7 +234,6 @@ class StageImportS3Test extends SnowflakeBaseTestCase
         ));
     }
 
-    // TODO catch exceptions and convert to 404
 // testCopyIntoInvalidTypes
     public function testInvalidManifestImport(): void
     {

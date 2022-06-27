@@ -62,7 +62,7 @@ final class StageTableDefinitionFactory
             new Teradata(
                 Teradata::TYPE_VARCHAR,
                 [
-                    'length' => 32000,
+                    'length' => (string) Teradata::DEFAULT_NON_LATIN_CHAR_LENGTH,
                     'nullable' => true,
                 ]
             )
