@@ -9,6 +9,7 @@ use Keboola\Db\ImportExport\Backend\Helper\BackendHelper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class StageTableDefinitionFactory
@@ -50,7 +51,7 @@ final class StageTableDefinitionFactory
 
         return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
-            $destination->getTableName(),
+            SnowflakeTableQueryBuilder::buildTempTableName($destination->getTableName()),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()

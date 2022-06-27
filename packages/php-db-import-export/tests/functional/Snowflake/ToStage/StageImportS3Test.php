@@ -234,6 +234,7 @@ class StageImportS3Test extends SnowflakeBaseTestCase
         ));
     }
 
+    // TODO catch exceptions and convert to 404
 // testCopyIntoInvalidTypes
     public function testInvalidManifestImport(): void
     {
