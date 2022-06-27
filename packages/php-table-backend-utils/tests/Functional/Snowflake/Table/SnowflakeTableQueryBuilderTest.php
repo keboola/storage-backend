@@ -138,10 +138,10 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
     {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);
-        $tableName = SnowflakeTableQueryBuilder::TEMP_TABLE_PREFIX . self::TABLE_GENERIC;
+        $tableName = SnowflakeTableQueryBuilder::buildTempTableName(self::TABLE_GENERIC);
         $sql = $this->qb->getCreateTempTableCommand(
             self::TEST_SCHEMA,
-            self::TABLE_GENERIC,
+            $tableName,
             new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),

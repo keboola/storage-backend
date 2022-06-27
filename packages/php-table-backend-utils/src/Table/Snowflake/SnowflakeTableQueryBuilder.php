@@ -20,8 +20,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 
     public function getCreateTempTableCommand(string $schemaName, string $tableName, ColumnCollection $columns): string
     {
-        $this->assertTableName($tableName);
-        $tableName = self::TEMP_TABLE_PREFIX . $tableName;
+        $this->assertStagingTableName($tableName);
 
         $columnsSqlDefinitions = [];
         /** @var SnowflakeColumn $column */
@@ -170,19 +169,26 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         );
     }
 
-    private function assertTableName(string $tableName): void
+    /**
+     * checks that table name has __temp_ prefix which is required for temp tables
+     */
+    private function assertStagingTableName(string $tableName): void
     {
-        if (strpos($tableName, self::TEMP_TABLE_PREFIX) === 0) {
+        $this->assertTableName($tableName);
+        if ($tableName === self::TEMP_TABLE_PREFIX || strpos($tableName, self::TEMP_TABLE_PREFIX) !== 0) {
             throw new QueryBuilderException(
                 sprintf(
-                    'Invalid table name %s: Table cannot start with __temp_ prefix',
+                    'Invalid table name %s: Table must start with __temp_ prefix',
                     $tableName
                 ),
                 self::INVALID_TABLE_NAME
             );
         }
+    }
 
-        if (preg_match('/^[_A-Za-z][_A-Za-z0-9$]*$/', $tableName, $out) === 0) {
+    private function assertTableName(string $tableName): void
+    {
+        if (preg_match('/^[_A-Za-z][_A-Za-z0-9$]*$/', $tableName, $out) !== 1) {
             throw new QueryBuilderException(
                 sprintf(
                     'Invalid table name %s: Only alphanumeric characters, underscores and dollar signs are allowed.',
@@ -191,5 +197,10 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                 self::INVALID_TABLE_NAME
             );
         }
+    }
+
+    public static function buildTempTableName(string $realTableName): string
+    {
+        return self::TEMP_TABLE_PREFIX . $realTableName;
     }
 }
