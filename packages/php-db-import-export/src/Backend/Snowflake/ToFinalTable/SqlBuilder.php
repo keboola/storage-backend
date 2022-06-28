@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable;
 
 use Keboola\Datatype\Definition\BaseType;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
@@ -31,9 +32,44 @@ class SqlBuilder
         if (empty($primaryKeys)) {
             return '';
         }
-// TODO
 
-        return '';
+
+        $pkSql = $this->getColumnsString(
+            $primaryKeys,
+            ','
+        );
+
+        $stage = sprintf(
+            '%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+        );
+
+        $depudeSql = sprintf(
+            'SELECT %s FROM ('
+            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
+            . 'FROM %s'
+            . ') AS a '
+            . 'WHERE a."_row_number_" = 1',
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ',', 'a'),
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
+            $pkSql,
+            $pkSql,
+            $stage
+        );
+
+        $deduplication = sprintf(
+            '%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'INSERT INTO %s (%s) %s',
+            $deduplication,
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
+            $depudeSql
+        );
     }
 
     /**
@@ -68,8 +104,29 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
         );
 
-        // TODO
-        return '';
+        return sprintf(
+            'DELETE FROM %s "src" USING %s AS "dest" WHERE %s',
+            $stagingTable,
+            $destinationTable,
+            $this->getPrimayKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames())
+        );
+    }
+
+    /**
+     * @param string[] $primaryKeys
+     */
+    private function getPrimayKeyWhereConditions(
+        array $primaryKeys
+    ): string {
+        $pkWhereSql = array_map(function (string $col) {
+            return sprintf(
+                '"dest".%s = COALESCE("src".%s, \'\')',
+                QuoteHelper::quoteIdentifier($col),
+                QuoteHelper::quoteIdentifier($col)
+            );
+        }, $primaryKeys);
+
+        return implode(' AND ', $pkWhereSql) . ' ';
     }
 
 
@@ -108,8 +165,43 @@ class SqlBuilder
         }
 
         $columnsSetSql = [];
-return '';
-// TODO
+
+        /** @var SnowflakeColumn $columnDefinition */
+        foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
+            if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
+                // use nullif only for string base type
+                if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+                    $columnsSetSql[] = sprintf(
+                        'IFF(%s = \'\', NULL, %s)',
+                        SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                        SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    );
+                } else {
+                    $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
+                }
+            } else {
+                $columnsSetSql[] = sprintf(
+                    'CAST(COALESCE(%s, \'\') AS %s) AS %s',
+                    SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    $columnDefinition->getColumnDefinition()->buildDefinitionString(),
+                    SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
+            }
+        }
+
+        if ($useTimestamp) {
+            $columnsSetSql[] = SnowflakeQuote::quote($timestamp);
+        }
+
+        return sprintf(
+            'INSERT INTO %s (%s) (SELECT %s FROM %s.%s AS %s)',
+            $destinationTable,
+            $this->getColumnsString($insColumns),
+            implode(',', $columnsSetSql),
+            SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
+            SnowflakeQuote::quoteSingleIdentifier(self::SRC_ALIAS)
+        );
     }
 
     public function getTruncateTableWithDeleteCommand(
@@ -122,15 +214,4 @@ return '';
             SnowflakeQuote::quoteSingleIdentifier($tableName)
         );
     }
-
-    public function getUpdateWithPkCommandSubstitute(
-        SnowflakeTableDefinition $stagingTableDefinition,
-        SnowflakeTableDefinition $destinationDefinition,
-        SnowflakeImportOptions $importOptions,
-        string $timestamp
-    ): string {
-        return '';
-        // TODO
-    }
-
 }
