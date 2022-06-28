@@ -10,11 +10,10 @@ use Throwable;
 
 class SnowflakeException extends Exception
 {
-    private const MANIFEST_ENTRY_NOT_FOUND = 'resulted in a `404 Not Found` response';
-
     public static function covertException(Throwable $e): Throwable
     {
-        if (strpos($e->getMessage(), self::MANIFEST_ENTRY_NOT_FOUND) !== false) {
+        // file on S3 not found
+        if (preg_match('/Remote file \'.+\' was not found/', $e->getMessage(), $output_array) === 1) {
             return new FileNotFoundException($e->getMessage());
         }
 

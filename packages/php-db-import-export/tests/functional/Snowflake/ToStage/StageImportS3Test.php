@@ -254,7 +254,7 @@ class StageImportS3Test extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable)
         );
 
-        // fails on SQL, no parsing/checking entries before
+        // fails on SQL. Manifest with invalid files is being created during loadS3
         $this->expectException(FileNotFoundException::class);
 
         $importer->importToStagingTable(
