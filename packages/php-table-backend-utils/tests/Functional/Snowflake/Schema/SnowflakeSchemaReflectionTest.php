@@ -23,7 +23,37 @@ class SnowflakeSchemaReflectionTest extends SnowflakeBaseCase
     public function testListTables(): void
     {
         $this->initTable();
-        self::assertSame([self::TABLE_GENERIC], $this->schemaRef->getTablesNames());
+
+        // create transient table
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE TRANSIENT TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100)
+);',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier('transient_table')
+            )
+        );
+
+        // create temporary table
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE TEMPORARY TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100)
+);',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier('temporary_table')
+            )
+        );
+
+        $tables = $this->schemaRef->getTablesNames();
+        self::assertContains(self::TABLE_GENERIC, $tables);
+        self::assertContains('transient_table', $tables);
+        self::assertContains('temporary_table', $tables);
     }
 
     public function testListViews(): void

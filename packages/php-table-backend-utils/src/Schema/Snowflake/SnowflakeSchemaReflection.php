@@ -34,8 +34,6 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
             )
         );
 
-        $tables = array_filter($tables, fn($item) => $item['kind'] === 'TABLE');
-
         return array_map(static fn($table) => $table['name'], $tables);
     }
 
