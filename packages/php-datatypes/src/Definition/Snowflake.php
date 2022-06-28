@@ -75,6 +75,9 @@ class Snowflake extends Common
         self::TYPE_VARBINARY,
     ];
 
+    public const MAX_VARCHAR_LENGTH = 16777216;
+    public const MAX_VARBINARY_LENGTH = 8388608;
+
     /**
      * Snowflake constructor.
      *
@@ -207,7 +210,7 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if (isset($parts[1]) && ((int) $parts[1] > (int) $parts[0] || (int) $parts[1] > 38)) {
+                if (isset($parts[1]) && ((int) $parts[1] > 38 || (int) $parts[1] > (int) $parts[0])) {
                     $valid = false;
                     break;
                 }
@@ -224,7 +227,7 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int) $length <= 0 || (int) $length > 16_777_216) {
+                if ((int) $length <= 0 || (int) $length > self::MAX_VARCHAR_LENGTH) {
                     $valid = false;
                     break;
                 }
@@ -256,7 +259,7 @@ class Snowflake extends Common
                     $valid = false;
                     break;
                 }
-                if ((int) $length < 1 || (int) $length > 8_388_608) {
+                if ((int) $length < 1 || (int) $length > self::MAX_VARBINARY_LENGTH) {
                     $valid = false;
                     break;
                 }

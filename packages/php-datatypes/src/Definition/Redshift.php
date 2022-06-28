@@ -166,7 +166,7 @@ class Redshift extends Common
                     $valid = false;
                     break;
                 }
-                if (isset($parts[1]) && ((int) $parts[1] > (int) $parts[0] || (int) $parts[1] > 37)) {
+                if (isset($parts[1]) && ((int) $parts[1] > 37 || (int) $parts[1] > (int) $parts[0])) {
                     $valid = false;
                     break;
                 }
@@ -175,7 +175,6 @@ class Redshift extends Common
             case 'CHARACTER VARYING':
             case 'TEXT':
             case 'NVARCHAR':
-            case 'TEXT':
                 if (is_null($length) || $length === '') {
                     break;
                 }
