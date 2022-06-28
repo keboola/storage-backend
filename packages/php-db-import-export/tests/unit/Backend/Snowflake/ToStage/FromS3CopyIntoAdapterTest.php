@@ -139,8 +139,8 @@ COPY INTO "schema"."stagingTable" FROM 's3://bucket'
         )
                 FILES = (%s)
 EOT;
-        $q1 = sprintf($qTemplate, implode(", ", array_slice($entriesWithoutBucket, 0, 1000)));
-        $q2 = sprintf($qTemplate, implode(", ", array_slice($entriesWithoutBucket, 1000, 5)));
+        $q1 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 0, 1000)));
+        $q2 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 1000, 5)));
         $conn->expects(self::exactly(2))->method('executeStatement')->withConsecutive([$q1], [$q2]);
 
         $conn->expects(self::once())->method('fetchOne')
