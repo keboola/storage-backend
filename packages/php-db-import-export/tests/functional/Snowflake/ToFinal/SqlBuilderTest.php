@@ -210,7 +210,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
 
         self::assertEquals(
         // phpcs:ignore
-            'DELETE FROM "import_export_test_schema"."stagingTable" WHERE EXISTS (SELECT * FROM "import_export_test_schema"."import-export-test_test" WHERE COALESCE("import_export_test_schema"."import-export-test_test"."pk1", \'KBC_$#\') = COALESCE("import_export_test_schema"."stagingTable"."pk1", \'KBC_$#\') AND COALESCE("import_export_test_schema"."import-export-test_test"."pk2", \'KBC_$#\') = COALESCE("import_export_test_schema"."stagingTable"."pk2", \'KBC_$#\'))',
+            'DELETE FROM "import_export_test_schema"."stagingTable" "src" USING "import_export_test_schema"."import_export_test_test" AS "dest" WHERE "dest"."pk1" = COALESCE("src"."pk1", \'\') AND "dest"."pk2" = COALESCE("src"."pk2", \'\') ',
             $sql
         );
         $this->connection->executeStatement($sql);
