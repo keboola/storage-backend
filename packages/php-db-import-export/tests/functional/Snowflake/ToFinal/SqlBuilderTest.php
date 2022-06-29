@@ -16,6 +16,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class SqlBuilderTest extends SnowflakeBaseTestCase
@@ -240,7 +241,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
                 $schemaName,
                 $tableName
             ));
-        } catch (Exception $e) {
+        } catch (TableNotExistsReflectionException $e) {
         }
     }
 
@@ -253,7 +254,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
         self::assertEquals(
         // phpcs:ignore
-            'DROP TABLE IF EXISTS "import_export_test_schema"."import-export-test_test"',
+            'DROP TABLE IF EXISTS "import_export_test_schema"."import_export_test_test"',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -265,7 +266,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getDropTableIfExistsCommand(self::TEST_SCHEMA, self::TEST_TABLE);
         self::assertEquals(
         // phpcs:ignore
-            'DROP TABLE IF EXISTS "import_export_test_schema"."import-export-test_test"',
+            'DROP TABLE IF EXISTS "import_export_test_schema"."import_export_test_test"',
             $sql
         );
         $this->connection->executeStatement($sql);

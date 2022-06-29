@@ -135,7 +135,7 @@ class SqlBuilder
         string $tableName
     ): string {
         return sprintf(
-            'DROP TABLE IF EXISTS %s.%s CASCADE',
+            'DROP TABLE IF EXISTS %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($schema),
             SnowflakeQuote::quoteSingleIdentifier($tableName)
         );
