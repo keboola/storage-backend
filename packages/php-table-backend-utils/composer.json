@@ -9,7 +9,7 @@
         "ext-pdo": "*",
         "doctrine/dbal": "^3.3",
         "keboola/common-exceptions": "^1",
-        "keboola/php-datatypes": "^5",
+        "keboola/php-datatypes": "^6",
         "keboola/php-utils": "^4.1",
         "keboola/retry": "^0.5.0"
     },
