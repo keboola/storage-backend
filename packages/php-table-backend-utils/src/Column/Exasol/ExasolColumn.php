@@ -52,7 +52,7 @@ final class ExasolColumn implements ColumnInterface
 
     /**
      * @param array{
-     *  COLUMN_DEFAULT: mixed,
+     *  COLUMN_DEFAULT: ?string,
      *  COLUMN_NAME: string,
      *  TYPE_NAME: string,
      *  COLUMN_IS_NULLABLE: string,
@@ -65,7 +65,6 @@ final class ExasolColumn implements ColumnInterface
      */
     public static function createFromDB(array $dbResponse): ExasolColumn
     {
-        $defaultValue = $dbResponse['COLUMN_DEFAULT'];
         return new ExasolColumn(
             $dbResponse['COLUMN_NAME'],
             new Exasol(
@@ -73,7 +72,7 @@ final class ExasolColumn implements ColumnInterface
                 [
                     'length' => self::extractColumnLength($dbResponse),
                     'nullable' => $dbResponse['COLUMN_IS_NULLABLE'] === '1',
-                    'default' => is_string($defaultValue) ? trim($defaultValue) : $defaultValue,
+                    'default' => trim((string) $dbResponse['COLUMN_DEFAULT']),
                 ]
             )
         );

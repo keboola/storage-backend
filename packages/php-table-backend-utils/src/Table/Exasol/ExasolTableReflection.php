@@ -52,7 +52,7 @@ final class ExasolTableReflection implements TableReflectionInterface
     public function getColumnsDefinitions(): ColumnCollection
     {
         /** @var array<array{
-         *  COLUMN_DEFAULT: mixed,
+         *  COLUMN_DEFAULT: string,
          *  COLUMN_NAME: string,
          *  TYPE_NAME: string,
          *  COLUMN_IS_NULLABLE: string,

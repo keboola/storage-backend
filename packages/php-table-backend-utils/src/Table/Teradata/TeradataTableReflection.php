@@ -136,7 +136,7 @@ final class TeradataTableReflection implements TableReflectionInterface
                 new Teradata(
                     Teradata::convertCodeToType($colType),
                     [
-                        'length' => $length,
+                        'length' => (string) $length,
                         'nullable' => $col['Nullable'] === 'Y',
                         'isLatin' => $isLatin,
                         'default' => is_string($defaultvalue) ? trim($defaultvalue) : $defaultvalue,
