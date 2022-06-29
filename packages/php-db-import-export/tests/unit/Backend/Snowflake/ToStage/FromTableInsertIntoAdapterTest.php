@@ -56,8 +56,9 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
         $source = new Storage\Snowflake\SelectSource(
             'SELECT * FROM "test_schema"."test_table"',
             ['val'],
-            ['1'],
-            ['col1', 'col2']
+            ['col1', 'col2'],
+            [],
+            ['1']
         );
 
         $conn = $this->mockConnection();

@@ -116,11 +116,11 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
         $source = new Storage\Snowflake\SelectSource(
             sprintf('SELECT * FROM "%s"."%s"', $this->getSourceSchemaName(), 'out.csv_2Cols'),
             [],
-            [],
             [
                 'col1',
                 'col2',
-            ]
+            ],
+            []
         );
         $destination = new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols');
         $options = $this->getSimpleImportOptions();

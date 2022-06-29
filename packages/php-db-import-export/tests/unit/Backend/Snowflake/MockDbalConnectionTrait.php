@@ -14,7 +14,6 @@ trait MockDbalConnectionTrait
      */
     private function mockConnection()
     {
-        /** @var \Doctrine\DBAL\Connection|MockObject $mock */
         return $this->createMock(Connection::class);
     }
 }
