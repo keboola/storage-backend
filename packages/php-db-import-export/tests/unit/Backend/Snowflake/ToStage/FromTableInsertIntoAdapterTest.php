@@ -55,7 +55,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
     {
         $source = new Storage\Snowflake\SelectSource(
             'SELECT * FROM "test_schema"."test_table"',
-            ['val'],
+            ['bind' => 'val'],
             ['col1', 'col2'],
             [],
             ['1']
@@ -65,7 +65,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
         $conn->expects(self::once())->method('executeQuery')->with(
         // phpcs:ignore
             'INSERT INTO "test_schema"."stagingTable" ("col1", "col2") SELECT * FROM "test_schema"."test_table"',
-            ['val'],
+            ['bind' => 'val'],
             [1]
         );
         $conn->expects(self::once())->method('fetchOne')

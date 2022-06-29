@@ -11,7 +11,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
 {
     private string $query;
 
-    /** @var string[] */
+    /** @var array<string, mixed> */
     private array $queryBindings;
 
     /** @var string[] */
@@ -24,7 +24,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     private ?array $primaryKeysNames = null;
 
     /**
-     * @param string[] $queryBindings
+     * @param array<string, mixed> $queryBindings
      * @param string[] $dataTypes
      * @param string[] $columnsNames
      * @param string[]|null $primaryKeysNames
