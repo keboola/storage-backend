@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Snowflake;
 
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
+use Keboola\Db\ImportExport\ImportOptions;
 
-class SnowflakeImportOptions extends ExasolImportOptions
+class SnowflakeImportOptions extends ImportOptions
 {
 
 }
