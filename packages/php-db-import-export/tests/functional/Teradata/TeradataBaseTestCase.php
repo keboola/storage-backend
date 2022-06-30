@@ -107,42 +107,6 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         return TeradataImportOptions::CSV_ADAPTER_TPT;
     }
 
-    /**
-     * @param string[] $columnsNames
-     */
-    public function getColumnsWithoutTypes(array $columnsNames): ColumnCollection
-    {
-        $columns = array_map(function ($colName) {
-            return new TeradataColumn(
-                $colName,
-                new Teradata(
-                    Teradata::TYPE_VARCHAR,
-                    ['length' => 4000]
-                )
-            );
-        }, $columnsNames);
-        return new ColumnCollection($columns);
-    }
-
-    /**
-     * @param string[] $columns
-     * @param string[] $pks
-     */
-    public function getGenericTableDefinition(
-        string $schemaName,
-        string $tableName,
-        array $columns,
-        array $pks = []
-    ): TeradataTableDefinition {
-        return new TeradataTableDefinition(
-            $schemaName,
-            $tableName,
-            false,
-            $this->getColumnsWithoutTypes($columns),
-            $pks
-        );
-    }
-
     protected function cleanDatabase(string $dbname): void
     {
         if (!$this->dbExists($dbname)) {

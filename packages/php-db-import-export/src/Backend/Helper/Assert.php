@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Backend\Exasol\Exception;
+namespace Keboola\Db\ImportExport\Backend\Helper;
 
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
-use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
-final class Assert
+class Assert
 {
-    // TODO add some inheritance on synapse/exasol assert
     public static function assertColumnsOnTableDefinition(
         SourceInterface $source,
-        ExasolTableDefinition $destinationDefinition
+        TableDefinitionInterface $destinationDefinition
     ): void {
         if (count($source->getColumnsNames()) === 0) {
             throw new Exception(

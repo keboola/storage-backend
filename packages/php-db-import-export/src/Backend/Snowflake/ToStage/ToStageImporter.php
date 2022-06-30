@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Backend\Exasol\ToStage;
+namespace Keboola\Db\ImportExport\Backend\Snowflake\ToStage;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
-use Keboola\Db\ImportExport\Backend\Exasol\ExasolImportOptions;
 use Keboola\Db\ImportExport\Backend\Helper\Assert;
 use Keboola\Db\ImportExport\Backend\ImportState;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use LogicException;
 
@@ -39,8 +38,8 @@ final class ToStageImporter implements ToStageImporterInterface
         TableDefinitionInterface $destinationDefinition,
         ImportOptionsInterface $options
     ): ImportState {
-        assert($options instanceof ExasolImportOptions);
-        assert($destinationDefinition instanceof ExasolTableDefinition);
+        assert($options instanceof SnowflakeImportOptions);
+        assert($destinationDefinition instanceof SnowflakeTableDefinition);
         Assert::assertColumnsOnTableDefinition($source, $destinationDefinition);
         $state = new ImportState($destinationDefinition->getTableName());
 
@@ -57,7 +56,6 @@ final class ToStageImporter implements ToStageImporterInterface
             );
         } catch (Exception $e) {
             throw $e;
-//            throw ExasolException::covertException($e);
         }
         $state->stopTimer(self::TIMER_TABLE_IMPORT);
 

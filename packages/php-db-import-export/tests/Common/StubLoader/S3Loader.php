@@ -34,7 +34,7 @@ class S3Loader extends BaseStubLoader
 
         $this->bucket = $bucket;
         $this->key = $key;
-        $this->path = $this->bucket . '/' . $this->key . '/';
+        $this->path = $this->bucket . '/' . ($this->key ? ($this->key . '/') : '');
     }
 
     public function clearBucket(): void
@@ -82,7 +82,7 @@ class S3Loader extends BaseStubLoader
 
         $this->client->putObject([
             'Bucket' => $this->bucket,
-            'Key' => $this->key . '/02_tw_accounts.csv.invalid.manifest',
+            'Key' => ($this->key ? ($this->key . '/') : '') . '02_tw_accounts.csv.invalid.manifest',
             'Body' => json_encode([
                 'entries' => [
                     [

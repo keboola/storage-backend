@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Backend\Exasol\ToStage;
+namespace Keboola\Db\ImportExport\Backend\Snowflake\ToStage;
 
-use Keboola\Datatype\Definition\Exasol;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Helper\BackendHelper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
-use Keboola\TableBackendUtils\Table\Exasol\ExasolTableDefinition;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class StageTableDefinitionFactory
@@ -19,20 +20,20 @@ final class StageTableDefinitionFactory
     public static function createStagingTableDefinition(
         TableDefinitionInterface $destination,
         array $sourceColumnsNames
-    ): ExasolTableDefinition {
-        /** @var ExasolTableDefinition $destination */
+    ): SnowflakeTableDefinition {
+        /** @var SnowflakeTableDefinition $destination */
         $newDefinitions = [];
         // create staging table for source columns in order
         // but with types from destination
         // also maintain source columns order
         foreach ($sourceColumnsNames as $columnName) {
-            /** @var ExasolColumn $definition */
+            /** @var SnowflakeColumn $definition */
             foreach ($destination->getColumnsDefinitions() as $definition) {
                 if ($definition->getColumnName() === $columnName) {
                     // if column exists in destination set destination type
-                    $newDefinitions[] = new ExasolColumn(
+                    $newDefinitions[] = new SnowflakeColumn(
                         $columnName,
-                        new Exasol(
+                        new Snowflake(
                             $definition->getColumnDefinition()->getType(),
                             [
                                 'length' => $definition->getColumnDefinition()->getLength(),
@@ -48,23 +49,23 @@ final class StageTableDefinitionFactory
             $newDefinitions[] = self::createNvarcharColumn($columnName);
         }
 
-        return new ExasolTableDefinition(
+        return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateStagingTableName(),
+            SnowflakeTableQueryBuilder::buildTempTableName($destination->getTableName()),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()
         );
     }
 
-    private static function createNvarcharColumn(string $columnName): ExasolColumn
+    private static function createNvarcharColumn(string $columnName): SnowflakeColumn
     {
-        return new ExasolColumn(
+        return new SnowflakeColumn(
             $columnName,
-            new Exasol(
-                Exasol::TYPE_NVARCHAR,
+            new Snowflake(
+                Snowflake::TYPE_STRING,
                 [
-                    'length' => (string) Exasol::MAX_VARCHAR_LENGTH,
+                    'length' => (string) Snowflake::MAX_VARCHAR_LENGTH,
                     'nullable' => true, // set all columns to be nullable
                 ]
             )
@@ -75,17 +76,17 @@ final class StageTableDefinitionFactory
      * @param string[] $pkNames
      */
     public static function createDedupTableDefinition(
-        ExasolTableDefinition $destination,
+        SnowflakeTableDefinition $destination,
         array $pkNames
-    ): ExasolTableDefinition {
+    ): SnowflakeTableDefinition {
         // ensure that PK on dedup table are not null
         $dedupTableColumns = [];
-        /** @var ExasolColumn $definition */
+        /** @var SnowflakeColumn $definition */
         foreach ($destination->getColumnsDefinitions() as $definition) {
             if (in_array($definition->getColumnName(), $pkNames)) {
-                $dedupTableColumns[] = new ExasolColumn(
+                $dedupTableColumns[] = new SnowflakeColumn(
                     $definition->getColumnName(),
-                    new Exasol(
+                    new Snowflake(
                         $definition->getColumnDefinition()->getType(),
                         [
                             'length' => $definition->getColumnDefinition()->getLength(),
@@ -98,7 +99,7 @@ final class StageTableDefinitionFactory
             }
         }
 
-        return new ExasolTableDefinition(
+        return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
             BackendHelper::generateTempDedupTableName(),
             true,

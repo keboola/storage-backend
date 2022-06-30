@@ -277,7 +277,7 @@ EOD;
         $ignoredLines = $importOptions->getNumberOfIgnoredLines();
 
         $quotedDestination = TeradataQuote::quoteSingleIdentifier($destination->getSchemaName());
-        $tablesPrefix = BackendHelper::generateTempTableName();
+        $tablesPrefix = BackendHelper::generateStagingTableName();
         $logTable = $tablesPrefix . '_log';
         $logTableQuoted = $quotedDestination . '.' . TeradataQuote::quoteSingleIdentifier($logTable);
         $errTable1 = $tablesPrefix . '_e1';

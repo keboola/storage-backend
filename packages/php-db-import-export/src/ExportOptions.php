@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport;
 
-use Keboola\Db\ImportExport\Backend\BackendHelper;
+use Keboola\Db\ImportExport\Backend\Helper\BackendHelper;
 
 class ExportOptions implements ExportOptionsInterface
 {

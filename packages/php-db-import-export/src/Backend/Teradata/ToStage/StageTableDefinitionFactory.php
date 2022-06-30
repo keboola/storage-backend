@@ -48,7 +48,7 @@ final class StageTableDefinitionFactory
 
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateTempTableName(),
+            BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()
@@ -62,7 +62,7 @@ final class StageTableDefinitionFactory
             new Teradata(
                 Teradata::TYPE_VARCHAR,
                 [
-                    'length' => 32000,
+                    'length' => (string) Teradata::DEFAULT_NON_LATIN_CHAR_LENGTH,
                     'nullable' => true,
                 ]
             )
@@ -83,7 +83,7 @@ final class StageTableDefinitionFactory
 
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateTempTableName(),
+            BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()

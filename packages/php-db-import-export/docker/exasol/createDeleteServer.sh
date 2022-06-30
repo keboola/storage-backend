@@ -24,7 +24,7 @@ getDbStatus(){
 
 # DESC: Calls getStatus in loop to test if server is online
 waitForStart(){
-    local runtime="10 minute"
+    local runtime="20 minute"
     local endtime=$(date -ud "$runtime" +%s)
 
     while [[ $(date -u +%s) -le ${endtime} ]]
