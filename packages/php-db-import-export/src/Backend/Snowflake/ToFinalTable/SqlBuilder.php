@@ -9,7 +9,11 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\Db\ImportExport\Storage\Snowflake\Table;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 
@@ -222,6 +226,67 @@ class SqlBuilder
             'DELETE FROM %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($schema),
             SnowflakeQuote::quoteSingleIdentifier($tableName)
+        );
+    }
+
+    public function getUpdateWithPkCommand(
+        SnowflakeTableDefinition $stagingTableDefinition,
+        SnowflakeTableDefinition $destinationDefinition,
+        SnowflakeImportOptions $importOptions,
+        string $timestamp
+    ): string {
+        $columnsSet = [];
+
+        foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+                $columnsSet[] = sprintf(
+                    '%s = IFF("src".%s = \'\', NULL, "src".%s)',
+                    SnowflakeQuote::quoteSingleIdentifier($columnName),
+                    SnowflakeQuote::quoteSingleIdentifier($columnName),
+                    SnowflakeQuote::quoteSingleIdentifier($columnName)
+                );
+            } else {
+                $columnsSet[] = sprintf(
+                    '%s = COALESCE("src".%s, \'\')',
+                    SnowflakeQuote::quoteSingleIdentifier($columnName),
+                    SnowflakeQuote::quoteSingleIdentifier($columnName)
+                );
+            }
+        }
+
+        if ($importOptions->useTimestamp()) {
+            $columnsSet[] = sprintf(
+                '%s = \'%s\'',
+                SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+                $timestamp
+            );
+        }
+
+        // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
+        $columnsComparisionSql = array_map(
+            static function ($columnName) {
+                return sprintf(
+                    'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
+                    SnowflakeQuote::quoteSingleIdentifier($columnName),
+                    SnowflakeQuote::quoteSingleIdentifier($columnName)
+                );
+            },
+            $stagingTableDefinition->getColumnsNames()
+        );
+
+        $dest = sprintf(
+            '%s.%s',
+            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
+            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+        );
+        return sprintf(
+            'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s AND (%s)',
+            $dest,
+            implode(', ', $columnsSet),
+            QuoteHelper::quoteIdentifier($stagingTableDefinition->getSchemaName()),
+            QuoteHelper::quoteIdentifier($stagingTableDefinition->getTableName()),
+            $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames()),
+            implode(' OR ', $columnsComparisionSql)
         );
     }
 }

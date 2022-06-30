@@ -430,7 +430,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT IFF("col1" = \'\', NULL, "col1"),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -492,7 +492,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2", "_timestamp") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2", "_timestamp") (SELECT IFF("col1" = \'\', NULL, "col1"),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import_export_test_schema"."stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -577,7 +577,7 @@ EOT
         ], $result);
 
         // no convert values no timestamp
-        $sql = $this->getBuilder()->getUpdateWithPkCommandSubstitute(
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,
             $fakeDestination,
             $this->getDummyImportOptions(),
@@ -585,7 +585,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import_export_test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -666,7 +666,7 @@ EOT
         $options = new SnowflakeImportOptions(['col1']);
 
         // converver values
-        $sql = $this->getBuilder()->getUpdateWithPkCommandSubstitute(
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,
             $fakeDestination,
             $options,
@@ -674,7 +674,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import_export_test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -766,16 +766,16 @@ EOT
 
         // use timestamp
         $options = new SnowflakeImportOptions(['col1'], false, true);
-        $sql = $this->getBuilder()->getUpdateWithPkCommandSubstitute(
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,
             $fakeDestination,
             $options,
-            $timestampSet->format(DateTimeHelper::FORMAT) . '.000'
+            $timestampSet->format(DateTimeHelper::FORMAT)
         );
 
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01.000\' FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import_export_test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -790,6 +790,7 @@ EOT
             self::assertArrayHasKey('col1', $item);
             self::assertArrayHasKey('col2', $item);
             self::assertArrayHasKey('_timestamp', $item);
+            self::assertIsString($item['_timestamp']);
             self::assertSame(
                 $timestampSet->format(DateTimeHelper::FORMAT),
                 (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)

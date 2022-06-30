@@ -71,7 +71,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 // 1. Run UPDATE command to update rows in final table with updated data based on PKs
                 $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
                 $this->connection->executeStatement(
-                    $this->sqlBuilder->getUpdateWithPkCommandSubstitute(
+                    $this->sqlBuilder->getUpdateWithPkCommand(
                         $stagingTableDefinition,
                         $destinationTableDefinition,
                         $options,
