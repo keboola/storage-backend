@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
 use DateTime;
-use Doctrine\DBAL\Exception;
 use Keboola\Datatype\Definition\Snowflake;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -313,7 +312,7 @@ EOT
 
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import-export-test_test" ("col1", "col2") (SELECT CAST(COALESCE("col1", \'\') AS NVARCHAR (4000)) AS "col1",CAST(COALESCE("col2", \'\') AS NVARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT CAST(COALESCE("col1", \'\') AS VARCHAR (4000)) AS "col1",CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
             $sql
         );
 
@@ -431,7 +430,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import-export-test_test" ("col1", "col2") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS NVARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -493,7 +492,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import-export-test_test" ("col1", "col2", "_timestamp") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS NVARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2", "_timestamp") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import_export_test_schema"."stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -586,7 +585,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import_export_test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -675,7 +674,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import_export_test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -755,13 +754,13 @@ EOT
                 'id' => '1',
                 'col1' => '',
                 'col2' => '1',
-                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT) . '.000000',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
             [
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '',
-                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT) . '.000000',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
         ], $result);
 
@@ -776,7 +775,7 @@ EOT
 
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01.000\' FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01.000\' FROM (SELECT DISTINCT * FROM "import_export_test_schema"."stagingTable") AS "src","import_export_test_schema"."import_export_test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS VARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
             $sql
         );
         $this->connection->executeStatement($sql);

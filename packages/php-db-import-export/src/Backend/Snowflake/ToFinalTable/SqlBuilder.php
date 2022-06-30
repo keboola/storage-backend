@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable;
 
 use Keboola\Datatype\Definition\BaseType;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\QuoteHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
@@ -32,7 +33,6 @@ class SqlBuilder
         if (empty($primaryKeys)) {
             return '';
         }
-
 
         $pkSql = $this->getColumnsString(
             $primaryKeys,
@@ -183,7 +183,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'CAST(COALESCE(%s, \'\') AS %s) AS %s',
                     SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $columnDefinition->getColumnDefinition()->buildDefinitionString(),
+                    $this->buildDefinitionString($columnDefinition->getColumnDefinition()),
                     SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             }
@@ -202,6 +202,16 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
             SnowflakeQuote::quoteSingleIdentifier(self::SRC_ALIAS)
         );
+    }
+
+    // TODO could be moved to php-datatypes
+    private function buildDefinitionString(Snowflake $definition): string
+    {
+        $out = $definition->getType();
+        if ($definition->getLength() !== null && $definition->getLength() !== '') {
+            $out .= ' (' . $definition->getLength() . ')';
+        }
+        return $out;
     }
 
     public function getTruncateTableWithDeleteCommand(
