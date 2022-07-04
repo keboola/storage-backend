@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
+namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
 use Generator;
 use Keboola\Csv\CsvFile;
@@ -18,6 +18,7 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class IncrementalImportTest extends SnowflakeBaseTestCase
 {
@@ -54,6 +55,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
         foreach ($expectationAccountsFile as $row) {
             $expectedAccountsRows[] = $row;
         }
+        /** @var string[] $accountColumns */
         $accountColumns = array_shift($expectedAccountsRows);
         $expectedAccountsRows = array_values($expectedAccountsRows);
 
@@ -63,6 +65,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
         foreach ($expectationMultiPkFile as $row) {
             $expectedMultiPkRows[] = $row;
         }
+        /** @var string[] $multiPkColumns */
         $multiPkColumns = array_shift($expectedMultiPkRows);
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
@@ -116,7 +119,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            [$this->getDestinationSchemaName(), 'accounts-bez-ts'],
+            [$this->getDestinationSchemaName(), 'accounts_bez_ts'],
             $expectedAccountsRows,
             4,
             self::TABLE_ACCOUNTS_BEZ_TS,
@@ -138,7 +141,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getSnowflakeIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'multi-pk_ts'],
+            [$this->getDestinationSchemaName(), 'multi_pk_ts'],
             $expectedMultiPkRows,
             3,
             self::TABLE_MULTI_PK_WITH_TS,
@@ -148,7 +151,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
 
     /**
      * @dataProvider  incrementalImportData
-     * @param array<string,string> $table
+     * @param string[] $table
      * @param array<mixed> $expected
      */
     public function testIncrementalImport(

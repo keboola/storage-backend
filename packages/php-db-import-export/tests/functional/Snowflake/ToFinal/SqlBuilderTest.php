@@ -23,8 +23,8 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
     public const TESTS_PREFIX = 'import_export_test_';
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'schema';
     public const TEST_SCHEMA_QUOTED = '"' . self::TEST_SCHEMA . '"';
-    public const TEST_STAGING_TABLE = 'stagingTable';
-    public const TEST_STAGING_TABLE_QUOTED = '"stagingTable"';
+    public const TEST_STAGING_TABLE = '__temp_stagingTable';
+    public const TEST_STAGING_TABLE_QUOTED = '"__temp_stagingTable"';
     public const TEST_TABLE = self::TESTS_PREFIX . 'test';
     public const TEST_TABLE_IN_SCHEMA = self::TEST_SCHEMA_QUOTED . '.' . self::TEST_TABLE_QUOTED;
     public const TEST_TABLE_QUOTED = '"' . self::TEST_TABLE . '"';
@@ -57,7 +57,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
 
         $deduplicationDef = new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
-            'tempTable',
+            '__temp_tempTable',
             true,
             new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('col1'),
@@ -78,7 +78,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM "import_export_test_schema"."stagingTable") AS a WHERE a."_row_number_" = 1',
+            'INSERT INTO "import_export_test_schema"."__temp_tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM "import_export_test_schema"."__temp_stagingTable") AS a WHERE a."_row_number_" = 1',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -210,7 +210,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
 
         self::assertEquals(
         // phpcs:ignore
-            'DELETE FROM "import_export_test_schema"."stagingTable" "src" USING "import_export_test_schema"."import_export_test_test" AS "dest" WHERE "dest"."pk1" = COALESCE("src"."pk1", \'\') AND "dest"."pk2" = COALESCE("src"."pk2", \'\') ',
+            'DELETE FROM "import_export_test_schema"."__temp_stagingTable" "src" USING "import_export_test_schema"."import_export_test_test" AS "dest" WHERE "dest"."pk1" = COALESCE("src"."pk1", \'\') AND "dest"."pk2" = COALESCE("src"."pk2", \'\') ',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -312,7 +312,7 @@ EOT
 
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT CAST(COALESCE("col1", \'\') AS VARCHAR (4000)) AS "col1",CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT CAST(COALESCE("col1", \'\') AS VARCHAR (4000)) AS "col1",CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
             $sql
         );
 
@@ -430,7 +430,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT IFF("col1" = \'\', NULL, "col1"),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2") (SELECT IFF("col1" = \'\', NULL, "col1"),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -492,7 +492,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2", "_timestamp") (SELECT IFF("col1" = \'\', NULL, "col1"),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import_export_test_schema"."stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2", "_timestamp") (SELECT IFF("col1" = \'\', NULL, "col1"),CAST(COALESCE("col2", \'\') AS VARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
             $sql
         );
         $out = $this->connection->executeStatement($sql);
@@ -521,7 +521,7 @@ EOT
 
         $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         self::assertEquals(
-            'DELETE FROM "import_export_test_schema"."stagingTable"',
+            'DELETE FROM "import_export_test_schema"."__temp_stagingTable"',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -585,7 +585,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -674,7 +674,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -775,7 +775,7 @@ EOT
 
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
             $sql
         );
         $this->connection->executeStatement($sql);

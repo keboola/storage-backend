@@ -7,11 +7,11 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Result;
+use Keboola\Db\ImportExport\Backend\ImportState;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
-use Keboola\Db\ImportExport\Backend\ImportState;
-use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
@@ -71,7 +71,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 // 1. Run UPDATE command to update rows in final table with updated data based on PKs
                 $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
                 $this->connection->executeStatement(
-                    $this->sqlBuilder->getUpdateWithPkCommandSubstitute(
+                    $this->sqlBuilder->getUpdateWithPkCommand(
                         $stagingTableDefinition,
                         $destinationTableDefinition,
                         $options,
