@@ -159,6 +159,14 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
     ): string {
         assert($definition instanceof SnowflakeTableDefinition);
+        if ($definition->isTemporary()) {
+            return $this->getCreateTempTableCommand(
+                $definition->getSchemaName(),
+                $definition->getTableName(),
+                $definition->getColumnsDefinitions()
+            );
+        }
+
         return $this->getCreateTableCommand(
             $definition->getSchemaName(),
             $definition->getTableName(),
