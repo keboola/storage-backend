@@ -129,7 +129,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
                 );
 
                 $this->connection->executeQuery(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', NOW());',
+                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', CURRENT_TIMESTAMP());',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
                 ));
