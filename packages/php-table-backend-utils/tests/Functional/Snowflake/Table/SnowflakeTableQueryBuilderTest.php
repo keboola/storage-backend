@@ -333,6 +333,52 @@ EOT
             ,
             'createPrimaryKeys' => false,
         ];
+        yield 'temporary table' => [
+            'definition' => new SnowflakeTableDefinition(
+                $testDb,
+                '__temp_' . $tableName,
+                true,
+                new ColumnCollection(
+                    [
+                        SnowflakeColumn::createGenericColumn('col1'),
+                        SnowflakeColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                []
+            ),
+            'query' => <<<EOT
+CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
+(
+"col1" VARCHAR NOT NULL,
+"col2" VARCHAR NOT NULL
+);
+EOT
+            ,
+            'createPrimaryKeys' => false,
+        ];
+        yield 'temporary table with pk' => [
+            'definition' => new SnowflakeTableDefinition(
+                $testDb,
+                '__temp_' . $tableName,
+                true,
+                new ColumnCollection(
+                    [
+                        SnowflakeColumn::createGenericColumn('col1'),
+                        SnowflakeColumn::createGenericColumn('col2'),
+                    ]
+                ),
+                ['col1', 'col2']
+            ),
+            'query' => <<<EOT
+CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
+(
+"col1" VARCHAR NOT NULL,
+"col2" VARCHAR NOT NULL
+);
+EOT
+            ,
+            'createPrimaryKeys' => false,
+        ];
     }
 
     /**
@@ -350,7 +396,12 @@ EOT
         $this->connection->executeQuery($sql);
 
         // test table properties
-        $tableReflection = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        $tableReflection = new SnowflakeTableReflection(
+            $this->connection,
+            self::TEST_SCHEMA,
+            $definition->getTableName()
+        );
+
         self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());
         if ($createPrimaryKeys) {
             self::assertSame($definition->getPrimaryKeysNames(), $tableReflection->getPrimaryKeysNames());
