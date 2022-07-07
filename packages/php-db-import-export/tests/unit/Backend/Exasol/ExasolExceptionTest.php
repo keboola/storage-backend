@@ -36,6 +36,7 @@ EOD;
         // phpcs:ignore
         $this->assertSame('Load error: Following error occured while reading data from external connection [https://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy.s3.eu-central-1.amazonaws.com/not-exists.csv failed with error code=404 after 285 bytes. NoSuchKey: The specified key does not exist.]', $exception->getMessage());
     }
+
     public function testInvalidFileContents(): void
     {
         // @codingStandardsIgnoreStart

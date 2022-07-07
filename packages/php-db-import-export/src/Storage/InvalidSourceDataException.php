@@ -6,8 +6,6 @@ namespace Keboola\Db\ImportExport\Storage;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Keboola\Db\Import\Exception;
-use Keboola\FileStorage\FileNotFoundException as FileStorageFileNotFoundException;
-use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use Throwable;
 
 class InvalidSourceDataException extends Exception
