@@ -135,11 +135,11 @@ class ExasolDatatypeTest extends TestCase
     public function expectedSqlDefinitions(): array
     {
         return [
-            'DECIMAL' => ['DECIMAL', [], 'DECIMAL (36,36)'],
-            'DEC' => ['DEC', [], 'DEC (36,36)'],
+            'DECIMAL' => ['DECIMAL', [], 'DECIMAL (36,18)'],
+            'DEC' => ['DEC', [], 'DEC (36,18)'],
             'NUMBER' => ['NUMBER', [], 'DOUBLE PRECISION'],
             'NUMBER WITH LENGTH' => ['NUMBER', ['length' => '20,20'], 'NUMBER (20,20)'],
-            'NUMERIC' => ['NUMERIC', [], 'NUMERIC (36,36)'],
+            'NUMERIC' => ['NUMERIC', [], 'NUMERIC (36,18)'],
 
             'CHAR' => ['CHAR', [], 'CHAR (2000)'],
             'NCHAR' => ['NCHAR', [], 'NCHAR (2000)'],
