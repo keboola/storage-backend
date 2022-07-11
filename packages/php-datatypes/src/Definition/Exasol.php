@@ -57,7 +57,7 @@ class Exasol extends Common
     public const TYPE_REAL = 'REAL'; // REAL = DOUBLE PRECISION
 
     // default lengths for different kinds of types. Used max values
-    public const MAX_DECIMAL_LENGTH = '36,36'; // max is 36.36, default 18,0
+    public const MAX_DECIMAL_LENGTH = '36,18'; // max is 36 digits, lets split them, default 18,0
     public const MAX_CHAR_LENGTH = 2000;
     public const MAX_VARCHAR_LENGTH = 2_000_000;
     public const MAX_GEOMETRY_LENGTH = 4_294_967_295; // max value
