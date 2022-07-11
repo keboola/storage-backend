@@ -86,7 +86,9 @@ class Snowflake extends Common
      *     nullable?:bool,
      *     default?:string|null
      * } $options
+     * @throws InvalidLengthException
      * @throws InvalidOptionException
+     * @throws InvalidTypeException
      */
     public function __construct(string $type, array $options = [])
     {
