@@ -47,6 +47,15 @@ ABS_CONTAINER_NAME=containerName
 ```
 - Upload test fixtures to ABS `docker-compose run --rm dev composer loadAbs`
 
+#### Google cloud storage
+
+- Create bucket in [GCS](https://console.cloud.google.com/storage) set bucket name in .env variable `GCS_BUCKET_NAME`
+- Create service account in [IAM](https://console.cloud.google.com/iam-admin/serviceaccounts)
+- In bucket permissions grant service account admin access to bucket
+- Create new service account key
+- Convert key to string `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
+- Set content on last line of .env as variable `GCS_CREDENTIALS`
+
 #### SNOWFLAKE
 
 Role, user, database and warehouse are required for tests. You can create them:

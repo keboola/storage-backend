@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 
 use Tests\Keboola\Db\ImportExportCommon\StubLoader\AbsLoader;
+use Tests\Keboola\Db\ImportExportCommon\StubLoader\GCSLoader;
 use Tests\Keboola\Db\ImportExportCommon\StubLoader\S3Loader;
 
 date_default_timezone_set('Europe/Prague');
@@ -36,6 +37,30 @@ switch ($argv[1]) {
             (string) getenv('AWS_REGION'),
             (string) getenv('AWS_S3_BUCKET'),
             (string) getenv('AWS_S3_KEY')
+        );
+        $loader->clearBucket();
+        $loader->load();
+        break;
+    case 'gcs':
+        require_once 'GCSLoader.php';
+
+        /** @var array{
+         * type: string,
+         * project_id: string,
+         * private_key_id: string,
+         * private_key: string,
+         * client_email: string,
+         * client_id: string,
+         * auth_uri: string,
+         * token_uri: string,
+         * auth_provider_x509_cert_url: string,
+         * client_x509_cert_url: string,
+         * } $credentials
+         */
+        $credentials = json_decode((string) getenv('GCS_CREDENTIALS'), true, 512, JSON_THROW_ON_ERROR);
+        $loader = new GCSLoader(
+            $credentials,
+            (string) getenv('GCS_BUCKET_NAME'),
         );
         $loader->clearBucket();
         $loader->load();
