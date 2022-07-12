@@ -124,6 +124,27 @@ jobs:
         name: Load data to ${{ matrix.storage }}
         run: |
           docker-compose run production composer loadAbs
+  load-gcs:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      -
+        name: Load data to ${{ matrix.storage }}
+        run: |
+          docker-compose run production composer loadGcs
 #
 # Test matrix
   testsABS:
@@ -334,7 +355,7 @@ jobs:
 # Clean up uploaded data
   clean-data:
     runs-on: ubuntu-latest
-    needs: [testsABS, testsS3, testsAll, synapse-tests]
+    needs: [testsABS, testsS3, testsAll, synapse-tests, load-gcs]
     if: ${{ always() }}
     steps:
       -
@@ -350,3 +371,14 @@ jobs:
         name: 'Clean S3'
         run: |
           aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{env.AWS_S3_KEY}} --recursive
+      -
+        name: 'Login GCS'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GCS_CREDENTIALS }}'
+      -
+        name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      -
+        name: 'Clean GCS'
+        run: 'gcloud info'
