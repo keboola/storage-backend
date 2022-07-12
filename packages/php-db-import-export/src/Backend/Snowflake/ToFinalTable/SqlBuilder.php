@@ -183,9 +183,18 @@ class SqlBuilder
                 } else {
                     $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
                 }
-            } else {
+            } elseif ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                 $columnsSetSql[] = sprintf(
                     'CAST(COALESCE(%s, \'\') AS %s) AS %s',
+                    SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                    $columnDefinition->getColumnDefinition()->getTypeOnlySQLDefinition(),
+                    SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
+            } else {
+                // on columns other than string dont use COALESCE, use direct cast
+                // this will fail if the column is not null, but this is expected
+                $columnsSetSql[] = sprintf(
+                    'CAST(%s AS %s) AS %s',
                     SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $columnDefinition->getColumnDefinition()->getTypeOnlySQLDefinition(),
                     SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
