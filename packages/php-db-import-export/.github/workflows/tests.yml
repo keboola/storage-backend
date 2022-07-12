@@ -54,6 +54,9 @@ env:
   ABS_ACCOUNT_NAME: 7nybfrempo4vcbd4248b7ca
   ABS_CONTAINER_NAME: ${{ github.run_id }}-${{ github.run_number }}
   GITHUB_OAUTH_TOKEN: ${{ secrets.OAUTH_TOKEN_GITHUB }}
+  #GCS
+  GCS_BUCKET_NAME: ci-import-export-lib
+  GCS_CREDENTIALS: ${{ secrets.GCS_CREDENTIALS }}
 
 jobs:
   build:
@@ -375,7 +378,7 @@ jobs:
         name: 'Login GCS'
         uses: 'google-github-actions/auth@v0'
         with:
-          credentials_json: '${{ secrets.GCS_CREDENTIALS }}'
+          credentials_json: '${{ env.GCS_CREDENTIALS }}'
       -
         name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
