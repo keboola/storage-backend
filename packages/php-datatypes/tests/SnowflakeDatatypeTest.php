@@ -113,10 +113,10 @@ class SnowflakeDatatypeTest extends TestCase
         $this->assertTrue($definition->getSQLDefinition() === 'NUMERIC');
 
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
-        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ(0)');
+        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ (0)');
 
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '9']);
-        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ(9)');
+        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ (9)');
 
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '']);
         $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ');
