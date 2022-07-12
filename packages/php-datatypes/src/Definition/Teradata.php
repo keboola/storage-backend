@@ -8,6 +8,7 @@ use Exception;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use LogicException;
 
 /**
  * Class Teradata
@@ -672,5 +673,10 @@ class Teradata extends Common
                 break;
         }
         return $basetype;
+    }
+
+    public static function getTypeByBasetype(string $basetype): string
+    {
+        throw new LogicException('Method is not implemented yet.');
     }
 }

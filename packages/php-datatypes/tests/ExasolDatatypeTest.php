@@ -353,4 +353,18 @@ class ExasolDatatypeTest extends TestCase
 
         return $out;
     }
+
+    public function testGetTypeByBasetype(): void
+    {
+        $this->assertSame('BOOLEAN', Exasol::getTypeByBasetype('BOOLEAN'));
+
+        $this->assertSame('VARCHAR', Exasol::getTypeByBasetype('STRING'));
+
+        // not only upper case
+        $this->assertSame('BOOLEAN', Exasol::getTypeByBasetype('Boolean'));
+
+        $this->expectException(InvalidTypeException::class);
+        $this->expectExceptionMessage('Base type "FOO" is not valid.');
+        Exasol::getTypeByBasetype('foo');
+    }
 }

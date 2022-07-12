@@ -7,6 +7,7 @@ namespace Keboola\Datatype\Definition;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use LogicException;
 
 class Snowflake extends Common
 {
@@ -329,5 +330,33 @@ class Snowflake extends Common
                 break;
         }
         return $basetype;
+    }
+
+    public static function getTypeByBasetype(string $basetype): string
+    {
+        $basetype = strtoupper($basetype);
+
+        if (!BaseType::isValid($basetype)) {
+            throw new InvalidTypeException(sprintf('Base type "%s" is not valid.', $basetype));
+        }
+
+        switch ($basetype) {
+            case BaseType::BOOLEAN:
+                return self::TYPE_BOOLEAN;
+            case BaseType::DATE:
+                return self::TYPE_DATE;
+            case BaseType::FLOAT:
+                return self::TYPE_FLOAT;
+            case BaseType::INTEGER:
+                return self::TYPE_INTEGER;
+            case BaseType::NUMERIC:
+                return self::TYPE_NUMBER;
+            case BaseType::STRING:
+                return self::TYPE_VARCHAR;
+            case BaseType::TIMESTAMP:
+                return self::TYPE_TIMESTAMP;
+        }
+
+        throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
 }

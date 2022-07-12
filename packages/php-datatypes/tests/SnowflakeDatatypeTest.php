@@ -354,4 +354,18 @@ class SnowflakeDatatypeTest extends TestCase
             ['-1'],
         ];
     }
+
+    public function testGetTypeByBasetype(): void
+    {
+        $this->assertSame('BOOLEAN', Snowflake::getTypeByBasetype('BOOLEAN'));
+
+        $this->assertSame('VARCHAR', Snowflake::getTypeByBasetype('STRING'));
+
+        // not only upper case
+        $this->assertSame('BOOLEAN', Snowflake::getTypeByBasetype('Boolean'));
+
+        $this->expectException(InvalidTypeException::class);
+        $this->expectExceptionMessage('Base type "FOO" is not valid.');
+        Snowflake::getTypeByBasetype('foo');
+    }
 }

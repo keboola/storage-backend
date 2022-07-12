@@ -466,4 +466,18 @@ class SynapseDatatypeTest extends TestCase
         $def = new Synapse($type, []);
         $this->assertSame($expectedLength, $def->getDefaultLength());
     }
+
+    public function testGetTypeByBasetype(): void
+    {
+        $this->assertSame('BIT', Synapse::getTypeByBasetype('BOOLEAN'));
+
+        $this->assertSame('NVARCHAR', Synapse::getTypeByBasetype('STRING'));
+
+        // not only upper case
+        $this->assertSame('BIT', Synapse::getTypeByBasetype('Boolean'));
+
+        $this->expectException(InvalidTypeException::class);
+        $this->expectExceptionMessage('Base type "FOO" is not valid.');
+        Synapse::getTypeByBasetype('foo');
+    }
 }

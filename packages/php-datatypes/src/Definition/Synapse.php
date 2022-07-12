@@ -7,6 +7,7 @@ namespace Keboola\Datatype\Definition;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use LogicException;
 
 /**
  * Class Synapse
@@ -270,5 +271,33 @@ class Synapse extends Common
                 break;
         }
         return $basetype;
+    }
+
+    public static function getTypeByBasetype(string $basetype): string
+    {
+        $basetype = strtoupper($basetype);
+
+        if (!BaseType::isValid($basetype)) {
+            throw new InvalidTypeException(sprintf('Base type "%s" is not valid.', $basetype));
+        }
+
+        switch ($basetype) {
+            case BaseType::BOOLEAN:
+                return self::TYPE_BIT;
+            case BaseType::DATE:
+                return self::TYPE_DATE;
+            case BaseType::FLOAT:
+                return self::TYPE_FLOAT;
+            case BaseType::INTEGER:
+                return self::TYPE_INT;
+            case BaseType::NUMERIC:
+                return self::TYPE_NUMERIC;
+            case BaseType::STRING:
+                return self::TYPE_NVARCHAR;
+            case BaseType::TIMESTAMP:
+                return self::TYPE_DATETIMEOFFSET;
+        }
+
+        throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
 }
