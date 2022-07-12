@@ -235,7 +235,7 @@ jobs:
 
   pre-synapse-tests:
     runs-on: ubuntu-latest
-    needs: load-abs
+    needs: build
     concurrency: synapse-tests
     steps:
       -
@@ -249,7 +249,7 @@ jobs:
 
   synapse-tests:
     runs-on: ubuntu-latest
-    needs: pre-synapse-tests
+    needs: [load-abs, pre-synapse-tests]
     strategy:
       fail-fast: false
       matrix:
@@ -295,7 +295,7 @@ jobs:
 
   pre-exasol-tests:
     runs-on: ubuntu-latest
-    needs: load-s3
+    needs: build
     concurrency: exasol-tests
     steps:
       -
@@ -308,7 +308,7 @@ jobs:
 
   exasol-tests:
     runs-on: ubuntu-latest
-    needs: pre-exasol-tests
+    needs: [load-s3, pre-exasol-tests]
     strategy:
       fail-fast: false
       matrix:
