@@ -44,6 +44,7 @@
         "tests-storage": "phpunit --colors=always --testsuite storage",
         "tests-snowflake-abs": "SUITE=tests-snowflake STORAGE_TYPE=ABS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake",
         "tests-snowflake-s3": "SUITE=tests-snowflake-s3  STORAGE_TYPE=S3 BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-s3",
+        "tests-snowflake-gcs": "SUITE=tests-snowflake-gcs  STORAGE_TYPE=GCS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-gcs",
         "tests-synapse": "SUITE=tests-synapse CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TABLE_DISTRIBUTION=HASH phpunit --colors=always --testsuite tests-synapse",
         "tests-synapse-mi": "SUITE=tests-synapse-mi CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY phpunit --colors=always --testsuite synapse-mi",
         "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",

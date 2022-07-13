@@ -16,6 +16,12 @@ ENV COMPOSER_PROCESS_TIMEOUT 7200
 ARG SQLSRV_VERSION=5.10.0
 ARG SNOWFLAKE_ODBC_VERSION=2.21.1
 ARG SNOWFLAKE_GPG_KEY=EC218558EABB25A1
+ARG GOOGLE_CLOUD_CLI_VERSION=393.0.0
+
+ENV LC_CTYPE=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C.UTF-8
 
 WORKDIR /code/
 
@@ -30,10 +36,13 @@ RUN apt-get update -q \
 RUN apt-get install gnupg -y --no-install-recommends \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list  \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add -  \
     && apt-get update -q \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends\
         git \
-        locales \
+        apt-transport-https \
+        ca-certificates \
         unzip \
         libpq-dev \
         gpg \
@@ -44,15 +53,11 @@ RUN apt-get install gnupg -y --no-install-recommends \
         libonig-dev \
         libxml2-dev \
         parallel \
-	&& rm -r /var/lib/apt/lists/* \
-	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
-	&& locale-gen \
+        google-cloud-cli \
+    && rm -r /var/lib/apt/lists/* \
 	&& chmod +x /tmp/composer-install.sh \
 	&& /tmp/composer-install.sh
 
-ENV LANGUAGE=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
 
 # Snowflake ODBC
 # https://github.com/docker-library/php/issues/103#issuecomment-353674490

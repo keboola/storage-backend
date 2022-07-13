@@ -57,6 +57,7 @@ env:
   #GCS
   GCS_BUCKET_NAME: ci-import-export-lib
   GCS_CREDENTIALS: ${{ secrets.GCS_CREDENTIALS }}
+  GCS_INTEGRATION_NAME: CI_PHP_IE_LIB
 
 jobs:
   build:
@@ -188,6 +189,34 @@ jobs:
         suite:
           - snowflake-s3
           - teradata-tpt
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run production composer tests-${{ matrix.suite }}
+  testsGCS:
+    runs-on: ubuntu-latest
+    needs: load-gcs
+    concurrency: ${{ matrix.suite }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - snowflake-gcs
     steps:
       -
         name: Checkout
@@ -382,7 +411,7 @@ jobs:
           aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{env.AWS_S3_KEY}} --recursive
   clean-gcs:
     runs-on: ubuntu-latest
-    needs: [load-gcs]
+    needs: [testsGCS]
     if: ${{ always() }}
     steps:
       -

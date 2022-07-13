@@ -27,6 +27,11 @@
             <exclude>tests/functional/Snowflake/ExportTest.php</exclude>
         </testsuite>
 
+        <testsuite name="snowflake-gcs">
+            <directory>tests/functional/Snowflake</directory>
+            <exclude>tests/functional/Snowflake/ExportTest.php</exclude>
+        </testsuite>
+
         <testsuite name="tests-synapse">
             <directory>tests/functional/Synapse</directory>
         </testsuite>
