@@ -69,7 +69,7 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
         // full imports
         yield 'large manifest' => [
             $this->createABSSourceInstance(
-                'sliced/2cols-large/2cols-large.csvmanifest',
+                'sliced/2cols-large/ABS.2cols-large.csvmanifest',
                 $escapingHeader,
                 true,
                 false,
@@ -206,7 +206,7 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
         // manifests
         yield 'accounts sliced' => [
             $this->createABSSourceInstance(
-                'sliced/accounts/accounts.csvmanifest',
+                'sliced/accounts/ABS.accounts.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
@@ -221,7 +221,7 @@ class FullImportNoTypesTest extends SynapseBaseTestCase
 
         yield 'accounts sliced gzip' => [
             $this->createABSSourceInstance(
-                'sliced/accounts-gzip/accounts-gzip.csvmanifest',
+                'sliced/accounts-gzip/ABS.accounts-gzip.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
