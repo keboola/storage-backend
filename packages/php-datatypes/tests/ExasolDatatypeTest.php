@@ -120,6 +120,15 @@ class ExasolDatatypeTest extends TestCase
     }
 
     /**
+     * @dataProvider expectedSqlDefinitionsTypesOnly
+     * @param mixed[] $options
+     */
+    public function testTypeOnlySqlDefinition(string $type, array $options, string $expectedDefinition): void
+    {
+        $definition = new Exasol($type, $options);
+        self::assertEquals($expectedDefinition, $definition->getTypeOnlySQLDefinition());
+    }
+    /**
      * @dataProvider expectedSqlDefinitions
      * @param mixed[] $options
      */
@@ -132,7 +141,7 @@ class ExasolDatatypeTest extends TestCase
     /**
      * @return array<string, mixed[]>
      */
-    public function expectedSqlDefinitions(): array
+    public function expectedSqlDefinitionsTypesOnly(): array
     {
         return [
             'DECIMAL' => ['DECIMAL', [], 'DECIMAL (36,18)'],
@@ -173,6 +182,28 @@ class ExasolDatatypeTest extends TestCase
             'FLOAT' => ['FLOAT', [], 'FLOAT'],
             'REAL' => ['REAL', [], 'REAL'],
         ];
+    }
+
+    /**
+     * @return array<string, mixed[]>
+     */
+    public function expectedSqlDefinitions(): array
+    {
+        return array_merge(
+            $this->expectedSqlDefinitionsTypesOnly(),
+            [
+                'NUMBER WITH LENGTH AND DEFAULT' => [
+                    'NUMBER',
+                    ['length' => '20,20', 'default' => 10],
+                    'NUMBER (20,20) DEFAULT 10',
+                ],
+                'NUMBER WITH LENGTH AND DEFAULT NULLABLE' => [
+                    'NUMBER',
+                    ['length' => '20,20', 'default' => 10, 'nullable' => true],
+                    'NUMBER (20,20) DEFAULT 10',
+                ],
+            ]
+        );
     }
 
     /**

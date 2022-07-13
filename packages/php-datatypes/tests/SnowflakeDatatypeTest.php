@@ -109,20 +109,53 @@ class SnowflakeDatatypeTest extends TestCase
 
     public function testSqlDefinition(): void
     {
-        $definition = new Snowflake('NUMERIC', ['length' => '']);
-        $this->assertTrue($definition->getSQLDefinition() === 'NUMERIC');
+        $definition = new Snowflake('NUMERIC', ['length' => '', 'nullable' => false]);
+        $this->assertSame($definition->getSQLDefinition(), 'NUMERIC NOT NULL');
+
+        $definition = new Snowflake('NUMERIC', ['length' => '10,10', 'nullable' => false]);
+        $this->assertSame($definition->getSQLDefinition(), 'NUMERIC (10,10) NOT NULL');
+
+        $definition = new Snowflake('NUMERIC', ['length' => '10,10', 'nullable' => false]);
+        $this->assertSame($definition->getSQLDefinition(), 'NUMERIC (10,10) NOT NULL');
+
+        $definition = new Snowflake('NUMERIC', ['length' => '10,10', 'nullable' => true]);
+        $this->assertSame($definition->getSQLDefinition(), 'NUMERIC (10,10)');
 
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
-        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ(0)');
+        $this->assertSame($definition->getSQLDefinition(), 'TIMESTAMP_TZ (0)');
 
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '9']);
-        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ(9)');
+        $this->assertSame($definition->getSQLDefinition(), 'TIMESTAMP_TZ (9)');
 
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '']);
-        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ');
+        $this->assertSame($definition->getSQLDefinition(), 'TIMESTAMP_TZ');
 
         $definition = new Snowflake('TIMESTAMP_TZ');
-        $this->assertTrue($definition->getSQLDefinition() === 'TIMESTAMP_TZ');
+        $this->assertSame($definition->getSQLDefinition(), 'TIMESTAMP_TZ');
+    }
+
+    public function testTypeOnlySqlDefinition(): void
+    {
+        $definition = new Snowflake('NUMERIC', ['length' => '', 'nullable' => false]);
+        $this->assertSame($definition->getTypeOnlySQLDefinition(), 'NUMERIC');
+
+        $definition = new Snowflake('NUMERIC', ['length' => '10,10', 'nullable' => false]);
+        $this->assertSame($definition->getTypeOnlySQLDefinition(), 'NUMERIC (10,10)');
+
+        $definition = new Snowflake('NUMERIC', ['length' => '10,10', 'nullable' => false, 'default' => '10']);
+        $this->assertSame($definition->getTypeOnlySQLDefinition(), 'NUMERIC (10,10)');
+
+        $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
+        $this->assertSame($definition->getTypeOnlySQLDefinition(), 'TIMESTAMP_TZ (0)');
+
+        $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '9']);
+        $this->assertSame($definition->getTypeOnlySQLDefinition(), 'TIMESTAMP_TZ (9)');
+
+        $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '']);
+        $this->assertSame($definition->getTypeOnlySQLDefinition(), 'TIMESTAMP_TZ');
+
+        $definition = new Snowflake('TIMESTAMP_TZ');
+        $this->assertSame($definition->getTypeOnlySQLDefinition(), 'TIMESTAMP_TZ');
     }
 
     /**

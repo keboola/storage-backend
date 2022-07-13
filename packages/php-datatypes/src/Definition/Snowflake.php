@@ -102,16 +102,25 @@ class Snowflake extends Common
         parent::__construct($type, $options);
     }
 
+
+    public function getTypeOnlySQLDefinition(): string
+    {
+        $out = $this->getType();
+        $length = $this->getLength();
+        if ($length !== null && $length !== '') {
+            $out .= ' (' . $length . ')';
+        }
+        return $out;
+    }
+
     public function getSQLDefinition(): string
     {
-        $definition =  $this->getType();
-        if ($this->getLength() !== null && $this->getLength() !== '') {
-            $definition .= '(' . $this->getLength() . ')';
-        }
+        $definition = $this->getTypeOnlySQLDefinition();
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
         return $definition;
+        // TODO default value by basetype
     }
 
     /**
