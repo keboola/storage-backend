@@ -182,7 +182,7 @@ class Exasol extends Common
 
     public function getSQLDefinition(): string
     {
-        $definition = $this->buildDefinitionString();
+        $definition = $this->getTypeOnlySQLDefinition();
 
         if ($this->getDefault() !== null) {
             $definition .= ' DEFAULT ' . $this->getDefault();
@@ -199,7 +199,7 @@ class Exasol extends Common
      * most of the types just append it, but some of them are complex and some have no length...
      * used here and in i/e lib
      */
-    public function buildDefinitionString(): string
+    public function getTypeOnlySQLDefinition(): string
     {
         $type = $this->getType();
         $definition = strtoupper($type);

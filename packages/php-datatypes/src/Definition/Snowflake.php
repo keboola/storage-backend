@@ -103,7 +103,7 @@ class Snowflake extends Common
     }
 
 
-    public function buildDefinitionString(): string
+    public function getTypeOnlySQLDefinition(): string
     {
         $out = $this->getType();
         $length = $this->getLength();
@@ -115,10 +115,15 @@ class Snowflake extends Common
 
     public function getSQLDefinition(): string
     {
-        $definition = $this->buildDefinitionString();
+        $definition = $this->getTypeOnlySQLDefinition();
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
+
+        if ($this->getDefault() !== null) {
+            $definition .= ' DEFAULT ' . $this->getDefault();
+        }
+
         return $definition;
     }
 
