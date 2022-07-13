@@ -72,6 +72,17 @@ PASSWORD = 'Password'
 DEFAULT_ROLE = "KEBOOLA_DB_IMPORT_EXPORT";
 
 GRANT ROLE "KEBOOLA_DB_IMPORT_EXPORT" TO USER "KEBOOLA_DB_IMPORT_EXPORT";
+
+-- For GCS create storage integration https://docs.snowflake.com/en/user-guide/data-load-gcs-config.html#creating-a-custom-iam-role
+CREATE STORAGE INTEGRATION "KEBOOLA_DB_IMPORT_EXPORT"
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = GCS
+  ENABLED = TRUE
+  STORAGE_ALLOWED_LOCATIONS = ('gcs://<your gcs bucket>/');
+-- set integration name to env GCS_INTEGRATION_NAME in .env file
+-- get service account id `STORAGE_GCP_SERVICE_ACCOUNT`
+DESC STORAGE INTEGRATION "CI_PHP_IE_LIB";
+-- continue according manual ^ in snflk documentation assign roles for Data loading and unloading
 ```
 
 #### SYNAPSE
