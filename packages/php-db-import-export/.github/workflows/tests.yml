@@ -411,7 +411,7 @@ jobs:
           aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{env.AWS_S3_KEY}} --recursive
   clean-gcs:
     runs-on: ubuntu-latest
-    needs: [testsGCS]
+    needs: [testsGCS, testsAll]
     if: ${{ always() }}
     steps:
       -
