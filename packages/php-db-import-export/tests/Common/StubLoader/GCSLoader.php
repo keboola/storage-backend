@@ -145,7 +145,7 @@ class GCSLoader extends BaseStubLoader
             foreach ($files as $file) {
                 $manifest['entries'][] = [
                     'url' => sprintf(
-                        'gs://%ssliced/%s/%s',
+                        'gs://%s/sliced/%s/%s',
                         $this->bucketName,
                         $directory->getBasename(),
                         $file->getFilename()
