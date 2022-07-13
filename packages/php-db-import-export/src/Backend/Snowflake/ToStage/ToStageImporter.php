@@ -72,6 +72,9 @@ final class ToStageImporter implements ToStageImporterInterface
             case $source instanceof Storage\S3\SourceFile:
                 $adapter = new FromS3CopyIntoAdapter($this->connection);
                 break;
+            case $source instanceof Storage\GCS\SourceFile:
+                $adapter = new FromGCSCopyIntoAdapter($this->connection);
+                break;
             case $source instanceof Storage\SqlSourceInterface:
                 $adapter = new FromTableInsertIntoAdapter($this->connection);
                 break;

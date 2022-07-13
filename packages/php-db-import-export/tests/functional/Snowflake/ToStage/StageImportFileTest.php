@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToStage;
 
 use Doctrine\DBAL\Exception;
+use Generator;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
@@ -12,12 +13,12 @@ use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
-use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
-class StageImportS3Test extends SnowflakeBaseTestCase
+class StageImportFileTest extends SnowflakeBaseTestCase
 {
-    use S3SourceTrait;
+    use StorageTrait;
 
     private const TWITTER_COLUMNS = [
         'id',
@@ -45,17 +46,21 @@ class StageImportS3Test extends SnowflakeBaseTestCase
     }
 
     /**
-     * @dataProvider s3ImportSettingProvider
-     * @param array{string, CsvOptions, array<string>, bool, bool} $s3Setting
+     * @dataProvider importSettingProvider
+     * @param array{string, CsvOptions, array<string>, bool, bool} $sourceSetting
      * @throws Exception
      */
-    public function testImportS3(
+    public function testImport(
         string $table,
-        array $s3Setting,
-        int $expectedRowsNumber,
-        int $expectedFirstLine,
-        int $skippedLines = 0
+        array $sourceSetting,
+        int $expectedNumberOfRows,
+        int $expectedFirstLineLength,
+        int $skippedLines = 0,
+        bool $markAsSkipped = false
     ): void {
+        if ($markAsSkipped) {
+            $this->markTestSkipped('Skipping test SourceDirectory not implemented.');
+        }
         $this->initTable($table);
 
         $importer = new ToStageImporter($this->connection);
@@ -78,8 +83,8 @@ class StageImportS3Test extends SnowflakeBaseTestCase
             )
         );
         $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
-                ...$s3Setting
+            $this->getSourceInstanceFromCsv(
+                ...$sourceSetting
             ),
             $stagingTable,
             $this->getSnowflakeImportOptions($skippedLines)
@@ -92,98 +97,110 @@ class StageImportS3Test extends SnowflakeBaseTestCase
                 SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName())
             )
         );
-        self::assertCount($expectedRowsNumber, $importedData);
-        self::assertCount($expectedFirstLine, $importedData[0]);
+        self::assertCount($expectedNumberOfRows, $importedData);
+        self::assertCount($expectedFirstLineLength, $importedData[0]);
     }
 
     /**
-     * @return array<mixed>
+     * @return Generator<string, array{
+     *     table:string,
+     *     sourceSettings: array<mixed>,
+     *     expectedNumberOfRows:int,
+     *     expectedFirstLineLength:int,
+     *     skippedLines?:int,
+     *     markAsSkipped?:bool
+     * }>
      */
-    public function s3ImportSettingProvider(): array
+    public function importSettingProvider(): Generator
     {
-        return [
-            'with enclosures' => [
-                'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
-                's3providerSetting' => [
-                    'escaping/standard-with-enclosures.csv',
-                    new CsvOptions(',', '"'),
-                    [
-                        'col1',
-                        'col2',
-                    ],
-                    false,
-                    false,
+        yield 'with enclosures' => [
+            'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
+            'sourceSettings' => [
+                'escaping/standard-with-enclosures.csv',
+                new CsvOptions(',', '"'),
+                [
+                    'col1',
+                    'col2',
                 ],
-                'expectedNumberofRows' => 8,
-                'expectedFirstLineLength' => 2,
+                false,
+                false,
             ],
-            'with tabs as separators' => [
-                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
-                's3providerSetting' => [
-                    'tw_accounts.tabs.csv',
-                    // 9 is tabular
-                    new CsvOptions(chr(9), ''),
-                    self::TWITTER_COLUMNS,
-                    false,
-                    false,
+            'expectedNumberOfRows' => 8,
+            'expectedFirstLineLength' => 2,
+        ];
+        yield 'with tabs as separators' => [
+            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'sourceSettings' => [
+                'tw_accounts.tabs.csv',
+                // 9 is tabular
+                new CsvOptions(chr(9), ''),
+                self::TWITTER_COLUMNS,
+                false,
+                false,
+            ],
+            'expectedNumberOfRows' => 4,
+            'expectedFirstLineLength' => 12,
+        ];
+        yield 'with manifest' => [
+            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'sourceSettings' => [
+                sprintf('sliced/accounts/%s.accounts.csvmanifest', (string) getenv('STORAGE_TYPE')),
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
+                true,
+                false,
+            ],
+            'expectedNumberOfRows' => 3,
+            'expectedFirstLineLength' => 12,
+        ];
+
+        $sourceDirClassExists = class_exists(sprintf(
+            'Keboola\Db\ImportExport\Storage\%s\SourceDirectory',
+            getenv('STORAGE_TYPE')
+        ));
+        yield 'with directory' => [
+            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'sourceSettings' => [
+                'sliced_accounts_no_manifest',
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
+                false,
+                true,
+            ],
+            'expectedNumberOfRows' => 3,
+            'expectedFirstLineLength' => 12,
+            'skippedLines' => 0,
+            'markAsSkipped' => !$sourceDirClassExists,
+        ];
+        yield 'with single csv' => [
+            'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
+            'sourceSettings' => [
+                'long_col_6k.csv',
+                new CsvOptions(),
+                [
+                    'col1',
+                    'col2',
                 ],
-                'expectedNumberofRows' => 4,
-                'expectedFirstLineLength' => 12,
+                false,
+                false,
             ],
-            'with manifest' => [
-                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
-                's3providerSetting' => [
-                    'sliced/accounts/S3.accounts.csvmanifest',
-                    new CsvOptions(),
-                    self::TWITTER_COLUMNS,
-                    true,
-                    false,
-                ],
-                'expectedNumberofRows' => 3,
-                'expectedFirstLineLength' => 12,
+            'expectedNumberOfRows' => 2,
+            'expectedFirstLineLength' => 2,
+        ];
+        // file has 4 lines in total (including header which is considered as data).
+        // Setting skip lines = 2 -> 2 lines should be imported
+        yield 'with skipped lines' => [
+            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'sourceSettings' => [
+                'tw_accounts.csv',
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
+                false,
+                false,
             ],
-            'with directory' => [
-                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
-                's3providerSetting' => [
-                    'sliced_accounts_no_manifest',
-                    new CsvOptions(),
-                    self::TWITTER_COLUMNS,
-                    false,
-                    true,
-                ],
-                'expectedNumberofRows' => 3,
-                'expectedFirstLineLength' => 12,
-            ],
-            'with single csv' => [
-                'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
-                's3providerSetting' => [
-                    'long_col_6k.csv',
-                    new CsvOptions(),
-                    [
-                        'col1',
-                        'col2',
-                    ],
-                    false,
-                    false,
-                ],
-                'expectedNumberofRows' => 2,
-                'expectedFirstLineLength' => 2,
-            ],
-            // file has 4 lines in total (including header which is considered as data).
-            // Setting skip lines = 2 -> 2 lines should be imported
-            'with skipped lines' => [
-                'table' => self::TABLE_ACCOUNTS_BEZ_TS,
-                's3providerSetting' => [
-                    'tw_accounts.csv',
-                    new CsvOptions(),
-                    self::TWITTER_COLUMNS,
-                    false,
-                    false,
-                ],
-                'expectedNumberofRows' => 2,
-                'expectedFirstLineLength' => 12,
-                'skippedLines' => 2,
-            ],
+            'expectedNumberOfRows' => 2,
+            'expectedFirstLineLength' => 12,
+            'skippedLines' => 2,
         ];
     }
 
@@ -206,7 +223,7 @@ class StageImportS3Test extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable)
         );
         $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
+            $this->getSourceInstanceFromCsv(
                 'nullify.csv',
                 new CsvOptions(),
                 [
@@ -258,7 +275,7 @@ class StageImportS3Test extends SnowflakeBaseTestCase
         $this->expectException(FileNotFoundException::class);
 
         $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
+            $this->getSourceInstanceFromCsv(
                 '02_tw_accounts.csv.invalid.manifest',
                 new CsvOptions(),
                 self::TWITTER_COLUMNS,
@@ -292,7 +309,7 @@ class StageImportS3Test extends SnowflakeBaseTestCase
         $this->expectException(Exception::class);
 
         $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv(
+            $this->getSourceInstanceFromCsv(
                 'typed_table.invalid-types.csv',
                 new CsvOptions(),
                 [
