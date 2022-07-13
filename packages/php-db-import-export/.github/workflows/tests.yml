@@ -365,6 +365,7 @@ jobs:
         name: 'Clean blob storage'
         uses: azure/CLI@v1
         with:
+          azcliversion: 2.37.0
           inlineScript: |
             az storage container delete \
             --account-key ${{ env.ABS_ACCOUNT_KEY }} \
