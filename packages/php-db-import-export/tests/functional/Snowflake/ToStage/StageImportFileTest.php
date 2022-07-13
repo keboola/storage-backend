@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToStage;
 use Doctrine\DBAL\Exception;
 use Generator;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\Import\Exception as LegacyImportException;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
@@ -14,6 +15,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
+use Tests\Keboola\Db\ImportExportCommon\StorageType;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class StageImportFileTest extends SnowflakeBaseTestCase
@@ -271,8 +273,12 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable)
         );
 
-        // fails on SQL. Manifest with invalid files is being created during loadS3
-        $this->expectException(FileNotFoundException::class);
+        if (getenv('STORAGE_TYPE') === StorageType::STORAGE_ABS) {
+            $this->expectException(LegacyImportException::class);
+        } else {
+            // fails on SQL. Manifest with invalid files is being created during loadS3
+            $this->expectException(FileNotFoundException::class);
+        }
 
         $importer->importToStagingTable(
             $this->getSourceInstanceFromCsv(

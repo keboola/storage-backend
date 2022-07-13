@@ -102,11 +102,11 @@ trait StorageTrait
                 break;
             case StorageType::STORAGE_ABS:
                 $getSourceInstance = 'createABSSourceInstance';
-                $manifestPrefix = '';
+                $manifestPrefix = 'ABS.';
                 break;
             case StorageType::STORAGE_GCS:
                 $getSourceInstance = 'createGCSSourceInstance';
-                $manifestPrefix = '';
+                $manifestPrefix = 'GCS.';
                 break;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));

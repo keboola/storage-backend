@@ -51,7 +51,7 @@ class GCSLoader extends BaseStubLoader
                 'auth',
                 'activate-service-account',
                 '--key-file',
-                '/tmp/gcs-credentials.json'
+                '/tmp/gcs-credentials.json',
             ]
         );
         $p->run();
@@ -72,7 +72,7 @@ class GCSLoader extends BaseStubLoader
                 'gs://' . $this->bucketName . '/*',
             ]
         );
-        $p->setTimeout(60*10*1000);
+        $p->setTimeout(60 * 10 * 1000);
         $p->run();
         echo $p->getOutput();
         echo $p->getErrorOutput();
@@ -106,7 +106,7 @@ class GCSLoader extends BaseStubLoader
                 'GOOGLE_APPLICATION_CREDENTIALS' => '/tmp/gcs-credentials.json',
             ]
         );
-        $p->setTimeout(60*10*1000);
+        $p->setTimeout(60 * 10 * 1000);
         $p->run();
         echo $p->getOutput();
         echo $p->getErrorOutput();
