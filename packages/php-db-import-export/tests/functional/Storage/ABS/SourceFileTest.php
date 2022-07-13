@@ -21,7 +21,7 @@ class SourceFileTest extends BaseTestCase
 
     public function testGetManifestEntriesIncremental(): void
     {
-        $source = $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', [], true);
+        $source = $this->createABSSourceInstance('sliced/accounts/ABS.accounts.csvmanifest', [], true);
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
     }
@@ -46,7 +46,7 @@ class SourceFileTest extends BaseTestCase
 
     public function testGetLineEndingSliced(): void
     {
-        $source = $this->createABSSourceInstance('sliced/accounts/accounts.csvmanifest', [], true);
+        $source = $this->createABSSourceInstance('sliced/accounts/ABS.accounts.csvmanifest', [], true);
         self::assertSame('lf', $source->getLineEnding());
     }
 

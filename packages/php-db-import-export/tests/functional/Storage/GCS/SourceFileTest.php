@@ -20,7 +20,7 @@ class SourceFileTest extends BaseTestCase
 
     public function testGetManifestEntriesIncremental(): void
     {
-        $source = $this->createGCSSourceInstance('sliced/accounts/accounts.csvmanifest', [], true);
+        $source = $this->createGCSSourceInstance('sliced/accounts/GCS.accounts.csvmanifest', [], true);
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
     }

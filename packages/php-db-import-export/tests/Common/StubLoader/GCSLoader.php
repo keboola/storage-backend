@@ -98,7 +98,7 @@ class GCSLoader extends BaseStubLoader
                 '-m',
                 'cp',
                 '-r',
-                self::BASE_DIR,
+                self::BASE_DIR . '/*',
                 'gs://' . $this->bucketName,
             ],
             null,
