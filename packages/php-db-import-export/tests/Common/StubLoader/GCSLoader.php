@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportCommon\StubLoader;
 
-use Exception;
 use Google\Cloud\Storage\StorageClient;
-use Google\Cloud\Storage\StorageObject;
 use React\Promise\Promise;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Process\Process;
 use Throwable;
 use function React\Async\parallel;
 
@@ -44,28 +43,40 @@ class GCSLoader extends BaseStubLoader
             'debug' => true,
         ]);
         $this->bucketName = $bucketName;
-        str_replace('gs://', '', $this->bucketName);
+        file_put_contents('/tmp/gcs-credentials.json', (string) getenv('GCS_CREDENTIALS'));
+
+        $p = new Process(
+            [
+                'gcloud',
+                'auth',
+                'activate-service-account',
+                '--key-file',
+                '/tmp/gcs-credentials.json'
+            ]
+        );
+        $p->run();
+        echo $p->getOutput();
+        echo $p->getErrorOutput();
+        echo PHP_EOL;
     }
 
     public function clearBucket(): void
     {
         echo "Clear bucket \n";
-        $bucket = $this->client->bucket($this->bucketName);
-
-        $promises = [];
-        foreach ($bucket->objects() as $object) {
-            $promises[] = fn() => new Promise(function ($resolve) use ($object) {
-                $object->delete();
-                echo 'Blob deleted: ' . $object->info()['name'] . PHP_EOL;
-                return $resolve();
-            });
-        }
-
-        parallel($promises)->then(function (): void {
-            return;
-        }, function (Throwable $e): void {
-            echo 'Error: ' . $e->getMessage() . PHP_EOL;
-        });
+        $p = new Process(
+            [
+                'gsutil',
+                '-m',
+                'rm',
+                '-r',
+                'gs://' . $this->bucketName . '/*',
+            ]
+        );
+        $p->setTimeout(60*10*1000);
+        $p->run();
+        echo $p->getOutput();
+        echo $p->getErrorOutput();
+        echo PHP_EOL;
     }
 
     public function load(): void
@@ -81,23 +92,27 @@ class GCSLoader extends BaseStubLoader
 
         echo "Creating blobs ...\n";
 
-        $files = (new Finder())->in(self::BASE_DIR)->files();
-        $promises = [];
-        /** @var \Symfony\Component\Finder\SplFileInfo $file */
-        foreach ($files as $file) {
-            $promises[] = fn() => new Promise(function ($resolve) use ($bucket, $file) {
-                $blobName = strtr($file->getPathname(), [self::BASE_DIR => '']);
-                $res = $bucket->upload(
-                    $file->getContents(),
-                    [
-                        'name' => $blobName,
-                    ]
-                );
-                echo 'Blob uploaded: ' . $blobName . PHP_EOL;
-                return $resolve([$blobName, $res]);
-            });
-        }
+        $p = new Process(
+            [
+                'gsutil',
+                '-m',
+                'cp',
+                '-r',
+                self::BASE_DIR,
+                'gs://' . $this->bucketName,
+            ],
+            null,
+            [
+                'GOOGLE_APPLICATION_CREDENTIALS' => '/tmp/gcs-credentials.json',
+            ]
+        );
+        $p->setTimeout(60*10*1000);
+        $p->run();
+        echo $p->getOutput();
+        echo $p->getErrorOutput();
+        echo PHP_EOL;
 
+        $promises = [];
         $promises[] = fn() => new Promise(function ($resolve) use ($bucket) {
             $blobName = '02_tw_accounts.csv.invalid.manifest';
             $res = $bucket->upload(
