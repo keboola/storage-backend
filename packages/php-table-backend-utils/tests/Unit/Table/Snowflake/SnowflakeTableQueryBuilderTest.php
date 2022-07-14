@@ -65,9 +65,9 @@ class SnowflakeTableQueryBuilderTest extends TestCase
     {
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage(
-            'Invalid table name testTable.: Only alphanumeric characters, underscores and dollar signs are allowed.'
+            'Invalid table name testTab.: Only alphanumeric characters, dash, underscores and dollar signs are allowed.'
         );
-        $this->qb->getCreateTableCommand('testDb', 'testTable.', new ColumnCollection([]));
+        $this->qb->getCreateTableCommand('testDb', 'testTab.', new ColumnCollection([]));
         self::fail('Should fail because of invalid table name');
     }
 
@@ -75,9 +75,9 @@ class SnowflakeTableQueryBuilderTest extends TestCase
     {
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage(
-            'Invalid table name testTable.: Only alphanumeric characters, underscores and dollar signs are allowed.'
+            'Invalid table name testTab.: Only alphanumeric characters, dash, underscores and dollar signs are allowed.'
         );
-        $this->qb->getRenameTableCommand('testDb', 'testTable', 'testTable.');
+        $this->qb->getRenameTableCommand('testDb', 'testTab', 'testTab.');
         self::fail('Should fail because of invalid table name');
     }
 

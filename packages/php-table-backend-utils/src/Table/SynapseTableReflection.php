@@ -359,7 +359,7 @@ EOT
     public function getTableIndexColumnsNames(): array
     {
         $tableId = $this->getObjectId();
-        /** @var array{0?: string} $result */
+        /** @var string[] $result */
         $result = $this->connection->fetchFirstColumn(
             <<< EOT
 SELECT

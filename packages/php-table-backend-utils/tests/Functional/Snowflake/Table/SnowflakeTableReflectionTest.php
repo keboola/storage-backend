@@ -151,7 +151,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
     {
         yield 'DECIMAL' => [
             'DECIMAL', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -159,7 +159,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'NUMERIC' => [
             'NUMERIC', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -167,7 +167,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'NUMERIC 20' => [
             'NUMERIC (20,0)', // sql which goes to table
-            'NUMBER(20,0)', // expected sql from getSQLDefinition
+            'NUMBER (20,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '20,0', // length
@@ -175,7 +175,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'INT' => [
             'INT', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -183,7 +183,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'INTEGER' => [
             'INTEGER', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -191,7 +191,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'BIGINT' => [
             'BIGINT', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -199,7 +199,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'SMALLINT' => [
             'SMALLINT', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -207,7 +207,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'TINYINT' => [
             'TINYINT', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -215,7 +215,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'BYTEINT' => [
             'BYTEINT', // sql which goes to table
-            'NUMBER(38,0)', // expected sql from getSQLDefinition
+            'NUMBER (38,0)', // expected sql from getSQLDefinition
             'NUMBER', // expected type from db
             null, // default
             '38,0', // length
@@ -271,7 +271,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'VARCHAR' => [
             'VARCHAR', // sql which goes to table
-            'VARCHAR(16777216)', // expected sql from getSQLDefinition
+            'VARCHAR (16777216)', // expected sql from getSQLDefinition
             'VARCHAR', // expected type from db
             null, // default
             '16777216', // length
@@ -279,7 +279,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'CHAR' => [
             'CHAR', // sql which goes to table
-            'VARCHAR(1)', // expected sql from getSQLDefinition
+            'VARCHAR (1)', // expected sql from getSQLDefinition
             'VARCHAR', // expected type from db
             null, // default
             '1', // length
@@ -287,7 +287,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'CHARACTER' => [
             'CHARACTER', // sql which goes to table
-            'VARCHAR(1)', // expected sql from getSQLDefinition
+            'VARCHAR (1)', // expected sql from getSQLDefinition
             'VARCHAR', // expected type from db
             null, // default
             '1', // length
@@ -295,7 +295,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'STRING' => [
             'STRING', // sql which goes to table
-            'VARCHAR(16777216)', // expected sql from getSQLDefinition
+            'VARCHAR (16777216)', // expected sql from getSQLDefinition
             'VARCHAR', // expected type from db
             null, // default
             '16777216', // length
@@ -303,7 +303,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'TEXT' => [
             'TEXT', // sql which goes to table
-            'VARCHAR(16777216)', // expected sql from getSQLDefinition
+            'VARCHAR (16777216)', // expected sql from getSQLDefinition
             'VARCHAR', // expected type from db
             null, // default
             '16777216', // length
@@ -327,7 +327,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'DATETIME' => [
             'DATETIME', // sql which goes to table
-            'TIMESTAMP_NTZ(9)', // expected sql from getSQLDefinition
+            'TIMESTAMP_NTZ (9)', // expected sql from getSQLDefinition
             'TIMESTAMP_NTZ', // expected type from db
             null, // default
             '9', // length
@@ -335,7 +335,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'TIME' => [
             'TIME', // sql which goes to table
-            'TIME(9)', // expected sql from getSQLDefinition
+            'TIME (9)', // expected sql from getSQLDefinition
             'TIME', // expected type from db
             null, // default
             '9', // length
@@ -343,7 +343,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'TIMESTAMP' => [
             'TIMESTAMP', // sql which goes to table
-            'TIMESTAMP_NTZ(9)', // expected sql from getSQLDefinition
+            'TIMESTAMP_NTZ (9)', // expected sql from getSQLDefinition
             'TIMESTAMP_NTZ', // expected type from db
             null, // default
             '9', // length
@@ -359,7 +359,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'BINARY' => [
             'BINARY', // sql which goes to table
-            'BINARY(8388608)', // expected sql from getSQLDefinition
+            'BINARY (8388608)', // expected sql from getSQLDefinition
             'BINARY', // expected type from db
             null, // default
             '8388608', // length
@@ -367,7 +367,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ];
         yield 'VARBINARY' => [
             'VARBINARY', // sql which goes to table
-            'BINARY(8388608)', // expected sql from getSQLDefinition
+            'BINARY (8388608)', // expected sql from getSQLDefinition
             'BINARY', // expected type from db
             null, // default
             '8388608', // length

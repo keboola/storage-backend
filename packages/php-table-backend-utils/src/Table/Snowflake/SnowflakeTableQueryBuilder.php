@@ -196,10 +196,21 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 
     private function assertTableName(string $tableName): void
     {
-        if (preg_match('/^[_A-Za-z][_A-Za-z0-9$]*$/', $tableName, $out) !== 1) {
+        if (preg_match('/^[-_A-Za-z][_A-Za-z\d$]*$/', $tableName, $out) !== 1) {
             throw new QueryBuilderException(
                 sprintf(
-                    'Invalid table name %s: Only alphanumeric characters, underscores and dollar signs are allowed.',
+                    // phpcs:ignore
+                    'Invalid table name %s: Only alphanumeric characters, dash, underscores and dollar signs are allowed.',
+                    $tableName
+                ),
+                self::INVALID_TABLE_NAME
+            );
+        }
+
+        if (ctype_print($tableName) === false) {
+            throw new QueryBuilderException(
+                sprintf(
+                    'Invalid table name %s: Name can contain only printable characters.',
                     $tableName
                 ),
                 self::INVALID_TABLE_NAME
