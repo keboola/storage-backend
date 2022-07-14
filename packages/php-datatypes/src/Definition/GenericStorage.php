@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Datatype\Definition;
 
+use LogicException;
+
 class GenericStorage extends Common
 {
     public const DATE_TYPES = ['date'];
@@ -129,5 +131,10 @@ class GenericStorage extends Common
             $baseType = BaseType::BOOLEAN;
         }
         return $baseType;
+    }
+
+    public static function getTypeByBasetype(string $basetype): string
+    {
+        throw new LogicException('Method is not implemented yet.');
     }
 }

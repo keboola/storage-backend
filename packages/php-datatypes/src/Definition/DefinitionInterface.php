@@ -14,4 +14,6 @@ interface DefinitionInterface
     public function toArray(): array;
 
     public function getBasetype(): string;
+
+    public static function getTypeByBasetype(string $basetype): string;
 }

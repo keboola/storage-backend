@@ -71,6 +71,8 @@ abstract class Common implements DefinitionInterface
      */
     abstract public function toArray(): array;
 
+    abstract public static function getTypeByBasetype(string $basetype): string;
+
     /**
      * @param string|int|null $length
      */

@@ -7,6 +7,7 @@ namespace Keboola\Datatype\Definition;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use LogicException;
 
 class MySQL extends Common
 {
@@ -300,5 +301,10 @@ class MySQL extends Common
                 break;
         }
         return $basetype;
+    }
+
+    public static function getTypeByBasetype(string $basetype): string
+    {
+        throw new LogicException('Method is not implemented yet.');
     }
 }

@@ -8,6 +8,7 @@ use Keboola\Datatype\Definition\Exception\InvalidCompressionException;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use LogicException;
 
 class Redshift extends Common
 {
@@ -374,6 +375,11 @@ class Redshift extends Common
                 break;
         }
         return $basetype;
+    }
+
+    public static function getTypeByBasetype(string $basetype): string
+    {
+        throw new LogicException('Method is not implemented yet.');
     }
 
     /**
