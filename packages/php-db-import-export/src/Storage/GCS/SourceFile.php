@@ -84,7 +84,6 @@ class SourceFile extends BaseFile implements SourceInterface
     {
         return new StorageClient([
             'keyFile' => $this->credentials,
-            'debug' => true,
         ]);
     }
 
