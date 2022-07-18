@@ -187,7 +187,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'CAST(COALESCE(%s, \'\') AS %s) AS %s',
                     SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $this->buildDefinitionString($columnDefinition->getColumnDefinition()),
+                    $columnDefinition->getColumnDefinition()->getTypeOnlySQLDefinition(),
                     SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             }
@@ -206,16 +206,6 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
             SnowflakeQuote::quoteSingleIdentifier(self::SRC_ALIAS)
         );
-    }
-
-    // TODO could be moved to php-datatypes
-    private function buildDefinitionString(Snowflake $definition): string
-    {
-        $out = $definition->getType();
-        if ($definition->getLength() !== null && $definition->getLength() !== '') {
-            $out .= ' (' . $definition->getLength() . ')';
-        }
-        return $out;
     }
 
     public function getTruncateTableWithDeleteCommand(
