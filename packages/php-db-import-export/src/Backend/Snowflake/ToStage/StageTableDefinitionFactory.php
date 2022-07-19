@@ -79,31 +79,12 @@ final class StageTableDefinitionFactory
         SnowflakeTableDefinition $destination,
         array $pkNames
     ): SnowflakeTableDefinition {
-        // ensure that PK on dedup table are not null
-        $dedupTableColumns = [];
-        /** @var SnowflakeColumn $definition */
-        foreach ($destination->getColumnsDefinitions() as $definition) {
-            if (in_array($definition->getColumnName(), $pkNames)) {
-                $dedupTableColumns[] = new SnowflakeColumn(
-                    $definition->getColumnName(),
-                    new Snowflake(
-                        $definition->getColumnDefinition()->getType(),
-                        [
-                            'length' => $definition->getColumnDefinition()->getLength(),
-                            'nullable' => false,
-                        ]
-                    )
-                );
-            } else {
-                $dedupTableColumns[] = $definition;
-            }
-        }
 
         return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
             BackendHelper::generateTempDedupTableName(),
             true,
-            new ColumnCollection($dedupTableColumns),
+            $destination->getColumnsDefinitions(),
             $pkNames
         );
     }

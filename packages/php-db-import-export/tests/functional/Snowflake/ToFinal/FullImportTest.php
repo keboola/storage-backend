@@ -36,7 +36,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         $this->createSchema($this->getDestinationSchemaName());
     }
 
-    public function testLoadToTableFailOnNullConstraint(): void
+    public function testLoadToTableWithNullValuesShouldPass(): void
     {
         $this->initTable(self::TABLE_SINGLE_PK);
 
@@ -81,16 +81,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         );
         $toFinalTableImporter = new FullImporter($this->connection);
 
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(
-            'Load error: An exception occurred while executing a query: NULL result in a non-nullable column'
-        );
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
             $importState
         );
+
+        self::assertEquals(5, $destinationRef->getRowsCount());
     }
 
     public function testLoadToFinalTableWithoutDedup(): void
