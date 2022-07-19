@@ -14,6 +14,8 @@ use function GuzzleHttp\json_encode as guzzle_json_encode;
 
 class AbsLoader extends BaseStubLoader
 {
+    private const MANIFEST_SUFFIX = 'ABS';
+
     private string $accountName;
 
     private string $containerName;
@@ -155,8 +157,9 @@ class AbsLoader extends BaseStubLoader
             }
 
             $manifestFilePath = sprintf(
-                '%s/%s.csvmanifest',
+                '%s/%s.%s.csvmanifest',
                 $directory->getPathname(),
+                self::MANIFEST_SUFFIX,
                 $directory->getBasename()
             );
             file_put_contents($manifestFilePath, guzzle_json_encode($manifest));

@@ -54,6 +54,10 @@ env:
   ABS_ACCOUNT_NAME: 7nybfrempo4vcbd4248b7ca
   ABS_CONTAINER_NAME: ${{ github.run_id }}-${{ github.run_number }}
   GITHUB_OAUTH_TOKEN: ${{ secrets.OAUTH_TOKEN_GITHUB }}
+  #GCS
+  GCS_BUCKET_NAME: ci-import-export-lib
+  GCS_CREDENTIALS: ${{ secrets.GCS_CREDENTIALS }}
+  GCS_INTEGRATION_NAME: CI_PHP_IE_LIB
 
 jobs:
   build:
@@ -124,6 +128,27 @@ jobs:
         name: Load data to ${{ matrix.storage }}
         run: |
           docker-compose run production composer loadAbs
+  load-gcs:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      -
+        name: Load data to ${{ matrix.storage }}
+        run: |
+          docker-compose run production composer loadGcs
 #
 # Test matrix
   testsABS:
@@ -183,6 +208,34 @@ jobs:
         env:
           SUITE: ${{ matrix.suite }}
         run: docker-compose run production composer tests-${{ matrix.suite }}
+  testsGCS:
+    runs-on: ubuntu-latest
+    needs: load-gcs
+    concurrency: ${{ matrix.suite }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - snowflake-gcs
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run production composer tests-${{ matrix.suite }}
   testsAll:
     runs-on: ubuntu-latest
     needs: [load-s3, load-abs]
@@ -214,7 +267,7 @@ jobs:
 
   pre-synapse-tests:
     runs-on: ubuntu-latest
-    needs: load-abs
+    needs: build
     concurrency: synapse-tests
     steps:
       -
@@ -228,7 +281,7 @@ jobs:
 
   synapse-tests:
     runs-on: ubuntu-latest
-    needs: pre-synapse-tests
+    needs: [load-abs, pre-synapse-tests]
     strategy:
       fail-fast: false
       matrix:
@@ -274,7 +327,7 @@ jobs:
 
   pre-exasol-tests:
     runs-on: ubuntu-latest
-    needs: load-s3
+    needs: build
     concurrency: exasol-tests
     steps:
       -
@@ -287,7 +340,7 @@ jobs:
 
   exasol-tests:
     runs-on: ubuntu-latest
-    needs: pre-exasol-tests
+    needs: [load-s3, pre-exasol-tests]
     strategy:
       fail-fast: false
       matrix:
@@ -332,21 +385,43 @@ jobs:
 
 #
 # Clean up uploaded data
-  clean-data:
+  clean-s3:
     runs-on: ubuntu-latest
-    needs: [testsABS, testsS3, testsAll, synapse-tests]
+    needs: [testsS3, testsAll, exasol-tests]
     if: ${{ always() }}
     steps:
-      -
-        name: 'Clean blob storage'
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az storage container delete \
-            --account-key ${{ env.ABS_ACCOUNT_KEY }} \
-            --account-name ${{ env.ABS_ACCOUNT_NAME }} \
-            --name ${{ env.ABS_CONTAINER_NAME }}
       -
         name: 'Clean S3'
         run: |
           aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{env.AWS_S3_KEY}} --recursive
+  clean-gcs:
+    runs-on: ubuntu-latest
+    needs: [testsGCS, testsAll]
+    if: ${{ always() }}
+    steps:
+      -
+        name: 'Login GCS'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ env.GCS_CREDENTIALS }}'
+      -
+        name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      -
+        name: 'Clean GCS'
+        run: 'gsutil -m rm -r gs://${{env.GCS_BUCKET_NAME}}/*'
+  clean-abs:
+    runs-on: ubuntu-latest
+    needs: [testsABS, testsAll, synapse-tests]
+    if: ${{ always() }}
+    steps:
+      -
+        name: 'Install azure cli'
+        run: 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'
+      -
+        name: 'Clean blob storage'
+        run: |
+            az storage container delete \
+            --account-key ${{ env.ABS_ACCOUNT_KEY }} \
+            --account-name ${{ env.ABS_ACCOUNT_NAME }} \
+            --name ${{ env.ABS_CONTAINER_NAME }}

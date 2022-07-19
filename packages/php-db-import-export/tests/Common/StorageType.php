@@ -8,4 +8,5 @@ final class StorageType
 {
     public const STORAGE_S3 = 'S3';
     public const STORAGE_ABS = 'ABS';
+    public const STORAGE_GCS = 'GCS';
 }

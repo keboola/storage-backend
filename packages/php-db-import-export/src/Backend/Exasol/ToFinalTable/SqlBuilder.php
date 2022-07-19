@@ -213,7 +213,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'CAST(COALESCE(%s, \'\') AS %s) AS %s',
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $columnDefinition->getColumnDefinition()->buildDefinitionString(),
+                    $columnDefinition->getColumnDefinition()->getTypeOnlySQLDefinition(),
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             }
@@ -285,7 +285,7 @@ class SqlBuilder
                 return sprintf(
                     'COALESCE(CAST("dest".%s AS %s), \'KBC_$#\') != COALESCE("src".%s, \'KBC_$#\')',
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    $columnDefinition->getColumnDefinition()->buildDefinitionString(),
+                    $columnDefinition->getColumnDefinition()->getTypeOnlySQLDefinition(),
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             },

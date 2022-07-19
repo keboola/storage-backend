@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportCommon;
 
 use Aws\S3\S3Client;
 use Exception;
+use Google\Cloud\Storage\StorageClient;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -24,6 +25,7 @@ trait StorageTrait
 {
     use ABSSourceTrait;
     use S3SourceTrait;
+    use GCSSourceTrait;
     use ImportTrait;
     use ExportTrait;
 
@@ -70,6 +72,12 @@ trait StorageTrait
                     (string) getenv('ABS_ACCOUNT_NAME'),
                     (string) getenv('ABS_ACCOUNT_KEY')
                 );
+            case StorageType::STORAGE_GCS:
+                return new Storage\GCS\DestinationFile(
+                    (string) getenv('GCS_BUCKET_NAME'),
+                    $filePath,
+                    (string) getenv('GCS_INTEGRATION_NAME'),
+                );
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
@@ -94,7 +102,11 @@ trait StorageTrait
                 break;
             case StorageType::STORAGE_ABS:
                 $getSourceInstance = 'createABSSourceInstance';
-                $manifestPrefix = '';
+                $manifestPrefix = 'ABS.';
+                break;
+            case StorageType::STORAGE_GCS:
+                $getSourceInstance = 'createGCSSourceInstance';
+                $manifestPrefix = 'GCS.';
                 break;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
@@ -130,6 +142,10 @@ trait StorageTrait
                 break;
             case StorageType::STORAGE_ABS:
                 $getSourceInstanceFromCsv = 'createABSSourceInstanceFromCsv';
+                $manifestPrefix = '';
+                break;
+            case StorageType::STORAGE_GCS:
+                $getSourceInstanceFromCsv = 'createGCSSourceInstanceFromCsv';
                 $manifestPrefix = '';
                 break;
             default:
@@ -176,7 +192,7 @@ trait StorageTrait
     }
 
     /**
-     * @return S3Client|BlobRestProxy
+     * @return S3Client|BlobRestProxy|StorageClient
      */
     public function createClient()
     {
@@ -199,13 +215,18 @@ trait StorageTrait
                 return ClientFactory::createClientFromConnectionString(
                     $connectionString
                 );
+            case StorageType::STORAGE_GCS:
+                return new StorageClient([
+                    'keyFile' => $this->getGCSCredentials(),
+                    'debug' => true,
+                ]);
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
     }
 
     /**
-     * @return Blob[]|array<mixed>|null
+     * @return array<mixed>|Blob[]|null
      */
     public function listFiles(string $dir): ?array
     {
@@ -217,7 +238,9 @@ trait StorageTrait
                     'Bucket' => (string) getenv('AWS_S3_BUCKET'),
                     'Prefix' => $dir,
                 ]);
-                return $result->get('Contents');
+                /** @var array<mixed> $blobs */
+                $blobs = $result->get('Contents');
+                return $blobs;
             case StorageType::STORAGE_ABS:
                 /** @var BlobRestProxy $client */
                 $client = $this->createClient();
@@ -247,7 +270,7 @@ trait StorageTrait
                 /** @var S3Client $client */
                 $client = $this->createClient();
                 $tmpFiles = [];
-                /** @var array<mixed> $file */
+                /** @var array{Key:string, Body:string} $file */
                 foreach ($files as $file) {
                     $result = $client->getObject([
                         'Bucket' => (string) getenv('AWS_S3_BUCKET'),

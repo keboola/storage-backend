@@ -47,6 +47,15 @@ ABS_CONTAINER_NAME=containerName
 ```
 - Upload test fixtures to ABS `docker-compose run --rm dev composer loadAbs`
 
+#### Google cloud storage
+
+- Create bucket in [GCS](https://console.cloud.google.com/storage) set bucket name in .env variable `GCS_BUCKET_NAME`
+- Create service account in [IAM](https://console.cloud.google.com/iam-admin/serviceaccounts)
+- In bucket permissions grant service account admin access to bucket
+- Create new service account key
+- Convert key to string `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
+- Set content on last line of .env as variable `GCS_CREDENTIALS`
+
 #### SNOWFLAKE
 
 Role, user, database and warehouse are required for tests. You can create them:
@@ -63,6 +72,17 @@ PASSWORD = 'Password'
 DEFAULT_ROLE = "KEBOOLA_DB_IMPORT_EXPORT";
 
 GRANT ROLE "KEBOOLA_DB_IMPORT_EXPORT" TO USER "KEBOOLA_DB_IMPORT_EXPORT";
+
+-- For GCS create storage integration https://docs.snowflake.com/en/user-guide/data-load-gcs-config.html#creating-a-custom-iam-role
+CREATE STORAGE INTEGRATION "KEBOOLA_DB_IMPORT_EXPORT"
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = GCS
+  ENABLED = TRUE
+  STORAGE_ALLOWED_LOCATIONS = ('gcs://<your gcs bucket>/');
+-- set integration name to env GCS_INTEGRATION_NAME in .env file
+-- get service account id `STORAGE_GCP_SERVICE_ACCOUNT`
+DESC STORAGE INTEGRATION "CI_PHP_IE_LIB";
+-- continue according manual ^ in snflk documentation assign roles for Data loading and unloading
 ```
 
 #### SYNAPSE
