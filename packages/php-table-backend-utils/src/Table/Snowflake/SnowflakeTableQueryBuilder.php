@@ -196,7 +196,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 
     private function assertTableName(string $tableName): void
     {
-        if (preg_match('/^[-_A-Za-z][_A-Za-z\d$]*$/', $tableName, $out) !== 1) {
+        if (preg_match('/^[-_A-Za-z\d$]+$/', $tableName, $out) !== 1) {
             throw new QueryBuilderException(
                 sprintf(
                     // phpcs:ignore
