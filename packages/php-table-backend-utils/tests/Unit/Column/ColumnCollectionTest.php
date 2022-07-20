@@ -22,18 +22,6 @@ class ColumnCollectionTest extends TestCase
         $this->assertIsIterable($collection);
     }
 
-    public function testTooMuchColumns(): void
-    {
-        $cols = [];
-        for ($i = 0; $i < 1026; $i++) {
-            $cols[] = SynapseColumn::createGenericColumn('name' . $i);
-        }
-
-        $this->expectException(ColumnException::class);
-        $this->expectExceptionMessage('Too many columns. Maximum is 1024 columns.');
-        new ColumnCollection($cols);
-    }
-
     public function testCount(): void
     {
         $collection = new ColumnCollection([
