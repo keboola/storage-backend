@@ -107,6 +107,9 @@ trait StorageTrait
             case StorageType::STORAGE_GCS:
                 $getSourceInstance = 'createGCSSourceInstance';
                 $manifestPrefix = 'GCS.';
+                if ($isDirectory) {
+                    self::markTestSkipped('GCS does not support directory import');
+                }
                 break;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
