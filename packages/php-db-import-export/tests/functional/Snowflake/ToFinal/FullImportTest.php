@@ -302,7 +302,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         yield 'large manifest' => [
             $this->getSourceInstance(
-                'sliced/2cols-large/S3.2cols-large.csvmanifest',
+                'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
                 $escapingHeader,
                 true,
                 false,
@@ -442,7 +442,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         // manifests
         yield 'accounts sliced' => [
             $this->getSourceInstance(
-                'sliced/accounts/S3.accounts.csvmanifest',
+                'sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
@@ -457,7 +457,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         yield 'accounts sliced gzip' => [
             $this->getSourceInstance(
-                'sliced/accounts-gzip/S3.accounts-gzip.csvmanifest',
+                'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
