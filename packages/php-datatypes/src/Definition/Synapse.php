@@ -295,7 +295,7 @@ class Synapse extends Common
             case BaseType::STRING:
                 return self::TYPE_NVARCHAR;
             case BaseType::TIMESTAMP:
-                return self::TYPE_DATETIMEOFFSET;
+                return self::TYPE_DATETIME2;
         }
 
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
