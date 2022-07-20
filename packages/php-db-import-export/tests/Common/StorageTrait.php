@@ -226,7 +226,7 @@ trait StorageTrait
     }
 
     /**
-     * @return array<mixed>|Blob[]|null
+     * @return Blob[]|null|array<string[]>
      */
     public function listFiles(string $dir): ?array
     {
@@ -238,7 +238,8 @@ trait StorageTrait
                     'Bucket' => (string) getenv('AWS_S3_BUCKET'),
                     'Prefix' => $dir,
                 ]);
-                /** @var array<mixed> $blobs */
+                /** @var array<string[]> $blobs
+                 */
                 $blobs = $result->get('Contents');
                 return $blobs;
             case StorageType::STORAGE_ABS:
@@ -254,7 +255,7 @@ trait StorageTrait
     }
 
     /**
-     * @param Blob[]|array<mixed> $files
+     * @param Blob[]|array<string[]> $files
      * @return CsvFile<string[]>
      */
     public function getCsvFileFromStorage(

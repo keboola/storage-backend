@@ -17,12 +17,12 @@ use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
-use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class IncrementalImportTest extends SnowflakeBaseTestCase
 {
-    use S3SourceTrait;
+    use StorageTrait;
 
     protected function getSnowflakeIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
@@ -71,7 +71,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
 
         $tests = [];
         yield 'simple' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.csv',
                 $accountColumns,
                 false,
@@ -79,7 +79,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 ['id']
             ),
             $this->getSnowflakeImportOptions(),
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
                 false,
@@ -93,7 +93,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'simple no timestamp' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.csv',
                 $accountColumns,
                 false,
@@ -106,7 +106,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
                 false,
@@ -125,7 +125,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
             self::TABLE_ACCOUNTS_BEZ_TS,
         ];
         yield 'multi pk' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'multi-pk_not-null.csv',
                 $multiPkColumns,
                 false,
@@ -133,7 +133,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getSnowflakeImportOptions(),
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'multi-pk_not-null.increment.csv',
                 $multiPkColumns,
                 false,
