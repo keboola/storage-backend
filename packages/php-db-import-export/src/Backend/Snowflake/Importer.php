@@ -18,6 +18,9 @@ use Keboola\Db\ImportExport\Storage;
 use ReflectionClass;
 use Throwable;
 
+/**
+ * @deprecated use {ToStage/Full/Incremental} importer instead
+ */
 class Importer implements ImporterInterface
 {
     public const DEFAULT_ADAPTERS = [
