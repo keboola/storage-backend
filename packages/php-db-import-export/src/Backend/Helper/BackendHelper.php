@@ -6,6 +6,14 @@ namespace Keboola\Db\ImportExport\Backend\Helper;
 
 class BackendHelper
 {
+    /**
+     * @deprecated use generateStagingTableName
+     */
+    public static function generateTempTableName(): string
+    {
+        return self::generateStagingTableName();
+    }
+
     public static function generateStagingTableName(): string
     {
         return '__temp_' . str_replace('.', '_', uniqid('csvimport', true));
