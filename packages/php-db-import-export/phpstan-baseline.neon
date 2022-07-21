@@ -221,11 +221,6 @@ parameters:
 			path: tests/functional/Exasol/StageImportS3Test.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\ImportExportBaseTest\\:\\:listFiles\\(\\) should return array\\<MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\>\\|null but returns array\\.$#"
-			count: 1
-			path: tests/functional/ImportExportBaseTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$array of function array_map expects array, mixed given\\.$#"
 			count: 1
 			path: tests/functional/ImportExportBaseTest.php
@@ -256,11 +251,6 @@ parameters:
 			path: tests/functional/Snowflake/IncrementalImportTest.php
 
 		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\SnowflakeImportExportBaseTest\\:\\:listFiles\\(\\) should return array\\<MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\>\\|null but returns array\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$fileName of class Keboola\\\\Csv\\\\CsvFile constructor expects string, mixed given\\.$#"
 			count: 1
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
@@ -274,11 +264,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$values of function array_combine expects array, mixed given\\.$#"
 			count: 1
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
-			message: "#^Method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Snowflake\\\\ToStage\\\\StageImportFileTest\\:\\:listFiles\\(\\) should return array\\<MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\>\\|null but returns array\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToStage/StageImportFileTest.php
 
 		-
 			message: "#^Offset 0 does not exist on array\\<string, string\\>\\.$#"

@@ -20,12 +20,12 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
-use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class FullImportTest extends SnowflakeBaseTestCase
 {
-    use S3SourceTrait;
+    use StorageTrait;
 
     protected function setUp(): void
     {
@@ -42,7 +42,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // skipping header
         $options = $this->getSnowflakeImportOptions(1, false);
-        $source = $this->createS3SourceInstance(
+        $source = $this->getSourceInstance(
             'multi-pk_null.csv',
             [
                 'VisitID',
@@ -97,7 +97,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // skipping header
         $options = $this->getSnowflakeImportOptions(1, false);
-        $source = $this->createS3SourceInstance(
+        $source = $this->getSourceInstance(
             'column-name-row-number.csv',
             [
                 'id',
@@ -145,7 +145,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // skipping header
         $options = $this->getSnowflakeImportOptions(1, false);
-        $source = $this->createS3SourceInstance(
+        $source = $this->getSourceInstance(
             'multi-pk.csv',
             [
                 'VisitID',
@@ -199,7 +199,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // skipping header
         $options = $this->getSnowflakeImportOptions(1, false);
-        $source = $this->createS3SourceInstance(
+        $source = $this->getSourceInstance(
             'multi-pk.csv',
             [
                 'VisitID',
@@ -301,8 +301,8 @@ class FullImportTest extends SnowflakeBaseTestCase
         }
 
         yield 'large manifest' => [
-            $this->createS3SourceInstance(
-                'sliced/2cols-large/S3.2cols-large.csvmanifest',
+            $this->getSourceInstance(
+                'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
                 $escapingHeader,
                 true,
                 false,
@@ -316,7 +316,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
 
         yield 'empty manifest' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'empty.manifest',
                 $escapingHeader,
                 true,
@@ -331,7 +331,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
 
         yield 'lemma' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'lemma.csv',
                 $lemmaHeader,
                 false,
@@ -346,7 +346,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
 
         yield 'standard with enclosures' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
@@ -361,7 +361,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
 
         yield 'gzipped standard with enclosure' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
                 $escapingHeader,
                 false,
@@ -376,7 +376,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
 
         yield 'standard with enclosures tabs' => [
-            $this->createS3SourceInstanceFromCsv(
+            $this->getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
                 $escapingHeader,
@@ -392,7 +392,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
 
         yield 'accounts changedColumnsOrder' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
                 $accountChangedColumnsOrderHeader,
                 false,
@@ -409,7 +409,7 @@ class FullImportTest extends SnowflakeBaseTestCase
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'accounts' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.csv',
                 $accountsHeader,
                 false,
@@ -425,7 +425,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // line ending detection is not supported yet for S3
         yield 'accounts crlf' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.crlf.csv',
                 $accountsHeader,
                 false,
@@ -441,8 +441,8 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // manifests
         yield 'accounts sliced' => [
-            $this->createS3SourceInstance(
-                'sliced/accounts/S3.accounts.csvmanifest',
+            $this->getSourceInstance(
+                'sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
@@ -456,8 +456,8 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
 
         yield 'accounts sliced gzip' => [
-            $this->createS3SourceInstance(
-                'sliced/accounts-gzip/S3.accounts-gzip.csvmanifest',
+            $this->getSourceInstance(
+                'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
@@ -472,7 +472,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // folder
         yield 'accounts sliced folder import' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'sliced_accounts_no_manifest/',
                 $accountsHeader,
                 true,
@@ -488,7 +488,7 @@ class FullImportTest extends SnowflakeBaseTestCase
 
         // reserved words
         yield 'reserved words' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'reserved-words.csv',
                 ['column', 'table'],
                 false,
@@ -503,7 +503,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
         // import table with _timestamp columns - used by snapshots
         yield 'import with _timestamp columns' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'with-ts.csv',
                 [
                     'col1',
@@ -528,7 +528,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         ];
         // test creating table without _timestamp column
         yield 'table without _timestamp column' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
