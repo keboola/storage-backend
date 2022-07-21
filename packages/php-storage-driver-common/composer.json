@@ -19,7 +19,7 @@
         "php": ">=7.4",
         "ext-odbc": "*",
         "ext-json": "*",
-        "keboola/db-import-export": "^1",
+        "keboola/db-import-export": "^1.1",
         "google/protobuf": "^3.20",
         "keboola/php-file-storage-utils": "^0.2.2"
     },
