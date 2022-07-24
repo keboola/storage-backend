@@ -16,6 +16,7 @@ class Exporter implements ExporterInterface
 {
     public const DEFAULT_ADAPTERS = [
         Storage\ABS\SnowflakeExportAdapter::class,
+        Storage\GCS\SnowflakeExportAdapter::class,
     ];
 
     /** @var string[] */
