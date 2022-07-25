@@ -37,7 +37,7 @@ class ColumnCollectionTest extends TestCase
         }
 
         $this->expectException(ColumnException::class);
-        $this->expectExceptionMessage(sprintf('Too many columns. Maximum is %s columns.', $limit));
+        $this->expectExceptionMessage(sprintf('Too many columns. Maximum is %s columns.', $limit - 1));
         new ColumnCollection($cols);
     }
 
@@ -80,6 +80,10 @@ class ColumnCollectionTest extends TestCase
                     TeradataColumn::class,
                     2048,
                 ],
+                'snowflake' => [
+                    SnowflakeColumn::class,
+                    1201,
+                ],
             ];
     }
 
@@ -90,10 +94,6 @@ class ColumnCollectionTest extends TestCase
     {
         return
             [
-                'snowflake' => [
-                    SnowflakeColumn::class,
-                    5000,
-                ],
                 'exasol' => [
                     ExasolColumn::class,
                     5000,
