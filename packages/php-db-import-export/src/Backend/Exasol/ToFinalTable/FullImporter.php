@@ -22,8 +22,6 @@ final class FullImporter implements ToFinalTableImporterInterface
 {
     private const TIMER_COPY_TO_TARGET = 'copyFromStagingToTarget';
     private const TIMER_DEDUP = 'fromStagingToTargetWithDedup';
-    private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
-    private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
     private Connection $connection;
 
