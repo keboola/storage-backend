@@ -65,21 +65,6 @@ final class FullImporter implements ToFinalTableImporterInterface
             }
         } catch (Exception $e) {
             throw SnowflakeException::covertException($e);
-        } finally {
-            // drop optimized load tmp table if exists
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getDropTableIfExistsCommand(
-                    $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
-                )
-            );
-            // drop optimized load rename table if exists
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getDropTableIfExistsCommand(
-                    $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
-                )
-            );
         }
 
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
