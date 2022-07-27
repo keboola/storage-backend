@@ -22,8 +22,6 @@ final class FullImporter implements ToFinalTableImporterInterface
 {
     private const TIMER_COPY_TO_TARGET = 'copyFromStagingToTarget';
     private const TIMER_DEDUP = 'fromStagingToTargetWithDedup';
-    private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
-    private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
     private Connection $connection;
 
@@ -65,21 +63,6 @@ final class FullImporter implements ToFinalTableImporterInterface
             }
         } catch (Exception $e) {
             throw ExasolException::covertException($e);
-        } finally {
-            // drop optimized load tmp table if exists
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getDropTableIfExistsCommand(
-                    $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
-                )
-            );
-            // drop optimized load rename table if exists
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getDropTableIfExistsCommand(
-                    $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
-                )
-            );
         }
 
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());

@@ -20,9 +20,6 @@ use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 final class FullImporter implements ToFinalTableImporterInterface
 {
     private const TIMER_COPY_TO_TARGET = 'copyFromStagingToTarget';
-//    private const TIMER_DEDUP = 'fromStagingToTargetWithDedup';
-    private const OPTIMIZED_LOAD_TMP_TABLE_SUFFIX = '_tmp';
-    private const OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX = '_tmp_rename';
 
     private Connection $connection;
 
@@ -89,29 +86,6 @@ final class FullImporter implements ToFinalTableImporterInterface
             }
         } catch (Exception $e) {
             throw TeradataException::covertException($e);
-        } finally {
-            $tmpTableName = $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX;
-            $renameTableName = $destinationTableDefinition->getTableName() . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX;
-
-            if ($this->tableExists($destinationTableDefinition->getSchemaName(), $renameTableName)) {
-                // drop optimized load tmp table if exists
-                $this->connection->executeStatement(
-                    $this->sqlBuilder->getDropTableUnsafe(
-                        $destinationTableDefinition->getSchemaName(),
-                        $tmpTableName
-                    )
-                );
-            }
-
-            if ($this->tableExists($destinationTableDefinition->getSchemaName(), $renameTableName)) {
-                // drop optimized load rename table if exists
-                $this->connection->executeStatement(
-                    $this->sqlBuilder->getDropTableUnsafe(
-                        $destinationTableDefinition->getSchemaName(),
-                        $renameTableName
-                    )
-                );
-            }
         }
 
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
