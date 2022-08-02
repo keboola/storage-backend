@@ -62,22 +62,21 @@ final class StageTableDefinitionFactory
      * @param string[] $sourceColumnsNames
      */
     public static function createVarcharStagingTableDefinition(
+        string $schemaName,
         array $sourceColumnsNames
     ): SnowflakeTableDefinition {
-        /** @var SnowflakeTableDefinition $destination */
         $newDefinitions = [];
         // create staging table for source columns in order
         foreach ($sourceColumnsNames as $columnName) {
-            /** @var SnowflakeColumn $definition */
             $newDefinitions[] = self::createNvarcharColumn($columnName);
         }
 
         return new SnowflakeTableDefinition(
-            $destination->getSchemaName(),
+            $schemaName,
             BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames()
+            []
         );
     }
 
@@ -102,7 +101,6 @@ final class StageTableDefinitionFactory
         SnowflakeTableDefinition $destination,
         array $pkNames
     ): SnowflakeTableDefinition {
-
         return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
             BackendHelper::generateTempDedupTableName(),
