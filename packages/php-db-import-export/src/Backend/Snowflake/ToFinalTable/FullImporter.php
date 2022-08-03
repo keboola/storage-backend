@@ -100,7 +100,7 @@ final class FullImporter implements ToFinalTableImporterInterface
 
             // 3 truncate destination table
             $this->connection->executeStatement(
-                $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+                $this->sqlBuilder->getTruncateTable(
                     $destinationTableDefinition->getSchemaName(),
                     $destinationTableDefinition->getTableName()
                 )
@@ -139,7 +139,7 @@ final class FullImporter implements ToFinalTableImporterInterface
     ): void {
         // truncate destination table
         $this->connection->executeStatement(
-            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+            $this->sqlBuilder->getTruncateTable(
                 $destinationTableDefinition->getSchemaName(),
                 $destinationTableDefinition->getTableName()
             )

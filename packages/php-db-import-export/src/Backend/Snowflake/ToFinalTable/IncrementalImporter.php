@@ -100,7 +100,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     )
                 );
                 $this->connection->executeStatement(
-                    $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+                    $this->sqlBuilder->getTruncateTable(
                         $stagingTableDefinition->getSchemaName(),
                         $stagingTableDefinition->getTableName()
                     )

@@ -519,9 +519,9 @@ EOT
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         self::assertEquals(3, $ref->getRowsCount());
 
-        $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
+        $sql = $this->getBuilder()->getTruncateTable(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         self::assertEquals(
-            'DELETE FROM "import_export_test_schema"."__temp_stagingTable"',
+            'TRUNCATE TABLE "import_export_test_schema"."__temp_stagingTable"',
             $sql
         );
         $this->connection->executeStatement($sql);
