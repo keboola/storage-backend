@@ -58,12 +58,34 @@ final class StageTableDefinitionFactory
         );
     }
 
+    /**
+     * @param string[] $sourceColumnsNames
+     */
+    public static function createVarcharStagingTableDefinition(
+        string $schemaName,
+        array $sourceColumnsNames
+    ): SnowflakeTableDefinition {
+        $newDefinitions = [];
+        // create staging table for source columns in order
+        foreach ($sourceColumnsNames as $columnName) {
+            $newDefinitions[] = self::createNvarcharColumn($columnName);
+        }
+
+        return new SnowflakeTableDefinition(
+            $schemaName,
+            BackendHelper::generateStagingTableName(),
+            true,
+            new ColumnCollection($newDefinitions),
+            []
+        );
+    }
+
     private static function createNvarcharColumn(string $columnName): SnowflakeColumn
     {
         return new SnowflakeColumn(
             $columnName,
             new Snowflake(
-                Snowflake::TYPE_STRING,
+                Snowflake::TYPE_VARCHAR,
                 [
                     'length' => (string) Snowflake::MAX_VARCHAR_LENGTH,
                     'nullable' => true, // set all columns to be nullable
@@ -79,7 +101,6 @@ final class StageTableDefinitionFactory
         SnowflakeTableDefinition $destination,
         array $pkNames
     ): SnowflakeTableDefinition {
-
         return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
             BackendHelper::generateTempDedupTableName(),
