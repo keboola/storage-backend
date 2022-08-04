@@ -217,12 +217,12 @@ class SqlBuilder
         );
     }
 
-    public function getTruncateTableWithDeleteCommand(
+    public function getTruncateTable(
         string $schema,
         string $tableName
     ): string {
         return sprintf(
-            'DELETE FROM %s.%s',
+            'TRUNCATE TABLE %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($schema),
             SnowflakeQuote::quoteSingleIdentifier($tableName)
         );
