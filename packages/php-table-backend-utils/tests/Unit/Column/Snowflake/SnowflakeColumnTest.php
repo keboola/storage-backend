@@ -40,7 +40,7 @@ class SnowflakeColumnTest extends TestCase
 
         $column = SnowflakeColumn::createFromDB($data);
         self::assertEquals('first_name', $column->getColumnName());
-        self::assertEquals('VARCHAR(16777216)', $column->getColumnDefinition()->getSQLDefinition());
+        self::assertEquals('VARCHAR (16777216)', $column->getColumnDefinition()->getSQLDefinition());
         self::assertEquals('VARCHAR', $column->getColumnDefinition()->getType());
         self::assertEquals('', $column->getColumnDefinition()->getDefault());
         self::assertEquals('16777216', $column->getColumnDefinition()->getLength());
@@ -65,7 +65,7 @@ class SnowflakeColumnTest extends TestCase
 
         $column = SnowflakeColumn::createFromDB($data);
         self::assertEquals('age', $column->getColumnName());
-        self::assertEquals('NUMBER(38,0) NOT NULL', $column->getColumnDefinition()->getSQLDefinition());
+        self::assertEquals('NUMBER (38,0) NOT NULL', $column->getColumnDefinition()->getSQLDefinition());
         self::assertEquals('NUMBER', $column->getColumnDefinition()->getType());
         self::assertEquals('18', $column->getColumnDefinition()->getDefault());
         self::assertEquals('38,0', $column->getColumnDefinition()->getLength());
