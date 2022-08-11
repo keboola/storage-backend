@@ -20,10 +20,7 @@ final class SnowflakeColumn implements ColumnInterface
         $this->columnDefinition = $columnDefinition;
     }
 
-    /**
-     * @return SnowflakeColumn
-     */
-    public static function createGenericColumn(string $columnName): ColumnInterface
+    public static function createGenericColumn(string $columnName): SnowflakeColumn
     {
         $definition = new Snowflake(
             Snowflake::TYPE_VARCHAR,
@@ -80,5 +77,15 @@ final class SnowflakeColumn implements ColumnInterface
                 'default' => $default,
             ]
         ));
+    }
+
+    public static function createTimestampColumn(string $columnName = self::TIMESTAMP_COLUMN_NAME): SnowflakeColumn
+    {
+        return new self(
+            $columnName,
+            new Snowflake(
+                Snowflake::TYPE_TIMESTAMP_NTZ
+            )
+        );
     }
 }

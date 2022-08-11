@@ -20,10 +20,7 @@ final class TeradataColumn implements ColumnInterface
         $this->columnDefinition = $columnDefinition;
     }
 
-    /**
-     * @return TeradataColumn
-     */
-    public static function createGenericColumn(string $columnName): ColumnInterface
+    public static function createGenericColumn(string $columnName): TeradataColumn
     {
         $definition = new Teradata(
             Teradata::TYPE_VARCHAR,
@@ -60,5 +57,15 @@ final class TeradataColumn implements ColumnInterface
     {
         // TODO: Implement createFromDB() method.
         return self::createGenericColumn('tmp');
+    }
+
+    public static function createTimestampColumn(string $columnName = self::TIMESTAMP_COLUMN_NAME): TeradataColumn
+    {
+        return new self(
+            $columnName,
+            new Teradata(
+                Teradata::TYPE_TIMESTAMP,
+            )
+        );
     }
 }

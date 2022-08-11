@@ -63,4 +63,24 @@ class ExasolColumnTest extends TestCase
         self::assertEquals('10', $column->getColumnDefinition()->getDefault());
         self::assertEquals('24,4', $column->getColumnDefinition()->getLength());
     }
+
+    public function testCreateTimestampColumn(): void
+    {
+        $col = ExasolColumn::createTimestampColumn();
+        $this->assertEquals('_timestamp', $col->getColumnName());
+        $this->assertEquals('TIMESTAMP', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('TIMESTAMP', $col->getColumnDefinition()->getType());
+        $this->assertEquals(null, $col->getColumnDefinition()->getDefault());
+        $this->assertEquals(null, $col->getColumnDefinition()->getLength());
+    }
+
+    public function testCreateTimestampColumnNonDefaultName(): void
+    {
+        $col = ExasolColumn::createTimestampColumn('_kbc_timestamp');
+        $this->assertEquals('_kbc_timestamp', $col->getColumnName());
+        $this->assertEquals('TIMESTAMP', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('TIMESTAMP', $col->getColumnDefinition()->getType());
+        $this->assertEquals(null, $col->getColumnDefinition()->getDefault());
+        $this->assertEquals(null, $col->getColumnDefinition()->getLength());
+    }
 }

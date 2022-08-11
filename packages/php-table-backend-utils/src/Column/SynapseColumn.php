@@ -125,4 +125,14 @@ final class SynapseColumn implements ColumnInterface
     {
         return $this->columnDefinition;
     }
+
+    public static function createTimestampColumn(string $columnName = self::TIMESTAMP_COLUMN_NAME): SynapseColumn
+    {
+        return new self(
+            $columnName,
+            new Synapse(
+                Synapse::TYPE_DATETIME2
+            )
+        );
+    }
 }

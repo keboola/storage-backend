@@ -110,4 +110,14 @@ final class ExasolColumn implements ColumnInterface
         }
         return "{$precision},{$scale}";
     }
+
+    public static function createTimestampColumn(string $columnName = self::TIMESTAMP_COLUMN_NAME): ExasolColumn
+    {
+        return new ExasolColumn(
+            $columnName,
+            new Exasol(
+                Exasol::TYPE_TIMESTAMP
+            )
+        );
+    }
 }

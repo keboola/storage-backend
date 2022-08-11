@@ -16,10 +16,15 @@ interface ColumnInterface extends CollectionItemInterface
     public function getColumnDefinition(): DefinitionInterface;
 
     /**
-     * Will return generic definition for columns used in keboola environment
+     * Will return generic definition for columns used in Keboola environment
      * like: varchar(max)
      */
     public static function createGenericColumn(string $columnName): self;
+
+    /**
+     * Will return definition to timestamp column used in Keboola environment
+     */
+    public static function createTimestampColumn(string $columnName = self::TIMESTAMP_COLUMN_NAME): self;
 
     /**
      * @param array<string, mixed> $dbResponse row from "DESCRIBE TABLE"-like query (each backend has it different)

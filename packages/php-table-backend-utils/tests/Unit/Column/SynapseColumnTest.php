@@ -76,4 +76,24 @@ class SynapseColumnTest extends TestCase
         $this->assertEquals('\'\'', $col->getColumnDefinition()->getDefault());
         $this->assertEquals('4000', $col->getColumnDefinition()->getLength());
     }
+
+    public function testCreateTimestampColumn(): void
+    {
+        $col = SynapseColumn::createTimestampColumn();
+        $this->assertEquals('_timestamp', $col->getColumnName());
+        $this->assertEquals('DATETIME2', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('DATETIME2', $col->getColumnDefinition()->getType());
+        $this->assertEquals(null, $col->getColumnDefinition()->getDefault());
+        $this->assertEquals(null, $col->getColumnDefinition()->getLength());
+    }
+
+    public function testCreateTimestampColumnNonDefaultName(): void
+    {
+        $col = SynapseColumn::createTimestampColumn('_kbc_timestamp');
+        $this->assertEquals('_kbc_timestamp', $col->getColumnName());
+        $this->assertEquals('DATETIME2', $col->getColumnDefinition()->getSQLDefinition());
+        $this->assertEquals('DATETIME2', $col->getColumnDefinition()->getType());
+        $this->assertEquals(null, $col->getColumnDefinition()->getDefault());
+        $this->assertEquals(null, $col->getColumnDefinition()->getLength());
+    }
 }
