@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Snowflake\ToStage;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Keboola\Db\ImportExport\Backend\Assert;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
+use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\Snowflake\SelectSource;
@@ -25,6 +28,10 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @throws ColumnsMismatchException
+     * @throws Exception
+     */
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
@@ -45,6 +52,17 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             implode(', ', $quotedColumns),
             $source->getFromStatement()
         );
+
+        if ($source instanceof Table && $importOptions->isRequireSameTables()) {
+            Assert::assertSameColumns(
+                (new SnowflakeTableReflection(
+                    $this->connection,
+                    $source->getSchema(),
+                    $source->getTableName()
+                ))->getColumnsDefinitions(),
+                $destination->getColumnsDefinitions()
+            );
+        }
 
         if ($source instanceof SelectSource) {
             $this->connection->executeQuery($sql, $source->getQueryBindings(), $source->getDataTypes());

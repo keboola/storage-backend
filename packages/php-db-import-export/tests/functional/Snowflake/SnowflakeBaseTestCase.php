@@ -80,19 +80,24 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
 
     protected function initSingleTable(
         string $schema = self::SNFLK_SOURCE_SCHEMA_NAME,
-        string $table = self::TABLE_TABLE
+        string $table = self::TABLE_TABLE,
+        ?string $tableTemplate = null
     ): void {
         if (!$this->schemaExists($schema)) {
             $this->createSchema($schema);
         }
-        // char because of Stats test
-        $this->connection->executeQuery(
-            sprintf(
-                'CREATE OR REPLACE TABLE %s.%s (
+
+        if ($tableTemplate === null) {
+            $tableTemplate = 'CREATE OR REPLACE TABLE %s.%s (
             "id" INTEGER,
     "first_name" VARCHAR(100),
     "last_name" VARCHAR(100)
-);',
+);';
+        }
+        // char because of Stats test
+        $this->connection->executeQuery(
+            sprintf(
+                $tableTemplate,
                 SnowflakeQuote::quoteSingleIdentifier($schema),
                 SnowflakeQuote::quoteSingleIdentifier($table)
             )
