@@ -30,6 +30,14 @@ class SnowflakeException extends Exception
             );
         }
 
+        if (preg_match('/ \'([^\']*)\' is not recognized/', $e->getMessage(), $output_array) === 1) {
+            return new Exception(
+                'Load error: ' . $e->getMessage(),
+                Exception::VALUE_CONVERSION,
+                $e
+            );
+        }
+
         return $e;
     }
 }
