@@ -6,6 +6,8 @@ namespace Keboola\Datatype\Definition;
 
 abstract class Common implements DefinitionInterface
 {
+    public const KBC_METADATA_KEY_BACKEND = 'KBC.datatype.backend';
+
     public const KBC_METADATA_KEY_TYPE = 'KBC.datatype.type';
     public const KBC_METADATA_KEY_NULLABLE = 'KBC.datatype.nullable';
     public const KBC_METADATA_KEY_BASETYPE = 'KBC.datatype.basetype';

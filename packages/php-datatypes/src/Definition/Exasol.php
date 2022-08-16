@@ -16,6 +16,7 @@ use LogicException;
  */
 class Exasol extends Common
 {
+    public const METADATA_BACKEND = 'exasol';
     /* core types */
     public const TYPE_DECIMAL = 'DECIMAL'; // DECIMAL(p,s) = s ≤ p ≤ 36
     public const TYPE_DOUBLE_PRECISION = 'DOUBLE PRECISION';
