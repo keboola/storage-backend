@@ -15,6 +15,7 @@ use ReflectionClass;
 class Exporter implements ExporterInterface
 {
     public const DEFAULT_ADAPTERS = [
+        Storage\S3\SnowflakeExportAdapter::class,
         Storage\ABS\SnowflakeExportAdapter::class,
         Storage\GCS\SnowflakeExportAdapter::class,
     ];
