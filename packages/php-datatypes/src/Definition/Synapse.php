@@ -18,6 +18,7 @@ use LogicException;
  */
 class Synapse extends Common
 {
+    public const METADATA_BACKEND = 'synapse';
     public const TYPE_DECIMAL = 'DECIMAL';
     public const TYPE_NUMERIC = 'NUMERIC';
     public const TYPE_FLOAT = 'FLOAT';

@@ -11,6 +11,7 @@ use LogicException;
 
 class Snowflake extends Common
 {
+    public const METADATA_BACKEND = 'snowflake';
     public const TYPE_NUMBER = 'NUMBER';
     public const TYPE_DECIMAL = 'DECIMAL';
     public const TYPE_NUMERIC = 'NUMERIC';
