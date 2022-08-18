@@ -24,7 +24,6 @@
 
         <testsuite name="snowflake-s3">
             <directory>tests/functional/Snowflake</directory>
-            <exclude>tests/functional/Snowflake/ExportTest.php</exclude>
         </testsuite>
 
         <testsuite name="snowflake-gcs">
