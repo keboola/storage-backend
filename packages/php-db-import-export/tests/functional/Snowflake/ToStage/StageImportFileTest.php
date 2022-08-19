@@ -312,7 +312,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable)
         );
 
-        $this->expectException(Exception::class);
+        $this->expectException(LegacyImportException::class);
 
         $importer->importToStagingTable(
             $this->getSourceInstanceFromCsv(
