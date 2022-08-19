@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportCommon;
 use Aws\S3\S3Client;
 use Exception;
 use Google\Cloud\Storage\StorageClient;
+use Google\Cloud\Storage\StorageObject;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -190,6 +191,15 @@ trait StorageTrait
                     $client->deleteBlob($containerName, $blob->getName());
                 }
                 return;
+            case StorageType::STORAGE_GCS:
+                /** @var StorageClient $client */
+                $client = $this->createClient();
+                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                $objects = $bucket->objects(['prefix' => $dirToClear]);
+                foreach ($objects as $object) {
+                    $object->delete();
+                }
+                return;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
@@ -242,7 +252,7 @@ trait StorageTrait
     }
 
     /**
-     * @return Blob[]|null|array<string[]>
+     * @return Blob[]|null|array<string[]>|StorageObject[]
      */
     public function listFiles(string $dir, bool $excludeManifest = true): ?array
     {
@@ -277,6 +287,18 @@ trait StorageTrait
                     );
                 }
                 return $blobs;
+            case StorageType::STORAGE_GCS:
+                /** @var StorageClient $client */
+                $client = $this->createClient();
+                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                $objects = $bucket->objects(['prefix' => $dir]);
+                if ($excludeManifest) {
+                    $objects = array_filter(
+                        iterator_to_array($objects),
+                        static fn(StorageObject $blob) => !strpos($blob->name(), 'manifest')
+                    );
+                }
+                return $objects;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
@@ -315,6 +337,15 @@ trait StorageTrait
                     $content = $this->getBlobContent($file->getName());
                     $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file->getName());
                     file_put_contents($tmpName, $content);
+                }
+                break;
+            case StorageType::STORAGE_GCS:
+                /** @var StorageClient $client */
+                $client = $this->createClient();
+                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                foreach ($files as $file) {
+                    assert($file instanceof StorageObject);
+                    $bucket->object($file->name())->downloadToFile($tmpName);
                 }
                 break;
             default:
