@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
-use Exception;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Exporter;
@@ -12,46 +11,25 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\FileStorage\Abs\ClientFactory;
-use Keboola\Temp\Temp;
-use MicrosoftAzure\Storage\Blob\BlobRestProxy;
-use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
 class ExportTest extends SnowflakeImportExportBaseTest
 {
-    private BlobRestProxy $blobClient;
-
     public function setUp(): void
     {
         parent::setUp();
-        $connectionString = sprintf(
-            'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=core.windows.net',
-            (string) getenv('ABS_ACCOUNT_NAME'),
-            (string) getenv('ABS_ACCOUNT_KEY')
-        );
-        $this->blobClient = ClientFactory::createClientFromConnectionString(
-            $connectionString
-        );
-        // delete blobs from EXPORT_BLOB_DIR
-        $listOptions = new ListBlobsOptions();
-        $listOptions->setPrefix($this->getExportDir());
-        $blobs = $this->blobClient->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions);
-        foreach ($blobs->getBlobs() as $blob) {
-            $this->blobClient->deleteBlob((string) getenv('ABS_CONTAINER_NAME'), $blob->getName());
-        }
+        $this->clearDestination($this->getExportDir());
     }
 
     public function tearDown(): void
     {
         parent::tearDown();
-        unset($this->blobClient);
     }
 
     public function testExportGzip(): void
     {
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
+        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'out.csv_2Cols'
@@ -67,7 +45,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         // export
         $source = $destination;
         $options = new ExportOptions(true);
-        $destination = $this->createABSSourceDestinationInstance($this->getExportDir() . '/gz_test');
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/gz_test');
 
         $result = (new Exporter($this->connection))->exportTable(
             $source,
@@ -86,26 +64,21 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $this->assertNotEmpty($slice['FILE_SIZE']);
         $this->assertSame(2, (int) $slice['ROW_COUNT']);
 
-        $resource = $this->getBlobResource($destination->getFilePath() . '_0_0_0.csv.gz');
-        // this not failing is sign that table was exported successfully
-        self::assertIsResource($resource);
-    }
-
-    /**
-     * @return resource
-     */
-    private function getBlobResource(string $blob)
-    {
-        return $this->blobClient
-            ->getBlob((string) getenv('ABS_CONTAINER_NAME'), $blob)
-            ->getContentStream();
+        $files = $this->getFileNames($this->getExportDir() . '/gz_test', false);
+        sort($files);
+        $expected = [
+            $this->getExportDir() . '/gz_test_0_0_0.csv.gz',
+            $this->getExportDir() . '/gz_testmanifest',
+        ];
+        sort($expected);
+        $this->assertSame($expected, $files);
     }
 
     public function testExportSimple(): void
     {
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->createABSSourceInstance('with-ts.csv', $file->getHeader());
+        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'out.csv_2Cols'
@@ -121,7 +94,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         // export
         $source = $destination;
         $options = new ExportOptions();
-        $destination = $this->createABSSourceDestinationInstance($this->getExportDir() . '/ts_test');
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/ts_test');
 
         $result = (new Exporter($this->connection))->exportTable(
             $source,
@@ -140,7 +113,9 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $this->assertNotEmpty($slice['FILE_SIZE']);
         $this->assertSame(2, (int) $slice['ROW_COUNT']);
 
-        $actual = $this->getCsvFileFromBlob($destination->getFilePath() . '_0_0_0.csv');
+        $files = $this->listFiles($this->getExportDir());
+        self::assertNotNull($files);
+        $actual = $this->getCsvFileFromStorage($files);
         $expected = new CsvFile(
             self::DATA_DIR . 'with-ts.csv',
             CsvOptions::DEFAULT_DELIMITER,
@@ -149,18 +124,9 @@ class ExportTest extends SnowflakeImportExportBaseTest
             1 // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
-    }
 
-    private function getCsvFileFromBlob(
-        string $filePath,
-        string $tmpName = 'tmp.csv'
-    ): CsvFile {
-        $content = $this->getBlobContent($filePath);
-        $tmp = new Temp();
-        $tmp->initRunFolder();
-        $actual = $tmp->getTmpFolder() . $tmpName;
-        file_put_contents($actual, $content);
-        return new CsvFile($actual);
+        $files = $this->getFileNames($this->getExportDir(), false);
+        $this->assertContains($this->getExportDir() . '/ts_testmanifest', array_values($files));
     }
 
     public function assertCsvFilesSame(CsvFile $expected, CsvFile $actual): void
@@ -173,21 +139,11 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
     }
 
-    private function getBlobContent(
-        string $blob
-    ): string {
-        $content = stream_get_contents($this->getBlobResource($blob));
-        if ($content === false) {
-            throw new Exception();
-        }
-        return $content;
-    }
-
     public function testExportSimpleWithQuery(): void
     {
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->createABSSourceInstance('tw_accounts.csv', $file->getHeader());
+        $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'accounts-3'
@@ -209,7 +165,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
         $source = new Storage\Snowflake\SelectSource($query);
         $options = new ExportOptions();
-        $destination = $this->createABSSourceDestinationInstance($this->getExportDir() . '/tw_test');
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/tw_test');
 
         $result = (new Exporter($this->connection))->exportTable(
             $source,
@@ -228,7 +184,10 @@ class ExportTest extends SnowflakeImportExportBaseTest
         $this->assertNotEmpty($slice['FILE_SIZE']);
         $this->assertSame(3, (int) $slice['ROW_COUNT']);
 
-        $actual = $this->getCsvFileFromBlob($destination->getFilePath() . '_0_0_0.csv');
+        $files = $this->listFiles($this->getExportDir());
+        self::assertNotNull($files);
+
+        $actual = $this->getCsvFileFromStorage($files);
         $expected = new CsvFile(
             self::DATA_DIR . 'tw_accounts.csv',
             CsvOptions::DEFAULT_DELIMITER,
@@ -237,5 +196,8 @@ class ExportTest extends SnowflakeImportExportBaseTest
             1 // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
+
+        $files = $this->getFileNames($this->getExportDir(), false);
+        $this->assertContains($this->getExportDir() . '/tw_testmanifest', array_values($files));
     }
 }

@@ -229,10 +229,22 @@ trait StorageTrait
         }
     }
 
+    public function getFileNames(string $dir, bool $excludeManifest = true): array
+    {
+        $files = $this->listFiles($dir, $excludeManifest);
+        if ($files[0] instanceof Blob) {
+            return array_map(static fn(Blob $blob) => $blob->getName(), $files);
+        }
+        if (array_key_exists('Key', $files[0])) {
+            return array_map(static fn(array $blob) => $blob['Key'], $files);
+        }
+        throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+    }
+
     /**
      * @return Blob[]|null|array<string[]>
      */
-    public function listFiles(string $dir): ?array
+    public function listFiles(string $dir, bool $excludeManifest = true): ?array
     {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
@@ -245,14 +257,26 @@ trait StorageTrait
                 /** @var array<string[]> $blobs
                  */
                 $blobs = $result->get('Contents');
+                if ($excludeManifest) {
+                    $blobs = array_filter(
+                        $blobs,
+                        static fn(array $blob) => !strpos($blob['Key'], 'manifest')
+                    );
+                }
                 return $blobs;
             case StorageType::STORAGE_ABS:
                 /** @var BlobRestProxy $client */
                 $client = $this->createClient();
                 $listOptions = new ListBlobsOptions();
                 $listOptions->setPrefix($dir);
-                $blobs = $client->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions);
-                return $blobs->getBlobs();
+                $blobs = $client->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions)->getBlobs();
+                if ($excludeManifest) {
+                    $blobs = array_filter(
+                        $blobs,
+                        static fn(Blob $blob) => !strpos($blob->getName(), 'manifest')
+                    );
+                }
+                return $blobs;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
@@ -270,11 +294,11 @@ trait StorageTrait
         $tmp->initRunFolder();
         $tmpFolder = $tmp->getTmpFolder();
         $finalFile = $tmpFolder . $tmpName;
+        $tmpFiles = [];
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
                 /** @var S3Client $client */
                 $client = $this->createClient();
-                $tmpFiles = [];
                 /** @var array{Key:string, Body:string} $file */
                 foreach ($files as $file) {
                     $result = $client->getObject([
@@ -284,21 +308,45 @@ trait StorageTrait
                     $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file['Key']);
                     file_put_contents($tmpName, $result['Body']);
                 }
-
-                foreach ($tmpFiles as $file) {
-                    $catCmd = 'cat ' . escapeshellarg($file) . ' >> ' . escapeshellarg($finalFile);
-                    $process = Process::fromShellCommandline($catCmd);
-                    $process->setTimeout(null);
-                    if ($process->run() !== 0) {
-                        throw new ProcessFailedException($process);
-                    }
-                }
-
-                return new CsvFile($finalFile);
+                break;
             case StorageType::STORAGE_ABS:
-                throw new Exception('Implement this for ABS');
+                foreach ($files as $file) {
+                    assert($file instanceof Blob);
+                    $content = $this->getBlobContent($file->getName());
+                    $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file->getName());
+                    file_put_contents($tmpName, $content);
+                }
+                break;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
+        $this->concatCsv($tmpFiles, $finalFile);
+        return new CsvFile($finalFile);
+    }
+
+    private function concatCsv(array $tmpFiles, string $finalFile): void
+    {
+        foreach ($tmpFiles as $file) {
+            $catCmd = 'cat ' . escapeshellarg($file) . ' >> ' . escapeshellarg($finalFile);
+            $process = Process::fromShellCommandline($catCmd);
+            $process->setTimeout(null);
+            if ($process->run() !== 0) {
+                throw new ProcessFailedException($process);
+            }
+        }
+    }
+
+    private function getBlobContent(
+        string $blob
+    ): string {
+        $stream = $this->createClient()
+            ->getBlob((string) getenv('ABS_CONTAINER_NAME'), $blob)
+            ->getContentStream();
+
+        $content = stream_get_contents($stream);
+        if ($content === false) {
+            throw new Exception();
+        }
+        return $content;
     }
 }

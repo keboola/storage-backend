@@ -63,7 +63,7 @@ OVERWRITE = TRUE
 MAX_FILE_SIZE=50000000
 DETAILED_OUTPUT = TRUE
 EOT,
-            $destination->getBucketURL(),
+            $destination->getS3Prefix(),
             $destination->getFilePath(),
             $source->getFromStatement(),
             $destination->getKey(),
