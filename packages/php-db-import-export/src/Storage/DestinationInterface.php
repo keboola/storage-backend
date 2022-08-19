@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage;
 
-use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
-use Keboola\Db\ImportExport\Backend\ExporterInterface;
+use Keboola\FileStorage\Path\RelativePathInterface;
 
 interface DestinationInterface
 {

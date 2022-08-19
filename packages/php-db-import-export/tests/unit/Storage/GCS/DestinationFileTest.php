@@ -14,7 +14,23 @@ class DestinationFileTest extends BaseTestCase
 
     public function testDefaultValues(): void
     {
-        $source = new Storage\GCS\DestinationFile('bucket', 'file.csv', 'integration');
+        $source = new Storage\GCS\DestinationFile(
+            'bucket',
+            'file.csv',
+            'integration',
+            [
+                'type' => '',
+                'project_id' => '',
+                'private_key_id' => '',
+                'private_key' => '',
+                'client_email' => '',
+                'client_id' => '',
+                'auth_uri' => '',
+                'token_uri' => '',
+                'auth_provider_x509_cert_url' => '',
+                'client_x509_cert_url' => '',
+            ]
+        );
         self::assertInstanceOf(Storage\GCS\BaseFile::class, $source);
         self::assertInstanceOf(Storage\DestinationInterface::class, $source);
         self::assertEquals('file.csv', $source->getFilePath());

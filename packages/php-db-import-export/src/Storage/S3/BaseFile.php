@@ -32,7 +32,7 @@ abstract class BaseFile
         $this->filePath = $filePath;
     }
 
-    protected function getClient(): S3Client
+    public function getClient(): S3Client
     {
         return new S3Client([
             'credentials' => [

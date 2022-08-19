@@ -77,6 +77,7 @@ trait StorageTrait
                     (string) getenv('GCS_BUCKET_NAME'),
                     $filePath,
                     (string) getenv('GCS_INTEGRATION_NAME'),
+                    $this->getGCSCredentials()
                 );
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
