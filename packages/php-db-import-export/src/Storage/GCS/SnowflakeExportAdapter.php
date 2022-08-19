@@ -61,6 +61,11 @@ DETAILED_OUTPUT = TRUE',
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'"
         );
 
-        return $this->connection->fetchAll($sql, $source->getQueryBindings());
+        $unloadedFiles = $this->connection->fetchAll($sql, $source->getQueryBindings());
+
+        (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromUnloadQueryResultGenerator($destination->getClient()))
+            ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
+
+        return $unloadedFiles;
     }
 }
