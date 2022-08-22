@@ -132,6 +132,7 @@ EOT
         $options->expects($this->once())->method('isCompressed')->willReturn($compressed);
         $options->expects($this->once())->method('getExportId')->willReturn('random_export_id');
         $options->expects($this->exactly(2))->method('getExportCredentialsType')->willReturn($credentialsType);
+        $options->expects($this->any())->method('generateManifest')->willReturn(false);
         return $options;
     }
 

@@ -68,7 +68,7 @@ EOT
         )->willReturn([]);
 
         $source = new Storage\Exasol\Table('schema', 'table');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\S3\ExasolExportAdapter($conn);
 
         $this->assertSame(
@@ -115,7 +115,7 @@ EOT
         )->willReturn([]);
 
         $source = new Storage\Exasol\Table('schema', 'table');
-        $options = new ExportOptions(true);
+        $options = new ExportOptions(true, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\S3\ExasolExportAdapter($conn);
 
         $this->assertSame(
@@ -184,7 +184,7 @@ EOT
         )->willReturn([]);
 
         $source = new Storage\Exasol\SelectSource('SELECT * FROM "schema"."table"');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\S3\ExasolExportAdapter($conn);
 
         $this->assertSame(

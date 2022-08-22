@@ -10,6 +10,9 @@ use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
+/**
+ * @deprecated use Keboola\Db\ImportExport\Backend\Snowflake\Export\S3ExportAdapter
+ */
 class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
 {
     private Connection $connection;
@@ -74,8 +77,10 @@ EOT,
 
         $unloadedFiles = $this->connection->fetchAll($sql, $source->getQueryBindings());
 
-        (new Storage\S3\ManifestGenerator\S3SlicedManifestFromUnloadQueryResultGenerator($destination->getClient()))
-            ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
+        if ($exportOptions->generateManifest()) {
+            (new Storage\S3\ManifestGenerator\S3SlicedManifestFromUnloadQueryResultGenerator($destination->getClient()))
+                ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
+        }
 
         return $unloadedFiles;
     }

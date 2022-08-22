@@ -10,6 +10,9 @@ use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
+/**
+ * @deprecated use Keboola\Db\ImportExport\Backend\Snowflake\Export\GcsExportAdapter
+ */
 class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
 {
     private Connection $connection;
@@ -63,8 +66,12 @@ DETAILED_OUTPUT = TRUE',
 
         $unloadedFiles = $this->connection->fetchAll($sql, $source->getQueryBindings());
 
-        (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromUnloadQueryResultGenerator($destination->getClient()))
-            ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
+        if ($exportOptions->generateManifest()) {
+            (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromUnloadQueryResultGenerator(
+                $destination->getClient()
+            ))
+                ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
+        }
 
         return $unloadedFiles;
     }

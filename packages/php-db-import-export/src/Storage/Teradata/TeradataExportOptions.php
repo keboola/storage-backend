@@ -39,10 +39,12 @@ class TeradataExportOptions extends ExportOptions
         string $bufferSize = self::DEFAULT_BUFFER_SIZE,
         string $maxObjectSize = self::DEFAULT_MAX_OBJECT_SIZE,
         bool $dontSplitRows = self::DEFAULT_SPLIT_ROWS,
-        bool $singlePartFile = self::DEFAULT_SINGLE_PART_FILE
+        bool $singlePartFile = self::DEFAULT_SINGLE_PART_FILE,
+        bool $generateManifest = self::MANIFEST_SKIP
     ) {
         parent::__construct(
-            $isCompressed
+            $isCompressed,
+            $generateManifest
         );
         $this->teradataHost = $teradataHost;
         $this->teradataUser = $teradataUser;

@@ -15,9 +15,10 @@ class SynapseExportOptions extends ExportOptions
 
     public function __construct(
         bool $isCompressed = false,
-        string $exportCredentialsType = self::CREDENTIALS_MASTER_KEY
+        string $exportCredentialsType = self::CREDENTIALS_MASTER_KEY,
+        bool $generateManifest = self::MANIFEST_SKIP
     ) {
-        parent::__construct($isCompressed);
+        parent::__construct($isCompressed, $generateManifest);
         $this->exportCredentialsType = $exportCredentialsType;
     }
 

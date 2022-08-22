@@ -70,4 +70,9 @@ abstract class BaseFile
     {
         return $this->filePath;
     }
+
+    public function getAccountName(): string
+    {
+        return $this->accountName;
+    }
 }
