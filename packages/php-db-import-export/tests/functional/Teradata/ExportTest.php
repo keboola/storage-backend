@@ -290,7 +290,7 @@ class ExportTest extends TeradataBaseTestCase
         $this->assertCsvFilesSame($expected, $actual);
 
         $files = $this->getFileNames($this->getExportDir(), false);
-        $this->assertContains($this->getExportDir() . '/tw_test/tw_testmanifest', array_values($files));
+        $this->assertContains($this->getExportDir() . '/tw_testmanifest', array_values($files));
     }
 
     /**
