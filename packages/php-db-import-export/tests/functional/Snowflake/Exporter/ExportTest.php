@@ -2,22 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
+namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\Exporter;
 
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\ImportExport\Backend\Snowflake\Exporter;
+use Keboola\Db\ImportExport\Backend\Snowflake\Export\Exporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\ColumnsHelper;
-use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
+use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ExportOptions;
+use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
-class ExportTest extends SnowflakeImportExportBaseTest
+class ExportTest extends SnowflakeBaseTestCase
 {
     public function setUp(): void
     {
         parent::setUp();
         $this->clearDestination($this->getExportDir());
+        $this->cleanSchema($this->getDestinationSchemaName());
+        $this->cleanSchema($this->getSourceSchemaName());
+        $this->createSchema($this->getSourceSchemaName());
+        $this->createSchema($this->getDestinationSchemaName());
     }
 
     public function tearDown(): void
@@ -27,20 +37,16 @@ class ExportTest extends SnowflakeImportExportBaseTest
 
     public function testExportGzip(): void
     {
+        $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
-            'out.csv_2Cols'
+            self::TABLE_OUT_CSV_2COLS
         );
-        $options = $this->getSimpleImportOptions();
 
-        (new Importer($this->connection))->importTable(
-            $source,
-            $destination,
-            $options
-        );
+        $this->importTable($source, $destination);
 
         // export
         $source = $destination;
@@ -54,6 +60,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
 
         $this->assertCount(1, $result);
+        /** @var array<mixed> $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -76,20 +83,15 @@ class ExportTest extends SnowflakeImportExportBaseTest
 
     public function testExportSimple(): void
     {
+        $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
         $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
-            'out.csv_2Cols'
+            self::TABLE_OUT_CSV_2COLS
         );
-        $options = $this->getSimpleImportOptions();
-
-        (new Importer($this->connection))->importTable(
-            $source,
-            $destination,
-            $options
-        );
+        $this->importTable($source, $destination);
 
         // export
         $source = $destination;
@@ -103,6 +105,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
 
         $this->assertCount(1, $result);
+        /** @var array<mixed> $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -141,20 +144,16 @@ class ExportTest extends SnowflakeImportExportBaseTest
 
     public function testExportSimpleWithQuery(): void
     {
+        $this->initTable(self::TABLE_ACCOUNTS_3);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
         $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
-            'accounts-3'
+            self::TABLE_ACCOUNTS_3
         );
-        $options = $this->getSimpleImportOptions();
 
-        (new Importer($this->connection))->importTable(
-            $source,
-            $destination,
-            $options
-        );
+        $this->importTable($source, $destination);
 
         // export
         // query needed otherwise timestamp is downloaded
@@ -174,6 +173,7 @@ class ExportTest extends SnowflakeImportExportBaseTest
         );
 
         $this->assertCount(1, $result);
+        /** @var array<mixed> $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -199,5 +199,40 @@ class ExportTest extends SnowflakeImportExportBaseTest
 
         $files = $this->getFileNames($this->getExportDir(), false);
         $this->assertContains($this->getExportDir() . '/tw_testmanifest', array_values($files));
+    }
+
+    private function importTable(
+        Storage\SourceInterface $source,
+        Storage\Snowflake\Table $destination
+    ): void {
+        $options = $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE);
+        $importer = new ToStageImporter($this->connection);
+        $destinationRef = new SnowflakeTableReflection(
+            $this->connection,
+            $destination->getSchema(),
+            $destination->getTableName()
+        );
+        $importDestination = $destinationRef->getTableDefinition();
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $importDestination,
+            $source->getColumnsNames()
+        );
+        $qb = new SnowflakeTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importState = $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $options
+        );
+        $toFinalTableImporter = new FullImporter($this->connection);
+
+        $toFinalTableImporter->importToTable(
+            $stagingTable,
+            $importDestination,
+            $options,
+            $importState
+        );
     }
 }

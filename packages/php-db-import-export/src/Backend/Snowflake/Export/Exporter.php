@@ -2,28 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Keboola\Db\ImportExport\Backend\Snowflake;
+namespace Keboola\Db\ImportExport\Backend\Snowflake\Export;
 
+use Doctrine\DBAL\Connection;
 use Exception;
-use Keboola\Db\Import\Snowflake\Connection;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use ReflectionClass;
 
-/**
- * @deprecated use Keboola\Db\ImportExport\Backend\Snowflake\Export\Exporter instead with dbal implementation
- */
 class Exporter implements ExporterInterface
 {
     public const DEFAULT_ADAPTERS = [
-        Storage\S3\SnowflakeExportAdapter::class,
-        Storage\ABS\SnowflakeExportAdapter::class,
-        Storage\GCS\SnowflakeExportAdapter::class,
+        S3ExportAdapter::class,
+        AbsExportAdapter::class,
+        GcsExportAdapter::class,
     ];
 
-    /** @var string[] */
+    /** @var array<class-string<BackendExportAdapterInterface>> */
     private array $adapters = self::DEFAULT_ADAPTERS;
 
     private Connection $connection;
@@ -43,25 +39,16 @@ class Exporter implements ExporterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $options
     ): array {
-        $adapter = $this->getAdapter($source, $destination);
-        return $adapter->runCopyCommand($source, $destination, $options);
+        return $this->getAdapter($source, $destination)
+            ->runCopyCommand($source, $destination, $options);
     }
 
     private function getAdapter(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination
-    ): SnowflakeExportAdapterInterface {
+    ): BackendExportAdapterInterface {
         $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
-            $ref = new ReflectionClass($adapter);
-            if (!$ref->implementsInterface(SnowflakeExportAdapterInterface::class)) {
-                throw new Exception(
-                    sprintf(
-                        'Each Snowflake export adapter must implement "%s".',
-                        SnowflakeExportAdapterInterface::class
-                    )
-                );
-            }
             if ($adapter::isSupported($source, $destination)) {
                 if ($adapterForUse !== null) {
                     throw new Exception(
