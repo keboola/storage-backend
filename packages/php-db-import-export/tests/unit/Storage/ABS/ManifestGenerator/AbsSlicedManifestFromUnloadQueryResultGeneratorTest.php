@@ -22,10 +22,6 @@ class AbsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
             ->setMethods(['getAccountName', 'createBlockBlob'])
             ->getMock();
 
-        $mock->expects($this->exactly(2))->method('getAccountName')
-            ->willReturn('keboola')
-        ;
-
         $mock->expects($this->once())->method('createBlockBlob')
             ->with(
                 'container',
@@ -36,7 +32,7 @@ class AbsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
 
         $path = RelativePath::createFromRootAndPath(new AbsProvider(), 'container', 'prefix/xxx');
 
-        $generator = new AbsSlicedManifestFromUnloadQueryResultGenerator($mock);
+        $generator = new AbsSlicedManifestFromUnloadQueryResultGenerator($mock, 'keboola');
         $generator->generateAndSaveManifest($path, [
             ['FILE_NAME' => '17982.csv.gz_0_0_0.csv.gz', 'FILE_SIZE' => '10', 'ROW_COUNT' => '5'],
             ['FILE_NAME' => '17982.csv.gz_0_0_1.csv.gz', 'FILE_SIZE' => '25', 'ROW_COUNT' => '15'],

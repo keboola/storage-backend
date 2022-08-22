@@ -18,10 +18,14 @@ class AbsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
 {
     private BlobRestProxy $absClient;
 
+    private string $accountName;
+
     public function __construct(
-        BlobRestProxy $absClient
+        BlobRestProxy $absClient,
+        string $accountName
     ) {
         $this->absClient = $absClient;
+        $this->accountName = $accountName;
     }
 
     /**
@@ -40,7 +44,7 @@ class AbsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
                         '',
                         $object['FILE_NAME']
                     ),
-                    $this->absClient->getAccountName()
+                    $this->accountName
                 ))->getAbsoluteUrl(),
                 'mandatory' => true,
             ];
