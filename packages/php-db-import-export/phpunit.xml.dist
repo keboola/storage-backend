@@ -28,6 +28,7 @@
 
         <testsuite name="snowflake-gcs">
             <directory>tests/functional/Snowflake</directory>
+            <exclude>tests/functional/Snowflake/ExportTest.php</exclude>
             <!--Older test cases with ImporterInterface not supporting GCS-->
             <exclude>tests/functional/Snowflake/OtherImportTest.php</exclude>
             <exclude>tests/functional/Snowflake/FullImportTest.php</exclude>
