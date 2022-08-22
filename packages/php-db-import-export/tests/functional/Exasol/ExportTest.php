@@ -70,7 +70,7 @@ class ExportTest extends ExasolBaseTestCase
         self::assertCount(10, $files);
 
         $files = $this->getFileNames($this->getExportDir(), false);
-        $this->assertContains($this->getExportDir() . '/gz_testmanifest', array_values($files));
+        $this->assertContains($this->getExportDir() . '/gz_test/gzip.csvmanifest', array_values($files));
     }
 
     /**
@@ -165,7 +165,7 @@ class ExportTest extends ExasolBaseTestCase
         $this->assertCsvFilesSame($expected, $actual);
 
         $files = $this->getFileNames($this->getExportDir(), false);
-        $this->assertContains($this->getExportDir() . '/ts_testmanifest', array_values($files));
+        $this->assertContains($this->getExportDir() . '/ts_test/ts_testmanifest', array_values($files));
     }
 
     public function testExportSimpleWithQuery(): void
