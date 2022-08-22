@@ -239,11 +239,17 @@ trait StorageTrait
         }
     }
 
+    /**
+     * @return string[]
+     */
     public function getFileNames(string $dir, bool $excludeManifest = true): array
     {
         $files = $this->listFiles($dir, $excludeManifest);
         if ($files[0] instanceof Blob) {
             return array_map(static fn(Blob $blob) => $blob->getName(), $files);
+        }
+        if ($files[0] instanceof StorageObject) {
+            return array_map(static fn(StorageObject $blob) => $blob->name(), $files);
         }
         if (array_key_exists('Key', $files[0])) {
             return array_map(static fn(array $blob) => $blob['Key'], $files);
@@ -252,9 +258,9 @@ trait StorageTrait
     }
 
     /**
-     * @return Blob[]|null|array<string[]>|StorageObject[]
+     * @return Blob[]|array<array{Key:string}>|StorageObject[]
      */
-    public function listFiles(string $dir, bool $excludeManifest = true): ?array
+    public function listFiles(string $dir, bool $excludeManifest = true): array
     {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
@@ -264,8 +270,7 @@ trait StorageTrait
                     'Bucket' => (string) getenv('AWS_S3_BUCKET'),
                     'Prefix' => $dir,
                 ]);
-                /** @var array<string[]> $blobs
-                 */
+                /** @var array<array{Key:string}> $blobs */
                 $blobs = $result->get('Contents');
                 if ($excludeManifest) {
                     $blobs = array_filter(
@@ -292,9 +297,10 @@ trait StorageTrait
                 $client = $this->createClient();
                 $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
                 $objects = $bucket->objects(['prefix' => $dir]);
+                $objects = iterator_to_array($objects);
                 if ($excludeManifest) {
                     $objects = array_filter(
-                        iterator_to_array($objects),
+                        $objects,
                         static fn(StorageObject $blob) => !strpos($blob->name(), 'manifest')
                     );
                 }
@@ -305,7 +311,7 @@ trait StorageTrait
     }
 
     /**
-     * @param Blob[]|array<string[]> $files
+     * @param Blob[]|array<string[]>|StorageObject[] $files
      * @return CsvFile<string[]>
      */
     public function getCsvFileFromStorage(
@@ -345,6 +351,7 @@ trait StorageTrait
                 $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
                 foreach ($files as $file) {
                     assert($file instanceof StorageObject);
+                    $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file->name());
                     $bucket->object($file->name())->downloadToFile($tmpName);
                 }
                 break;
@@ -355,6 +362,9 @@ trait StorageTrait
         return new CsvFile($finalFile);
     }
 
+    /**
+     * @param string[] $tmpFiles
+     */
     private function concatCsv(array $tmpFiles, string $finalFile): void
     {
         foreach ($tmpFiles as $file) {
@@ -370,7 +380,9 @@ trait StorageTrait
     private function getBlobContent(
         string $blob
     ): string {
-        $stream = $this->createClient()
+        $client = $this->createClient();
+        assert($client instanceof BlobRestProxy);
+        $stream = $client
             ->getBlob((string) getenv('ABS_CONTAINER_NAME'), $blob)
             ->getContentStream();
 
