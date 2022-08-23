@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Exception as DBException;
 use Keboola\Db\ImportExport\Backend\Exasol\ExasolException;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
+use Keboola\Db\ImportExport\Storage\InvalidSourceDataException;
 use PHPUnit\Framework\TestCase;
 
 class ExasolExceptionTest extends TestCase
@@ -34,6 +35,30 @@ EOD;
         $this->assertInstanceOf(FileNotFoundException::class, $exception);
         // phpcs:ignore
         $this->assertSame('Load error: Following error occured while reading data from external connection [https://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy.s3.eu-central-1.amazonaws.com/not-exists.csv failed with error code=404 after 285 bytes. NoSuchKey: The specified key does not exist.]', $exception->getMessage());
+    }
+
+    public function testInvalidFileContents(): void
+    {
+        // @codingStandardsIgnoreStart
+        $exceptionMessage = <<<EOD
+An exception occurred while executing '
+IMPORT INTO "some_tests-tests-exasol"."__temp_csvimport6124ae6f501851_90185437" FROM CSV AT 'https://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy.s3.eu-central-1.amazonaws.com'
+USER '<IAM ROLE>' IDENTIFIED BY '<IAM Secret>'
+FILE 'somestuff/439058392.gz.test.csv.csv.gz' --- files
+--- file_opt
+
+COLUMN SEPARATOR='|'
+COLUMN DELIMITER='"'
+':
+
+SQLSTATE[42636]: <<Unknown error>>: -6819666 [EXASOL][EXASolution driver]ETL-2105: Error while parsing row=0 (starting from 0) [CSV Parser found at byte 19 (starting with 0 at the beginning of the row) of 19 a single field delimiter in enclosed field or not correct enclosed field in file 'somestuff/some.csv.csv.gz'. Please check for unescaped field delimiters in data fields (they have to be escaped) and correct enclosing of this field] (Session: 1737613353456720129) (SQLExecDirect[12345678] at /usr/src/php/ext/pdo_odbc/odbc_driver.c:246)
+EOD;
+        // @codingStandardsIgnoreEnd
+        $exception = ExasolException::covertException(new Exception($exceptionMessage));
+
+        $this->assertInstanceOf(InvalidSourceDataException::class, $exception);
+        // phpcs:ignore
+        $this->assertSame('Load error: Error while parsing row=0 (starting from 0) [CSV Parser found at byte 19 (starting with 0 at the beginning of the row) of 19 a single field delimiter in enclosed field or not correct enclosed field in file \'somestuff/some.csv.csv.gz\'. Please check for unescaped field delimiters in data fields (they have to be escaped) and correct enclosing of this field]', $exception->getMessage());
     }
 
     public function testConstraintViolationNotNull(): void
