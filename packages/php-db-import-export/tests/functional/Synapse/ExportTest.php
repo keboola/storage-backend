@@ -188,9 +188,7 @@ class ExportTest extends SynapseBaseTestCase
             CsvOptions::DEFAULT_ESCAPED_BY,
             1 // skip header
         );
-        //skip this what Synapse produces here is absolute rubbish
-        //we believe that expected is there
-        //$this->assertCsvFilesSame($expected, $actual);
+        $this->assertCsvFilesSame($expected, $actual);
 
         $files = $this->getFileNames($this->getExportDir(), false);
         $this->assertContains($this->getExportDir() . '/ts_test/ts_testmanifest', array_values($files));
