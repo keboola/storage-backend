@@ -21,7 +21,13 @@ class GcsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
             ->disableOriginalConstructor()
             ->setMethods(['upload'])
             ->getMock();
-        $bucketMock->expects($this->once())->method('upload');
+        $bucketMock->expects($this->once())->method('upload')
+            ->with(
+                //phpcs:ignore
+                '{"entries":[{"url":"gs:\/\/tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q\/permanent\/256\/snapshots\/in\/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985\/languages\/17982.csv.gz_0_0_0.csv.gz","mandatory":true},{"url":"gs:\/\/tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q\/permanent\/256\/snapshots\/in\/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985\/languages\/17982.csv.gz_0_0_1.csv.gz","mandatory":true}]}',
+                //phpcs:ignore
+                ['name' => 'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gzmanifest']
+            );
 
         /** @var MockObject|StorageClient $gcsClientMock */
         $gcsClientMock = $this->getMockBuilder(StorageClient::class)
