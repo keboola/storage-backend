@@ -340,7 +340,7 @@ trait StorageTrait
             case StorageType::STORAGE_ABS:
                 foreach ($files as $file) {
                     assert($file instanceof Blob);
-                    $content = $this->getBlobContent($file->getName());
+                    $content = $this->getAbsBlobContent($file->getName());
                     $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file->getName());
                     file_put_contents($tmpName, $content);
                 }
@@ -377,7 +377,7 @@ trait StorageTrait
         }
     }
 
-    private function getBlobContent(
+    private function getAbsBlobContent(
         string $blob
     ): string {
         $client = $this->createClient();
