@@ -116,7 +116,6 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
         $this->assertSame(2, (int) $slice['ROW_COUNT']);
 
         $files = $this->listFiles($this->getExportDir());
-        self::assertNotNull($files);
         $actual = $this->getCsvFileFromStorage($files);
         $expected = new CsvFile(
             self::DATA_DIR . 'with-ts.csv',
@@ -188,8 +187,6 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
         $this->assertSame(3, (int) $slice['ROW_COUNT']);
 
         $files = $this->listFiles($this->getExportDir());
-        self::assertNotNull($files);
-
         $actual = $this->getCsvFileFromStorage($files);
         $expected = new CsvFile(
             self::DATA_DIR . 'tw_accounts.csv',
