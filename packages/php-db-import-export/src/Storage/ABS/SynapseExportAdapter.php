@@ -107,8 +107,11 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
         }
 
         if ($exportOptions->generateManifest()) {
-            (new Storage\ABS\ManifestGenerator\AbsSlicedManifestFromFolderGenerator($destination->getClient()))
-                ->generateAndSaveManifest($destination->getRelativePath());
+            (new Storage\ABS\ManifestGenerator\AbsSlicedManifestFromFolderGenerator(
+                $destination->getClient(),
+                //phpcs:ignore
+                Storage\ABS\ManifestGenerator\AbsSlicedManifestFromFolderGenerator::GENERATE_MANIFEST_AFTER_POLY_BASE_EXPORT
+            ))->generateAndSaveManifest($destination->getRelativePath());
         }
 
         return [];
