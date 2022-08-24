@@ -368,10 +368,14 @@ trait StorageTrait
     private function concatCsv(array $tmpFiles, string $finalFile): void
     {
         foreach ($tmpFiles as $file) {
-            $catCmd = 'cat ' . escapeshellarg($file) . ' >> ' . escapeshellarg($finalFile);
-            $process = Process::fromShellCommandline($catCmd);
+            $process = Process::fromShellCommandline('cat "${:FILE}" >> "${:FINAL_FILE}"');
             $process->setTimeout(null);
-            if ($process->run() !== 0) {
+            $code = $process->run(null, [
+                'FILE' => $file,
+                'FINAL_FILE' => $finalFile,
+            ]);
+
+            if ($code !== 0) {
                 throw new ProcessFailedException($process);
             }
         }
