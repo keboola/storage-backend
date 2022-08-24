@@ -197,12 +197,12 @@ class ExportTest extends SynapseBaseTestCase
     public function testExportSimpleWithQuery(): void
     {
         // import
-        $this->initTable(self::TABLE_ACCOUNTS_3);
-        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
+        $this->initTable(self::TABLE_OUT_CSV_2COLS);
+        $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
+        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Storage\Synapse\Table(
             $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_3
+            self::TABLE_OUT_CSV_2COLS
         );
         $options = $this->getSimpleImportOptions();
 
@@ -218,7 +218,7 @@ class ExportTest extends SynapseBaseTestCase
         );
         $source = new Storage\Synapse\SelectSource($query);
         $options = $this->getExportOptions(false);
-        $destination = $this->getDestinationInstance($this->getExportDir() . '/tw_test');
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/with-ts_test');
 
         (new Exporter($this->connection))->exportTable(
             $source,
@@ -231,17 +231,15 @@ class ExportTest extends SynapseBaseTestCase
 
         $actual = $this->getCsvFileFromStorage($files);
         $expected = new CsvFile(
-            self::DATA_DIR . 'tw_accounts.csv',
+            self::DATA_DIR . 'with-ts.expected.synapse.csv',
             CsvOptions::DEFAULT_DELIMITER,
             CsvOptions::DEFAULT_ENCLOSURE,
             CsvOptions::DEFAULT_ESCAPED_BY,
             1 // skip header
         );
-        //skip this what Synapse produces here is absolute rubbish
-        //we believe that expected is there
-        //$this->assertCsvFilesSame($expected, $actual);
+        $this->assertCsvFilesSame($expected, $actual);
 
         $files = $this->getFileNames($this->getExportDir(), false);
-        $this->assertContains($this->getExportDir() . '/tw_testmanifest', array_values($files));
+        $this->assertContains($this->getExportDir() . '/with-ts_testmanifest', array_values($files));
     }
 }
