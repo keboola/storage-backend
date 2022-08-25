@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 use Doctrine\DBAL\Connection;
 use Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
+use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -446,6 +447,17 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             $queryResult,
             $sortKey,
             $message
+        );
+    }
+
+    protected function getSimpleImportOptions(
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+    ): SnowflakeImportOptions {
+        return new SnowflakeImportOptions(
+            [],
+            false,
+            true,
+            $skipLines
         );
     }
 }

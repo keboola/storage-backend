@@ -79,6 +79,11 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
             );
         }
 
+        if ($exportOptions->generateManifest()) {
+            (new Storage\S3\ManifestGenerator\S3SlicedManifestFromFolderGenerator($destination->getClient()))
+                ->generateAndSaveManifest($destination->getRelativePath());
+        }
+
         return [];
     }
 

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\S3;
 
+use Keboola\Db\ImportExport\Storage\DestinationFileInterface;
 use Keboola\Db\ImportExport\Storage\DestinationInterface;
 use Keboola\FileStorage\Path\RelativePath;
+use Keboola\FileStorage\Path\RelativePathInterface;
 use Keboola\FileStorage\S3\S3Provider;
 
-class DestinationFile extends BaseFile implements DestinationInterface
+class DestinationFile extends BaseFile implements DestinationFileInterface
 {
     private const N_OF_FILES_COMPRESSED = 10;
     private const N_OF_FILES_UNCOMPRESSED = 32; // <- same limit as for import
@@ -20,7 +22,7 @@ class DestinationFile extends BaseFile implements DestinationInterface
      */
     public function getSlicedFilesNames(bool $isCompressed): array
     {
-        $path = RelativePath::createFromRootAndPath(new S3Provider(), $this->bucket, $this->filePath);
+        $path = $this->getRelativePath();
 
         $filename = $path->getPathnameWithoutRoot();
         $suffix = $isCompressed ? '.gz' : '';
@@ -35,5 +37,10 @@ class DestinationFile extends BaseFile implements DestinationInterface
         }
 
         return $files;
+    }
+
+    public function getRelativePath(): RelativePathInterface
+    {
+        return RelativePath::createFromRootAndPath(new S3Provider(), $this->bucket, $this->filePath);
     }
 }

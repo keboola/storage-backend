@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportCommon;
 use Aws\S3\S3Client;
 use Exception;
 use Google\Cloud\Storage\StorageClient;
+use Google\Cloud\Storage\StorageObject;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -77,6 +78,7 @@ trait StorageTrait
                     (string) getenv('GCS_BUCKET_NAME'),
                     $filePath,
                     (string) getenv('GCS_INTEGRATION_NAME'),
+                    $this->getGCSCredentials()
                 );
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
@@ -189,6 +191,15 @@ trait StorageTrait
                     $client->deleteBlob($containerName, $blob->getName());
                 }
                 return;
+            case StorageType::STORAGE_GCS:
+                /** @var StorageClient $client */
+                $client = $this->createClient();
+                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                $objects = $bucket->objects(['prefix' => $dirToClear]);
+                foreach ($objects as $object) {
+                    $object->delete();
+                }
+                return;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
@@ -229,9 +240,27 @@ trait StorageTrait
     }
 
     /**
-     * @return Blob[]|null|array<string[]>
+     * @return string[]
      */
-    public function listFiles(string $dir): ?array
+    public function getFileNames(string $dir, bool $excludeManifest = true): array
+    {
+        $files = $this->listFiles($dir, $excludeManifest);
+        if ($files[0] instanceof Blob) {
+            return array_map(static fn(Blob $blob) => $blob->getName(), $files);
+        }
+        if ($files[0] instanceof StorageObject) {
+            return array_map(static fn(StorageObject $blob) => $blob->name(), $files);
+        }
+        if (array_key_exists('Key', $files[0])) {
+            return array_map(static fn(array $blob) => $blob['Key'], $files);
+        }
+        throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
+    }
+
+    /**
+     * @return Blob[]|array<array{Key:string}>|StorageObject[]
+     */
+    public function listFiles(string $dir, bool $excludeManifest = true): array
     {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
@@ -241,24 +270,48 @@ trait StorageTrait
                     'Bucket' => (string) getenv('AWS_S3_BUCKET'),
                     'Prefix' => $dir,
                 ]);
-                /** @var array<string[]> $blobs
-                 */
+                /** @var array<array{Key:string}> $blobs */
                 $blobs = $result->get('Contents');
+                if ($excludeManifest) {
+                    $blobs = array_filter(
+                        $blobs,
+                        static fn(array $blob) => !strpos($blob['Key'], 'manifest')
+                    );
+                }
                 return $blobs;
             case StorageType::STORAGE_ABS:
                 /** @var BlobRestProxy $client */
                 $client = $this->createClient();
                 $listOptions = new ListBlobsOptions();
                 $listOptions->setPrefix($dir);
-                $blobs = $client->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions);
-                return $blobs->getBlobs();
+                $blobs = $client->listBlobs((string) getenv('ABS_CONTAINER_NAME'), $listOptions)->getBlobs();
+                if ($excludeManifest) {
+                    $blobs = array_filter(
+                        $blobs,
+                        static fn(Blob $blob) => !strpos($blob->getName(), 'manifest')
+                    );
+                }
+                return $blobs;
+            case StorageType::STORAGE_GCS:
+                /** @var StorageClient $client */
+                $client = $this->createClient();
+                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                $objects = $bucket->objects(['prefix' => $dir]);
+                $objects = iterator_to_array($objects);
+                if ($excludeManifest) {
+                    $objects = array_filter(
+                        $objects,
+                        static fn(StorageObject $blob) => !strpos($blob->name(), 'manifest')
+                    );
+                }
+                return $objects;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
     }
 
     /**
-     * @param Blob[]|array<string[]> $files
+     * @param Blob[]|array<string[]>|StorageObject[] $files
      * @return CsvFile<string[]>
      */
     public function getCsvFileFromStorage(
@@ -269,11 +322,11 @@ trait StorageTrait
         $tmp->initRunFolder();
         $tmpFolder = $tmp->getTmpFolder();
         $finalFile = $tmpFolder . $tmpName;
+        $tmpFiles = [];
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
                 /** @var S3Client $client */
                 $client = $this->createClient();
-                $tmpFiles = [];
                 /** @var array{Key:string, Body:string} $file */
                 foreach ($files as $file) {
                     $result = $client->getObject([
@@ -283,21 +336,64 @@ trait StorageTrait
                     $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file['Key']);
                     file_put_contents($tmpName, $result['Body']);
                 }
-
-                foreach ($tmpFiles as $file) {
-                    $catCmd = 'cat ' . escapeshellarg($file) . ' >> ' . escapeshellarg($finalFile);
-                    $process = Process::fromShellCommandline($catCmd);
-                    $process->setTimeout(null);
-                    if ($process->run() !== 0) {
-                        throw new ProcessFailedException($process);
-                    }
-                }
-
-                return new CsvFile($finalFile);
+                break;
             case StorageType::STORAGE_ABS:
-                throw new Exception('Implement this for ABS');
+                foreach ($files as $file) {
+                    assert($file instanceof Blob);
+                    $content = $this->getAbsBlobContent($file->getName());
+                    $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file->getName());
+                    file_put_contents($tmpName, $content);
+                }
+                break;
+            case StorageType::STORAGE_GCS:
+                /** @var StorageClient $client */
+                $client = $this->createClient();
+                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                foreach ($files as $file) {
+                    assert($file instanceof StorageObject);
+                    $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file->name());
+                    $bucket->object($file->name())->downloadToFile($tmpName);
+                }
+                break;
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
+        $this->concatCsv($tmpFiles, $finalFile);
+        return new CsvFile($finalFile);
+    }
+
+    /**
+     * @param string[] $tmpFiles
+     */
+    private function concatCsv(array $tmpFiles, string $finalFile): void
+    {
+        foreach ($tmpFiles as $file) {
+            $process = Process::fromShellCommandline('cat "${:FILE}" >> "${:FINAL_FILE}"');
+            $process->setTimeout(null);
+            $code = $process->run(null, [
+                'FILE' => $file,
+                'FINAL_FILE' => $finalFile,
+            ]);
+
+            if ($code !== 0) {
+                throw new ProcessFailedException($process);
+            }
+        }
+    }
+
+    private function getAbsBlobContent(
+        string $blob
+    ): string {
+        $client = $this->createClient();
+        assert($client instanceof BlobRestProxy);
+        $stream = $client
+            ->getBlob((string) getenv('ABS_CONTAINER_NAME'), $blob)
+            ->getContentStream();
+
+        $content = stream_get_contents($stream);
+        if ($content === false) {
+            throw new Exception();
+        }
+        return $content;
     }
 }

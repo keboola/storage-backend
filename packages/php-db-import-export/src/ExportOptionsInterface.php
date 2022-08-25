@@ -9,4 +9,6 @@ interface ExportOptionsInterface
     public function getExportId(): string;
 
     public function isCompressed(): bool;
+
+    public function generateManifest(): bool;
 }

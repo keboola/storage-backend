@@ -66,6 +66,12 @@ EOD
             implode("\n", $entries)
         );
         $this->connection->executeStatement($sql, $source->getQueryBindings());
+
+        if ($exportOptions->generateManifest()) {
+            (new Storage\S3\ManifestGenerator\S3SlicedManifestFromFolderGenerator($destination->getClient()))
+                ->generateAndSaveManifest($destination->getRelativePath());
+        }
+
         return [];
     }
 }

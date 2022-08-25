@@ -9,6 +9,9 @@ use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
+/**
+ * @deprecated use Keboola\Db\ImportExport\Backend\Snowflake\Export\AbsExportAdapter
+ */
 class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
 {
     private Connection $connection;
@@ -59,6 +62,15 @@ DETAILED_OUTPUT = TRUE',
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'"
         );
 
-        return $this->connection->fetchAll($sql, $source->getQueryBindings());
+        $unloadedFiles = $this->connection->fetchAll($sql, $source->getQueryBindings());
+
+        if ($exportOptions->generateManifest()) {
+            (new Storage\ABS\ManifestGenerator\AbsSlicedManifestFromUnloadQueryResultGenerator(
+                $destination->getClient(),
+                $destination->getAccountName()
+            ))->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
+        }
+
+        return $unloadedFiles;
     }
 }

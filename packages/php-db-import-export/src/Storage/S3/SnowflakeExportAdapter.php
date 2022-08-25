@@ -10,6 +10,9 @@ use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
+/**
+ * @deprecated use Keboola\Db\ImportExport\Backend\Snowflake\Export\S3ExportAdapter
+ */
 class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
 {
     private Connection $connection;
@@ -63,7 +66,7 @@ OVERWRITE = TRUE
 MAX_FILE_SIZE=50000000
 DETAILED_OUTPUT = TRUE
 EOT,
-            $destination->getBucketURL(),
+            $destination->getS3Prefix(),
             $destination->getFilePath(),
             $source->getFromStatement(),
             $destination->getKey(),
@@ -72,6 +75,13 @@ EOT,
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
         );
 
-        return $this->connection->fetchAll($sql, $source->getQueryBindings());
+        $unloadedFiles = $this->connection->fetchAll($sql, $source->getQueryBindings());
+
+        if ($exportOptions->generateManifest()) {
+            (new Storage\S3\ManifestGenerator\S3SlicedManifestFromUnloadQueryResultGenerator($destination->getClient()))
+                ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
+        }
+
+        return $unloadedFiles;
     }
 }

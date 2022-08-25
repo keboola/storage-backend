@@ -77,6 +77,9 @@ class ExportTest extends TeradataBaseTestCase
         self::assertCount(1, $files);
         // the ~ 16M table was compressed under 1M
         self::assertTrue($files[0]['Size'] < (1024 * 1024));
+
+        $files = $this->getFileNames($this->getExportDir(), false);
+        $this->assertContains($this->getExportDir() . '/gz_test/gzip.csvmanifest', array_values($files));
     }
 
     /**
@@ -236,6 +239,9 @@ class ExportTest extends TeradataBaseTestCase
             1 // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
+
+        $files = $this->getFileNames($this->getExportDir(), false);
+        $this->assertContains($this->getExportDir() . '/ts_test/ts_testmanifest', array_values($files));
     }
 
     public function testExportSimpleWithQuery(): void
@@ -282,6 +288,9 @@ class ExportTest extends TeradataBaseTestCase
             1 // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
+
+        $files = $this->getFileNames($this->getExportDir(), false);
+        $this->assertContains($this->getExportDir() . '/tw_testmanifest', array_values($files));
     }
 
     /**

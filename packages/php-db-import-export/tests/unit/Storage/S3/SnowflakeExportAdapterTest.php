@@ -24,17 +24,17 @@ class SnowflakeExportAdapterTest extends BaseTestCase
 
         /** @var Storage\S3\DestinationFile|MockObject $destination */
         $destination = $this->createMock(Storage\S3\DestinationFile::class);
-        $destination->expects(self::once())->method('getBucketURL')->willReturn('bucketUrl');
         $destination->expects(self::once())->method('getFilePath')->willReturn('xxx/path');
         $destination->expects(self::once())->method('getKey')->willReturn('key');
         $destination->expects(self::once())->method('getSecret')->willReturn('secret');
         $destination->expects(self::once())->method('getRegion')->willReturn('region');
+        $destination->expects(self::once())->method('getS3Prefix')->willReturn('s3://bucketUrl');
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
         $conn->expects(self::once())->method('fetchAll')->with(
             <<<EOT
-COPY INTO 'bucketUrl/xxx/path'
+COPY INTO 's3://bucketUrl/xxx/path'
 FROM (SELECT * FROM "schema"."table")
 CREDENTIALS = (
     AWS_KEY_ID = 'key'
@@ -59,7 +59,7 @@ EOT
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\S3\SnowflakeExportAdapter($conn);
 
         $this->assertSame(
@@ -84,17 +84,17 @@ EOT
 
         /** @var Storage\S3\DestinationFile|MockObject $destination */
         $destination = $this->createMock(Storage\S3\DestinationFile::class);
-        $destination->expects(self::once())->method('getBucketURL')->willReturn('bucketUrl');
         $destination->expects(self::once())->method('getFilePath')->willReturn('xxx/path');
         $destination->expects(self::once())->method('getKey')->willReturn('key');
         $destination->expects(self::once())->method('getSecret')->willReturn('secret');
         $destination->expects(self::once())->method('getRegion')->willReturn('region');
+        $destination->expects(self::once())->method('getS3Prefix')->willReturn('s3://bucketUrl');
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
         $conn->expects(self::once())->method('fetchAll')->with(
             <<<EOT
-COPY INTO 'bucketUrl/xxx/path'
+COPY INTO 's3://bucketUrl/xxx/path'
 FROM (SELECT * FROM "schema"."table")
 CREDENTIALS = (
     AWS_KEY_ID = 'key'
@@ -119,7 +119,7 @@ EOT
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions(true);
+        $options = new ExportOptions(true, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\S3\SnowflakeExportAdapter($conn);
 
         $this->assertSame(
@@ -144,17 +144,17 @@ EOT
 
         /** @var Storage\S3\DestinationFile|MockObject $destination */
         $destination = $this->createMock(Storage\S3\DestinationFile::class);
-        $destination->expects(self::once())->method('getBucketURL')->willReturn('bucketUrl');
         $destination->expects(self::once())->method('getFilePath')->willReturn('xxx/path');
         $destination->expects(self::once())->method('getKey')->willReturn('key');
         $destination->expects(self::once())->method('getSecret')->willReturn('secret');
         $destination->expects(self::once())->method('getRegion')->willReturn('region');
+        $destination->expects(self::once())->method('getS3Prefix')->willReturn('s3://bucketUrl');
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
         $conn->expects(self::once())->method('fetchAll')->with(
             <<<EOT
-COPY INTO 'bucketUrl/xxx/path'
+COPY INTO 's3://bucketUrl/xxx/path'
 FROM (SELECT * FROM "schema"."table")
 CREDENTIALS = (
     AWS_KEY_ID = 'key'
@@ -179,7 +179,7 @@ EOT
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\S3\SnowflakeExportAdapter($conn);
 
         $this->assertSame(

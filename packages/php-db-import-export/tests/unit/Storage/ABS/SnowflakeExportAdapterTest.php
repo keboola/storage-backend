@@ -49,7 +49,7 @@ EOT
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
 
         $this->assertSame(
@@ -99,7 +99,7 @@ EOT
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions(true);
+        $options = new ExportOptions(true, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
 
         $this->assertSame(
@@ -149,7 +149,7 @@ EOT
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\ABS\SnowflakeExportAdapter($conn);
 
         $this->assertSame(

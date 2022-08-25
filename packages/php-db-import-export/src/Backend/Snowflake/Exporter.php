@@ -12,6 +12,9 @@ use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use ReflectionClass;
 
+/**
+ * @deprecated use Keboola\Db\ImportExport\Backend\Snowflake\Export\Exporter instead with dbal implementation
+ */
 class Exporter implements ExporterInterface
 {
     public const DEFAULT_ADAPTERS = [

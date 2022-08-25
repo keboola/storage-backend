@@ -42,7 +42,7 @@ EOT
         )->willReturn([]);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\GCS\SnowflakeExportAdapter($conn);
 
         $this->assertSame(
@@ -85,7 +85,7 @@ EOT
         )->willReturn([]);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
-        $options = new ExportOptions(true);
+        $options = new ExportOptions(true, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\GCS\SnowflakeExportAdapter($conn);
 
         $this->assertSame(
@@ -128,7 +128,7 @@ EOT
         )->willReturn([]);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."tableName"');
-        $options = new ExportOptions();
+        $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
         $adapter = new Storage\GCS\SnowflakeExportAdapter($conn);
 
         $this->assertSame(
