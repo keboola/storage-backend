@@ -321,4 +321,187 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             $stageDefinition->getTableIndex()->getIndexType()
         );
     }
+
+    public function testCreateDedupStagingTableDefinition(): void
+    {
+        $definition = new SynapseTableDefinition(
+            'schema',
+            'table',
+            false,
+            new ColumnCollection([
+                new SynapseColumn('name', new Synapse(Synapse::TYPE_DATE)),
+                SynapseColumn::createGenericColumn('id'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
+            $definition,
+            ['id', 'name', 'notInDef']
+        );
+
+        self::assertSame('schema', $stageDefinition->getSchemaName());
+        self::assertStringStartsWith('#__temp_csvimport', $stageDefinition->getTableName());
+        self::assertTrue($stageDefinition->isTemporary());
+        // order same as source
+        self::assertSame(['id', 'name', 'notInDef'], $stageDefinition->getColumnsNames());
+        /** @var SynapseColumn[] $definitions */
+        $definitions = iterator_to_array($stageDefinition->getColumnsDefinitions());
+        // id is NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[0]->getColumnDefinition()->getType());
+        // name is DATE
+        self::assertSame(Synapse::TYPE_DATE, $definitions[1]->getColumnDefinition()->getType());
+        // notInDef has default NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
+        self::assertSame(
+            TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
+            $stageDefinition->getTableDistribution()->getDistributionName()
+        );
+        // index is heap
+        self::assertSame(
+            TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
+            $stageDefinition->getTableIndex()->getIndexType()
+        );
+    }
+
+    public function testCreateDedupStagingTableDefinitionReplicate(): void
+    {
+        $definition = new SynapseTableDefinition(
+            'schema',
+            'table',
+            false,
+            new ColumnCollection([
+                new SynapseColumn('name', new Synapse(Synapse::TYPE_DATE)),
+                SynapseColumn::createGenericColumn('id'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
+            $definition,
+            ['id', 'name', 'notInDef']
+        );
+
+        self::assertSame('schema', $stageDefinition->getSchemaName());
+        self::assertStringStartsWith('#__temp_csvimport', $stageDefinition->getTableName());
+        self::assertTrue($stageDefinition->isTemporary());
+        // order same as source
+        self::assertSame(['id', 'name', 'notInDef'], $stageDefinition->getColumnsNames());
+        /** @var SynapseColumn[] $definitions */
+        $definitions = iterator_to_array($stageDefinition->getColumnsDefinitions());
+        // id is NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[0]->getColumnDefinition()->getType());
+        // name is DATE
+        self::assertSame(Synapse::TYPE_DATE, $definitions[1]->getColumnDefinition()->getType());
+        // notInDef has default NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
+        self::assertSame(
+            TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
+            $stageDefinition->getTableDistribution()->getDistributionName()
+        );
+        // index is heap
+        self::assertSame(
+            TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
+            $stageDefinition->getTableIndex()->getIndexType()
+        );
+    }
+
+    public function testCreateDedupStagingTableDefinitionWithClusteredColumnstore(): void
+    {
+        $definition = new SynapseTableDefinition(
+            'schema',
+            'table',
+            false,
+            new ColumnCollection([
+                new SynapseColumn('name', new Synapse(Synapse::TYPE_DATE)),
+                SynapseColumn::createGenericColumn('id'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
+            $definition,
+            ['id', 'name', 'notInDef'],
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+        );
+
+        self::assertSame('schema', $stageDefinition->getSchemaName());
+        self::assertStringStartsWith('#__temp_csvimport', $stageDefinition->getTableName());
+        self::assertTrue($stageDefinition->isTemporary());
+        // order same as source
+        self::assertSame(['id', 'name', 'notInDef'], $stageDefinition->getColumnsNames());
+        /** @var SynapseColumn[] $definitions */
+        $definitions = iterator_to_array($stageDefinition->getColumnsDefinitions());
+        // id is NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[0]->getColumnDefinition()->getType());
+        self::assertTrue($definitions[0]->getColumnDefinition()->isNullable());
+        // name is DATE
+        self::assertSame(Synapse::TYPE_DATE, $definitions[1]->getColumnDefinition()->getType());
+        // notInDef has default NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
+        self::assertTrue($definitions[2]->getColumnDefinition()->isNullable());
+        self::assertSame(
+            TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
+            $stageDefinition->getTableDistribution()->getDistributionName()
+        );
+        // index is heap
+        self::assertSame(
+            TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX,
+            $stageDefinition->getTableIndex()->getIndexType()
+        );
+    }
+
+    public function testCreateDedupStagingTableDefinitionWithClusteredIndex(): void
+    {
+        $definition = new SynapseTableDefinition(
+            'schema',
+            'table',
+            false,
+            new ColumnCollection([
+                new SynapseColumn('name', new Synapse(Synapse::TYPE_DATE)),
+                SynapseColumn::createGenericColumn('id'),
+            ]),
+            [],
+            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+        );
+        $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
+            $definition,
+            ['id', 'name', 'notInDef'],
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX, ['id'])
+        );
+
+        self::assertSame('schema', $stageDefinition->getSchemaName());
+        self::assertStringStartsWith('#__temp_csvimport', $stageDefinition->getTableName());
+        self::assertTrue($stageDefinition->isTemporary());
+        // order same as source
+        self::assertSame(['id', 'name', 'notInDef'], $stageDefinition->getColumnsNames());
+        /** @var SynapseColumn[] $definitions */
+        $definitions = iterator_to_array($stageDefinition->getColumnsDefinitions());
+        // id is NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[0]->getColumnDefinition()->getType());
+        self::assertFalse($definitions[0]->getColumnDefinition()->isNullable());
+        // name is DATE
+        self::assertSame(Synapse::TYPE_DATE, $definitions[1]->getColumnDefinition()->getType());
+        // notInDef has default NVARCHAR
+        self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
+        self::assertTrue($definitions[2]->getColumnDefinition()->isNullable());
+        self::assertSame(
+            TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
+            $stageDefinition->getTableDistribution()->getDistributionName()
+        );
+        // index is CI
+        self::assertSame(
+            TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
+            $stageDefinition->getTableIndex()->getIndexType()
+        );
+        // index is CI
+        self::assertSame(
+            [],
+            $stageDefinition->getTableIndex()->getIndexedColumnsNames()
+        );
+    }
 }
