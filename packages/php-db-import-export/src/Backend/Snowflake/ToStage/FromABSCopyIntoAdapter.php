@@ -14,6 +14,7 @@ use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\ABS\BaseFile;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
@@ -93,8 +94,8 @@ FROM %s
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
 FILE_FORMAT = (TYPE=CSV %s)
 FILES = (%s)',
-            $this->connection->quoteIdentifier($destination->getSchemaName()),
-            $this->connection->quoteIdentifier($destination->getTableName()),
+            SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
             QuoteHelper::quote($source->getContainerUrl(BaseFile::PROTOCOL_AZURE)),
             $source->getSasToken(),
             implode(
