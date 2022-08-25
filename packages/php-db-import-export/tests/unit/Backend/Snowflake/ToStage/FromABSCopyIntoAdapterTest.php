@@ -28,7 +28,7 @@ class FromABSCopyIntoAdapterTest extends BaseTestCase
         $conn = $this->mockConnection();
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
-COPY INTO . 
+COPY INTO "schema"."stagingTable" 
 FROM ''
 CREDENTIALS=(AZURE_SAS_TOKEN='')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
@@ -69,7 +69,7 @@ EOT
         // @codingStandardsIgnoreStart
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
-COPY INTO . 
+COPY INTO "schema"."stagingTable" 
 FROM ''
 CREDENTIALS=(AZURE_SAS_TOKEN='')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' SKIP_HEADER = 3 FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
@@ -119,7 +119,7 @@ EOT
         $conn = $this->mockConnection();
 
         $qTemplate = <<<EOT
-COPY INTO . 
+COPY INTO "schema"."stagingTable" 
 FROM ''
 CREDENTIALS=(AZURE_SAS_TOKEN='')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
