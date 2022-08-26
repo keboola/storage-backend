@@ -73,8 +73,6 @@ final class StageTableDefinitionFactory
         array $sourceColumnsNames,
         ?TableIndexDefinition $indexDefinition = null
     ): SynapseTableDefinition {
-        $clusteredIndexColumns = self::getClusteredIndexColumns($indexDefinition);
-
         $newDefinitions = [];
         // create staging table for source columns in order
         // but with types from destination
@@ -83,8 +81,6 @@ final class StageTableDefinitionFactory
             /** @var SynapseColumn $definition */
             foreach ($destination->getColumnsDefinitions() as $definition) {
                 if ($definition->getColumnName() === $columnName) {
-                    $isNullable = $clusteredIndexColumns === null
-                        || !in_array($columnName, $clusteredIndexColumns, true);
                     // if column exists in destination set destination type
                     $newDefinitions[] = new SynapseColumn(
                         $columnName,
@@ -92,8 +88,7 @@ final class StageTableDefinitionFactory
                             $definition->getColumnDefinition()->getType(),
                             [
                                 'length' => $definition->getColumnDefinition()->getLength(),
-                                // set all columns to be nullable except in clustered index
-                                'nullable' => $isNullable,
+                                'nullable' => true,
                                 'default' => $definition->getColumnDefinition()->getDefault(),
                             ]
                         )
@@ -102,7 +97,7 @@ final class StageTableDefinitionFactory
                 }
             }
             // if column doesn't exists in destination set default type
-            $newDefinitions[] = self::createNvarcharColumn($columnName, $clusteredIndexColumns);
+            $newDefinitions[] = self::createNvarcharColumn($columnName, []);
         }
 
         $tableIndex = $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP);

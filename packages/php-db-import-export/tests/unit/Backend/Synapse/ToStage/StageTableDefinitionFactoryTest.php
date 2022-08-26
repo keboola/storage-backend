@@ -483,7 +483,7 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         $definitions = iterator_to_array($stageDefinition->getColumnsDefinitions());
         // id is NVARCHAR
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[0]->getColumnDefinition()->getType());
-        self::assertFalse($definitions[0]->getColumnDefinition()->isNullable());
+        self::assertTrue($definitions[0]->getColumnDefinition()->isNullable());
         // name is DATE
         self::assertSame(Synapse::TYPE_DATE, $definitions[1]->getColumnDefinition()->getType());
         // notInDef has default NVARCHAR
