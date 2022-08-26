@@ -85,7 +85,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getDeleteOldItemsCommand(
                         $stagingTableDefinition,
-                        $destinationTableDefinition
+                        $destinationTableDefinition,
+                        $options
                     )
                 );
                 $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
