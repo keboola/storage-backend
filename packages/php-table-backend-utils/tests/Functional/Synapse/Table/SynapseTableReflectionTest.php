@@ -743,7 +743,7 @@ class SynapseTableReflectionTest extends SynapseBaseCase
             'CLUSTERED INDEX',
             ['int_def'],
         ];
-        yield 'CLUSTERED INDEX' => [
+        yield 'CLUSTERED INDEX MULTIPLE' => [
             'CLUSTERED INDEX (int_def, int_def2)',
             'CLUSTERED INDEX',
             ['int_def', 'int_def2'],
