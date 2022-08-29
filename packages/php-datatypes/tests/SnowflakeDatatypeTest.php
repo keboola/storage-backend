@@ -121,6 +121,9 @@ class SnowflakeDatatypeTest extends TestCase
         $definition = new Snowflake('NUMERIC', ['length' => '10,10', 'nullable' => true]);
         $this->assertSame($definition->getSQLDefinition(), 'NUMERIC (10,10)');
 
+        $definition = new Snowflake('NUMERIC', ['length' => '10,10', 'nullable' => true, 'default' => '10']);
+        $this->assertSame($definition->getSQLDefinition(), 'NUMERIC (10,10) DEFAULT 10');
+
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
         $this->assertSame($definition->getSQLDefinition(), 'TIMESTAMP_TZ (0)');
 

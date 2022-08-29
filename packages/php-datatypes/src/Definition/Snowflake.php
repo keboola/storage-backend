@@ -121,8 +121,10 @@ class Snowflake extends Common
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
+        if ($this->getDefault() !== null) {
+            $definition .= ' DEFAULT ' . $this->getDefault();
+        }
         return $definition;
-        // TODO default value by basetype
     }
 
     /**
