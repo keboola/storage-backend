@@ -151,8 +151,8 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
         self::assertSame(
             'CREATE TEMPORARY TABLE "' . self::TEST_SCHEMA . '"."' . $tableName . '"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL
+"col1" VARCHAR NOT NULL DEFAULT \'\',
+"col2" VARCHAR NOT NULL DEFAULT \'\'
 );',
             $sql
         );
@@ -183,8 +183,8 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT ''
 );
 EOT
             ,
@@ -200,8 +200,8 @@ EOT
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL,
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT '',
 PRIMARY KEY ("col1")
 );
 EOT
@@ -218,8 +218,8 @@ EOT
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL,
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT '',
 PRIMARY KEY ("col1","col2")
 );
 EOT
@@ -228,7 +228,7 @@ EOT
 
         yield 'nullable pks' => [
             'cols' => [
-                new SnowflakeColumn('col1',new Snowflake(
+                new SnowflakeColumn('col1', new Snowflake(
                     Snowflake::TYPE_VARCHAR,
                     [
                         'nullable' => true,
@@ -243,8 +243,8 @@ EOT
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR,
-"col2" VARCHAR NOT NULL,
+"col1" VARCHAR DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT '',
 PRIMARY KEY ("col1","col2")
 );
 EOT
@@ -280,8 +280,8 @@ EOT
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT ''
 );
 EOT
             ,
@@ -303,8 +303,8 @@ EOT
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL,
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT '',
 PRIMARY KEY ("col1")
 );
 EOT
@@ -327,8 +327,8 @@ EOT
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL,
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT '',
 PRIMARY KEY ("col1","col2")
 );
 EOT
@@ -352,8 +352,8 @@ EOT
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT ''
 );
 EOT
             ,
@@ -375,8 +375,8 @@ EOT
             'query' => <<<EOT
 CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT ''
 );
 EOT
             ,
@@ -398,8 +398,8 @@ EOT
             'query' => <<<EOT
 CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
 (
-"col1" VARCHAR NOT NULL,
-"col2" VARCHAR NOT NULL
+"col1" VARCHAR NOT NULL DEFAULT '',
+"col2" VARCHAR NOT NULL DEFAULT ''
 );
 EOT
             ,
