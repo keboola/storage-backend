@@ -99,14 +99,6 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             /** @var Snowflake $columnDefinition */
             $columnDefinition = $column->getColumnDefinition();
 
-            // add PK on nullable column is legal, but SNFLK will force it to non-nullable. So rather check it first
-            if ($primaryKeys && in_array($columnName, $primaryKeys, true) && $columnDefinition->isNullable()) {
-                throw new QueryBuilderException(
-                    sprintf('Trying to set PK on column %s but this column is nullable', $columnName),
-                    self::INVALID_PKS_FOR_TABLE
-                );
-            }
-
             $columnsSqlDefinitions[] = sprintf(
                 '%s %s',
                 SnowflakeQuote::quoteSingleIdentifier($columnName),

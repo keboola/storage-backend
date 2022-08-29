@@ -6,6 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\Table;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Generator;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
@@ -218,6 +219,31 @@ EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL,
+"col2" VARCHAR NOT NULL,
+PRIMARY KEY ("col1","col2")
+);
+EOT
+            ,
+        ];
+
+        yield 'nullable pks' => [
+            'cols' => [
+                new SnowflakeColumn('col1',new Snowflake(
+                    Snowflake::TYPE_VARCHAR,
+                    [
+                        'nullable' => true,
+                        'default' => '\'\'',
+                    ]
+                )),
+                SnowflakeColumn::createGenericColumn('col2'),
+            ],
+            'primaryKeys' => ['col1', 'col2'],
+            'expectedColumnNames' => ['col1', 'col2'],
+            'expectedPrimaryKeys' => ['col1', 'col2'],
+            'query' => <<<EOT
+CREATE TABLE "$testDb"."$tableName"
+(
+"col1" VARCHAR,
 "col2" VARCHAR NOT NULL,
 PRIMARY KEY ("col1","col2")
 );
