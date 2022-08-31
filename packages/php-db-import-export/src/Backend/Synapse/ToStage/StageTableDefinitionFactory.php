@@ -66,6 +66,57 @@ final class StageTableDefinitionFactory
     }
 
     /**
+     * @param string[] $sourceColumnsNames
+     */
+    public static function createDedupStagingTableDefinition(
+        SynapseTableDefinition $destination,
+        array $sourceColumnsNames,
+        ?TableIndexDefinition $indexDefinition = null
+    ): SynapseTableDefinition {
+        $newDefinitions = [];
+        // create staging table for source columns in order
+        // but with types from destination
+        // also maintain source columns order
+        foreach ($sourceColumnsNames as $columnName) {
+            /** @var SynapseColumn $definition */
+            foreach ($destination->getColumnsDefinitions() as $definition) {
+                if ($definition->getColumnName() === $columnName) {
+                    // if column exists in destination set destination type
+                    $newDefinitions[] = new SynapseColumn(
+                        $columnName,
+                        new Synapse(
+                            $definition->getColumnDefinition()->getType(),
+                            [
+                                'length' => $definition->getColumnDefinition()->getLength(),
+                                'nullable' => true,
+                                'default' => $definition->getColumnDefinition()->getDefault(),
+                            ]
+                        )
+                    );
+                    continue 2;
+                }
+            }
+            // if column doesn't exists in destination set default type
+            $newDefinitions[] = self::createNvarcharColumn($columnName, []);
+        }
+
+        $tableIndex = $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP);
+        if ($tableIndex->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
+            $tableIndex = new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP);
+        }
+
+        return new SynapseTableDefinition(
+            $destination->getSchemaName(),
+            BackendHelper::generateTempTableName(),
+            true,
+            new ColumnCollection($newDefinitions),
+            $destination->getPrimaryKeysNames(),
+            self::resolveDistribution($destination->getTableDistribution()),
+            $tableIndex
+        );
+    }
+
+    /**
      * @param string[]|null $clusteredIndexColumns
      */
     private static function createNvarcharColumn(string $columnName, ?array $clusteredIndexColumns): SynapseColumn

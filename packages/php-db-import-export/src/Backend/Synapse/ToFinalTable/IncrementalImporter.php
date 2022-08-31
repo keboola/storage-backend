@@ -52,7 +52,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         $timestampValue = DateTimeHelper::getNowFormatted();
         if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
             // Create table for deduplication
-            $deduplicationTableDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
+            $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
                 $stagingTableDefinition,
                 $stagingTableDefinition->getColumnsNames(),
                 $destinationTableDefinition->getTableIndex()
