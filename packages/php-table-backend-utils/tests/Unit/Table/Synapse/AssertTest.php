@@ -53,7 +53,7 @@ class AssertTest extends TestCase
     public function testAssertInvalidClusteredIndex(array $columns): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('CLUSTERED table index must have one key specified.');
+        $this->expectExceptionMessage('CLUSTERED table index must have at least one key column specified.');
         Assert::assertValidClusteredIndex('CLUSTERED INDEX', $columns);
     }
 

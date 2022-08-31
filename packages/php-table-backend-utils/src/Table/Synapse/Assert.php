@@ -27,7 +27,7 @@ final class Assert
         if ($indexName === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX
             && count($indexedColumnsNames) === 0
         ) {
-            throw new LogicException('CLUSTERED table index must have one key specified.');
+            throw new LogicException('CLUSTERED table index must have at least one key column specified.');
         }
     }
 
