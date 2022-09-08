@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
+use Keboola\Db\ImportExport\Utils\StringCaseSensitivity;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
@@ -104,10 +105,9 @@ class SqlBuilder
             unset($columnsInOrder[$timestampColIndex]);
         }
 
-        $timestampNotInColumns = !in_array(
+        $timestampNotInColumns = !StringCaseSensitivity::isInArrayCaseInsensitive(
             ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
-            $stagingTableDefinition->getColumnsNames(),
-            true
+            $stagingTableDefinition->getColumnsNames()
         );
         $useTimestamp = $timestampNotInColumns && $importOptions->useTimestamp();
 
@@ -260,8 +260,11 @@ class SqlBuilder
         );
 
         $insColumns = $sourceTableDefinition->getColumnsNames();
-        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $insColumns, true)
-            && $importOptions->useTimestamp();
+        $includesTimestamp = StringCaseSensitivity::isInArrayCaseInsensitive(
+            ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            $insColumns
+        );
+        $useTimestamp = !$includesTimestamp && $importOptions->useTimestamp();
 
         if ($useTimestamp) {
             $insColumns = array_merge(
@@ -274,7 +277,11 @@ class SqlBuilder
 
         /** @var SynapseColumn $columnDefinition */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
-            if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
+            $convertEmptyToNull = StringCaseSensitivity::isInArrayCaseInsensitive(
+                $columnDefinition->getColumnName(),
+                $importOptions->getConvertEmptyValuesToNull()
+            );
+            if ($convertEmptyToNull) {
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
@@ -329,10 +336,9 @@ class SqlBuilder
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
         );
 
-        $useTimestamp = !in_array(
+        $useTimestamp = !StringCaseSensitivity::isInArrayCaseInsensitive(
             ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
-            $sourceTableDefinition->getColumnsNames(),
-            true
+            $sourceTableDefinition->getColumnsNames()
         ) && $importOptions->useTimestamp();
 
         $columnsSetSql = $this->getCTASColumnsSetSql(
@@ -439,11 +445,19 @@ class SqlBuilder
         $columnsSet = [];
         /** @var SynapseColumn $columnDefinition */
         foreach ($stagingTableDefinition->getColumnsDefinitions() as $columnDefinition) {
-            if (in_array($columnDefinition->getColumnName(), $destinationDefinition->getPrimaryKeysNames(), true)) {
+            $isPrimaryKey = StringCaseSensitivity::isInArrayCaseInsensitive(
+                $columnDefinition->getColumnName(),
+                $destinationDefinition->getPrimaryKeysNames()
+            );
+            if ($isPrimaryKey) {
                 // primary keys are not updated
                 continue;
             }
-            if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
+            $convertEmptyToNull = StringCaseSensitivity::isInArrayCaseInsensitive(
+                $columnDefinition->getColumnName(),
+                $importOptions->getConvertEmptyValuesToNull()
+            );
+            if ($convertEmptyToNull) {
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSet[] = sprintf(
@@ -492,9 +506,10 @@ class SqlBuilder
         }
 
         // remove primary keys for columns used in where condition
+        /** @var SynapseColumn[] $columnsForComparison */
         $columnsForComparison = array_filter(
             iterator_to_array($stagingTableDefinition->getColumnsDefinitions()),
-            static fn(SynapseColumn $columnDefinition): bool => !in_array(
+            static fn(SynapseColumn $columnDefinition): bool => !StringCaseSensitivity::isInArrayCaseInsensitive(
                 $columnDefinition->getColumnName(),
                 $destinationDefinition->getPrimaryKeysNames()
             )
@@ -566,7 +581,7 @@ class SqlBuilder
             // case sensitive search
             /** @var SynapseColumn $col */
             foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
-                if ($col->getColumnName() === $column->getColumnName()) {
+                if (strtolower($col->getColumnName()) === strtolower($column->getColumnName())) {
                     $destinationColumn = $col;
                     break;
                 }
@@ -603,7 +618,11 @@ class SqlBuilder
                 );
             }
             $columnTypeDefinition = $this->getColumnTypeSqlDefinition($destinationColumn);
-            if (in_array($column->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
+            $convertEmptyToNull = StringCaseSensitivity::isInArrayCaseInsensitive(
+                $column->getColumnName(),
+                $importOptions->getConvertEmptyValuesToNull()
+            );
+            if ($convertEmptyToNull) {
                 $columnsSetSql[] = $this->getCTASColumnSetSQLWithConvertEmptyValues(
                     $column,
                     $importOptions,

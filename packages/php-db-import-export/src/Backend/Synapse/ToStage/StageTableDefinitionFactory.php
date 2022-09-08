@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Synapse\ToStage;
 
 use Keboola\Datatype\Definition\Synapse;
 use Keboola\Db\ImportExport\Backend\Synapse\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Utils\StringCaseSensitivity;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\SynapseColumn;
 use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
@@ -31,9 +32,9 @@ final class StageTableDefinitionFactory
         foreach ($sourceColumnsNames as $columnName) {
             /** @var SynapseColumn $definition */
             foreach ($destination->getColumnsDefinitions() as $definition) {
-                if ($definition->getColumnName() === $columnName) {
+                if (strtolower($definition->getColumnName()) === strtolower($columnName)) {
                     $isNullable = $clusteredIndexColumns === null
-                        || !in_array($columnName, $clusteredIndexColumns, true);
+                        || !StringCaseSensitivity::isInArrayCaseInsensitive($columnName, $clusteredIndexColumns);
                     // if column exists in destination set destination type
                     $newDefinitions[] = new SynapseColumn(
                         $columnName,
@@ -80,7 +81,7 @@ final class StageTableDefinitionFactory
         foreach ($sourceColumnsNames as $columnName) {
             /** @var SynapseColumn $definition */
             foreach ($destination->getColumnsDefinitions() as $definition) {
-                if ($definition->getColumnName() === $columnName) {
+                if (strtolower($definition->getColumnName()) === strtolower($columnName)) {
                     // if column exists in destination set destination type
                     $newDefinitions[] = new SynapseColumn(
                         $columnName,
@@ -122,7 +123,7 @@ final class StageTableDefinitionFactory
     private static function createNvarcharColumn(string $columnName, ?array $clusteredIndexColumns): SynapseColumn
     {
         $isNullable = $clusteredIndexColumns === null
-            || !in_array($columnName, $clusteredIndexColumns, true);
+            || !StringCaseSensitivity::isInArrayCaseInsensitive($columnName, $clusteredIndexColumns);
         return new SynapseColumn(
             $columnName,
             new Synapse(
