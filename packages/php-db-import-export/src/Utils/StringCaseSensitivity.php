@@ -11,6 +11,11 @@ class StringCaseSensitivity
         return strtolower($string);
     }
 
+    public static function isEqualCaseInsensitive(string $a, string $b): bool
+    {
+        return strcasecmp($a, $b) === 0;
+    }
+
     /**
      * @param string[] $arr
      * @return string[]

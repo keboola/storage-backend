@@ -32,7 +32,7 @@ final class StageTableDefinitionFactory
         foreach ($sourceColumnsNames as $columnName) {
             /** @var SynapseColumn $definition */
             foreach ($destination->getColumnsDefinitions() as $definition) {
-                if (strtolower($definition->getColumnName()) === strtolower($columnName)) {
+                if (StringCaseSensitivity::isEqualCaseInsensitive($definition->getColumnName(), $columnName)) {
                     $isNullable = $clusteredIndexColumns === null
                         || !StringCaseSensitivity::isInArrayCaseInsensitive($columnName, $clusteredIndexColumns);
                     // if column exists in destination set destination type
@@ -81,7 +81,7 @@ final class StageTableDefinitionFactory
         foreach ($sourceColumnsNames as $columnName) {
             /** @var SynapseColumn $definition */
             foreach ($destination->getColumnsDefinitions() as $definition) {
-                if (strtolower($definition->getColumnName()) === strtolower($columnName)) {
+                if (StringCaseSensitivity::isEqualCaseInsensitive($definition->getColumnName(), $columnName)) {
                     // if column exists in destination set destination type
                     $newDefinitions[] = new SynapseColumn(
                         $columnName,
