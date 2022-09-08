@@ -9,14 +9,14 @@ use PHPUnit\Framework\TestCase;
 
 class StringCaseSensitivityTest extends TestCase
 {
-    public function testStringToUpper(): void
+    public function testStringToLower(): void
     {
         $string = 'testMe_man';
         $result = StringCaseSensitivity::stringToLower($string);
         $this->assertSame('testme_man', $result);
     }
 
-    public function testArrayToUpper(): void
+    public function testArrayToLower(): void
     {
         $string = ['testMe_man', 'COLUMN_X', 'CoLuMn_xYZ-0'];
         $result = StringCaseSensitivity::arrayToLower($string);
