@@ -581,7 +581,7 @@ class SqlBuilder
             // case sensitive search
             /** @var SynapseColumn $col */
             foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
-                if (strtolower($col->getColumnName()) === strtolower($column->getColumnName())) {
+                if (StringCaseSensitivity::isEqualCaseInsensitive($col->getColumnName(), $column->getColumnName())) {
                     $destinationColumn = $col;
                     break;
                 }
@@ -590,7 +590,10 @@ class SqlBuilder
                 // case insensitive search
                 /** @var SynapseColumn $col */
                 foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
-                    if (strtolower($col->getColumnName()) === strtolower($column->getColumnName())) {
+                    if (StringCaseSensitivity::isEqualCaseInsensitive(
+                        $col->getColumnName(),
+                        $column->getColumnName()
+                    )) {
                         if ($destinationColumn !== null) {
                             throw new Exception(
                                 sprintf(
