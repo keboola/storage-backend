@@ -587,30 +587,6 @@ class SqlBuilder
                 }
             }
             if ($destinationColumn === null) {
-                // case insensitive search
-                /** @var SynapseColumn $col */
-                foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
-                    if (StringCaseSensitivity::isEqualCaseInsensitive(
-                        $col->getColumnName(),
-                        $column->getColumnName()
-                    )) {
-                        if ($destinationColumn !== null) {
-                            throw new Exception(
-                                sprintf(
-                                    // phpcs:ignore
-                                    'Multiple columns "%s, %s" exists with same name but non exactly match expected "%s".',
-                                    $destinationColumn->getColumnName(),
-                                    $col->getColumnName(),
-                                    $column->getColumnName()
-                                ),
-                                Exception::UNKNOWN_ERROR
-                            );
-                        }
-                        $destinationColumn = $col;
-                    }
-                }
-            }
-            if ($destinationColumn === null) {
                 throw new Exception(
                     sprintf(
                         'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',

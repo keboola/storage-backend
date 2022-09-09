@@ -1245,50 +1245,6 @@ EOT
     }
 
     /**
-     * @dataProvider ctasFunctionsProvider
-     */
-    public function testCtasCommandFailOnMultipleColumns(string $function): void
-    {
-        $stage = new SynapseTableDefinition(
-            self::TEST_SCHEMA,
-            self::TEST_STAGING_TABLE,
-            true,
-            new ColumnCollection([
-                $this->createGenericColumn('pk1'),
-                $this->createGenericColumn('pk2'),
-            ]),
-            [],
-            new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
-        );
-
-        $destination = new SynapseTableDefinition(
-            'schema',
-            'tableDest',
-            false,
-            new ColumnCollection([
-                $this->createGenericColumn('pk1'),
-                $this->createGenericColumn('PK2'),
-                $this->createGenericColumn('Pk2'),
-            ]),
-            ['pk1'],
-            $stage->getTableDistribution(),
-            $stage->getTableIndex()
-        );
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage(
-            'Multiple columns "PK2, Pk2" exists with same name but non exactly match expected "pk2".'
-        );
-        $this->getBuilder()->$function(
-            $stage,
-            $destination,
-            new SynapseImportOptions(),
-            '2020-01-01 00:00:00'
-        );
-    }
-
-    /**
      * @dataProvider ctasDedupProvider
      */
     public function testGetCtasDedupCommand(
