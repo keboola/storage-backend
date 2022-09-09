@@ -129,7 +129,7 @@ class SqlBuilder
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions) {
             $str = '"dest".%s = COALESCE("src".%s, \'\')';
-            if ($importOptions->isRequireSameTables() === true) {
+            if (!$importOptions->isNullManipulationEnabled()) {
                 $str = '"dest".%s = "src".%s';
             }
             return sprintf(
@@ -182,7 +182,7 @@ class SqlBuilder
         /** @var SnowflakeColumn $columnDefinition */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
             // output mapping same tables are required do not convert nulls to empty strings
-            if ($importOptions->isRequireSameTables() === true) {
+            if (!$importOptions->isNullManipulationEnabled()) {
                 $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
                 continue;
             }
@@ -255,7 +255,7 @@ class SqlBuilder
         $columnsSet = [];
 
         foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
-            if ($importOptions->isRequireSameTables() === true) {
+            if (!$importOptions->isNullManipulationEnabled()) {
                 $columnsSet[] = sprintf(
                     '%s = "src".%s',
                     SnowflakeQuote::quoteSingleIdentifier($columnName),
@@ -288,7 +288,7 @@ class SqlBuilder
         }
 
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-        if ($importOptions->isRequireSameTables() === true) {
+        if (!$importOptions->isNullManipulationEnabled()) {
             $columnsComparisonSql = array_map(
                 static function ($columnName) {
                     return sprintf(
