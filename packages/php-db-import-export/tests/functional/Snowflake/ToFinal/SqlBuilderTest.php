@@ -306,7 +306,8 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
                 false,
                 false,
                 0,
-                SnowflakeImportOptions::SAME_TABLES_REQUIRED //<- same tables are required
+                SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
+                SnowflakeImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
             ),
         );
 
@@ -477,7 +478,8 @@ EOT
                 false,
                 false,
                 0,
-                SnowflakeImportOptions::SAME_TABLES_REQUIRED //<- same tables are required
+                SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
+                SnowflakeImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
             ),
             '2020-01-01 00:00:00'
         );
@@ -833,7 +835,8 @@ EOT
                 false,
                 false,
                 0,
-                SnowflakeImportOptions::SAME_TABLES_REQUIRED //<- same tables are required
+                SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
+                SnowflakeImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
             ),
             '2020-01-01 00:00:00'
         );
