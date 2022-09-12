@@ -279,8 +279,10 @@ class SqlBuilder
             );
         }
 
+        /** @var ExasolColumn[] $columnsList */
+        $columnsList = iterator_to_array($stagingTableDefinition->getColumnsDefinitions());
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-        $columnsComparisionSql = array_map(
+        $columnsComparisonSql = array_map(
             function (ExasolColumn $columnDefinition) {
                 return sprintf(
                     'COALESCE(CAST("dest".%s AS %s), \'KBC_$#\') != COALESCE("src".%s, \'KBC_$#\')',
@@ -289,7 +291,7 @@ class SqlBuilder
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             },
-            iterator_to_array($stagingTableDefinition->getColumnsDefinitions())
+            $columnsList
         );
 
         return sprintf(
@@ -304,7 +306,7 @@ class SqlBuilder
                 '"src"',
                 '"dest"'
             ),
-            implode(' OR ', $columnsComparisionSql)
+            implode(' OR ', $columnsComparisonSql)
         );
     }
 
@@ -343,8 +345,10 @@ class SqlBuilder
             );
         }
 
+        /** @var ExasolColumn[] $columnsList */
+        $columnsList = iterator_to_array($stagingTableDefinition->getColumnsDefinitions());
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-        $columnsComparisionSql = array_map(
+        $columnsComparisonSql = array_map(
             function (ExasolColumn $columnDefinition) {
                 return sprintf(
                 // phpcs:ignore
@@ -357,7 +361,7 @@ class SqlBuilder
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
                 );
             },
-            iterator_to_array($stagingTableDefinition->getColumnsDefinitions())
+            $columnsList
         );
 
         return sprintf(
@@ -372,7 +376,7 @@ class SqlBuilder
                 '"src"',
                 '"dest"'
             ),
-            implode(' OR ', $columnsComparisionSql)
+            implode(' OR ', $columnsComparisonSql)
         );
     }
 }
