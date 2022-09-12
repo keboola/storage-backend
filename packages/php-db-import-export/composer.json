@@ -3,7 +3,7 @@
     "description": "Package allows to import files to Snowflake from multiple cloud storages",
     "license": "MIT",
     "require": {
-        "php": "^7.4",
+        "php": ">=7.4",
         "ext-json": "*",
         "ext-pdo": "*",
         "doctrine/dbal": "^3.2.0",
@@ -15,7 +15,7 @@
         "keboola/php-temp": "^1.0",
         "keboola/table-backend-utils": "^1",
         "microsoft/azure-storage-blob": "^1.4",
-        "symfony/process": "^4.4|^5.0"
+        "symfony/process": "^4.4|^5.0|^6.0"
     },
     "require-dev": {
         "keboola/coding-standard": "^14",
