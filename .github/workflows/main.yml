@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            php-datatypes:
+              - 'packages/php-datatypes/**'
+      - name: Run a one-line script
+        run: echo Hello, world!
+  build_datatypes:
+    if: needs.build.outputs.changed-php-datatypes == 'true' || startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ${{ matrix.operating-system }}
+    defaults:
+      run:
+         working-directory: ./packages/php-datatypes
+    strategy:
+      matrix:
+        operating-system: [ 'ubuntu-latest' ]
+        php-versions: [ '7.4','8.0','8.1' ]
+        phpunit-versions: [ 'latest' ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+      - name: Tests
+        env:
+          phpVersion: ${{ matrix.php-versions }}
+        run: |
+          composer install
+          composer ci
+  test_results:
+    needs:
+        - build_datatypes
+    runs-on: ubuntu-latest
+    if: |
+        contains(fromJson('["success"]'), needs.build_datatypes.result)
+    steps:
+      - name: Tests passed
+        run: echo "Tests passed"
+  monorepo_split:
+    needs: test_results
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: 'php-datatypes'
+            path: 'packages/php-datatypes'
+            repo: 'git@github.com:tomasfejfar/php-datatypes.git'
+            lastTag: '6.1.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: webfactory/ssh-agent@fc49353b67b2b7c1e0e6a600572d01a69f2672dd
+        with:
+          ssh-private-key: ${{ secrets.PHP_DATATYPES_SSH_PRIVATE_KEY }}
+
+      - name: Split monorepo
+        run: |
+          ssh-add -l
+          docker build -t monorepo-tools ./bin
+          docker run -v $PWD:/monorepo -w /monorepo -v $SSH_AUTH_SOCK:/ssh-agent -v ~/.ssh/known_hosts:/root/.ssh/known_hosts -e SSH_AUTH_SOCK=/ssh-agent monorepo-tools bin/split-repo.sh . ${{ matrix.repo }} ${{ matrix.path }} ${{ matrix.name }}/ ${{ matrix.lastTag}}
