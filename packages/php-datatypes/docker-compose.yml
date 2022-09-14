@@ -1,0 +1,11 @@
+version: "2"
+
+services:
+  app: &base
+    build:
+      context: .
+
+  dev:
+    <<: *base
+    volumes:
+      - .:/code

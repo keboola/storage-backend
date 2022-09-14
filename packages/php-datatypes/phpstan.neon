@@ -1,0 +1,5 @@
+parameters:
+    checkMissingIterableValueType: false
+    ignoreErrors:
+        - '#^Parameter \#. \$options of class Keboola\\Datatype\\.* constructor expects array\{length\?\: string\|null, nullable\?\: bool, default\?\: string\|null.*}, .*array.* given\.$#'
+        - '#^Parameter \#. \$options of class Keboola\\Datatype\\.* constructor expects array\{length\?\: array\|string\|null, nullable\?\: bool, default\?\: string\|null.*}, .*array.* given\.$#'
