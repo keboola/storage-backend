@@ -1,5 +1,5 @@
 {
-    "name": "keboola/storage-driver-teradata",
+    "name": "keboola/storage-driver-common",
     "description": "Keboola teradata driver",
     "license": "MIT",
     "type": "project",
