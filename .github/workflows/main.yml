@@ -62,6 +62,7 @@ jobs:
   monorepo_split:
     needs: test_results
     runs-on: ubuntu-latest
+    concurrency: ${{ matrix.repo }}
     strategy:
       matrix:
         include:
