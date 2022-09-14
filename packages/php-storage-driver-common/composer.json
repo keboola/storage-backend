@@ -1,18 +1,12 @@
 {
     "name": "keboola/storage-driver-common",
-    "description": "Keboola teradata driver",
+    "description": "Keboola common driver",
     "license": "MIT",
     "type": "project",
     "authors": [
         {
-            "name": "zajca",
-            "email": "martin.zajic@keboola.com"
-        }
-    ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/keboola/phpunit-retry-annotations"
+            "name": "Roman Bracinik",
+            "email": "roman.bracinik@keboola.com"
         }
     ],
     "require": {

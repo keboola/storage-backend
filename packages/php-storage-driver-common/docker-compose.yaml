@@ -16,7 +16,7 @@ services:
       - BUILD_PREFIX
   dev: &dev
     <<: *prod
-    image: keboola/php-storage-driver-teradata
+    image: keboola/php-storage-driver-common
     network_mode: host
     volumes:
       - ./:/code
