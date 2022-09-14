@@ -67,7 +67,7 @@ jobs:
         include:
           - name: 'php-datatypes'
             path: 'packages/php-datatypes'
-            repo: 'git@github.com:tomasfejfar/php-datatypes.git'
+            repo: 'git@github.com:keboola/php-datatypes.git'
             lastTag: '6.1.0'
     steps:
       - name: Checkout
