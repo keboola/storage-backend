@@ -31,11 +31,6 @@ jobs:
 
       - name: Run Tests
         env:
-          TERADATA_HOST: ${{ secrets.TERADATA_HOST }}
-          TERADATA_USERNAME: ${{ secrets.TERADATA_USERNAME }}
-          TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
-          TERADATA_PORT: 1025
-          TERADATA_ROOT_DATABASE: ci_driver_teradata
           AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}

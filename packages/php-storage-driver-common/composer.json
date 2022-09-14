@@ -35,7 +35,6 @@
     },
     "autoload": {
         "psr-4": {
-            "Keboola\\StorageDriver\\Teradata\\": "src/",
             "Keboola\\StorageDriver\\Contract\\": "contract/",
             "Keboola\\StorageDriver\\Shared\\": "Shared/",
             "Keboola\\StorageDriver\\": "generated/Keboola/StorageDriver",
@@ -44,7 +43,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Keboola\\StorageDriver\\FunctionalTests\\": "tests/functional",
             "Keboola\\StorageDriver\\UnitTests\\": "tests/unit",
             "GPBMetadata\\Tests\\": "tests/generated/GPBMetadata/Tests",
             "Keboola\\StorageDriver\\GeneratedTests\\": "tests/generated/Keboola/StorageDriver/GeneratedTests",
@@ -61,8 +59,8 @@
         "protobuf": "rm -rf ./generated/* && protoc $(find proto -iname \"*.proto\") --php_out=generated",
         "protobufTests": "rm -rf ./tests/generated/* && protoc $(find tests/proto -iname \"*.proto\") --php_out=tests/generated",
         "phplint": "parallel-lint -j 10 --exclude vendor --exclude bin .",
-        "phpcs": "phpcs --extensions=php src tests contract --ignore=./tests/generated/*",
-        "phpcbf": "phpcbf --extensions=php src tests",
+        "phpcs": "phpcs --extensions=php tests contract --ignore=./tests/generated/*",
+        "phpcbf": "phpcbf --extensions=php tests",
         "phpstan": "phpstan analyse --no-progress",
         "phpunit": "rm -rf ./tests/generated/* && protoc $(find tests/proto -iname \"*.proto\") --php_out=tests/generated && phpunit",
         "tests": [
