@@ -52,6 +52,10 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         $timestampValue = DateTimeHelper::getNowFormatted();
         try {
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getBeginTransaction()
+            );
+
             /** @var SnowflakeTableDefinition $destinationTableDefinition */
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
                 // has PKs for dedup
