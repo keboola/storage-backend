@@ -21,6 +21,11 @@ class SqlBuilder
 {
     public const SRC_ALIAS = 'src';
 
+    public function getBeginTransaction(): string
+    {
+        return 'BEGIN TRANSACTION';
+    }
+
     public function getCommitTransaction(): string
     {
         return 'COMMIT';

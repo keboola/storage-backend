@@ -98,6 +98,10 @@ final class FullImporter implements ToFinalTableImporterInterface
                 )
             );
 
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getBeginTransaction()
+            );
+
             // 3 truncate destination table
             $this->connection->executeStatement(
                 $this->sqlBuilder->getTruncateTable(
@@ -137,6 +141,9 @@ final class FullImporter implements ToFinalTableImporterInterface
         SnowflakeImportOptions $options,
         ImportState $state
     ): void {
+        $this->connection->executeStatement(
+            $this->sqlBuilder->getBeginTransaction()
+        );
         // truncate destination table
         $this->connection->executeStatement(
             $this->sqlBuilder->getTruncateTable(
