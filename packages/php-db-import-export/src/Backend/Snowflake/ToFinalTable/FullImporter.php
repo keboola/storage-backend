@@ -76,11 +76,6 @@ final class FullImporter implements ToFinalTableImporterInterface
         SnowflakeImportOptions $options,
         ImportState $state
     ): void {
-
-        $this->connection->executeStatement(
-            $this->sqlBuilder->getBeginTransaction()
-        );
-
         $state->startTimer(self::TIMER_DEDUP);
 
         // 1. Create table for deduplication
@@ -101,6 +96,10 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $deduplicationTableDefinition,
                     $destinationTableDefinition->getPrimaryKeysNames()
                 )
+            );
+
+            $this->connection->executeStatement(
+                $this->sqlBuilder->getBeginTransaction()
             );
 
             // 3 truncate destination table
