@@ -4,7 +4,6 @@ Keboola high level common storage backend driver
 
 ## Setup AWS credentials
 
-You access key must have access to `keboola-drivers` bucket to download Teradata odbc driver and utilities
 ```
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=

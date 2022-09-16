@@ -1,7 +1,3 @@
-FROM quay.io/keboola/aws-cli AS tpt
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_ACCESS_KEY_ID
-
 FROM php:7.4-cli-buster
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
