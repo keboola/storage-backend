@@ -14,14 +14,9 @@ services:
       - AWS_S3_BUCKET
       - AWS_REGION
       - BUILD_PREFIX
-      - TERADATA_HOST
-      - TERADATA_USERNAME
-      - TERADATA_PASSWORD
-      - TERADATA_PORT
-      - TERADATA_ROOT_DATABASE
   dev: &dev
     <<: *prod
-    image: keboola/php-storage-driver-teradata
+    image: keboola/php-storage-driver-common
     network_mode: host
     volumes:
       - ./:/code
