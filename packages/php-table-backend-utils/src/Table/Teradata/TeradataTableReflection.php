@@ -225,4 +225,17 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
             $this->getPrimaryKeysNames()
         );
     }
+
+    public function exists(): bool
+    {
+        $sql = sprintf(
+            'SELECT * FROM DBC.TablesVX WHERE DataBaseName=%s AND TableName=%s;',
+            TeradataQuote::quote($this->dbName),
+            TeradataQuote::quote($this->tableName)
+        );
+
+        $data = $this->connection->fetchAllAssociative($sql);
+
+        return count($data) > 0;
+    }
 }

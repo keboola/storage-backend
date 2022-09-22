@@ -35,4 +35,9 @@ interface TableReflectionInterface
     public function getDependentViews(): array;
 
     public function getTableDefinition(): TableDefinitionInterface;
+
+    /**
+     * check if defined table exists in the warehouse
+     */
+    public function exists(): bool;
 }

@@ -529,4 +529,26 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             )
         );
     }
+
+    public function testIfTableExists(): void
+    {
+        $this->initTable();
+
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertTrue($ref->exists());
+    }
+
+    public function testIfSchemaDoesNotExists(): void
+    {
+        $ref = new SnowflakeTableReflection($this->connection, 'noSchema', 'notExisting');
+        self::assertFalse($ref->exists());
+    }
+
+    public function testIfTableDoesNotExists(): void
+    {
+        $this->initTable();
+
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'notExisting');
+        self::assertFalse($ref->exists());
+    }
 }

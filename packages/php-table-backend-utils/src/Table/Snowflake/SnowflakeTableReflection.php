@@ -240,4 +240,21 @@ WHERE REFERENCED_OBJECT_TYPE = %s
             $this->getPrimaryKeysNames()
         );
     }
+
+    public function exists(): bool
+    {
+        $row = $this->connection->fetchAssociative(
+            sprintf(
+                "SELECT *
+FROM information_schema.tables 
+WHERE TABLE_TYPE = 'BASE TABLE'
+AND TABLE_NAME = %s AND TABLE_SCHEMA = %s
+",
+                SnowflakeQuote::quote($this->tableName),
+                SnowflakeQuote::quote($this->schemaName),
+            )
+        );
+
+        return $row !== false;
+    }
 }

@@ -498,4 +498,26 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         self::assertEquals(2, $stats2->getRowsCount());
         self::assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
     }
+
+    public function testIfTableExists(): void
+    {
+        $this->initTable();
+
+        $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
+        self::assertTrue($ref->exists());
+    }
+
+    public function testIfDbDoesNotExists(): void
+    {
+        $ref = new TeradataTableReflection($this->connection, 'noDb', 'notExisting');
+        self::assertFalse($ref->exists());
+    }
+
+    public function testIfTableDoesNotExists(): void
+    {
+        $this->initTable();
+
+        $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), 'notExisting');
+        self::assertFalse($ref->exists());
+    }
 }

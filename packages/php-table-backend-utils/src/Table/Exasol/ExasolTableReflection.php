@@ -184,4 +184,18 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
             $this->getPrimaryKeysNames()
         );
     }
+
+    public function exists(): bool
+    {
+        $sql = sprintf(
+            '
+SELECT *
+FROM "SYS"."EXA_ALL_TABLES"  
+WHERE "TABLE_SCHEMA" = %s AND "TABLE_NAME" = %s',
+            ExasolQuote::quote($this->schemaName),
+            ExasolQuote::quote($this->tableName)
+        );
+
+        return count($this->connection->fetchAllAssociative($sql)) === 1;
+    }
 }

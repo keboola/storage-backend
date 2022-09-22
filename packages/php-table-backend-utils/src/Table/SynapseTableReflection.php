@@ -391,4 +391,20 @@ EOT
 
         return $result;
     }
+
+    public function exists(): bool
+    {
+        $object = SynapseQuote::quote(
+            SynapseQuote::quoteSingleIdentifier($this->schemaName)
+            . '.' .
+            SynapseQuote::quoteSingleIdentifier($this->tableName)
+        );
+
+        $objectId = $this->connection->fetchOne(sprintf(
+            'SELECT OBJECT_ID(N%s)',
+            $object
+        ));
+
+        return $objectId !== null;
+    }
 }
