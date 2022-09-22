@@ -31,9 +31,17 @@ jobs:
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
     needs: build
 
+  build_php_table_backend_utils:
+    uses: ./.github/workflows/build-php-table-backend-utils.yml
+    with:
+      hasCodeChanged: ${{ needs.build.outputs.changed-php-datatypes == 'true' }}
+      isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs: build
+
   test_results:
     needs:
         - build_datatypes
+        - build_php_table_backend_utils
     runs-on: ubuntu-latest
     if: |
         contains(fromJson('["success"]'), needs.build_datatypes.result)
