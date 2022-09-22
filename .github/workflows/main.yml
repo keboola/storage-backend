@@ -51,6 +51,7 @@ jobs:
 
   monorepo_split:
     needs: test_results
+    if: startsWith(github.ref, 'nope')
     runs-on: ubuntu-latest
     concurrency: ${{ matrix.repo }}
     strategy:
