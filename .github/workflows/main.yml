@@ -26,30 +26,11 @@ jobs:
       - name: Run a one-line script
         run: echo Hello, world!
   build_datatypes:
-    if: needs.build.outputs.changed-php-datatypes == 'true' || startsWith(github.ref, 'refs/tags/')
+    uses: ./.github/workflows/build-php-datatypes.yml
+    with:
+      hasCodeChanged: ${{ needs.build.outputs.changed-php-datatypes == 'true' }}
+      isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
     needs: build
-    runs-on: ${{ matrix.operating-system }}
-    defaults:
-      run:
-         working-directory: ./packages/php-datatypes
-    strategy:
-      matrix:
-        operating-system: [ 'ubuntu-latest' ]
-        php-versions: [ '7.4','8.0','8.1' ]
-        phpunit-versions: [ 'latest' ]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-versions }}
-      - name: Tests
-        env:
-          phpVersion: ${{ matrix.php-versions }}
-        run: |
-          composer install
-          composer ci
   test_results:
     needs:
         - build_datatypes
