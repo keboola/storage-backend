@@ -101,7 +101,6 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
         TeradataExportOptions $exportOptions
     ): array {
         $temp = new Temp();
-        $temp->initRunFolder();
         $folder = $temp->getTmpFolder();
         $s3ConfigDir = $folder . '/.aws';
         touch($s3ConfigDir);

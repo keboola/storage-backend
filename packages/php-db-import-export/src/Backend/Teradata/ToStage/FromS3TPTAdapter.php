@@ -174,7 +174,6 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         TeradataImportOptions $importOptions
     ): array {
         $temp = new Temp();
-        $temp->initRunFolder();
         $folder = $temp->getTmpFolder();
         $target = sprintf(
             '%s.%s',
