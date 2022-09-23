@@ -79,6 +79,9 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
             );
         }
 
+        // delete temp files
+        $temp->remove();
+
         if ($exportOptions->generateManifest()) {
             (new Storage\S3\ManifestGenerator\S3SlicedManifestFromFolderGenerator($destination->getClient()))
                 ->generateAndSaveManifest($destination->getRelativePath());
@@ -195,7 +198,10 @@ EOD,
     private function getLogData(Temp $temp): string
     {
         if (file_exists($temp->getTmpFolder() . '/export-1.out')) {
-            return file_get_contents($temp->getTmpFolder() . '/export-1.out') ?: 'unable to get error';
+            $data = file_get_contents($temp->getTmpFolder() . '/export-1.out') ?: 'unable to get error';
+            // delete temp files
+            $temp->remove();
+            return $data;
         }
 
         return 'unable to get error';
