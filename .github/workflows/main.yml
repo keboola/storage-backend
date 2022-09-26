@@ -45,7 +45,7 @@ jobs:
       SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
       SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
       TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
-      BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+      BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: build
 
   test_results:
