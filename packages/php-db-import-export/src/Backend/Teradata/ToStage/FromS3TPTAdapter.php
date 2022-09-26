@@ -141,6 +141,9 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             );
         }
 
+        // delete temp files
+        $temp->remove();
+
         $ref = new TeradataTableReflection(
             $this->connection,
             $destination->getSchemaName(),
@@ -153,7 +156,10 @@ class FromS3TPTAdapter implements CopyAdapterInterface
     private function getLogData(Temp $temp): string
     {
         if (file_exists($temp->getTmpFolder() . '/import-1.out')) {
-            return file_get_contents($temp->getTmpFolder() . '/import-1.out') ?: 'unable to get error';
+            $data = file_get_contents($temp->getTmpFolder() . '/import-1.out') ?: 'unable to get error';
+            // delete temp files
+            $temp->remove();
+            return $data;
         }
 
         return 'unable to get error';
@@ -168,7 +174,6 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         TeradataImportOptions $importOptions
     ): array {
         $temp = new Temp();
-        $temp->initRunFolder();
         $folder = $temp->getTmpFolder();
         $target = sprintf(
             '%s.%s',

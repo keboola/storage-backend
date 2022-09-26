@@ -12,7 +12,7 @@
         "keboola/php-csv-db-import": "^5.0",
         "keboola/php-datatypes": "^6.0",
         "keboola/php-file-storage-utils": ">=0.2",
-        "keboola/php-temp": "^1.0",
+        "keboola/php-temp": "^2.0",
         "keboola/table-backend-utils": "^1",
         "microsoft/azure-storage-blob": "^1.4",
         "symfony/process": "^4.4|^5.0|^6.0"

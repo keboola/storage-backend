@@ -319,7 +319,6 @@ trait StorageTrait
         string $tmpName = 'tmp.csv'
     ): CsvFile {
         $tmp = new Temp();
-        $tmp->initRunFolder();
         $tmpFolder = $tmp->getTmpFolder();
         $finalFile = $tmpFolder . $tmpName;
         $tmpFiles = [];
