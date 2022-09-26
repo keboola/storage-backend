@@ -53,6 +53,9 @@ env:
 
 jobs:
   build-image-php-table-backend-utils:
+    defaults:
+      run:
+        working-directory: packages/php-table-backend-utils
     if: ${{ inputs.hasCodeChanged || inputs.isTag }}
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +69,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build production
-          docker save -o /tmp/image.tar table-utils:latest
+          docker save -o /tmp/php-table-backend-utils.tar table-utils:latest
       -
         name: Check
         run: |
@@ -76,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: image
-          path: /tmp/image.tar
+          path: /tmp/php-table-backend-utils.tar
 
   build-php-table-backend-utils:
     runs-on: ubuntu-latest
@@ -99,7 +102,7 @@ jobs:
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/image.tar
+          docker load --input /tmp/php-table-backend-utils.tar
       #
       # Before tests, start services
       -
