@@ -23,6 +23,8 @@ jobs:
           filters: |
             php-datatypes:
               - 'packages/php-datatypes/**'
+            php-table-backend-utils:
+              - 'packages/php-table-backend-utils/**'
 
   build_datatypes:
     uses: ./.github/workflows/build-php-datatypes.yml
