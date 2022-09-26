@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
+      changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -36,7 +37,7 @@ jobs:
   build_php_table_backend_utils:
     uses: ./.github/workflows/build-php-table-backend-utils.yml
     with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-datatypes == 'true' }}
+      hasCodeChanged: ${{ needs.build.outputs.changed-php-table-backend-utils == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
     secrets:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
