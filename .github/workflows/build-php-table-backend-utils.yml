@@ -52,11 +52,12 @@ env:
   EXASOL_USERNAME: sys
   EXASOL_PASSWORD: exasol
 
+defaults:
+  run:
+    working-directory: packages/php-table-backend-utils
+
 jobs:
   build-image-php-table-backend-utils:
-    defaults:
-      run:
-        working-directory: packages/php-table-backend-utils
     if: ${{ inputs.hasCodeChanged || inputs.isTag }}
     runs-on: ubuntu-latest
     steps:
