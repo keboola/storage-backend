@@ -18,6 +18,7 @@ class ProtobufHelper
     {
         $values = [];
         foreach ($repeated as $value) {
+            // @phpstan-ignore-next-line
             $values[] = (string) $value;
         }
         return $values;

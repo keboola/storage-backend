@@ -42,10 +42,6 @@ RUN curl -sSLf \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
     chmod +x /usr/local/bin/install-php-extensions
 
-RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
-    && install-php-extensions pdo_odbc odbc \
-    && docker-php-source delete
-
 ## Composer - deps always cached unless changed
 # First copy only composer files
 COPY composer.* /code/
