@@ -9,6 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * BigQuery credentials metadata
+ *
  * Generated from protobuf message <code>keboola.storageDriver.credentials.BigQueryCredentials</code>
  */
 class BigQueryCredentials extends \Google\Protobuf\Internal\Message
@@ -54,6 +57,8 @@ class BigQueryCredentials extends \Google\Protobuf\Internal\Message
      */
     protected $client_x509_cert_url = '';
     /**
+     * Id of folder where main service acc is created
+     *
      * Generated from protobuf field <code>string folder_id = 11;</code>
      */
     protected $folder_id = '';
@@ -75,6 +80,7 @@ class BigQueryCredentials extends \Google\Protobuf\Internal\Message
      *     @type string $auth_provider_x509_cert_url
      *     @type string $client_x509_cert_url
      *     @type string $folder_id
+     *           Id of folder where main service acc is created
      * }
      */
     public function __construct($data = NULL) {
@@ -303,6 +309,8 @@ class BigQueryCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Id of folder where main service acc is created
+     *
      * Generated from protobuf field <code>string folder_id = 11;</code>
      * @return string
      */
@@ -312,6 +320,8 @@ class BigQueryCredentials extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Id of folder where main service acc is created
+     *
      * Generated from protobuf field <code>string folder_id = 11;</code>
      * @param string $var
      * @return $this

@@ -3,6 +3,7 @@ parameters:
     paths:
         - contract
         - tests
+        - Shared
     excludePaths:
         analyseAndScan:
             - tests/generated/*

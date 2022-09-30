@@ -8,8 +8,10 @@ use Keboola\StorageDriver\Shared\BackendSupportsInterface;
 
 final class NameGeneratorFactory
 {
-    public static function getGeneratorForBackendAndPrefix(string $backend, string $stackPrefix): BackendNameGeneratorInterface
-    {
+    public static function getGeneratorForBackendAndPrefix(
+        string $backend,
+        string $stackPrefix
+    ): BackendNameGeneratorInterface {
         switch ($backend) {
             case BackendSupportsInterface::BACKEND_SYNAPSE:
                 return new SynapseNameGenerator($stackPrefix);
