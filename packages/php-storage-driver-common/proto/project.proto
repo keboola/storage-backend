@@ -31,15 +31,6 @@ message CreateProjectResponse {
   string projectRoleName = 2; // newly created role name associated with project
   string projectPassword = 3; // project user password
   string projectReadOnlyRoleName = 4; // newly created role name which will have select grant on all tables and buckets in project
-
-  /**
-  * BigQuery project backend credentials
-  */
-  message CreateProjectBigQueryResponseMeta {
-    string credentials = 1;
-  }
-
-  google.protobuf.Any meta = 5; // metadata specific for each backend
 }
 
 /**
