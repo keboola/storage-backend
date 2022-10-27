@@ -30,6 +30,7 @@ services:
       - EXASOL_HOST
       - EXASOL_USERNAME
       - EXASOL_PASSWORD
+      - BQ_KEY_FILE
   dev: &dev
     <<: *prod
     extra_hosts:
