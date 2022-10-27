@@ -8,6 +8,7 @@
         "ext-odbc": "*",
         "ext-pdo": "*",
         "doctrine/dbal": "^3.3",
+        "google/cloud-bigquery": "^1.23",
         "keboola/common-exceptions": "^1",
         "keboola/php-datatypes": "^6.1",
         "keboola/php-utils": "^4.1",
