@@ -22,6 +22,9 @@
         <testsuite name="Teradata">
             <directory>tests/Functional/Teradata</directory>
         </testsuite>
+        <testsuite name="Bigquery">
+            <directory>tests/Functional/Bigquery</directory>
+        </testsuite>
 
         <testsuite name="unit">
             <directory>tests/Unit</directory>
