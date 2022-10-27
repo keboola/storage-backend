@@ -189,7 +189,7 @@ class BigqueryDatatypeTest extends TestCase
             $tests[] = [
                 $type,
                 ['length' => '30,2', 'default' => '10.00', 'nullable' => false],
-                $type . '(30,2) NOT NULL DEFAULT 10.00',
+                $type . '(30,2) DEFAULT 10.00 NOT NULL',
             ];
         }
 
@@ -217,7 +217,7 @@ class BigqueryDatatypeTest extends TestCase
             $tests[] = [
                 $type,
                 ['length' => '76,38', 'default' => '10.00', 'nullable' => false],
-                $type . '(76,38) NOT NULL DEFAULT 10.00',
+                $type . '(76,38) DEFAULT 10.00 NOT NULL',
             ];
         }
 
@@ -235,7 +235,7 @@ class BigqueryDatatypeTest extends TestCase
             $tests[] = [
                 $type,
                 ['default' => '\'\'', 'nullable' => false],
-                $type . ' NOT NULL DEFAULT \'\'',
+                $type . ' DEFAULT \'\' NOT NULL',
             ];
             $tests[] = [
                 $type,

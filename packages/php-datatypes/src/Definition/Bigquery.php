@@ -125,11 +125,11 @@ class Bigquery extends Common
     public function getSQLDefinition(): string
     {
         $definition = $this->getTypeOnlySQLDefinition();
-        if (!$this->isNullable()) {
-            $definition .= ' NOT NULL';
-        }
         if ($this->getDefault() !== null) {
             $definition .= ' DEFAULT ' . $this->getDefault();
+        }
+        if (!$this->isNullable()) {
+            $definition .= ' NOT NULL';
         }
         return $definition;
     }
