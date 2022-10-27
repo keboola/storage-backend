@@ -183,13 +183,13 @@ class BigqueryDatatypeTest extends TestCase
             ];
             $tests[] = [
                 $type,
-                ['length' => '30,2', 'default' => '(10.00)'],
-                $type . '(30,2) DEFAULT (10.00)',
+                ['length' => '30,2', 'default' => '10.00'],
+                $type . '(30,2) DEFAULT 10.00',
             ];
             $tests[] = [
                 $type,
-                ['length' => '30,2', 'default' => '(10.00)', 'nullable' => false],
-                $type . '(30,2) NOT NULL DEFAULT (10.00)',
+                ['length' => '30,2', 'default' => '10.00', 'nullable' => false],
+                $type . '(30,2) NOT NULL DEFAULT 10.00',
             ];
         }
 
@@ -211,13 +211,13 @@ class BigqueryDatatypeTest extends TestCase
             ];
             $tests[] = [
                 $type,
-                ['length' => '76,38', 'default' => '(10.00)'],
-                $type . '(76,38) DEFAULT (10.00)',
+                ['length' => '76,38', 'default' => '10.00'],
+                $type . '(76,38) DEFAULT 10.00',
             ];
             $tests[] = [
                 $type,
-                ['length' => '76,38', 'default' => '(10.00)', 'nullable' => false],
-                $type . '(76,38) NOT NULL DEFAULT (10.00)',
+                ['length' => '76,38', 'default' => '10.00', 'nullable' => false],
+                $type . '(76,38) NOT NULL DEFAULT 10.00',
             ];
         }
 
@@ -231,6 +231,21 @@ class BigqueryDatatypeTest extends TestCase
                 $type,
                 [],
                 $type,
+            ];
+            $tests[] = [
+                $type,
+                ['default' => '\'\'', 'nullable' => false],
+                $type . ' NOT NULL DEFAULT \'\'',
+            ];
+            $tests[] = [
+                $type,
+                ['default' => ''],
+                $type,
+            ];
+            $tests[] = [
+                $type,
+                ['default' => '',  'nullable' => false],
+                $type . ' NOT NULL',
             ];
             $tests[] = [
                 $type,

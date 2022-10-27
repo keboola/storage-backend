@@ -105,6 +105,10 @@ class Bigquery extends Common
         if ($diff !== []) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
+
+        if (array_key_exists('default', $options) && $options['default'] === '') {
+            unset($options['default']);
+        }
         parent::__construct($type, $options);
     }
 
