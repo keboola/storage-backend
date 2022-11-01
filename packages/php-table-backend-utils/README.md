@@ -244,6 +244,36 @@ SNOWFLAKE_DATABASE=KEBOOLA_CI_TABLE_UTILS
 SNOWFLAKE_WAREHOUSE=
 ```
 
+#### Bigquery
+
+To prepare the backend you can use [Terraform template](bq-backend-init.tf).
+You must have the `resourcemanager.folders.create` permission for the organization.
+
+```bash
+# run in provisioning/local/BigQuery folder
+terraform init
+
+terraform apply -var organization_id=<your-org-id> -var backend_prefix=<your_backend_prefix> -var billing_account_id=<billing_account_id>
+# and enter name for your backend prefix for example your name, all resources will create with this prefx
+```
+
+After terraform apply ends go to the service project in folder created by terraform.
+
+1. go to the newly created service project, the project id are listed at the end of the terraform call. (service_project_id)
+2. click on IAM & Admin
+3. on left panel choose Service Accounts
+4. click on email of service account(there is only one)
+5. on to the top choose Keys and Add Key => Create new key
+6. select Key type JSON
+7. click on the Create button and the file will automatically download
+9. convert key to string`awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
+10. set content on last line of .env as variable `BQ_KEY_FILE`
+
+setup envs:
+```bash
+BQ_KEY_FILE=<the content of the downloaded json key file>
+```
+
 ### Tests
 
 Run tests with following command.
