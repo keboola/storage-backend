@@ -84,14 +84,14 @@ class BigqueryColumn implements ColumnInterface
         $matches = [];
         if (preg_match('/^(\w+)\(([0-9\, ]+)\)$/ui', $dbResponse['data_type'], $matches)) {
             $type = $matches[1];
-            $length = $matches[2];
+            $length = str_replace(' ', '', $matches[2]);
         }
 
         return new self($dbResponse['column_name'], new Bigquery(
             $type,
             [
                 'nullable' => $dbResponse['is_nullable'] === 'YES',
-                'length' => str_replace(' ', '', $length),
+                'length' => $length,
                 'default' => $default,
             ]
         ));
