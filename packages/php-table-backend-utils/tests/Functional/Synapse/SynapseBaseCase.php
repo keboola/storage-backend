@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\SQLServer2012Platform;
+use Keboola\TableBackendUtils\Connection\Synapse\SynapseDriver;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaQueryBuilder;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
 use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
@@ -71,12 +72,12 @@ class SynapseBaseCase extends TestCase
     private function getSynapseConnection(): Connection
     {
         return DriverManager::getConnection([
+            'driverClass' => SynapseDriver::class,
             'user' => (string) getenv('SYNAPSE_UID'),
             'password' => (string) getenv('SYNAPSE_PWD'),
             'host' => (string) getenv('SYNAPSE_SERVER'),
             'dbname' => (string) getenv('SYNAPSE_DATABASE'),
             'port' => 1433,
-            'driver' => 'pdo_sqlsrv',
             'driverOptions' => [
                 'ConnectRetryCount' => 5,
                 'ConnectRetryInterval' => 10,
