@@ -10,6 +10,12 @@ use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
 class WlmContextTest extends SynapseBaseCase
 {
+    private const FETCH_SESSION_SET_WLM_SQL = <<<EOD
+SELECT TOP 1 [command]
+FROM [sys].[dm_pdw_exec_requests] AS r LEFT JOIN [sys].[dm_pdw_exec_sessions] AS s ON [s].[session_id]=[r].[session_id]
+WHERE [s].[session_id] = '%s' AND [r].[command] LIKE '%%wlm%%'
+EOD;
+
     public function testSynapseWlmContext(): void
     {
         $conn = DriverManager::getConnection([
@@ -28,11 +34,7 @@ class WlmContextTest extends SynapseBaseCase
 
         /** @var string $sessionId1 */
         $sessionId1 = $conn->fetchOne('SELECT SESSION_ID();');
-        $fetchSessionSetSql = <<<EOD
-SELECT TOP 1 [command]
-FROM [sys].[dm_pdw_exec_requests] AS r LEFT JOIN [sys].[dm_pdw_exec_sessions] AS s ON [s].[session_id]=[r].[session_id]
-WHERE [s].[session_id] = '%s' AND [r].[command] LIKE '%%wlm%%'
-EOD;
+        $fetchSessionSetSql = self::FETCH_SESSION_SET_WLM_SQL;
 
         $sessionSetQuery = $conn->fetchOne(sprintf($fetchSessionSetSql, $sessionId1));
         $this->assertSame(
@@ -49,6 +51,19 @@ EOD;
         $this->assertNotSame($sessionId1, $sessionId2);
         $sessionSetQuery = $conn->fetchOne(sprintf($fetchSessionSetSql, $sessionId2));
         $this->assertSame(
+            'EXEC sys.sp_set_session_context @key = \'wlm_context\', @value = \'test\'',
+            $sessionSetQuery
+        );
+    }
+
+    public function testSynapseWlmContextNotSet(): void
+    {
+        /** @var string $sessionId1 */
+        $sessionId1 = $this->connection->fetchOne('SELECT SESSION_ID();');
+        $fetchSessionSetSql = self::FETCH_SESSION_SET_WLM_SQL;
+
+        $sessionSetQuery = $this->connection->fetchOne(sprintf($fetchSessionSetSql, $sessionId1));
+        $this->assertNotSame(
             'EXEC sys.sp_set_session_context @key = \'wlm_context\', @value = \'test\'',
             $sessionSetQuery
         );
