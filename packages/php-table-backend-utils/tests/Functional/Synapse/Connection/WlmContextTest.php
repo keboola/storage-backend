@@ -47,7 +47,7 @@ EOD;
         /** @var string $sessionId2 */
         $sessionId2 = $conn->fetchOne('SELECT SESSION_ID();');
         $this->assertNotSame($sessionId1, $sessionId2);
-        $sessionSetQuery = $conn->fetchOne(sprintf($fetchSessionSetSql, $sessionId1));
+        $sessionSetQuery = $conn->fetchOne(sprintf($fetchSessionSetSql, $sessionId2));
         $this->assertSame(
             'EXEC sys.sp_set_session_context @key = \'wlm_context\', @value = \'test\'',
             $sessionSetQuery
