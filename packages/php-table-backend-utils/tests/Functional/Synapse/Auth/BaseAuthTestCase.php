@@ -6,6 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Auth;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Keboola\TableBackendUtils\Connection\Synapse\SynapseDriver;
 use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Tests\Keboola\TableBackendUtils\Functional\Synapse\SynapseBaseCase;
 
@@ -24,12 +25,12 @@ class BaseAuthTestCase extends SynapseBaseCase
     {
         assert($this->currentLogin !== null);
         return DriverManager::getConnection([
+            'driverClass' => SynapseDriver::class,
             'user' => $this->currentLogin,
             'password' => self::LOGIN_PASSWORD,
             'host' => (string) getenv('SYNAPSE_SERVER'),
             'dbname' => (string) getenv('SYNAPSE_DATABASE'),
             'port' => 1433,
-            'driver' => 'pdo_sqlsrv',
         ]);
     }
 
@@ -41,7 +42,7 @@ class BaseAuthTestCase extends SynapseBaseCase
             'host' => (string) getenv('SYNAPSE_SERVER'),
             'dbname' => 'master',
             'port' => 1433,
-            'driver' => 'pdo_sqlsrv',
+            'driverClass' => SynapseDriver::class,
         ]);
     }
 
