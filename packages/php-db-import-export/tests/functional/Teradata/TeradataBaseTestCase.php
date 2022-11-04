@@ -27,21 +27,6 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
     protected const TERADATA_SOURCE_DATABASE_NAME = 'tests_source';
     protected const TERADATA_DESTINATION_DATABASE_NAME = 'tests_destination';
-    // TODO move somewhere else
-    public const TABLE_ACCOUNTS_3 = 'accounts-3';
-    public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
-    public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
-    public const TABLE_MULTI_PK = 'multi-pk';
-    public const TABLE_MULTI_PK_WITH_TS = 'multi-pk_ts';
-    public const TABLE_SINGLE_PK = 'single-pk';
-    public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
-    public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
-    public const TABLE_NULLIFY = 'nullify';
-    public const TABLE_OUT_LEMMA = 'out_lemma';
-    public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
-    public const TABLE_TABLE = 'table';
-    public const TABLE_TYPES = 'types';
-    public const TABLE_TRANSLATIONS = 'transactions';
 
     protected Connection $connection;
 
