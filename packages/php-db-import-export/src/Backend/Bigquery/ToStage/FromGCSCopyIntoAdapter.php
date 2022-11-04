@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Bigquery\ToStage;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Keboola\Db\ImportExport\Backend\Bigquery\Helper\CopyCommandCsvOptionsHelper;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -47,18 +48,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
 
         $entries = implode(', ', $entries);
 
-        $options = [];
-        $options[] = sprintf('skip_leading_rows=%s', $importOptions->getNumberOfIgnoredLines());
-        if ($source->getCsvOptions()->getEnclosure()) {
-            $options[] = sprintf(
-                'allow_quoted_newlines=true, quote=%s',
-                BigqueryQuote::quote($source->getCsvOptions()->getEnclosure())
-            );
-        }
-
-        if ($source->getCsvOptions()->getDelimiter()) {
-            $options[] = sprintf('field_delimiter=%s', BigqueryQuote::quote($source->getCsvOptions()->getDelimiter()));
-        }
+        $options = CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions($importOptions, $source->getCsvOptions());
 
         $sql = sprintf(
             'LOAD DATA INTO %s.%s FROM FILES (%s, format = \'CSV\', uris = [%s]);',

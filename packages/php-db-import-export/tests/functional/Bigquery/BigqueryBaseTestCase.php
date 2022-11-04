@@ -29,7 +29,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         parent::setUp();
         $this->bqClient = $this->getTeradataConnection();
     }
-    
+
     protected function cleanDatabase(string $dbname): void
     {
         if (!$this->datasetExists($dbname)) {
