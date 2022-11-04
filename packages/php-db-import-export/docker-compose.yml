@@ -40,6 +40,7 @@ services:
       - GCS_CREDENTIALS
       - GCS_BUCKET_NAME
       - GCS_INTEGRATION_NAME
+      - BQ_KEY_FILE
   dev: &dev
     <<: *prod
     image: keboola/php-db-import-export
