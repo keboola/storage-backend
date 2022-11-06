@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Bigquery\Table;
 
 use Generator;
+use Google\Cloud\BigQuery\Exception\JobException;
+use Google\Cloud\Core\Exception\NotFoundException;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
@@ -83,5 +85,24 @@ CREATE TABLE `$testDb`.`$tableName`
 EOT
             ,
         ];
+    }
+
+    public function testGetDropTableCommand(): void
+    {
+        $testDb = $this->getDatasetName();
+        $testTable = self::TABLE_GENERIC;
+        $this->initTable();
+
+        // reflection to the table
+        $ref = new BigqueryTableReflection($this->bqClient, $testDb, $testTable);
+
+        // get, test and run query
+        $sql = $this->qb->getDropTableCommand($this->getDatasetName(), self::TABLE_GENERIC);
+        self::assertEquals("DROP TABLE `$testDb`.`$testTable`", $sql);
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+
+        // test NON existence of old table via counting
+        $this->expectException(NotFoundException::class);
+        $ref->getRowsCount();
     }
 }

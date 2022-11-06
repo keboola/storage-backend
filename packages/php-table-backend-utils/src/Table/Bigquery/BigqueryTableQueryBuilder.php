@@ -20,7 +20,11 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
 
     public function getDropTableCommand(string $schemaName, string $tableName): string
     {
-        throw new LogicException('Not implemented');
+        return sprintf(
+            'DROP TABLE %s.%s',
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
+            BigqueryQuote::quoteSingleIdentifier($tableName)
+        );
     }
 
     public function getRenameTableCommand(string $schemaName, string $sourceTableName, string $newTableName): string
@@ -69,6 +73,14 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
         TableDefinitionInterface $definition,
         bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
     ): string {
-        throw new LogicException('Not implemented');
+        assert($definition instanceof BigqueryTableDefinition);
+        return $this->getCreateTableCommand(
+            $definition->getSchemaName(),
+            $definition->getTableName(),
+            $definition->getColumnsDefinitions(),
+            $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
+                ? $definition->getPrimaryKeysNames()
+                : []
+        );
     }
 }

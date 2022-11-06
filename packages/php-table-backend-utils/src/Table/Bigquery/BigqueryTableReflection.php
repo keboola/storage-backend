@@ -10,7 +10,9 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
+use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use LogicException;
 
 class BigqueryTableReflection implements TableReflectionInterface
@@ -20,6 +22,8 @@ class BigqueryTableReflection implements TableReflectionInterface
     private string $datasetName;
 
     private string $tableName;
+
+    private bool $isTemporary = false;
 
     public function __construct(BigQueryClient $bqClient, string $datasetName, string $tableName)
     {
@@ -106,24 +110,46 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
 
     public function getRowsCount(): int
     {
-        throw new LogicException('Not implemented');
+        $query = $this->bqClient->query(sprintf(
+            'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
+            BigqueryQuote::quoteSingleIdentifier($this->datasetName),
+            BigqueryQuote::quoteSingleIdentifier($this->tableName)
+        ));
+
+        $result = $this->bqClient->runQuery($query);
+
+        /** @var array<string, string> $current */
+        $current = $result->getIterator()->current();
+        return (int) $current['NumberOfRows'];
     }
 
     /** @return  array<string> */
     public function getPrimaryKeysNames(): array
     {
-        throw new LogicException('Not implemented');
+        return [];
     }
 
     public function getTableStats(): TableStatsInterface
     {
-        throw new LogicException('Not implemented');
+        $sql = sprintf(
+            'SELECT size_bytes FROM %s.__TABLES__ WHERE table_id=%s',
+            BigqueryQuote::quoteSingleIdentifier($this->datasetName),
+            BigqueryQuote::quote($this->tableName)
+        );
+        $result = $this->bqClient->runQuery($this->bqClient->query($sql));
+
+        /** @var array<string, string>|null $current */
+        $current = $result->getIterator()->current();
+        if ($current === null) {
+            throw new TableNotExistsReflectionException('Table does not exist');
+        }
+
+        return new TableStats((int) $current['size_bytes'], $this->getRowsCount());
     }
 
     public function isTemporary(): bool
     {
-        // TODO: Implement getDependentViews() method.
-        return false;
+        return $this->isTemporary;
     }
 
     /**
@@ -140,7 +166,13 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
 
     public function getTableDefinition(): TableDefinitionInterface
     {
-        throw new LogicException('Not implemented');
+        return new BigqueryTableDefinition(
+            $this->datasetName,
+            $this->tableName,
+            $this->isTemporary(),
+            $this->getColumnsDefinitions(),
+            $this->getPrimaryKeysNames()
+        );
     }
 
     public function exists(): bool

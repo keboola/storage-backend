@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use Keboola\TableBackendUtils\Table\TableStats;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
 class BigqueryTableReflectionTest extends BigqueryBaseCase
@@ -252,5 +253,38 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             null, // length
             true, // nullable
         ];
+    }
+
+    public function testGetTableStats(): void
+    {
+        $this->initTable();
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        $stats1 = $ref->getTableStats();
+        self::assertEquals(0, $stats1->getRowsCount());
+        self::assertEquals(0, $stats1->getDataSizeBytes()); // empty tables take up some space
+
+        $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
+        $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 2, 'karel', 'motycka');
+
+        /** @var TableStats $stats2 */
+        $stats2 = $ref->getTableStats();
+        self::assertEquals(2, $stats2->getRowsCount());
+        self::assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
+    }
+
+    public function testGetRowsCount(): void
+    {
+        $this->initTable();
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertEquals(0, $ref->getRowsCount());
+        $data = [
+            [1, 'franta', 'omacka'],
+            [2, 'pepik', 'knedla'],
+        ];
+        foreach ($data as $item) {
+            $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, ...$item);
+        }
+        self::assertEquals(2, $ref->getRowsCount());
     }
 }
