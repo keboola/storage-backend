@@ -8,10 +8,10 @@ use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use LogicException;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
-use Keboola\Db\ImportExport\Storage;
 
 class BigqueryBaseTestCase extends ImportExportBaseTest
 {
