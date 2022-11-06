@@ -87,13 +87,15 @@ class BigqueryColumn implements ColumnInterface
             $length = str_replace(' ', '', $matches[2]);
         }
 
+        /** @var array{length?:string|null, nullable?:bool, default?:string|null} $options */
+        $options = [
+            'nullable' => $dbResponse['is_nullable'] === 'YES',
+            'length' => $length,
+            'default' => $default,
+        ];
         return new self($dbResponse['column_name'], new Bigquery(
             $type,
-            [
-                'nullable' => $dbResponse['is_nullable'] === 'YES',
-                'length' => $length,
-                'default' => $default,
-            ]
+            $options
         ));
     }
 }

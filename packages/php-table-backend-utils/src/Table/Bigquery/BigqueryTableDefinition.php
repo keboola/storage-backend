@@ -10,25 +10,43 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class BigqueryTableDefinition implements TableDefinitionInterface
 {
+    private string $schemaName;
+
     private string $tableName;
 
     private ColumnCollection $columns;
 
     private bool $isTemporary;
 
+    /** @var string[] */
+    private array $primaryKeysNames;
+
+    /**
+     * @param string[] $primaryKeysNames
+     */
     public function __construct(
+        string $schemaName,
         string $tableName,
         bool $isTemporary,
-        ColumnCollection $columns
+        ColumnCollection $columns,
+        array $primaryKeysNames
     ) {
+        $this->schemaName = $schemaName;
         $this->tableName = $tableName;
         $this->columns = $columns;
         $this->isTemporary = $isTemporary;
+        $this->primaryKeysNames = $primaryKeysNames;
     }
 
     public function getTableName(): string
     {
         return $this->tableName;
+    }
+
+    //@todo nema to ist do interface ?
+    public function getSchemaName(): string
+    {
+        return $this->schemaName;
     }
 
     /**
@@ -55,7 +73,7 @@ final class BigqueryTableDefinition implements TableDefinitionInterface
      */
     public function getPrimaryKeysNames(): array
     {
-        return []; //bigquery doesn't support primary keys
+        return $this->primaryKeysNames;
     }
 
     public function isTemporary(): bool

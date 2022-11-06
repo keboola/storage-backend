@@ -23,19 +23,19 @@ class BigqueryBaseCase extends TestCase
         $this->bqClient = $this->getBigqueryClient();
     }
 
-    public function createSchema(string $schemaName): void
+    public function createDataset(string $schemaName): void
     {
         $this->bqClient->createDataset($schemaName);
     }
 
-    protected function schemaExists(string $schemaName): bool
+    protected function datasetExists(string $schemaName): bool
     {
         return $this->bqClient->dataset($schemaName)->exists();
     }
 
-    protected function cleanSchema(string $schemaName): void
+    protected function cleanDataset(string $schemaName): void
     {
-        if (!$this->schemaExists($schemaName)) {
+        if (!$this->datasetExists($schemaName)) {
             return;
         }
 
@@ -65,7 +65,7 @@ class BigqueryBaseCase extends TestCase
         bool $createNewSchema = true
     ): void {
         if ($createNewSchema) {
-            $this->createSchema($schema);
+            $this->createDataset($schema);
         }
 
         // char because of Stats test
@@ -89,5 +89,27 @@ class BigqueryBaseCase extends TestCase
         return new BigQueryClient([
             'keyFile' => $this->getCredentials(),
         ]);
+    }
+
+    public function getDatasetName(): string
+    {
+        return getenv('TEST_PREFIX') . self::TEST_SCHEMA;
+    }
+
+    protected function insertRowToTable(
+        string $schemaName,
+        string $tableName,
+        int $id,
+        string $firstName,
+        string $lastName
+    ): void {
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+            $id,
+            BigqueryQuote::quote($firstName),
+            BigqueryQuote::quote($lastName)
+        )));
     }
 }

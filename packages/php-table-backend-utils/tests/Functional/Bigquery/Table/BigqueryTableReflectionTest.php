@@ -16,7 +16,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->cleanDataset(self::TEST_SCHEMA);
     }
 
     public function testGetTableColumnsNames(): void
@@ -42,8 +42,8 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         ?string $expectedLength,
         bool $expectedNullable
     ): void {
-        $this->cleanSchema(self::TEST_SCHEMA);
-        $this->createSchema(self::TEST_SCHEMA);
+        $this->cleanDataset(self::TEST_SCHEMA);
+        $this->createDataset(self::TEST_SCHEMA);
         $sql = sprintf(
             '
             CREATE OR REPLACE TABLE %s.%s (

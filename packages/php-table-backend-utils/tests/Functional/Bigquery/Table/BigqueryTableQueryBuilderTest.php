@@ -20,7 +20,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
         $this->qb = new BigqueryTableQueryBuilder();
         parent::setUp();
 
-        $this->cleanSchema(self::TEST_SCHEMA);
+        $this->cleanDataset(self::TEST_SCHEMA);
     }
 
     /**
@@ -37,8 +37,8 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
         array $expectedPKs,
         string $expectedSql
     ): void {
-        $this->cleanSchema(self::TEST_SCHEMA);
-        $this->createSchema(self::TEST_SCHEMA);
+        $this->cleanDataset(self::TEST_SCHEMA);
+        $this->createDataset(self::TEST_SCHEMA);
 
         $sql = $this->qb->getCreateTableCommand(
             self::TEST_SCHEMA,
