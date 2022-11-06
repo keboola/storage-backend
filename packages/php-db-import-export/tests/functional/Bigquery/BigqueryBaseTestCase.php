@@ -6,10 +6,12 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
+use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use LogicException;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
+use Keboola\Db\ImportExport\Storage;
 
 class BigqueryBaseTestCase extends ImportExportBaseTest
 {
@@ -245,5 +247,35 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
                 BigqueryQuote::quoteSingleIdentifier($table)
             )
         ));
+    }
+
+    /**
+     * filePath is expected without AWS_GCS_KEY
+     *
+     * @param string[] $columns
+     * @param string[]|null $primaryKeys
+     */
+    protected function createGCSSourceInstanceFromCsv(
+        string $filePath,
+        CsvOptions $options,
+        array $columns = [],
+        bool $isSliced = false,
+        bool $isDirectory = false,
+        ?array $primaryKeys = null
+    ): Storage\GCS\SourceFile {
+        if ($isDirectory) {
+            throw new Exception('Directory not supported for GCS');
+        }
+
+        return new Storage\GCS\SourceFile(
+            (string) getenv('BQ_BUCKET_NAME'),
+            $filePath,
+            '',
+            $this->getGCSCredentials(),
+            $options,
+            $isSliced,
+            $columns,
+            $primaryKeys
+        );
     }
 }

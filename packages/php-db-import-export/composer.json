@@ -50,13 +50,15 @@
         "tests-synapse-mi": "SUITE=tests-synapse-mi STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY phpunit --colors=always --testsuite synapse-mi",
         "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
         "tests-teradata-tpt": "SUITE=tests-teradata-tpt TERADATA_CSV_ADAPTER=TPT STORAGE_TYPE=S3 phpunit --colors=always --testsuite tests-teradata",
+        "tests-bigquery": "SUITE=tests-bigquery STORAGE_TYPE=GCS phpunit --colors=always --testsuite tests-bigquery",
         "tests-functional": [
             "@tests-snowflake-abs",
             "@tests-snowflake-s3",
             "@tests-synapse",
             "@tests-synapse-mi",
             "@tests-exasol",
-            "@tests-teradata-tpt"
+            "@tests-teradata-tpt",
+            "@tests-bigquery"
         ],
         "tests": [
             "@tests-unit",

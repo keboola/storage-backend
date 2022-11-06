@@ -43,6 +43,9 @@ env:
   EXA_SAAS_HOST: https://cloud.exasol.com
   EXA_SAAS_USER_ID: oAVqZoHnSRO5rAjahTgAkg
   EXA_SAAS_TOKEN: ${{ secrets.EXA_SAAS_TOKEN }}
+  # Bigquery
+  BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
+  BQ_BUCKET_NAME: ci-files-bucket
   # S3
   AWS_ACCESS_KEY_ID: AKIASFZVQM6IHFATWR4X
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -217,6 +220,7 @@ jobs:
       matrix:
         suite:
           - snowflake-gcs
+          - bigquery
     steps:
       -
         name: Checkout
