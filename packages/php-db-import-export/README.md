@@ -3,6 +3,7 @@
 ## Supported operations
 
 - Load/Import csv from `ABS` to `Snowflake` or `Synapse`
+- Load/Import csv from `GCS` to `Bigquery`
 - Unload/Export table from `Snowflake` or `Synapse` to `ABS`
 
 ## Features
@@ -173,6 +174,40 @@ TERADATA_PORT=
 TERADATA_DATABASE=
 ```
 
+#### Bigquery
+Install [Google Cloud client](https://cloud.google.com/sdk/docs/install-sdk) (via [Brew](https://formulae.brew.sh/cask/google-cloud-sdk#default)), initialize it
+and log in to [generate default credentials](https://cloud.google.com/docs/authentication/application-default-credentials#personal).
+
+To prepare the backend you can use [Terraform template](./bq-storage-backend-init.tf).
+You must have the `resourcemanager.folders.create` permission for the organization.
+```bash
+# you can copy it to a folder somewhere and make an init
+terraform init
+
+terraform apply -var organization_id=[organization_id]
+# and enter name for your backend prefix for example your name, all resources will create with this prefix
+```
+
+For missing pieces see [Connection repository](https://github.com/keboola/connection/blob/master/DOCKER.md#bigquery).
+After terraform apply ends go to the service project in folder created by terraform.
+
+1. go to the newly created service project, the project id are listed at the end of the terraform call. (service_project_id)
+2. click on IAM & Admin
+3. on left panel choose Service Accounts
+4. click on email of service account(there is only one)
+5. on to the top choose Keys and Add Key => Create new key
+6. select Key type JSON
+7. click on the Create button and the file will automatically download
+8. convert key to string and save to `.env` file: `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
+9. set content on the last line of `.env` as variable `BQ_KEY_FILE`
+10. set env variable `BQ_BUCKET_NAME` generated from TF template `file_storage_bucket_id`
+11. go to this generated bucket in project `*-bq-file-import-export`, choose `<yourPrefix>>-bq-file-import-export` and click `Cloud Storage` and choose `<yourPrefix>-file-bucket`
+12. click on `Transfer Data` => `in`, set `source type = Google Cloud Storage`, `destination type = Google storage`
+13. in next step find bucket for CI test and load file from them.
+14. Click Browse in `Choose a source`, select `Project ID=ci-bq-file-import-export` and from table select `ci-files-bucket` (click on `>` right from bucket name and should be able to see files in bucket)
+15. Click `SELECT`
+16. On the left click on `CREATE` button
+17. Import job should be creted and after while test files are imported to you bucket
 
 ### Tests
 
