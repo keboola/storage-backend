@@ -126,38 +126,38 @@ class FullImportTest extends BigqueryBaseTestCase
             $expectedLargeSlicedManifest[] = ['a', 'b'];
         }
 
-//        yield 'large manifest' => [
-//            $this->createGCSSourceInstance(
-//                'sliced/2cols-large/S3.2cols-large.csvmanifest',
-//                $escapingHeader,
-//                true,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
-//            $expectedLargeSlicedManifest,
-//            1501,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
+        yield 'large manifest' => [
+            $this->createBQSourceInstance(
+                'sliced/2cols-large/GCS.2cols-large.csvmanifest',
+                $escapingHeader,
+                true,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $expectedLargeSlicedManifest,
+            1501,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
 
-//        yield 'empty manifest' => [
-//            $this->createGCSSourceInstance(
-//                'empty.manifest',
-//                $escapingHeader,
-//                true,
-//                false,
-//                []
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getSimpleImportOptions(),
-//            [],
-//            0,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
-//
+        yield 'empty manifest' => [
+            $this->createBQSourceInstance(
+                'empty.manifest',
+                $escapingHeader,
+                true,
+                false,
+                []
+            ),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getSimpleImportOptions(),
+            [],
+            0,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
+
         yield 'lemma' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'lemma.csv',
                 $lemmaHeader,
                 false,
@@ -172,7 +172,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'standard with enclosures' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
@@ -187,7 +187,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'gzipped standard with enclosure' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
                 $escapingHeader,
                 false,
@@ -202,7 +202,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'standard with enclosures tabs' => [
-            $this->createGCSSourceInstanceFromCsv(
+            $this->createBQSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
                 $escapingHeader,
@@ -218,7 +218,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'accounts changedColumnsOrder' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
                 $accountChangedColumnsOrderHeader,
                 false,
@@ -236,7 +236,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'accounts' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'tw_accounts.csv',
                 $accountsHeader,
                 false,
@@ -252,7 +252,7 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // line ending detection is not supported yet for S3
         yield 'accounts crlf' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'tw_accounts.crlf.csv',
                 $accountsHeader,
                 false,
@@ -266,56 +266,40 @@ class FullImportTest extends BigqueryBaseTestCase
             self::TABLE_ACCOUNTS_3,
         ];
 
-//        // manifests
-//        yield 'accounts sliced' => [
-//            $this->createGCSSourceInstance(
-//                'sliced/accounts/S3.accounts.csvmanifest',
-//                $accountsHeader,
-//                true,
-//                false,
-//                ['id']
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-//            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
-//            $expectedAccounts,
-//            3,
-//            self::TABLE_ACCOUNTS_3,
-//        ];
-//
-//        yield 'accounts sliced gzip' => [
-//            $this->createGCSSourceInstance(
-//                'sliced/accounts-gzip/S3.accounts-gzip.csvmanifest',
-//                $accountsHeader,
-//                true,
-//                false,
-//                ['id']
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-//            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
-//            $expectedAccounts,
-//            3,
-//            self::TABLE_ACCOUNTS_3,
-//        ];
-//
-//        // folder
-//        yield 'accounts sliced folder import' => [
-//            $this->createGCSSourceInstance(
-//                'sliced_accounts_no_manifest/',
-//                $accountsHeader,
-//                true,
-//                true,
-//                ['id']
-//            ),
-//            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-//            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
-//            $expectedAccounts,
-//            3,
-//            self::TABLE_ACCOUNTS_3,
-//        ];
-//
+        // manifests
+        yield 'accounts sliced' => [
+            $this->createBQSourceInstance(
+                'sliced/accounts/GCS.accounts.csvmanifest',
+                $accountsHeader,
+                true,
+                false,
+                ['id']
+            ),
+            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $expectedAccounts,
+            3,
+            self::TABLE_ACCOUNTS_3,
+        ];
+
+        yield 'accounts sliced gzip' => [
+            $this->createBQSourceInstance(
+                'sliced/accounts-gzip/GCS.accounts-gzip.csvmanifest',
+                $accountsHeader,
+                true,
+                false,
+                ['id']
+            ),
+            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $expectedAccounts,
+            3,
+            self::TABLE_ACCOUNTS_3,
+        ];
+
         // reserved words
         yield 'reserved words' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'reserved-words.csv',
                 ['column', 'table'],
                 false,
@@ -330,7 +314,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
         // import table with _timestamp columns - used by snapshots
         yield 'import with _timestamp columns' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'with-ts.csv',
                 [
                     'col1',
@@ -355,7 +339,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
         // test creating table without _timestamp column
         yield 'table without _timestamp column' => [
-            $this->createGCSSourceInstance(
+            $this->createBQSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
