@@ -43,7 +43,7 @@ class GCSLoader extends BaseStubLoader
             'debug' => true,
         ]);
         $this->bucketName = $bucketName;
-        file_put_contents('/tmp/gcs-credentials.json', (string) getenv('GCS_CREDENTIALS'));
+        file_put_contents('/tmp/gcs-credentials.json', (string) json_encode($credentials));
 
         $p = new Process(
             [

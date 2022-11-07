@@ -134,6 +134,11 @@ jobs:
   load-gcs:
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      matrix:
+        suite:
+          - snowflake
+          - bigquery
     steps:
       -
         name: Checkout
@@ -151,7 +156,7 @@ jobs:
       -
         name: Load data to ${{ matrix.storage }}
         run: |
-          docker-compose run production composer loadGcs
+          docker-compose run production composer loadGcs-${{ matrix.suite }}
 #
 # Test matrix
   testsABS:
@@ -398,7 +403,7 @@ jobs:
         name: 'Clean S3'
         run: |
           aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{env.AWS_S3_KEY}} --recursive
-  clean-gcs:
+  clean-gcs-snowflake:
     runs-on: ubuntu-latest
     needs: [testsGCS, testsAll]
     if: ${{ always() }}
@@ -414,6 +419,19 @@ jobs:
       -
         name: 'Clean GCS'
         run: 'gsutil -m rm -r gs://${{env.GCS_BUCKET_NAME}}/*'
+  clean-gcs-bigquery:
+    runs-on: ubuntu-latest
+    needs: [ testsGCS, testsAll ]
+    if: ${{ always() }}
+    steps:
+      - name: 'Login GCS'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ env.BQ_KEY_FILE }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      - name: 'Clean GCS'
+        run: 'gsutil -m rm -r gs://${{env.BQ_BUCKET_NAME}}/*'
   clean-abs:
     runs-on: ubuntu-latest
     needs: [testsABS, testsAll, synapse-tests]

@@ -72,12 +72,14 @@
         "phplint": "parallel-lint -j 10 --exclude vendor --exclude provisioning .",
         "loadAbs": "php ./tests/Common/StubLoader/loader.php abs",
         "loadS3": "php ./tests/Common/StubLoader/loader.php s3",
-        "loadGcs": "php ./tests/Common/StubLoader/loader.php gcs",
+        "loadGcs-snowflake": "php ./tests/Common/StubLoader/loader.php gcs-snowflake",
+        "loadGcs-bigquery": "php ./tests/Common/StubLoader/loader.php gcs-bigquery",
         "init-synapse": "php ./tests/InitSynapse.php",
         "load-data": [
             "@loadAbs",
             "@loadS3",
-            "@loadGcs"
+            "@loadGcs-snowflake",
+            "@loadGcs-bigquery"
         ],
         "build": [
             "@phplint",

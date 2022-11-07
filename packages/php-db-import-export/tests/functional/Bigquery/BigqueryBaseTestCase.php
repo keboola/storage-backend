@@ -29,7 +29,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     protected function setUp(): void
     {
         parent::setUp();
-        $this->bqClient = $this->getTeradataConnection();
+        $this->bqClient = $this->getBigqueryConnection();
     }
 
     protected function cleanDatabase(string $dbname): void
@@ -46,18 +46,10 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         $this->bqClient->createDataset($dbName);
     }
 
-    private function getTeradataConnection(): BigQueryClient
+    private function getBigqueryConnection(): BigQueryClient
     {
-        $keyFile = getenv('BQ_KEY_FILE');
-        if ($keyFile === false) {
-            throw new LogicException('Env "BQ_KEY_FILE" is empty');
-        }
-
-        /** @var array<string, string> $credentials */
-        $credentials = json_decode($keyFile, true, 512, JSON_THROW_ON_ERROR);
-        assert($credentials !== false);
         return new BigQueryClient([
-            'keyFile' => $credentials,
+            'keyFile' => $this->getBqCredentials(),
         ]);
     }
 
@@ -275,7 +267,101 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             (string) getenv('BQ_BUCKET_NAME'),
             $filePath,
             '',
-            $this->getGCSCredentials(),
+            $this->getBqCredentials(),
+            $options,
+            $isSliced,
+            $columns,
+            $primaryKeys
+        );
+    }
+
+    /**
+     * @return array{
+     * type: string,
+     * project_id: string,
+     * private_key_id: string,
+     * private_key: string,
+     * client_email: string,
+     * client_id: string,
+     * auth_uri: string,
+     * token_uri: string,
+     * auth_provider_x509_cert_url: string,
+     * client_x509_cert_url: string,
+     * }
+     */
+    private function getBqCredentials(): array
+    {
+        /**
+         * @var array{
+         * type: string,
+         * project_id: string,
+         * private_key_id: string,
+         * private_key: string,
+         * client_email: string,
+         * client_id: string,
+         * auth_uri: string,
+         * token_uri: string,
+         * auth_provider_x509_cert_url: string,
+         * client_x509_cert_url: string,
+         * }
+         */
+        $credentials = json_decode((string) getenv('BQ_KEY_FILE'), true, 512, JSON_THROW_ON_ERROR);
+        assert(array_key_exists('type', $credentials));
+        assert(array_key_exists('project_id', $credentials));
+        assert(array_key_exists('private_key_id', $credentials));
+        assert(array_key_exists('private_key', $credentials));
+        assert(array_key_exists('client_email', $credentials));
+        assert(array_key_exists('client_id', $credentials));
+        assert(array_key_exists('auth_uri', $credentials));
+        assert(array_key_exists('token_uri', $credentials));
+        assert(array_key_exists('auth_provider_x509_cert_url', $credentials));
+        return $credentials;
+    }
+
+    /**
+     * @param string[] $columns
+     * @param string[]|null $primaryKeys
+     */
+    protected function createBQSourceInstance(
+        string $filePath,
+        array $columns = [],
+        bool $isSliced = false,
+        bool $isDirectory = false,
+        ?array $primaryKeys = null
+    ): Storage\GCS\SourceFile {
+        return $this->createBQSourceInstanceFromCsv(
+            $filePath,
+            new CsvOptions(),
+            $columns,
+            $isSliced,
+            $isDirectory,
+            $primaryKeys
+        );
+    }
+
+    /**
+     * filePath is expected without AWS_GCS_KEY
+     *
+     * @param string[] $columns
+     * @param string[]|null $primaryKeys
+     */
+    protected function createBqSourceInstanceFromCsv(
+        string $filePath,
+        CsvOptions $options,
+        array $columns = [],
+        bool $isSliced = false,
+        bool $isDirectory = false,
+        ?array $primaryKeys = null
+    ): Storage\GCS\SourceFile {
+        if ($isDirectory) {
+            throw new Exception('Directory not supported for GCS');
+        }
+
+        return new Storage\GCS\SourceFile(
+            (string) getenv('BQ_BUCKET_NAME'),
+            $filePath,
+            '',
+            $this->getBqCredentials(),
             $options,
             $isSliced,
             $columns,

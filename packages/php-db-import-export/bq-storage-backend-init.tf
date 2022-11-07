@@ -26,9 +26,7 @@ variable "billing_account_id" {
 locals {
   backend_folder_display_name = "${var.backend_prefix}-bq-import-export"
   service_project_name = "${var.backend_prefix}-bq-import-export"
-  service_file_project_name = "${var.backend_prefix}-bq-file-import-export"
   service_project_id = "${var.backend_prefix}-bq-import-export"
-  service_file_project_id = "${var.backend_prefix}-bq-file-import-export"
   service_account_id = "${var.backend_prefix}-main-service-acc"
 }
 
@@ -47,13 +45,6 @@ resource "google_folder" "storage_backend_folder" {
 resource "google_project" "service_project_in_a_folder" {
   name       = local.service_project_name
   project_id = local.service_project_id
-  folder_id  = google_folder.storage_backend_folder.id
-  billing_account = var.billing_account_id
-}
-
-resource "google_project" "service_file_project_in_a_folder" {
-  name       = local.service_file_project_name
-  project_id = local.service_file_project_id
   folder_id  = google_folder.storage_backend_folder.id
   billing_account = var.billing_account_id
 }
@@ -91,7 +82,7 @@ output "service_project_id" {
 
 resource "google_storage_bucket" "kbc_file_storage_backend" {
   name = "${var.backend_prefix}-files-bucket"
-  project = google_project.service_file_project_in_a_folder.name
+  project = google_project.service_project_in_a_folder.name
   location = "US"
   storage_class = "STANDARD"
   # public_access_prevention = "enforced" - not available yet
@@ -103,22 +94,4 @@ resource "google_storage_bucket" "kbc_file_storage_backend" {
 
 output "file_storage_bucket_id" {
   value = google_storage_bucket.kbc_file_storage_backend.id
-}
-
-resource "google_service_account" "gcp_file_storage_service_account" {
-  account_id = "${var.backend_prefix}-file-storage"
-  display_name = "${var.backend_prefix} File Storage Service Account"
-  project = google_project.service_file_project_in_a_folder.name
-}
-
-resource "google_storage_bucket_iam_member" "member_creator_fs_bucket" {
-  bucket = google_storage_bucket.kbc_file_storage_backend.name
-  role = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_service_account.gcp_file_storage_service_account.email}"
-}
-
-resource "google_storage_bucket_iam_member" "member_backend_owner" {
-  bucket = google_storage_bucket.kbc_file_storage_backend.name
-  role = "roles/storage.objectViewer"
-  member = "serviceAccount:${google_service_account.service_account.email}"
 }
