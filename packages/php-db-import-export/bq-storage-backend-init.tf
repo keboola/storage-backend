@@ -116,3 +116,9 @@ resource "google_storage_bucket_iam_member" "member_creator_fs_bucket" {
   role = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.gcp_file_storage_service_account.email}"
 }
+
+resource "google_storage_bucket_iam_member" "member_backend_owner" {
+  bucket = google_storage_bucket.kbc_file_storage_backend.name
+  role = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.service_account.email}"
+}
