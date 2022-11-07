@@ -201,13 +201,6 @@ After terraform apply ends go to the service project in folder created by terraf
 8. convert key to string and save to `.env` file: `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
 9. set content on the last line of `.env` as variable `BQ_KEY_FILE`
 10. set env variable `BQ_BUCKET_NAME` generated from TF template `file_storage_bucket_id`
-11. go to this generated bucket in project `*-bq-file-import-export`, choose `<yourPrefix>>-bq-file-import-export` and click `Cloud Storage` and choose `<yourPrefix>-file-bucket`
-12. click on `Transfer Data` => `in`, set `source type = Google Cloud Storage`, `destination type = Google storage`
-13. in next step find bucket for CI test and load file from them.
-14. Click Browse in `Choose a source`, select `Project ID=ci-bq-file-import-export` and from table select `ci-files-bucket` (click on `>` right from bucket name and should be able to see files in bucket)
-15. Click `SELECT`
-16. On the left click on `CREATE` button
-17. Import job should be creted and after while test files are imported to you bucket
 
 ### Tests
 
