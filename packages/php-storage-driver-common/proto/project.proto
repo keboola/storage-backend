@@ -20,6 +20,12 @@ message CreateProjectCommand {
     string permSpace = 2;  // size of perm space allocated with project example `1e9`
     string spoolSpace = 3; // size of spool space allocated with project example `1e9`
   }
+  /**
+  * Bigquery backend metadata
+  */
+  message CreateProjectBigqueryMeta {
+    string gcsFileBucketName = 1; // file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
+  }
 }
 
 /**
