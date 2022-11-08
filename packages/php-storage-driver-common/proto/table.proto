@@ -162,6 +162,7 @@ message ImportExportShared {
   enum FileProvider {
     S3 = 0; // Amazon S3
     ABS = 1; // Azure blob storage
+    GCS = 2;
   }
   message S3Credentials {
     string key = 1; // AWS access key
@@ -173,6 +174,11 @@ message ImportExportShared {
     string accountName = 1; // ABS account name
     string sasToken = 2; // preferred way of authorization is to use temporary SAS token
     string accountKey = 3; // use account key only if absolutely necessary
+  }
+
+  message GCSCredentials {
+    string key = 1;
+    string secret = 2;
   }
   /**
    * Relative file properties based on:

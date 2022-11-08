@@ -17,8 +17,8 @@ class Project
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ê
-proto/project.proto%keboola.storageDriver.command.project"º
+»
+proto/project.proto%keboola.storageDriver.command.project"Ù
 CreateProjectCommand
 stackPrefix (	
 	projectId (	"
@@ -27,7 +27,9 @@ class Project
 rootDatabase (	
 	permSpace (	
 
-spoolSpace (	"É
+spoolSpace (	6
+CreateProjectBigqueryMeta
+gcsFileBucketName (	"É
 CreateProjectResponse
 projectUserName (	
 projectRoleName (	

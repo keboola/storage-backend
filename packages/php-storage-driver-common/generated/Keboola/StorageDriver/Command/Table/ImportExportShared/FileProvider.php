@@ -26,10 +26,15 @@ class FileProvider
      * Generated from protobuf enum <code>ABS = 1;</code>
      */
     const ABS = 1;
+    /**
+     * Generated from protobuf enum <code>GCS = 2;</code>
+     */
+    const GCS = 2;
 
     private static $valueToName = [
         self::S3 => 'S3',
         self::ABS => 'ABS',
+        self::GCS => 'GCS',
     ];
 
     public static function name($value)
