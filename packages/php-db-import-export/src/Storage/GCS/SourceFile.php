@@ -106,7 +106,8 @@ class SourceFile extends BaseFile implements SourceInterface
     public function getManifestEntries(string $protocol = self::PROTOCOL_GCS): array
     {
         if (!$this->isSliced) {
-            return [$this->getGcsPrefix() . '/' . $this->filePath];
+            $entries = [$this->getGcsPrefix() . '/' . $this->filePath];
+            return $this->transformManifestEntries($entries, $protocol);
         }
 
         $client = $this->getClient();

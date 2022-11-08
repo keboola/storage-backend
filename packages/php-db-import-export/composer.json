@@ -7,10 +7,11 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "doctrine/dbal": "^3.2.0",
+        "google/cloud-bigquery": "^1.23",
         "google/cloud-storage": "^1.27",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^5.0",
-        "keboola/php-datatypes": "^6.0",
+        "keboola/php-datatypes": "^6.2",
         "keboola/php-file-storage-utils": ">=0.2",
         "keboola/php-temp": "^2.0",
         "keboola/table-backend-utils": "^1",
@@ -49,13 +50,15 @@
         "tests-synapse-mi": "SUITE=tests-synapse-mi STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY phpunit --colors=always --testsuite synapse-mi",
         "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
         "tests-teradata-tpt": "SUITE=tests-teradata-tpt TERADATA_CSV_ADAPTER=TPT STORAGE_TYPE=S3 phpunit --colors=always --testsuite tests-teradata",
+        "tests-bigquery": "SUITE=tests-bigquery STORAGE_TYPE=GCS phpunit --colors=always --testsuite tests-bigquery",
         "tests-functional": [
             "@tests-snowflake-abs",
             "@tests-snowflake-s3",
             "@tests-synapse",
             "@tests-synapse-mi",
             "@tests-exasol",
-            "@tests-teradata-tpt"
+            "@tests-teradata-tpt",
+            "@tests-bigquery"
         ],
         "tests": [
             "@tests-unit",
@@ -69,12 +72,14 @@
         "phplint": "parallel-lint -j 10 --exclude vendor --exclude provisioning .",
         "loadAbs": "php ./tests/Common/StubLoader/loader.php abs",
         "loadS3": "php ./tests/Common/StubLoader/loader.php s3",
-        "loadGcs": "php ./tests/Common/StubLoader/loader.php gcs",
+        "loadGcs-snowflake": "php ./tests/Common/StubLoader/loader.php gcs-snowflake",
+        "loadGcs-bigquery": "php ./tests/Common/StubLoader/loader.php gcs-bigquery",
         "init-synapse": "php ./tests/InitSynapse.php",
         "load-data": [
             "@loadAbs",
             "@loadS3",
-            "@loadGcs"
+            "@loadGcs-snowflake",
+            "@loadGcs-bigquery"
         ],
         "build": [
             "@phplint",
