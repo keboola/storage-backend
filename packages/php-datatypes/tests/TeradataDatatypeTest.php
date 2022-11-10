@@ -347,4 +347,18 @@ class TeradataDatatypeTest extends TestCase
             ['INTERVAL YEAR TO MONTH', '5'],
         ];
     }
+
+    public function testGetTypeByBasetype(): void
+    {
+        $this->assertSame('DATE', Teradata::getTypeByBasetype('DATE'));
+
+        $this->assertSame('VARCHAR', Teradata::getTypeByBasetype('STRING'));
+
+        // not only upper case
+        $this->assertSame('DATE', Teradata::getTypeByBasetype('Date'));
+
+        $this->expectException(InvalidTypeException::class);
+        $this->expectExceptionMessage('Base type "FOO" is not valid.');
+        Teradata::getTypeByBasetype('foo');
+    }
 }
