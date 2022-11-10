@@ -17,10 +17,14 @@ class SqlBuilder
 {
     private const SRC_ALIAS = 'src';
 
-    public function getCommitTransaction(): string
+    public function getEndTransaction(): string
     {
-        //TODO
-        throw new InternalException('not implemented yet');
+        return 'END TRANSACTION';
+    }
+
+    public function getBeginTransaction(): string
+    {
+        return 'BEGIN TRANSACTION';
     }
 
     /**
@@ -189,8 +193,9 @@ class SqlBuilder
         string $schema,
         string $tableName
     ): string {
+        // TD has no TRUNCATE command - DELETE ALL has to be used
         return sprintf(
-            'DELETE FROM %s.%s',
+            'DELETE %s.%s ALL',
             TeradataQuote::quoteSingleIdentifier($schema),
             TeradataQuote::quoteSingleIdentifier($tableName)
         );

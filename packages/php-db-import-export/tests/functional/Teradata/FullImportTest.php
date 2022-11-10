@@ -15,9 +15,9 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Teradata\Table;
-use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
 
 class FullImportTest extends TeradataBaseTestCase
@@ -488,4 +488,59 @@ class FullImportTest extends TeradataBaseTestCase
             0
         );
     }
+
+    public function testLoadToTableWithDedupWithSinglePK(): void
+    {
+        $this->initTable(self::TABLE_SINGLE_PK);
+
+        // skipping header
+        $options = $this->getImportOptions([], false, false,1);
+        $source = $this->getSourceInstance(
+            'multi-pk.csv',
+            [
+                'VisitID',
+                'Value',
+                'MenuItem',
+                'Something',
+                'Other',
+            ],
+            false,
+            false,
+            ['VisitID']
+        );
+
+        $importer = new ToStageImporter($this->connection);
+        $destinationRef = new TeradataTableReflection(
+            $this->connection,
+            $this->getDestinationDbName(),
+            self::TABLE_SINGLE_PK
+        );
+        $destination = $destinationRef->getTableDefinition();
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+            'VisitID',
+            'Value',
+            'MenuItem',
+            'Something',
+            'Other',
+        ]);
+        $qb = new TeradataTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $importState = $importer->importToStagingTable(
+            $source,
+            $stagingTable,
+            $options
+        );
+        $toFinalTableImporter = new FullImporter($this->connection);
+        $toFinalTableImporter->importToTable(
+            $stagingTable,
+            $destination,
+            $options,
+            $importState
+        );
+
+        self::assertEquals(4, $destinationRef->getRowsCount());
+    }
+
 }

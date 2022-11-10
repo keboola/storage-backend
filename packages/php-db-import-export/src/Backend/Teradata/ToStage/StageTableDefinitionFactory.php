@@ -89,4 +89,20 @@ final class StageTableDefinitionFactory
             $destination->getPrimaryKeysNames()
         );
     }
+
+    /**
+     * @param string[] $pkNames
+     */
+    public static function createDedupTableDefinition(
+        TeradataTableDefinition $destination,
+        array $pkNames
+    ): TeradataTableDefinition {
+        return new TeradataTableDefinition(
+            $destination->getSchemaName(),
+            \Keboola\Db\ImportExport\Backend\Helper\BackendHelper::generateTempDedupTableName(),
+            true,
+            $destination->getColumnsDefinitions(),
+            $pkNames
+        );
+    }
 }
