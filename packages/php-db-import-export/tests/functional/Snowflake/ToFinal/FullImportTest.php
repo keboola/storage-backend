@@ -7,7 +7,6 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;

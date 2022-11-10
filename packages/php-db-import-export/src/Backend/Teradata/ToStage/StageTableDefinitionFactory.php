@@ -99,7 +99,7 @@ final class StageTableDefinitionFactory
     ): TeradataTableDefinition {
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            \Keboola\Db\ImportExport\Backend\Helper\BackendHelper::generateTempDedupTableName(),
+            BackendHelper::generateTempDedupTableName(),
             true,
             $destination->getColumnsDefinitions(),
             $pkNames

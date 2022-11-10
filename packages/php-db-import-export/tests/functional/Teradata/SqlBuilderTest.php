@@ -228,9 +228,9 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
 
         self::assertEquals(
-        // phpcs:ignore
             sprintf(
-                'INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (50)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
+            // phpcs:ignore
+            'INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (50)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
             ),
@@ -352,7 +352,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             '2020-01-01 00:00:00'
         );
         self::assertEquals(
-        // phpcs:ignore
+            // phpcs:ignore
             sprintf('INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
@@ -418,8 +418,8 @@ class SqlBuilderTest extends TeradataBaseTestCase
             '2020-01-01 00:00:00'
         );
         self::assertEquals(
-        // phpcs:ignore
             sprintf(
+            // phpcs:ignore
                 'INSERT INTO %s."import-export-test_test" ("col1", "col2", "_timestamp") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2",\'2020-01-01 00:00:00\' FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
@@ -456,7 +456,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand($this->getTestDBName(), self::TEST_STAGING_TABLE);
         self::assertEquals(
             sprintf(
-                'DELETE FROM %s."stagingTable"',
+                'DELETE %s."stagingTable" ALL',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
             ),
             $sql
