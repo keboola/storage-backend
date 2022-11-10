@@ -19,16 +19,12 @@ class SqlBuilderTest extends TeradataBaseTestCase
 {
     public const TESTS_PREFIX = 'import-export-test_';
     public const TEST_DB = self::TESTS_PREFIX . 'schema';
-    public const TEST_DB_QUOTED = '"' . self::TEST_DB . '"';
     public const TEST_STAGING_TABLE = 'stagingTable';
-    public const TEST_STAGING_TABLE_QUOTED = '"stagingTable"';
     public const TEST_TABLE = self::TESTS_PREFIX . 'test';
-    public const TEST_TABLE_IN_DB = self::TEST_DB_QUOTED . '.' . self::TEST_TABLE_QUOTED;
-    public const TEST_TABLE_QUOTED = '"' . self::TEST_TABLE . '"';
 
     protected function dropTestDb(): void
     {
-        $this->cleanDatabase(self::TEST_DB);
+        $this->cleanDatabase($this->getTestDBName());
     }
 
     protected function getBuilder(): SqlBuilder
@@ -44,7 +40,18 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
     protected function createTestDb(): void
     {
-        $this->createDatabase(self::TEST_DB);
+        $this->createDatabase($this->getTestDBName());
+    }
+
+
+    protected function getTestDBName(): string
+    {
+        $buildPrefix = '';
+        if (getenv('BUILD_PREFIX') !== false) {
+            $buildPrefix = getenv('BUILD_PREFIX');
+        }
+
+        return $buildPrefix . self::TEST_DB;
     }
 
     public function testGetDedupCommand(): void
@@ -61,22 +68,22 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
             )
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
             )
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'2\',\'2\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
             )
         );
 
@@ -84,8 +91,8 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $this->connection->executeStatement(
                 sprintf(
                     'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'\',NULL)',
-                    self::TEST_DB_QUOTED,
-                    self::TEST_STAGING_TABLE_QUOTED
+                    TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                    TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
                 )
             );
         }
@@ -114,22 +121,26 @@ class SqlBuilderTest extends TeradataBaseTestCase
     public function testGetDropTableIfExistsCommand(): void
     {
         $this->createTestDb();
-        $this->assertTableNotExists(self::TEST_DB, self::TEST_TABLE);
+        $this->assertTableNotExists($this->getTestDBName(), self::TEST_TABLE);
 
         // check that it cannot find non-existing table
-        $sql = $this->getBuilder()->getTableExistsCommand(self::TEST_DB, self::TEST_TABLE);
+        $sql = $this->getBuilder()->getTableExistsCommand($this->getTestDBName(), self::TEST_TABLE);
         self::assertEquals(
         // phpcs:ignore
-            "SELECT COUNT(*) FROM DBC.TablesVX WHERE DatabaseName = 'import-export-test_schema' AND TableName = 'import-export-test_test';", $sql
+            sprintf(
+                "SELECT COUNT(*) FROM DBC.TablesVX WHERE DatabaseName = %s AND TableName = 'import-export-test_test';",
+                TeradataQuote::quote($this->getTestDBName())
+            ),
+            $sql
         );
         $this->assertEquals(0, $this->connection->fetchOne($sql));
 
         // try to drop not existing table
         try {
-            $sql = $this->getBuilder()->getDropTableUnsafe(self::TEST_DB, self::TEST_TABLE);
+            $sql = $this->getBuilder()->getDropTableUnsafe($this->getTestDBName(), self::TEST_TABLE);
             self::assertEquals(
             // phpcs:ignore
-                'DROP TABLE "import-export-test_schema"."import-export-test_test"',
+                sprintf('DROP TABLE %s."import-export-test_test"', TeradataQuote::quoteSingleIdentifier($this->getTestDBName())),
                 $sql
             );
             $this->connection->executeStatement($sql);
@@ -138,18 +149,18 @@ class SqlBuilderTest extends TeradataBaseTestCase
         }
 
         // create table
-        $this->initSingleTable(self::TEST_DB, self::TEST_TABLE);
+        $this->initSingleTable($this->getTestDBName(), self::TEST_TABLE);
 
         // check that the table exists already
-        $sql = $this->getBuilder()->getTableExistsCommand(self::TEST_DB, self::TEST_TABLE);
+        $sql = $this->getBuilder()->getTableExistsCommand($this->getTestDBName(), self::TEST_TABLE);
         $this->assertEquals(1, $this->connection->fetchOne($sql));
 
         // drop existing table
-        $sql = $this->getBuilder()->getDropTableUnsafe(self::TEST_DB, self::TEST_TABLE);
+        $sql = $this->getBuilder()->getDropTableUnsafe($this->getTestDBName(), self::TEST_TABLE);
         $this->connection->executeStatement($sql);
 
         // check that the table doesn't exist anymore
-        $sql = $this->getBuilder()->getTableExistsCommand(self::TEST_DB, self::TEST_TABLE);
+        $sql = $this->getBuilder()->getTableExistsCommand($this->getTestDBName(), self::TEST_TABLE);
         $this->assertEquals(0, $this->connection->fetchOne($sql));
     }
 
@@ -161,7 +172,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         // create fake stage and say that there is less columns
         $fakeStage = new TeradataTableDefinition(
-            self::TEST_DB,
+            $this->getTestDBName(),
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
@@ -181,7 +192,11 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (50)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src"',
+            sprintf(
+                'INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (50)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+            ),
             $sql
         );
 
@@ -190,7 +205,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
-            TeradataQuote::quoteSingleIdentifier(self::TEST_DB),
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
         ));
 
@@ -244,7 +259,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         }
 
         $tableDefinition = new TeradataTableDefinition(
-            self::TEST_DB,
+            $this->getTestDBName(),
             self::TEST_TABLE,
             false,
             new ColumnCollection($columns),
@@ -281,7 +296,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $this->createStagingTableWithData(true);
         // create fake stage and say that there is less columns
         $fakeStage = new TeradataTableDefinition(
-            self::TEST_DB,
+            $this->getTestDBName(),
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
@@ -301,15 +316,19 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src"',
+            sprintf('INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+            ),
             $sql
         );
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_DB
+            'SELECT * FROM %s.%s',
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
         ));
 
         self::assertEqualsCanonicalizing([
@@ -343,7 +362,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $this->createStagingTableWithData(true);
         // create fake stage and say that there is less columns
         $fakeStage = new TeradataTableDefinition(
-            self::TEST_DB,
+            $this->getTestDBName(),
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
@@ -363,15 +382,22 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2", "_timestamp") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2",\'2020-01-01 00:00:00\' FROM "import-export-test_schema"."stagingTable" AS "src"',
+            sprintf(
+                'INSERT INTO %s."import-export-test_test" ("col1", "col2", "_timestamp") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2",\'2020-01-01 00:00:00\' FROM %s."stagingTable" AS "src"',
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+            ),
             $sql
         );
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_DB
+            sprintf(
+                'SELECT * FROM %s.%s',
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            )
         ));
 
         foreach ($result as $item) {
@@ -387,12 +413,15 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $this->createTestDb();
         $this->createStagingTableWithData();
 
-        $ref = new TeradataTableReflection($this->connection, self::TEST_DB, self::TEST_STAGING_TABLE);
+        $ref = new TeradataTableReflection($this->connection, $this->getTestDBName(), self::TEST_STAGING_TABLE);
         self::assertEquals(3, $ref->getRowsCount());
 
-        $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand(self::TEST_DB, self::TEST_STAGING_TABLE);
+        $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand($this->getTestDBName(), self::TEST_STAGING_TABLE);
         self::assertEquals(
-            'DELETE FROM "import-export-test_schema"."stagingTable"',
+            sprintf(
+                'DELETE FROM %s."stagingTable"',
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+            ),
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -402,7 +431,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
     private function getStagingTableDefinition(): TeradataTableDefinition
     {
         return new TeradataTableDefinition(
-            self::TEST_DB,
+            $this->getTestDBName(),
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection([
