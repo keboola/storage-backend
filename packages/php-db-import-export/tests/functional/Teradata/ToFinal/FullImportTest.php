@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
+namespace Tests\Keboola\Db\ImportExportFunctional\Teradata\ToFinal;
 
 use Generator;
 use Keboola\Csv\CsvFile;
@@ -20,6 +20,7 @@ use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
+use Tests\Keboola\Db\ImportExportFunctional\Teradata\TeradataBaseTestCase;
 
 class FullImportTest extends TeradataBaseTestCase
 {
