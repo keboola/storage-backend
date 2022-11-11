@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Exception;
+use Keboola\Db\ImportExport\Backend\Teradata\Helper\DropTableTrait;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -29,6 +30,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
     protected const TERADATA_DESTINATION_DATABASE_NAME = 'tests_destination';
 
     protected Connection $connection;
+    use DropTableTrait;
 
     protected function setUp(): void
     {

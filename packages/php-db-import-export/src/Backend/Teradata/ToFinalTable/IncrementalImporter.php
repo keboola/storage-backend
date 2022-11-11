@@ -15,9 +15,9 @@ use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
-use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class IncrementalImporter implements ToFinalTableImporterInterface
 {
@@ -137,8 +137,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 if ($this->tableExists(
-                $deduplicationTableDefinition->getSchemaName(),
-                $deduplicationTableDefinition->getTableName()
+                    $deduplicationTableDefinition->getSchemaName(),
+                    $deduplicationTableDefinition->getTableName()
                 )
                 ) {
                     // 5 drop dedup table
@@ -160,5 +160,4 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         $data = $this->connection->fetchOne($this->sqlBuilder->getTableExistsCommand($dbName, $tableName));
         return ((int) $data) > 0;
     }
-
 }

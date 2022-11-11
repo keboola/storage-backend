@@ -9,6 +9,7 @@ use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
+use Keboola\Db\ImportExport\Backend\Teradata\Helper\DropTableTrait;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataException;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
@@ -26,6 +27,8 @@ final class FullImporter implements ToFinalTableImporterInterface
     private Connection $connection;
 
     private SqlBuilder $sqlBuilder;
+
+    use DropTableTrait;
 
     public function __construct(
         Connection $connection
@@ -99,12 +102,6 @@ final class FullImporter implements ToFinalTableImporterInterface
         return $state->getResult();
     }
 
-    protected function tableExists(string $dbName, string $tableName): bool
-    {
-        $data = $this->connection->fetchOne($this->sqlBuilder->getTableExistsCommand($dbName, $tableName));
-        return ((int) $data) > 0;
-    }
-
     private function doFullLoadWithDedup(
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $destinationTableDefinition,
@@ -156,19 +153,8 @@ final class FullImporter implements ToFinalTableImporterInterface
             );
             $state->stopTimer(self::TIMER_DEDUP);
         } finally {
-            if ($this->tableExists(
-                $deduplicationTableDefinition->getSchemaName(),
-                $deduplicationTableDefinition->getTableName()
-            )
-            ) {
-                // 5 drop dedup table
-                $this->connection->executeStatement(
-                    $this->sqlBuilder->getDropTableUnsafe(
-                        $deduplicationTableDefinition->getSchemaName(),
-                        $deduplicationTableDefinition->getTableName()
-                    )
-                );
-            }
+            // 5 drop dedup table
+            $this->dropIfExists($deduplicationTableDefinition->getSchemaName(), $deduplicationTableDefinition->getTableName());
         }
 
         $this->connection->executeStatement(

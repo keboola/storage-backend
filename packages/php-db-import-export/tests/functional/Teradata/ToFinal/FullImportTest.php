@@ -9,7 +9,6 @@ use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
-use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -588,17 +587,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-            if ($this->connection->fetchOne(
-                (new SqlBuilder())->getTableExistsCommand(
-                    $stagingTable->getSchemaName(),
-                    $stagingTable->getTableName()
-                )
-            ) > 0) {
-                $this->connection->executeStatement((new SqlBuilder())->getDropTableUnsafe(
-                    $stagingTable->getSchemaName(),
-                    $stagingTable->getTableName()
-                ));
-            }
+            $this->dropIfExists($stagingTable->getSchemaName(), $stagingTable->getTableName());
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());

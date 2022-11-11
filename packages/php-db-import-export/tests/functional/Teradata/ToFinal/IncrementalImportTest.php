@@ -9,7 +9,6 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\IncrementalImporter;
-use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -205,7 +204,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
             $tableName
         ))->getTableDefinition();
 
-        if(!empty($fullLoadSource->getPrimaryKeysNames())){
+        if (!empty($fullLoadSource->getPrimaryKeysNames())) {
             $this->markTestSkipped('we dont know PK yet');
         }
 
@@ -257,31 +256,15 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-            if ($this->tableExists(
+            $this->dropIfExists(
                 $fullLoadStagingTable->getSchemaName(),
                 $fullLoadStagingTable->getTableName()
-            )
-            ) {
-                $this->connection->executeStatement(
-                    (new SqlBuilder())->getDropTableUnsafe(
-                        $fullLoadStagingTable->getSchemaName(),
-                        $fullLoadStagingTable->getTableName()
-                    )
-                );
-            }
+            );
 
-            if ($this->tableExists(
+            $this->dropIfExists(
                 $incrementalLoadStagingTable->getSchemaName(),
                 $incrementalLoadStagingTable->getTableName()
-            )
-            ) {
-                $this->connection->executeStatement(
-                    (new SqlBuilder())->getDropTableUnsafe(
-                        $incrementalLoadStagingTable->getSchemaName(),
-                        $incrementalLoadStagingTable->getTableName()
-                    )
-                );
-            }
+            );
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
@@ -294,11 +277,5 @@ class IncrementalImportTest extends TeradataBaseTestCase
             $expected,
             0
         );
-    }
-
-    protected function tableExists(string $dbName, string $tableName): bool
-    {
-        $data = $this->connection->fetchOne((new SqlBuilder())->getTableExistsCommand($dbName, $tableName));
-        return ((int) $data) > 0;
     }
 }
