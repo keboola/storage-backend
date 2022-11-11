@@ -19,6 +19,7 @@ abstract class ImportExportBaseTest extends TestCase
     public const TABLE_MULTI_PK = 'multi-pk';
     public const TABLE_MULTI_PK_WITH_TS = 'multi-pk_ts';
     public const TABLE_SINGLE_PK = 'single-pk';
+    public const TABLE_NO_PK = 'no-pk';
     public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
     public const TABLE_NULLIFY = 'nullify';
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';

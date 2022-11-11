@@ -245,21 +245,6 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
-            case self::TABLE_MULTI_PK:
-                $this->connection->executeQuery(sprintf(
-                    'CREATE TABLE %s.%s (
-            "VisitID"   VARCHAR(2000000),
-            "Value"     VARCHAR(2000000),
-            "MenuItem"  VARCHAR(2000000),
-            "Something" VARCHAR(2000000),
-            "Other"     VARCHAR(2000000),
-            CONSTRAINT "visit_something_pk" PRIMARY KEY ("VisitID", "Something")
-            );',
-                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    SnowflakeQuote::quoteSingleIdentifier($tableName)
-                ));
-                break;
-                // table just for EXA because PK cannot have null nor ''
             case self::TABLE_MULTI_PK_WITH_TS:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (

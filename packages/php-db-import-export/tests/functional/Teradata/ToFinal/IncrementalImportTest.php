@@ -69,6 +69,14 @@ class IncrementalImportTest extends TeradataBaseTestCase
         $multiPkColumns = array_shift($expectedMultiPkRows);
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
+        $multiPkExpectationsWithoutPKFile =  new CsvFile(self::DATA_DIR . 'multi-pk.csv');
+        $multiPkExpectationsWithoutPKROws = [];
+        foreach ($multiPkExpectationsWithoutPKFile as $row) {
+            $multiPkExpectationsWithoutPKROws[] = $row;
+        }
+        // skip columnNames
+        array_shift($multiPkExpectationsWithoutPKROws);
+
         $tests = [];
         yield 'simple' => [
             $this->getSourceInstance(
@@ -87,7 +95,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             $this->getTeradataIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'accounts_3'],
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $expectedAccountsRows,
             4,
             self::TABLE_ACCOUNTS_3,
@@ -119,7 +127,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            [$this->getDestinationSchemaName(), 'accounts_bez_ts'],
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_BEZ_TS],
             $expectedAccountsRows,
             4,
             self::TABLE_ACCOUNTS_BEZ_TS,
@@ -141,10 +149,32 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getTeradataIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'multi_pk_ts'],
+            [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
             $expectedMultiPkRows,
             3,
             self::TABLE_MULTI_PK_WITH_TS,
+        ];
+        yield 'no pk' => [
+            $this->getSourceInstance(
+                'multi-pk.csv',
+                $multiPkColumns,
+                false,
+                false,
+                []
+            ),
+            $this->getImportOptions([], false, false, 1),
+            $this->getSourceInstance(
+                'multi-pk.csv',
+                $multiPkColumns,
+                false,
+                false,
+                []
+            ),
+            $this->getTeradataIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_NO_PK],
+            array_merge($multiPkExpectationsWithoutPKROws, $multiPkExpectationsWithoutPKROws),
+            6,
+            self::TABLE_NO_PK,
         ];
         return $tests;
     }
@@ -164,15 +194,20 @@ class IncrementalImportTest extends TeradataBaseTestCase
         int $expectedImportedRowCount,
         string $tablesToInit
     ): void {
-        $this->initTable($tablesToInit);
+        [$dbName, $tableName] = $table;
 
-        [$schemaName, $tableName] = $table;
+        $this->initTable($tablesToInit, $dbName);
+
         /** @var TeradataTableDefinition $destination */
         $destination = (new TeradataTableReflection(
             $this->connection,
-            $schemaName,
+            $dbName,
             $tableName
         ))->getTableDefinition();
+
+        if(!empty($fullLoadSource->getPrimaryKeysNames())){
+            $this->markTestSkipped('we dont know PK yet');
+        }
 
         $toStageImporter = new ToStageImporter($this->connection);
         $fullImporter = new FullImporter($this->connection);
@@ -222,18 +257,31 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-            $this->connection->executeStatement(
-                (new SqlBuilder())->getDropTableIfExistsCommand(
-                    $fullLoadStagingTable->getSchemaName(),
-                    $fullLoadStagingTable->getTableName()
-                )
-            );
-            $this->connection->executeStatement(
-                (new SqlBuilder())->getDropTableIfExistsCommand(
-                    $incrementalLoadStagingTable->getSchemaName(),
-                    $incrementalLoadStagingTable->getTableName()
-                )
-            );
+            if ($this->tableExists(
+                $fullLoadStagingTable->getSchemaName(),
+                $fullLoadStagingTable->getTableName()
+            )
+            ) {
+                $this->connection->executeStatement(
+                    (new SqlBuilder())->getDropTableUnsafe(
+                        $fullLoadStagingTable->getSchemaName(),
+                        $fullLoadStagingTable->getTableName()
+                    )
+                );
+            }
+
+            if ($this->tableExists(
+                $incrementalLoadStagingTable->getSchemaName(),
+                $incrementalLoadStagingTable->getTableName()
+            )
+            ) {
+                $this->connection->executeStatement(
+                    (new SqlBuilder())->getDropTableUnsafe(
+                        $incrementalLoadStagingTable->getSchemaName(),
+                        $incrementalLoadStagingTable->getTableName()
+                    )
+                );
+            }
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
@@ -246,5 +294,11 @@ class IncrementalImportTest extends TeradataBaseTestCase
             $expected,
             0
         );
+    }
+
+    protected function tableExists(string $dbName, string $tableName): bool
+    {
+        $data = $this->connection->fetchOne((new SqlBuilder())->getTableExistsCommand($dbName, $tableName));
+        return ((int) $data) > 0;
     }
 }

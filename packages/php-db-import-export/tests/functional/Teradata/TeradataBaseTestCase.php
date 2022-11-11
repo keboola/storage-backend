@@ -181,6 +181,23 @@ CREATE DATABASE %s AS
                 );
 
                 break;
+            case self::TABLE_NO_PK:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE MULTISET TABLE %s.%s
+            (
+"VisitID"   VARCHAR(50) CHARACTER SET UNICODE NOT NULL,
+"Value"     VARCHAR(50),
+"MenuItem"  VARCHAR(50),
+"Something" VARCHAR(50),
+"Other"     VARCHAR(50),
+"_timestamp" TIMESTAMP
+    )',
+                        TeradataQuote::quoteSingleIdentifier($dbName),
+                        TeradataQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+                break;
             case self::TABLE_SINGLE_PK:
                 $this->connection->executeQuery(
                     sprintf(
@@ -361,6 +378,42 @@ PRIMARY KEY ("VisitID", "Something")
               (\'a\', \'10.5\', \'0.3\', 1)
            ;',
                     TeradataQuote::quoteSingleIdentifier($this->getSourceDbName())
+                ));
+                break;
+            case self::TABLE_ACCOUNTS_BEZ_TS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET  TABLE %s.%s (
+                "id" VARCHAR(500) NOT NULL,
+                "idTwitter" VARCHAR(500) ,
+                "name" VARCHAR(500) ,
+                "import" VARCHAR(500) ,
+                "isImported" VARCHAR(500) ,
+                "apiLimitExceededDatetime" VARCHAR(500) ,
+                "analyzeSentiment" VARCHAR(500) ,
+                "importKloutScore" VARCHAR(500) ,
+                "timestamp" VARCHAR(500) ,
+                "oauthToken" VARCHAR(500) ,
+                "oauthSecret" VARCHAR(500) ,
+                "idApp" VARCHAR(500),
+                PRIMARY KEY ("id")
+            ) ',
+                    TeradataQuote::quoteSingleIdentifier($dbName),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_MULTI_PK_WITH_TS:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE MULTISET TABLE %s.%s (
+            "VisitID"   VARCHAR(500) NOT NULL,
+            "Value"     VARCHAR(500) NOT NULL,
+            "MenuItem"  VARCHAR(500) NOT NULL,
+            "Something" VARCHAR(500),
+            "Other"     VARCHAR(500),
+            "_timestamp" TIMESTAMP,
+            PRIMARY KEY ("VisitID", "Value", "MenuItem")
+            );',
+                    TeradataQuote::quoteSingleIdentifier($dbName),
+                    TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
             default:
