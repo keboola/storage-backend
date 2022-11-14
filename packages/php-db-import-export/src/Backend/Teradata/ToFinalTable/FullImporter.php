@@ -154,7 +154,10 @@ final class FullImporter implements ToFinalTableImporterInterface
             $state->stopTimer(self::TIMER_DEDUP);
         } finally {
             // 5 drop dedup table
-            $this->dropIfExists($deduplicationTableDefinition->getSchemaName(), $deduplicationTableDefinition->getTableName());
+            $this->dropIfExists(
+                $deduplicationTableDefinition->getSchemaName(),
+                $deduplicationTableDefinition->getTableName()
+            );
         }
 
         $this->connection->executeStatement(
