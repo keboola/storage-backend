@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable;
 
 use Exception as InternalException;
 use Keboola\Datatype\Definition\BaseType;
+use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
@@ -222,5 +223,108 @@ class SqlBuilder
         TeradataTableDefinition $destinationTableDefinition
     ): void {
         throw new InternalException('not implemented yet');
+    }
+
+    public function getUpdateWithPkCommand(
+        TeradataTableDefinition $stagingTableDefinition,
+        TeradataTableDefinition $destinationDefinition,
+        TeradataImportOptions $importOptions,
+        string $timestamp
+    ): string {
+        $columnsSet = [];
+        $dest = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+        );
+
+        foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+                // values '' values from staging convert to NULL
+                $columnsSet[] = sprintf(
+                    '%s = CASE WHEN "src".%s = \'\' THEN NULL ELSE "src".%s END',
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName)
+                );
+            } else {
+                $columnsSet[] = sprintf(
+                    '%s = COALESCE("src".%s, \'\')',
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName)
+                );
+            }
+        }
+
+        if ($importOptions->useTimestamp()) {
+            $columnsSet[] = sprintf(
+                '%s = \'%s\'',
+                TeradataQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+                $timestamp
+            );
+        }
+
+
+        if (!$importOptions->isNullManipulationEnabled()) {
+            $columnsComparisonSql = array_map(
+                static function ($columnName) use ($dest) {
+                    return sprintf(
+                        '%s.%s <> "src".%s',
+                        $dest,
+                        TeradataQuote::quoteSingleIdentifier($columnName),
+                        TeradataQuote::quoteSingleIdentifier($columnName)
+                    );
+                },
+                $stagingTableDefinition->getColumnsNames()
+            );
+        } else {
+            $columnsComparisonSql = array_map(
+                static function ($columnName) use ($dest) {
+                    return sprintf(
+                        'COALESCE(CAST(%s.%s AS VARCHAR(%s)), \'\') <> COALESCE("src".%s, \'\')',
+                        $dest,
+                        TeradataQuote::quoteSingleIdentifier($columnName),
+                        Teradata::DEFAULT_NON_LATIN_CHAR_LENGTH,
+                        TeradataQuote::quoteSingleIdentifier($columnName)
+                    );
+                },
+                $stagingTableDefinition->getColumnsNames()
+            );
+        }
+
+
+        return sprintf(
+            'UPDATE %s FROM %s.%s "src" SET %s WHERE %s AND (%s)',
+            $dest,
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+            implode(', ', $columnsSet),
+            $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions, $dest),
+            implode(' OR ', $columnsComparisonSql)
+        );
+    }
+
+    /**
+     * @param string[] $primaryKeys
+     */
+    private function getPrimayKeyWhereConditions(
+        array $primaryKeys,
+        TeradataImportOptions $importOptions,
+        $dest
+    ): string {
+        $pkWhereSql = array_map(function (string $col) use ($importOptions, $dest) {
+            $str = '%s.%s = COALESCE("src".%s, \'\')';
+            if (!$importOptions->isNullManipulationEnabled()) {
+                $str = '%s.%s = "src".%s';
+            }
+            return sprintf(
+                $str,
+                $dest,
+                TeradataQuote::quoteSingleIdentifier($col),
+                TeradataQuote::quoteSingleIdentifier($col)
+            );
+        }, $primaryKeys);
+
+        return implode(' AND ', $pkWhereSql);
     }
 }

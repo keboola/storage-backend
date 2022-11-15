@@ -481,4 +481,373 @@ class SqlBuilderTest extends TeradataBaseTestCase
             []
         );
     }
+
+
+    public function testGetUpdateWithPkCommand(): void
+    {
+        $this->createTestDb();
+        $this->createTestTableWithColumns();
+        $this->createStagingTableWithData(true);
+        // create fake destination and say that there is pk on col1
+        $fakeDestination = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1']
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            []
+        );
+
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.%s("id","col1","col2") VALUES (1,\'2\',\'1\')',
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            )
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s.%s',
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+        ));
+
+        self::assertEquals([
+            [
+                'id' => '   1',
+                'col1' => '2',
+                'col2' => '1',
+            ],
+        ], $result);
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            $this->getImportOptions(),
+            '2020-01-01 00:00:00'
+        );
+        $dest = sprintf('"%s"."%s"', $this->getTestDBName(), self::TEST_TABLE);
+        // phpcs:ignore
+        $expectedSql = sprintf(
+            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            $dest,
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            $dest,
+            $dest,
+            $dest
+        );
+
+        self::assertEquals($expectedSql, $sql);
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s.%s',
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+        ));
+
+        self::assertEquals([
+            [
+                'id' => '   1',
+                'col1' => '2',
+                'col2' => '2',
+            ],
+        ], $result);
+    }
+
+    public function testGetUpdateWithPkCommandRequireSameTables(): void
+    {
+        $this->markTestSkipped('not ready yet');
+        $this->createTestDb();
+        $this->createTestTableWithColumns();
+        $this->createStagingTableWithData(true);
+        // create fake destination and say that there is pk on col1
+        $fakeDestination = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1']
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            []
+        );
+
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2") VALUES (1,\'2\',\'1\')',
+                self::TEST_TABLE
+            )
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE
+        ));
+
+        self::assertEquals([
+            [
+                'id' => '1',
+                'col1' => '2',
+                'col2' => '1',
+            ],
+        ], $result);
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            new TeradataImportOptions(
+                [],
+                false,
+                false,
+                0,
+                TeradataImportOptions::SAME_TABLES_NOT_REQUIRED,
+                TeradataImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+            ),
+            '2020-01-01 00:00:00'
+        );
+        self::assertEquals(
+        // phpcs:ignore
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" != "src"."col1" OR "dest"."col2" != "src"."col2")',
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE
+        ));
+
+        self::assertEquals([
+            [
+                'id' => '1',
+                'col1' => '2',
+                'col2' => '2',
+            ],
+        ], $result);
+    }
+
+    public function testGetUpdateWithPkCommandConvertValues(): void
+    {
+        $this->markTestSkipped('not ready yet');
+
+        $this->createTestDb();
+        $this->createTestTableWithColumns();
+        $this->createStagingTableWithData(true);
+        // create fake destination and say that there is pk on col1
+        $fakeDestination = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1']
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            []
+        );
+
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2") VALUES (1,\'\',\'1\')',
+                self::TEST_TABLE
+            )
+        );
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2") VALUES (1,\'2\',\'\')',
+                self::TEST_TABLE
+            )
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE
+        ));
+
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'col1' => '',
+                'col2' => '1',
+            ],
+            [
+                'id' => '1',
+                'col1' => '2',
+                'col2' => '',
+            ],
+        ], $result);
+
+        $options = new TeradataImportOptions(['col1']);
+
+        // converver values
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            $options,
+            '2020-01-01 00:00:00'
+        );
+        self::assertEquals(
+        // phpcs:ignore
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE
+        ));
+
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'col1' => null,
+                'col2' => '',
+            ],
+            [
+                'id' => '1',
+                'col1' => '2',
+                'col2' => '2',
+            ],
+        ], $result);
+    }
+
+    public function testGetUpdateWithPkCommandConvertValuesWithTimestamp(): void
+    {
+        $this->markTestSkipped('not ready yet');
+
+        $timestampInit = new DateTime('2020-01-01 00:00:01');
+        $timestampSet = new DateTime('2020-01-01 01:01:01');
+        $this->createTestDb();
+        $this->createTestTableWithColumns(true);
+        $this->createStagingTableWithData(true);
+
+        // create fake destination and say that there is pk on col1
+        $fakeDestination = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1']
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            []
+        );
+
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2","_timestamp") VALUES (1,\'\',\'1\',\'%s\')',
+                self::TEST_TABLE,
+                $timestampInit->format(DateTimeHelper::FORMAT)
+            )
+        );
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2","_timestamp") VALUES (1,\'2\',\'\',\'%s\')',
+                self::TEST_TABLE,
+                $timestampInit->format(DateTimeHelper::FORMAT)
+            )
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE
+        ));
+
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'col1' => '',
+                'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+            [
+                'id' => '1',
+                'col1' => '2',
+                'col2' => '',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+        ], $result);
+
+        // use timestamp
+        $options = new TeradataImportOptions(['col1'], false, true);
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            $options,
+            $timestampSet->format(DateTimeHelper::FORMAT)
+        );
+
+        self::assertEquals(
+        // phpcs:ignore
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE
+        ));
+
+        foreach ($result as $item) {
+            self::assertArrayHasKey('id', $item);
+            self::assertArrayHasKey('col1', $item);
+            self::assertArrayHasKey('col2', $item);
+            self::assertArrayHasKey('_timestamp', $item);
+            self::assertIsString($item['_timestamp']);
+            self::assertSame(
+                $timestampSet->format(DateTimeHelper::FORMAT),
+                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
+            );
+        }
+    }
 }
