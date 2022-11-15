@@ -69,12 +69,12 @@ class IncrementalImportTest extends TeradataBaseTestCase
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
         $multiPkExpectationsWithoutPKFile =  new CsvFile(self::DATA_DIR . 'multi-pk.csv');
-        $multiPkExpectationsWithoutPKROws = [];
+        $multiPkExpectationsWithoutPKRows = [];
         foreach ($multiPkExpectationsWithoutPKFile as $row) {
-            $multiPkExpectationsWithoutPKROws[] = $row;
+            $multiPkExpectationsWithoutPKRows[] = $row;
         }
         // skip columnNames
-        array_shift($multiPkExpectationsWithoutPKROws);
+        array_shift($multiPkExpectationsWithoutPKRows);
 
         $tests = [];
         yield 'simple' => [
@@ -171,7 +171,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
             ),
             $this->getTeradataIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), self::TABLE_NO_PK],
-            array_merge($multiPkExpectationsWithoutPKROws, $multiPkExpectationsWithoutPKROws),
+            array_merge($multiPkExpectationsWithoutPKRows, $multiPkExpectationsWithoutPKRows),
             6,
             self::TABLE_NO_PK,
         ];
@@ -256,12 +256,12 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-            $this->dropIfExists(
+            $this->dropTableIfExists(
                 $fullLoadStagingTable->getSchemaName(),
                 $fullLoadStagingTable->getTableName()
             );
 
-            $this->dropIfExists(
+            $this->dropTableIfExists(
                 $incrementalLoadStagingTable->getSchemaName(),
                 $incrementalLoadStagingTable->getTableName()
             );

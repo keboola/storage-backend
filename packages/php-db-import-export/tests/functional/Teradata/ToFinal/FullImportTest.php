@@ -587,7 +587,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-            $this->dropIfExists($stagingTable->getSchemaName(), $stagingTable->getTableName());
+            $this->dropTableIfExists($stagingTable->getSchemaName(), $stagingTable->getTableName());
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());

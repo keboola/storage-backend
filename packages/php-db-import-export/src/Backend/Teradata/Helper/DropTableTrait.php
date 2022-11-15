@@ -8,7 +8,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 
 trait DropTableTrait
 {
-    public function dropIfExists(string $dbName, string $tableName): void
+    public function dropTableIfExists(string $dbName, string $tableName): void
     {
         if ($this->tableExists($dbName, $tableName)
         ) {
