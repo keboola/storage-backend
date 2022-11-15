@@ -156,7 +156,7 @@ EOT
                 break;
             case self::TABLE_ACCOUNTS_WITHOUT_TS:
                 $this->connection->exec(sprintf(
-                    'CREATE TABLE [%s].[accounts-bez-ts] (
+                    'CREATE TABLE [%s].[accounts-without-ts] (
                 [id] nvarchar(4000) NOT NULL,
                 [idTwitter] nvarchar(4000) NOT NULL,
                 [name] nvarchar(4000) NOT NULL,
