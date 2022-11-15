@@ -19,6 +19,12 @@ class TeradataImportOptions extends ImportOptions
 
     private int $teradataPort;
 
+    /** @var self::SAME_TABLES_* */
+    protected bool $requireSameTables;
+
+    /** @var self::NULL_MANIPULATION_* */
+    protected bool $nullManipulation;
+
     /**
      * @var TeradataImportOptions::CSV_ADAPTER_*
      */
@@ -37,7 +43,9 @@ class TeradataImportOptions extends ImportOptions
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        string $csvImportAdapter = self::DEFAULT_CSV_ADAPTER
+        string $csvImportAdapter = self::DEFAULT_CSV_ADAPTER,
+        bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED,
+        bool $nullManipulation = self::NULL_MANIPULATION_ENABLED
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -50,6 +58,9 @@ class TeradataImportOptions extends ImportOptions
         $this->teradataPassword = $teradataPassword;
         $this->teradataPort = $teradataPort;
         $this->csvImportAdapter = $csvImportAdapter;
+
+        $this->requireSameTables = $requireSameTables;
+        $this->nullManipulation = $nullManipulation;
     }
 
     public function getTeradataHost(): string
@@ -78,5 +89,16 @@ class TeradataImportOptions extends ImportOptions
     public function getCsvImportAdapter(): string
     {
         return $this->csvImportAdapter;
+    }
+
+
+    public function isRequireSameTables(): bool
+    {
+        return $this->requireSameTables === self::SAME_TABLES_REQUIRED;
+    }
+
+    public function isNullManipulationEnabled(): bool
+    {
+        return $this->nullManipulation === self::NULL_MANIPULATION_ENABLED;
     }
 }

@@ -319,8 +319,8 @@ class SqlBuilder
 
         $dest = sprintf(
             '%s.%s',
-            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
         );
         return sprintf(
             'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s AND (%s)',

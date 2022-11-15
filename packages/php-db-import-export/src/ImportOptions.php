@@ -18,6 +18,13 @@ class ImportOptions implements ImportOptionsInterface
     /** @var self::USING_TYPES_* */
     private string $usingTypes;
 
+    public const SAME_TABLES_REQUIRED = true;
+    public const SAME_TABLES_NOT_REQUIRED = false;
+    public const NULL_MANIPULATION_ENABLED = true;
+    public const NULL_MANIPULATION_SKIP = false;
+
+
+
     /**
      * @param string[] $convertEmptyValuesToNull
      * @param self::USING_TYPES_* $usingTypes

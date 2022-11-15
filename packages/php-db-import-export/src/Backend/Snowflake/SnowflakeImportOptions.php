@@ -8,11 +8,6 @@ use Keboola\Db\ImportExport\ImportOptions;
 
 class SnowflakeImportOptions extends ImportOptions
 {
-    public const SAME_TABLES_REQUIRED = true;
-    public const SAME_TABLES_NOT_REQUIRED = false;
-    public const NULL_MANIPULATION_ENABLED = true;
-    public const NULL_MANIPULATION_SKIP = false;
-
     /** @var self::SAME_TABLES_* */
     private bool $requireSameTables;
 
