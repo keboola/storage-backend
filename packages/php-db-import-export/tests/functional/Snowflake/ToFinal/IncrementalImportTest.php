@@ -119,10 +119,10 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            [$this->getDestinationSchemaName(), 'accounts_bez_ts'],
+            [$this->getDestinationSchemaName(), 'accounts_without_ts'],
             $expectedAccountsRows,
             4,
-            self::TABLE_ACCOUNTS_BEZ_TS,
+            self::TABLE_ACCOUNTS_WITHOUT_TS,
         ];
         yield 'multi pk' => [
             $this->getSourceInstance(

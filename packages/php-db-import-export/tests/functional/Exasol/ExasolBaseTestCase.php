@@ -21,19 +21,6 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     // TODO exasol cannot have "." in schema name
     protected const EXASOL_DEST_SCHEMA_NAME = 'in_c-tests';
     protected const EXASOL_SOURCE_SCHEMA_NAME = 'some_tests';
-    public const TABLE_ACCOUNTS_3 = 'accounts-3';
-    public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
-    public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
-    public const TABLE_MULTI_PK = 'multi-pk';
-    public const TABLE_MULTI_PK_WITH_TS = 'multi-pk_ts';
-    public const TABLE_SINGLE_PK = 'single-pk';
-    public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
-    public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
-    public const TABLE_NULLIFY = 'nullify';
-    public const TABLE_OUT_LEMMA = 'out_lemma';
-    public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
-    public const TABLE_TABLE = 'table';
-    public const TABLE_TYPES = 'types';
     public const TESTS_PREFIX = 'import-export-test_';
 
     protected Connection $connection;
@@ -152,7 +139,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                     ExasolQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
-            case self::TABLE_ACCOUNTS_BEZ_TS:
+            case self::TABLE_ACCOUNTS_WITHOUT_TS:
                 $this->connection->executeQuery(sprintf(
                     'CREATE TABLE %s.%s (
                 "id" VARCHAR(2000000) ,

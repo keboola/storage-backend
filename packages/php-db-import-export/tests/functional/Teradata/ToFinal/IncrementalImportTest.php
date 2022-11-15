@@ -126,10 +126,10 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_BEZ_TS],
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $expectedAccountsRows,
             4,
-            self::TABLE_ACCOUNTS_BEZ_TS,
+            self::TABLE_ACCOUNTS_WITHOUT_TS,
         ];
         yield 'multi pk' => [
             $this->getSourceInstance(

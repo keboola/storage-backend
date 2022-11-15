@@ -382,7 +382,7 @@ PRIMARY KEY ("VisitID", "Something")
                     TeradataQuote::quoteSingleIdentifier($this->getSourceDbName())
                 ));
                 break;
-            case self::TABLE_ACCOUNTS_BEZ_TS:
+            case self::TABLE_ACCOUNTS_WITHOUT_TS:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET  TABLE %s.%s (
                 "id" VARCHAR(500) NOT NULL,

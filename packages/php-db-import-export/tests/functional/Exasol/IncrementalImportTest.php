@@ -119,7 +119,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
             [$this->getDestinationSchemaName(), 'accounts-bez-ts'],
             $expectedAccountsRows,
             4,
-            self::TABLE_ACCOUNTS_BEZ_TS,
+            self::TABLE_ACCOUNTS_WITHOUT_TS,
         ];
         yield 'multi pk' => [
             $this->createS3SourceInstance(

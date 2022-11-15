@@ -14,7 +14,7 @@ abstract class ImportExportBaseTest extends TestCase
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
     public const TABLE_OUT_LEMMA = 'out_lemma';
     public const TABLE_ACCOUNTS_3 = 'accounts-3';
-    public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
+    public const TABLE_ACCOUNTS_WITHOUT_TS = 'accounts-without-ts';
     public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
     public const TABLE_MULTI_PK = 'multi-pk';
     public const TABLE_MULTI_PK_WITH_TS = 'multi-pk_ts';
