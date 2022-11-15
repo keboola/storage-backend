@@ -17,10 +17,14 @@ class SqlBuilder
 {
     private const SRC_ALIAS = 'src';
 
-    public function getCommitTransaction(): string
+    public function getEndTransaction(): string
     {
-        //TODO
-        throw new InternalException('not implemented yet');
+        return 'END TRANSACTION';
+    }
+
+    public function getBeginTransaction(): string
+    {
+        return 'BEGIN TRANSACTION';
     }
 
     /**
@@ -135,12 +139,63 @@ class SqlBuilder
         );
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
+    public function getDedupCommand(
+        TeradataTableDefinition $stagingTableDefinition,
+        TeradataTableDefinition $deduplicationTableDefinition,
+        array $primaryKeys
+    ): string {
+        if (empty($primaryKeys)) {
+            return '';
+        }
+
+        $pkSql = $this->getColumnsString(
+            $primaryKeys,
+            ','
+        );
+
+        $stage = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+        );
+
+        $depudeSql = sprintf(
+            'SELECT %s FROM ('
+            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
+            . 'FROM %s'
+            . ') AS a '
+            . 'WHERE a."_row_number_" = 1',
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ',', 'a'),
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
+            $pkSql,
+            $pkSql,
+            $stage
+        );
+
+        $deduplication = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'INSERT INTO %s (%s) %s',
+            $deduplication,
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
+            $depudeSql
+        );
+    }
+
     public function getTruncateTableWithDeleteCommand(
         string $schema,
         string $tableName
     ): string {
+        // TD has no TRUNCATE command - DELETE ALL has to be used
         return sprintf(
-            'DELETE FROM %s.%s',
+            'DELETE %s.%s ALL',
             TeradataQuote::quoteSingleIdentifier($schema),
             TeradataQuote::quoteSingleIdentifier($tableName)
         );

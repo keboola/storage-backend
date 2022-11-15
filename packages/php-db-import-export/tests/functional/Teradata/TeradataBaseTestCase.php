@@ -181,18 +181,35 @@ CREATE DATABASE %s AS
                 );
 
                 break;
-            case self::TABLE_OUT_CSV_2COLS_WITHOUT_TS:
+            case self::TABLE_SINGLE_PK:
                 $this->connection->executeQuery(
                     sprintf(
                         'CREATE MULTISET TABLE %s.%s
             (
-"VisitID"   VARCHAR(50) CHARACTER SET UNICODE,
+"VisitID"   VARCHAR(50) CHARACTER SET UNICODE NOT NULL,
 "Value"     VARCHAR(50),
 "MenuItem"  VARCHAR(50),
 "Something" VARCHAR(50),
 "Other"     VARCHAR(50),
-    )
-PRIMARY INDEX ("VisitID");',
+PRIMARY KEY ("VisitID")
+    )',
+                        TeradataQuote::quoteSingleIdentifier($dbName),
+                        TeradataQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+                break;
+            case self::TABLE_MULTI_PK:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE MULTISET TABLE %s.%s
+            (
+"VisitID"   VARCHAR(50) CHARACTER SET UNICODE NOT NULL,
+"Value"     VARCHAR(50),
+"MenuItem"  VARCHAR(50),
+"Something" VARCHAR(50) CHARACTER SET UNICODE NOT NULL,
+"Other"     VARCHAR(50),
+PRIMARY KEY ("VisitID", "Something")
+    )',
                         TeradataQuote::quoteSingleIdentifier($dbName),
                         TeradataQuote::quoteSingleIdentifier($tableName)
                     )
