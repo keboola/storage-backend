@@ -43,26 +43,27 @@ class GcsExportAdapter implements BackendExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions
     ): array {
-
         $sql = sprintf(
             'EXPORT DATA
 OPTIONS (
-    uri = \'gs://%s*.csv\',
-    format = \'CSV\',
-    overwrite = true,
-    header = false,
-    field_delimiter = \'%s\',
+    uri = \'gs://%s*.csv%s\'
+    ,format = \'CSV\'
+    ,overwrite = true
+    ,header = false
+    ,field_delimiter = \'%s\'
     %s
 ) AS (
     %s
 );',
-            $destination->getRelativePath()->getPath(),
+            $destination->getRelativePath()->getPathname(),
+            $exportOptions->isCompressed() ? '.gz' : '', // add file suffix if gzip
             CsvOptions::DEFAULT_DELIMITER,
-            $exportOptions->isCompressed() ? 'compression=\'GZIP\'' : '',
+            $exportOptions->isCompressed() ? ',compression=\'GZIP\'' : '',
             $source->getFromStatement(),
         );
-        $query = $this->bqClient->query($sql);
-        $this->bqClient->runQuery($query);
+        $this->bqClient->runQuery(
+            $this->bqClient->query($sql)
+        );
 
         if ($exportOptions->generateManifest()) {
             (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromFolderGenerator(
