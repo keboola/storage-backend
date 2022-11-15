@@ -45,9 +45,8 @@ class GcsSlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInt
             'entries' => $entries,
         ], JSON_THROW_ON_ERROR);
 
-        /** @var resource $stream
-         */
-        $stream = fopen('data://text/plain,' . $encodedManifest, 'rb');
+        /** @var resource $stream */
+        $stream = fopen('data://text/plain;base64,' . base64_encode($encodedManifest), 'rb');
         $bucket->upload($stream, [
             'name' => $path->getPathnameWithoutRoot() . 'manifest',
         ]);
