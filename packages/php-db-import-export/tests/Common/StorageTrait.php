@@ -75,7 +75,7 @@ trait StorageTrait
                 );
             case StorageType::STORAGE_GCS:
                 return new Storage\GCS\DestinationFile(
-                    (string) getenv('GCS_BUCKET_NAME'),
+                    (string) getenv($this->getGCSBucketEnvName()),
                     $filePath,
                     (string) getenv('GCS_INTEGRATION_NAME'),
                     $this->getGCSCredentials()
@@ -194,7 +194,7 @@ trait StorageTrait
             case StorageType::STORAGE_GCS:
                 /** @var StorageClient $client */
                 $client = $this->createClient();
-                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                $bucket = $client->bucket((string) getenv($this->getGCSBucketEnvName()));
                 $objects = $bucket->objects(['prefix' => $dirToClear]);
                 foreach ($objects as $object) {
                     $object->delete();
@@ -295,7 +295,7 @@ trait StorageTrait
             case StorageType::STORAGE_GCS:
                 /** @var StorageClient $client */
                 $client = $this->createClient();
-                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                $bucket = $client->bucket((string) getenv($this->getGCSBucketEnvName()));
                 $objects = $bucket->objects(['prefix' => $dir]);
                 $objects = iterator_to_array($objects);
                 if ($excludeManifest) {
@@ -347,7 +347,7 @@ trait StorageTrait
             case StorageType::STORAGE_GCS:
                 /** @var StorageClient $client */
                 $client = $this->createClient();
-                $bucket = $client->bucket((string) getenv('GCS_BUCKET_NAME'));
+                $bucket = $client->bucket((string) getenv($this->getGCSBucketEnvName()));
                 foreach ($files as $file) {
                     assert($file instanceof StorageObject);
                     $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file->name());

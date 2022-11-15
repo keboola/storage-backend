@@ -6,11 +6,8 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
-use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\ImportOptions;
-use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
-use LogicException;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class BigqueryBaseTestCase extends ImportExportBaseTest
@@ -245,35 +242,6 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         ));
     }
 
-    /**
-     * filePath is expected without AWS_GCS_KEY
-     *
-     * @param string[] $columns
-     * @param string[]|null $primaryKeys
-     */
-    protected function createGCSSourceInstanceFromCsv(
-        string $filePath,
-        CsvOptions $options,
-        array $columns = [],
-        bool $isSliced = false,
-        bool $isDirectory = false,
-        ?array $primaryKeys = null
-    ): Storage\GCS\SourceFile {
-        if ($isDirectory) {
-            throw new Exception('Directory not supported for GCS');
-        }
-
-        return new Storage\GCS\SourceFile(
-            (string) getenv('BQ_BUCKET_NAME'),
-            $filePath,
-            '',
-            $this->getBqCredentials(),
-            $options,
-            $isSliced,
-            $columns,
-            $primaryKeys
-        );
-    }
 
     /**
      * @return array{
@@ -318,54 +286,13 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         return $credentials;
     }
 
-    /**
-     * @param string[] $columns
-     * @param string[]|null $primaryKeys
-     */
-    protected function createBQSourceInstance(
-        string $filePath,
-        array $columns = [],
-        bool $isSliced = false,
-        bool $isDirectory = false,
-        ?array $primaryKeys = null
-    ): Storage\GCS\SourceFile {
-        return $this->createBQSourceInstanceFromCsv(
-            $filePath,
-            new CsvOptions(),
-            $columns,
-            $isSliced,
-            $isDirectory,
-            $primaryKeys
-        );
+    protected function getGCSBucketEnvName(): string
+    {
+        return 'BQ_BUCKET_NAME';
     }
 
-    /**
-     * filePath is expected without AWS_GCS_KEY
-     *
-     * @param string[] $columns
-     * @param string[]|null $primaryKeys
-     */
-    protected function createBqSourceInstanceFromCsv(
-        string $filePath,
-        CsvOptions $options,
-        array $columns = [],
-        bool $isSliced = false,
-        bool $isDirectory = false,
-        ?array $primaryKeys = null
-    ): Storage\GCS\SourceFile {
-        if ($isDirectory) {
-            throw new Exception('Directory not supported for GCS');
-        }
-
-        return new Storage\GCS\SourceFile(
-            (string) getenv('BQ_BUCKET_NAME'),
-            $filePath,
-            '',
-            $this->getBqCredentials(),
-            $options,
-            $isSliced,
-            $columns,
-            $primaryKeys
-        );
+    protected function getGCSCredentials(): array
+    {
+        return $this->getBqCredentials();
     }
 }
