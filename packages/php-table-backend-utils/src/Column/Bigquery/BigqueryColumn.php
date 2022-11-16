@@ -80,11 +80,15 @@ class BigqueryColumn implements ColumnInterface
         $type = $dbResponse['data_type'];
         $default = $dbResponse['column_default'] === 'NULL' ? null : $dbResponse['column_default'];
         $length = null;
-
         $matches = [];
-        if (preg_match('/^(\w+)\(([0-9\, ]+)\)$/ui', $dbResponse['data_type'], $matches)) {
+        if (preg_match('/([a-z]+)\<([A-Za-z(A-Za-z_\,0-9)<> ]+)\>/ui', $dbResponse['data_type'], $matches)) {
             $type = $matches[1];
-            $length = str_replace(' ', '', $matches[2]);
+            $length = $matches[2];
+        } else {
+            if (preg_match('/^(\w+)\(([0-9\, ]+)\)$/ui', $dbResponse['data_type'], $matches)) {
+                $type = $matches[1];
+                $length = str_replace(' ', '', $matches[2]);
+            }
         }
 
         /** @var array{length?:string|null, nullable?:bool, default?:string|null} $options */
