@@ -23,27 +23,22 @@ class SqlBuilderTest extends TeradataBaseTestCase
     public const TEST_STAGING_TABLE = 'stagingTable';
     public const TEST_TABLE = self::TESTS_PREFIX . 'test';
 
-    protected function dropTestDb(): void
-    {
-        $this->cleanDatabase($this->getTestDBName());
-    }
-
-    protected function getBuilder(): SqlBuilder
-    {
-        return new SqlBuilder();
-    }
-
+    // helpers
     protected function setUp(): void
     {
         parent::setUp();
         $this->dropTestDb();
     }
 
+    protected function dropTestDb(): void
+    {
+        $this->cleanDatabase($this->getTestDBName());
+    }
+
     protected function createTestDb(): void
     {
         $this->createDatabase($this->getTestDBName());
     }
-
 
     protected function getTestDBName(): string
     {
@@ -55,46 +50,23 @@ class SqlBuilderTest extends TeradataBaseTestCase
         return $buildPrefix . self::TEST_DB;
     }
 
-    public function testGetDedupCommand(): void
+    protected function getBuilder(): SqlBuilder
     {
-        $this->createTestDb();
-        $stageDef = $this->createStagingTableWithData();
+        return new SqlBuilder();
+    }
 
-        $deduplicationDef = new TeradataTableDefinition(
-            $this->getTestDBName(),
-            '__temp_tempTable',
-            true,
-            new ColumnCollection([
-                TeradataColumn::createGenericColumn('col1'),
-                TeradataColumn::createGenericColumn('col2'),
-            ]),
-            [
-                'pk1',
-                'pk2',
-            ]
-        );
-        $qb = new TeradataTableQueryBuilder();
-        $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($deduplicationDef));
-
-        $sql = $this->getBuilder()->getDedupCommand(
-            $stageDef,
-            $deduplicationDef,
-            $deduplicationDef->getPrimaryKeysNames()
-        );
-        $testDbName = TeradataQuote::quoteSingleIdentifier($this->getTestDBName());
-        self::assertEquals(
-        // phpcs:ignore
-            sprintf('INSERT INTO %s."__temp_tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM %s."stagingTable") AS a WHERE a."_row_number_" = 1', $testDbName, $testDbName),
-            $sql
-        );
-        $this->connection->executeStatement($sql);
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.%s',
-            TeradataQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($deduplicationDef->getTableName())
-        ));
-
-        self::assertCount(2, $result);
+    // TODO do we need it?
+    private function assertTableNotExists(string $schemaName, string $tableName): void
+    {
+        try {
+            (new TeradataTableReflection($this->connection, $schemaName, $tableName))->getTableStats();
+            self::fail(sprintf(
+                'Table "%s.%s" is expected to not exist.',
+                $schemaName,
+                $tableName
+            ));
+        } catch (Exception $e) {
+        }
     }
 
     private function createStagingTableWithData(bool $includeEmptyValues = false): TeradataTableDefinition
@@ -138,22 +110,81 @@ class SqlBuilderTest extends TeradataBaseTestCase
         return $def;
     }
 
+    private function getStagingTableDefinition(): TeradataTableDefinition
+    {
+        return new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('pk1'),
+                $this->createNullableGenericColumn('pk2'),
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            []
+        );
+    }
+
+    private function createNullableGenericColumn(string $columnName): TeradataColumn
+    {
+        $definition = new Teradata(
+            Teradata::TYPE_VARCHAR,
+            [
+                'length' => '50', // should be changed to max in future
+                'nullable' => true,
+            ]
+        );
+
+        return new TeradataColumn(
+            $columnName,
+            $definition
+        );
+    }
+
+    protected function createTestTableWithColumns(
+        bool $includeTimestamp = false,
+        bool $includePrimaryKey = false
+    ): TeradataTableDefinition {
+        $columns = [];
+        $pks = [];
+        if ($includePrimaryKey) {
+            $pks[] = 'id';
+            $columns[] = new TeradataColumn(
+                'id',
+                new Teradata(Teradata::TYPE_INT)
+            );
+        } else {
+            $columns[] = $this->createNullableGenericColumn('id');
+        }
+        $columns[] = $this->createNullableGenericColumn('col1');
+        $columns[] = $this->createNullableGenericColumn('col2');
+
+        if ($includeTimestamp) {
+            $columns[] = new TeradataColumn(
+                '_timestamp',
+                new Teradata(Teradata::TYPE_TIMESTAMP)
+            );
+        }
+
+        $tableDefinition = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection($columns),
+            $pks
+        );
+        $this->connection->executeStatement(
+            (new TeradataTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition)
+        );
+
+        return $tableDefinition;
+    }
+
+    // tests
     public function testGetDeleteOldItemsCommand(): void
     {
         $this->markTestSkipped('not implemented');
-    }
-
-    private function assertTableNotExists(string $schemaName, string $tableName): void
-    {
-        try {
-            (new TeradataTableReflection($this->connection, $schemaName, $tableName))->getTableStats();
-            self::fail(sprintf(
-                'Table "%s.%s" is expected to not exist.',
-                $schemaName,
-                $tableName
-            ));
-        } catch (Exception $e) {
-        }
     }
 
     public function testGetDropTableIfExistsCommand(): void
@@ -202,6 +233,70 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $this->assertEquals(0, $this->connection->fetchOne($sql));
     }
 
+    public function testGetTruncateTableWithDeleteCommand(): void
+    {
+        $this->createTestDb();
+        $this->createStagingTableWithData();
+
+        $ref = new TeradataTableReflection($this->connection, $this->getTestDBName(), self::TEST_STAGING_TABLE);
+        self::assertEquals(3, $ref->getRowsCount());
+
+        $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand($this->getTestDBName(), self::TEST_STAGING_TABLE);
+        self::assertEquals(
+            sprintf(
+                'DELETE %s."stagingTable" ALL',
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+            ),
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+        self::assertEquals(0, $ref->getRowsCount());
+    }
+
+    // dedup command
+    public function testGetDedupCommand(): void
+    {
+        $this->createTestDb();
+        $stageDef = $this->createStagingTableWithData();
+
+        $deduplicationDef = new TeradataTableDefinition(
+            $this->getTestDBName(),
+            '__temp_tempTable',
+            true,
+            new ColumnCollection([
+                TeradataColumn::createGenericColumn('col1'),
+                TeradataColumn::createGenericColumn('col2'),
+            ]),
+            [
+                'pk1',
+                'pk2',
+            ]
+        );
+        $qb = new TeradataTableQueryBuilder();
+        $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($deduplicationDef));
+
+        $sql = $this->getBuilder()->getDedupCommand(
+            $stageDef,
+            $deduplicationDef,
+            $deduplicationDef->getPrimaryKeysNames()
+        );
+        $testDbName = TeradataQuote::quoteSingleIdentifier($this->getTestDBName());
+        self::assertEquals(
+        // phpcs:ignore
+            sprintf('INSERT INTO %s."__temp_tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM %s."stagingTable") AS a WHERE a."_row_number_" = 1', $testDbName, $testDbName),
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s.%s',
+            TeradataQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($deduplicationDef->getTableName())
+        ));
+
+        self::assertCount(2, $result);
+    }
+
+    // insert all command
     public function testGetInsertAllIntoTargetTableCommand(): void
     {
         $this->createTestDb();
@@ -269,61 +364,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 'col2' => '',
             ],
         ], $result);
-    }
-
-    protected function createTestTableWithColumns(
-        bool $includeTimestamp = false,
-        bool $includePrimaryKey = false
-    ): TeradataTableDefinition {
-        $columns = [];
-        $pks = [];
-        if ($includePrimaryKey) {
-            $pks[] = 'id';
-            $columns[] = new TeradataColumn(
-                'id',
-                new Teradata(Teradata::TYPE_INT)
-            );
-        } else {
-            $columns[] = $this->createNullableGenericColumn('id');
-        }
-        $columns[] = $this->createNullableGenericColumn('col1');
-        $columns[] = $this->createNullableGenericColumn('col2');
-
-        if ($includeTimestamp) {
-            $columns[] = new TeradataColumn(
-                '_timestamp',
-                new Teradata(Teradata::TYPE_TIMESTAMP)
-            );
-        }
-
-        $tableDefinition = new TeradataTableDefinition(
-            $this->getTestDBName(),
-            self::TEST_TABLE,
-            false,
-            new ColumnCollection($columns),
-            $pks
-        );
-        $this->connection->executeStatement(
-            (new TeradataTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition)
-        );
-
-        return $tableDefinition;
-    }
-
-    private function createNullableGenericColumn(string $columnName): TeradataColumn
-    {
-        $definition = new Teradata(
-            Teradata::TYPE_VARCHAR,
-            [
-                'length' => '50', // should be changed to max in future
-                'nullable' => true,
-            ]
-        );
-
-        return new TeradataColumn(
-            $columnName,
-            $definition
-        );
     }
 
     public function testGetInsertAllIntoTargetTableCommandConvertToNull(): void
@@ -446,43 +486,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         }
     }
 
-    public function testGetTruncateTableWithDeleteCommand(): void
-    {
-        $this->createTestDb();
-        $this->createStagingTableWithData();
-
-        $ref = new TeradataTableReflection($this->connection, $this->getTestDBName(), self::TEST_STAGING_TABLE);
-        self::assertEquals(3, $ref->getRowsCount());
-
-        $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand($this->getTestDBName(), self::TEST_STAGING_TABLE);
-        self::assertEquals(
-            sprintf(
-                'DELETE %s."stagingTable" ALL',
-                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
-            ),
-            $sql
-        );
-        $this->connection->executeStatement($sql);
-        self::assertEquals(0, $ref->getRowsCount());
-    }
-
-    private function getStagingTableDefinition(): TeradataTableDefinition
-    {
-        return new TeradataTableDefinition(
-            $this->getTestDBName(),
-            self::TEST_STAGING_TABLE,
-            true,
-            new ColumnCollection([
-                $this->createNullableGenericColumn('pk1'),
-                $this->createNullableGenericColumn('pk2'),
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
-            ]),
-            []
-        );
-    }
-
-
+    // update command
     public function testGetUpdateWithPkCommand(): void
     {
         $this->createTestDb();
