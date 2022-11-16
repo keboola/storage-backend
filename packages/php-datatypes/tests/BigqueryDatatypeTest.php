@@ -253,6 +253,54 @@ class BigqueryDatatypeTest extends TestCase
                 $type . '(1000)',
             ];
         }
+        // todo mozno resit viac tu validaciu v zanoreni
+        $tests[] = [
+            'array',
+            ['length' => 'INT64'],
+            'array<INT64>',
+        ];
+
+        $tests[] = [
+            'array',
+            ['length' => 'BYTES(5)'],
+            'array<BYTES(5)>',
+        ];
+
+        $tests[] = [
+            'array',
+            ['length' => 'STRUCT<INT64, INT64>'],
+            'array<STRUCT<INT64, INT64>>',
+        ];
+
+        $tests[] = [
+            'array',
+            ['length' => 'STRUCT<ARRAY<INT64>>'],
+            'array<STRUCT<ARRAY<INT64>>>',
+        ];
+
+        $tests[] = [
+            'struct',
+            ['length' => 'INT64'],
+            'struct<INT64>',
+        ];
+
+        $tests[] = [
+            'struct',
+            ['length' => 'x BYTES(10)'],
+            'struct<x BYTES(10)>',
+        ];
+
+        $tests[] = [
+            'struct',
+            ['length' => 'x STRUCT<y INT64, z INT64>'],
+            'struct<x STRUCT<y INT64, z INT64>>',
+        ];
+
+        $tests[] = [
+            'struct',
+            ['length' => 'inner_array ARRAY<INT64>'],
+            'struct<inner_array ARRAY<INT64>>',
+        ];
 
         return $tests;
     }
