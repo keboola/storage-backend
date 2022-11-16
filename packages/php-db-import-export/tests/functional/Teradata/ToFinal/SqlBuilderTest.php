@@ -9,7 +9,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
-use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -186,11 +185,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
     }
 
     // tests
-    public function testGetDeleteOldItemsCommand(): void
-    {
-        $this->markTestSkipped('not implemented');
-    }
-
     public function testGetDropTableIfExistsCommand(): void
     {
         $this->createTestDb();
@@ -870,5 +864,108 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
             );
         }
+    }
+
+    // delete old items
+    public function testGetDeleteOldItemsCommand(): void
+    {
+        $this->createTestDb();
+
+        $tableDefinition = new TeradataTableDefinition(
+            $this->getTestDbName(),
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                new TeradataColumn(
+                    'id',
+                    new Teradata(
+                        Teradata::TYPE_INT
+                    )
+                ),
+                TeradataColumn::createGenericColumn('pk1'),
+                TeradataColumn::createGenericColumn('pk2'),
+                TeradataColumn::createGenericColumn('col1'),
+                TeradataColumn::createGenericColumn('col2'),
+            ]),
+            ['pk1', 'pk2']
+        );
+        $storageTable = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($tableDefinition->getTableName())
+        );
+        $qb = new TeradataTableQueryBuilder();
+        $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($tableDefinition));
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s ("id","pk1","pk2","col1","col2") VALUES (1,1,1,\'1\',\'1\')',
+                $storageTable
+            )
+        );
+        $stagingTableDefinition = new TeradataTableDefinition(
+            $this->getTestDbName(),
+            self::TEST_STAGING_TABLE,
+            false,
+            new ColumnCollection([
+                TeradataColumn::createGenericColumn('pk1'),
+                TeradataColumn::createGenericColumn('pk2'),
+                TeradataColumn::createGenericColumn('col1'),
+                TeradataColumn::createGenericColumn('col2'),
+            ]),
+            ['pk1', 'pk2']
+        );
+        $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stagingTableDefinition));
+        $stagingTable = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+        );
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s ("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
+                $stagingTable
+            )
+        );
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s ("pk1","pk2","col1","col2") VALUES (2,1,\'1\',\'1\')',
+                $stagingTable
+            )
+        );
+
+        $sql = $this->getBuilder()->getDeleteOldItemsCommand(
+            $stagingTableDefinition,
+            $tableDefinition,
+            $this->getSimpleImportOptions()
+        );
+
+        $expectedSql = sprintf(
+        // phpcs:ignore
+            'DELETE %s FROM %s AS "joined" WHERE %s."pk1" = COALESCE("joined"."pk1", \'\') AND %s."pk2" = COALESCE("joined"."pk2", \'\')',
+            $stagingTable,
+            $storageTable,
+            $stagingTable,
+            $stagingTable,
+        );
+        self::assertEquals(
+            $expectedSql,
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            $stagingTable
+        ));
+
+        self::assertCount(1, $result);
+        self::assertSame([
+            [
+                'pk1' => '   2',
+                'pk2' => '   1',
+                'col1' => '1',
+                'col2' => '1',
+            ],
+        ], $result);
     }
 }

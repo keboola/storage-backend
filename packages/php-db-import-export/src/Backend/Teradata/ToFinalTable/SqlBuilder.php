@@ -220,9 +220,32 @@ class SqlBuilder
 
     public function getDeleteOldItemsCommand(
         TeradataTableDefinition $stagingTableDefinition,
-        TeradataTableDefinition $destinationTableDefinition
-    ): void {
-        throw new InternalException('not implemented yet');
+        TeradataTableDefinition $destinationTableDefinition,
+        $importOptions
+    ): string {
+        $stagingTable = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+        );
+
+        $destinationTable = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'DELETE %s FROM %s AS "joined" WHERE %s',
+            $stagingTable,
+            $destinationTable,
+            $this->getPrimayKeyWhereConditions(
+                $destinationTableDefinition->getPrimaryKeysNames(),
+                $importOptions,
+                $stagingTable,
+                '"joined"'
+            )
+        );
     }
 
     public function getUpdateWithPkCommand(
@@ -316,17 +339,19 @@ class SqlBuilder
     private function getPrimayKeyWhereConditions(
         array $primaryKeys,
         TeradataImportOptions $importOptions,
-        string $dest
+        string $dest,
+        string $alias = '"src"'
     ): string {
-        $pkWhereSql = array_map(function (string $col) use ($importOptions, $dest) {
-            $str = '%s.%s = COALESCE("src".%s, \'\')';
+        $pkWhereSql = array_map(function (string $col) use ($importOptions, $dest, $alias) {
+            $str = '%s.%s = COALESCE(%s.%s, \'\')';
             if (!$importOptions->isNullManipulationEnabled()) {
-                $str = '%s.%s = "src".%s';
+                $str = '%s.%s = %s.%s';
             }
             return sprintf(
                 $str,
                 $dest,
                 TeradataQuote::quoteSingleIdentifier($col),
+                $alias,
                 TeradataQuote::quoteSingleIdentifier($col)
             );
         }, $primaryKeys);
