@@ -19,7 +19,7 @@ class Bigquery extends Common
     public const NUMERIC_LENGTH_CONST = 29;
     public const BIGNUMERIC_LENGTH_CONST = 38;
 
-//    public const TYPE_ARRAY = 'ARRAY'; // todo we decided not support array right now
+    public const TYPE_ARRAY = 'ARRAY';
 
     public const TYPE_BOOL = 'BOOL'; // NULL,TRUE,FALSE
 
@@ -59,9 +59,10 @@ class Bigquery extends Common
 
     public const TYPE_STRING = 'STRING'; // STRING(L) L is a positive INT64 value
 
-//    public const TYPE_STRUCT = 'STRUCT'; // todo we decided not support struct right now
+    public const TYPE_STRUCT = 'STRUCT';
 
     public const TYPES = [
+        self::TYPE_ARRAY,
         self::TYPE_BOOL,
         self::TYPE_BYTES,
         self::TYPE_DATE,
@@ -76,6 +77,7 @@ class Bigquery extends Common
         self::TYPE_BIGNUMERIC,
         self::TYPE_FLOAT64,
         self::TYPE_STRING,
+        self::TYPE_STRUCT,
 
         // aliases
         self::TYPE_INT,
@@ -115,9 +117,16 @@ class Bigquery extends Common
     public function getTypeOnlySQLDefinition(): string
     {
         $out = $this->getType();
-        $length = $this->getLength();
-        if ($length !== null && $length !== '') {
-            $out .= sprintf('(%s)', $length);
+        if (strtoupper($out) === self::TYPE_ARRAY || strtoupper($out) === self::TYPE_STRUCT) {
+            $length = $this->getLength();
+            if ($length !== null && $length !== '') {
+                $out .= sprintf('<%s>', $length);
+            }
+        } else {
+            $length = $this->getLength();
+            if ($length !== null && $length !== '') {
+                $out .= sprintf('(%s)', $length);
+            }
         }
         return $out;
     }
@@ -125,6 +134,12 @@ class Bigquery extends Common
     public function getSQLDefinition(): string
     {
         $definition = $this->getTypeOnlySQLDefinition();
+
+        if (strtoupper($this->getType()) === self::TYPE_ARRAY
+        || strtoupper($this->getType()) === self::TYPE_STRUCT
+        ) {
+            return $definition;
+        }
         if ($this->getDefault() !== null) {
             $definition .= ' DEFAULT ' . $this->getDefault();
         }
@@ -244,6 +259,9 @@ class Bigquery extends Common
             case self::TYPE_BIGDECIMAL:
                 $valid = $this->validateBigNumericLength($length, 76, 38);
                 break;
+            case self::TYPE_ARRAY:
+            case self::TYPE_STRUCT:
+                break; // We don't check for this types
             default:
                 if ($length !== null && $length !== '') {
                     $valid = false;
