@@ -79,19 +79,6 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         return $db;
     }
 
-    /**
-     * @return TeradataImportOptions::CSV_ADAPTER_*
-     */
-    public function getCsvAdapter(): string
-    {
-        $adapter = (string) getenv('TERADATA_CSV_ADAPTER');
-        switch ($adapter) {
-            case TeradataImportOptions::CSV_ADAPTER_TPT:
-                return TeradataImportOptions::CSV_ADAPTER_TPT;
-        }
-        return TeradataImportOptions::CSV_ADAPTER_TPT;
-    }
-
     protected function cleanDatabase(string $dbname): void
     {
         if (!$this->dbExists($dbname)) {
@@ -441,8 +428,7 @@ PRIMARY KEY ("VisitID", "Something")
                 $convertEmptyValuesToNull,
                 $isIncremental,
                 $useTimestamp,
-                $numberOfIgnoredLines,
-                $this->getCsvAdapter()
+                $numberOfIgnoredLines
             );
     }
 
@@ -481,8 +467,7 @@ PRIMARY KEY ("VisitID", "Something")
                 [],
                 false,
                 $useTimestamp,
-                $skipLines,
-                $this->getCsvAdapter()
+                $skipLines
             );
     }
 
