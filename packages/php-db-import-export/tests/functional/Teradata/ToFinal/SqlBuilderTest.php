@@ -667,8 +667,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
     public function testGetUpdateWithPkCommandConvertValues(): void
     {
-        $this->markTestSkipped('not ready yet');
-
         $this->createTestDb();
         $this->createTestTableWithColumns();
         $this->createStagingTableWithData(true);
@@ -695,38 +693,35 @@ class SqlBuilderTest extends TeradataBaseTestCase
             []
         );
 
-        $this->connection->executeStatement(
-            sprintf(
-                'INSERT INTO %s("id","col1","col2") VALUES (1,\'\',\'1\')',
-                self::TEST_TABLE
-            )
-        );
-        $this->connection->executeStatement(
-            sprintf(
-                'INSERT INTO %s("id","col1","col2") VALUES (1,\'2\',\'\')',
-                self::TEST_TABLE
-            )
+        $dest = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE
-        ));
+        $this->connection->executeStatement(
+            sprintf('INSERT INTO %s ("id","col1","col2") VALUES (1,\'\',\'1\')', $dest)
+        );
+        $this->connection->executeStatement(
+            sprintf('INSERT INTO %s ("id","col1","col2") VALUES (1,\'2\',\'\')', $dest)
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
 
         self::assertEqualsCanonicalizing([
             [
-                'id' => '1',
+                'id' => '   1',
                 'col1' => '',
                 'col2' => '1',
             ],
             [
-                'id' => '1',
+                'id' => '   1',
                 'col1' => '2',
                 'col2' => '',
             ],
         ], $result);
 
-        $options = new TeradataImportOptions(['col1']);
+        $options = $this->getImportOptions(['col1']);
 
         // converver values
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
@@ -735,26 +730,34 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $options,
             '2020-01-01 00:00:00'
         );
+
+        $expectedSql = sprintf(
+        // phpcs:ignore
+            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            $dest,
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            $dest,
+            $dest,
+            $dest
+        );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\') FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
+            $expectedSql,
             $sql
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE
-        ));
+        $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
 
         self::assertEqualsCanonicalizing([
             [
-                'id' => '1',
+                'id' => '   1',
                 'col1' => null,
                 'col2' => '',
             ],
             [
-                'id' => '1',
+                'id' => '   1',
                 'col1' => '2',
                 'col2' => '2',
             ],
