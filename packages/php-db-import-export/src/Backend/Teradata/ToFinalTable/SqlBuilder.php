@@ -239,6 +239,14 @@ class SqlBuilder
         );
 
         foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
+            if (!$importOptions->isNullManipulationEnabled()) {
+                $columnsSet[] = sprintf(
+                    '%s = "src".%s',
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                );
+                continue;
+            }
             if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
                 // values '' values from staging convert to NULL
                 $columnsSet[] = sprintf(
@@ -263,7 +271,6 @@ class SqlBuilder
                 $timestamp
             );
         }
-
 
         if (!$importOptions->isNullManipulationEnabled()) {
             $columnsComparisonSql = array_map(
@@ -292,7 +299,6 @@ class SqlBuilder
             );
         }
 
-
         return sprintf(
             'UPDATE %s FROM %s.%s "src" SET %s WHERE %s AND (%s)',
             $dest,
@@ -310,7 +316,7 @@ class SqlBuilder
     private function getPrimayKeyWhereConditions(
         array $primaryKeys,
         TeradataImportOptions $importOptions,
-        $dest
+        string $dest
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions, $dest) {
             $str = '%s.%s = COALESCE("src".%s, \'\')';

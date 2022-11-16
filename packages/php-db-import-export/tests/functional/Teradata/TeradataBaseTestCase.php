@@ -417,7 +417,9 @@ PRIMARY KEY ("VisitID", "Something")
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,
         bool $useTimestamp = false,
-        int $numberOfIgnoredLines = 0
+        int $numberOfIgnoredLines = 0,
+        bool $requireSameTables = ImportOptions::SAME_TABLES_NOT_REQUIRED,
+        bool $nullManipulation = ImportOptions::NULL_MANIPULATION_ENABLED
     ): TeradataImportOptions {
         return
             new TeradataImportOptions(
@@ -428,7 +430,9 @@ PRIMARY KEY ("VisitID", "Something")
                 $convertEmptyValuesToNull,
                 $isIncremental,
                 $useTimestamp,
-                $numberOfIgnoredLines
+                $numberOfIgnoredLines,
+                $requireSameTables,
+                $nullManipulation
             );
     }
 

@@ -7,7 +7,9 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Teradata\ToFinal;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Datatype\Definition\Teradata;
+use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
@@ -326,7 +328,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         self::assertEquals(
             sprintf(
             // phpcs:ignore
-            'INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (50)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
+                'INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (50)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
             ),
@@ -393,7 +395,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             '2020-01-01 00:00:00'
         );
         self::assertEquals(
-            // phpcs:ignore
+        // phpcs:ignore
             sprintf('INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
@@ -545,8 +547,8 @@ class SqlBuilderTest extends TeradataBaseTestCase
             '2020-01-01 00:00:00'
         );
         $dest = sprintf('"%s"."%s"', $this->getTestDBName(), self::TEST_TABLE);
-        // phpcs:ignore
         $expectedSql = sprintf(
+        // phpcs:ignore
             'UPDATE %s FROM "%s"."%s" "src" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
             $dest,
             $this->getTestDBName(),
@@ -559,7 +561,8 @@ class SqlBuilderTest extends TeradataBaseTestCase
         self::assertEquals($expectedSql, $sql);
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s.%s',
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
         ));
@@ -575,7 +578,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
     public function testGetUpdateWithPkCommandRequireSameTables(): void
     {
-        $this->markTestSkipped('not ready yet');
         $this->createTestDb();
         $this->createTestTableWithColumns();
         $this->createStagingTableWithData(true);
@@ -601,22 +603,23 @@ class SqlBuilderTest extends TeradataBaseTestCase
             ]),
             []
         );
-
+        $dest = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+        );
         $this->connection->executeStatement(
             sprintf(
-                'INSERT INTO %s("id","col1","col2") VALUES (1,\'2\',\'1\')',
-                self::TEST_TABLE
+                'INSERT INTO %s ("id","col1","col2") VALUES (1,\'2\',\'1\')',
+                $dest
             )
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE
-        ));
+        $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
 
         self::assertEquals([
             [
-                'id' => '1',
+                'id' => '   1',
                 'col1' => '2',
                 'col2' => '1',
             ],
@@ -626,31 +629,36 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,
             $fakeDestination,
-            new TeradataImportOptions(
+            $this->getImportOptions(
                 [],
                 false,
                 false,
                 0,
-                TeradataImportOptions::SAME_TABLES_NOT_REQUIRED,
-                TeradataImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
             ),
             '2020-01-01 00:00:00'
         );
-        self::assertEquals(
+
+        $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" != "src"."col1" OR "dest"."col2" != "src"."col2")',
-            $sql
+            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = "src"."col1", "col2" = "src"."col2" WHERE %s."col1" = "src"."col1" AND (%s."col1" <> "src"."col1" OR %s."col2" <> "src"."col2")',
+            $dest,
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            $dest,
+            $dest,
+            $dest
         );
+
+        self::assertEquals($expectedSql, $sql);
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE
-        ));
+        $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
 
         self::assertEquals([
             [
-                'id' => '1',
+                'id' => '   1',
                 'col1' => '2',
                 'col2' => '2',
             ],
