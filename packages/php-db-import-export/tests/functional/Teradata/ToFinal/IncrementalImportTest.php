@@ -2,32 +2,31 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
+namespace Tests\Keboola\Db\ImportExportFunctional\Teradata\ToFinal;
 
 use Generator;
 use Keboola\Csv\CsvFile;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
-use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
-use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\IncrementalImporter;
-use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
-use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
-use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
+use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\IncrementalImporter;
+use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
+use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
-use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
-use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
+use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
-use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
+use Tests\Keboola\Db\ImportExportFunctional\Teradata\TeradataBaseTestCase;
 
-class IncrementalImportTest extends SnowflakeBaseTestCase
+class IncrementalImportTest extends TeradataBaseTestCase
 {
     use StorageTrait;
 
-    protected function getSnowflakeIncrementalImportOptions(
+    protected function getTeradataIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
-    ): SnowflakeImportOptions {
-        return new SnowflakeImportOptions(
+    ): TeradataImportOptions {
+        return $this->getImportOptions(
             [],
             true,
             true,
@@ -38,10 +37,10 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->cleanSchema($this->getDestinationSchemaName());
-        $this->cleanSchema($this->getSourceSchemaName());
-        $this->createSchema($this->getSourceSchemaName());
-        $this->createSchema($this->getDestinationSchemaName());
+        $this->cleanDatabase($this->getDestinationSchemaName());
+        $this->cleanDatabase($this->getSourceSchemaName());
+        $this->createDatabase($this->getSourceSchemaName());
+        $this->createDatabase($this->getDestinationSchemaName());
     }
 
     /**
@@ -69,6 +68,14 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
         $multiPkColumns = array_shift($expectedMultiPkRows);
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
+        $multiPkExpectationsWithoutPKFile =  new CsvFile(self::DATA_DIR . 'multi-pk.csv');
+        $multiPkExpectationsWithoutPKRows = [];
+        foreach ($multiPkExpectationsWithoutPKFile as $row) {
+            $multiPkExpectationsWithoutPKRows[] = $row;
+        }
+        // skip columnNames
+        array_shift($multiPkExpectationsWithoutPKRows);
+
         $tests = [];
         yield 'simple' => [
             $this->getSourceInstance(
@@ -78,7 +85,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false,
                 ['id']
             ),
-            $this->getSnowflakeImportOptions(),
+            $this->getImportOptions(),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
@@ -86,8 +93,8 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false,
                 ['id']
             ),
-            $this->getSnowflakeIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'accounts_3'],
+            $this->getTeradataIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $expectedAccountsRows,
             4,
             self::TABLE_ACCOUNTS_3,
@@ -100,7 +107,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false,
                 ['id']
             ),
-            new SnowflakeImportOptions(
+            $this->getImportOptions(
                 [],
                 false,
                 false, // disable timestamp
@@ -113,13 +120,13 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false,
                 ['id']
             ),
-            new SnowflakeImportOptions(
+            $this->getImportOptions(
                 [],
-                true, // incremental
+                true,
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            [$this->getDestinationSchemaName(), 'accounts_without_ts'],
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $expectedAccountsRows,
             4,
             self::TABLE_ACCOUNTS_WITHOUT_TS,
@@ -132,7 +139,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false,
                 ['VisitID', 'Value', 'MenuItem']
             ),
-            $this->getSnowflakeImportOptions(),
+            $this->getImportOptions(),
             $this->getSourceInstance(
                 'multi-pk_not-null.increment.csv',
                 $multiPkColumns,
@@ -140,11 +147,33 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 false,
                 ['VisitID', 'Value', 'MenuItem']
             ),
-            $this->getSnowflakeIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'multi_pk_ts'],
+            $this->getTeradataIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
             $expectedMultiPkRows,
             3,
             self::TABLE_MULTI_PK_WITH_TS,
+        ];
+        yield 'no pk' => [
+            $this->getSourceInstance(
+                'multi-pk.csv',
+                $multiPkColumns,
+                false,
+                false,
+                []
+            ),
+            $this->getImportOptions([], false, false, 1),
+            $this->getSourceInstance(
+                'multi-pk.csv',
+                $multiPkColumns,
+                false,
+                false,
+                []
+            ),
+            $this->getTeradataIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_NO_PK],
+            array_merge($multiPkExpectationsWithoutPKRows, $multiPkExpectationsWithoutPKRows),
+            6,
+            self::TABLE_NO_PK,
         ];
         return $tests;
     }
@@ -156,22 +185,28 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
      */
     public function testIncrementalImport(
         Storage\SourceInterface $fullLoadSource,
-        SnowflakeImportOptions $fullLoadOptions,
+        TeradataImportOptions $fullLoadOptions,
         Storage\SourceInterface $incrementalSource,
-        SnowflakeImportOptions $incrementalOptions,
+        TeradataImportOptions $incrementalOptions,
         array $table,
         array $expected,
         int $expectedImportedRowCount,
         string $tablesToInit
     ): void {
-        $this->initTable($tablesToInit);
+        [$dbName, $tableName] = $table;
 
-        [$schemaName, $tableName] = $table;
-        $destination = (new SnowflakeTableReflection(
+        $this->initTable($tablesToInit, $dbName);
+
+        /** @var TeradataTableDefinition $destination */
+        $destination = (new TeradataTableReflection(
             $this->connection,
-            $schemaName,
+            $dbName,
             $tableName
         ))->getTableDefinition();
+
+        if (!empty($fullLoadSource->getPrimaryKeysNames())) {
+            $this->markTestSkipped('we dont know PK yet');
+        }
 
         $toStageImporter = new ToStageImporter($this->connection);
         $fullImporter = new FullImporter($this->connection);
@@ -188,7 +223,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
 
         try {
             // full load
-            $qb = new SnowflakeTableQueryBuilder();
+            $qb = new TeradataTableQueryBuilder();
             $this->connection->executeStatement(
                 $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable)
             );
@@ -205,7 +240,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 $importState
             );
             // incremental load
-            $qb = new SnowflakeTableQueryBuilder();
+            $qb = new TeradataTableQueryBuilder();
             $this->connection->executeStatement(
                 $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable)
             );
@@ -221,24 +256,21 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 $importState
             );
         } finally {
-            $this->connection->executeStatement(
-                (new SqlBuilder())->getDropTableIfExistsCommand(
-                    $fullLoadStagingTable->getSchemaName(),
-                    $fullLoadStagingTable->getTableName()
-                )
+            $this->dropTableIfExists(
+                $fullLoadStagingTable->getSchemaName(),
+                $fullLoadStagingTable->getTableName()
             );
-            $this->connection->executeStatement(
-                (new SqlBuilder())->getDropTableIfExistsCommand(
-                    $incrementalLoadStagingTable->getSchemaName(),
-                    $incrementalLoadStagingTable->getTableName()
-                )
+
+            $this->dropTableIfExists(
+                $incrementalLoadStagingTable->getSchemaName(),
+                $incrementalLoadStagingTable->getTableName()
             );
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-        /** @var SnowflakeTableDefinition $destination */
-        $this->assertSnowflakeTableEqualsExpected(
+        /** @var TeradataTableDefinition $destination */
+        $this->assertTeradataTableEqualsExpected(
             $fullLoadSource,
             $destination,
             $incrementalOptions,

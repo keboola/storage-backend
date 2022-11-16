@@ -197,7 +197,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         ));
 
         $this->connection->query(sprintf(
-            'CREATE TABLE "%s"."accounts-bez-ts" (
+            'CREATE TABLE "%s"."accounts-without-ts" (
                 "id" varchar(65535) NOT NULL,
                 "idTwitter" varchar(65535) NOT NULL,
                 "name" varchar(65535) NOT NULL,

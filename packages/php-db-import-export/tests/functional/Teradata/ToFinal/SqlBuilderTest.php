@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Keboola\Db\ImportExportFunctional\Teradata;
+namespace Tests\Keboola\Db\ImportExportFunctional\Teradata\ToFinal;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
@@ -14,6 +14,7 @@ use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
+use Tests\Keboola\Db\ImportExportFunctional\Teradata\TeradataBaseTestCase;
 
 class SqlBuilderTest extends TeradataBaseTestCase
 {

@@ -59,7 +59,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-bez-ts'),
+            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-without-ts'),
             $expectedAccountsRows,
             4,
         ];

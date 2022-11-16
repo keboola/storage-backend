@@ -131,7 +131,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             'expectedFirstLineLength' => 2,
         ];
         yield 'with tabs as separators' => [
-            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
             'sourceSettings' => [
                 'tw_accounts.tabs.csv',
                 // 9 is tabular
@@ -144,7 +144,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             'expectedFirstLineLength' => 12,
         ];
         yield 'with manifest' => [
-            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
             'sourceSettings' => [
                 sprintf('sliced/accounts/%s.accounts.csvmanifest', (string) getenv('STORAGE_TYPE')),
                 new CsvOptions(),
@@ -161,7 +161,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             getenv('STORAGE_TYPE')
         ));
         yield 'with directory' => [
-            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
             'sourceSettings' => [
                 'sliced_accounts_no_manifest',
                 new CsvOptions(),
@@ -192,7 +192,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         // file has 4 lines in total (including header which is considered as data).
         // Setting skip lines = 2 -> 2 lines should be imported
         yield 'with skipped lines' => [
-            'table' => self::TABLE_ACCOUNTS_BEZ_TS,
+            'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
             'sourceSettings' => [
                 'tw_accounts.csv',
                 new CsvOptions(),
@@ -256,13 +256,13 @@ class StageImportFileTest extends SnowflakeBaseTestCase
 // testCopyIntoInvalidTypes
     public function testInvalidManifestImport(): void
     {
-        $this->initTable(self::TABLE_ACCOUNTS_BEZ_TS);
+        $this->initTable(self::TABLE_ACCOUNTS_WITHOUT_TS);
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_BEZ_TS
+            self::TABLE_ACCOUNTS_WITHOUT_TS
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),

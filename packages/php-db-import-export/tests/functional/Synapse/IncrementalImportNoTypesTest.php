@@ -100,10 +100,10 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 // @phpstan-ignore-next-line
                 getenv('CREDENTIALS_IMPORT_TYPE')
             ),
-            [$this->getDestinationSchemaName(), 'accounts-bez-ts'],
+            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $expectedAccountsRows,
             4,
-            [self::TABLE_ACCOUNTS_BEZ_TS],
+            [self::TABLE_ACCOUNTS_WITHOUT_TS],
         ];
         yield 'multi pk' => [
             $this->createABSSourceInstance(

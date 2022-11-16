@@ -30,15 +30,9 @@ class SynapseBaseTestCase extends ImportExportBaseTest
     protected const SYNAPSE_DEST_SCHEMA_NAME = 'in.c-tests';
     protected const SYNAPSE_SOURCE_SCHEMA_NAME = 'some.tests';
 
-    public const TABLE_ACCOUNTS_3 = 'accounts-3';
-    public const TABLE_ACCOUNTS_BEZ_TS = 'accounts-bez-ts';
-    public const TABLE_COLUMN_NAME_ROW_NUMBER = 'column-name-row-number';
-    public const TABLE_MULTI_PK = 'multi-pk';
     public const TABLE_OUT_CSV_2COLS = 'out.csv_2Cols';
     public const TABLE_OUT_LEMMA = 'out.lemma';
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out.no_timestamp_table';
-    public const TABLE_TABLE = 'table';
-    public const TABLE_TYPES = 'types';
     public const TESTS_PREFIX = 'import-export-test_';
 
     protected Connection $connection;
@@ -160,9 +154,9 @@ EOT
                     $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
                 ));
                 break;
-            case self::TABLE_ACCOUNTS_BEZ_TS:
+            case self::TABLE_ACCOUNTS_WITHOUT_TS:
                 $this->connection->exec(sprintf(
-                    'CREATE TABLE [%s].[accounts-bez-ts] (
+                    'CREATE TABLE [%s].[accounts-without-ts] (
                 [id] nvarchar(4000) NOT NULL,
                 [idTwitter] nvarchar(4000) NOT NULL,
                 [name] nvarchar(4000) NOT NULL,
