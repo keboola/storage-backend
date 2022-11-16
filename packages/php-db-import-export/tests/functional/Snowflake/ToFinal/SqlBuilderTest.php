@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -306,8 +307,8 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
                 false,
                 false,
                 0,
-                SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
-                SnowflakeImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
             ),
         );
 
@@ -478,8 +479,8 @@ EOT
                 false,
                 false,
                 0,
-                SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
-                SnowflakeImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
             ),
             '2020-01-01 00:00:00'
         );
@@ -835,8 +836,8 @@ EOT
                 false,
                 false,
                 0,
-                SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
-                SnowflakeImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
             ),
             '2020-01-01 00:00:00'
         );
