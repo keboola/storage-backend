@@ -10,7 +10,7 @@
         "doctrine/dbal": "^3.3",
         "google/cloud-bigquery": "^1.23",
         "keboola/common-exceptions": "^1",
-        "keboola/php-datatypes": "^6.2",
+        "keboola/php-datatypes": "^6.3",
         "keboola/php-utils": "^4.1",
         "keboola/retry": "^0.5.0"
     },
