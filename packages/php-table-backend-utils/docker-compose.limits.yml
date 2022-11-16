@@ -1,0 +1,5 @@
+version: '3'
+services:
+  exasol:
+    mem_limit: 2g
+    cpus: 1

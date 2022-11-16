@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "administratorLogin": {
+            "type": "string"
+        },
+        "administratorPassword": {
+            "type": "string"
+        },
+        "warehouseName": {
+            "type": "string"
+        },
+        "warehouseCapacity": {
+            "type": "int"
+        }
+    },
+    "variables": {
+        "sqlServerName": "[concat(parameters('warehouseName'), '-sql-', uniqueString(resourceGroup().id))]",
+        "warehouseName": "[concat(parameters('warehouseName'), '-db-', uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('sqlServerName')]",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "administratorLogin": "[parameters('administratorLogin')]",
+                "administratorLoginPassword": "[parameters('administratorPassword')]"
+            },
+            "resources": [
+                {
+                    "type": "databases",
+                    "apiVersion": "2019-06-01-preview",
+                    "name": "[variables('warehouseName')]",
+                    "location": "[resourceGroup().location]",
+                    "sku": {
+                        "name": "DataWarehouse",
+                        "tier": "DataWarehouse",
+                        "capacity": "[parameters('warehouseCapacity')]"
+                    },
+                    "kind": "v12.0,user,datawarehouse,gen2",
+                    "properties": {
+                        "collation": "SQL_Latin1_General_CP1_CI_AS",
+                        "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                        "readScale": "Disabled",
+                        "readReplicaCount": 0,
+                        "storageAccountType": "GRS"
+                    },
+                    "dependsOn": [
+                        "[variables('sqlServerName')]"
+                    ]
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "warehouseResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Sql/servers/databases/', variables('sqlServerName'), variables('warehouseName'))]"
+        },
+        "warehouseName": {
+            "type": "string",
+            "value": "[variables('warehouseName')]"
+        },
+        "sqlServerName": {
+            "type": "string",
+            "value": "[variables('sqlServerName')]"
+        }
+    }
+}
