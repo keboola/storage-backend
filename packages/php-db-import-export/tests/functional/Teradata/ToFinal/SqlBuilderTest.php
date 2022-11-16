@@ -797,7 +797,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
             []
         );
 
-
         $dest = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
@@ -843,12 +842,19 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $options,
             $timestampSet->format(DateTimeHelper::FORMAT)
         );
+        $expectedSql = sprintf(
+        // phpcs:ignore
+            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            $dest,
+            $this->getTestDBName(),
+            self::TEST_STAGING_TABLE,
+            $dest,
+            $dest,
+            $dest
+        );
 
-//        self::assertEquals(
-//        // phpcs:ignore
-//            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\'))',
-//            $sql
-//        );
+        self::assertEquals($expectedSql, $sql);
+
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
