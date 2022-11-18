@@ -85,7 +85,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 false,
                 ['id']
             ),
-            $this->getImportOptions(),
+            $this->getImportOptions([], false, false, ImportOptions::SKIP_FIRST_LINE),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
@@ -204,9 +204,6 @@ class IncrementalImportTest extends TeradataBaseTestCase
             $tableName
         ))->getTableDefinition();
 
-        if (!empty($fullLoadSource->getPrimaryKeysNames())) {
-            $this->markTestSkipped('we dont know PK yet');
-        }
 
         $toStageImporter = new ToStageImporter($this->connection);
         $fullImporter = new FullImporter($this->connection);
@@ -256,15 +253,15 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-            $this->dropTableIfExists(
-                $fullLoadStagingTable->getSchemaName(),
-                $fullLoadStagingTable->getTableName()
-            );
-
-            $this->dropTableIfExists(
-                $incrementalLoadStagingTable->getSchemaName(),
-                $incrementalLoadStagingTable->getTableName()
-            );
+//            $this->dropTableIfExists(
+//                $fullLoadStagingTable->getSchemaName(),
+//                $fullLoadStagingTable->getTableName()
+//            );
+//
+//            $this->dropTableIfExists(
+//                $incrementalLoadStagingTable->getSchemaName(),
+//                $incrementalLoadStagingTable->getTableName()
+//            );
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());

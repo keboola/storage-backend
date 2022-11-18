@@ -300,7 +300,7 @@ PRIMARY KEY ("VisitID", "Something")
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s (
-                "id" VARCHAR(50) CHARACTER SET UNICODE,
+                "id" VARCHAR(50) CHARACTER SET UNICODE NOT NULL,
                 "idTwitter" VARCHAR(50) CHARACTER SET UNICODE,
                 "name" VARCHAR(100) CHARACTER SET UNICODE,
                 "import" VARCHAR(50) CHARACTER SET UNICODE,
@@ -312,8 +312,9 @@ PRIMARY KEY ("VisitID", "Something")
                 "oauthToken" VARCHAR(50) CHARACTER SET UNICODE,
                 "oauthSecret" VARCHAR(50) CHARACTER SET UNICODE,
                 "idApp" VARCHAR(50) CHARACTER SET UNICODE,
-                "_timestamp" TIMESTAMP
-            ) PRIMARY INDEX ("id");',
+                "_timestamp" TIMESTAMP,
+                 PRIMARY KEY ("id")
+            );',
                     TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
