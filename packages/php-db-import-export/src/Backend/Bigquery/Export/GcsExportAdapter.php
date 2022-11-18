@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Bigquery\Export;
 
-use Doctrine\DBAL\Connection;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
