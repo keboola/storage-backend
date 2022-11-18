@@ -10,6 +10,11 @@ use Keboola\Db\ImportExport\Storage;
 
 trait GCSSourceTrait
 {
+    protected function getGCSBucketEnvName(): string
+    {
+        return 'GCS_BUCKET_NAME';
+    }
+
     protected function createDummyGCSSourceInstance(
         string $file,
         bool $isSliced = false
@@ -76,7 +81,7 @@ trait GCSSourceTrait
         }
 
         return new Storage\GCS\SourceFile(
-            (string) getenv('GCS_BUCKET_NAME'),
+            (string) getenv($this->getGCSBucketEnvName()),
             $filePath,
             (string) getenv('GCS_INTEGRATION_NAME'),
             $this->getGCSCredentials(),

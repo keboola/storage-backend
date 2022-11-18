@@ -127,7 +127,7 @@ class FullImportTest extends BigqueryBaseTestCase
         }
 
         yield 'large manifest' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'sliced/2cols-large/GCS.2cols-large.csvmanifest',
                 $escapingHeader,
                 true,
@@ -142,7 +142,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'empty manifest' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'empty.manifest',
                 $escapingHeader,
                 true,
@@ -157,7 +157,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'lemma' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'lemma.csv',
                 $lemmaHeader,
                 false,
@@ -172,7 +172,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'standard with enclosures' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
@@ -187,7 +187,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'gzipped standard with enclosure' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
                 $escapingHeader,
                 false,
@@ -202,7 +202,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'standard with enclosures tabs' => [
-            $this->createBQSourceInstanceFromCsv(
+            $this->getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
                 $escapingHeader,
@@ -218,7 +218,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'accounts changedColumnsOrder' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
                 $accountChangedColumnsOrderHeader,
                 false,
@@ -236,7 +236,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'accounts' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.csv',
                 $accountsHeader,
                 false,
@@ -252,7 +252,7 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // line ending detection is not supported yet for S3
         yield 'accounts crlf' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.crlf.csv',
                 $accountsHeader,
                 false,
@@ -268,7 +268,7 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // manifests
         yield 'accounts sliced' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'sliced/accounts/GCS.accounts.csvmanifest',
                 $accountsHeader,
                 true,
@@ -283,7 +283,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
 
         yield 'accounts sliced gzip' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'sliced/accounts-gzip/GCS.accounts-gzip.csvmanifest',
                 $accountsHeader,
                 true,
@@ -299,7 +299,7 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // reserved words
         yield 'reserved words' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'reserved-words.csv',
                 ['column', 'table'],
                 false,
@@ -314,7 +314,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
         // import table with _timestamp columns - used by snapshots
         yield 'import with _timestamp columns' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'with-ts.csv',
                 [
                     'col1',
@@ -339,7 +339,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
         // test creating table without _timestamp column
         yield 'table without _timestamp column' => [
-            $this->createBQSourceInstance(
+            $this->getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
