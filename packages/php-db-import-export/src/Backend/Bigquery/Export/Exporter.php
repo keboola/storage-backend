@@ -65,7 +65,7 @@ class Exporter implements ExporterInterface
         if ($adapterForUse === null) {
             throw new Exception(
                 sprintf(
-                    'No suitable adapter found for Snowflake exporter with source: "%s", destination "%s".',
+                    'No suitable adapter found for Bigquery exporter with source: "%s", destination "%s".',
                     get_class($source),
                     get_class($destination)
                 )
