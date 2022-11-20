@@ -209,7 +209,6 @@ class IncrementalImportTest extends TeradataBaseTestCase
             $tableName
         ))->getTableDefinition();
 
-
         $toStageImporter = new ToStageImporter($this->connection);
         $fullImporter = new FullImporter($this->connection);
         $incrementalImporter = new IncrementalImporter($this->connection);
@@ -258,15 +257,15 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $importState
             );
         } finally {
-//            $this->dropTableIfExists(
-//                $fullLoadStagingTable->getSchemaName(),
-//                $fullLoadStagingTable->getTableName()
-//            );
-//
-//            $this->dropTableIfExists(
-//                $incrementalLoadStagingTable->getSchemaName(),
-//                $incrementalLoadStagingTable->getTableName()
-//            );
+            $this->dropTableIfExists(
+                $fullLoadStagingTable->getSchemaName(),
+                $fullLoadStagingTable->getTableName()
+            );
+
+            $this->dropTableIfExists(
+                $incrementalLoadStagingTable->getSchemaName(),
+                $incrementalLoadStagingTable->getTableName()
+            );
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());

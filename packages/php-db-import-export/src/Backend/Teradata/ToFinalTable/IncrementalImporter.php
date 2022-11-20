@@ -57,7 +57,6 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         $timestampValue = DateTimeHelper::getNowFormatted();
         try {
 
-
             /** @var TeradataTableDefinition $destinationTableDefinition */
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
                 // has PKs for dedup
@@ -118,8 +117,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     )
                 );
                 $state->stopTimer(self::TIMER_DEDUP_STAGING);
-            }
-            else{
+            } else {
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getBeginTransaction()
                 );
@@ -144,8 +142,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
         } catch (Exception $e) {
             throw TeradataException::covertException($e);
-        }
-        finally {
+        } finally {
             if (isset($deduplicationTableDefinition)) {
                 // 5 drop dedup table
                 $this->dropTableIfExists(

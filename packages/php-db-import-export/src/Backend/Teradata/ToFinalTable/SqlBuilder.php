@@ -166,10 +166,14 @@ class SqlBuilder
         );
     }
 
-    public function getDedupSql(TeradataTableDefinition $stagingTableDefinition,
-                                TeradataTableDefinition $deduplicationTableDefinition,
-                                array $primaryKeys)
-    {
+    /**
+     * @param string[] $primaryKeys
+     */
+    public function getDedupSql(
+        TeradataTableDefinition $stagingTableDefinition,
+        TeradataTableDefinition $deduplicationTableDefinition,
+        array $primaryKeys
+    ): string {
         $pkSql = $this->getColumnsString(
             $primaryKeys,
             ','
@@ -181,20 +185,18 @@ class SqlBuilder
             TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
         );
 
-         $depudeSql = sprintf(
-            'SELECT %s FROM ('
-            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
-            . 'FROM %s'
-            . ') AS a '
-            . 'WHERE a."_row_number_" = 1',
-            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ',', 'a'),
-            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
-            $pkSql,
-            $pkSql,
-            $stage
-        );
-
-         return $depudeSql;
+         return sprintf(
+             'SELECT %s FROM ('
+             . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
+             . 'FROM %s'
+             . ') AS a '
+             . 'WHERE a."_row_number_" = 1',
+             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ',', 'a'),
+             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
+             $pkSql,
+             $pkSql,
+             $stage
+         );
     }
 
     public function getTruncateTableWithDeleteCommand(
@@ -228,7 +230,7 @@ class SqlBuilder
     public function getDeleteOldItemsCommand(
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $destinationTableDefinition,
-        $importOptions
+        TeradataImportOptions $importOptions
     ): string {
         $stagingTable = sprintf(
             '%s.%s',
@@ -332,7 +334,11 @@ class SqlBuilder
         return sprintf(
             'UPDATE %s FROM (%s) "src" SET %s WHERE %s AND (%s)',
             $dest,
-            $this->getDedupSql($stagingTableDefinition, $stagingTableDefinition, $destinationDefinition->getPrimaryKeysNames()),
+            $this->getDedupSql(
+                $stagingTableDefinition,
+                $stagingTableDefinition,
+                $destinationDefinition->getPrimaryKeysNames()
+            ),
             implode(', ', $columnsSet),
             $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions, $dest),
             implode(' OR ', $columnsComparisonSql)
