@@ -545,10 +545,10 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $dest = sprintf('"%s"."%s"', $this->getTestDBName(), self::TEST_TABLE);
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
             $dest,
-            $this->getTestDBName(),
-            self::TEST_STAGING_TABLE,
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
             $dest,
             $dest,
             $dest
@@ -638,10 +638,10 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = "src"."col1", "col2" = "src"."col2" WHERE %s."col1" = "src"."col1" AND (%s."col1" <> "src"."col1" OR %s."col2" <> "src"."col2")',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = "src"."col1", "col2" = "src"."col2" WHERE %s."col1" = "src"."col1" AND (%s."col1" <> "src"."col1" OR %s."col2" <> "src"."col2")',
             $dest,
-            $this->getTestDBName(),
-            self::TEST_STAGING_TABLE,
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
             $dest,
             $dest,
             $dest
@@ -729,10 +729,10 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
             $dest,
-            $this->getTestDBName(),
-            self::TEST_STAGING_TABLE,
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
             $dest,
             $dest,
             $dest
@@ -838,10 +838,10 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM "%s"."%s" "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
             $dest,
-            $this->getTestDBName(),
-            self::TEST_STAGING_TABLE,
+            TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
+            TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
             $dest,
             $dest,
             $dest
