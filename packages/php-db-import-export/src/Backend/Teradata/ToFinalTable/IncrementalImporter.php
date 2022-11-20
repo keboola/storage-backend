@@ -145,15 +145,15 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         } catch (Exception $e) {
             throw TeradataException::covertException($e);
         }
-//        finally {
-//            if (isset($deduplicationTableDefinition)) {
-//                // 5 drop dedup table
-//                $this->dropIfExists(
-//                    $deduplicationTableDefinition->getSchemaName(),
-//                    $deduplicationTableDefinition->getTableName()
-//                );
-//            }
-//        }
+        finally {
+            if (isset($deduplicationTableDefinition)) {
+                // 5 drop dedup table
+                $this->dropTableIfExists(
+                    $deduplicationTableDefinition->getSchemaName(),
+                    $deduplicationTableDefinition->getTableName()
+                );
+            }
+        }
 
         return $state->getResult();
     }

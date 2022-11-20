@@ -152,6 +152,24 @@ class SqlBuilder
             return '';
         }
 
+        $deduplication = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'INSERT INTO %s (%s) %s',
+            $deduplication,
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
+            $this->getDedupSql($stagingTableDefinition, $deduplicationTableDefinition, $primaryKeys)
+        );
+    }
+
+    public function getDedupSql(TeradataTableDefinition $stagingTableDefinition,
+                                TeradataTableDefinition $deduplicationTableDefinition,
+                                array $primaryKeys)
+    {
         $pkSql = $this->getColumnsString(
             $primaryKeys,
             ','
@@ -163,7 +181,7 @@ class SqlBuilder
             TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
         );
 
-        $depudeSql = sprintf(
+         $depudeSql = sprintf(
             'SELECT %s FROM ('
             . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
             . 'FROM %s'
@@ -176,18 +194,7 @@ class SqlBuilder
             $stage
         );
 
-        $deduplication = sprintf(
-            '%s.%s',
-            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
-        );
-
-        return sprintf(
-            'INSERT INTO %s (%s) %s',
-            $deduplication,
-            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
-            $depudeSql
-        );
+         return $depudeSql;
     }
 
     public function getTruncateTableWithDeleteCommand(
@@ -323,10 +330,9 @@ class SqlBuilder
         }
 
         return sprintf(
-            'UPDATE %s FROM %s.%s "src" SET %s WHERE %s AND (%s)',
+            'UPDATE %s FROM (%s) "src" SET %s WHERE %s AND (%s)',
             $dest,
-            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+            $this->getDedupSql($stagingTableDefinition, $stagingTableDefinition, $destinationDefinition->getPrimaryKeysNames()),
             implode(', ', $columnsSet),
             $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions, $dest),
             implode(' OR ', $columnsComparisonSql)
