@@ -56,9 +56,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         $timestampValue = DateTimeHelper::getNowFormatted();
         try {
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getBeginTransaction()
-            );
+
 
             /** @var TeradataTableDefinition $destinationTableDefinition */
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
@@ -75,6 +73,11 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $state->startTimer(self::TIMER_DEDUP_TABLE_CREATE);
                 $this->connection->executeStatement($sql);
                 $state->stopTimer(self::TIMER_DEDUP_TABLE_CREATE);
+
+                // transaction has to start here because TD can have DDL at the end of transaction
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getBeginTransaction()
+                );
 
                 // 1. Run UPDATE command to update rows in final table with updated data based on PKs
                 $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
@@ -115,6 +118,11 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     )
                 );
                 $state->stopTimer(self::TIMER_DEDUP_STAGING);
+            }
+            else{
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getBeginTransaction()
+                );
             }
 
             // insert into destination table
