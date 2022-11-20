@@ -139,7 +139,12 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 false,
                 ['VisitID', 'Value', 'MenuItem']
             ),
-            $this->getImportOptions(),
+            $this->getImportOptions(
+                [],
+                false,
+                true, // disable timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
             $this->getSourceInstance(
                 'multi-pk_not-null.increment.csv',
                 $multiPkColumns,
