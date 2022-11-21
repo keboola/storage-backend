@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
@@ -206,6 +207,37 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
                     BigqueryQuote::quoteSingleIdentifier($tableName)
                 )));
                 break;
+            case self::TABLE_TYPES:
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'CREATE TABLE %s.%s (
+              `charCol`  STRING(2000000) ,
+              `numCol`   STRING(2000000) ,
+              `floatCol` STRING(2000000) ,
+              `boolCol`  STRING(2000000) ,
+              `_timestamp` TIMESTAMP
+            );',
+                    BigqueryQuote::quoteSingleIdentifier($dbName),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'CREATE TABLE  %s.%s (
+              `charCol`  STRING(4000) ,
+              `numCol` DECIMAL(10,1) ,
+              `floatCol` FLOAT64 ,
+              `boolCol` BOOL 
+            );',
+                    BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'INSERT INTO  %s.%s VALUES
+              (\'a\', 10.5, 0.3, true)
+           ;',
+                    BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+                break;
             default:
                 throw new Exception('unknown table');
         }
@@ -214,7 +246,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     protected function getSimpleImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): ImportOptions {
-        return new ImportOptions(
+        return new BigqueryImportOptions(
             [],
             false,
             true,

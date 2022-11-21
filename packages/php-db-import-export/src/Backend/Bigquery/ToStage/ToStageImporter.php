@@ -62,6 +62,8 @@ final class ToStageImporter implements ToStageImporterInterface
         switch (true) {
             case $source instanceof Storage\GCS\SourceFile:
                 return new FromGCSCopyIntoAdapter($this->bqClient);
+            case $source instanceof Storage\SqlSourceInterface:
+                return new FromTableInsertIntoAdapter($this->bqClient);
             default:
                 throw new LogicException(
                     sprintf(
