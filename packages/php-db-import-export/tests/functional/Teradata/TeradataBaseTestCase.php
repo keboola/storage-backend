@@ -66,7 +66,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
             'password' => (string) getenv('TERADATA_PASSWORD'),
             'port' => (int) getenv('TERADATA_PORT'),
             'dbname' => '',
-        ]);
+        ], $this->getDoctrineLogger());
 
         if ((string) getenv('TERADATA_DATABASE') === '') {
             throw new Exception('Variable "TERADATA_DATABASE" is missing.');

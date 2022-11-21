@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Logging\Middleware;
 use Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
@@ -13,6 +15,7 @@ use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Tests\Keboola\Db\ImportExportFunctional\DebugLogger;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class SnowflakeBaseTestCase extends ImportExportBaseTest
@@ -56,6 +59,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
                 'database' => (string) getenv('SNOWFLAKE_DATABASE'),
             ],
+            $this->getDoctrineLogger()
         );
     }
 

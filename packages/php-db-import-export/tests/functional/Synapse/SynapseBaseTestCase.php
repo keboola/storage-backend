@@ -273,12 +273,12 @@ EOT
             'dbname' => (string) getenv('SYNAPSE_DATABASE'),
             'port' => 1433,
             'driver' => 'pdo_sqlsrv',
-            'driverOptions'=>[
+            'driverOptions' => [
                 'ConnectRetryCount' => 5,
                 'ConnectRetryInterval' => 10,
 //                \PDO::SQLSRV_ATTR_QUERY_TIMEOUT => 1
             ],
-        ]);
+        ], $this->getDoctrineLogger());
     }
 
     /**

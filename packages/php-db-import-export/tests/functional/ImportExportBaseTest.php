@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Logging\Middleware;
 use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\ImportOptions;
 use PHPUnit\Framework\TestCase;
@@ -182,5 +184,13 @@ abstract class ImportExportBaseTest extends TestCase
             $expectedColumns,
             $expectedRows,
         ];
+    }
+
+    protected function getDoctrineLogger(): Configuration
+    {
+        if ((bool) getenv('DEBUG') === true) {
+            return (new Configuration())->setMiddlewares([new Middleware(new DebugLogger())]);
+        }
+        return new Configuration();
     }
 }
