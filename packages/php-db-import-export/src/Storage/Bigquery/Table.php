@@ -94,4 +94,23 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             BigqueryQuote::quoteSingleIdentifier($this->tableName)
         );
     }
+
+    public function getFromStatementWithStringCasting(): string
+    {
+        $quotedColumns = array_map(static function ($column) {
+            return sprintf('CAST(%s AS STRING)', BigqueryQuote::quoteSingleIdentifier($column));
+        }, $this->getColumnsNames());
+
+        $select = '*';
+        if (count($quotedColumns) > 0) {
+            $select = implode(', ', $quotedColumns);
+        }
+
+        return sprintf(
+            'SELECT %s FROM %s.%s',
+            $select,
+            BigqueryQuote::quoteSingleIdentifier($this->getSchema()),
+            BigqueryQuote::quoteSingleIdentifier($this->getTableName())
+        );
+    }
 }

@@ -8,6 +8,8 @@ interface SqlSourceInterface extends SourceInterface
 {
     public function getFromStatement(): string;
 
+    public function getFromStatementWithStringCasting(): string;
+
     /** @return array<mixed> */
     public function getQueryBindings(): array;
 }
