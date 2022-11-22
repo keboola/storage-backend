@@ -26,4 +26,30 @@ class Session
     {
         return $this->sessionId;
     }
+
+    /**
+     * @return array{
+     *  configuration: array{
+     *      query: array{
+     *          connectionProperties: array{
+     *              key: string,
+     *              value: string
+     *          }
+     *      }
+     *  }
+     * }
+     */
+    public function getAsQueryOptions(): array
+    {
+        return [
+            'configuration' => [
+                'query' => [
+                    'connectionProperties' => [
+                        'key' => 'session_id',
+                        'value' => $this->sessionId,
+                    ],
+                ],
+            ],
+        ];
+    }
 }
