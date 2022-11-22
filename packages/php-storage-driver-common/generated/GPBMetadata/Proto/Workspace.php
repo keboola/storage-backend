@@ -17,7 +17,8 @@ class Workspace
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-÷	
+’
+
 proto/workspace.proto\'keboola.storageDriver.command.workspace"’
 CreateWorkspaceCommand
 stackPrefix (	
@@ -45,9 +46,10 @@ spoolSpace (	"‡
 workspaceObjectName (	
 ignoreErrors (":
 ResetWorkspacePasswordCommand
-workspaceUserName (	";
+workspaceUserName (	"V
 ResetWorkspacePasswordResponse
-workspacePassword (	"n
+workspaceUserName (	
+workspacePassword (	"n
 DropWorkspaceObjectCommand
 workspaceObjectName (	
 objectNameToDrop (	
