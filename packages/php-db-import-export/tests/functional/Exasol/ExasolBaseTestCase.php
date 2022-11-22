@@ -42,7 +42,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         return ExasolConnectionFactory::getConnection(
             (string) getenv('EXASOL_HOST'),
             (string) getenv('EXASOL_USERNAME'),
-            (string) getenv('EXASOL_PASSWORD')
+            (string) getenv('EXASOL_PASSWORD'),
+            $this->getDoctrineLogger()
         );
     }
 

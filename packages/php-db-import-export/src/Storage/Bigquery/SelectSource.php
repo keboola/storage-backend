@@ -80,4 +80,9 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     {
         return $this->queryBindings;
     }
+
+    public function getFromStatementWithStringCasting(): string
+    {
+        return $this->getFromStatement();
+    }
 }

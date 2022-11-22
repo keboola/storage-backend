@@ -26,6 +26,7 @@ class TableTest extends TestCase
         self::assertEquals([], $source->getQueryBindings());
         self::assertEquals([], $source->getColumnsNames());
         self::assertEquals('SELECT * FROM "schema"."table"', $source->getFromStatement());
+        self::assertEquals('SELECT * FROM "schema"."table"', $source->getFromStatementWithStringCasting());
         self::assertNull($source->getPrimaryKeysNames());
     }
 
@@ -34,5 +35,6 @@ class TableTest extends TestCase
         $source = new Storage\Snowflake\Table('schema', 'table', ['col1', 'col2']);
         self::assertEquals(['col1', 'col2'], $source->getColumnsNames());
         self::assertEquals('SELECT "col1", "col2" FROM "schema"."table"', $source->getFromStatement());
+        self::assertEquals('SELECT "col1", "col2" FROM "schema"."table"', $source->getFromStatementWithStringCasting());
     }
 }

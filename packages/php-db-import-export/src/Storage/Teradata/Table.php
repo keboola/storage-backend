@@ -90,4 +90,9 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     {
         return $this->tableName;
     }
+
+    public function getFromStatementWithStringCasting(): string
+    {
+        return $this->getFromStatement();
+    }
 }

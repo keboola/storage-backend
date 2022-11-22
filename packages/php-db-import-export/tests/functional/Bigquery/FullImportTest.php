@@ -13,6 +13,7 @@ use Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Storage\Bigquery\Table;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
@@ -360,35 +361,34 @@ class FullImportTest extends BigqueryBaseTestCase
             7,
             self::TABLE_OUT_NO_TIMESTAMP_TABLE,
         ];
-//        // copy from table
-//        yield 'copy from table' => [
-//            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
-//            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-//            $this->getSimpleImportOptions(),
-//            [['a', 'b'], ['c', 'd']],
-//            2,
-//            self::TABLE_OUT_CSV_2COLS,
-//        ];
-//        yield 'copy from table 2' => [
-//            new Table(
-//                $this->getSourceDbName(),
-//                self::TABLE_TYPES,
-//                [
-//                    'charCol',
-//                    'numCol',
-//                    'floatCol',
-//                    'boolCol',
-//                ]
-//            ),
-//            [
-//                $this->getDestinationDbName(),
-//                self::TABLE_TYPES,
-//            ],
-//            $this->getSimpleImportOptions(),
-//            [['a', '        10.5', ' 3.00000000000000E-001', '   1']],
-//            1,
-//            self::TABLE_TYPES,
-//        ];
+        yield 'copy from table' => [
+            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            $this->getSimpleImportOptions(),
+            [['a', 'b'], ['c', 'd']],
+            2,
+            self::TABLE_OUT_CSV_2COLS,
+        ];
+        yield 'copy from table 2' => [
+            new Table(
+                $this->getSourceDbName(),
+                self::TABLE_TYPES,
+                [
+                    'charCol',
+                    'numCol',
+                    'floatCol',
+                    'boolCol',
+                ]
+            ),
+            [
+                $this->getDestinationDbName(),
+                self::TABLE_TYPES,
+            ],
+            $this->getSimpleImportOptions(),
+            [['a', '10.5', '0.3', 'true']],
+            1,
+            self::TABLE_TYPES,
+        ];
     }
 
     /**
