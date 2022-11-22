@@ -14,11 +14,19 @@ class DebugLogger extends AbstractLogger
     public function log($level, $message, array $context = []): void
     {
         assert(is_string($level));
+        self::log($level, $message, $context);
+    }
+
+    /**
+     * @param mixed[] $context
+     */
+    public static function logMsg(string $level, string $message, array $context): void
+    {
         error_log(
             sprintf(
                 '%s: %s',
                 strtoupper($level),
-                $this->interpolate($message, $context)
+                self::interpolate($message, $context)
             )
         );
     }
@@ -26,7 +34,7 @@ class DebugLogger extends AbstractLogger
     /**
      * @param mixed[] $context
      */
-    protected function interpolate(string $message, array $context = []): string
+    private static function interpolate(string $message, array $context = []): string
     {
         // build a replacement array with braces around the context keys
         $replace = [];
