@@ -52,7 +52,8 @@ class SynapseImportOptions extends ImportOptions
             $convertEmptyValuesToNull,
             $isIncremental,
             $useTimestamp,
-            $numberOfIgnoredLines
+            $numberOfIgnoredLines,
+            $requireSameTables === self::SAME_TABLES_REQUIRED ? self::USING_TYPES_USER : self::USING_TYPES_STRING
         );
         $this->importCredentialsType = $importCredentialsType;
         $this->castValueTypes = $castValueTypes;
