@@ -12,7 +12,7 @@ trait GCSSourceTrait
 {
     protected function getGCSBucketEnvName(): string
     {
-        return 'GCS_BUCKET_NAME';
+        throw new Exception('Method "getGCSBucketEnvName" must be overridden in you test case.');
     }
 
     protected function createDummyGCSSourceInstance(

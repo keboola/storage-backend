@@ -48,6 +48,11 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
         parent::tearDown();
     }
 
+    protected function getGCSBucketEnvName(): string
+    {
+        return 'GCS_BUCKET_NAME';
+    }
+
     protected function getSnowflakeConnection(): Connection
     {
         return SnowflakeConnectionFactory::getConnection(
