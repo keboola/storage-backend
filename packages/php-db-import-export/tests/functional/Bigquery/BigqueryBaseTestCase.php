@@ -8,7 +8,10 @@ use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
+use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
+use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class BigqueryBaseTestCase extends ImportExportBaseTest
@@ -19,7 +22,6 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     protected const BIGQUERY_SOURCE_DATABASE_NAME = 'tests_source';
     protected const BIGQUERY_DESTINATION_DATABASE_NAME = 'tests_destination';
     public const TABLE_TRANSLATIONS = 'transactions';
-
     public const TABLE_TABLE = 'test_table';
 
     protected BigQueryClient $bqClient;
@@ -232,7 +234,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
                 )));
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
                     'INSERT INTO  %s.%s VALUES
-              (\'a\', 10.5, 0.3, true)
+              (\'a\', 10.5, 0.3, TRUE)
            ;',
                     BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
                     BigqueryQuote::quoteSingleIdentifier($tableName)
@@ -250,7 +252,8 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             [],
             false,
             true,
-            $skipLines
+            $skipLines,
+            BigqueryImportOptions::USING_TYPES_STRING
         );
     }
 
@@ -273,7 +276,6 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             )
         ));
     }
-
 
     /**
      * @return array{
@@ -340,5 +342,65 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     protected function getGCSCredentials(): array
     {
         return $this->getBqCredentials();
+    }
+
+    /**
+     * @param int|string $sortKey
+     * @param array<mixed> $expected
+     * @param string|int $sortKey
+     */
+    protected function assertBigqueryTableEqualsExpected(
+        SourceInterface $source,
+        BigqueryTableDefinition $destination,
+        BigqueryImportOptions $options,
+        array $expected,
+        $sortKey,
+        string $message = 'Imported tables are not the same as expected'
+    ): void {
+        $tableColumns = (new BigqueryTableReflection(
+            $this->bqClient,
+            $destination->getSchemaName(),
+            $destination->getTableName()
+        ))->getColumnsNames();
+
+        if ($options->useTimestamp()) {
+            self::assertContains('_timestamp', $tableColumns);
+        } else {
+            self::assertNotContains('_timestamp', $tableColumns);
+        }
+
+        if (!in_array('_timestamp', $source->getColumnsNames(), true)) {
+            $tableColumns = array_filter($tableColumns, static function ($column) {
+                return $column !== '_timestamp';
+            });
+        }
+
+        $tableColumns = array_map(static function ($column) {
+            return sprintf('%s', $column);
+        }, $tableColumns);
+
+        $sql = sprintf(
+            'SELECT %s FROM %s.%s',
+            implode(', ', array_map(static function ($item) {
+                return BigqueryQuote::quoteSingleIdentifier($item);
+            }, $tableColumns)),
+            BigqueryQuote::quoteSingleIdentifier($destination->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($destination->getTableName())
+        );
+
+        /** @var array<int, array<string, mixed>> $result */
+        $result = iterator_to_array($this->bqClient->runQuery($this->bqClient->query($sql)));
+        $queryResult = array_map(function (array $row): array {
+            /** @var string[] $values */
+            $values = array_values($row);
+            return array_map(fn(string $column): string => $column, $values);
+        }, $result);
+
+        $this->assertArrayEqualsSorted(
+            $expected,
+            $queryResult,
+            $sortKey,
+            $message
+        );
     }
 }
