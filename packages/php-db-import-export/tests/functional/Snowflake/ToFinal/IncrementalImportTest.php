@@ -47,31 +47,14 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
      */
     public function incrementalImportData(): Generator
     {
-        // accounts
-        $expectationAccountsFile = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts.increment.csv');
-        $expectedAccountsRows = [];
-        foreach ($expectationAccountsFile as $row) {
-            $expectedAccountsRows[] = $row;
-        }
-        /** @var string[] $accountColumns */
-        $accountColumns = array_shift($expectedAccountsRows);
-        $expectedAccountsRows = array_values($expectedAccountsRows);
-
-        // multi pk
-        $expectationMultiPkFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk_not-null.increment.csv');
-        $expectedMultiPkRows = [];
-        foreach ($expectationMultiPkFile as $row) {
-            $expectedMultiPkRows[] = $row;
-        }
-        /** @var string[] $multiPkColumns */
-        $multiPkColumns = array_shift($expectedMultiPkRows);
-        $expectedMultiPkRows = array_values($expectedMultiPkRows);
+        $accountsStub = $this->getParseCsvStub('expectation.tw_accounts.increment.csv');
+        $multiPKStub = $this->getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
 
         $tests = [];
         yield 'simple' => [
             $this->getSourceInstance(
                 'tw_accounts.csv',
-                $accountColumns,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
@@ -79,21 +62,21 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
             $this->getSnowflakeImportOptions(),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
-                $accountColumns,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
             ),
             $this->getSnowflakeIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'accounts_3'],
-            $expectedAccountsRows,
+            $accountsStub->getRows(),
             4,
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'simple no timestamp' => [
             $this->getSourceInstance(
                 'tw_accounts.csv',
-                $accountColumns,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
@@ -106,7 +89,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
             ),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
-                $accountColumns,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
@@ -118,14 +101,14 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
                 ImportOptions::SKIP_FIRST_LINE
             ),
             [$this->getDestinationSchemaName(), 'accounts_without_ts'],
-            $expectedAccountsRows,
+            $accountsStub->getRows(),
             4,
             self::TABLE_ACCOUNTS_WITHOUT_TS,
         ];
         yield 'multi pk' => [
             $this->getSourceInstance(
                 'multi-pk_not-null.csv',
-                $multiPkColumns,
+                $multiPKStub->getColumns(),
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem']
@@ -133,14 +116,14 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
             $this->getSnowflakeImportOptions(),
             $this->getSourceInstance(
                 'multi-pk_not-null.increment.csv',
-                $multiPkColumns,
+                $multiPKStub->getColumns(),
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem']
             ),
             $this->getSnowflakeIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'multi_pk_ts'],
-            $expectedMultiPkRows,
+            $multiPKStub->getRows(),
             3,
             self::TABLE_MULTI_PK_WITH_TS,
         ];
