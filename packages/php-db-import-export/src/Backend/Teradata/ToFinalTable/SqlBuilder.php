@@ -298,9 +298,9 @@ class SqlBuilder
 
         if ($importOptions->useTimestamp()) {
             $columnsSet[] = sprintf(
-                '%s = \'%s\'',
+                '%s = %s',
                 TeradataQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-                $timestamp
+                TeradataQuote::quote($timestamp)
             );
         }
 
