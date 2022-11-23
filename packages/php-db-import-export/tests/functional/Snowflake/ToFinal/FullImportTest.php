@@ -24,8 +24,6 @@ use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class FullImportTest extends SnowflakeBaseTestCase
 {
-    use StorageTrait;
-
     protected function setUp(): void
     {
         parent::setUp();

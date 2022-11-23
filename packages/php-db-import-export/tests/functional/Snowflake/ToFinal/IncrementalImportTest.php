@@ -22,8 +22,6 @@ use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class IncrementalImportTest extends SnowflakeBaseTestCase
 {
-    use StorageTrait;
-
     protected function getSnowflakeIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): SnowflakeImportOptions {

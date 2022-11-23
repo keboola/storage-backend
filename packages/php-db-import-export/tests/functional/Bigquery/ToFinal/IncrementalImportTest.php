@@ -23,13 +23,6 @@ use Tests\Keboola\Db\ImportExportFunctional\Bigquery\BigqueryBaseTestCase;
 
 class IncrementalImportTest extends BigqueryBaseTestCase
 {
-    use StorageTrait;
-
-    protected function getGCSBucketEnvName(): string
-    {
-        return 'BQ_BUCKET_NAME';
-    }
-
     protected function getBigqueryIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): BigqueryImportOptions {
