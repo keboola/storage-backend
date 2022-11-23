@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Teradata\ToFinal;
 
 use DateTime;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\DriverException;
 use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
@@ -522,7 +521,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $dest = sprintf('"%s"."%s"', $this->getTestDBName(), self::TEST_TABLE);
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') WHERE TRIM(%s."col1") = COALESCE(TRIM("src"."col1"), \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
@@ -615,7 +614,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = "src"."col1", "col2" = "src"."col2" WHERE %s."col1" = "src"."col1" AND (%s."col1" <> "src"."col1" OR %s."col2" <> "src"."col2")',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = "src"."col1", "col2" = "src"."col2" WHERE TRIM(%s."col1") = TRIM("src"."col1") AND (%s."col1" <> "src"."col1" OR %s."col2" <> "src"."col2")',
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
@@ -706,7 +705,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\') WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\') WHERE TRIM(%s."col1") = COALESCE(TRIM("src"."col1"), \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
@@ -815,7 +814,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         $expectedSql = sprintf(
         // phpcs:ignore
-            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' WHERE %s."col1" = COALESCE("src"."col1", \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
+            'UPDATE %s FROM (SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "col1" ORDER BY "col1") AS "_row_number_" FROM %s.%s) AS a WHERE a."_row_number_" = 1) "src" SET "col1" = CASE WHEN "src"."col1" = \'\' THEN NULL ELSE "src"."col1" END, "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 01:01:01\' WHERE TRIM(%s."col1") = COALESCE(TRIM("src"."col1"), \'\') AND (COALESCE(CAST(%s."col1" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col1", \'\') OR COALESCE(CAST(%s."col2" AS VARCHAR(32000)), \'\') <> COALESCE("src"."col2", \'\'))',
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
@@ -918,7 +917,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'DELETE %s FROM %s AS "joined" WHERE %s."pk1" = COALESCE("joined"."pk1", \'\') AND %s."pk2" = COALESCE("joined"."pk2", \'\')',
+            'DELETE %s FROM %s AS "joined" WHERE TRIM(%s."pk1") = COALESCE(TRIM("joined"."pk1"), \'\') AND TRIM(%s."pk2") = COALESCE(TRIM("joined"."pk2"), \'\')',
             $stagingTable,
             $storageTable,
             $stagingTable,
@@ -1027,7 +1026,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'DELETE %s FROM %s AS "joined" WHERE %s."pk1" = "joined"."pk1" AND %s."pk2" = "joined"."pk2"',
+            'DELETE %s FROM %s AS "joined" WHERE TRIM(%s."pk1") = TRIM("joined"."pk1") AND TRIM(%s."pk2") = TRIM("joined"."pk2")',
             $stagingTable,
             $storageTable,
             $stagingTable,

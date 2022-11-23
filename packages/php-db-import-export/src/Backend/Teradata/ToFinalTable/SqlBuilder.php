@@ -355,9 +355,9 @@ class SqlBuilder
         string $alias = '"src"'
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions, $dest, $alias) {
-            $str = '%s.%s = COALESCE(%s.%s, \'\')';
+            $str = 'TRIM(%s.%s) = COALESCE(TRIM(%s.%s), \'\')';
             if (!$importOptions->isNullManipulationEnabled()) {
-                $str = '%s.%s = %s.%s';
+                $str = 'TRIM(%s.%s) = TRIM(%s.%s)';
             }
             return sprintf(
                 $str,
