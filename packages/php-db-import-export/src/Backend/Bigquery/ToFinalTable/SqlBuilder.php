@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable;
 
-use Exception as InternalException;
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Db\Import\Exception;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
@@ -17,6 +16,33 @@ use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 class SqlBuilder
 {
     private const SRC_ALIAS = 'src';
+
+    private function assertColumnExist(
+        BigqueryTableDefinition $tableDefinition,
+        BigqueryColumn $columnDefinition
+    ): BigqueryColumn {
+        $destinationColumn = null;
+        // case sensitive search
+        /** @var BigqueryColumn $col */
+        foreach ($tableDefinition->getColumnsDefinitions() as $col) {
+            if ($col->getColumnName() === $columnDefinition->getColumnName()) {
+                $destinationColumn = $col;
+                break;
+            }
+        }
+        if ($destinationColumn === null) {
+            throw new Exception(
+                sprintf(
+                    'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
+                    $columnDefinition->getColumnName(),
+                    implode(', ', $tableDefinition->getColumnsNames())
+                ),
+                Exception::UNKNOWN_ERROR
+            );
+        }
+
+        return $destinationColumn;
+    }
 
     public function getBeginTransaction(): string
     {
@@ -52,61 +78,15 @@ class SqlBuilder
         );
     }
 
-    public function getTableExistsCommand(string $dbName, string $tableName): string
-    {
-        return sprintf(
-            'SELECT COUNT(*) AS count FROM %s.INFORMATION_SCHEMA.TABLES WHERE table_name = %s;',
-            BigqueryQuote::quoteSingleIdentifier($dbName),
-            BigqueryQuote::quote($tableName)
-        );
-    }
-
-    public function getInsertAllIntoTargetTableCommand(
+    private function getColumnSetSqlPartForStringTable(
         BigqueryTableDefinition $sourceTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
-        ImportOptions $importOptions,
-        string $timestamp
-    ): string {
-        $destinationTable = sprintf(
-            '%s.%s',
-            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
-        );
-
-        $columnsToInsert = $sourceTableDefinition->getColumnsNames();
-        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $columnsToInsert, true)
-            && $importOptions->useTimestamp();
-
-        if ($useTimestamp) {
-            $columnsToInsert = array_merge(
-                $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
-            );
-        }
-
+        BigqueryImportOptions $importOptions
+    ): array {
         $columnsSetSql = [];
-
         /** @var BigqueryColumn $columnDefinition */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
-            $destinationColumn = null;
-            // case sensitive search
-            /** @var BigqueryColumn $col */
-            foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
-                if ($col->getColumnName() === $columnDefinition->getColumnName()) {
-                    $destinationColumn = $col;
-                    break;
-                }
-            }
-            if ($destinationColumn === null) {
-                throw new Exception(
-                    sprintf(
-                        'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
-                        $columnDefinition->getColumnName(),
-                        implode(', ', $destinationTableDefinition->getColumnsNames())
-                    ),
-                    Exception::UNKNOWN_ERROR
-                );
-            }
+            $destinationColumn = $this->assertColumnExist($destinationTableDefinition, $columnDefinition);
             if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
@@ -135,6 +115,55 @@ class SqlBuilder
                 );
             }
         }
+        return $columnsSetSql;
+    }
+
+    public function getTableExistsCommand(string $dbName, string $tableName): string
+    {
+        return sprintf(
+            'SELECT COUNT(*) AS count FROM %s.INFORMATION_SCHEMA.TABLES WHERE table_name = %s;',
+            BigqueryQuote::quoteSingleIdentifier($dbName),
+            BigqueryQuote::quote($tableName)
+        );
+    }
+
+    public function getInsertAllIntoTargetTableCommand(
+        BigqueryTableDefinition $sourceTableDefinition,
+        BigqueryTableDefinition $destinationTableDefinition,
+        BigqueryImportOptions $importOptions,
+        string $timestamp
+    ): string {
+        $destinationTable = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+        );
+
+        $columnsToInsert = $sourceTableDefinition->getColumnsNames();
+        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $columnsToInsert, true)
+            && $importOptions->useTimestamp();
+
+        if ($useTimestamp) {
+            $columnsToInsert = array_merge(
+                $sourceTableDefinition->getColumnsNames(),
+                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+            );
+        }
+
+        if ($importOptions->usingUserDefinedTypes()) {
+            $columnsSetSql = [];
+            /** @var BigqueryColumn $columnDefinition */
+            foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
+                $this->assertColumnExist($destinationTableDefinition, $columnDefinition);
+                $columnsSetSql[] = BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
+            }
+        } else {
+            $columnsSetSql = $this->getColumnSetSqlPartForStringTable(
+                $sourceTableDefinition,
+                $destinationTableDefinition,
+                $importOptions
+            );
+        }
 
         if ($useTimestamp) {
             $columnsSetSql[] = sprintf('CAST(%s as %s)', BigqueryQuote::quote($timestamp), Bigquery::TYPE_TIMESTAMP);
@@ -151,7 +180,7 @@ class SqlBuilder
         );
     }
 
-    public function getTruncateTable(string $schema, string $tableName):string
+    public function getTruncateTable(string $schema, string $tableName): string
     {
         return sprintf(
             'TRUNCATE TABLE %s.%s',
@@ -180,6 +209,20 @@ class SqlBuilder
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition
     ): void {
-        throw new InternalException('not implemented yet');
+    }
+
+    public function getUpdateWithPkCommand(
+        BigqueryTableDefinition $stagingTableDefinition,
+        BigqueryTableDefinition $destinationTableDefinition,
+        BigqueryImportOptions $options,
+        string $timestampValue
+    ): string {
+    }
+
+    public function getDedupCommand(
+        BigqueryTableDefinition $stagingTableDefinition,
+        BigqueryTableDefinition $deduplicationTableDefinition,
+        array $getPrimaryKeysNames
+    ): string {
     }
 }

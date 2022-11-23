@@ -66,9 +66,9 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0
-    ): ImportOptions {
+    ): BigqueryImportOptions {
         return
-            new ImportOptions(
+            new BigqueryImportOptions(
                 $convertEmptyValuesToNull,
                 $isIncremental,
                 $useTimestamp,

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
-use Exception;
+use Generator;
 use Google\Cloud\Core\Exception\NotFoundException;
 use Keboola\Datatype\Definition\Bigquery;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable\SqlBuilder;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -161,7 +162,24 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $this->assertEquals(0, $current['count']);
     }
 
-    public function testGetInsertAllIntoTargetTableCommand(): void
+    public function testGetInsertAllIntoTargetTableCommandProvider(): Generator
+    {
+        yield 'typed' => [
+            BigqueryImportOptions::USING_TYPES_USER,
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT `col1`,`col2` FROM `import_export_test_schema`.`stagingTable` AS `src`'
+        ];
+        yield 'string' => [
+            BigqueryImportOptions::USING_TYPES_STRING,
+            // phpcs:ignore
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT CAST(COALESCE(`col1`, \'\') as STRING) AS `col1`,CAST(COALESCE(`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
+        ];
+    }
+
+    /**
+     * @param self::USING_TYPES_* $usingTypes
+     * @dataProvider testGetInsertAllIntoTargetTableCommandProvider
+     */
+    public function testGetInsertAllIntoTargetTableCommand(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
         $destination = $this->createTestTableWithColumns();
@@ -183,15 +201,17 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
-            $this->getImportOptions(),
+            new BigqueryImportOptions(
+                [],
+                false,
+                false,
+                BigqueryImportOptions::SKIP_NO_LINE,
+                $usingTypes
+            ),
             '2020-01-01 00:00:00'
         );
 
-        self::assertEquals(
-        // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT CAST(COALESCE(`col1`, \'\') as STRING) AS `col1`,CAST(COALESCE(`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
-            $sql
-        );
+        self::assertEquals($expectedSql, $sql);
 
         $out = $this->bqClient->runQuery($this->bqClient->query($sql));
         self::assertEquals(4, $out->info()['numDmlAffectedRows']);
@@ -286,7 +306,25 @@ class SqlBuildTest extends BigqueryBaseTestCase
         );
     }
 
-    public function testGetInsertAllIntoTargetTableCommandConvertToNull(): void
+    public function testGetInsertAllIntoTargetTableCommandConvertToNullProvider(): Generator
+    {
+        yield 'typed' => [ // nothing is converted
+            BigqueryImportOptions::USING_TYPES_USER,
+            // phpcs:ignore
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT `col1`,`col2` FROM `import_export_test_schema`.`stagingTable` AS `src`'
+        ];
+        yield 'string' => [
+            BigqueryImportOptions::USING_TYPES_STRING,
+            // phpcs:ignore
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT NULLIF(`col1`, \'\'),CAST(COALESCE(`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
+        ];
+    }
+
+    /**
+     * @param self::USING_TYPES_* $usingTypes
+     * @dataProvider testGetInsertAllIntoTargetTableCommandConvertToNullProvider
+     */
+    public function testGetInsertAllIntoTargetTableCommandConvertToNull(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
         $destination = $this->createTestTableWithColumns();
@@ -304,19 +342,19 @@ class SqlBuildTest extends BigqueryBaseTestCase
             []
         );
 
-        // convert col1 to null
-        $options = $this->getImportOptions(['col1']);
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
-            $options,
+            new BigqueryImportOptions(
+                ['col1'], // convert col1 to null
+                false,
+                false,
+                BigqueryImportOptions::SKIP_NO_LINE,
+                $usingTypes
+            ),
             '2020-01-01 00:00:00'
         );
-        self::assertEquals(
-        // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT NULLIF(`col1`, \'\'),CAST(COALESCE(`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
-            $sql
-        );
+        self::assertEquals($expectedSql, $sql);
         $out = $this->bqClient->runQuery($this->bqClient->query($sql));
         self::assertEquals(4, $out->info()['numDmlAffectedRows']);
 
@@ -353,8 +391,25 @@ class SqlBuildTest extends BigqueryBaseTestCase
             ],
         ], $queryResult);
     }
+    public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): Generator
+    {
+        yield 'typed' => [ // nothing is converted
+            BigqueryImportOptions::USING_TYPES_USER,
+            // phpcs:ignore
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`, `_timestamp`) SELECT `col1`,`col2`,CAST(\'2020-01-01 00:00:00\' as TIMESTAMP) FROM `import_export_test_schema`.`stagingTable` AS `src`'
+        ];
+        yield 'string' => [
+            BigqueryImportOptions::USING_TYPES_STRING,
+            // phpcs:ignore
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`, `_timestamp`) SELECT NULLIF(`col1`, \'\'),CAST(COALESCE(`col2`, \'\') as STRING) AS `col2`,CAST(\'2020-01-01 00:00:00\' as TIMESTAMP) FROM `import_export_test_schema`.`stagingTable` AS `src`',
+        ];
+    }
 
-    public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(): void
+    /**
+     * @param self::USING_TYPES_* $usingTypes
+     * @dataProvider testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider
+     */
+    public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
         $destination = $this->createTestTableWithColumns(true);
@@ -371,19 +426,19 @@ class SqlBuildTest extends BigqueryBaseTestCase
             []
         );
 
-        // use timestamp
-        $options = $this->getImportOptions(['col1'], false, true);
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
-            $options,
+            new BigqueryImportOptions(
+                ['col1'],
+                false,
+                true, // use timestamp
+                BigqueryImportOptions::SKIP_NO_LINE,
+                $usingTypes
+            ),
             '2020-01-01 00:00:00'
         );
-        self::assertEquals(
-        // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`, `_timestamp`) SELECT NULLIF(`col1`, \'\'),CAST(COALESCE(`col2`, \'\') as STRING) AS `col2`,CAST(\'2020-01-01 00:00:00\' as TIMESTAMP) FROM `import_export_test_schema`.`stagingTable` AS `src`',
-            $sql
-        );
+        self::assertEquals($expectedSql, $sql);
         $out = $this->bqClient->runQuery($this->bqClient->query($sql));
         self::assertEquals(4, $out->info()['numDmlAffectedRows']);
 
