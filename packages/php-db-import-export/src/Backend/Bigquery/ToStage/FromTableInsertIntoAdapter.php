@@ -41,7 +41,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
 
         $quotedColumns = array_map(static function ($column) {
             return BigqueryQuote::quoteSingleIdentifier($column);
-        }, $source->getColumnsNames());
+        }, $destination->getColumnsNames());
 
         if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
             Assert::assertSameColumns(
