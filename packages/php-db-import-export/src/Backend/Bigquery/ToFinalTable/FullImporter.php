@@ -39,7 +39,7 @@ final class FullImporter implements ToFinalTableImporterInterface
     ): void {
         // truncate destination table
         $this->bqClient->runQuery($this->bqClient->query(
-            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+            $this->sqlBuilder->getTruncateTable(
                 $destinationTableDefinition->getSchemaName(),
                 $destinationTableDefinition->getTableName()
             )

@@ -151,10 +151,8 @@ class SqlBuilder
         );
     }
 
-    public function getTruncateTableWithDeleteCommand(
-        string $schema,
-        string $tableName
-    ): string {
+    public function getTruncateTable(string $schema, string $tableName):string
+    {
         return sprintf(
             'TRUNCATE TABLE %s.%s',
             BigqueryQuote::quoteSingleIdentifier($schema),

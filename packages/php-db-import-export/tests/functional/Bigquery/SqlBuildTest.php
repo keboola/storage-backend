@@ -401,7 +401,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
         }
     }
 
-    public function testGetTruncateTableWithDeleteCommand(): void
+    public function testGetTruncateTableCommand(): void
     {
         $this->createTestDb();
         $this->createStagingTableWithData();
@@ -409,7 +409,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_DB, self::TEST_STAGING_TABLE);
         self::assertEquals(3, $ref->getRowsCount());
 
-        $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand(self::TEST_DB, self::TEST_STAGING_TABLE);
+        $sql = $this->getBuilder()->getTruncateTable(self::TEST_DB, self::TEST_STAGING_TABLE);
         self::assertEquals(
             'TRUNCATE TABLE `import_export_test_schema`.`stagingTable`',
             $sql
