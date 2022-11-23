@@ -17,6 +17,7 @@ use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 final class IncrementalImporter implements ToFinalTableImporterInterface
 {
@@ -81,7 +82,17 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
         } catch (JobException $e) {
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getRollbackTransaction(),
+                $session->getAsQueryOptions()
+            ));
             throw BigqueryException::covertException($e);
+        } catch (Throwable $e) {
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getRollbackTransaction(),
+                $session->getAsQueryOptions()
+            ));
+            throw $e;
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // drop dedup table

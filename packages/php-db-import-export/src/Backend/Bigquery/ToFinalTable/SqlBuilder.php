@@ -28,6 +28,11 @@ class SqlBuilder
         return 'COMMIT TRANSACTION';
     }
 
+    public function getRollbackTransaction(): string
+    {
+        return 'ROLLBACK TRANSACTION';
+    }
+
     /**
      * SQL to drop table. DOES NOT check existence of table
      *
