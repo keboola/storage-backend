@@ -91,35 +91,10 @@ class FullImportTest extends BigqueryBaseTestCase
      */
     public function fullImportData(): Generator
     {
-        $expectedEscaping = [];
-        $file = new CsvFile(self::DATA_DIR . 'escaping/standard-with-enclosures.csv');
-        foreach ($file as $row) {
-            $expectedEscaping[] = $row;
-        }
-        /** @var string[] $escapingHeader */
-        $escapingHeader = array_shift($expectedEscaping); // remove header
-        $expectedEscaping = array_values($expectedEscaping);
-
-        $expectedAccounts = [];
-        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        foreach ($file as $row) {
-            $expectedAccounts[] = $row;
-        }
-        /** @var string[] $accountsHeader */
-        $accountsHeader = array_shift($expectedAccounts); // remove header
-        $expectedAccounts = array_values($expectedAccounts);
-
-        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.changedColumnsOrder.csv');
-        $accountChangedColumnsOrderHeader = $file->getHeader();
-
-        $file = new CsvFile(self::DATA_DIR . 'lemma.csv');
-        $expectedLemma = [];
-        foreach ($file as $row) {
-            $expectedLemma[] = $row;
-        }
-        /** @var string[] $lemmaHeader */
-        $lemmaHeader = array_shift($expectedLemma);
-        $expectedLemma = array_values($expectedLemma);
+        $escapingStub = $this->getParseCsvStub('escaping/standard-with-enclosures.csv');
+        $accountsStub = $this->getParseCsvStub('tw_accounts.csv');
+        $accountsChangedColumnsOrderStub = $this->getParseCsvStub('tw_accounts.changedColumnsOrder.csv');
+        $lemmaStub = $this->getParseCsvStub('lemma.csv');
 
         // large sliced manifest
         $expectedLargeSlicedManifest = [];
@@ -130,7 +105,7 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'large manifest' => [
             $this->getSourceInstance(
                 'sliced/2cols-large/GCS.2cols-large.csvmanifest',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 true,
                 false,
                 []
@@ -145,7 +120,7 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'empty manifest' => [
             $this->getSourceInstance(
                 'empty.manifest',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 true,
                 false,
                 []
@@ -160,14 +135,14 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'lemma' => [
             $this->getSourceInstance(
                 'lemma.csv',
-                $lemmaHeader,
+                $lemmaStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_LEMMA],
             $this->getSimpleImportOptions(),
-            $expectedLemma,
+            $lemmaStub->getRows(),
             5,
             self::TABLE_OUT_LEMMA,
         ];
@@ -175,14 +150,14 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'standard with enclosures' => [
             $this->getSourceInstance(
                 'standard-with-enclosures.csv',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
@@ -190,14 +165,14 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'gzipped standard with enclosure' => [
             $this->getSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
@@ -206,14 +181,14 @@ class FullImportTest extends BigqueryBaseTestCase
             $this->getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
@@ -221,7 +196,7 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'accounts changedColumnsOrder' => [
             $this->getSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
-                $accountChangedColumnsOrderHeader,
+                $accountsChangedColumnsOrderStub->getColumns(),
                 false,
                 false,
                 ['id']
@@ -231,7 +206,7 @@ class FullImportTest extends BigqueryBaseTestCase
                 self::TABLE_ACCOUNTS_3,
             ],
             $this->getSimpleImportOptions(),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -239,14 +214,14 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'accounts' => [
             $this->getSourceInstance(
                 'tw_accounts.csv',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -255,14 +230,14 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'accounts crlf' => [
             $this->getSourceInstance(
                 'tw_accounts.crlf.csv',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -271,14 +246,14 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'accounts sliced' => [
             $this->getSourceInstance(
                 'sliced/accounts/GCS.accounts.csvmanifest',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 true,
                 false,
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -286,14 +261,14 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'accounts sliced gzip' => [
             $this->getSourceInstance(
                 'sliced/accounts-gzip/GCS.accounts-gzip.csvmanifest',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 true,
                 false,
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -342,7 +317,7 @@ class FullImportTest extends BigqueryBaseTestCase
         yield 'table without _timestamp column' => [
             $this->getSourceInstance(
                 'standard-with-enclosures.csv',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
@@ -357,12 +332,12 @@ class FullImportTest extends BigqueryBaseTestCase
                 false, // don't use timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_NO_TIMESTAMP_TABLE,
         ];
         yield 'copy from table' => [
-            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
             [['a', 'b'], ['c', 'd']],

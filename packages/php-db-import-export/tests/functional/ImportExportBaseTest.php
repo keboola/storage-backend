@@ -193,4 +193,22 @@ abstract class ImportExportBaseTest extends TestCase
         }
         return new Configuration();
     }
+
+    protected function getParseCsvStub(string $filePathInDataDir): CsvStub
+    {
+        $file = new CsvFile(self::DATA_DIR . $filePathInDataDir);
+        $rows = [];
+        foreach ($file as $row) {
+            $rows[] = $row;
+        }
+
+        /** @var string[] $columns */
+        $columns = array_shift($rows);
+        $rows = array_values($rows);
+
+        return new CsvStub(
+            $columns,
+            $rows
+        );
+    }
 }

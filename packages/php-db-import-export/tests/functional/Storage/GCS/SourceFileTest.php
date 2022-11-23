@@ -11,6 +11,11 @@ class SourceFileTest extends BaseTestCase
 {
     use GCSSourceTrait;
 
+    protected function getGCSBucketEnvName(): string
+    {
+        return 'GCS_BUCKET_NAME';
+    }
+
     public function testGetManifestEntries(): void
     {
         $source = $this->createGCSSourceInstance('file.csv');

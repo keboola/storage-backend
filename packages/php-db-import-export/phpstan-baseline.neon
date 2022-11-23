@@ -216,21 +216,6 @@ parameters:
 			path: tests/functional/Exasol/StageImportS3Test.php
 
 		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(Google\\\\Cloud\\\\Storage\\\\StorageObject\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/ImportExportBaseTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/ImportExportBaseTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(array\\)\\: mixed given\\.$#"
-			count: 1
-			path: tests/functional/ImportExportBaseTest.php
-
-		-
 			message: "#^Parameter \\#2 \\$array of function array_map expects array, mixed given\\.$#"
 			count: 1
 			path: tests/functional/ImportExportBaseTest.php
@@ -256,21 +241,6 @@ parameters:
 			path: tests/functional/Snowflake/IncrementalImportTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(Google\\\\Cloud\\\\Storage\\\\StorageObject\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(array\\)\\: mixed given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$fileName of class Keboola\\\\Csv\\\\CsvFile constructor expects string, mixed given\\.$#"
 			count: 1
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
@@ -284,51 +254,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$values of function array_combine expects array, mixed given\\.$#"
 			count: 1
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(Google\\\\Cloud\\\\Storage\\\\StorageObject\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToFinal/FullImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToFinal/FullImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(array\\)\\: mixed given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToFinal/FullImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(Google\\\\Cloud\\\\Storage\\\\StorageObject\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToFinal/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToFinal/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(array\\)\\: mixed given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToFinal/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(Google\\\\Cloud\\\\Storage\\\\StorageObject\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToStage/StageImportFileTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToStage/StageImportFileTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(array\\)\\: mixed given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/ToStage/StageImportFileTest.php
 
 		-
 			message: "#^Offset 0 does not exist on array\\<string, string\\>\\.$#"
@@ -404,21 +329,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$files of static method Tests\\\\Keboola\\\\Db\\\\ImportExportFunctional\\\\Teradata\\\\ExportTest\\:\\:assertFilesMatch\\(\\) expects array\\<int, array\\{Size\\: string, Key\\: string\\}\\>, array\\<int, array\\> given\\.$#"
 			count: 1
 			path: tests/functional/Teradata/ExportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(Google\\\\Cloud\\\\Storage\\\\StorageObject\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Teradata/ToFinal/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: string given\\.$#"
-			count: 1
-			path: tests/functional/Teradata/ToFinal/IncrementalImportTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of function array_map expects \\(callable\\(array\\{Key\\: string\\}\\|Google\\\\Cloud\\\\Storage\\\\StorageObject\\|MicrosoftAzure\\\\Storage\\\\Blob\\\\Models\\\\Blob\\)\\: mixed\\)\\|null, Closure\\(array\\)\\: mixed given\\.$#"
-			count: 1
-			path: tests/functional/Teradata/ToFinal/IncrementalImportTest.php
 
 		-
 			message: "#^Variable \\$destination in PHPDoc tag @var does not match assigned variable \\$options\\.$#"

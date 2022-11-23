@@ -246,13 +246,16 @@ trait StorageTrait
     {
         $files = $this->listFiles($dir, $excludeManifest);
         if ($files[0] instanceof Blob) {
-            return array_map(static fn(Blob $blob) => $blob->getName(), $files);
+            /** @var Blob[] $files */
+            return array_map(static fn(Blob $blob): string => $blob->getName(), $files);
         }
         if ($files[0] instanceof StorageObject) {
-            return array_map(static fn(StorageObject $blob) => $blob->name(), $files);
+            /** @var StorageObject[] $files */
+            return array_map(static fn(StorageObject $blob): string => $blob->name(), $files);
         }
-        if (array_key_exists('Key', $files[0])) {
-            return array_map(static fn(array $blob) => $blob['Key'], $files);
+        if (is_array($files[0]) && array_key_exists('Key', $files[0])) {
+            /** @var array<array{Key:string}> $files */
+            return array_map(static fn(array $blob): string => $blob['Key'], $files);
         }
         throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
     }

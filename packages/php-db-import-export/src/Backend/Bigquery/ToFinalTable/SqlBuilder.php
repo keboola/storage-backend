@@ -18,10 +18,14 @@ class SqlBuilder
 {
     private const SRC_ALIAS = 'src';
 
+    public function getBeginTransaction(): string
+    {
+        return 'BEGIN TRANSACTION';
+    }
+
     public function getCommitTransaction(): string
     {
-        //TODO
-        throw new InternalException('not implemented yet');
+        return 'COMMIT TRANSACTION';
     }
 
     /**
@@ -33,6 +37,17 @@ class SqlBuilder
         return sprintf(
             'DROP TABLE %s.%s',
             BigqueryQuote::quoteSingleIdentifier($dbName),
+            BigqueryQuote::quoteSingleIdentifier($tableName)
+        );
+    }
+
+    public function getDropTableIfExistsCommand(
+        string $schema,
+        string $tableName
+    ): string {
+        return sprintf(
+            'DROP TABLE IF EXISTS %s.%s',
+            BigqueryQuote::quoteSingleIdentifier($schema),
             BigqueryQuote::quoteSingleIdentifier($tableName)
         );
     }

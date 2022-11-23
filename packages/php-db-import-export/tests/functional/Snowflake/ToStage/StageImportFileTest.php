@@ -20,8 +20,6 @@ use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class StageImportFileTest extends SnowflakeBaseTestCase
 {
-    use StorageTrait;
-
     private const TWITTER_COLUMNS = [
         'id',
         'idTwitter',

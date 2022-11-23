@@ -24,8 +24,6 @@ use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class FullImportTest extends SnowflakeBaseTestCase
 {
-    use StorageTrait;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -261,37 +259,10 @@ class FullImportTest extends SnowflakeBaseTestCase
      */
     public function fullImportData(): Generator
     {
-        $expectedEscaping = [];
-        $file = new CsvFile(self::DATA_DIR . 'escaping/standard-with-enclosures.csv');
-        foreach ($file as $row) {
-            $expectedEscaping[] = $row;
-        }
-        /** @var string[] $escapingHeader */
-        $escapingHeader = array_shift($expectedEscaping); // remove header
-        $expectedEscaping = array_values($expectedEscaping);
-
-        $expectedAccounts = [];
-        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        foreach ($file as $row) {
-            $expectedAccounts[] = $row;
-        }
-        /** @var string[] $accountsHeader */
-        $accountsHeader = array_shift($expectedAccounts); // remove header
-        $expectedAccounts = array_values($expectedAccounts);
-
-        $file = new CsvFile(self::DATA_DIR . 'tw_accounts.changedColumnsOrder.csv');
-        $accountChangedColumnsOrderHeader = $file->getHeader();
-
-        $file = new CsvFile(self::DATA_DIR . 'lemma.csv');
-
-        $expectedLemma = [];
-        foreach ($file as $row) {
-            $expectedLemma[] = $row;
-        }
-
-        /** @var string[] $lemmaHeader */
-        $lemmaHeader = array_shift($expectedLemma);
-        $expectedLemma = array_values($expectedLemma);
+        $escapingStub = $this->getParseCsvStub('escaping/standard-with-enclosures.csv');
+        $accountsStub = $this->getParseCsvStub('tw_accounts.csv');
+        $accountsChangedColumnsOrderStub = $this->getParseCsvStub('tw_accounts.changedColumnsOrder.csv');
+        $lemmaStub = $this->getParseCsvStub('lemma.csv');
 
         // large sliced manifest
         $expectedLargeSlicedManifest = [];
@@ -302,7 +273,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'large manifest' => [
             $this->getSourceInstance(
                 'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 true,
                 false,
                 []
@@ -317,7 +288,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'empty manifest' => [
             $this->getSourceInstance(
                 'empty.manifest',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 true,
                 false,
                 []
@@ -332,14 +303,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'lemma' => [
             $this->getSourceInstance(
                 'lemma.csv',
-                $lemmaHeader,
+                $lemmaStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_LEMMA],
             $this->getSnowflakeImportOptions(),
-            $expectedLemma,
+            $lemmaStub->getRows(),
             5,
             self::TABLE_OUT_LEMMA,
         ];
@@ -347,14 +318,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'standard with enclosures' => [
             $this->getSourceInstance(
                 'standard-with-enclosures.csv',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
@@ -362,14 +333,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'gzipped standard with enclosure' => [
             $this->getSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
@@ -378,14 +349,14 @@ class FullImportTest extends SnowflakeBaseTestCase
             $this->getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
@@ -393,7 +364,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'accounts changedColumnsOrder' => [
             $this->getSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
-                $accountChangedColumnsOrderHeader,
+                $accountsChangedColumnsOrderStub->getColumns(),
                 false,
                 false,
                 ['id']
@@ -403,21 +374,21 @@ class FullImportTest extends SnowflakeBaseTestCase
                 self::TABLE_ACCOUNTS_3,
             ],
             $this->getSnowflakeImportOptions(),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'accounts' => [
             $this->getSourceInstance(
                 'tw_accounts.csv',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -426,14 +397,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'accounts crlf' => [
             $this->getSourceInstance(
                 'tw_accounts.crlf.csv',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 false,
                 false,
                 ['id']
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -442,14 +413,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'accounts sliced' => [
             $this->getSourceInstance(
                 'sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 true,
                 false,
                 ['id']
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -457,14 +428,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'accounts sliced gzip' => [
             $this->getSourceInstance(
                 'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 true,
                 false,
                 ['id']
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -473,14 +444,14 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'accounts sliced folder import' => [
             $this->getSourceInstance(
                 'sliced_accounts_no_manifest/',
-                $accountsHeader,
+                $accountsStub->getColumns(),
                 true,
                 true,
                 ['id']
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
-            $expectedAccounts,
+            $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
@@ -529,7 +500,7 @@ class FullImportTest extends SnowflakeBaseTestCase
         yield 'table without _timestamp column' => [
             $this->getSourceInstance(
                 'standard-with-enclosures.csv',
-                $escapingHeader,
+                $escapingStub->getColumns(),
                 false,
                 false,
                 []
@@ -544,13 +515,13 @@ class FullImportTest extends SnowflakeBaseTestCase
                 false, // don't use timestamp
                 ImportOptions::SKIP_FIRST_LINE
             ),
-            $expectedEscaping,
+            $escapingStub->getRows(),
             7,
             self::TABLE_OUT_NO_TIMESTAMP_TABLE,
         ];
         // copy from table
         yield 'copy from table' => [
-            new Table($this->getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingHeader),
+            new Table($this->getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(),
             [['a', 'b'], ['c', 'd']],

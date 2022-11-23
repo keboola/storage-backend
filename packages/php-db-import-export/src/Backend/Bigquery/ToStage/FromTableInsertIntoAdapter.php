@@ -43,7 +43,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             return BigqueryQuote::quoteSingleIdentifier($column);
         }, $source->getColumnsNames());
 
-        if ($source instanceof Table && $importOptions->isRequireSameTables()) {
+        if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
             Assert::assertSameColumns(
                 (new BigqueryTableReflection(
                     $this->bqClient,
@@ -55,7 +55,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         }
 
         $select = $source->getFromStatement();
-        if (!$importOptions->isRequireSameTables()) {
+        if (!$importOptions->usingUserDefinedTypes()) {
             // if destination table is string (SAME_TABLES_NOT_REQUIRED) cast values to string
             $select = $source->getFromStatementWithStringCasting();
         }

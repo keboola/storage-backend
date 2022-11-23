@@ -5,37 +5,36 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Bigquery;
 
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\TableBackendUtils\Connection\Bigquery\Session;
 
 class BigqueryImportOptions extends ImportOptions
 {
-    public const SAME_TABLES_REQUIRED = true;
-    public const SAME_TABLES_NOT_REQUIRED = false;
-
-    /** @var self::SAME_TABLES_* */
-    private bool $requireSameTables;
+    private ?Session $session;
 
     /**
      * @param string[] $convertEmptyValuesToNull
-     * @param self::SAME_TABLES_* $requireSameTables
+     * @param self::USING_TYPES_* $usingTypes
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,
         bool $useTimestamp = false,
-        int $numberOfIgnoredLines = 0,
-        bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED
+        int $numberOfIgnoredLines = self::SKIP_NO_LINE,
+        string $usingTypes = self::USING_TYPES_STRING,
+        ?Session $session = null
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
             $isIncremental,
             $useTimestamp,
-            $numberOfIgnoredLines
+            $numberOfIgnoredLines,
+            $usingTypes
         );
-        $this->requireSameTables = $requireSameTables;
+        $this->session = $session;
     }
 
-    public function isRequireSameTables(): bool
+    public function getSession(): ?Session
     {
-        return $this->requireSameTables === self::SAME_TABLES_REQUIRED;
+        return $this->session;
     }
 }

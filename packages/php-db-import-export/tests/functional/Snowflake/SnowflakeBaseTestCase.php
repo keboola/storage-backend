@@ -15,6 +15,7 @@ use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\DebugLogger;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
@@ -46,6 +47,11 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
     {
         $this->connection->close();
         parent::tearDown();
+    }
+
+    protected function getGCSBucketEnvName(): string
+    {
+        return 'GCS_BUCKET_NAME';
     }
 
     protected function getSnowflakeConnection(): Connection
