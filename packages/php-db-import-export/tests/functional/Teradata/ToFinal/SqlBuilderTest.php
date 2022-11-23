@@ -58,20 +58,6 @@ class SqlBuilderTest extends TeradataBaseTestCase
         return new SqlBuilder();
     }
 
-    // TODO do we need it?
-    private function assertTableNotExists(string $schemaName, string $tableName): void
-    {
-        try {
-            (new TeradataTableReflection($this->connection, $schemaName, $tableName))->getTableStats();
-            self::fail(sprintf(
-                'Table "%s.%s" is expected to not exist.',
-                $schemaName,
-                $tableName
-            ));
-        } catch (Exception $e) {
-        }
-    }
-
     private function createStagingTableWithData(bool $includeEmptyValues = false): TeradataTableDefinition
     {
         $def = $this->getStagingTableDefinition();
@@ -188,18 +174,9 @@ class SqlBuilderTest extends TeradataBaseTestCase
     public function testGetDropTableIfExistsCommand(): void
     {
         $this->createTestDb();
-        $this->assertTableNotExists($this->getTestDBName(), self::TEST_TABLE);
 
         // check that it cannot find non-existing table
         $sql = $this->getBuilder()->getTableExistsCommand($this->getTestDBName(), self::TEST_TABLE);
-        self::assertEquals(
-        // phpcs:ignore
-            sprintf(
-                "SELECT COUNT(*) FROM DBC.TablesVX WHERE DatabaseName = %s AND TableName = 'import-export-test_test';",
-                TeradataQuote::quote($this->getTestDBName())
-            ),
-            $sql
-        );
         $this->assertEquals(0, $this->connection->fetchOne($sql));
 
         // try to drop not existing table
