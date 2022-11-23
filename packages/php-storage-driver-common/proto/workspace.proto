@@ -64,7 +64,8 @@ message ResetWorkspacePasswordCommand {
  * Response contain new password created by reset workspace password command
  */
 message ResetWorkspacePasswordResponse {
-  string workspacePassword = 1; // workspace user password
+  string workspaceUserName = 1; // workspace user name
+  string workspacePassword = 2; // workspace user password
 }
 
 /**

@@ -19,7 +19,13 @@ class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
     /**
      * workspace user password
      *
-     * Generated from protobuf field <code>string workspacePassword = 1;</code>
+     * Generated from protobuf field <code>string workspaceUserName = 1;</code>
+     */
+    protected $workspaceUserName = '';
+    /**
+     * workspace user password
+     *
+     * Generated from protobuf field <code>string workspacePassword = 2;</code>
      */
     protected $workspacePassword = '';
 
@@ -29,6 +35,8 @@ class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
+     *     @type string $workspaceUserName
+     *           workspace user password
      *     @type string $workspacePassword
      *           workspace user password
      * }
@@ -41,7 +49,33 @@ class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
     /**
      * workspace user password
      *
-     * Generated from protobuf field <code>string workspacePassword = 1;</code>
+     * Generated from protobuf field <code>string workspaceUserName = 1;</code>
+     * @return string
+     */
+    public function getWorkspaceUserName()
+    {
+        return $this->workspaceUserName;
+    }
+
+    /**
+     * workspace user password
+     *
+     * Generated from protobuf field <code>string workspaceUserName = 1;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setWorkspaceUserName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->workspaceUserName = $var;
+
+        return $this;
+    }
+
+    /**
+     * workspace user password
+     *
+     * Generated from protobuf field <code>string workspacePassword = 2;</code>
      * @return string
      */
     public function getWorkspacePassword()
@@ -52,7 +86,7 @@ class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
     /**
      * workspace user password
      *
-     * Generated from protobuf field <code>string workspacePassword = 1;</code>
+     * Generated from protobuf field <code>string workspacePassword = 2;</code>
      * @param string $var
      * @return $this
      */
