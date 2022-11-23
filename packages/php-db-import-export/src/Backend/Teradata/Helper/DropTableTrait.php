@@ -20,7 +20,8 @@ trait DropTableTrait
 
     protected function tableExists(string $dbName, string $tableName): bool
     {
+        /** @var string $tableExists */
         $tableExists = $this->connection->fetchOne((new SqlBuilder())->getTableExistsCommand($dbName, $tableName));
-        return $tableExists !== false;
+        return $tableExists > 0;
     }
 }
