@@ -304,35 +304,8 @@ class SqlBuilder
             );
         }
 
-        if (!$importOptions->isNullManipulationEnabled()) {
-            $columnsComparisonSql = array_map(
-                static function ($columnName) use ($dest) {
-                    return sprintf(
-                        '%s.%s <> "src".%s',
-                        $dest,
-                        TeradataQuote::quoteSingleIdentifier($columnName),
-                        TeradataQuote::quoteSingleIdentifier($columnName)
-                    );
-                },
-                $stagingTableDefinition->getColumnsNames()
-            );
-        } else {
-            $columnsComparisonSql = array_map(
-                static function ($columnName) use ($dest) {
-                    return sprintf(
-                        'COALESCE(CAST(%s.%s AS VARCHAR(%s)), \'\') <> COALESCE("src".%s, \'\')',
-                        $dest,
-                        TeradataQuote::quoteSingleIdentifier($columnName),
-                        Teradata::DEFAULT_NON_LATIN_CHAR_LENGTH,
-                        TeradataQuote::quoteSingleIdentifier($columnName)
-                    );
-                },
-                $stagingTableDefinition->getColumnsNames()
-            );
-        }
-
         return sprintf(
-            'UPDATE %s FROM (%s) "src" SET %s WHERE %s AND (%s)',
+            'UPDATE %s FROM (%s) "src" SET %s WHERE %s',
             $dest,
             $this->getDedupSql(
                 $stagingTableDefinition,
@@ -340,8 +313,7 @@ class SqlBuilder
                 $destinationDefinition->getPrimaryKeysNames()
             ),
             implode(', ', $columnsSet),
-            $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions, $dest),
-            implode(' OR ', $columnsComparisonSql)
+            $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions, $dest)
         );
     }
 

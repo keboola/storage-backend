@@ -12,6 +12,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
@@ -24,7 +25,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
     use StorageTrait;
 
     protected function getTeradataIncrementalImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptionsInterface::SKIP_FIRST_LINE
     ): TeradataImportOptions {
         return $this->getImportOptions(
             [],
@@ -44,7 +45,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
     }
 
     /**
-     * @return \Generator<string, array<mixed>>
+     * @return Generator<string, array<mixed>>
      */
     public function incrementalImportData(): Generator
     {
