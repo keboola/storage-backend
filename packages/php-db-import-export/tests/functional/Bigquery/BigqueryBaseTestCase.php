@@ -320,7 +320,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
 
     protected function getSimpleImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
-    ): ImportOptions {
+    ): BigqueryImportOptions {
         return new BigqueryImportOptions(
             [],
             false,
