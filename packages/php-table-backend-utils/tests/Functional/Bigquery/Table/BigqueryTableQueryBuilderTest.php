@@ -11,6 +11,7 @@ use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
 class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
@@ -102,7 +103,7 @@ EOT
         $this->bqClient->runQuery($this->bqClient->query($sql));
 
         // test NON existence of old table via counting
-        $this->expectException(NotFoundException::class);
+        $this->expectException(TableNotExistsReflectionException::class);
         $ref->getRowsCount();
     }
 }
