@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional;
 
 use Psr\Log\AbstractLogger;
+use Psr\Log\LogLevel;
 
 class DebugLogger extends AbstractLogger
 {
@@ -14,13 +15,13 @@ class DebugLogger extends AbstractLogger
     public function log($level, $message, array $context = []): void
     {
         assert(is_string($level));
-        self::log($level, $message, $context);
+        self::log($message, $level, $context);
     }
 
     /**
      * @param mixed[] $context
      */
-    public static function logMsg(string $level, string $message, array $context): void
+    public static function logMsg(string $message, string $level = LogLevel::INFO, array $context = []): void
     {
         error_log(
             sprintf(
