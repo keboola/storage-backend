@@ -566,7 +566,7 @@ class FullImportTest extends BigqueryBaseTestCase
 
     /**
      * @dataProvider  fullImportData
-     * @param string[] $table
+     * @param array{0:string, 1:string} $table
      * @param array<mixed> $expected
      */
     public function testFullImportWithDataSet(

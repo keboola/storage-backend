@@ -78,6 +78,9 @@ class SqlBuilder
         );
     }
 
+    /**
+     * @return string[]
+     */
     private function getColumnSetSqlPartForStringTable(
         BigqueryTableDefinition $sourceTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
@@ -207,22 +210,197 @@ class SqlBuilder
 
     public function getDeleteOldItemsCommand(
         BigqueryTableDefinition $stagingTableDefinition,
-        BigqueryTableDefinition $destinationTableDefinition
-    ): void {
+        BigqueryTableDefinition $destinationTableDefinition,
+        BigqueryImportOptions $importOptions
+    ): string {
+        $stagingTable = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+        );
+
+        $destinationTable = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'DELETE %s AS `src` WHERE EXISTS (SELECT * FROM %s AS `dest` WHERE %s)',
+            $stagingTable,
+            $destinationTable,
+            $this->getPrimaryKeyWhereConditions(
+                $destinationTableDefinition->getPrimaryKeysNames(),
+                $importOptions
+            )
+        );
+    }
+
+    /**
+     * @param string[] $primaryKeys
+     */
+    public function getCreateDedupTable(
+        BigqueryTableDefinition $stagingTableDefinition,
+        string $dedupTableName,
+        array $primaryKeys
+    ): string {
+        return sprintf(
+            <<< SQL
+CREATE OR REPLACE TABLE %s.%s AS
+%s
+SQL,
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($dedupTableName),
+            $this->getDedupSelect(
+                $stagingTableDefinition,
+                $stagingTableDefinition->getColumnsNames(),
+                $primaryKeys
+            ),
+        );
     }
 
     public function getUpdateWithPkCommand(
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
-        BigqueryImportOptions $options,
+        BigqueryImportOptions $importOptions,
         string $timestampValue
     ): string {
+        $columnsSet = [];
+
+        foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
+            if ($importOptions->usingUserDefinedTypes()) {
+                $columnsSet[] = sprintf(
+                    '%s = `src`.%s',
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                );
+                continue;
+            }
+            // if string table convert nulls<=>''
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+                $columnsSet[] = sprintf(
+                    '%s = IF(`src`.%s = \'\', NULL, `src`.%s)',
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($columnName)
+                );
+            } else {
+                $columnsSet[] = sprintf(
+                    '%s = COALESCE(`src`.%s, \'\')',
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($columnName)
+                );
+            }
+        }
+
+        if ($importOptions->useTimestamp()) {
+            $columnsSet[] = sprintf(
+                '%s = \'%s\'',
+                BigqueryQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+                $timestampValue
+            );
+        }
+
+        $dest = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+        );
+        return sprintf(
+            'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s',
+            $dest,
+            implode(', ', $columnsSet),
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+            $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions),
+        );
     }
 
+    /**
+     * @param string[] $primaryKeys
+     */
+    private function getPrimaryKeyWhereConditions(
+        array $primaryKeys,
+        BigqueryImportOptions $importOptions
+    ): string {
+        $pkWhereSql = array_map(function (string $col) use ($importOptions) {
+            $str = '`dest`.%s = COALESCE(`src`.%s, \'\')';
+            if ($importOptions->usingUserDefinedTypes()) {
+                $str = '`dest`.%s = `src`.%s';
+            }
+            return sprintf(
+                $str,
+                BigqueryQuote::quoteSingleIdentifier($col),
+                BigqueryQuote::quoteSingleIdentifier($col)
+            );
+        }, $primaryKeys);
+
+        return implode(' AND ', $pkWhereSql) . ' ';
+    }
+
+    /**
+     * @param string[] $primaryKeysNames
+     */
     public function getDedupCommand(
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $deduplicationTableDefinition,
-        array $getPrimaryKeysNames
+        array $primaryKeysNames
     ): string {
+        if (empty($primaryKeysNames)) {
+            return '';
+        }
+
+        $depudeSql = $this->getDedupSelect(
+            $stagingTableDefinition,
+            $deduplicationTableDefinition->getColumnsNames(),
+            $primaryKeysNames
+        );
+
+        $deduplication = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'INSERT INTO %s (%s) %s',
+            $deduplication,
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
+            $depudeSql
+        );
+    }
+
+    /**
+     * @param string[] $columns
+     * @param string[] $primaryKeysNames
+     */
+    private function getDedupSelect(
+        BigqueryTableDefinition $stagingTableDefinition,
+        array $columns,
+        array $primaryKeysNames
+    ): string {
+        $pkSql = $this->getColumnsString(
+            $primaryKeysNames,
+            ','
+        );
+
+        $stage = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'SELECT %s FROM ('
+            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS `_row_number_` '
+            . 'FROM %s'
+            . ') AS a '
+            . 'WHERE a.`_row_number_` = 1',
+            $this->getColumnsString($columns, ',', 'a'),
+            $this->getColumnsString($columns, ', '),
+            $pkSql,
+            $pkSql,
+            $stage
+        );
     }
 }
