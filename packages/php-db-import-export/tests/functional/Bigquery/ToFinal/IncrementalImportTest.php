@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery\ToFinal;
 
 use Generator;
-use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable\IncrementalImporter;
@@ -14,15 +13,14 @@ use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\StageTableDefinitionFactory
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
-use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\Bigquery\BigqueryBaseTestCase;
 
 class IncrementalImportTest extends BigqueryBaseTestCase
 {
+
     protected function getBigqueryIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): BigqueryImportOptions {
@@ -50,11 +48,9 @@ class IncrementalImportTest extends BigqueryBaseTestCase
      */
     public function incrementalImportData(): Generator
     {
-        // accounts
         $accountsStub = $this->getParseCsvStub('expectation.tw_accounts.increment.csv');
         $accountsNoDedupStub = $this->getParseCsvStub('expectation.tw_accounts.increment.nodedup.csv');
-        // multi pk
-//        $multiPKStub = $this->getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
+        $multiPKStub = $this->getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
 
         yield 'simple no dedup' => [
             $this->getSourceInstance(
@@ -79,82 +75,85 @@ class IncrementalImportTest extends BigqueryBaseTestCase
             self::TABLE_ACCOUNTS_3,
             [],
         ];
-//        yield 'simple' => [
-//            $this->getSourceInstance(
-//                'tw_accounts.csv',
-//                $accountsStub->getColumns(),
-//                false,
-//                false,
-//                ['id']
-//            ),
-//            $this->getSimpleImportOptions(),
-//            $this->getSourceInstance(
-//                'tw_accounts.increment.csv',
-//                $accountsStub->getColumns(),
-//                false,
-//                false,
-//                ['id']
-//            ),
-//            $this->getBigqueryIncrementalImportOptions(),
-//            [$this->getDestinationDbName(), 'accounts-3'],
-//            $accountsStub->getRows(),
-//            4,
-//            self::TABLE_ACCOUNTS_3,
-//        ];
-//        yield 'simple no timestamp' => [
-//            $this->getSourceInstance(
-//                'tw_accounts.csv',
-//                $accountsStub->getColumns(),
-//                false,
-//                false,
-//                ['id']
-//            ),
-//            new BigqueryImportOptions(
-//                [],
-//                false,
-//                false, // disable timestamp
-//                ImportOptions::SKIP_FIRST_LINE
-//            ),
-//            $this->getSourceInstance(
-//                'tw_accounts.increment.csv',
-//                $accountsStub->getColumns(),
-//                false,
-//                false,
-//                ['id']
-//            ),
-//            new BigqueryImportOptions(
-//                [],
-//                true, // incremental
-//                false, // disable timestamp
-//                ImportOptions::SKIP_FIRST_LINE
-//            ),
-//            [$this->getDestinationDbName(), 'accounts_without_ts'],
-//            $accountsStub->getRows(),
-//            4,
-//            self::TABLE_ACCOUNTS_WITHOUT_TS,
-//        ];
-//        yield 'multi pk' => [
-//            $this->getSourceInstance(
-//                'multi-pk_not-null.csv',
-//                $multiPKStub->getColumns(),
-//                false,
-//                false,
-//                ['VisitID', 'Value', 'MenuItem']
-//            ),
-//            $this->getSimpleImportOptions(),
-//            $this->getSourceInstance(
-//                'multi-pk_not-null.increment.csv',
-//                $multiPKStub->getColumns(),
-//                false,
-//                false,
-//                ['VisitID', 'Value', 'MenuItem']
-//            ),
-//            $this->getBigqueryIncrementalImportOptions(),
-//            [$this->getDestinationDbName(), 'multi_pk_ts'],
-//            $multiPKStub->getRows(),
-//            3,
-//            self::TABLE_MULTI_PK_WITH_TS,
-//        ];
+        yield 'simple' => [
+            $this->getSourceInstance(
+                'tw_accounts.csv',
+                $accountsStub->getColumns(),
+                false,
+                false,
+                ['id']
+            ),
+            $this->getSimpleImportOptions(),
+            $this->getSourceInstance(
+                'tw_accounts.increment.csv',
+                $accountsStub->getColumns(),
+                false,
+                false,
+                ['id']
+            ),
+            $this->getBigqueryIncrementalImportOptions(),
+            [$this->getDestinationDbName(), 'accounts-3'],
+            $accountsStub->getRows(),
+            4,
+            self::TABLE_ACCOUNTS_3,
+            ['id'],
+        ];
+        yield 'simple no timestamp' => [
+            $this->getSourceInstance(
+                'tw_accounts.csv',
+                $accountsStub->getColumns(),
+                false,
+                false,
+                ['id']
+            ),
+            new BigqueryImportOptions(
+                [],
+                false,
+                false, // disable timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
+            $this->getSourceInstance(
+                'tw_accounts.increment.csv',
+                $accountsStub->getColumns(),
+                false,
+                false,
+                ['id']
+            ),
+            new BigqueryImportOptions(
+                [],
+                true, // incremental
+                false, // disable timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
+            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
+            $accountsStub->getRows(),
+            4,
+            self::TABLE_ACCOUNTS_WITHOUT_TS,
+            ['id'],
+        ];
+        yield 'multi pk' => [
+            $this->getSourceInstance(
+                'multi-pk_not-null.csv',
+                $multiPKStub->getColumns(),
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            $this->getSimpleImportOptions(),
+            $this->getSourceInstance(
+                'multi-pk_not-null.increment.csv',
+                $multiPKStub->getColumns(),
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            $this->getBigqueryIncrementalImportOptions(),
+            [$this->getDestinationDbName(), self::TABLE_MULTI_PK_WITH_TS],
+            $multiPKStub->getRows(),
+            3,
+            self::TABLE_MULTI_PK_WITH_TS,
+            ['VisitID', 'Value', 'MenuItem'],
+        ];
     }
 
     /**
@@ -184,13 +183,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
             $tableName
         ))->getTableDefinition();
         // update PK
-        $destination = new BigqueryTableDefinition(
-            $schemaName,
-            $tableName,
-            $destination->isTemporary(),
-            $destination->getColumnsDefinitions(),
-            $dedupCols
-        );
+        $destination = $this->cloneDefinitionWithDedupCol($destination, $dedupCols);
 
         $toStageImporter = new ToStageImporter($this->bqClient);
         $fullImporter = new FullImporter($this->bqClient);
