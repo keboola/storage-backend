@@ -8,9 +8,6 @@ use Keboola\Db\ImportExport\ImportOptions;
 
 class TeradataImportOptions extends ImportOptions
 {
-    public const CSV_ADAPTER_TPT = 'TPT';
-    private const DEFAULT_CSV_ADAPTER = self::CSV_ADAPTER_TPT;
-
     private string $teradataHost;
 
     private string $teradataUser;
@@ -19,14 +16,14 @@ class TeradataImportOptions extends ImportOptions
 
     private int $teradataPort;
 
-    /**
-     * @var TeradataImportOptions::CSV_ADAPTER_*
-     */
-    private string $csvImportAdapter;
+    /** @var self::SAME_TABLES_* */
+    protected bool $requireSameTables;
+
+    /** @var self::NULL_MANIPULATION_* */
+    protected bool $nullManipulation;
 
     /**
      * @param string[] $convertEmptyValuesToNull
-     * @param TeradataImportOptions::CSV_ADAPTER_* $csvImportAdapter
      */
     public function __construct(
         string $teradataHost,
@@ -37,7 +34,8 @@ class TeradataImportOptions extends ImportOptions
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        string $csvImportAdapter = self::DEFAULT_CSV_ADAPTER
+        bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED,
+        bool $nullManipulation = self::NULL_MANIPULATION_ENABLED
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -49,7 +47,9 @@ class TeradataImportOptions extends ImportOptions
         $this->teradataUser = $teradataUser;
         $this->teradataPassword = $teradataPassword;
         $this->teradataPort = $teradataPort;
-        $this->csvImportAdapter = $csvImportAdapter;
+
+        $this->requireSameTables = $requireSameTables;
+        $this->nullManipulation = $nullManipulation;
     }
 
     public function getTeradataHost(): string
@@ -72,11 +72,13 @@ class TeradataImportOptions extends ImportOptions
         return $this->teradataPort;
     }
 
-    /**
-     * @return TeradataImportOptions::CSV_ADAPTER_*
-     */
-    public function getCsvImportAdapter(): string
+    public function isRequireSameTables(): bool
     {
-        return $this->csvImportAdapter;
+        return $this->requireSameTables === self::SAME_TABLES_REQUIRED;
+    }
+
+    public function isNullManipulationEnabled(): bool
+    {
+        return $this->nullManipulation === self::NULL_MANIPULATION_ENABLED;
     }
 }

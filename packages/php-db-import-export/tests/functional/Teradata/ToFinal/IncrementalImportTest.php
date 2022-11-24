@@ -12,6 +12,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
@@ -24,7 +25,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
     use StorageTrait;
 
     protected function getTeradataIncrementalImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptionsInterface::SKIP_FIRST_LINE
     ): TeradataImportOptions {
         return $this->getImportOptions(
             [],
@@ -44,7 +45,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
     }
 
     /**
-     * @return \Generator<string, array<mixed>>
+     * @return Generator<string, array<mixed>>
      */
     public function incrementalImportData(): Generator
     {
@@ -85,7 +86,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 false,
                 ['id']
             ),
-            $this->getImportOptions(),
+            $this->getImportOptions([], false, false, ImportOptions::SKIP_FIRST_LINE),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
@@ -139,7 +140,12 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 false,
                 ['VisitID', 'Value', 'MenuItem']
             ),
-            $this->getImportOptions(),
+            $this->getImportOptions(
+                [],
+                false,
+                true, // disable timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
             $this->getSourceInstance(
                 'multi-pk_not-null.increment.csv',
                 $multiPkColumns,
@@ -203,10 +209,6 @@ class IncrementalImportTest extends TeradataBaseTestCase
             $dbName,
             $tableName
         ))->getTableDefinition();
-
-        if (!empty($fullLoadSource->getPrimaryKeysNames())) {
-            $this->markTestSkipped('we dont know PK yet');
-        }
 
         $toStageImporter = new ToStageImporter($this->connection);
         $fullImporter = new FullImporter($this->connection);

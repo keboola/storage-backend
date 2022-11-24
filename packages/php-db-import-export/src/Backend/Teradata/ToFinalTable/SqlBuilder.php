@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable;
 
 use Exception as InternalException;
 use Keboola\Datatype\Definition\BaseType;
+use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
@@ -151,6 +152,28 @@ class SqlBuilder
             return '';
         }
 
+        $deduplication = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'INSERT INTO %s (%s) %s',
+            $deduplication,
+            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
+            $this->getDedupSql($stagingTableDefinition, $deduplicationTableDefinition, $primaryKeys)
+        );
+    }
+
+    /**
+     * @param string[] $primaryKeys
+     */
+    public function getDedupSql(
+        TeradataTableDefinition $stagingTableDefinition,
+        TeradataTableDefinition $deduplicationTableDefinition,
+        array $primaryKeys
+    ): string {
         $pkSql = $this->getColumnsString(
             $primaryKeys,
             ','
@@ -162,31 +185,18 @@ class SqlBuilder
             TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
         );
 
-        $depudeSql = sprintf(
-            'SELECT %s FROM ('
-            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
-            . 'FROM %s'
-            . ') AS a '
-            . 'WHERE a."_row_number_" = 1',
-            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ',', 'a'),
-            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
-            $pkSql,
-            $pkSql,
-            $stage
-        );
-
-        $deduplication = sprintf(
-            '%s.%s',
-            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
-        );
-
-        return sprintf(
-            'INSERT INTO %s (%s) %s',
-            $deduplication,
-            $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
-            $depudeSql
-        );
+         return sprintf(
+             'SELECT %s FROM ('
+             . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" '
+             . 'FROM %s'
+             . ') AS a '
+             . 'WHERE a."_row_number_" = 1',
+             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ',', 'a'),
+             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
+             $pkSql,
+             $pkSql,
+             $stage
+         );
     }
 
     public function getTruncateTableWithDeleteCommand(
@@ -219,8 +229,117 @@ class SqlBuilder
 
     public function getDeleteOldItemsCommand(
         TeradataTableDefinition $stagingTableDefinition,
-        TeradataTableDefinition $destinationTableDefinition
-    ): void {
-        throw new InternalException('not implemented yet');
+        TeradataTableDefinition $destinationTableDefinition,
+        TeradataImportOptions $importOptions
+    ): string {
+        $stagingTable = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+        );
+
+        $destinationTable = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+        );
+
+        return sprintf(
+            'DELETE %s FROM %s AS "joined" WHERE %s',
+            $stagingTable,
+            $destinationTable,
+            $this->getPrimayKeyWhereConditions(
+                $destinationTableDefinition->getPrimaryKeysNames(),
+                $importOptions,
+                $stagingTable,
+                '"joined"'
+            )
+        );
+    }
+
+    public function getUpdateWithPkCommand(
+        TeradataTableDefinition $stagingTableDefinition,
+        TeradataTableDefinition $destinationDefinition,
+        TeradataImportOptions $importOptions,
+        string $timestamp
+    ): string {
+        $columnsSet = [];
+        $dest = sprintf(
+            '%s.%s',
+            TeradataQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
+            TeradataQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+        );
+
+        foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
+            if (!$importOptions->isNullManipulationEnabled()) {
+                $columnsSet[] = sprintf(
+                    '%s = "src".%s',
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                );
+                continue;
+            }
+            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+                // values '' values from staging convert to NULL
+                $columnsSet[] = sprintf(
+                    '%s = CASE WHEN "src".%s = \'\' THEN NULL ELSE "src".%s END',
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName)
+                );
+            } else {
+                $columnsSet[] = sprintf(
+                    '%s = COALESCE("src".%s, \'\')',
+                    TeradataQuote::quoteSingleIdentifier($columnName),
+                    TeradataQuote::quoteSingleIdentifier($columnName)
+                );
+            }
+        }
+
+        if ($importOptions->useTimestamp()) {
+            $columnsSet[] = sprintf(
+                '%s = %s',
+                TeradataQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+                TeradataQuote::quote($timestamp)
+            );
+        }
+
+        return sprintf(
+            'UPDATE %s FROM (%s) "src" SET %s WHERE %s',
+            $dest,
+            $this->getDedupSql(
+                $stagingTableDefinition,
+                $stagingTableDefinition,
+                $destinationDefinition->getPrimaryKeysNames()
+            ),
+            implode(', ', $columnsSet),
+            $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions, $dest)
+        );
+    }
+
+    /**
+     * @param string[] $primaryKeys
+     */
+    private function getPrimayKeyWhereConditions(
+        array $primaryKeys,
+        TeradataImportOptions $importOptions,
+        string $dest,
+        string $alias = '"src"'
+    ): string {
+        $pkWhereSql = array_map(function (string $col) use ($importOptions, $dest, $alias) {
+            $str = 'TRIM(%s.%s) = COALESCE(TRIM(%s.%s), \'\')';
+            if (!$importOptions->isNullManipulationEnabled()) {
+                $str = 'TRIM(%s.%s) = TRIM(%s.%s)';
+            }
+            return sprintf(
+                $str,
+                $dest,
+                TeradataQuote::quoteSingleIdentifier($col),
+                $alias,
+                TeradataQuote::quoteSingleIdentifier($col)
+            );
+        }, $primaryKeys);
+
+        return implode(' AND ', $pkWhereSql);
     }
 }

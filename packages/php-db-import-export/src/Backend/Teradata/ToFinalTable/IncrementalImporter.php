@@ -22,10 +22,10 @@ use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 
 final class IncrementalImporter implements ToFinalTableImporterInterface
 {
-//    private const TIMER_DEDUP_TABLE_CREATE = 'dedupTableCreate';
-//    private const TIMER_UPDATE_TARGET_TABLE = 'updateTargetTable';
-//    private const TIMER_DELETE_UPDATED_ROWS = 'deleteUpdatedRowsFromStaging';
-//    private const TIMER_DEDUP_STAGING = 'dedupStaging';
+    private const TIMER_DEDUP_TABLE_CREATE = 'dedupTableCreate';
+    private const TIMER_UPDATE_TARGET_TABLE = 'updateTargetTable';
+    private const TIMER_DELETE_UPDATED_ROWS = 'deleteUpdatedRowsFromStaging';
+    private const TIMER_DEDUP_STAGING = 'dedupStaging';
     private const TIMER_INSERT_INTO_TARGET = 'insertIntoTargetFromStaging';
 
     private Connection $connection;
@@ -56,66 +56,71 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         $timestampValue = DateTimeHelper::getNowFormatted();
         try {
-            $this->connection->executeStatement(
-                $this->sqlBuilder->getBeginTransaction()
-            );
 
             /** @var TeradataTableDefinition $destinationTableDefinition */
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
-                throw new RuntimeException('not imlpemented');
                 // has PKs for dedup
 
                 // 0. Create table for deduplication
-//                $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
-//                    $stagingTableDefinition,
-//                    $destinationTableDefinition->getPrimaryKeysNames()
-//                );
-//                $tableToCopyFrom = $deduplicationTableDefinition;
-//                $qb = new TeradataTableQueryBuilder();
-//                $sql = $qb->getCreateTableCommandFromDefinition($deduplicationTableDefinition);
-//                $state->startTimer(self::TIMER_DEDUP_TABLE_CREATE);
-//                $this->connection->executeStatement($sql);
-//                $state->stopTimer(self::TIMER_DEDUP_TABLE_CREATE);
-//
-//                // 1. Run UPDATE command to update rows in final table with updated data based on PKs
-//                $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
-//                $this->connection->executeStatement(
-//                    $this->sqlBuilder->getUpdateWithPkCommand(
-//                        $stagingTableDefinition,
-//                        $destinationTableDefinition,
-//                        $options,
-//                        $timestampValue
-//                    )
-//                );
-//                $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
-//
-//                // 2. delete updated rows from staging table
-//                $state->startTimer(self::TIMER_DELETE_UPDATED_ROWS);
-//                $this->connection->executeStatement(
-//                    $this->sqlBuilder->getDeleteOldItemsCommand(
-//                        $stagingTableDefinition,
-//                        $destinationTableDefinition,
-//                        $options
-//                    )
-//                );
-//                $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
-//
-//                // 3. dedup insert
-//                $state->startTimer(self::TIMER_DEDUP_STAGING);
-//                $this->connection->executeStatement(
-//                    $this->sqlBuilder->getDedupCommand(
-//                        $stagingTableDefinition,
-//                        $deduplicationTableDefinition,
-//                        $destinationTableDefinition->getPrimaryKeysNames()
-//                    )
-//                );
-//                $this->connection->executeStatement(
-//                    $this->sqlBuilder->getTruncateTableWithDeleteCommand(
-//                        $stagingTableDefinition->getSchemaName(),
-//                        $stagingTableDefinition->getTableName()
-//                    )
-//                );
-//                $state->stopTimer(self::TIMER_DEDUP_STAGING);
+                $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
+                    $stagingTableDefinition,
+                    $destinationTableDefinition->getPrimaryKeysNames()
+                );
+                $tableToCopyFrom = $deduplicationTableDefinition;
+                $qb = new TeradataTableQueryBuilder();
+                $sql = $qb->getCreateTableCommandFromDefinition($deduplicationTableDefinition);
+                $state->startTimer(self::TIMER_DEDUP_TABLE_CREATE);
+                $this->connection->executeStatement($sql);
+                $state->stopTimer(self::TIMER_DEDUP_TABLE_CREATE);
+
+                // transaction has to start here because TD can have DDL at the end of transaction
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getBeginTransaction()
+                );
+
+                // 1. Run UPDATE command to update rows in final table with updated data based on PKs
+                $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getUpdateWithPkCommand(
+                        $stagingTableDefinition,
+                        $destinationTableDefinition,
+                        $options,
+                        $timestampValue
+                    )
+                );
+                $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
+
+                // 2. delete updated rows from staging table
+                $state->startTimer(self::TIMER_DELETE_UPDATED_ROWS);
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getDeleteOldItemsCommand(
+                        $stagingTableDefinition,
+                        $destinationTableDefinition,
+                        $options
+                    )
+                );
+                $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
+
+                // 3. dedup insert
+                $state->startTimer(self::TIMER_DEDUP_STAGING);
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getDedupCommand(
+                        $stagingTableDefinition,
+                        $deduplicationTableDefinition,
+                        $destinationTableDefinition->getPrimaryKeysNames()
+                    )
+                );
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+                        $stagingTableDefinition->getSchemaName(),
+                        $stagingTableDefinition->getTableName()
+                    )
+                );
+                $state->stopTimer(self::TIMER_DEDUP_STAGING);
+            } else {
+                $this->connection->executeStatement(
+                    $this->sqlBuilder->getBeginTransaction()
+                );
             }
 
             // insert into destination table
@@ -137,16 +142,15 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
         } catch (Exception $e) {
             throw TeradataException::covertException($e);
+        } finally {
+            if (isset($deduplicationTableDefinition)) {
+                // 5 drop dedup table
+                $this->dropTableIfExists(
+                    $deduplicationTableDefinition->getSchemaName(),
+                    $deduplicationTableDefinition->getTableName()
+                );
+            }
         }
-//        finally {
-//            if (isset($deduplicationTableDefinition)) {
-//                // 5 drop dedup table
-//                $this->dropIfExists(
-//                    $deduplicationTableDefinition->getSchemaName(),
-//                    $deduplicationTableDefinition->getTableName()
-//                );
-//            }
-//        }
 
         return $state->getResult();
     }

@@ -79,19 +79,6 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         return $db;
     }
 
-    /**
-     * @return TeradataImportOptions::CSV_ADAPTER_*
-     */
-    public function getCsvAdapter(): string
-    {
-        $adapter = (string) getenv('TERADATA_CSV_ADAPTER');
-        switch ($adapter) {
-            case TeradataImportOptions::CSV_ADAPTER_TPT:
-                return TeradataImportOptions::CSV_ADAPTER_TPT;
-        }
-        return TeradataImportOptions::CSV_ADAPTER_TPT;
-    }
-
     protected function cleanDatabase(string $dbname): void
     {
         if (!$this->dbExists($dbname)) {
@@ -313,7 +300,7 @@ PRIMARY KEY ("VisitID", "Something")
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET TABLE %s.%s (
-                "id" VARCHAR(50) CHARACTER SET UNICODE,
+                "id" VARCHAR(50) CHARACTER SET UNICODE NOT NULL,
                 "idTwitter" VARCHAR(50) CHARACTER SET UNICODE,
                 "name" VARCHAR(100) CHARACTER SET UNICODE,
                 "import" VARCHAR(50) CHARACTER SET UNICODE,
@@ -325,8 +312,9 @@ PRIMARY KEY ("VisitID", "Something")
                 "oauthToken" VARCHAR(50) CHARACTER SET UNICODE,
                 "oauthSecret" VARCHAR(50) CHARACTER SET UNICODE,
                 "idApp" VARCHAR(50) CHARACTER SET UNICODE,
-                "_timestamp" TIMESTAMP
-            ) PRIMARY INDEX ("id");',
+                "_timestamp" TIMESTAMP,
+                 PRIMARY KEY ("id")
+            );',
                     TeradataQuote::quoteSingleIdentifier($dbName),
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
@@ -385,18 +373,18 @@ PRIMARY KEY ("VisitID", "Something")
             case self::TABLE_ACCOUNTS_WITHOUT_TS:
                 $this->connection->executeQuery(sprintf(
                     'CREATE MULTISET  TABLE %s.%s (
-                "id" VARCHAR(500) NOT NULL,
-                "idTwitter" VARCHAR(500) ,
-                "name" VARCHAR(500) ,
-                "import" VARCHAR(500) ,
-                "isImported" VARCHAR(500) ,
-                "apiLimitExceededDatetime" VARCHAR(500) ,
-                "analyzeSentiment" VARCHAR(500) ,
-                "importKloutScore" VARCHAR(500) ,
-                "timestamp" VARCHAR(500) ,
-                "oauthToken" VARCHAR(500) ,
-                "oauthSecret" VARCHAR(500) ,
-                "idApp" VARCHAR(500),
+                "id" VARCHAR(500) CHARACTER SET UNICODE NOT NULL,
+                "idTwitter" VARCHAR(500) CHARACTER SET UNICODE ,
+                "name" VARCHAR(500) CHARACTER SET UNICODE ,
+                "import" VARCHAR(500) CHARACTER SET UNICODE ,
+                "isImported" VARCHAR(500) CHARACTER SET UNICODE ,
+                "apiLimitExceededDatetime" VARCHAR(500) CHARACTER SET UNICODE ,
+                "analyzeSentiment" VARCHAR(500) CHARACTER SET UNICODE ,
+                "importKloutScore" VARCHAR(500) CHARACTER SET UNICODE ,
+                "timestamp" VARCHAR(500) CHARACTER SET UNICODE ,
+                "oauthToken" VARCHAR(500)  CHARACTER SET UNICODE,
+                "oauthSecret" VARCHAR(500) CHARACTER SET UNICODE ,
+                "idApp" VARCHAR(500) CHARACTER SET UNICODE,
                 PRIMARY KEY ("id")
             ) ',
                     TeradataQuote::quoteSingleIdentifier($dbName),
@@ -430,7 +418,9 @@ PRIMARY KEY ("VisitID", "Something")
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,
         bool $useTimestamp = false,
-        int $numberOfIgnoredLines = 0
+        int $numberOfIgnoredLines = 0,
+        bool $requireSameTables = ImportOptions::SAME_TABLES_NOT_REQUIRED,
+        bool $nullManipulation = ImportOptions::NULL_MANIPULATION_ENABLED
     ): TeradataImportOptions {
         return
             new TeradataImportOptions(
@@ -442,7 +432,8 @@ PRIMARY KEY ("VisitID", "Something")
                 $isIncremental,
                 $useTimestamp,
                 $numberOfIgnoredLines,
-                $this->getCsvAdapter()
+                $requireSameTables,
+                $nullManipulation
             );
     }
 
@@ -481,8 +472,7 @@ PRIMARY KEY ("VisitID", "Something")
                 [],
                 false,
                 $useTimestamp,
-                $skipLines,
-                $this->getCsvAdapter()
+                $skipLines
             );
     }
 
