@@ -6,6 +6,7 @@ namespace Keboola\TableBackendUtils\Schema\Bigquery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
+use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use LogicException;
@@ -33,7 +34,7 @@ class BigquerySchemaReflection implements SchemaReflectionInterface
         }
         $query = $this->bqClient->query(
             sprintf(
-                'SELECT * FROM %s.INFORMATION_SCHEMA.TABLES;',
+                'SELECT * FROM %s.INFORMATION_SCHEMA.TABLES WHERE `table_type` != \'VIEW\';',
                 BigqueryQuote::quoteSingleIdentifier($this->datasetName),
             )
         );
@@ -72,7 +73,7 @@ class BigquerySchemaReflection implements SchemaReflectionInterface
     {
         $isDatasetExist = $this->bqClient->dataset($this->datasetName)->exists();
         if ($isDatasetExist === false) {
-            throw new TableNotExistsReflectionException(sprintf('Dataset "%s" not found', $this->datasetName));
+            throw new ReflectionException(sprintf('Dataset "%s" not found', $this->datasetName));
         }
         $query = $this->bqClient->query(
             sprintf(
