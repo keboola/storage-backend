@@ -124,7 +124,9 @@ class SqlBuilder
     public function getTableExistsCommand(string $dbName, string $tableName): string
     {
         return sprintf(
-            'SELECT COUNT(*) AS count FROM %s.INFORMATION_SCHEMA.TABLES WHERE table_name = %s;',
+            <<< SQL
+SELECT COUNT(*) AS count FROM %s.INFORMATION_SCHEMA.TABLES WHERE `table_type` != 'VIEW' AND table_name = %s;
+SQL,
             BigqueryQuote::quoteSingleIdentifier($dbName),
             BigqueryQuote::quote($tableName)
         );

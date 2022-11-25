@@ -119,7 +119,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $sql = $this->getBuilder()->getTableExistsCommand(self::TEST_DB, self::TEST_TABLE);
         self::assertEquals(
         // phpcs:ignore
-            "SELECT COUNT(*) AS count FROM `import_export_test_schema`.INFORMATION_SCHEMA.TABLES WHERE table_name = 'import_export_test_test';", $sql
+            "SELECT COUNT(*) AS count FROM `import_export_test_schema`.INFORMATION_SCHEMA.TABLES WHERE `table_type` != 'VIEW' AND table_name = 'import_export_test_test';", $sql
         );
         $queryResults = $this->bqClient->runQuery($this->bqClient->query($sql));
         $current = (array) $queryResults->getIterator()->current();
