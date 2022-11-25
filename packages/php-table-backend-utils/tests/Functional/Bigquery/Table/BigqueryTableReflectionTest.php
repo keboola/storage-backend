@@ -10,6 +10,7 @@ use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
 class BigqueryTableReflectionTest extends BigqueryBaseCase
@@ -286,5 +287,42 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, ...$item);
         }
         self::assertEquals(2, $ref->getRowsCount());
+    }
+
+    public function testIfTableExists(): void
+    {
+        $this->initTable();
+
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertTrue($ref->exists());
+    }
+
+    public function testIfTableDoesNotExists(): void
+    {
+        $this->initTable();
+
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'notExisting');
+        self::assertFalse($ref->exists());
+
+        try {
+            $ref->getColumnsNames();
+            $this->fail('Should failed!');
+        } catch (TableNotExistsReflectionException $e) {
+            $this->assertSame('Table "notExisting" not found.', $e->getMessage());
+        }
+
+        try {
+            $ref->getColumnsDefinitions();
+            $this->fail('Should failed!');
+        } catch (TableNotExistsReflectionException $e) {
+            $this->assertSame('Table "notExisting" not found.', $e->getMessage());
+        }
+
+        try {
+            $ref->getRowsCount();
+            $this->fail('Should failed!');
+        } catch (TableNotExistsReflectionException $e) {
+            $this->assertSame('Table "notExisting" not found.', $e->getMessage());
+        }
     }
 }

@@ -30,7 +30,7 @@ class BigquerySchemaReflection implements SchemaReflectionInterface
     {
         $isDatasetExist = $this->bqClient->dataset($this->datasetName)->exists();
         if ($isDatasetExist === false) {
-            throw new ReflectionException(sprintf('Dataset "%s" not found', $this->datasetName));
+            throw new ReflectionException(sprintf('Dataset "%s" not found.', $this->datasetName));
         }
         $query = $this->bqClient->query(
             sprintf(
