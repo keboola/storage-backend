@@ -310,7 +310,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function testGetInsertAllIntoTargetTableCommandConvertToNullProvider(): Generator
+    public function getInsertAllIntoTargetTableCommandConvertToNullProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -326,7 +326,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider testGetInsertAllIntoTargetTableCommandConvertToNullProvider
+     * @dataProvider getInsertAllIntoTargetTableCommandConvertToNullProvider
      */
     public function testGetInsertAllIntoTargetTableCommandConvertToNull(string $usingTypes, string $expectedSql): void
     {
@@ -402,7 +402,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): Generator
+    public function getInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -418,7 +418,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider
+     * @dataProvider getInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider
      */
     public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(
         string $usingTypes,
@@ -587,7 +587,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function testGetUpdateWithPkCommandConvertValuesProvider(): Generator
+    public function getUpdateWithPkCommandConvertValuesProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -603,7 +603,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider testGetUpdateWithPkCommandConvertValuesProvider
+     * @dataProvider getUpdateWithPkCommandConvertValuesProvider
      */
     public function testGetUpdateWithPkCommandConvertValues(string $usingTypes, string $expectedSql): void
     {
@@ -697,7 +697,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function testGetUpdateWithPkCommandConvertValuesWithTimestampProvider(): Generator
+    public function getUpdateWithPkCommandConvertValuesWithTimestampProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -713,7 +713,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider testGetUpdateWithPkCommandConvertValuesWithTimestampProvider
+     * @dataProvider getUpdateWithPkCommandConvertValuesWithTimestampProvider
      */
     public function testGetUpdateWithPkCommandConvertValuesWithTimestamp(string $usingTypes, string $expectedSql): void
     {
