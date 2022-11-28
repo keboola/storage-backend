@@ -4,22 +4,26 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable;
 
-use Exception as InternalException;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Exception\JobException;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
+use Keboola\Db\ImportExport\Backend\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\TableBackendUtils\Connection\Bigquery\Session;
+use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
+use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 final class FullImporter implements ToFinalTableImporterInterface
 {
     private const TIMER_COPY_TO_TARGET = 'copyFromStagingToTarget';
+    private const TIMER_DEDUP = 'fromStagingToTargetWithDedup';
 
     private BigQueryClient $bqClient;
 
@@ -34,15 +38,17 @@ final class FullImporter implements ToFinalTableImporterInterface
     private function doLoadFullWithoutDedup(
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
-        ImportOptions $options,
-        ImportState $state
+        BigqueryImportOptions $options,
+        ImportState $state,
+        Session $session
     ): void {
         // truncate destination table
         $this->bqClient->runQuery($this->bqClient->query(
-            $this->sqlBuilder->getTruncateTableWithDeleteCommand(
+            $this->sqlBuilder->getTruncateTable(
                 $destinationTableDefinition->getSchemaName(),
                 $destinationTableDefinition->getTableName()
-            )
+            ),
+            $session->getAsQueryOptions()
         ));
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
 
@@ -54,7 +60,8 @@ final class FullImporter implements ToFinalTableImporterInterface
             DateTimeHelper::getNowFormatted()
         );
         $this->bqClient->runQuery($this->bqClient->query(
-            $sql
+            $sql,
+            $session->getAsQueryOptions()
         ));
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
     }
@@ -67,20 +74,31 @@ final class FullImporter implements ToFinalTableImporterInterface
     ): Result {
         assert($stagingTableDefinition instanceof BigqueryTableDefinition);
         assert($destinationTableDefinition instanceof BigqueryTableDefinition);
-        assert($options instanceof ImportOptions);
+        assert($options instanceof BigqueryImportOptions);
+
+        $session = $options->getSession();
+        if ($session === null) {
+            $session = (new SessionFactory($this->bqClient))->createSession();
+        }
 
         /** @var BigqueryTableDefinition $destinationTableDefinition */
         try {
             //import files to staging table
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
-                // dedup
-                throw new InternalException('not implemented yet');
+                $this->doFullLoadWithDedup(
+                    $stagingTableDefinition,
+                    $destinationTableDefinition,
+                    $options,
+                    $state,
+                    $session
+                );
             } else {
                 $this->doLoadFullWithoutDedup(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    $state
+                    $state,
+                    $session
                 );
             }
         } catch (JobException $e) {
@@ -90,5 +108,79 @@ final class FullImporter implements ToFinalTableImporterInterface
         $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
 
         return $state->getResult();
+    }
+
+
+    private function doFullLoadWithDedup(
+        BigqueryTableDefinition $stagingTableDefinition,
+        BigqueryTableDefinition $destinationTableDefinition,
+        BigqueryImportOptions $options,
+        ImportState $state,
+        Session $session
+    ): void {
+        $state->startTimer(self::TIMER_DEDUP);
+
+        // 1. Create table for deduplication
+        $deduplicationTableName = BackendHelper::generateTempDedupTableName();
+
+        try {
+            // 2 transfer data from source to dedup table with dedup process
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getCreateDedupTable(
+                    $stagingTableDefinition,
+                    $deduplicationTableName,
+                    $destinationTableDefinition->getPrimaryKeysNames()
+                ),
+                $session->getAsQueryOptions()
+            ));
+            /** @var BigqueryTableDefinition $deduplicationTableDefinition */
+            $deduplicationTableDefinition = (new BigqueryTableReflection(
+                $this->bqClient,
+                $stagingTableDefinition->getSchemaName(),
+                $deduplicationTableName
+            ))->getTableDefinition();
+
+            // 3 truncate destination table
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getTruncateTable(
+                    $destinationTableDefinition->getSchemaName(),
+                    $destinationTableDefinition->getTableName()
+                ),
+                $session->getAsQueryOptions()
+            ));
+
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getBeginTransaction(),
+                $session->getAsQueryOptions()
+            ));
+
+            // 4 move data with INSERT INTO
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                    $deduplicationTableDefinition,
+                    $destinationTableDefinition,
+                    $options,
+                    DateTimeHelper::getNowFormatted()
+                ),
+                $session->getAsQueryOptions()
+            ));
+            $state->stopTimer(self::TIMER_DEDUP);
+
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getCommitTransaction(),
+                $session->getAsQueryOptions()
+            ));
+        } finally {
+            if (isset($deduplicationTableDefinition)) {
+                // 5 drop dedup table
+                $this->bqClient->runQuery($this->bqClient->query(
+                    $this->sqlBuilder->getDropTableIfExistsCommand(
+                        $deduplicationTableDefinition->getSchemaName(),
+                        $deduplicationTableDefinition->getTableName()
+                    ),
+                    $session->getAsQueryOptions()
+                ));
+            }
+        }
     }
 }

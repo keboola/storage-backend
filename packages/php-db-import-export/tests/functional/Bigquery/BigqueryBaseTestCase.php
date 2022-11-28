@@ -6,7 +6,9 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
+use Google\Cloud\BigQuery\Timestamp;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
@@ -66,9 +68,9 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0
-    ): ImportOptions {
+    ): BigqueryImportOptions {
         return
-            new ImportOptions(
+            new BigqueryImportOptions(
                 $convertEmptyValuesToNull,
                 $isIncremental,
                 $useTimestamp,
@@ -240,6 +242,77 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
                     BigqueryQuote::quoteSingleIdentifier($tableName)
                 )));
                 break;
+            case self::TABLE_ACCOUNTS_WITHOUT_TS:
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'CREATE TABLE %s.%s (
+                `id` STRING(2000000),
+                `idTwitter` STRING(2000000) ,
+                `name` STRING(2000000) ,
+                `import` STRING(2000000) ,
+                `isImported` STRING(2000000) ,
+                `apiLimitExceededDatetime` STRING(2000000) ,
+                `analyzeSentiment` STRING(2000000) ,
+                `importKloutScore` STRING(2000000) ,
+                `timestamp` STRING(2000000) ,
+                `oauthToken` STRING(2000000) ,
+                `oauthSecret` STRING(2000000) ,
+                `idApp` STRING(2000000)
+            ) ',
+                    BigqueryQuote::quoteSingleIdentifier($dbName),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+                break;
+            case self::TABLE_COLUMN_NAME_ROW_NUMBER:
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'CREATE TABLE %s.%s (
+              `id` STRING(4000) ,
+              `row_number` STRING(4000) ,
+              `_timestamp` TIMESTAMP
+           )',
+                    BigqueryQuote::quoteSingleIdentifier($dbName),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+                break;
+            case self::TABLE_SINGLE_PK:
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'CREATE TABLE %s.%s (
+            `VisitID`   STRING(2000000),
+            `Value`     STRING(2000000),
+            `MenuItem`  STRING(2000000),
+            `Something` STRING(2000000),
+            `Other`     STRING(2000000)
+            );',
+                    BigqueryQuote::quoteSingleIdentifier($dbName),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+                break;
+            case self::TABLE_MULTI_PK:
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'CREATE TABLE %s.%s (
+            `VisitID`   STRING(2000000),
+            `Value`     STRING(2000000),
+            `MenuItem`  STRING(2000000),
+            `Something` STRING(2000000),
+            `Other`     STRING(2000000)
+            );',
+                    BigqueryQuote::quoteSingleIdentifier($dbName),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+                break;
+            case self::TABLE_MULTI_PK_WITH_TS:
+                $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                    'CREATE TABLE %s.%s (
+            `VisitID`   STRING(2000000),
+            `Value`     STRING(2000000),
+            `MenuItem`  STRING(2000000),
+            `Something` STRING(2000000),
+            `Other`     STRING(2000000),
+            `_timestamp` TIMESTAMP,
+            );',
+                    BigqueryQuote::quoteSingleIdentifier($dbName),
+                    BigqueryQuote::quoteSingleIdentifier($tableName)
+                )));
+                break;
             default:
                 throw new Exception('unknown table');
         }
@@ -247,7 +320,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
 
     protected function getSimpleImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
-    ): ImportOptions {
+    ): BigqueryImportOptions {
         return new BigqueryImportOptions(
             [],
             false,
@@ -378,29 +451,67 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         $tableColumns = array_map(static function ($column) {
             return sprintf('%s', $column);
         }, $tableColumns);
-
-        $sql = sprintf(
-            'SELECT %s FROM %s.%s',
-            implode(', ', array_map(static function ($item) {
-                return BigqueryQuote::quoteSingleIdentifier($item);
-            }, $tableColumns)),
-            BigqueryQuote::quoteSingleIdentifier($destination->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($destination->getTableName())
-        );
-
-        /** @var array<int, array<string, mixed>> $result */
-        $result = iterator_to_array($this->bqClient->runQuery($this->bqClient->query($sql)));
-        $queryResult = array_map(function (array $row): array {
-            /** @var string[] $values */
-            $values = array_values($row);
-            return array_map(fn(string $column): string => $column, $values);
-        }, $result);
+        $result = $this->fetchTable($destination->getSchemaName(), $destination->getTableName(), $tableColumns);
+        /** @var mixed[] $queryResult */
+        $queryResult = array_map(static fn(array $row): array => array_values($row), $result);
 
         $this->assertArrayEqualsSorted(
             $expected,
             $queryResult,
             $sortKey,
             $message
+        );
+    }
+
+    /**
+     * @param string[] $columns
+     * @return array<int, array<string, mixed>>
+     */
+    public function fetchTable(string $schemaName, string $tableName, array $columns = []): array
+    {
+        if (count($columns) === 0) {
+            $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                'SELECT * FROM %s.%s',
+                $schemaName,
+                $tableName
+            )));
+        } else {
+            $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                'SELECT %s FROM %s.%s',
+                implode(', ', array_map(static function ($item) {
+                    return BigqueryQuote::quoteSingleIdentifier($item);
+                }, $columns)),
+                BigqueryQuote::quoteSingleIdentifier($schemaName),
+                BigqueryQuote::quoteSingleIdentifier($tableName)
+            )));
+        }
+
+        $result = iterator_to_array($result);
+        /** @var array<int, array<string, mixed>> $result */
+        foreach ($result as &$row) {
+            foreach ($row as &$item) {
+                if ($item instanceof Timestamp) {
+                    $item = $item->get()->format(DateTimeHelper::FORMAT);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string[] $dedupCols
+     */
+    protected function cloneDefinitionWithDedupCol(
+        BigqueryTableDefinition $destination,
+        array $dedupCols
+    ): BigqueryTableDefinition {
+        return new BigqueryTableDefinition(
+            $destination->getSchemaName(),
+            $destination->getTableName(),
+            $destination->isTemporary(),
+            $destination->getColumnsDefinitions(),
+            $dedupCols
         );
     }
 }
