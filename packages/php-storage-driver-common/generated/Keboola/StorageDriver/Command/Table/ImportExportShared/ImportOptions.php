@@ -51,6 +51,13 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string dedupColumnsNames = 6;</code>
      */
     private $dedupColumnsNames;
+    /**
+     **
+     * Import strategy type decide internal handling and type casting
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.ImportStrategy importStrategy = 7;</code>
+     */
+    protected $importStrategy = 0;
 
     /**
      * Constructor.
@@ -70,6 +77,9 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *           Deduplication logic type for handling duplicate values
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $dedupColumnsNames
      *           columns on which base will be deduplication performed
+     *     @type int $importStrategy
+     *          *
+     *           Import strategy type decide internal handling and type casting
      * }
      */
     public function __construct($data = NULL) {
@@ -227,6 +237,34 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->dedupColumnsNames = $arr;
+
+        return $this;
+    }
+
+    /**
+     **
+     * Import strategy type decide internal handling and type casting
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.ImportStrategy importStrategy = 7;</code>
+     * @return int
+     */
+    public function getImportStrategy()
+    {
+        return $this->importStrategy;
+    }
+
+    /**
+     **
+     * Import strategy type decide internal handling and type casting
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.ImportStrategy importStrategy = 7;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setImportStrategy($var)
+    {
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\ImportStrategy::class);
+        $this->importStrategy = $var;
 
         return $this;
     }
