@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Bigquery\Schema;
 use Generator;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
@@ -37,10 +38,43 @@ class BigquerySchemaReflectionTest extends BigqueryBaseCase
 CREATE TABLE $dbName.`nopitable` (`amount` STRING (32000));
 EOT;
         $this->bqClient->runQuery($this->bqClient->query($sql));
+        $sql = <<<EOT
+CREATE VIEW $dbName.`nopiview` AS SELECT * FROM $dbName.`nopitable`;
+EOT;
+        $this->bqClient->runQuery($this->bqClient->query($sql));
         $expectedTables = [self::TABLE_GENERIC, 'nopitable'];
         $actualTables = $this->schemaRef->getTablesNames();
         $this->assertCount(0, array_diff($expectedTables, $actualTables));
         $this->assertCount(0, array_diff($actualTables, $expectedTables));
+    }
+
+    public function testListViews(): void
+    {
+        $this->initTable($this->getDatasetName(), self::TABLE_GENERIC, false);
+        $dbName = $this->getDatasetName();
+        $sql = <<<EOT
+CREATE TABLE $dbName.`nopitable` (`amount` STRING (32000));
+EOT;
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+        $sql = <<<EOT
+CREATE VIEW $dbName.`nopiview` AS SELECT * FROM $dbName.`nopitable`;
+EOT;
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+        $expectedTables = ['nopiview'];
+        $actualTables = $this->schemaRef->getViewsNames();
+        $this->assertCount(0, array_diff($expectedTables, $actualTables));
+        $this->assertCount(0, array_diff($actualTables, $expectedTables));
+    }
+
+
+    public function testListTablesOnNonExistingDatasetThrowException(): void
+    {
+        $this->initTable($this->getDatasetName(), self::TABLE_GENERIC, false);
+
+        $this->expectException(ReflectionException::class);
+        $this->expectExceptionMessage('Dataset "notExisting" not found.');
+        $schemaRef = new BigquerySchemaReflection($this->bqClient, 'notExisting');
+        $schemaRef->getTablesNames();
     }
 
     /**

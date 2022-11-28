@@ -35,6 +35,9 @@ class BigqueryTableReflection implements TableReflectionInterface
     /** @return  string[] */
     public function getColumnsNames(): array
     {
+        if ($this->exists() === false) {
+            throw new TableNotExistsReflectionException(sprintf('Table "%s" not found.', $this->tableName));
+        }
         $query = $this->bqClient->query(
             sprintf(
                 'SELECT column_name FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
@@ -71,6 +74,9 @@ class BigqueryTableReflection implements TableReflectionInterface
 
     public function getColumnsDefinitions(): ColumnCollection
     {
+        if ($this->exists() === false) {
+            throw new TableNotExistsReflectionException(sprintf('Table "%s" not found.', $this->tableName));
+        }
         $query = $this->bqClient->query(
             sprintf(
                 'SELECT * EXCEPT(is_generated, generation_expression, is_stored, is_updatable) 
@@ -110,6 +116,9 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
 
     public function getRowsCount(): int
     {
+        if ($this->exists() === false) {
+            throw new TableNotExistsReflectionException(sprintf('Table "%s" not found.', $this->tableName));
+        }
         $query = $this->bqClient->query(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
             BigqueryQuote::quoteSingleIdentifier($this->datasetName),
@@ -177,6 +186,6 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
 
     public function exists(): bool
     {
-        throw new LogicException('Not implemented');
+        return $this->bqClient->dataset($this->datasetName)->table($this->tableName)->exists();
     }
 }
