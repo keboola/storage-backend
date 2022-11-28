@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 // TODO we dont use DEFAULT values in columns.
@@ -54,7 +55,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
         $refNew->getRowsCount();
 
         // test NON existence of old table via counting
-        $this->expectException(DBALException::class);
+        $this->expectException(TableNotExistsReflectionException::class);
         $refOld->getRowsCount();
     }
 
@@ -98,7 +99,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
         $this->connection->executeQuery($sql);
 
         // test NON existence of old table via counting
-        $this->expectException(DBALException::class);
+        $this->expectException(TableNotExistsReflectionException::class);
         $ref->getRowsCount();
     }
 
