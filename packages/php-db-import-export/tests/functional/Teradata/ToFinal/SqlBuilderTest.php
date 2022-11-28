@@ -909,7 +909,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'DELETE %s FROM %s AS "joined" WHERE TRIM(%s."pk1") = COALESCE(TRIM("joined"."pk1"), \'\') AND TRIM(%s."pk2") = COALESCE(TRIM("joined"."pk2"), \'\')',
+            'DELETE %s FROM %s AS "joined" WHERE TRIM("joined"."pk1") = COALESCE(TRIM(%s."pk1"), \'\') AND TRIM("joined"."pk2") = COALESCE(TRIM(%s."pk2"), \'\')',
             $stagingTable,
             $storageTable,
             $stagingTable,
@@ -1018,7 +1018,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
 
         $expectedSql = sprintf(
         // phpcs:ignore
-            'DELETE %s FROM %s AS "joined" WHERE TRIM(%s."pk1") = TRIM("joined"."pk1") AND TRIM(%s."pk2") = TRIM("joined"."pk2")',
+            'DELETE %s FROM %s AS "joined" WHERE TRIM("joined"."pk1") = TRIM(%s."pk1") AND TRIM("joined"."pk2") = TRIM(%s."pk2")',
             $stagingTable,
             $storageTable,
             $stagingTable,
