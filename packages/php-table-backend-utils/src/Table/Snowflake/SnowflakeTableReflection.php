@@ -7,13 +7,13 @@ namespace Keboola\TableBackendUtils\Table\Snowflake;
 use Doctrine\DBAL\Connection;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
-use Keboola\TableBackendUtils\Escaping\Exasol\ExasolQuote;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use RuntimeException;
 use Throwable;
 
 final class SnowflakeTableReflection implements TableReflectionInterface
@@ -27,7 +27,13 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     private string $tableName;
 
+    private ?bool $isView = null;
+
     private ?bool $isTemporary = null;
+
+    private ?int $sizeBytes = null;
+
+    private ?int $rowCount = null;
 
     public function __construct(Connection $connection, string $schemaName, string $tableName)
     {
@@ -36,44 +42,72 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $this->connection = $connection;
     }
 
-    private function setIsTemporary(): bool
+    /**
+     * @throws TableNotExistsReflectionException
+     */
+    private function cacheTableProps(bool $force = false): void
     {
-        $row = $this->connection->fetchAssociative(
+        if ($force === false && $this->isView !== null && $this->isTemporary !== null) {
+            return;
+        }
+        /** @var array<array{TABLE_TYPE:string,BYTES:string,ROW_COUNT:string}> $row */
+        $row = $this->connection->fetchAllAssociative(
             sprintf(
-                // STARTS WITH is added because it is case-sensitive
-                'SHOW TABLES LIKE %s IN %s STARTS WITH %s ',
-                SnowflakeQuote::quote($this->tableName),
-                SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+                //phpcs:ignore
+                'SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;',
+                SnowflakeQuote::quote($this->schemaName),
                 SnowflakeQuote::quote($this->tableName)
             )
         );
-
-        if ($row) {
-            return $row['kind'] === 'TEMPORARY';
+        if (count($row) === 0) {
+            throw TableNotExistsReflectionException::createForTable([$this->schemaName, $this->tableName]);
         }
-
-        throw new TableNotExistsReflectionException('Cannot detect if table is temporary or not. Table does not exist');
+        $this->sizeBytes = (int) $row[0]['BYTES'];
+        $this->rowCount = (int) $row[0]['ROW_COUNT'];
+        switch (strtoupper($row[0]['TABLE_TYPE'])) {
+            case 'BASE TABLE':
+                $this->isTemporary = false;
+                $this->isView = false;
+                return;
+            case 'LOCAL TEMPORARY':
+            case 'TEMPORARY TABLE':
+                $this->isTemporary = true;
+                $this->isView = false;
+                return;
+            case 'VIEW':
+                $this->isTemporary = false;
+                $this->isView = true;
+                return;
+            default:
+                throw new RuntimeException(sprintf(
+                    'Table type "%s" is not known.',
+                    $row[0]['TABLE_TYPE']
+                ));
+        }
     }
 
     /**
      * @return string[]
+     * @throws TableNotExistsReflectionException
      */
     public function getColumnsNames(): array
     {
-        /** @var array<array{column_name: string}> $columnsData */
-        $columnsData = $this->connection->fetchAllAssociative(
-            sprintf(
-                // case-sensitive
-                'SHOW COLUMNS IN %s',
-                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,])
-            )
-        );
+        $columns = $this->getColumnsDefinitions();
 
-        return array_values(array_map(fn($column) => $column['column_name'], $columnsData));
+        $names = [];
+        /** @var SnowflakeColumn $col */
+        foreach ($columns as $col) {
+            $names[] = $col->getColumnName();
+        }
+        return $names;
     }
 
+    /**
+     * @throws TableNotExistsReflectionException
+     */
     public function getColumnsDefinitions(): ColumnCollection
     {
+        $this->cacheTableProps();
         /** @var array<array{
          *     name: string,
          *     kind: string,
@@ -99,28 +133,25 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         return new ColumnCollection($columns);
     }
 
-
-
+    /**
+     * @throws TableNotExistsReflectionException
+     */
     public function getRowsCount(): int
     {
-        /** @var int|string $result */
-        $result = $this->connection->fetchOne(sprintf(
-            'SELECT COUNT(*) AS NumberOfRows FROM %s',
-            SnowflakeQuote::createQuotedIdentifierFromParts([
-                $this->schemaName,
-                $this->tableName,
-            ])
-        ));
-        return (int) $result;
+        $this->cacheTableProps(true);
+        assert($this->rowCount !== null);
+        return $this->rowCount;
     }
 
     /**
      * returns list of column names where PK is defined on
      *
      * @return string[]
+     * @throws TableNotExistsReflectionException
      */
     public function getPrimaryKeysNames(): array
     {
+        $this->cacheTableProps();
         /** @var array<array{column_name:string}> $columnsMeta */
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
@@ -132,28 +163,24 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         return array_map(fn($pkRow) => $pkRow['column_name'], $columnsMeta);
     }
 
+    /**
+     * @throws TableNotExistsReflectionException
+     */
     public function getTableStats(): TableStatsInterface
     {
-        $sql = sprintf(
-            'SHOW TABLES LIKE %s IN SCHEMA %s STARTS WITH %s',
-            ExasolQuote::quote($this->tableName),
-            ExasolQuote::quoteSingleIdentifier($this->schemaName),
-            ExasolQuote::quote($this->tableName)
-        );
-        /** @var array{bytes:int|string}|null $result */
-        $result = $this->connection->fetchAssociative($sql);
-        if (!$result) {
-            throw new TableNotExistsReflectionException('Table does not exist');
-        }
-
-        return new TableStats((int) $result['bytes'], $this->getRowsCount());
+        $this->cacheTableProps(true);
+        assert($this->sizeBytes !== null);
+        assert($this->rowCount !== null);
+        return new TableStats($this->sizeBytes, $this->rowCount);
     }
 
+    /**
+     * @throws TableNotExistsReflectionException
+     */
     public function isTemporary(): bool
     {
-        if ($this->isTemporary === null) {
-            $this->isTemporary = $this->setIsTemporary();
-        }
+        $this->cacheTableProps();
+        assert($this->isTemporary !== null);
         return $this->isTemporary;
     }
 
@@ -224,14 +251,20 @@ WHERE REFERENCED_OBJECT_TYPE = %s
      *  schema_name: string,
      *  name: string
      * }[]
+     * @throws TableNotExistsReflectionException
      */
     public function getDependentViews(): array
     {
+        $this->cacheTableProps();
         return self::getDependentViewsForObject($this->connection, $this->tableName, $this->schemaName, 'TABLE');
     }
 
+    /**
+     * @throws TableNotExistsReflectionException
+     */
     public function getTableDefinition(): TableDefinitionInterface
     {
+        $this->cacheTableProps();
         return new SnowflakeTableDefinition(
             $this->schemaName,
             $this->tableName,
@@ -243,18 +276,19 @@ WHERE REFERENCED_OBJECT_TYPE = %s
 
     public function exists(): bool
     {
-        $row = $this->connection->fetchAssociative(
-            sprintf(
-                "SELECT *
-FROM information_schema.tables 
-WHERE TABLE_TYPE = 'BASE TABLE'
-AND TABLE_NAME = %s AND TABLE_SCHEMA = %s
-",
-                SnowflakeQuote::quote($this->tableName),
-                SnowflakeQuote::quote($this->schemaName),
-            )
-        );
+        try {
+            $this->cacheTableProps(true);
+        } catch (TableNotExistsReflectionException $e) {
+            return false;
+        }
 
-        return $row !== false;
+        return true;
+    }
+
+    public function isView(): bool
+    {
+        $this->cacheTableProps();
+        assert($this->isView !== null);
+        return $this->isView;
     }
 }

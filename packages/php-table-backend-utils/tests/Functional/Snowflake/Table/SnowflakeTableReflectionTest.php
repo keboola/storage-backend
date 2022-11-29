@@ -30,6 +30,15 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
     {
         $this->initTable();
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertSame([
+            'id',
+            'first_name',
+            'last_name',
+        ], $ref->getColumnsNames());
+
+        // same test on view
+        $this->initView();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
 
         self::assertSame([
             'id',
@@ -42,7 +51,15 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
     {
         $this->initTable();
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
+        self::assertSame([
+            'id',
+            'first_name',
+            'last_name',
+        ], $ref->getColumnsNames());
 
+        // same test on view
+        $this->initView();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         self::assertSame([
             'id',
             'first_name',
@@ -62,6 +79,11 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         );
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertEquals(['id'], $ref->getPrimaryKeysNames());
+
+        // same test on view, view has no primary keys
+        $this->initView();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        self::assertEquals([], $ref->getPrimaryKeysNames());
     }
 
     public function testGetRowsCount(): void
@@ -77,6 +99,12 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, ...$item);
         }
         self::assertEquals(2, $ref->getRowsCount());
+
+        // same test on view
+        $this->initView();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        // view doesn't have rows count
+        self::assertEquals(0, $ref->getRowsCount());
     }
 
     public function testGetTableStatsWithWrongCase(): void
@@ -103,6 +131,15 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         $stats2 = $ref->getTableStats();
         self::assertEquals(2, $stats2->getRowsCount());
         self::assertGreaterThan($stats1->getDataSizeBytes(), $stats2->getDataSizeBytes());
+
+        // same test on view
+        $this->initView();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        /** @var TableStats $stats2 */
+        $stats2 = $ref->getTableStats();
+        // view doesn't have size or row count
+        self::assertEquals(0, $stats2->getRowsCount());
+        self::assertEquals(0, $stats2->getDataSizeBytes());
     }
 
     /**
@@ -397,7 +434,6 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         ], $dependentViews[0]);
     }
 
-
     public function testDependenciesWithCaseSensitivity(): void
     {
         $this->cleanSchema('TEST_UTIL_SCHEMA');
@@ -488,6 +524,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         // check temp table on normal table
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertFalse($ref->isTemporary());
+        self::assertFalse($ref->isView());
 
         // check temp table on TEMP table
         $tableName = 'tableWhichDoesntLookLikeTemp';
@@ -500,6 +537,11 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         );
         $refTemp = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, $tableName);
         self::assertTrue($refTemp->isTemporary());
+
+        $this->initView(self::VIEW_GENERIC, $tableName);
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        self::assertFalse($ref->isTemporary());
+        self::assertTrue($ref->isView());
     }
 
     public function testDetectTempTableWithWrongCase(): void
@@ -536,6 +578,13 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
 
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertTrue($ref->exists());
+        self::assertFalse($ref->isView());
+
+        // same test on view
+        $this->initView();
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
+        self::assertTrue($ref->exists());
+        self::assertTrue($ref->isView());
     }
 
     public function testIfSchemaDoesNotExists(): void
