@@ -159,6 +159,33 @@ class IncrementalImportTest extends TeradataBaseTestCase
             3,
             self::TABLE_MULTI_PK_WITH_TS,
         ];
+        yield 'multi pk with null' => [
+            $this->getSourceInstance(
+                'multi-pk.csv',
+                $multiPkColumns,
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            $this->getImportOptions(
+                [],
+                false,
+                true, // disable timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
+            $this->getSourceInstance(
+                'multi-pk.increment.csv',
+                $multiPkColumns,
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            $this->getTeradataIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
+            $expectedMultiPkRows,
+            4,
+            self::TABLE_MULTI_PK_WITH_TS,
+        ];
         yield 'no pk' => [
             $this->getSourceInstance(
                 'multi-pk.csv',
