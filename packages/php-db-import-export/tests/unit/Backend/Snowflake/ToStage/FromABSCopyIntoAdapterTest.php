@@ -36,9 +36,14 @@ FILES = ('https://url')
 EOT
         );
 
-        $conn->expects(self::once())->method('fetchOne')
-            ->with('SELECT COUNT(*) AS NumberOfRows FROM "schema"."stagingTable"')
-            ->willReturn(10);
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            // phpcs:ignore
+            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
+            ->willReturn([
+                [
+                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                ],
+            ]);
 
         $destination = new SnowflakeTableDefinition(
             'schema',
@@ -78,9 +83,14 @@ EOT
         );
         // @codingStandardsIgnoreEnd
 
-        $conn->expects(self::once())->method('fetchOne')
-            ->with('SELECT COUNT(*) AS NumberOfRows FROM "schema"."stagingTable"')
-            ->willReturn(7);
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            // phpcs:ignore
+            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
+            ->willReturn([
+                [
+                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
+                ],
+            ]);
 
         $destination = new SnowflakeTableDefinition(
             'schema',
@@ -129,9 +139,14 @@ EOT;
         $q2 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 1000, 5)));
         $conn->expects(self::exactly(2))->method('executeStatement')->withConsecutive([$q1], [$q2]);
 
-        $conn->expects(self::once())->method('fetchOne')
-            ->with('SELECT COUNT(*) AS NumberOfRows FROM "schema"."stagingTable"')
-            ->willReturn(7);
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            // phpcs:ignore
+            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
+            ->willReturn([
+                [
+                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
+                ],
+            ]);
 
         $destination = new SnowflakeTableDefinition(
             'schema',

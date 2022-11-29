@@ -70,7 +70,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $this->getSimpleIncrementalImportOptions(),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'multi-pk'),
             $expectedMultiPkRows,
-            3,
+            4,
         ];
         return $tests;
     }

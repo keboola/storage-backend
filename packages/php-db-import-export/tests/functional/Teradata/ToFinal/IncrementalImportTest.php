@@ -69,6 +69,16 @@ class IncrementalImportTest extends TeradataBaseTestCase
         $multiPkColumns = array_shift($expectedMultiPkRows);
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
+        // multi pk nulls
+        $expectationMultiPkNullFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk.increment.csv');
+        $expectedMultiPkNullRows = [];
+        foreach ($expectationMultiPkNullFile as $row) {
+            $expectedMultiPkNullRows[] = $row;
+        }
+        /** @var string[] $multiPkColumns */
+        $multiPkColumns = array_shift($expectedMultiPkNullRows);
+        $expectedMultiPkNullRows = array_values($expectedMultiPkNullRows);
+
         $multiPkExpectationsWithoutPKFile =  new CsvFile(self::DATA_DIR . 'multi-pk.csv');
         $multiPkExpectationsWithoutPKRows = [];
         foreach ($multiPkExpectationsWithoutPKFile as $row) {
@@ -182,7 +192,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
             ),
             $this->getTeradataIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
-            $expectedMultiPkRows,
+            $expectedMultiPkNullRows,
             4,
             self::TABLE_MULTI_PK_WITH_TS,
         ];
