@@ -49,6 +49,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
     {
         $accountsStub = $this->getParseCsvStub('expectation.tw_accounts.increment.csv');
         $multiPKStub = $this->getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
+        $multiPKWithNullStub = $this->getParseCsvStub('expectation.multi-pk.increment.csv');
 
         $tests = [];
         yield 'simple' => [
@@ -127,6 +128,35 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
             3,
             self::TABLE_MULTI_PK_WITH_TS,
         ];
+
+        yield 'multi pk with null' => [
+            $this->getSourceInstance(
+                'multi-pk.csv',
+                $multiPKWithNullStub->getColumns(),
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            new SnowflakeImportOptions(
+                [],
+                true, // incremental
+                false, // disable timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
+            $this->getSourceInstance(
+                'multi-pk.increment.csv',
+                $multiPKWithNullStub->getColumns(),
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            $this->getSnowflakeIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
+            $multiPKWithNullStub->getRows(),
+            4,
+            self::TABLE_MULTI_PK_WITH_TS,
+        ];
+
         return $tests;
     }
 

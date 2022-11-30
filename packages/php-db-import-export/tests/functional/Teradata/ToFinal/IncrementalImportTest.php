@@ -69,6 +69,16 @@ class IncrementalImportTest extends TeradataBaseTestCase
         $multiPkColumns = array_shift($expectedMultiPkRows);
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
+        // multi pk nulls
+        $expectationMultiPkNullFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk.increment.csv');
+        $expectedMultiPkNullRows = [];
+        foreach ($expectationMultiPkNullFile as $row) {
+            $expectedMultiPkNullRows[] = $row;
+        }
+        /** @var string[] $multiPkColumns */
+        $multiPkColumns = array_shift($expectedMultiPkNullRows);
+        $expectedMultiPkNullRows = array_values($expectedMultiPkNullRows);
+
         $multiPkExpectationsWithoutPKFile =  new CsvFile(self::DATA_DIR . 'multi-pk.csv');
         $multiPkExpectationsWithoutPKRows = [];
         foreach ($multiPkExpectationsWithoutPKFile as $row) {
@@ -157,6 +167,33 @@ class IncrementalImportTest extends TeradataBaseTestCase
             [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
             $expectedMultiPkRows,
             3,
+            self::TABLE_MULTI_PK_WITH_TS,
+        ];
+        yield 'multi pk with null' => [
+            $this->getSourceInstance(
+                'multi-pk.csv',
+                $multiPkColumns,
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            $this->getImportOptions(
+                [],
+                false,
+                true, // disable timestamp
+                ImportOptions::SKIP_FIRST_LINE
+            ),
+            $this->getSourceInstance(
+                'multi-pk.increment.csv',
+                $multiPkColumns,
+                false,
+                false,
+                ['VisitID', 'Value', 'MenuItem']
+            ),
+            $this->getTeradataIncrementalImportOptions(),
+            [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
+            $expectedMultiPkNullRows,
+            4,
             self::TABLE_MULTI_PK_WITH_TS,
         ];
         yield 'no pk' => [

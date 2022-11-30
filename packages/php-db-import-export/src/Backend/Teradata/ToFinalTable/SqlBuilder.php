@@ -97,7 +97,7 @@ class SqlBuilder
                 );
             }
             if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
-                // use nullif only for string base type
+                // use nullif only for string base type -> OM
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
                         'NULLIF(%s, \'\')',
@@ -252,7 +252,7 @@ class SqlBuilder
                 $destinationTableDefinition->getPrimaryKeysNames(),
                 $importOptions,
                 $stagingTable,
-                '"joined"'
+                TeradataQuote::quoteSingleIdentifier('joined')
             )
         );
     }
@@ -313,7 +313,12 @@ class SqlBuilder
                 $destinationDefinition->getPrimaryKeysNames()
             ),
             implode(', ', $columnsSet),
-            $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions, $dest)
+            $this->getPrimayKeyWhereConditions(
+                $destinationDefinition->getPrimaryKeysNames(),
+                $importOptions,
+                TeradataQuote::quoteSingleIdentifier('src'),
+                $dest
+            )
         );
     }
 
@@ -323,19 +328,19 @@ class SqlBuilder
     private function getPrimayKeyWhereConditions(
         array $primaryKeys,
         TeradataImportOptions $importOptions,
-        string $dest,
-        string $alias = '"src"'
+        string $coalescedTable,
+        string $leftTable
     ): string {
-        $pkWhereSql = array_map(function (string $col) use ($importOptions, $dest, $alias) {
+        $pkWhereSql = array_map(function (string $col) use ($importOptions, $coalescedTable, $leftTable) {
             $str = 'TRIM(%s.%s) = COALESCE(TRIM(%s.%s), \'\')';
             if (!$importOptions->isNullManipulationEnabled()) {
                 $str = 'TRIM(%s.%s) = TRIM(%s.%s)';
             }
             return sprintf(
                 $str,
-                $dest,
+                $leftTable,
                 TeradataQuote::quoteSingleIdentifier($col),
-                $alias,
+                $coalescedTable,
                 TeradataQuote::quoteSingleIdentifier($col)
             );
         }, $primaryKeys);

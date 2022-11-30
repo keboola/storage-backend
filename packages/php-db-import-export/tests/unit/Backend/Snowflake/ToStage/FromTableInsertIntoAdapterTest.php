@@ -26,9 +26,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
         // phpcs:ignore
             'INSERT INTO "test_schema"."stagingTable" ("col1", "col2") SELECT "col1", "col2" FROM "test_schema"."test_table"'
         );
-        $conn->expects(self::once())->method('fetchOne')
-            ->with('SELECT COUNT(*) AS NumberOfRows FROM "test_schema"."stagingTable"')
-            ->willReturn(10);
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            // phpcs:ignore
+            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'test_schema' AND TABLE_NAME = 'stagingTable';")
+            ->willReturn([
+                [
+                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                ],
+            ]);
 
         $destination = new SnowflakeTableDefinition(
             'test_schema',
@@ -68,9 +73,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             ['bind' => 'val'],
             [1]
         );
-        $conn->expects(self::once())->method('fetchOne')
-            ->with('SELECT COUNT(*) AS NumberOfRows FROM "test_schema"."stagingTable"')
-            ->willReturn(10);
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            // phpcs:ignore
+            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'test_schema' AND TABLE_NAME = 'stagingTable';")
+            ->willReturn([
+                [
+                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                ],
+            ]);
 
         $destination = new SnowflakeTableDefinition(
             'test_schema',

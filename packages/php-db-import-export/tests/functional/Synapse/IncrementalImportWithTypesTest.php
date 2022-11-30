@@ -182,7 +182,7 @@ class IncrementalImportWithTypesTest extends SynapseBaseTestCase
             // Synapse is not comparing empty strings and null same as other backends
             // this can't be tested as dedup in full import is not deterministic, so we test only expected row count
             6,
-            3,
+            4,
             [self::TABLE_MULTI_PK],
         ];
         return $tests;
