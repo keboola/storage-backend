@@ -148,6 +148,23 @@ message ImportExportShared {
       FAIL_ON_DUPLICATES = 2; // Will check if import contains duplicate keys and fail before inserting into final table
     }
     repeated string dedupColumnsNames = 6; // columns on which base will be deduplication performed
+    /**
+     * Import strategy type decide internal handling and type casting
+     */
+    ImportStrategy importStrategy = 7;
+    enum ImportStrategy {
+      /**
+       * Table uses only string columns of maximal length
+       * This is default behavior of Keboola storage
+       */
+      STRING_TABLE = 0;
+      /**
+       * Table uses user defined data types
+       * this strategy changes behavior of types in temporary tables
+       * this strategy changes bahavior of whole import and how columns and timestamps are updated
+       */
+      USER_DEFINED_TABLE = 1;
+    }
   }
   /**
    * Common export options
