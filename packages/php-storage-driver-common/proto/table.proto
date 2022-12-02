@@ -70,7 +70,7 @@ message PreviewTableCommand {
     Order order = 2;
     ImportExportShared.DataType dataType = 3;
   }
-  PreviewTableOrderBy orderBy = 9;
+  repeated PreviewTableOrderBy orderBy = 9;
 }
 
 message PreviewTableResponse {
