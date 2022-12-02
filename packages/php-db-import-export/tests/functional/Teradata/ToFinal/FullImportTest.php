@@ -12,6 +12,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Teradata\Table;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
@@ -47,7 +48,7 @@ class FullImportTest extends TeradataBaseTestCase
         $this->initTable(self::TABLE_TRANSLATIONS);
 
         // skipping header
-        $options = $this->getImportOptions([], false, false, 1);
+        $options = $this->getImportOptions([], false, false, ImportOptionsInterface::SKIP_FIRST_LINE);
         $source = $this->createS3SourceInstance(
             self::TABLE_TRANSLATIONS . '.csv',
             [
@@ -100,7 +101,7 @@ class FullImportTest extends TeradataBaseTestCase
         $this->initTable(self::TABLE_SINGLE_PK);
 
         // skipping header
-        $options = $this->getImportOptions([], false, false, 1);
+        $options = $this->getImportOptions([], false, false, ImportOptionsInterface::SKIP_FIRST_LINE);
         $source = $this->getSourceInstance(
             'multi-pk.csv',
             [
@@ -155,7 +156,7 @@ class FullImportTest extends TeradataBaseTestCase
         $this->initTable(self::TABLE_MULTI_PK);
 
         // skipping header
-        $options = $this->getImportOptions([], false, false, 1);
+        $options = $this->getImportOptions([], false, false, ImportOptionsInterface::SKIP_FIRST_LINE);
         $source = $this->getSourceInstance(
             'multi-pk.csv',
             [
@@ -266,7 +267,7 @@ class FullImportTest extends TeradataBaseTestCase
                 []
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
             $expectedLargeSlicedManifest,
             1501,
             self::TABLE_OUT_CSV_2COLS,
@@ -407,7 +408,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
@@ -422,7 +423,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
@@ -438,7 +439,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['id']
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
             $expectedAccounts,
             3,
             self::TABLE_ACCOUNTS_3,
@@ -501,7 +502,7 @@ class FullImportTest extends TeradataBaseTestCase
                 [],
                 false,
                 false, // don't use timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE
             ),
             $expectedEscaping,
             7,

@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\Helper\DropTableTrait;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
 use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
@@ -413,14 +414,14 @@ PRIMARY KEY ("VisitID", "Something")
 
     /**
      * @param string[] $convertEmptyValuesToNull
+     * @param ImportOptionsInterface::USING_TYPES_* $usingTypes
      */
     protected function getImportOptions(
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        bool $requireSameTables = ImportOptions::SAME_TABLES_NOT_REQUIRED,
-        bool $nullManipulation = ImportOptions::NULL_MANIPULATION_ENABLED
+        string $usingTypes = ImportOptionsInterface::USING_TYPES_STRING
     ): TeradataImportOptions {
         return
             new TeradataImportOptions(
@@ -432,8 +433,7 @@ PRIMARY KEY ("VisitID", "Something")
                 $isIncremental,
                 $useTimestamp,
                 $numberOfIgnoredLines,
-                $requireSameTables,
-                $nullManipulation
+                $usingTypes
             );
     }
 
@@ -460,7 +460,7 @@ PRIMARY KEY ("VisitID", "Something")
     }
 
     protected function getSimpleImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
+        int $skipLines = ImportOptionsInterface::SKIP_FIRST_LINE,
         bool $useTimestamp = true
     ): TeradataImportOptions {
         return

@@ -10,6 +10,7 @@ use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\ImportOptions;
+use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
@@ -546,7 +547,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         ], $result);
     }
 
-    public function testGetUpdateWithPkCommandRequireSameTables(): void
+    public function testGetUpdateWithPkCommandWhenTypedTables(): void
     {
         $this->createTestDb();
         $this->createTestTableWithColumns();
@@ -604,8 +605,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 false,
                 false,
                 0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                ImportOptionsInterface::USING_TYPES_USER
             ),
             '2020-01-01 00:00:00'
         );
@@ -937,7 +937,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         ], $result);
     }
 
-    public function testGetDeleteOldItemsCommandRequireSameTables(): void
+    public function testGetDeleteOldItemsCommandWhenUsingTypedTable(): void
     {
         $this->createTestDb();
 
@@ -1011,8 +1011,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 false,
                 false,
                 0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                ImportOptionsInterface::USING_TYPES_USER,
             )
         );
 
