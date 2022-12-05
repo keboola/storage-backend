@@ -46,7 +46,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      */
     private $whereFilters;
     /**
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableOrderBy orderBy = 9;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.OrderBy orderBy = 9;</code>
      */
     private $orderBy;
 
@@ -64,7 +64,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columns
      *     @type string $fulltextSearch
      *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $whereFilters
-     *     @type \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy[]|\Google\Protobuf\Internal\RepeatedField $orderBy
+     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\OrderBy[]|\Google\Protobuf\Internal\RepeatedField $orderBy
      * }
      */
     public function __construct($data = NULL) {
@@ -249,7 +249,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableOrderBy orderBy = 9;</code>
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.OrderBy orderBy = 9;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getOrderBy()
@@ -258,13 +258,13 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.PreviewTableCommand.PreviewTableOrderBy orderBy = 9;</code>
-     * @param \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy[]|\Google\Protobuf\Internal\RepeatedField $var
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.OrderBy orderBy = 9;</code>
+     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\OrderBy[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setOrderBy($var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\PreviewTableCommand\PreviewTableOrderBy::class);
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\ImportExportShared\OrderBy::class);
         $this->orderBy = $arr;
 
         return $this;

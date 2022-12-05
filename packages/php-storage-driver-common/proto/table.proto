@@ -61,16 +61,7 @@ message PreviewTableCommand {
 
   repeated ImportExportShared.TableWhereFilter whereFilters = 8;
 
-  message PreviewTableOrderBy {
-    string columnName = 1;
-    enum Order {
-      ASC = 0;
-      DESC = 1;
-    }
-    Order order = 2;
-    ImportExportShared.DataType dataType = 3;
-  }
-  repeated PreviewTableOrderBy orderBy = 9;
+  repeated ImportExportShared.OrderBy orderBy = 9;
 }
 
 message PreviewTableResponse {
@@ -106,6 +97,18 @@ message ImportExportShared {
     Operator operator = 2;
     repeated string values = 3; // comparison value
     ImportExportShared.DataType dataType = 4; // datatype of value usually driver will cast value with TRY method
+  }
+  /**
+   * Supported order by
+   */
+  message OrderBy {
+    string columnName = 1;
+    enum Order {
+      ASC = 0;
+      DESC = 1;
+    }
+    Order order = 2;
+    ImportExportShared.DataType dataType = 3;
   }
   /**
    * Supported datatypes
