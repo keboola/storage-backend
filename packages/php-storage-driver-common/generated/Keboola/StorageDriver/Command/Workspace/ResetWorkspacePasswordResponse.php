@@ -17,7 +17,7 @@ use Google\Protobuf\Internal\GPBUtil;
 class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
 {
     /**
-     * workspace user password
+     * workspace user name
      *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      */
@@ -36,7 +36,7 @@ class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $workspaceUserName
-     *           workspace user password
+     *           workspace user name
      *     @type string $workspacePassword
      *           workspace user password
      * }
@@ -47,7 +47,7 @@ class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * workspace user password
+     * workspace user name
      *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @return string
@@ -58,7 +58,7 @@ class ResetWorkspacePasswordResponse extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * workspace user password
+     * workspace user name
      *
      * Generated from protobuf field <code>string workspaceUserName = 1;</code>
      * @param string $var
