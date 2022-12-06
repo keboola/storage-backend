@@ -60,6 +60,27 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         );
     }
 
+    public function getAddColumnCommand(string $schemaName, string $tableName, TeradataColumn $columnDefinition): string
+    {
+        return sprintf(
+            'ALTER TABLE %s.%s ADD %s %s',
+            TeradataQuote::quoteSingleIdentifier($schemaName),
+            TeradataQuote::quoteSingleIdentifier($tableName),
+            TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+            $columnDefinition->getColumnDefinition()->getSQLDefinition()
+        );
+    }
+
+    public function getDropColumnCommand(string $schemaName, string $tableName, string $columnName): string
+    {
+        return sprintf(
+            'ALTER TABLE %s.%s DROP %s',
+            TeradataQuote::quoteSingleIdentifier($schemaName),
+            TeradataQuote::quoteSingleIdentifier($tableName),
+            TeradataQuote::quoteSingleIdentifier($columnName)
+        );
+    }
+
     /**
      * @inheritDoc
      */
