@@ -141,13 +141,23 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
             $this->getDatabaseName(),
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-
         );
         $this->connection->executeQuery($sql);
 
         // add column
-        $sql = $this->qb->getAddColumnCommand($dbName, self::TABLE_GENERIC, TeradataColumn::createGenericColumn('col3'));
-        $this->assertEquals(sprintf('ALTER TABLE "%s"."%s" ADD "col3" VARCHAR (32000) NOT NULL DEFAULT \'\' CHARACTER SET UNICODE', $dbName, self::TABLE_GENERIC), $sql);
+        $sql = $this->qb->getAddColumnCommand(
+            $dbName,
+            self::TABLE_GENERIC,
+            TeradataColumn::createGenericColumn('col3')
+        );
+        $this->assertEquals(
+            sprintf(
+                'ALTER TABLE "%s"."%s" ADD "col3" VARCHAR (32000) NOT NULL DEFAULT \'\' CHARACTER SET UNICODE',
+                $dbName,
+                self::TABLE_GENERIC
+            ),
+            $sql
+        );
         $this->connection->executeQuery($sql);
 
         $tableReflection = new TeradataTableReflection(
