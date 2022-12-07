@@ -19,4 +19,6 @@ interface BackendNameGeneratorInterface
     public function createWorkspaceObjectNameForWorkspaceId(string $workspaceId): string;
 
     public function createReadOnlyRoleNameForProject(string $projectId): string;
+
+    public function createShareRoleNameForBucket(string $projectId, string $bucketId): string;
 }

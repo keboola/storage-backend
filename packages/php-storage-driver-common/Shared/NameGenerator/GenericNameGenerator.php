@@ -12,6 +12,7 @@ class GenericNameGenerator implements BackendNameGeneratorInterface, BackendSupp
     protected const ROLE_SUFFIX = '_ROLE';
     protected const USER_SUFFIX = '_USER';
     protected const READ_ONLY_ROLE_SUFFIX = '_RO';
+    protected const SHARE_ROLE_SUFFIX = '_SHARE';
 
     protected string $stackPrefix;
 
@@ -80,5 +81,18 @@ class GenericNameGenerator implements BackendNameGeneratorInterface, BackendSupp
     public function supportsBackend(string $backendName): bool
     {
         return in_array($backendName, self::SUPPORTED_BACKENDS);
+    }
+
+    public function createShareRoleNameForBucket(
+        string $projectId,
+        string $bucketId
+    ): string {
+        return strtoupper(sprintf(
+            '%s_%s_%s%s',
+            rtrim($this->stackPrefix, '_'),
+            $projectId,
+            $bucketId,
+            self::SHARE_ROLE_SUFFIX
+        ));
     }
 }
