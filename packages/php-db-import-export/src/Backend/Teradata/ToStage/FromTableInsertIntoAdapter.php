@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\ToStage;
 
 use Doctrine\DBAL\Connection;
+use Keboola\Db\ImportExport\Backend\Assert;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -45,6 +46,17 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             implode(', ', $quotedColumns),
             $source->getFromStatement()
         );
+
+        if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
+            Assert::assertSameColumns(
+                (new TeradataTableReflection(
+                    $this->connection,
+                    $source->getSchema(),
+                    $source->getTableName()
+                ))->getColumnsDefinitions(),
+                $destination->getColumnsDefinitions()
+            );
+        }
 
         if ($source instanceof SelectSource) {
             $this->connection->executeQuery($sql, $source->getQueryBindings(), $source->getDataTypes());
