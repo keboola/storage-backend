@@ -16,7 +16,7 @@ class ImportOptions implements ImportOptionsInterface
     private int $numberOfIgnoredLines;
 
     /** @var self::USING_TYPES_* */
-    private string $usingTypes;
+    protected string $usingTypes;
 
     public const SAME_TABLES_REQUIRED = true;
     public const SAME_TABLES_NOT_REQUIRED = false;

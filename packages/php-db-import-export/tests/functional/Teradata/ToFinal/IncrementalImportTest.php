@@ -11,7 +11,6 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
@@ -65,8 +64,8 @@ class IncrementalImportTest extends TeradataBaseTestCase
         foreach ($expectationMultiPkFile as $row) {
             $expectedMultiPkRows[] = $row;
         }
-        /** @var string[] $multiPkColumns */
-        $multiPkColumns = array_shift($expectedMultiPkRows);
+        /** @var string[] $expectedMultiPkRows */
+        array_shift($expectedMultiPkRows);
         $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
         // multi pk nulls
@@ -96,7 +95,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 false,
                 ['id']
             ),
-            $this->getImportOptions([], false, false, ImportOptions::SKIP_FIRST_LINE),
+            $this->getImportOptions([], false, false, ImportOptionsInterface::SKIP_FIRST_LINE),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
@@ -122,7 +121,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 [],
                 false,
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE
             ),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
@@ -135,7 +134,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 [],
                 true,
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $expectedAccountsRows,
@@ -154,7 +153,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 [],
                 false,
                 true, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE
             ),
             $this->getSourceInstance(
                 'multi-pk_not-null.increment.csv',
@@ -181,7 +180,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 [],
                 false,
                 true, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE
             ),
             $this->getSourceInstance(
                 'multi-pk.increment.csv',
@@ -308,7 +307,6 @@ class IncrementalImportTest extends TeradataBaseTestCase
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
-        /** @var TeradataTableDefinition $destination */
         $this->assertTeradataTableEqualsExpected(
             $fullLoadSource,
             $destination,

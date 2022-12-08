@@ -16,12 +16,6 @@ class TeradataImportOptions extends ImportOptions
 
     private int $teradataPort;
 
-    /** @var self::SAME_TABLES_* */
-    protected bool $requireSameTables;
-
-    /** @var self::NULL_MANIPULATION_* */
-    protected bool $nullManipulation;
-
     /**
      * @param string[] $convertEmptyValuesToNull
      */
@@ -34,22 +28,19 @@ class TeradataImportOptions extends ImportOptions
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED,
-        bool $nullManipulation = self::NULL_MANIPULATION_ENABLED
+        string $usingTypes = self::USING_TYPES_STRING
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
             $isIncremental,
             $useTimestamp,
-            $numberOfIgnoredLines
+            $numberOfIgnoredLines,
+            $usingTypes
         );
         $this->teradataHost = $teradataHost;
         $this->teradataUser = $teradataUser;
         $this->teradataPassword = $teradataPassword;
         $this->teradataPort = $teradataPort;
-
-        $this->requireSameTables = $requireSameTables;
-        $this->nullManipulation = $nullManipulation;
     }
 
     public function getTeradataHost(): string
@@ -70,15 +61,5 @@ class TeradataImportOptions extends ImportOptions
     public function getTeradataPort(): int
     {
         return $this->teradataPort;
-    }
-
-    public function isRequireSameTables(): bool
-    {
-        return $this->requireSameTables === self::SAME_TABLES_REQUIRED;
-    }
-
-    public function isNullManipulationEnabled(): bool
-    {
-        return $this->nullManipulation === self::NULL_MANIPULATION_ENABLED;
     }
 }

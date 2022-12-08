@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable;
 
-use Exception as InternalException;
 use Keboola\Datatype\Definition\BaseType;
-use Keboola\Datatype\Definition\Teradata;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
@@ -96,7 +94,14 @@ class SqlBuilder
                     Exception::UNKNOWN_ERROR
                 );
             }
-            if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
+            if ($importOptions->usingUserDefinedTypes()) {
+                $columnsSetSql[] = TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
+            } elseif (in_array(
+                $columnDefinition->getColumnName(),
+                $importOptions->getConvertEmptyValuesToNull(),
+                true
+            )
+            ) {
                 // use nullif only for string base type -> OM
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
@@ -271,7 +276,7 @@ class SqlBuilder
         );
 
         foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
-            if (!$importOptions->isNullManipulationEnabled()) {
+            if ($importOptions->usingUserDefinedTypes()) {
                 $columnsSet[] = sprintf(
                     '%s = "src".%s',
                     TeradataQuote::quoteSingleIdentifier($columnName),
@@ -332,9 +337,10 @@ class SqlBuilder
         string $leftTable
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions, $coalescedTable, $leftTable) {
-            $str = 'TRIM(%s.%s) = COALESCE(TRIM(%s.%s), \'\')';
-            if (!$importOptions->isNullManipulationEnabled()) {
+            if ($importOptions->usingUserDefinedTypes()) {
                 $str = 'TRIM(%s.%s) = TRIM(%s.%s)';
+            } else {
+                $str = 'TRIM(%s.%s) = COALESCE(TRIM(%s.%s), \'\')';
             }
             return sprintf(
                 $str,
