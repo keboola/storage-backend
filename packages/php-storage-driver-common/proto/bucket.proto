@@ -45,20 +45,38 @@ message DropBucketCommand {
 }
 
 message LinkBucketCommand {
-  string bucketObjectName = 1;
-  string sourceShareRoleName = 2;
-  string projectReadOnlyRoleName = 3;
-  google.protobuf.Any meta = 4;
+  string stackPrefix = 1;
+  string targetProjectId = 2;
+  string targetBucketId = 3;
+  string sourceShareRoleName = 4;
+  string targetProjectReadOnlyRoleName = 5;
+  google.protobuf.Any meta = 6;
+}
+
+/**
+ * Response which is always returned as result of LinkedBucketResponse
+ */
+message LinkedBucketResponse {
+  string linkedBucketObjectName = 1;
 }
 
 message ShareBucketCommand {
-  string bucketObjectName = 1;
-  string bucketShareRoleName = 2;
-  string projectReadOnlyRoleName = 3;
-  google.protobuf.Any meta = 4;
+  string stackPrefix = 1;
+  string sourceBucketObjectName = 2;
+  string sourceProjectReadOnlyRoleName = 3;
+  string sourceProjectId = 4;
+  string sourceBucketId = 5;
+  google.protobuf.Any meta = 6;
   message ShareBucketSnowflakeCommandMeta {
     string databaseName = 1;
   }
+}
+
+/**
+ * Response which is always returned as result of ShareBucketResponse
+ */
+message ShareBucketResponse {
+    string bucketShareRoleName = 1;
 }
 
 message UnlinkBucketCommand {

@@ -17,7 +17,8 @@ class Bucket
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-†	
+Û
+
 proto/bucket.proto$keboola.storageDriver.command.bucket"
 CreateBucketCommand
 stackPrefix (	
@@ -38,19 +39,27 @@ spoolSpace (	"D
 ignoreErrors (
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any
-	isCascade ("è
-LinkBucketCommand
-bucketObjectName (	
-sourceShareRoleName (	
-projectReadOnlyRoleName (	"
-meta (2.google.protobuf.Any"…
-ShareBucketCommand
-bucketObjectName (	
-bucketShareRoleName (	
-projectReadOnlyRoleName (	"
-meta (2.google.protobuf.Any7
+	isCascade ("¡
+LinkBucketCommand
+stackPrefix (	
+targetProjectId (	
+targetBucketId (	
+sourceShareRoleName (	%
+targetProjectReadOnlyRoleName (	"
+meta (2.google.protobuf.Any"6
+LinkedBucketResponse
+linkedBucketObjectName (	"˛
+ShareBucketCommand
+stackPrefix (	
+sourceBucketObjectName (	%
+sourceProjectReadOnlyRoleName (	
+sourceProjectId (	
+sourceBucketId (	"
+meta (2.google.protobuf.Any7
 ShareBucketSnowflakeCommandMeta
-databaseName (	"ë
+databaseName (	"2
+ShareBucketResponse
+bucketShareRoleName (	"ë
 UnlinkBucketCommand
 bucketObjectName (	
 sourceShareRoleName (	

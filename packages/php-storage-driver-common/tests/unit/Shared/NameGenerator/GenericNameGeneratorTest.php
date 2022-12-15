@@ -63,4 +63,11 @@ class GenericNameGeneratorTest extends TestCase
         $objectName = $generator->createWorkspaceObjectNameForWorkspaceId('123456');
         $this->assertSame('WORKSPACE_123456', $objectName);
     }
+
+    public function testCreateShareRoleNameForBucket(): void
+    {
+        $generator = new GenericNameGenerator(self::TEST_CLIENT_DB_PREFIX);
+        $objectName = $generator->createShareRoleNameForBucket('123456', 'bucketABC');
+        $this->assertSame('MY_TEST_PREFIX_123456_BUCKETABC_SHARE', $objectName);
+    }
 }

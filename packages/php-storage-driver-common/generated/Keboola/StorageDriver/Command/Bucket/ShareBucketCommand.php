@@ -14,19 +14,27 @@ use Google\Protobuf\Internal\GPBUtil;
 class ShareBucketCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string bucketObjectName = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      */
-    protected $bucketObjectName = '';
+    protected $stackPrefix = '';
     /**
-     * Generated from protobuf field <code>string bucketShareRoleName = 2;</code>
+     * Generated from protobuf field <code>string sourceBucketObjectName = 2;</code>
      */
-    protected $bucketShareRoleName = '';
+    protected $sourceBucketObjectName = '';
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
+     * Generated from protobuf field <code>string sourceProjectReadOnlyRoleName = 3;</code>
      */
-    protected $projectReadOnlyRoleName = '';
+    protected $sourceProjectReadOnlyRoleName = '';
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>string sourceProjectId = 4;</code>
+     */
+    protected $sourceProjectId = '';
+    /**
+     * Generated from protobuf field <code>string sourceBucketId = 5;</code>
+     */
+    protected $sourceBucketId = '';
+    /**
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      */
     protected $meta = null;
 
@@ -36,9 +44,11 @@ class ShareBucketCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string $bucketObjectName
-     *     @type string $bucketShareRoleName
-     *     @type string $projectReadOnlyRoleName
+     *     @type string $stackPrefix
+     *     @type string $sourceBucketObjectName
+     *     @type string $sourceProjectReadOnlyRoleName
+     *     @type string $sourceProjectId
+     *     @type string $sourceBucketId
      *     @type \Google\Protobuf\Any $meta
      * }
      */
@@ -48,73 +58,117 @@ class ShareBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string bucketObjectName = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @return string
      */
-    public function getBucketObjectName()
+    public function getStackPrefix()
     {
-        return $this->bucketObjectName;
+        return $this->stackPrefix;
     }
 
     /**
-     * Generated from protobuf field <code>string bucketObjectName = 1;</code>
+     * Generated from protobuf field <code>string stackPrefix = 1;</code>
      * @param string $var
      * @return $this
      */
-    public function setBucketObjectName($var)
+    public function setStackPrefix($var)
     {
         GPBUtil::checkString($var, True);
-        $this->bucketObjectName = $var;
+        $this->stackPrefix = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>string bucketShareRoleName = 2;</code>
+     * Generated from protobuf field <code>string sourceBucketObjectName = 2;</code>
      * @return string
      */
-    public function getBucketShareRoleName()
+    public function getSourceBucketObjectName()
     {
-        return $this->bucketShareRoleName;
+        return $this->sourceBucketObjectName;
     }
 
     /**
-     * Generated from protobuf field <code>string bucketShareRoleName = 2;</code>
+     * Generated from protobuf field <code>string sourceBucketObjectName = 2;</code>
      * @param string $var
      * @return $this
      */
-    public function setBucketShareRoleName($var)
+    public function setSourceBucketObjectName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->bucketShareRoleName = $var;
+        $this->sourceBucketObjectName = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
+     * Generated from protobuf field <code>string sourceProjectReadOnlyRoleName = 3;</code>
      * @return string
      */
-    public function getProjectReadOnlyRoleName()
+    public function getSourceProjectReadOnlyRoleName()
     {
-        return $this->projectReadOnlyRoleName;
+        return $this->sourceProjectReadOnlyRoleName;
     }
 
     /**
-     * Generated from protobuf field <code>string projectReadOnlyRoleName = 3;</code>
+     * Generated from protobuf field <code>string sourceProjectReadOnlyRoleName = 3;</code>
      * @param string $var
      * @return $this
      */
-    public function setProjectReadOnlyRoleName($var)
+    public function setSourceProjectReadOnlyRoleName($var)
     {
         GPBUtil::checkString($var, True);
-        $this->projectReadOnlyRoleName = $var;
+        $this->sourceProjectReadOnlyRoleName = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>string sourceProjectId = 4;</code>
+     * @return string
+     */
+    public function getSourceProjectId()
+    {
+        return $this->sourceProjectId;
+    }
+
+    /**
+     * Generated from protobuf field <code>string sourceProjectId = 4;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setSourceProjectId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->sourceProjectId = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string sourceBucketId = 5;</code>
+     * @return string
+     */
+    public function getSourceBucketId()
+    {
+        return $this->sourceBucketId;
+    }
+
+    /**
+     * Generated from protobuf field <code>string sourceBucketId = 5;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setSourceBucketId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->sourceBucketId = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      * @return \Google\Protobuf\Any|null
      */
     public function getMeta()
@@ -133,7 +187,7 @@ class ShareBucketCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */
