@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Bigquery\Table;
 use Generator;
 use Google\Cloud\BigQuery\Exception\JobException;
 use Google\Cloud\Core\Exception\NotFoundException;
+use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
@@ -105,5 +106,64 @@ EOT
         // test NON existence of old table via counting
         $this->expectException(TableNotExistsReflectionException::class);
         $ref->getRowsCount();
+    }
+
+    public function testAddAndDropColumn(): void
+    {
+        $this->cleanDataset(self::TEST_SCHEMA);
+        $this->createDataset(self::TEST_SCHEMA);
+
+        $columns = [BigqueryColumn::createGenericColumn('col1'),
+            BigqueryColumn::createGenericColumn('col2')];
+
+        $sql = $this->qb->getCreateTableCommand(
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC,
+            new ColumnCollection($columns),
+            [] // primary keys aren't supported in BQ
+        );
+
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+
+        // add column
+        $sql = $this->qb->getAddColumnCommand(
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC,
+            new BigqueryColumn('col3', new Bigquery(
+                Bigquery::TYPE_STRING
+            ))
+        );
+        $this->assertEquals(
+            sprintf(
+                'ALTER TABLE `%s`.`%s` ADD COLUMN `col3` STRING',
+                self::TEST_SCHEMA,
+                self::TABLE_GENERIC
+            ),
+            $sql
+        );
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+
+        $tableReflection = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC
+        );
+        self::assertSame(['col1', 'col2', 'col3'], $tableReflection->getColumnsNames());
+
+        // drop column
+        $sql = $this->qb->getDropColumnCommand(self::TEST_SCHEMA, self::TABLE_GENERIC, 'col2');
+        $this->assertEquals(sprintf(
+            'ALTER TABLE `%s`.`%s` DROP COLUMN `col2`',
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC
+        ), $sql);
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+
+        $tableReflection = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC
+        );
+        self::assertSame(['col1', 'col3'], $tableReflection->getColumnsNames());
     }
 }
