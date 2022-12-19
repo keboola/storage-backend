@@ -9,6 +9,8 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 class SnowflakeDSNGenerator
 {
+    private const SNOWFLAKE_APPLICATION = 'Keboola_Connection';
+
     /**
      * The connection constructor accepts the following options:
      * - host (string, required) - hostname
@@ -111,6 +113,8 @@ class SnowflakeDSNGenerator
         if (isset($options['clientSessionKeepAlive']) && $options['clientSessionKeepAlive']) {
             $dsn .= ';CLIENT_SESSION_KEEP_ALIVE=TRUE';
         }
+
+        $dsn .= ';application=' . SnowflakeQuote::quoteSingleIdentifier(self::SNOWFLAKE_APPLICATION);
 
         return $dsn;
     }
