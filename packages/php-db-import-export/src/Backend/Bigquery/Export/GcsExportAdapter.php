@@ -62,6 +62,7 @@ OPTIONS (
         );
         $this->bqClient->runQuery(
             $this->bqClient->query($sql)
+                ->parameters($source->getQueryBindings())
         );
 
         if ($exportOptions->generateManifest()) {
