@@ -39,7 +39,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'all' => [
             $options,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -47,7 +47,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no port' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=443;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=443;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -55,7 +55,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no tracing' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=0;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=0;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -63,7 +63,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no loginTimeout' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -71,7 +71,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no networkTimeout' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -79,7 +79,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no queryTimeout' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -87,7 +87,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no maxBackoffAttempts' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -95,7 +95,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no database' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -103,7 +103,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no schema' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -111,7 +111,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no warehouse' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -119,7 +119,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'no clientSessionKeepAlive' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse"',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=123;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";application="Keboola_Connection"',
         ];
 
         $optionsCopy = $options;
@@ -127,7 +127,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         yield 'empty string as port' => [
             $optionsCopy,
             // phpcs:ignore
-            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=443;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE',
+            'Driver=SnowflakeDSIIDriver;Server=snowflakecomputing.com;Port=443;Tracing=1;Login_timeout=10;Network_timeout=15;Query_timeout=20;Database="snowflake_db";Schema="snowflake_schema";Warehouse="snowflake_warehouse";CLIENT_SESSION_KEEP_ALIVE=TRUE;application="Keboola_Connection"',
         ];
     }
 
