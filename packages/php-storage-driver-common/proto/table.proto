@@ -6,6 +6,21 @@ import "proto/info.proto";
 
 package keboola.storageDriver.command.table;
 
+message TableColumnShared {
+  string name = 1;
+  string type = 2;
+  string length = 3;
+  bool nullable = 4;
+  string default = 5;
+  google.protobuf.Any meta = 6; // metadata specific for each backend
+  /**
+   * Teradata table column metadata
+   */
+  message TeradataTableColumnMeta {
+    bool isLatin = 1;
+  }
+}
+
 /**
  * Command is used when new table is created in Keboola connection
  * Command will create new table and set all grants needed by project
@@ -17,21 +32,8 @@ message CreateTableCommand {
    * Table column definition
    * this definition is transformed into column sql definition
    */
-  message TableColumn {
-    string name = 1;
-    string type = 2;
-    string length = 3;
-    bool nullable = 4;
-    string default = 5;
-    google.protobuf.Any meta = 6; // metadata specific for each backend
-    /**
-     * Teradata table column metadata
-     */
-    message TeradataTableColumnMeta {
-      bool isLatin = 1;
-    }
-  }
-  repeated TableColumn columns = 3; // table columns definitions
+
+  repeated TableColumnShared columns = 3; // table columns definitions
   repeated string primaryKeysNames = 4; // primary key columns names
   google.protobuf.Any meta = 5; // metadata specific for each backend
   message SynapseTableMeta {
@@ -45,9 +47,27 @@ message DropTableCommand {
   bool ignoreErrors = 3;
 }
 
-// maybe split each action
-message AlterTableCommand {
+message AddColumnCommand {
+  repeated string path = 1; // path where table is located
+  string tableName = 2; // table name
+  TableColumnShared columnDefinition = 3; // table column definition
+}
 
+message DropColumnCommand {
+  repeated string path = 1; // path where table is located
+  string tableName = 2; // table name
+  string columnName = 3; // column to drop
+}
+
+message AddPrimaryKeyCommand {
+  repeated string path = 1; // path where table is located
+  string tableName = 2; // table name
+  repeated string primaryKeysNames = 4; // primary key columns names
+}
+
+message DropPrimaryKeyCommand {
+  repeated string path = 1; // path where table is located
+  string tableName = 2; // table name
 }
 
 message PreviewTableCommand {

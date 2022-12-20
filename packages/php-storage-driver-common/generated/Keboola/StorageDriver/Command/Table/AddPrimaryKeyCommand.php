@@ -9,16 +9,12 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- **
- * Command is used when new table is created in Keboola connection
- * Command will create new table and set all grants needed by project
- *
- * Generated from protobuf message <code>keboola.storageDriver.command.table.CreateTableCommand</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.table.AddPrimaryKeyCommand</code>
  */
-class CreateTableCommand extends \Google\Protobuf\Internal\Message
+class AddPrimaryKeyCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * path where table is created
+     * path where table is located
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      */
@@ -30,23 +26,11 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
      */
     protected $tableName = '';
     /**
-     * table columns definitions
-     *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableColumnShared columns = 3;</code>
-     */
-    private $columns;
-    /**
      * primary key columns names
      *
      * Generated from protobuf field <code>repeated string primaryKeysNames = 4;</code>
      */
     private $primaryKeysNames;
-    /**
-     * metadata specific for each backend
-     *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
-     */
-    protected $meta = null;
 
     /**
      * Constructor.
@@ -55,15 +39,11 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
-     *           path where table is created
+     *           path where table is located
      *     @type string $tableName
      *           table name
-     *     @type \Keboola\StorageDriver\Command\Table\TableColumnShared[]|\Google\Protobuf\Internal\RepeatedField $columns
-     *           table columns definitions
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
      *           primary key columns names
-     *     @type \Google\Protobuf\Any $meta
-     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -72,7 +52,7 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * path where table is created
+     * path where table is located
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
@@ -83,7 +63,7 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * path where table is created
+     * path where table is located
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
      * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
@@ -124,32 +104,6 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * table columns definitions
-     *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableColumnShared columns = 3;</code>
-     * @return \Google\Protobuf\Internal\RepeatedField
-     */
-    public function getColumns()
-    {
-        return $this->columns;
-    }
-
-    /**
-     * table columns definitions
-     *
-     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableColumnShared columns = 3;</code>
-     * @param \Keboola\StorageDriver\Command\Table\TableColumnShared[]|\Google\Protobuf\Internal\RepeatedField $var
-     * @return $this
-     */
-    public function setColumns($var)
-    {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\TableColumnShared::class);
-        $this->columns = $arr;
-
-        return $this;
-    }
-
-    /**
      * primary key columns names
      *
      * Generated from protobuf field <code>repeated string primaryKeysNames = 4;</code>
@@ -171,42 +125,6 @@ class CreateTableCommand extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->primaryKeysNames = $arr;
-
-        return $this;
-    }
-
-    /**
-     * metadata specific for each backend
-     *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
-     * @return \Google\Protobuf\Any|null
-     */
-    public function getMeta()
-    {
-        return $this->meta;
-    }
-
-    public function hasMeta()
-    {
-        return isset($this->meta);
-    }
-
-    public function clearMeta()
-    {
-        unset($this->meta);
-    }
-
-    /**
-     * metadata specific for each backend
-     *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
-     * @param \Google\Protobuf\Any $var
-     * @return $this
-     */
-    public function setMeta($var)
-    {
-        GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
-        $this->meta = $var;
 
         return $this;
     }
