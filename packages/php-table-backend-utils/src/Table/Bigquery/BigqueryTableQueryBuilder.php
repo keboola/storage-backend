@@ -83,4 +83,33 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
                 : []
         );
     }
+
+    public function getAddColumnCommand(string $schemaName, string $tableName, BigqueryColumn $columnDefinition): string
+    {
+        assert(
+            $columnDefinition->getColumnDefinition()->getDefault() === null,
+            'You cannot add a REQUIRED column to an existing table schema.'
+        );
+        assert(
+            $columnDefinition->getColumnDefinition()->isNullable() === true,
+            'You cannot add a REQUIRED column to an existing table schema.'
+        );
+        return sprintf(
+            'ALTER TABLE %s.%s ADD COLUMN %s %s',
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+            BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+            $columnDefinition->getColumnDefinition()->getSQLDefinition()
+        );
+    }
+
+    public function getDropColumnCommand(string $schemaName, string $tableName, string $columnName): string
+    {
+        return sprintf(
+            'ALTER TABLE %s.%s DROP COLUMN %s',
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+            BigqueryQuote::quoteSingleIdentifier($columnName)
+        );
+    }
 }
