@@ -67,4 +67,24 @@ class TeradataTableQueryBuilderTest extends TestCase
             'exceptionString' => 'Trying to set PK on column col1 but this column is nullable',
         ];
     }
+
+
+    public function testGetPKCommand(): void
+    {
+        $this->assertEquals(
+            'ALTER TABLE "myDB"."myTable" ADD CONSTRAINT kbc_pk PRIMARY KEY ("my","rules");',
+            $this->qb->getAddPrimaryKeyCommand('myDB', 'myTable', ['my', 'rules'])
+        );
+
+
+    }
+
+    public function testGetDropPKCommand(): void
+    {
+        $this->assertEquals(
+            'ALTER TABLE "myDB"."myTable" DROP CONSTRAINT kbc_pk;',
+            $this->qb->getDropPrimaryKeyCommand('myDB', 'myTable')
+        );
+
+    }
 }

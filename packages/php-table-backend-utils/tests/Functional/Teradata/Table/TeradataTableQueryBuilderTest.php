@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception as DBALException;
 use Generator;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
+use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
@@ -107,12 +108,13 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
      * @dataProvider createTableTestSqlProvider
      */
     public function testGetCreateCommand(
-        array $columns,
-        array $primaryKeys,
-        array $expectedColumnNames,
-        array $expectedPKs,
+        array  $columns,
+        array  $primaryKeys,
+        array  $expectedColumnNames,
+        array  $expectedPKs,
         string $expectedSql
-    ): void {
+    ): void
+    {
         $sql = $this->qb->getCreateTableCommand(
             $this->getDatabaseName(),
             self::TABLE_GENERIC,
@@ -215,7 +217,7 @@ EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
 ("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
 "col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
-PRIMARY KEY ("col1"));
+CONSTRAINT kbc_pk PRIMARY KEY ("col1"));
 EOT
             ,
         ];
@@ -231,7 +233,7 @@ EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
 ("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
 "col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
-PRIMARY KEY ("col1", "col2"));
+CONSTRAINT kbc_pk PRIMARY KEY ("col1", "col2"));
 EOT
             ,
         ];
@@ -288,7 +290,7 @@ EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
 ("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
 "col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
-PRIMARY KEY ("col1"));
+CONSTRAINT kbc_pk PRIMARY KEY ("col1"));
 EOT
             ,
             'createPrimaryKeys' => true,
@@ -310,7 +312,7 @@ EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
 ("col1" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
 "col2" VARCHAR (32000) NOT NULL DEFAULT '' CHARACTER SET UNICODE,
-PRIMARY KEY ("col1", "col2"));
+CONSTRAINT kbc_pk PRIMARY KEY ("col1", "col2"));
 EOT
             ,
             'createPrimaryKeys' => true,
@@ -344,9 +346,10 @@ EOT
      */
     public function testGetCreateTableCommandFromDefinition(
         TeradataTableDefinition $definition,
-        string $expectedSql,
-        bool $createPrimaryKeys
-    ): void {
+        string                  $expectedSql,
+        bool                    $createPrimaryKeys
+    ): void
+    {
         $this->cleanDatabase($this->getDatabaseName());
         $this->createDatabase($this->getDatabaseName());
         $sql = $this->qb->getCreateTableCommandFromDefinition($definition, $createPrimaryKeys);
@@ -365,5 +368,47 @@ EOT
         } else {
             self::assertSame([], $tableReflection->getPrimaryKeysNames());
         }
+    }
+
+    public function testAddAndDropPK()
+    {
+        $testDb = $this->getDatabaseName();
+        $tableName = self::TABLE_GENERIC;
+
+        // definition for table
+        $definition = new TeradataTableDefinition(
+            $testDb,
+            $tableName,
+            false,
+            new ColumnCollection(
+                [
+                    TeradataColumn::createGenericColumn('col1'),
+                    TeradataColumn::createGenericColumn('col2'),
+                ]
+            ),
+            ['col1']
+        );
+
+        // create table
+        $sql = $this->qb->getCreateTableCommandFromDefinition($definition, true);
+        $this->connection->executeQuery($sql);
+
+        // drop PK - test that PK created in CREATE TABLE can be dropped
+        $sql = $this->qb->getDropPrimaryKeyCommand($testDb, $tableName);
+        $this->connection->executeQuery($sql);
+        $ref1 = new TeradataTableReflection($this->connection, $testDb, $tableName);
+        $this->assertEmpty($ref1->getPrimaryKeysNames());
+
+        // add PK
+        $sql = $this->qb->getAddPrimaryKeyCommand($testDb, $tableName, ['col2']);
+        $this->connection->executeQuery($sql);
+        $ref1 = new TeradataTableReflection($this->connection, $testDb, $tableName);
+        $this->assertEquals(['col2'], $ref1->getPrimaryKeysNames());
+
+        // drop again
+        $sql = $this->qb->getDropPrimaryKeyCommand($testDb, $tableName);
+        $this->connection->executeQuery($sql);
+        $ref1 = new TeradataTableReflection($this->connection, $testDb, $tableName);
+        $this->assertEmpty($ref1->getPrimaryKeysNames());
     }
 }

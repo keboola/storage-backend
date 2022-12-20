@@ -23,6 +23,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
     ];
 
     private const INVALID_PKS_FOR_TABLE = 'invalidPKs';
+    const PK_CONSTRAINT_NAME = 'kbc_pk';
 
     public function getCreateTempTableCommand(string $schemaName, string $tableName, ColumnCollection $columns): string
     {
@@ -144,7 +145,8 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
 
         if ($primaryKeys !== []) {
             $columnsSql .= sprintf(
-                ",\nPRIMARY KEY (%s)",
+                ",\nCONSTRAINT %s PRIMARY KEY (%s)",
+                self::PK_CONSTRAINT_NAME,
                 implode(
                     ', ',
                     array_map(static fn($item) => TeradataQuote::quoteSingleIdentifier($item), $primaryKeys)
@@ -176,6 +178,30 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
                 ? $definition->getPrimaryKeysNames()
                 : []
+        );
+    }
+
+    /**
+     * @param string[] $columns
+     */
+    public function getAddPrimaryKeyCommand(string $schemaName, string $tableName, array $columns): string
+    {
+        return sprintf(
+            "ALTER TABLE %s.%s ADD CONSTRAINT %s PRIMARY KEY (%s);",
+            TeradataQuote::quoteSingleIdentifier($schemaName),
+            TeradataQuote::quoteSingleIdentifier($tableName),
+            self::PK_CONSTRAINT_NAME,
+            implode(',', array_map(fn($item) => TeradataQuote::quoteSingleIdentifier($item), $columns))
+        );
+    }
+
+    public function getDropPrimaryKeyCommand(string $schemaName, string $tableName): string
+    {
+        return sprintf(
+            "ALTER TABLE %s.%s DROP CONSTRAINT %s;",
+            TeradataQuote::quoteSingleIdentifier($schemaName),
+            TeradataQuote::quoteSingleIdentifier($tableName),
+            self::PK_CONSTRAINT_NAME
         );
     }
 }
