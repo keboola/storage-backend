@@ -145,7 +145,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
 
         if ($primaryKeys !== []) {
             $columnsSql .= sprintf(
-                ',\nCONSTRAINT %s PRIMARY KEY (%s)',
+                ",\nCONSTRAINT %s PRIMARY KEY (%s)",
                 self::PK_CONSTRAINT_NAME,
                 implode(
                     ', ',
