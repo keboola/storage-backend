@@ -26,6 +26,20 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string columnsToExport = 2;</code>
      */
     private $columnsToExport;
+    /**
+     **
+     * Order of exported records
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy orderBy = 3;</code>
+     */
+    private $orderBy;
+    /**
+     **
+     * Filters of exported records
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportFilters filters = 4;</code>
+     */
+    protected $filters = null;
 
     /**
      * Constructor.
@@ -36,6 +50,12 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
      *     @type bool $isCompressed
      *           export file is compressed
      *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columnsToExport
+     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy[]|\Google\Protobuf\Internal\RepeatedField $orderBy
+     *          *
+     *           Order of exported records
+     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters $filters
+     *          *
+     *           Filters of exported records
      * }
      */
     public function __construct($data = NULL) {
@@ -87,6 +107,72 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->columnsToExport = $arr;
+
+        return $this;
+    }
+
+    /**
+     **
+     * Order of exported records
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy orderBy = 3;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getOrderBy()
+    {
+        return $this->orderBy;
+    }
+
+    /**
+     **
+     * Order of exported records
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy orderBy = 3;</code>
+     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setOrderBy($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy::class);
+        $this->orderBy = $arr;
+
+        return $this;
+    }
+
+    /**
+     **
+     * Filters of exported records
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportFilters filters = 4;</code>
+     * @return \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters|null
+     */
+    public function getFilters()
+    {
+        return $this->filters;
+    }
+
+    public function hasFilters()
+    {
+        return isset($this->filters);
+    }
+
+    public function clearFilters()
+    {
+        unset($this->filters);
+    }
+
+    /**
+     **
+     * Filters of exported records
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportFilters filters = 4;</code>
+     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters $var
+     * @return $this
+     */
+    public function setFilters($var)
+    {
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters::class);
+        $this->filters = $var;
 
         return $this;
     }

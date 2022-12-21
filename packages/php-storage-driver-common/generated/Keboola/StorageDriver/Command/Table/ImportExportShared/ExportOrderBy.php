@@ -9,19 +9,16 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- **
- * Supported order by
- *
- * Generated from protobuf message <code>keboola.storageDriver.command.table.ImportExportShared.OrderBy</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy</code>
  */
-class OrderBy extends \Google\Protobuf\Internal\Message
+class ExportOrderBy extends \Google\Protobuf\Internal\Message
 {
     /**
      * Generated from protobuf field <code>string columnName = 1;</code>
      */
     protected $columnName = '';
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.OrderBy.Order order = 2;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy.Order order = 2;</code>
      */
     protected $order = 0;
     /**
@@ -68,7 +65,7 @@ class OrderBy extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.OrderBy.Order order = 2;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy.Order order = 2;</code>
      * @return int
      */
     public function getOrder()
@@ -77,13 +74,13 @@ class OrderBy extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.OrderBy.Order order = 2;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy.Order order = 2;</code>
      * @param int $var
      * @return $this
      */
     public function setOrder($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\OrderBy\Order::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy\Order::class);
         $this->order = $var;
 
         return $this;
@@ -114,5 +111,5 @@ class OrderBy extends \Google\Protobuf\Internal\Message
 }
 
 // Adding a class alias for backwards compatibility with the previous class name.
-class_alias(OrderBy::class, \Keboola\StorageDriver\Command\Table\ImportExportShared_OrderBy::class);
+class_alias(ExportOrderBy::class, \Keboola\StorageDriver\Command\Table\ImportExportShared_ExportOrderBy::class);
 

@@ -73,15 +73,18 @@ message DropPrimaryKeyCommand {
 message PreviewTableCommand {
   repeated string path = 1;
   string tableName = 2;
-  int32 limit = 3;
-  string changeSince = 4;
-  string changeUntil = 5;
-  repeated string columns = 6;
-  string fulltextSearch = 7;
-
-  repeated ImportExportShared.TableWhereFilter whereFilters = 8;
-
-  repeated ImportExportShared.OrderBy orderBy = 9;
+  /**
+   * preview only certain columns of table
+   */
+  repeated string columns = 3;
+  /**
+   * Order of preview records
+   */
+  repeated ImportExportShared.ExportOrderBy orderBy = 4;
+  /**
+   * Filters of preview records
+   */
+  ImportExportShared.ExportFilters filters = 5;
 }
 
 message PreviewTableResponse {
@@ -117,18 +120,6 @@ message ImportExportShared {
     Operator operator = 2;
     repeated string values = 3; // comparison value
     ImportExportShared.DataType dataType = 4; // datatype of value usually driver will cast value with TRY method
-  }
-  /**
-   * Supported order by
-   */
-  message OrderBy {
-    string columnName = 1;
-    enum Order {
-      ASC = 0;
-      DESC = 1;
-    }
-    Order order = 2;
-    ImportExportShared.DataType dataType = 3;
   }
   /**
    * Supported datatypes
@@ -195,6 +186,46 @@ message ImportExportShared {
   message ExportOptions {
     bool isCompressed = 1; // export file is compressed
     repeated string columnsToExport = 2;
+    /**
+     * Order of exported records
+     */
+    repeated ImportExportShared.ExportOrderBy orderBy = 3;
+    /**
+     * Filters of exported records
+     */
+    ImportExportShared.ExportFilters filters = 4;
+  }
+  message ExportFilters {
+    /**
+     * limit number of records
+     */
+    int32 limit = 3;
+    /**
+     * export only records changed since time
+     * filter records based on timestamp column
+     */
+    string changeSince = 4;
+    /**
+     * export only records changed until time
+     * filter records based on timestamp column
+     */
+    string changeUntil = 5;
+    /**
+     * Fulltext search on all records
+     */
+    string fulltextSearch = 6;
+
+    repeated ImportExportShared.TableWhereFilter whereFilters = 7;
+  }
+
+  message ExportOrderBy {
+    string columnName = 1;
+    enum Order {
+      ASC = 0;
+      DESC = 1;
+    }
+    Order order = 2;
+    ImportExportShared.DataType dataType = 3;
   }
   /**
    * Depends on driver implementation which provider is supported
