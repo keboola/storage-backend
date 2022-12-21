@@ -108,13 +108,12 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
      * @dataProvider createTableTestSqlProvider
      */
     public function testGetCreateCommand(
-        array  $columns,
-        array  $primaryKeys,
-        array  $expectedColumnNames,
-        array  $expectedPKs,
+        array $columns,
+        array $primaryKeys,
+        array $expectedColumnNames,
+        array $expectedPKs,
         string $expectedSql
-    ): void
-    {
+    ): void {
         $sql = $this->qb->getCreateTableCommand(
             $this->getDatabaseName(),
             self::TABLE_GENERIC,
@@ -346,10 +345,9 @@ EOT
      */
     public function testGetCreateTableCommandFromDefinition(
         TeradataTableDefinition $definition,
-        string                  $expectedSql,
-        bool                    $createPrimaryKeys
-    ): void
-    {
+        string $expectedSql,
+        bool $createPrimaryKeys
+    ): void {
         $this->cleanDatabase($this->getDatabaseName());
         $this->createDatabase($this->getDatabaseName());
         $sql = $this->qb->getCreateTableCommandFromDefinition($definition, $createPrimaryKeys);
@@ -370,7 +368,7 @@ EOT
         }
     }
 
-    public function testAddAndDropPK()
+    public function testAddAndDropPK(): void
     {
         $testDb = $this->getDatabaseName();
         $tableName = self::TABLE_GENERIC;
@@ -410,5 +408,52 @@ EOT
         $this->connection->executeQuery($sql);
         $ref1 = new TeradataTableReflection($this->connection, $testDb, $tableName);
         $this->assertEmpty($ref1->getPrimaryKeysNames());
+    }
+
+
+    public function testDeduplication(): void
+    {
+        $testDb = $this->getDatabaseName();
+        $tableName = self::TABLE_GENERIC;
+
+        // definition for table
+        $definition = new TeradataTableDefinition(
+            $testDb,
+            $tableName,
+            false,
+            new ColumnCollection(
+                [
+                    TeradataColumn::createGenericColumn('col1'),
+                    TeradataColumn::createGenericColumn('col2'),
+                    TeradataColumn::createGenericColumn('col3'),
+                ]
+            ),
+            []
+        );
+
+        $sql = $this->qb->getCreateTableCommandFromDefinition($definition, true);
+        $this->connection->executeQuery($sql);
+
+        foreach ([['1', '1', '1'], ['2', '2', '2'], ['3', '3', '3']] as $i) {
+            $this->connection->executeStatement(sprintf(
+                'INSERT INTO %s.%s VALUES (%s)',
+                TeradataQuote::quoteSingleIdentifier($testDb),
+                TeradataQuote::quoteSingleIdentifier($tableName),
+                implode(',', $i)
+            ));
+        }
+        $duplicatedSql = $this->qb->getCommandForDuplicates($testDb, $tableName, ['col2', 'col3']);
+        $data = $this->connection->fetchOne($duplicatedSql);
+        $this->assertEquals('1', $data);
+
+        $this->connection->executeStatement(sprintf(
+            'INSERT INTO %s.%s VALUES (5,3,3)',
+            TeradataQuote::quoteSingleIdentifier($testDb),
+            TeradataQuote::quoteSingleIdentifier($tableName)
+        ));
+
+        $duplicatedSql = $this->qb->getCommandForDuplicates($testDb, $tableName, ['col2', 'col3']);
+        $data = $this->connection->fetchOne($duplicatedSql);
+        $this->assertEquals('2', $data);
     }
 }

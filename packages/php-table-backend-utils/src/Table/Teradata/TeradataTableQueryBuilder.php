@@ -23,7 +23,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
     ];
 
     private const INVALID_PKS_FOR_TABLE = 'invalidPKs';
-    const PK_CONSTRAINT_NAME = 'kbc_pk';
+    private const PK_CONSTRAINT_NAME = 'kbc_pk';
 
     public function getCreateTempTableCommand(string $schemaName, string $tableName, ColumnCollection $columns): string
     {
@@ -145,7 +145,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
 
         if ($primaryKeys !== []) {
             $columnsSql .= sprintf(
-                ",\nCONSTRAINT %s PRIMARY KEY (%s)",
+                ',\nCONSTRAINT %s PRIMARY KEY (%s)',
                 self::PK_CONSTRAINT_NAME,
                 implode(
                     ', ',
@@ -187,7 +187,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
     public function getAddPrimaryKeyCommand(string $schemaName, string $tableName, array $columns): string
     {
         return sprintf(
-            "ALTER TABLE %s.%s ADD CONSTRAINT %s PRIMARY KEY (%s);",
+            'ALTER TABLE %s.%s ADD CONSTRAINT %s PRIMARY KEY (%s);',
             TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
             self::PK_CONSTRAINT_NAME,
@@ -198,10 +198,34 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
     public function getDropPrimaryKeyCommand(string $schemaName, string $tableName): string
     {
         return sprintf(
-            "ALTER TABLE %s.%s DROP CONSTRAINT %s;",
+            'ALTER TABLE %s.%s DROP CONSTRAINT %s;',
             TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
             self::PK_CONSTRAINT_NAME
+        );
+    }
+
+    /**
+     * @param string[] $columns
+     */
+    public function getCommandForDuplicates(string $schemaName, string $tableName, array $columns): string
+    {
+        $formattedColumns = implode(
+            ',',
+            array_map(fn($item) => TeradataQuote::quoteSingleIdentifier($item), $columns)
+        );
+        return sprintf(
+            <<<SQL
+SELECT MAX("_row_number_") AS "count" FROM
+(
+    SELECT ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS "_row_number_" FROM %s.%s
+) "data"
+SQL
+            ,
+            $formattedColumns,
+            $formattedColumns,
+            TeradataQuote::quoteSingleIdentifier($schemaName),
+            TeradataQuote::quoteSingleIdentifier($tableName),
         );
     }
 }
