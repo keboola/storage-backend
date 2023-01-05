@@ -424,3 +424,23 @@ message TableExportToFileCommand {
 message TableExportToFileResponse {
   keboola.storageDriver.command.info.TableInfo tableInfo = 1;
 }
+
+/**
+ * Command is used to remove specific rows from table based on supplied constraints
+ */
+message DeleteTableRowsCommand {
+  repeated string path = 1; // path where table is created
+  string tableName = 2; // table name
+  /**
+   * export only records changed since time
+   * filter records based on timestamp column
+   */
+  string changeSince = 3;
+  /**
+   * export only records changed until time
+   * filter records based on timestamp column
+   */
+  string changeUntil = 4;
+
+  repeated ImportExportShared.TableWhereFilter whereFilters = 5;
+}
