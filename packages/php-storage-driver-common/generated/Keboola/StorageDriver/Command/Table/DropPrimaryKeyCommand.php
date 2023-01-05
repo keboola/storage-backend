@@ -32,7 +32,7 @@ class DropPrimaryKeyCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *           path where table is located
      *     @type string $tableName
      *           table name
@@ -58,7 +58,7 @@ class DropPrimaryKeyCommand extends \Google\Protobuf\Internal\Message
      * path where table is located
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)

@@ -24,7 +24,7 @@ class DatabaseInfo extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type \Keboola\StorageDriver\Command\Info\ObjectInfo[]|\Google\Protobuf\Internal\RepeatedField $objects
+     *     @type array<\Keboola\StorageDriver\Command\Info\ObjectInfo>|\Google\Protobuf\Internal\RepeatedField $objects
      * }
      */
     public function __construct($data = NULL) {
@@ -43,7 +43,7 @@ class DatabaseInfo extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.ObjectInfo objects = 1;</code>
-     * @param \Keboola\StorageDriver\Command\Info\ObjectInfo[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Info\ObjectInfo>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setObjects($var)

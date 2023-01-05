@@ -49,8 +49,8 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
      *
      *     @type bool $isCompressed
      *           export file is compressed
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columnsToExport
-     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy[]|\Google\Protobuf\Internal\RepeatedField $orderBy
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $columnsToExport
+     *     @type array<\Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy>|\Google\Protobuf\Internal\RepeatedField $orderBy
      *          *
      *           Order of exported records
      *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters $filters
@@ -100,7 +100,7 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated string columnsToExport = 2;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setColumnsToExport($var)
@@ -128,7 +128,7 @@ class ExportOptions extends \Google\Protobuf\Internal\Message
      * Order of exported records
      *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy orderBy = 3;</code>
-     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setOrderBy($var)

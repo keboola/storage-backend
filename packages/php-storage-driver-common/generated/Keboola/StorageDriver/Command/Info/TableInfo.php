@@ -54,13 +54,13 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *           path where table is located
      *     @type string $tableName
      *           table name
-     *     @type \Keboola\StorageDriver\Command\Info\TableInfo\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $columns
+     *     @type array<\Keboola\StorageDriver\Command\Info\TableInfo\TableColumn>|\Google\Protobuf\Internal\RepeatedField $columns
      *           table columns definitions
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
      *           primary key columns names
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
@@ -86,7 +86,7 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      * path where table is located
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)
@@ -138,7 +138,7 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      * table columns definitions
      *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableInfo.TableColumn columns = 3;</code>
-     * @param \Keboola\StorageDriver\Command\Info\TableInfo\TableColumn[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Info\TableInfo\TableColumn>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setColumns($var)
@@ -164,7 +164,7 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      * primary key columns names
      *
      * Generated from protobuf field <code>repeated string primaryKeysNames = 4;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPrimaryKeysNames($var)

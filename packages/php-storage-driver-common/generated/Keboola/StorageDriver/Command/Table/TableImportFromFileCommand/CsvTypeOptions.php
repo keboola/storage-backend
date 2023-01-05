@@ -63,7 +63,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columnsNames
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $columnsNames
      *           list of columns expected in csv file
      *     @type string $delimiter
      *           One character that separate fields in file. Delimiter must be single character and cannot be empty
@@ -97,7 +97,7 @@ class CsvTypeOptions extends \Google\Protobuf\Internal\Message
      * list of columns expected in csv file
      *
      * Generated from protobuf field <code>repeated string columnsNames = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setColumnsNames($var)

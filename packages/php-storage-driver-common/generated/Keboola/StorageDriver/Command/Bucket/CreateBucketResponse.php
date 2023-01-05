@@ -35,7 +35,7 @@ class CreateBucketResponse extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *           optional path to new bucket resource
      *     @type string $createBucketObjectName
      *           resulting object name actually stored in backend
@@ -61,7 +61,7 @@ class CreateBucketResponse extends \Google\Protobuf\Internal\Message
      * optional path to new bucket resource
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)

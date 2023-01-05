@@ -29,7 +29,7 @@ class ObjectInfoResponse extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *     @type int $objectType
      *     @type \Keboola\StorageDriver\Command\Info\DatabaseInfo $databaseInfo
      *     @type \Keboola\StorageDriver\Command\Info\SchemaInfo $schemaInfo
@@ -53,7 +53,7 @@ class ObjectInfoResponse extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)

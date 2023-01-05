@@ -49,12 +49,12 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *     @type string $tableName
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columns
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $columns
      *          *
      *           preview only certain columns of table
-     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy[]|\Google\Protobuf\Internal\RepeatedField $orderBy
+     *     @type array<\Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy>|\Google\Protobuf\Internal\RepeatedField $orderBy
      *          *
      *           Order of preview records
      *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters $filters
@@ -78,7 +78,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)
@@ -128,7 +128,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      * preview only certain columns of table
      *
      * Generated from protobuf field <code>repeated string columns = 3;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setColumns($var)
@@ -156,7 +156,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      * Order of preview records
      *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.ExportOrderBy orderBy = 4;</code>
-     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\ImportExportShared\ExportOrderBy>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setOrderBy($var)

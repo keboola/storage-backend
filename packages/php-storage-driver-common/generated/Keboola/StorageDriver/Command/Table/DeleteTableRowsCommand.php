@@ -55,7 +55,7 @@ class DeleteTableRowsCommand extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *           path where table is created
      *     @type string $tableName
      *           table name
@@ -67,7 +67,7 @@ class DeleteTableRowsCommand extends \Google\Protobuf\Internal\Message
      *          *
      *           export only records changed until time
      *           filter records based on timestamp column
-     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $whereFilters
+     *     @type array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $whereFilters
      * }
      */
     public function __construct($data = NULL) {
@@ -90,7 +90,7 @@ class DeleteTableRowsCommand extends \Google\Protobuf\Internal\Message
      * path where table is created
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)
@@ -198,7 +198,7 @@ class DeleteTableRowsCommand extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 5;</code>
-     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setWhereFilters($var)

@@ -45,7 +45,7 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
      *           credentials needed to connect into backend
      *     @type \Google\Protobuf\Any $command
      *           command object used for actions
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $features
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $features
      *           list of features which could be processed by backend
      * }
      */
@@ -141,7 +141,7 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
      * list of features which could be processed by backend
      *
      * Generated from protobuf field <code>repeated string features = 3;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setFeatures($var)
