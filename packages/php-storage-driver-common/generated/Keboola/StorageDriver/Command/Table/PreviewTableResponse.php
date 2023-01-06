@@ -28,8 +28,8 @@ class PreviewTableResponse extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $columns
-     *     @type \Keboola\StorageDriver\Command\Table\PreviewTableResponse\Row[]|\Google\Protobuf\Internal\RepeatedField $rows
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $columns
+     *     @type array<\Keboola\StorageDriver\Command\Table\PreviewTableResponse\Row>|\Google\Protobuf\Internal\RepeatedField $rows
      * }
      */
     public function __construct($data = NULL) {
@@ -48,7 +48,7 @@ class PreviewTableResponse extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated string columns = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setColumns($var)
@@ -70,7 +70,7 @@ class PreviewTableResponse extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.PreviewTableResponse.Row rows = 2;</code>
-     * @param \Keboola\StorageDriver\Command\Table\PreviewTableResponse\Row[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\PreviewTableResponse\Row>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setRows($var)

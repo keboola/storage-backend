@@ -68,7 +68,7 @@ class ExportFilters extends \Google\Protobuf\Internal\Message
      *     @type string $fulltextSearch
      *          *
      *           Fulltext search on all records
-     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $whereFilters
+     *     @type array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $whereFilters
      * }
      */
     public function __construct($data = NULL) {
@@ -203,7 +203,7 @@ class ExportFilters extends \Google\Protobuf\Internal\Message
 
     /**
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 7;</code>
-     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setWhereFilters($var)

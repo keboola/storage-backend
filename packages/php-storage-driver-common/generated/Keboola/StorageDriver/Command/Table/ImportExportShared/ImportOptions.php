@@ -67,7 +67,7 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *
      *     @type string $timestampColumn
      *           timestamp column name, in Keboola connection it's usually _timestamp, can be empty
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $convertEmptyValuesToNullOnColumns
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $convertEmptyValuesToNullOnColumns
      *           Specifies columns where empty string values will be converted to null
      *     @type int $importType
      *     @type int $numberOfIgnoredLines
@@ -75,7 +75,7 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *     @type int $dedupType
      *          *
      *           Deduplication logic type for handling duplicate values
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $dedupColumnsNames
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $dedupColumnsNames
      *           columns on which base will be deduplication performed
      *     @type int $importStrategy
      *          *
@@ -128,7 +128,7 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * Specifies columns where empty string values will be converted to null
      *
      * Generated from protobuf field <code>repeated string convertEmptyValuesToNullOnColumns = 2;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setConvertEmptyValuesToNullOnColumns($var)
@@ -230,7 +230,7 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * columns on which base will be deduplication performed
      *
      * Generated from protobuf field <code>repeated string dedupColumnsNames = 6;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setDedupColumnsNames($var)

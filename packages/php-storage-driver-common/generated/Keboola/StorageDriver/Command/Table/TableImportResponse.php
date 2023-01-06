@@ -62,9 +62,9 @@ class TableImportResponse extends \Google\Protobuf\Internal\Message
      *           number of all rows in final table after import
      *     @type int|string $tableSizeBytes
      *           size of final table after import
-     *     @type \Keboola\StorageDriver\Command\Table\TableImportResponse\Timer[]|\Google\Protobuf\Internal\RepeatedField $timers
+     *     @type array<\Keboola\StorageDriver\Command\Table\TableImportResponse\Timer>|\Google\Protobuf\Internal\RepeatedField $timers
      *           list of timers captured by driver
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $importedColumns
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $importedColumns
      *           list of imported columns
      *     @type \Google\Protobuf\Any $meta
      *           additional import data
@@ -168,7 +168,7 @@ class TableImportResponse extends \Google\Protobuf\Internal\Message
      * list of timers captured by driver
      *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportResponse.Timer timers = 4;</code>
-     * @param \Keboola\StorageDriver\Command\Table\TableImportResponse\Timer[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\TableImportResponse\Timer>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setTimers($var)
@@ -194,7 +194,7 @@ class TableImportResponse extends \Google\Protobuf\Internal\Message
      * list of imported columns
      *
      * Generated from protobuf field <code>repeated string importedColumns = 5;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setImportedColumns($var)

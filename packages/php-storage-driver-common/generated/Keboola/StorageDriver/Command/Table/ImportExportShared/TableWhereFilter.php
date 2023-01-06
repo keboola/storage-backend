@@ -48,7 +48,7 @@ class TableWhereFilter extends \Google\Protobuf\Internal\Message
      *     @type string $columnsName
      *           column where is filter applied
      *     @type int $operator
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $values
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $values
      *           comparison value
      *     @type int $dataType
      *           datatype of value usually driver will cast value with TRY method
@@ -122,7 +122,7 @@ class TableWhereFilter extends \Google\Protobuf\Internal\Message
      * comparison value
      *
      * Generated from protobuf field <code>repeated string values = 3;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setValues($var)

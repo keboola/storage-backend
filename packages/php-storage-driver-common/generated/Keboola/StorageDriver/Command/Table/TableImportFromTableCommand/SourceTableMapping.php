@@ -59,17 +59,17 @@ class SourceTableMapping extends \Google\Protobuf\Internal\Message
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type string[]|\Google\Protobuf\Internal\RepeatedField $path
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *           path where table exists
      *     @type string $tableName
      *           table name
      *     @type int|string $seconds
      *           seconds filter, will limit based on timestamp column result
-     *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $whereFilters
+     *     @type array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $whereFilters
      *           where causes
      *     @type int|string $limit
      *           limit number of records
-     *     @type \Keboola\StorageDriver\Command\Table\TableImportFromTableCommand\SourceTableMapping\ColumnMapping[]|\Google\Protobuf\Internal\RepeatedField $columnMappings
+     *     @type array<\Keboola\StorageDriver\Command\Table\TableImportFromTableCommand\SourceTableMapping\ColumnMapping>|\Google\Protobuf\Internal\RepeatedField $columnMappings
      *           column names mapping
      * }
      */
@@ -93,7 +93,7 @@ class SourceTableMapping extends \Google\Protobuf\Internal\Message
      * path where table exists
      *
      * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setPath($var)
@@ -171,7 +171,7 @@ class SourceTableMapping extends \Google\Protobuf\Internal\Message
      * where causes
      *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 4;</code>
-     * @param \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setWhereFilters($var)
@@ -223,7 +223,7 @@ class SourceTableMapping extends \Google\Protobuf\Internal\Message
      * column names mapping
      *
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.TableImportFromTableCommand.SourceTableMapping.ColumnMapping columnMappings = 6;</code>
-     * @param \Keboola\StorageDriver\Command\Table\TableImportFromTableCommand\SourceTableMapping\ColumnMapping[]|\Google\Protobuf\Internal\RepeatedField $var
+     * @param array<\Keboola\StorageDriver\Command\Table\TableImportFromTableCommand\SourceTableMapping\ColumnMapping>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setColumnMappings($var)
