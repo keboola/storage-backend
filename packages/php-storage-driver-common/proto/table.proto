@@ -444,3 +444,12 @@ message DeleteTableRowsCommand {
 
   repeated ImportExportShared.TableWhereFilter whereFilters = 5;
 }
+
+/**
+ * Response will return table size state rows/size after deletion
+ */
+message DeleteTableRowsResponse {
+  int64 deletedRowsCount = 1; // number of rows deleted
+  int64 tableRowsCount = 2; // number of all rows after deletion
+  int64 tableSizeBytes = 3; // size of table after deletion
+}
