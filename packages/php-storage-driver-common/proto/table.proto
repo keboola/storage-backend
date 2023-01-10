@@ -467,9 +467,3 @@ message CreateTableFromTimeTravelCommand {
 
   int64 timestamp = 3; // timestamp to which point we want to restore the table in time
 }
-
-message CreateTableFromTimeTravelResponse {
-  int64 tableRowsCount = 1; // number of all rows in final restored table using time travel
-  int64 tableSizeBytes = 2; // size of final table after restore using time travel
-  repeated string importedColumns = 3; // list of columns in table restored using time travel
-}
