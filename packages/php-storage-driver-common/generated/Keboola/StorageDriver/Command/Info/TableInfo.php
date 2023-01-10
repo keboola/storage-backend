@@ -42,9 +42,17 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      */
     private $primaryKeysNames;
     /**
+     * Generated from protobuf field <code>int64 rowsCount = 5;</code>
+     */
+    protected $rowsCount = 0;
+    /**
+     * Generated from protobuf field <code>int64 sizeBytes = 6;</code>
+     */
+    protected $sizeBytes = 0;
+    /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
      */
     protected $meta = null;
 
@@ -62,6 +70,8 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      *           table columns definitions
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
      *           primary key columns names
+     *     @type int|string $rowsCount
+     *     @type int|string $sizeBytes
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -176,9 +186,53 @@ class TableInfo extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Generated from protobuf field <code>int64 rowsCount = 5;</code>
+     * @return int|string
+     */
+    public function getRowsCount()
+    {
+        return $this->rowsCount;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 rowsCount = 5;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setRowsCount($var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->rowsCount = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 sizeBytes = 6;</code>
+     * @return int|string
+     */
+    public function getSizeBytes()
+    {
+        return $this->sizeBytes;
+    }
+
+    /**
+     * Generated from protobuf field <code>int64 sizeBytes = 6;</code>
+     * @param int|string $var
+     * @return $this
+     */
+    public function setSizeBytes($var)
+    {
+        GPBUtil::checkInt64($var);
+        $this->sizeBytes = $var;
+
+        return $this;
+    }
+
+    /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
      * @return \Google\Protobuf\Any|null
      */
     public function getMeta()
@@ -199,7 +253,7 @@ class TableInfo extends \Google\Protobuf\Internal\Message
     /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */

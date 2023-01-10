@@ -453,3 +453,17 @@ message DeleteTableRowsResponse {
   int64 tableRowsCount = 2; // number of all rows after deletion
   int64 tableSizeBytes = 3; // size of table after deletion
 }
+
+message CreateTableFromTimeTravelCommand {
+  SourceTableMapping source = 1;
+  /**
+   * Source table input mapping
+   */
+  message SourceTableMapping {
+    repeated string path = 1; // path where table exists
+    string tableName = 2; // table name
+  }
+  ImportExportShared.Table destination = 2;
+
+  int64 timestamp = 3; // timestamp to which point we want to restore the table in time
+}
