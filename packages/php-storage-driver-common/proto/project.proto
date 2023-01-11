@@ -48,4 +48,11 @@ message DropProjectCommand {
   string projectRoleName = 2; // project associated role name which will be removed
   string readOnlyRoleName = 3; // project associated read only role name which will be removed
   google.protobuf.Any meta = 4; // metadata specific for each backend
+
+  /**
+  * Bigquery backend metadata
+  */
+  message DropProjectBigqueryMeta {
+    string gcsFileBucketName = 1; // file storage bucket in GCS
+  }
 }
