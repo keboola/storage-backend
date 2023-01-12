@@ -246,6 +246,19 @@ PRIMARY KEY ("VisitID", "Something")
                     TeradataQuote::quoteSingleIdentifier($tableName)
                 ));
                 break;
+            case self::TABLE_OUT_CSV_2COLS_NO_INSERT:
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE MULTISET TABLE %s.%s (
+          "col1" VARCHAR(500)  ,
+          "col2" VARCHAR(500)  ,
+          "_timestamp" TIMESTAMP
+        );',
+                        TeradataQuote::quoteSingleIdentifier($dbName),
+                        TeradataQuote::quoteSingleIdentifier($tableName)
+                    )
+                );
+                break;
             case self::TABLE_OUT_CSV_2COLS:
                 $this->connection->executeQuery(
                     sprintf(

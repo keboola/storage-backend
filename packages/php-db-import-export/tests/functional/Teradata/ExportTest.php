@@ -244,6 +244,62 @@ class ExportTest extends TeradataBaseTestCase
         $this->assertContains($this->getExportDir() . '/ts_test/ts_testmanifest', array_values($files));
     }
 
+    public function testExportSimpleAbs(): void
+    {
+        // import - create tabl3
+        $tableName = self::TABLE_OUT_CSV_2COLS_NO_INSERT;
+        $this->initTable($tableName);
+
+        // import data
+        $data = [
+            "'a','b','2014-11-10 13:12:06'",
+            "'c','d','2014-11-10 14:12:06'",
+        ];
+        $this->importDataToTable($this->getDestinationDbName(), $tableName, $data);
+
+        // export
+        $source = new Table(
+            $this->getDestinationDbName(),
+            $tableName,
+        );
+        $options = $this->getExportOptions();
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/ts_test/ts_test');
+
+        (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options
+        );
+
+        $files = $this->listFiles($this->getExportDir() . '/ts_test');
+        self::assertNotNull($files);
+
+        $actual = $this->getCsvFileFromStorage($files);
+        $expected = new CsvFile(
+            self::DATA_DIR . 'with-ts.expected.exasol.csv',
+            CsvOptions::DEFAULT_DELIMITER,
+            CsvOptions::DEFAULT_ENCLOSURE,
+            CsvOptions::DEFAULT_ESCAPED_BY,
+            1 // skip header
+        );
+        $this->assertCsvFilesSame($expected, $actual);
+
+        $files = $this->getFileNames($this->getExportDir(), false);
+        $this->assertContains($this->getExportDir() . '/ts_test/ts_testmanifest', array_values($files));
+    }
+
+    private function importDataToTable(string $dbName, string $tableName, array $data): void
+    {
+        foreach ($data as $row) {
+            $this->connection->executeQuery(sprintf(
+                'INSERT INTO %s.%s VALUES (%s);',
+                TeradataQuote::quoteSingleIdentifier($dbName),
+                TeradataQuote::quoteSingleIdentifier($tableName),
+                $row,
+            ));
+        }
+    }
+
     public function testExportSimpleWithQuery(): void
     {
         // import
