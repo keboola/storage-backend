@@ -15,6 +15,7 @@ class Exporter implements ExporterInterface
 {
     public const DEFAULT_ADAPTERS = [
         Storage\S3\TeradataExportTPTAdapter::class,
+        Storage\ABS\TeradataExportTPTAdapter::class,
     ];
 
     /** @var class-string<BackendExportAdapterInterface>[] */
