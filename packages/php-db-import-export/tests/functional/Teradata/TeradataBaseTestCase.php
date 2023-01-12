@@ -47,14 +47,14 @@ class TeradataBaseTestCase extends ImportExportBaseTest
 
     protected function getSourceDbName(): string
     {
-        return self::TERADATA_SOURCE_DATABASE_NAME
+        return $this->getBuildPrefix() . self::TERADATA_SOURCE_DATABASE_NAME
             . '-'
             . getenv('SUITE');
     }
 
     protected function getDestinationDbName(): string
     {
-        return self::TERADATA_DESTINATION_DATABASE_NAME
+        return $this->getBuildPrefix() . self::TERADATA_DESTINATION_DATABASE_NAME
             . '-'
             . getenv('SUITE');
     }
