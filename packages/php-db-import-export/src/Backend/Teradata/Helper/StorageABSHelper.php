@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Teradata\Helper;
 
 use Keboola\Db\ImportExport\Backend\Helper\BackendHelper as BaseHelper;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
+use LogicException;
 
 final class StorageABSHelper extends BaseHelper
 {
@@ -18,7 +19,7 @@ final class StorageABSHelper extends BaseHelper
      */
     public static function getMask(SourceFile $source): string
     {
-        throw new \LogicException('TODO Not implemented yet');
+        throw new LogicException('TODO Not implemented yet');
         /*$entries = $source->getManifestEntries();
         if (count($entries) === 0) {
             // no entries -> no data to load
@@ -73,7 +74,7 @@ final class StorageABSHelper extends BaseHelper
      */
     public static function buildPrefixAndObject(SourceFile $source): array
     {
-        throw new \LogicException('TODO Not implemented yet');
+        throw new LogicException('TODO Not implemented yet');
         /*// docs say 6, but my files are created with 5
         $entries = $source->getManifestEntries();
         preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);

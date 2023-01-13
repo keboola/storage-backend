@@ -23,6 +23,8 @@ use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Keboola\Temp\Temp;
+use LogicException;
+use RuntimeException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -40,7 +42,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
     }
 
     /**
-     * @param Storage\S3\SourceFile $source
+     * @param Storage\ABS\SourceFile $source
      * @param TeradataTableDefinition $destination
      * @param ImportOptions $importOptions
      */
@@ -179,7 +181,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
 
         $absConfigDir = $folder . '/.abs';
         if (!mkdir($absConfigDir) && !is_dir($absConfigDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $absConfigDir));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $absConfigDir));
         }
         $credentials = sprintf(
             <<<INI
@@ -203,7 +205,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
             // file is s3://bucket/path/.../file.csv.gz/F000000
             // extract real filepath from path -> remove F000000 and do just one load
             // load with SPF = false
-            throw new \LogicException('Unsupported import type - multipart');
+            throw new LogicException('Unsupported import type - multipart');
 
             /*[$prefix, $object] = StorageS3Helper::buildPrefixAndObject($source);
             $moduleStr = sprintf(
@@ -219,7 +221,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
             if ($source->isSliced()) {
                 // load with wildcard
                 // scenario b
-                throw new \LogicException('Unsupported import type - sliced');
+                throw new LogicException('Unsupported import type - sliced');
 
                 /*$mask = StorageABSHelper::getMask($source);
                 $path = RelativePath::createFromRootAndPath(new S3Provider(), $source->getBucket(), $mask);

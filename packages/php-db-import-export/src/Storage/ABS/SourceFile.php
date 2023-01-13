@@ -204,5 +204,4 @@ class SourceFile extends BaseFile implements SourceInterface
     {
         return $this->isSliced;
     }
-
 }
