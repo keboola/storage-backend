@@ -168,6 +168,7 @@ jobs:
       matrix:
         suite:
           - snowflake-abs
+          - teradata-tpt-abs
     steps:
       -
         name: Checkout
