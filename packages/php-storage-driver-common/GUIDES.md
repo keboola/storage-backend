@@ -2,33 +2,32 @@
 
 ## Errors
 
-* All Exceptions from driver must implement `Keboola\StorageDriver\Contract\Driver\Exception\ExceptionInterface`
-* Or !preferred! extend `Keboola\StorageDriver\Shared\Driver\Exception\Exception`
-
+* All Exceptions from the driver must implement `Keboola\StorageDriver\Contract\Driver\Exception\ExceptionInterface`
+* Preferably, extend `Keboola\StorageDriver\Shared\Driver\Exception\Exception`
+* 
 ### Exceptions are distinguished by integer codes
 
-    - 0 is default for php exception and kept as unknow exception
-    - 900-999 Driver implementation exceptions 
-    - 1000-1099 Connection related exception codes 
-    - 2xxx Objects related exception codes
-    - 3xxx Validation exception codes
-    - 4xxx Import exceptions
-    - 5xxx Export exceptions
-    - 6xxx SQL exceptions
+- 0 is the default for PHP exceptions and kept as an unknown exception
+- 900-999 are Driver implementation exceptions
+- 1000-1099 are Connection related exception codes
+- 2xxx are Objects related exception codes
+- 3xxx are Validation exception codes
+- 4xxx are Import exceptions
+- 5xxx are Export exceptions
+- 6xxx are SQL exceptions
 
-### Exceptions rules 
+### Exceptions rules
 
-- Driver can add own codes but must keep them in above specified ranges.
-- Different exception codes from specified in ExceptionInterface will be always threaded in Keboola Connection as Application errors
-- Keboola Connection will throw User exception only for certain codes within certain commands executed
-- Do not throw `Keboola\CommonExceptions\UserExceptionInterface` inside driver!
+- The Driver can add its own codes but must keep them within the specified ranges.
+- Any exceptions not specified in the ExceptionInterface will always be treated in Keboola Connection as Application errors
+- Keboola Connection will only throw User exceptions for certain codes within certain commands executed
+- Do not throw `Keboola\CommonExceptions\UserExceptionInterface` inside the Driver!
 
 ### Exception retry
 
-Keboola Connection is doing retry if something on backend fail but some exception are idempotent doing retry is only waisting time and resources. Driver can suggest to Keboola Connection which exception should and should not be retried.
+Keboola Connection will do a retry if something on the backend fails, but some exceptions are idempotent and doing a retry is only wasting time and resources. The Driver can suggest to Keboola Connection which exceptions should and should not be retried.
 
-By implementing method `Keboola\StorageDriver\Contract\Driver\Exception\ExceptionInterface::isRetryable` driver can decide if exception is idempotent and should not be retried.
-
-Best practice is to implement own exception extending `Keboola\StorageDriver\Shared\Driver\Exception\Exception`
-- without change exception will be set to always retry
-- to suggest that exception cannot be retried implement also `Keboola\StorageDriver\Contract\Driver\Exception\NonRetryableExceptionInterface`
+By implementing the method `Keboola\StorageDriver\Contract\Driver\Exception\ExceptionInterface::isRetryable` the Driver can decide if an exception is idempotent and should not be retried.
+The best practice is to implement your own exception extending `Keboola\StorageDriver\Shared\Driver\Exception\Exception`:
+- Without change, the exception will be set to always retry
+- To suggest that the exception cannot be retried, also implement `Keboola\StorageDriver\Contract\Driver\Exception\NonRetryableExceptionInterface`
