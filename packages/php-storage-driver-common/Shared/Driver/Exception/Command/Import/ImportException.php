@@ -17,7 +17,7 @@ class ImportException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public static function createTimout(string $message, ?Throwable $previous = null): self
+    public static function createTimeout(string $message, ?Throwable $previous = null): self
     {
         return new self($message, self::ERR_QUERY_TIMEOUT, $previous);
     }
