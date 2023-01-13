@@ -45,7 +45,7 @@
             <exclude>tests/functional/Synapse/FromTableCTASAdapterSqlBuilderTest.php</exclude>
         </testsuite>
 
-        <testsuite name="tests-teradata">
+        <testsuite name="tests-teradata-s3">
             <directory>tests/functional/Teradata</directory>
         </testsuite>
 
