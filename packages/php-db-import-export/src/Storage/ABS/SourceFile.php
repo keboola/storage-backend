@@ -30,7 +30,9 @@ class SourceFile extends BaseFile implements SourceInterface
     private array $columnsNames;
 
     /** @var string[]|null */
-    private ?array $primaryKeysNames = null;
+    private ?array $primaryKeysNames;
+
+    private ?string $blobMasterKey;
 
     /**
      * @param string[] $columnsNames
@@ -44,13 +46,15 @@ class SourceFile extends BaseFile implements SourceInterface
         CsvOptions $csvOptions,
         bool $isSliced,
         array $columnsNames = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
+        ?string $blobMasterKey = null
     ) {
         parent::__construct($container, $filePath, $sasToken, $accountName);
         $this->isSliced = $isSliced;
         $this->csvOptions = $csvOptions;
         $this->columnsNames = $columnsNames;
         $this->primaryKeysNames = $primaryKeysNames;
+        $this->blobMasterKey = $blobMasterKey;
     }
 
     protected function getBlobPath(string $entryUrl): string
@@ -110,6 +114,11 @@ class SourceFile extends BaseFile implements SourceInterface
         }, $manifest['entries']);
 
         return $this->transformManifestEntries($entries, $protocol, $blobClient);
+    }
+
+    public function getBlobMasterKey(): ?string
+    {
+        return $this->blobMasterKey;
     }
 
     protected function getBlobClient(): BlobRestProxy
@@ -190,4 +199,10 @@ class SourceFile extends BaseFile implements SourceInterface
             throw FileNotFoundException::createFromFileNotFoundException($e);
         }
     }
+
+    public function isSliced(): bool
+    {
+        return $this->isSliced;
+    }
+
 }
