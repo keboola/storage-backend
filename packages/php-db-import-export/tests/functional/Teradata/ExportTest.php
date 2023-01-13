@@ -288,6 +288,9 @@ class ExportTest extends TeradataBaseTestCase
         $this->assertContains($this->getExportDir() . '/ts_test/ts_testmanifest', array_values($files));
     }
 
+    /**
+     * @param string[] $data
+     */
     private function importDataToTable(string $dbName, string $tableName, array $data): void
     {
         foreach ($data as $row) {

@@ -12,6 +12,7 @@ use Keboola\Db\ImportExport\Storage\ABS\DestinationFile;
 use Keboola\Db\ImportExport\Storage\SqlSourceInterface;
 use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
 use Keboola\Temp\Temp;
+use RuntimeException;
 use Symfony\Component\Process\Process;
 
 class TeradataExportTPTAdapter implements BackendExportAdapterInterface
@@ -100,7 +101,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
         $folder = $temp->getTmpFolder();
         $absConfigDir = $folder . '/.abs';
         if (!mkdir($absConfigDir) && !is_dir($absConfigDir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $absConfigDir));
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $absConfigDir));
         }
         $credentials = sprintf(
             <<<INI
@@ -113,9 +114,8 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
         );
         file_put_contents($absConfigDir . '/credentials', $credentials);
 
-
         $tptScript = sprintf(
-            /** @lang SQL */ <<<EOD
+            /** @lang SQL */<<<EOD
 USING CHARACTER SET UTF8
 DEFINE JOB EXPORT_FROM_TERADATA
 DESCRIPTION 'Export data from Teradata to Microsoft Azure Blob Storage'
