@@ -8,7 +8,7 @@ use Keboola\StorageDriver\Shared\Driver\Exception\Exception;
 use Throwable;
 
 /**
- * General import exception which can be retied
+ * General import exception which can be retried
  */
 class ImportException extends Exception
 {
