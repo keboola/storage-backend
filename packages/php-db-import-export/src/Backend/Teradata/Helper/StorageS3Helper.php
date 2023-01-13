@@ -7,13 +7,8 @@ namespace Keboola\Db\ImportExport\Backend\Teradata\Helper;
 use Keboola\Db\ImportExport\Backend\Helper\BackendHelper as BaseHelper;
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 
-final class BackendHelper extends BaseHelper
+final class StorageS3Helper extends BaseHelper
 {
-    public static function quoteValue(string $value): string
-    {
-        return "'" . addslashes($value) . "'";
-    }
-
     /**
      * creates a wildcard string which should match all files in manifest
      * [file01.csv, file01.csv] => file0*

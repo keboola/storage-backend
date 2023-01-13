@@ -4,36 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Teradata;
 
-use Generator;
-use Keboola\Db\ImportExport\Backend\Teradata\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Backend\Teradata\Helper\StorageS3Helper;
 use Keboola\Db\ImportExport\Storage\S3\SourceFile;
 use PHPUnit\Framework\TestCase;
 
-class HelperTest extends TestCase
+class StorageS3HelperTest extends TestCase
 {
-    /**
-     * @return Generator<string, array{string, string}>
-     */
-    public function quoteValuesProvider(): Generator
-    {
-        yield 'simple value' => [
-            '\'value\'',
-            'value',
-        ];
-        yield 'value with quote' => [
-            '\'val\\\'ue\'',
-            'val\'ue',
-        ];
-    }
-
-    /**
-     * @dataProvider quoteValuesProvider
-     */
-    public function testQuoteValue(string $expected, string $value): void
-    {
-        $this->assertSame($expected, BackendHelper::quoteValue($value));
-    }
-
     /**
      * @param string[] $entriesData
      * @dataProvider dataProvider
@@ -46,7 +22,7 @@ class HelperTest extends TestCase
             ->willReturn($entriesData);
         $mock->method('getS3Prefix')
             ->willReturn('s3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy');
-        $this->assertEquals($expected, BackendHelper::getMask($mock));
+        $this->assertEquals($expected, StorageS3Helper::getMask($mock));
     }
 
     /**
@@ -128,7 +104,7 @@ class HelperTest extends TestCase
 
         $mock->method('getManifestEntries')
             ->willReturn($entriesData);
-        self::assertEquals($expected, BackendHelper::isMultipartFile($mock));
+        self::assertEquals($expected, StorageS3Helper::isMultipartFile($mock));
     }
 
     /**
@@ -167,6 +143,6 @@ class HelperTest extends TestCase
             ->willReturn($entries);
         $mock->method('getS3Prefix')
             ->willReturn('s3://zajca-aaaaa');
-        self::assertEquals($expected, BackendHelper::buildPrefixAndObject($mock));
+        self::assertEquals($expected, StorageS3Helper::buildPrefixAndObject($mock));
     }
 }
