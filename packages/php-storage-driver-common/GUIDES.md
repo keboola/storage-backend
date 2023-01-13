@@ -22,3 +22,13 @@
 - Different exception codes from specified in ExceptionInterface will be always threaded in Keboola Connection as Application errors
 - Keboola Connection will throw User exception only for certain codes within certain commands executed
 - Do not throw `Keboola\CommonExceptions\UserExceptionInterface` inside driver!
+
+### Exception retry
+
+Keboola Connection is doing retry if something on backend fail but some exception are idempotent doing retry is only waisting time and resources. Driver can suggest to Keboola Connection which exception should and should not be retried.
+
+By implementing method `Keboola\StorageDriver\Contract\Driver\Exception\ExceptionInterface::isRetryable` driver can decide if exception is idempotent and should not be retried.
+
+Best practice is to implement own exception extending `Keboola\StorageDriver\Shared\Driver\Exception\Exception`
+- without change exception will be set to always retry
+- to suggest that exception cannot be retried implement also `Keboola\StorageDriver\Contract\Driver\Exception\NonRetryableExceptionInterface`
