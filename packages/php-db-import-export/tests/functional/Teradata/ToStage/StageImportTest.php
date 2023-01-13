@@ -49,7 +49,7 @@ class StageImportTest extends TeradataBaseTestCase
         );
 
         $state = $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv('csv/simple/a_b_c-1row.csv', new CsvOptions()),
+            $this->getSourceInstanceFromCsv('csv/simple/a_b_c-1row.csv', new CsvOptions()),
             $ref->getTableDefinition(),
             $this->getImportOptions(
                 [],
@@ -86,7 +86,7 @@ class StageImportTest extends TeradataBaseTestCase
 
         try {
             $importer->importToStagingTable(
-                $this->createS3SourceInstanceFromCsv('csv/simple/a_b_c-1row.csv', new CsvOptions()),
+                $this->getSourceInstanceFromCsv('csv/simple/a_b_c-1row.csv', new CsvOptions()),
                 $ref->getTableDefinition(),
                 $this->getImportOptions(
                     [],
@@ -122,7 +122,7 @@ class StageImportTest extends TeradataBaseTestCase
 
         $this->expectException(NoMoreRoomInTDException::class);
         $importer->importToStagingTable(
-            $this->createS3SourceInstanceFromCsv('big_table.csv', new CsvOptions()),
+            $this->getSourceInstanceFromCsv('big_table.csv', new CsvOptions()),
             $ref->getTableDefinition(),
             $this->getImportOptions()
         );
