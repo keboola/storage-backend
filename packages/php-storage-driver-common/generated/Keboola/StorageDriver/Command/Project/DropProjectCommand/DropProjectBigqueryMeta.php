@@ -17,7 +17,7 @@ use Google\Protobuf\Internal\GPBUtil;
 class DropProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
 {
     /**
-     * file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
+     * file storage bucket in GCS
      *
      * Generated from protobuf field <code>string gcsFileBucketName = 1;</code>
      */
@@ -30,7 +30,7 @@ class DropProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $gcsFileBucketName
-     *           file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
+     *           file storage bucket in GCS
      * }
      */
     public function __construct($data = NULL) {
@@ -39,7 +39,7 @@ class DropProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
+     * file storage bucket in GCS
      *
      * Generated from protobuf field <code>string gcsFileBucketName = 1;</code>
      * @return string
@@ -50,7 +50,7 @@ class DropProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
+     * file storage bucket in GCS
      *
      * Generated from protobuf field <code>string gcsFileBucketName = 1;</code>
      * @param string $var
