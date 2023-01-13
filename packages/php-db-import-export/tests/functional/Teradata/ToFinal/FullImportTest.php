@@ -11,7 +11,6 @@ use Keboola\Db\ImportExport\Backend\Teradata\TeradataImportOptions;
 use Keboola\Db\ImportExport\Backend\Teradata\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
-use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\Db\ImportExport\Storage\Teradata\Table;
@@ -19,13 +18,10 @@ use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
-use Tests\Keboola\Db\ImportExportCommon\S3SourceTrait;
 use Tests\Keboola\Db\ImportExportFunctional\Teradata\TeradataBaseTestCase;
 
 class FullImportTest extends TeradataBaseTestCase
 {
-    use S3SourceTrait;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,7 +45,7 @@ class FullImportTest extends TeradataBaseTestCase
 
         // skipping header
         $options = $this->getImportOptions([], false, false, ImportOptionsInterface::SKIP_FIRST_LINE);
-        $source = $this->createS3SourceInstance(
+        $source = $this->getSourceInstance(
             self::TABLE_TRANSLATIONS . '.csv',
             [
                 'id',
@@ -259,8 +255,8 @@ class FullImportTest extends TeradataBaseTestCase
         }
 
         yield 'large manifest' => [
-            $this->createS3SourceInstance(
-                'sliced/2cols-large/S3.2cols-large.csvmanifest',
+            $this->getSourceInstance(
+                'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
                 $escapingHeader,
                 true,
                 false,
@@ -274,7 +270,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'empty manifest' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'empty.manifest',
                 $escapingHeader,
                 true,
@@ -289,7 +285,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'lemma' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'lemma.csv',
                 $lemmaHeader,
                 false,
@@ -304,7 +300,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'standard with enclosures' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
@@ -319,7 +315,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'gzipped standard with enclosure' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
                 $escapingHeader,
                 false,
@@ -334,7 +330,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'standard with enclosures tabs' => [
-            $this->createS3SourceInstanceFromCsv(
+            $this->getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
                 $escapingHeader,
@@ -350,7 +346,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'accounts changedColumnsOrder' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
                 $accountChangedColumnsOrderHeader,
                 false,
@@ -368,7 +364,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'accounts' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.csv',
                 $accountsHeader,
                 false,
@@ -384,7 +380,7 @@ class FullImportTest extends TeradataBaseTestCase
 
         // line ending detection is not supported yet for S3
         yield 'accounts crlf' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'tw_accounts.crlf.csv',
                 $accountsHeader,
                 false,
@@ -400,8 +396,8 @@ class FullImportTest extends TeradataBaseTestCase
 
         // manifests
         yield 'accounts sliced' => [
-            $this->createS3SourceInstance(
-                'sliced/accounts/S3.accounts.csvmanifest',
+            $this->getSourceInstance(
+                'sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
@@ -415,8 +411,8 @@ class FullImportTest extends TeradataBaseTestCase
         ];
 
         yield 'accounts sliced gzip' => [
-            $this->createS3SourceInstance(
-                'sliced/accounts-gzip/S3.accounts-gzip.csvmanifest',
+            $this->getSourceInstance(
+                'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
                 $accountsHeader,
                 true,
                 false,
@@ -431,7 +427,7 @@ class FullImportTest extends TeradataBaseTestCase
 
         // folder
         yield 'accounts sliced folder import' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'sliced_accounts_no_manifest/',
                 $accountsHeader,
                 true,
@@ -447,7 +443,7 @@ class FullImportTest extends TeradataBaseTestCase
 
         // reserved words
         yield 'reserved words' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'reserved-words.csv',
                 ['column', 'table'],
                 false,
@@ -462,7 +458,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
         // import table with _timestamp columns - used by snapshots
         yield 'import with _timestamp columns' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'with-ts.csv',
                 [
                     'col1',
@@ -487,7 +483,7 @@ class FullImportTest extends TeradataBaseTestCase
         ];
         // test creating table without _timestamp column
         yield 'table without _timestamp column' => [
-            $this->createS3SourceInstance(
+            $this->getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingHeader,
                 false,
