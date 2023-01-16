@@ -26,6 +26,8 @@ interface ExceptionInterface extends ApplicationExceptionInterface, ExceptionWit
     public const ERR_SCHEMA_NOT_FOUND = 2003;
     public const ERR_TABLE_NOT_FOUND = 2004;
     public const ERR_COLUMN_NOT_FOUND = 2005;
+    // DB or other backend resource full
+    public const ERR_RESOURCE_FULL = 2006;
 
     // Validation exception codes 3xxx
     public const ERR_VALIDATION = 3000;
