@@ -17,7 +17,7 @@ class Bucket
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-˜
+˝
 proto/bucket.proto$keboola.storageDriver.command.bucket"
 CreateBucketCommand
 stackPrefix (	
@@ -68,8 +68,8 @@ spoolSpace (	"D
 bucketObjectName (	
 bucketShareRoleName (	
 projectReadOnlyRoleName (	"
-meta (2.google.protobuf.Any"Å
- GrandReadOnlyRoleToBucketCommand
+meta (2.google.protobuf.Any"á
+&GrantBucketAccessToReadOnlyRoleCommand
 bucketObjectName (	
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Anybproto3'
