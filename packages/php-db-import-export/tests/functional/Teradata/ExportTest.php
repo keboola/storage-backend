@@ -14,6 +14,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToStage\StageTableDefinitionFactory
 use Keboola\Db\ImportExport\Backend\Teradata\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\ABS;
 use Keboola\Db\ImportExport\Storage\S3;
 use Keboola\Db\ImportExport\Storage\Teradata\Table;
 use Keboola\Db\ImportExport\Storage\Teradata\TeradataExportOptions;
@@ -147,7 +148,7 @@ class ExportTest extends TeradataBaseTestCase
 
     /**
      * @param Table $destinationTable
-     * @param S3\SourceFile|S3\SourceDirectory $source
+     * @param S3\SourceFile|S3\SourceDirectory|ABS\SourceFile|ABS\SourceDirectory $source
      * @param TeradataImportOptions $options
      * @param int $repeatImport - dupliate data in staging table -> able to create a big table
      * @throws \Doctrine\DBAL\Exception
@@ -465,7 +466,6 @@ class ExportTest extends TeradataBaseTestCase
         $schema = $this->getDestinationDbName();
         $this->initTable(self::BIGGER_TABLE);
         $file = new CsvFile(self::DATA_DIR . 'big_table.csv');
-        /** @var S3\SourceFile $source */
         $source = $this->getSourceInstance('big_table.csv', $file->getHeader());
         $destinationTable = new Table(
             $schema,

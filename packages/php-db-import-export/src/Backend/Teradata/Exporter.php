@@ -55,6 +55,7 @@ class Exporter implements ExporterInterface
         Storage\DestinationInterface $destination
     ): BackendExportAdapterInterface {
         $adapterForUse = null;
+        /** @var BackendExportAdapterInterface $adapter */
         foreach ($this->adapters as $adapter) {
             if ($adapter::isSupported($source, $destination)) {
                 if ($adapterForUse !== null) {
