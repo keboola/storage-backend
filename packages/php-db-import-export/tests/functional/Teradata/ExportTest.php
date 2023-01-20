@@ -429,11 +429,19 @@ class ExportTest extends TeradataBaseTestCase
      */
     public function pipelineOptions(): array
     {
+        if (getenv('STORAGE_TYPE') === 'S3') {
+            $generatedSliceName = '/F000000';
+        } elseif (getenv('STORAGE_TYPE') === 'ABS') {
+            $generatedSliceName = '/F00000';
+        } else {
+            $this->fail('Unsupported file storage in this test!');
+        }
+
         return [
             'compressed singleFile=false' => [
                 true, // gz
                 false, // use SinglePartFile
-                '.gz/F000000', // generated file name based on ^^
+                '.gz' . $generatedSliceName, // generated file name based on ^^
             ],
             'compressed singleFile=true' => [
                 true,
@@ -448,7 +456,7 @@ class ExportTest extends TeradataBaseTestCase
             'non-compressed singleFile=false' => [
                 false,
                 false,
-                '/F000000',
+                $generatedSliceName,
             ],
         ];
     }
@@ -517,7 +525,7 @@ class ExportTest extends TeradataBaseTestCase
             $exportedFilePath = str_replace($awsKey . '/', '', $exportedFilePath);
         }
 
-        $sourceReimport = $this->createS3SourceInstanceFromCsv(
+        $sourceReimport = $this->getSourceInstanceFromCsv(
             $exportedFilePath . $exportedFilenameSuffix,
             new CsvOptions(),
             $file->getHeader()

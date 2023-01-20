@@ -15,6 +15,7 @@ use Keboola\Db\ImportExport\Backend\Teradata\ToStage\Exception\NoMoreRoomInTDExc
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Path\RelativePath;
 use Keboola\FileStorage\S3\S3Provider;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
@@ -202,38 +203,34 @@ class FromABSTPTAdapter implements CopyAdapterInterface
         if (StorageABSHelper::isMultipartFile($source)) {
             // scenario c
 
-            // file is s3://bucket/path/.../file.csv.gz/F000000
-            // extract real filepath from path -> remove F000000 and do just one load
+            // file is abs://container/path/.../file.csv.gz/F00000
+            // extract real filepath from path -> remove F00000 and do just one load
             // load with SPF = false
-            throw new LogicException('Unsupported import type - multipart');
 
-            /*[$prefix, $object] = StorageS3Helper::buildPrefixAndObject($source);
+            [$prefix, $object] = StorageABSHelper::buildPrefixAndObject($source);
             $moduleStr = sprintf(
             // phpcs:ignore
-                'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=False S3ConfigDir=%s\'',
-                $source->getRegion(),
-                $source->getBucket(),
+                'AccessModuleInitStr = \'-ConfigDir "%s" -Container "%s" -Prefix "%s" -Object "%s" -SinglePartFile False\'',
+                $absConfigDir,
+                $source->getContainer(),
                 $prefix,
                 $object,
-                $absConfigDir
-            );*/
+            );
         } else {
             if ($source->isSliced()) {
                 // load with wildcard
                 // scenario b
-                throw new LogicException('Unsupported import type - sliced');
 
-                /*$mask = StorageABSHelper::getMask($source);
-                $path = RelativePath::createFromRootAndPath(new S3Provider(), $source->getBucket(), $mask);
+                $mask = StorageABSHelper::getMask($source);
+                $path = RelativePath::createFromRootAndPath(new AbsProvider(), $source->getContainer(), $mask);
                 $moduleStr = sprintf(
                 // phpcs:ignore
-                    'AccessModuleInitStr = \'S3Region="%s" S3Bucket="%s" S3Prefix="%s" S3Object="%s" S3SinglePartFile=True S3ConfigDir=%s\'',
-                    $source->getRegion(),
+                    'AccessModuleInitStr = \'-ConfigDir "%s" -Container "%s" -Prefix "%s" -Object "%s" -SinglePartFile True\'',
+                    $absConfigDir,
                     $path->getRoot(),
                     $path->getPathWithoutRoot() . '/',
                     $path->getFileName(),
-                    $absConfigDir
-                );*/
+                );
             } else {
                 // direct load with
                 // scenario a
@@ -243,9 +240,8 @@ class FromABSTPTAdapter implements CopyAdapterInterface
                     'AccessModuleInitStr = \'-ConfigDir "%s" -Container "%s" -Prefix "%s" -Object "%s" -SinglePartFile True\'',
                     $absConfigDir,
                     $source->getContainer(),
-                    // TODO use parser
-                    dirname($source->getFilePath()) === '.' ? '' : dirname($source->getFilePath()),
-                    basename($source->getFilePath()),
+                    $source->getPrefix(),
+                    $source->getFileName(),
                 );
             }
         }

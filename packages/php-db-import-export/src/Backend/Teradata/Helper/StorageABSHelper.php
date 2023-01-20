@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\Helper;
 
 use Keboola\Db\ImportExport\Backend\Helper\BackendHelper as BaseHelper;
+use Keboola\Db\ImportExport\Storage\ABS\BaseFile;
 use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use LogicException;
 
@@ -19,14 +20,14 @@ final class StorageABSHelper extends BaseHelper
      */
     public static function getMask(SourceFile $source): string
     {
-        throw new LogicException('TODO Not implemented yet');
-        /*$entries = $source->getManifestEntries();
+        $entries = $source->getManifestEntries();
         if (count($entries) === 0) {
             // no entries -> no data to load
             return '';
         }
-        // SourceDirectory returns fileName as directory/file.csv but SourceFile returns s3://bucket/directory/file.csv
-        $toRemove = $source->getS3Prefix() . '/';
+        // SourceDirectory returns fileName as directory/file.csv
+        // but SourceFile returns azure://myaccount...windows.net/bucket/directory/file.csv
+        $toRemove = $source->getContainerUrl(BaseFile::PROTOCOL_AZURE);
         $entriesAsArrays = [];
         $min = 99999;
         $minIndex = 0;
@@ -53,7 +54,7 @@ final class StorageABSHelper extends BaseHelper
             }
             $out[$index] = $match ? $letter : '*';
         }
-        return implode('', $out);*/
+        return implode('', $out);
     }
 
     public static function isMultipartFile(SourceFile $source): bool
@@ -69,18 +70,19 @@ final class StorageABSHelper extends BaseHelper
     }
 
     /**
-     * extracts filename and prefix from s3 url - removing bucket, protocol and Fxxx suffix
+     * extracts filename and prefix from ABS url - removing bucket, protocol and Fxxx suffix
      * @return string[]
      */
     public static function buildPrefixAndObject(SourceFile $source): array
     {
-        throw new LogicException('TODO Not implemented yet');
-        /*// docs say 6, but my files are created with 5
+        // docs say 6, but my files are created with 5
         $entries = $source->getManifestEntries();
         preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
 
         $filePath = $out['filePath'] ?? '';
-        $filePath = str_replace(($source->getS3Prefix() . '/'), '', $filePath);
+        // SourceDirectory returns fileName as directory/file.csv
+        // but SourceFile returns azure://myaccount...windows.net/bucket/directory/file.csv
+        $filePath = str_replace(($source->getContainerUrl(BaseFile::PROTOCOL_AZURE)), '', $filePath);
 
         $exploded = explode('/', $filePath);
         $object = end($exploded);
@@ -88,6 +90,6 @@ final class StorageABSHelper extends BaseHelper
         $prefix = implode('/', array_slice($exploded, 0, -1));
         // prefix should end with / but only if it exists
         $prefix = $prefix ? ($prefix . '/') : '';
-        return [$prefix, $object];*/
+        return [$prefix, $object];
     }
 }

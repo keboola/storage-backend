@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
+use Exception as InternalException;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
@@ -203,5 +204,43 @@ class SourceFile extends BaseFile implements SourceInterface
     public function isSliced(): bool
     {
         return $this->isSliced;
+    }
+
+    /**
+     * from path data/shared/file.csv to file.csv
+     *
+     * @throws InternalException
+     */
+    public function getFileName(): string
+    {
+        if ($this->isSliced) {
+            throw new InternalException('Not supported getFileName for sliced files.');
+        }
+        $fileName = $this->filePath;
+        if (strrpos($fileName, '/') !== false) {
+            // there is dir in the path
+            return substr($fileName, strrpos($fileName, '/') + 1);
+        }
+        // there is no dir in the path, just the filename
+        return $fileName;
+    }
+
+    /**
+     * from path data/shared/file.csv to data/shared/
+     *
+     * @throws InternalException
+     */
+    public function getPrefix(): string
+    {
+        $filePath = $this->getFilePath();
+        // SourceDirectory returns fileName as directory/file.csv
+        // but SourceFile returns azure://myaccount...windows.net/bucket/directory/file.csv
+        $filePath = str_replace(($this->getContainerUrl(BaseFile::PROTOCOL_AZURE)), '', $filePath);
+
+        $exploded = explode('/', $filePath);
+        // get all the parts of exploded path but without the last thing - the filename
+        $prefix = implode('/', array_slice($exploded, 0, -1));
+        // prefix should end with / but only if it exists
+        return $prefix ? ($prefix . '/') : '';
     }
 }

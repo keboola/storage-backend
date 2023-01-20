@@ -114,6 +114,8 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
         );
         file_put_contents($absConfigDir . '/credentials', $credentials);
 
+        $path = $destination->getRelativePath();
+
         $tptScript = sprintf(
             /** @lang SQL */<<<EOD
 USING CHARACTER SET UTF8
@@ -140,9 +142,8 @@ DESCRIPTION 'Export data from Teradata to Microsoft Azure Blob Storage'
 EOD,
             $absConfigDir,
             $destination->getContainer(),
-            // TODO use parser
-            dirname($destination->getFilePath()),
-            basename($destination->getFilePath()) . ($exportOptions->isCompressed() ? '.gz' : ''),
+            $path->getPathWithoutRoot(),
+            $path->getFileName() . ($exportOptions->isCompressed() ? '.gz' : ''),
             $exportOptions->generateABSSizeOptions(),
             $source->getFromStatement()
         );
