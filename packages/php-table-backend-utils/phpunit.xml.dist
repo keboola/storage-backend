@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         bootstrap="tests/bootstrap.php">
+
+    <testsuites>
+        <testsuite name="Exasol">
+            <directory>tests/Functional/Exasol</directory>
+        </testsuite>
+        <testsuite name="Snowflake">
+            <directory>tests/Functional/Snowflake</directory>
+        </testsuite>
+        <testsuite name="Synapse">
+            <directory>tests/Functional/Synapse</directory>
+        </testsuite>
+        <testsuite name="Teradata">
+            <directory>tests/Functional/Teradata</directory>
+        </testsuite>
+        <testsuite name="Bigquery">
+            <directory>tests/Functional/Bigquery</directory>
+        </testsuite>
+
+        <testsuite name="unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+</phpunit>
