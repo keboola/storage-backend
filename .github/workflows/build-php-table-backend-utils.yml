@@ -10,6 +10,7 @@ on:
       BUILD_AWS_ACCESS_KEY_ID:
         type: string
         required: true
+    secrets:
       BUILD_AWS_SECRET_ACCESS_KEY:
         required: true
 
