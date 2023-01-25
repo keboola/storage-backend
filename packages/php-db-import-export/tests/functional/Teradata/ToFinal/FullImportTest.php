@@ -18,6 +18,7 @@ use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
+use Tests\Keboola\Db\ImportExportCommon\StorageType;
 use Tests\Keboola\Db\ImportExportFunctional\Teradata\TeradataBaseTestCase;
 
 class FullImportTest extends TeradataBaseTestCase
@@ -549,7 +550,7 @@ class FullImportTest extends TeradataBaseTestCase
         int $expectedImportedRowCount,
         string $tablesToInit
     ): void {
-        if (getenv('STORAGE_TYPE') === 'ABS' && $this->dataName() === 'large manifest') {
+        if (getenv('STORAGE_TYPE') === StorageType::STORAGE_ABS && $this->dataName() === 'large manifest') {
             $this->markTestIncomplete('large manifest end with timeout');
         }
 
