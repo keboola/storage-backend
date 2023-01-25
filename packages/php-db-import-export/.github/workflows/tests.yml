@@ -334,23 +334,23 @@ jobs:
         if: ${{ always() }}
         run: |
           bash ./provisioning/scripts/synapseRun.sh -p || exit 1
-
-  pre-exasol-tests:
-    runs-on: ubuntu-latest
-    needs: build
-    concurrency: exasol-tests
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Exasol start
-        run: |
-          bash ./docker/exasol/createDeleteServer.sh -w || exit 1
+#
+#  pre-exasol-tests:
+#    runs-on: ubuntu-latest
+#    needs: build
+#    concurrency: exasol-tests
+#    steps:
+#      -
+#        name: Checkout
+#        uses: actions/checkout@v3
+#      -
+#        name: Exasol start
+#        run: |
+#          bash ./docker/exasol/createDeleteServer.sh -w || exit 1
 
   exasol-tests:
     runs-on: ubuntu-latest
-    needs: [load-s3, pre-exasol-tests]
+    needs: [load-s3]
     strategy:
       fail-fast: false
       matrix:
@@ -378,20 +378,20 @@ jobs:
         env:
           SUITE: ${{ matrix.suite }}
         run: docker-compose run production composer tests-${{ matrix.suite }}
-  post-exasol-tests:
-    runs-on: ubuntu-latest
-    needs: exasol-tests
-    if: ${{ always() }}
-    concurrency: exasol-tests
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Exasol stop
-        if: ${{ always() }}
-        run: |
-          bash ./docker/exasol/createDeleteServer.sh -p || exit 1
+#  post-exasol-tests:
+#    runs-on: ubuntu-latest
+#    needs: exasol-tests
+#    if: ${{ always() }}
+#    concurrency: exasol-tests
+#    steps:
+#      -
+#        name: Checkout
+#        uses: actions/checkout@v3
+#      -
+#        name: Exasol stop
+#        if: ${{ always() }}
+#        run: |
+#          bash ./docker/exasol/createDeleteServer.sh -p || exit 1
 
 #
 # Clean up uploaded data
