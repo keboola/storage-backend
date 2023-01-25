@@ -14,7 +14,6 @@ use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 abstract class ImportExportBaseTest extends TestCase
 {
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
-    public const TABLE_OUT_CSV_2COLS_NO_INSERT = 'out_csv_2Cols_no_insert';
     public const TABLE_OUT_LEMMA = 'out_lemma';
     public const TABLE_ACCOUNTS_3 = 'accounts-3';
     public const TABLE_ACCOUNTS_WITHOUT_TS = 'accounts-without-ts';
