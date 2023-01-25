@@ -17,14 +17,12 @@ use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\FileStorage\Abs\AbsProvider;
 use Keboola\FileStorage\Path\RelativePath;
-use Keboola\FileStorage\S3\S3Provider;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
 use Keboola\Temp\Temp;
-use LogicException;
 use RuntimeException;
 use Symfony\Component\Process\Process;
 
