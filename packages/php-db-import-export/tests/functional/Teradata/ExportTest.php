@@ -377,9 +377,9 @@ class ExportTest extends TeradataBaseTestCase
      */
     public function pipelineOptions(): array
     {
-        if (getenv('STORAGE_TYPE') === 'S3') {
+        if (getenv('STORAGE_TYPE') === StorageType::STORAGE_S3) {
             $generatedSliceName = '/F000000';
-        } elseif (getenv('STORAGE_TYPE') === 'ABS') {
+        } elseif (getenv('STORAGE_TYPE') === StorageType::STORAGE_ABS) {
             $generatedSliceName = '/F00000';
         } else {
             $this->fail('Unsupported file storage in this test!');
