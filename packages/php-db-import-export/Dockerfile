@@ -5,7 +5,7 @@ RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x8
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
-FROM php:7.4-cli
+FROM php:8.1-cli
 
 ARG GITHUB_OAUTH_TOKEN
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
@@ -13,9 +13,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 7200
 
-ARG SQLSRV_VERSION=5.10.0
-ARG SNOWFLAKE_ODBC_VERSION=2.21.1
-ARG SNOWFLAKE_GPG_KEY=EC218558EABB25A1
+ARG SQLSRV_VERSION=5.10.1
+ARG SNOWFLAKE_ODBC_VERSION=2.25.6
+ARG SNOWFLAKE_GPG_KEY=630D9F3CAB551AF3
 ARG GOOGLE_CLOUD_CLI_VERSION=393.0.0
 
 ENV LC_CTYPE=C.UTF-8
