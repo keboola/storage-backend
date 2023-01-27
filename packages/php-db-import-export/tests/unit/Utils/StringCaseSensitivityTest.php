@@ -11,6 +11,7 @@ class StringCaseSensitivityTest extends TestCase
 {
     public function testStringToLower(): void
     {
+        $this->assertTrue(true);
         $string = 'testMe_man';
         $result = StringCaseSensitivity::stringToLower($string);
         $this->assertSame('testme_man', $result);
