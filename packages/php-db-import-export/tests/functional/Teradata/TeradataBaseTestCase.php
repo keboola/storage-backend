@@ -18,6 +18,7 @@ use Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection;
 use Keboola\TableBackendUtils\Escaping\Teradata\TeradataQuote;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableReflection;
+use Tests\Keboola\Db\ImportExportCommon\StorageType;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class TeradataBaseTestCase extends ImportExportBaseTest
@@ -59,22 +60,51 @@ class TeradataBaseTestCase extends ImportExportBaseTest
             . getenv('SUITE');
     }
 
+    /**
+     * @return array{0: string, 1: string, 2: string, 3: int, 4: string}
+     */
+    private function getTeradataConnectionParams(): array
+    {
+        $prefix = (string) getenv('BUILD_PREFIX');
+        $storage = (string) getenv('STORAGE_TYPE');
+
+        if ($prefix === 'gh' && $storage === StorageType::STORAGE_ABS) {
+            return [
+                (string) getenv('ABS_TERADATA_HOST'),
+                (string) getenv('ABS_TERADATA_USERNAME'),
+                (string) getenv('ABS_TERADATA_PASSWORD'),
+                (int) getenv('ABS_TERADATA_PORT'),
+                (string) getenv('ABS_TERADATA_DATABASE'),
+            ];
+        }
+
+        return [
+            (string) getenv('TERADATA_HOST'),
+            (string) getenv('TERADATA_USERNAME'),
+            (string) getenv('TERADATA_PASSWORD'),
+            (int) getenv('TERADATA_PORT'),
+            (string) getenv('TERADATA_DATABASE'),
+        ];
+    }
+
     private function getTeradataConnection(): Connection
     {
+        [$host, $username, $password, $port, $dbname] = $this->getTeradataConnectionParams();
+
         $db = TeradataConnection::getConnection([
-            'host' => (string) getenv('TERADATA_HOST'),
-            'user' => (string) getenv('TERADATA_USERNAME'),
-            'password' => (string) getenv('TERADATA_PASSWORD'),
-            'port' => (int) getenv('TERADATA_PORT'),
+            'host' => $host,
+            'user' => $username,
+            'password' => $password,
+            'port' => $port,
             'dbname' => '',
         ], $this->getDoctrineLogger());
 
-        if ((string) getenv('TERADATA_DATABASE') === '') {
+        if ($dbname === '') {
             throw new Exception('Variable "TERADATA_DATABASE" is missing.');
         }
         $db->executeStatement(sprintf(
             'SET SESSION DATABASE %s;',
-            TeradataQuote::quoteSingleIdentifier((string) getenv('TERADATA_DATABASE'))
+            TeradataQuote::quoteSingleIdentifier($dbname)
         ));
 
         return $db;
@@ -423,12 +453,14 @@ PRIMARY KEY ("VisitID", "Something")
         int $numberOfIgnoredLines = 0,
         string $usingTypes = ImportOptionsInterface::USING_TYPES_STRING
     ): TeradataImportOptions {
+        [$host, $username, $password, $port, $dbname] = $this->getTeradataConnectionParams();
+
         return
             new TeradataImportOptions(
-                (string) getenv('TERADATA_HOST'),
-                (string) getenv('TERADATA_USERNAME'),
-                (string) getenv('TERADATA_PASSWORD'),
-                (int) getenv('TERADATA_PORT'),
+                $host,
+                $username,
+                $password,
+                $port,
                 $convertEmptyValuesToNull,
                 $isIncremental,
                 $useTimestamp,
@@ -444,12 +476,14 @@ PRIMARY KEY ("VisitID", "Something")
         bool $dontSplitRows = TeradataExportOptions::DEFAULT_SPLIT_ROWS,
         bool $singlePartFile = TeradataExportOptions::DEFAULT_SINGLE_PART_FILE
     ): TeradataExportOptions {
+        [$host, $username, $password, $port, $dbname] = $this->getTeradataConnectionParams();
+
         return
             new TeradataExportOptions(
-                (string) getenv('TERADATA_HOST'),
-                (string) getenv('TERADATA_USERNAME'),
-                (string) getenv('TERADATA_PASSWORD'),
-                (int) getenv('TERADATA_PORT'),
+                $host,
+                $username,
+                $password,
+                $port,
                 $isCompressed,
                 $bufferSize,
                 $maxObjectSize,
@@ -463,12 +497,14 @@ PRIMARY KEY ("VisitID", "Something")
         int $skipLines = ImportOptionsInterface::SKIP_FIRST_LINE,
         bool $useTimestamp = true
     ): TeradataImportOptions {
+        [$host, $username, $password, $port, $dbname] = $this->getTeradataConnectionParams();
+
         return
             new TeradataImportOptions(
-                (string) getenv('TERADATA_HOST'),
-                (string) getenv('TERADATA_USERNAME'),
-                (string) getenv('TERADATA_PASSWORD'),
-                (int) getenv('TERADATA_PORT'),
+                $host,
+                $username,
+                $password,
+                $port,
                 [],
                 false,
                 $useTimestamp,

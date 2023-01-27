@@ -35,6 +35,12 @@ env:
   TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
   TERADATA_PORT: 1025
   TERADATA_DATABASE: ci_ielib
+  # Teradata for ABS
+  ABS_TERADATA_HOST: 20.67.225.211
+  ABS_TERADATA_USERNAME: ci_ielib_abs
+  ABS_TERADATA_PASSWORD: ${{ secrets.ABS_TERADATA_PASSWORD }}
+  ABS_TERADATA_PORT: 1025
+  ABS_TERADATA_DATABASE: ci_ielib_abs
   # Exasol
   EXASOL_HOST: mbgghigkizhshorgb53ivhkrsu.clusters.exasol.com:8563
   EXASOL_USERNAME: devel
