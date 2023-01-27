@@ -42,6 +42,7 @@ services:
       - GCS_INTEGRATION_NAME
       - BQ_KEY_FILE
       - BQ_BUCKET_NAME
+      - SUITE
   dev: &dev
     <<: *prod
     image: keboola/php-db-import-export

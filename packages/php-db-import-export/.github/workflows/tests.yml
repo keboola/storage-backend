@@ -9,7 +9,7 @@ on:
 concurrency: tests
 
 env:
-  TEST_PREFIX: gh_
+  BUILD_PREFIX: gh
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
