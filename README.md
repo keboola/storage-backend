@@ -7,3 +7,7 @@ Storage backend related tools monorepo
 |-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | [keboola/php-datatypes](https://github.com/keboola/php-datatypes) | datatype definitions, validation and sql statement generation                                                   |
 | [keboola/php-table-backend-utils](https://github.com/keboola/php-table-backend-utils) | Common stuff for table backends (Snowflake, Synapse, Redshift, Exasol, Teradata, Bigquery) shared between apps. |
+
+
+## Adding new repository
+If you want to add a new repository to monorep, please follow the [instructions](adopt-new-repository.md).
