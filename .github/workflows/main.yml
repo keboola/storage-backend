@@ -48,7 +48,6 @@ jobs:
       BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: build
 
-
   test_results:
     needs:
         - build_datatypes
@@ -71,6 +70,10 @@ jobs:
             path: 'packages/php-datatypes'
             repo: 'git@github.com:keboola/php-datatypes.git'
             lastTag: '6.1.0'
+          - name: 'php-table-backend-utils'
+            path: 'packages/php-table-backend-utils'
+            repo: 'git@github.com:keboola/php-table-backend-utils'
+            lastTag: '1.14.1'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
