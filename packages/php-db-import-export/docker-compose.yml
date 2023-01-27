@@ -1,0 +1,60 @@
+version: '3'
+services:
+  production: &prod
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+        - GITHUB_OAUTH_TOKEN
+    environment:
+      - ABS_ACCOUNT_NAME
+      - ABS_ACCOUNT_KEY
+      - ABS_CONTAINER_NAME
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
+      - SYNAPSE_UID
+      - SYNAPSE_PWD
+      - SYNAPSE_DATABASE
+      - SYNAPSE_SERVER
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_S3_BUCKET
+      - AWS_S3_KEY
+      - AWS_REGION
+      - EXASOL_HOST
+      - EXASOL_USERNAME
+      - EXASOL_PASSWORD
+      - BUILD_PREFIX
+      - TERADATA_HOST
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
+      - TERADATA_PORT
+      - TERADATA_DATABASE
+      - GITHUB_OAUTH_TOKEN
+      - STORAGE_TYPE
+      - GCS_CREDENTIALS
+      - GCS_BUCKET_NAME
+      - GCS_INTEGRATION_NAME
+      - BQ_KEY_FILE
+      - BQ_BUCKET_NAME
+  dev: &dev
+    <<: *prod
+    image: keboola/php-db-import-export
+    network_mode: host
+    volumes:
+      - ./:/code
+  dev-xdebug:
+    <<: *dev
+    build: docker/xdebug
+  exasol:
+    image: exasol/docker-db:latest
+    privileged: true
+    volumes:
+      - exa-volume:/exa
+volumes:
+  exa-volume:

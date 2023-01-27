@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         bootstrap="tests/bootstrap.php">
+
+    <testsuites>
+        <testsuite name="storage">
+            <directory>tests/functional/Storage</directory>
+        </testsuite>
+
+        <testsuite name="exasol">
+            <directory>tests/functional/Exasol</directory>
+        </testsuite>
+
+        <testsuite name="snowflake">
+            <directory>tests/functional/Snowflake</directory>
+        </testsuite>
+
+        <testsuite name="snowflake-s3">
+            <directory>tests/functional/Snowflake</directory>
+        </testsuite>
+
+        <testsuite name="snowflake-gcs">
+            <directory>tests/functional/Snowflake</directory>
+            <exclude>tests/functional/Snowflake/ExportLegacyTest.php</exclude>
+            <!--Older test cases with ImporterInterface not supporting GCS-->
+            <exclude>tests/functional/Snowflake/OtherImportTest.php</exclude>
+            <exclude>tests/functional/Snowflake/FullImportTest.php</exclude>
+            <exclude>tests/functional/Snowflake/IncrementalImportTest.php</exclude>
+        </testsuite>
+
+        <testsuite name="tests-synapse">
+            <directory>tests/functional/Synapse</directory>
+        </testsuite>
+
+        <testsuite name="synapse-mi">
+            <directory>tests/functional/Synapse</directory>
+            <exclude>tests/functional/Synapse/SqlBuilderTest.php</exclude>
+            <exclude>tests/functional/Synapse/FromTableCTASAdapterSqlBuilderTest.php</exclude>
+        </testsuite>
+
+        <testsuite name="tests-teradata">
+            <directory>tests/functional/Teradata</directory>
+        </testsuite>
+
+        <testsuite name="tests-bigquery">
+            <directory>tests/functional/Bigquery</directory>
+        </testsuite>
+
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

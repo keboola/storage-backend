@@ -1,0 +1,104 @@
+{
+    "name": "keboola/db-import-export",
+    "description": "Package allows to import files to Snowflake from multiple cloud storages",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "doctrine/dbal": "^3.2.0",
+        "google/cloud-bigquery": "^1.23",
+        "google/cloud-storage": "^1.27",
+        "keboola/csv-options": "^1",
+        "keboola/php-csv-db-import": "^5.0",
+        "keboola/php-datatypes": "^6.2",
+        "keboola/php-file-storage-utils": ">=0.2",
+        "keboola/php-temp": "^2.0",
+        "keboola/table-backend-utils": "^1.9",
+        "microsoft/azure-storage-blob": "^1.4",
+        "symfony/process": "^4.4|^5.0|^6.0"
+    },
+    "require-dev": {
+        "keboola/coding-standard": "^14",
+        "php-parallel-lint/php-parallel-lint": "^v1.3",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpstan": "^1",
+        "phpstan/phpstan-phpunit": "^1",
+        "phpunit/phpunit": "^9",
+        "react/async": "^4||^3",
+        "symfony/finder": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Keboola\\Db\\ImportExport\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Keboola\\Db\\ImportExportCommon\\": "tests/Common",
+            "Tests\\Keboola\\Db\\ImportExportUnit\\": "tests/unit",
+            "Tests\\Keboola\\Db\\ImportExportFunctional\\": "tests/functional/"
+        }
+    },
+    "scripts": {
+        "tests-unit": "phpunit --colors=always --testsuite unit",
+        "tests-storage": "phpunit --colors=always --testsuite storage",
+        "tests-snowflake-abs": "SUITE=tests-snowflake STORAGE_TYPE=ABS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake",
+        "tests-snowflake-s3": "SUITE=tests-snowflake-s3  STORAGE_TYPE=S3 BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-s3",
+        "tests-snowflake-gcs": "SUITE=tests-snowflake-gcs  STORAGE_TYPE=GCS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-gcs",
+        "tests-synapse": "SUITE=tests-synapse-sas STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TABLE_DISTRIBUTION=HASH phpunit --colors=always --testsuite tests-synapse",
+        "tests-synapse-mi": "SUITE=tests-synapse-mi STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY phpunit --colors=always --testsuite synapse-mi",
+        "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
+        "tests-teradata-tpt": "SUITE=tests-teradata-tpt TERADATA_CSV_ADAPTER=TPT STORAGE_TYPE=S3 phpunit --colors=always --testsuite tests-teradata",
+        "tests-bigquery": "SUITE=tests-bigquery STORAGE_TYPE=GCS phpunit --colors=always --testsuite tests-bigquery",
+        "tests-functional": [
+            "@tests-snowflake-abs",
+            "@tests-snowflake-s3",
+            "@tests-synapse",
+            "@tests-synapse-mi",
+            "@tests-exasol",
+            "@tests-teradata-tpt",
+            "@tests-bigquery"
+        ],
+        "tests": [
+            "@tests-unit",
+            "@tests-functional"
+        ],
+
+        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
+        "phpcs": "phpcs -n --ignore=*/vendor/* --extensions=php .",
+        "phpcs-report": "phpcs -n --report=source -s --ignore=*/vendor/* --extensions=php .",
+        "phpcbf": "phpcbf -n --ignore=*/vendor/*  --extensions=php .",
+        "phplint": "parallel-lint -j 10 --exclude vendor --exclude provisioning .",
+        "loadAbs": "php ./tests/Common/StubLoader/loader.php abs",
+        "loadS3": "php ./tests/Common/StubLoader/loader.php s3",
+        "loadGcs-snowflake": "php ./tests/Common/StubLoader/loader.php gcs-snowflake",
+        "loadGcs-bigquery": "php ./tests/Common/StubLoader/loader.php gcs-bigquery",
+        "init-synapse": "php ./tests/InitSynapse.php",
+        "load-data": [
+            "@loadAbs",
+            "@loadS3",
+            "@loadGcs-snowflake",
+            "@loadGcs-bigquery"
+        ],
+        "build": [
+            "@phplint",
+            "@phpcs",
+            "@phpstan",
+            "@tests-unit"
+        ],
+        "ci": [
+            "@composer validate --no-check-publish --no-check-all",
+            "@build"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "lock": false,
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
