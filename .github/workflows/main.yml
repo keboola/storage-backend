@@ -59,6 +59,7 @@ jobs:
       BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7 # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
     secrets:
       BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
     needs: build
 
   test_results:

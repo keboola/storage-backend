@@ -13,6 +13,13 @@ on:
     secrets:
       BUILD_AWS_SECRET_ACCESS_KEY:
         required: true
+      ABS_ACCOUNT_KEY:
+        required: true
+
+env:
+  ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
+  ABS_ACCOUNT_NAME: 7nybfrempo4vcbd4248b7ca
+  ABS_CONTAINER_NAME: ${{ github.run_id }}-${{ github.run_number }}
 
 defaults:
   run:
@@ -34,7 +41,7 @@ jobs:
           docker save -o /tmp/php-db-import-export.tar php-db-import-export_production:latest
       - name: Check
         run: |
-          docker-compose run production composer ci
+          docker-compose run production composer build
       - name: Upload docker image
         uses: actions/upload-artifact@v2
         with:
