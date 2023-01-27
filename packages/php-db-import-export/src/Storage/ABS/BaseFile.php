@@ -65,6 +65,10 @@ abstract class BaseFile
             $this->accountName
         );
     }
+    public function getContainer(): string
+    {
+        return $this->container;
+    }
 
     public function getFilePath(): string
     {

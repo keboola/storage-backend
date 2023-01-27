@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\ToStage;
 
 use Keboola\Datatype\Definition\Teradata;
-use Keboola\Db\ImportExport\Backend\Teradata\Helper\BackendHelper;
+use Keboola\Db\ImportExport\Backend\Teradata\Helper\StorageS3Helper;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\Table\Teradata\TeradataTableDefinition;
@@ -48,7 +48,7 @@ final class StageTableDefinitionFactory
 
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateStagingTableName(),
+            StorageS3Helper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()
@@ -83,7 +83,7 @@ final class StageTableDefinitionFactory
 
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateStagingTableName(),
+            StorageS3Helper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames()
@@ -99,7 +99,7 @@ final class StageTableDefinitionFactory
     ): TeradataTableDefinition {
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
-            BackendHelper::generateTempDedupTableName(),
+            StorageS3Helper::generateTempDedupTableName(),
             true,
             $destination->getColumnsDefinitions(),
             $pkNames

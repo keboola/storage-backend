@@ -15,6 +15,7 @@ class Exporter implements ExporterInterface
 {
     public const DEFAULT_ADAPTERS = [
         Storage\S3\TeradataExportTPTAdapter::class,
+        Storage\ABS\TeradataExportTPTAdapter::class,
     ];
 
     /** @var class-string<BackendExportAdapterInterface>[] */
@@ -54,6 +55,7 @@ class Exporter implements ExporterInterface
         Storage\DestinationInterface $destination
     ): BackendExportAdapterInterface {
         $adapterForUse = null;
+        /** @var BackendExportAdapterInterface $adapter */
         foreach ($this->adapters as $adapter) {
             if ($adapter::isSupported($source, $destination)) {
                 if ($adapterForUse !== null) {

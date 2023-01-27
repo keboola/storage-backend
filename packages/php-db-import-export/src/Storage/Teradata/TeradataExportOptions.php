@@ -113,4 +113,19 @@ class TeradataExportOptions extends ExportOptions
         );
         // !Error! Setting S3MaxObjectSize when S3SinglePartFile=True is unsupported
     }
+
+    /**
+     * generates part of TPT which defines settings for sliced files
+     */
+    public function generateABSSizeOptions(): string
+    {
+        return sprintf(
+            '-DontSplitRows %s -SinglePartFile %s %s -BufferSize %s',
+            $this->dontSplitRows ? 'True' : 'False',
+            $this->singlePartFile ? 'True' : 'False',
+            $this->singlePartFile ? '' : (sprintf('-MaxObjectSize %s', $this->getMaxObjectSize())),
+            $this->bufferSize
+        );
+        // !Error! Setting S3MaxObjectSize when S3SinglePartFile=True is unsupported
+    }
 }

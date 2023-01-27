@@ -85,7 +85,8 @@ trait ABSSourceTrait
             $options,
             $isSliced,
             $columns,
-            $primaryKeys
+            $primaryKeys,
+            getenv('ABS_ACCOUNT_KEY') ?: null,
         );
     }
 

@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend\Teradata\Helper;
 
 use Keboola\Db\ImportExport\Backend\Helper\BackendHelper as BaseHelper;
-use Keboola\Db\ImportExport\Storage\S3\SourceFile;
+use Keboola\Db\ImportExport\Storage\ABS\BaseFile;
+use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
+use LogicException;
 
-final class BackendHelper extends BaseHelper
+final class StorageABSHelper extends BaseHelper
 {
-    public static function quoteValue(string $value): string
-    {
-        return "'" . addslashes($value) . "'";
-    }
-
     /**
      * creates a wildcard string which should match all files in manifest
      * [file01.csv, file01.csv] => file0*
@@ -28,8 +25,9 @@ final class BackendHelper extends BaseHelper
             // no entries -> no data to load
             return '';
         }
-        // SourceDirectory returns fileName as directory/file.csv but SourceFile returns s3://bucket/directory/file.csv
-        $toRemove = $source->getS3Prefix() . '/';
+        // SourceDirectory returns fileName as directory/file.csv
+        // but SourceFile returns azure://myaccount...windows.net/bucket/directory/file.csv
+        $toRemove = $source->getContainerUrl(BaseFile::PROTOCOL_AZURE);
         $entriesAsArrays = [];
         $min = 99999;
         $minIndex = 0;
@@ -72,7 +70,7 @@ final class BackendHelper extends BaseHelper
     }
 
     /**
-     * extracts filename and prefix from s3 url - removing bucket, protocol and Fxxx suffix
+     * extracts filename and prefix from ABS url - removing bucket, protocol and Fxxx suffix
      * @return string[]
      */
     public static function buildPrefixAndObject(SourceFile $source): array
@@ -82,7 +80,9 @@ final class BackendHelper extends BaseHelper
         preg_match('/(?<filePath>.*)\/F(?<fileNumber>[0-9]{5,6})/', $entries[0], $out);
 
         $filePath = $out['filePath'] ?? '';
-        $filePath = str_replace(($source->getS3Prefix() . '/'), '', $filePath);
+        // SourceDirectory returns fileName as directory/file.csv
+        // but SourceFile returns azure://myaccount...windows.net/bucket/directory/file.csv
+        $filePath = str_replace(($source->getContainerUrl(BaseFile::PROTOCOL_AZURE)), '', $filePath);
 
         $exploded = explode('/', $filePath);
         $object = end($exploded);

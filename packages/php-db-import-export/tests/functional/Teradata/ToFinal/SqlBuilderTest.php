@@ -50,7 +50,11 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $buildPrefix = getenv('BUILD_PREFIX');
         }
 
-        return $buildPrefix . self::TEST_DB;
+        return self::TEST_DB
+            . '-'
+            . $buildPrefix
+            . '-'
+            . getenv('SUITE');
     }
 
     protected function getBuilder(): SqlBuilder

@@ -49,7 +49,8 @@
         "tests-synapse": "SUITE=tests-synapse-sas STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TABLE_DISTRIBUTION=HASH phpunit --colors=always --testsuite tests-synapse",
         "tests-synapse-mi": "SUITE=tests-synapse-mi STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY phpunit --colors=always --testsuite synapse-mi",
         "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
-        "tests-teradata-tpt": "SUITE=tests-teradata-tpt TERADATA_CSV_ADAPTER=TPT STORAGE_TYPE=S3 phpunit --colors=always --testsuite tests-teradata",
+        "tests-teradata-tpt-s3": "SUITE=tests-teradata-tpt-s3 TERADATA_CSV_ADAPTER=TPT STORAGE_TYPE=S3 phpunit --colors=always --debug --testsuite tests-teradata-s3",
+        "tests-teradata-tpt-abs": "SUITE=tests-teradata-tpt-abs TERADATA_CSV_ADAPTER=TPT STORAGE_TYPE=ABS phpunit --colors=always --debug --testsuite tests-teradata-abs",
         "tests-bigquery": "SUITE=tests-bigquery STORAGE_TYPE=GCS phpunit --colors=always --testsuite tests-bigquery",
         "tests-functional": [
             "@tests-snowflake-abs",
@@ -57,7 +58,8 @@
             "@tests-synapse",
             "@tests-synapse-mi",
             "@tests-exasol",
-            "@tests-teradata-tpt",
+            "@tests-teradata-tpt-s3",
+            "@tests-teradata-tpt-abs",
             "@tests-bigquery"
         ],
         "tests": [

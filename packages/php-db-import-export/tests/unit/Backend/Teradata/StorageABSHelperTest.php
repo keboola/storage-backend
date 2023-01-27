@@ -4,36 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Teradata;
 
-use Generator;
-use Keboola\Db\ImportExport\Backend\Teradata\Helper\BackendHelper;
-use Keboola\Db\ImportExport\Storage\S3\SourceFile;
+use Keboola\Db\ImportExport\Backend\Teradata\Helper\StorageABSHelper;
+use Keboola\Db\ImportExport\Storage\ABS\SourceFile;
 use PHPUnit\Framework\TestCase;
 
-class HelperTest extends TestCase
+class StorageABSHelperTest extends TestCase
 {
-    /**
-     * @return Generator<string, array{string, string}>
-     */
-    public function quoteValuesProvider(): Generator
-    {
-        yield 'simple value' => [
-            '\'value\'',
-            'value',
-        ];
-        yield 'value with quote' => [
-            '\'val\\\'ue\'',
-            'val\'ue',
-        ];
-    }
-
-    /**
-     * @dataProvider quoteValuesProvider
-     */
-    public function testQuoteValue(string $expected, string $value): void
-    {
-        $this->assertSame($expected, BackendHelper::quoteValue($value));
-    }
-
     /**
      * @param string[] $entriesData
      * @dataProvider dataProvider
@@ -44,9 +20,9 @@ class HelperTest extends TestCase
 
         $mock->method('getManifestEntries')
             ->willReturn($entriesData);
-        $mock->method('getS3Prefix')
-            ->willReturn('s3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy');
-        $this->assertEquals($expected, BackendHelper::getMask($mock));
+        $mock->method('getContainerUrl')
+            ->willReturn('azure://absAccount.blob.core.windows.net/absContainer/');
+        $this->assertEquals($expected, StorageABSHelper::getMask($mock));
     }
 
     /**
@@ -59,9 +35,9 @@ class HelperTest extends TestCase
                 'sliced/accounts-gzip/tw_accounts.csv.gz000*_part_00.gz',
                 [
                     // phpcs:ignore
-                    's3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy/sliced/accounts-gzip/tw_accounts.csv.gz0001_part_00.gz',
+                    'azure://absAccount.blob.core.windows.net/absContainer/sliced/accounts-gzip/tw_accounts.csv.gz0001_part_00.gz',
                     // phpcs:ignore
-                    's3://zajca-php-db-import-test-s3filesbucket-bwdj3sk0c9xy/sliced/accounts-gzip/tw_accounts.csv.gz0002_part_00.gz',
+                    'azure://absAccount.blob.core.windows.net/absContainer/sliced/accounts-gzip/tw_accounts.csv.gz0002_part_00.gz',
                 ],
             ],
             'suffix style' => [
@@ -105,14 +81,14 @@ class HelperTest extends TestCase
             'multipart' => [
                 true,
                 [
-                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz/F00000',
+                    'azure://absAccount.blob.core.windows.net/absContainer/sliced/accounts-gzip/file.gz/F00000',
                 ],
             ],
 
             'single file' => [
                 false,
                 [
-                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz',
+                    'azure://absAccount.blob.core.windows.net/absContainer/sliced/accounts-gzip/file.gz',
                 ],
             ],
         ];
@@ -128,7 +104,7 @@ class HelperTest extends TestCase
 
         $mock->method('getManifestEntries')
             ->willReturn($entriesData);
-        self::assertEquals($expected, BackendHelper::isMultipartFile($mock));
+        self::assertEquals($expected, StorageABSHelper::isMultipartFile($mock));
     }
 
     /**
@@ -141,14 +117,14 @@ class HelperTest extends TestCase
             'with prefix' => [
                 ['sliced/accounts-gzip/', 'file.gz'],
                 [
-                    's3://zajca-aaaaa/sliced/accounts-gzip/file.gz/F00000',
+                    'azure://absAccount.blob.core.windows.net/absContainer/sliced/accounts-gzip/file.gz/F00000',
                 ],
             ],
 
             'without prefix' => [
                 ['', 'file.gz'],
                 [
-                    's3://zajca-aaaaa/file.gz/F00000',
+                    'azure://absAccount.blob.core.windows.net/absContainer/file.gz/F00000',
                 ],
             ],
         ];
@@ -165,8 +141,8 @@ class HelperTest extends TestCase
 
         $mock->method('getManifestEntries')
             ->willReturn($entries);
-        $mock->method('getS3Prefix')
-            ->willReturn('s3://zajca-aaaaa');
-        self::assertEquals($expected, BackendHelper::buildPrefixAndObject($mock));
+        $mock->method('getContainerUrl')
+            ->willReturn('azure://absAccount.blob.core.windows.net/absContainer/');
+        self::assertEquals($expected, StorageABSHelper::buildPrefixAndObject($mock));
     }
 }
