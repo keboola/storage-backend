@@ -1,0 +1,42 @@
+on:
+  workflow_call:
+    inputs:
+      hasCodeChanged:
+        required: true
+        type: boolean
+      isTag:
+        required: true
+        type: boolean
+      BUILD_AWS_ACCESS_KEY_ID:
+        type: string
+        required: true
+    secrets:
+      BUILD_AWS_SECRET_ACCESS_KEY:
+        required: true
+
+defaults:
+  run:
+    working-directory: packages/php-db-import-export
+
+jobs:
+  build_image_php_db_import_export:
+    if: ${{ inputs.hasCodeChanged || inputs.isTag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build docker image
+        env:
+          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker-compose build --pull production
+          docker save -o /tmp/php-db-import-export.tar php-db-import-export_production:latest
+      - name: Check
+        run: |
+          docker-compose run production composer ci
+      - name: Upload docker image
+        uses: actions/upload-artifact@v2
+        with:
+          name: image
+          path:  /tmp/php-db-import-export.tar
