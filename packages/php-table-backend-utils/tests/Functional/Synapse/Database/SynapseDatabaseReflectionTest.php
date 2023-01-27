@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Synapse\Database;
 
 use Keboola\TableBackendUtils\Database\SynapseDatabaseReflection;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 use Tests\Keboola\TableBackendUtils\Functional\Synapse\Auth\BaseAuthTestCase;
 
 class SynapseDatabaseReflectionTest extends BaseAuthTestCase
@@ -24,7 +25,7 @@ class SynapseDatabaseReflectionTest extends BaseAuthTestCase
 
         $this->connection->executeStatement(sprintf(
             'CREATE ROLE %s',
-            $this->platform->quoteSingleIdentifier($this->currentLogin . '_ROLE')
+            SynapseQuote::quoteSingleIdentifier($this->currentLogin . '_ROLE')
         ));
         $ref = new SynapseDatabaseReflection($this->connection);
         $names = $ref->getRolesNames(self::LOGIN_PREFIX . '%');

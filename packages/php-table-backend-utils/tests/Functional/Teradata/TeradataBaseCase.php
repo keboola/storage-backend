@@ -23,14 +23,10 @@ class TeradataBaseCase extends TestCase
 
     protected Connection $connection;
 
-    /** @var TeradataPlatform|AbstractPlatform */
-    protected $platform;
-
     protected function setUp(): void
     {
         parent::setUp();
         $this->connection = $this->getTeradataConnection();
-        $this->platform = $this->connection->getDatabasePlatform();
     }
 
     protected function initTable(

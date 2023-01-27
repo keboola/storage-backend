@@ -6,8 +6,6 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Synapse;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\SQLServer2012Platform;
 use Keboola\TableBackendUtils\Connection\Synapse\SynapseDriver;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaQueryBuilder;
 use Keboola\TableBackendUtils\Schema\SynapseSchemaReflection;
@@ -19,9 +17,6 @@ class SynapseBaseCase extends TestCase
     public const TESTS_PREFIX = 'utils-test_';
 
     protected Connection $connection;
-
-    /** @var SQLServer2012Platform|AbstractPlatform */
-    protected $platform;
 
     protected SynapseSchemaQueryBuilder $schemaQb;
 
@@ -64,7 +59,6 @@ class SynapseBaseCase extends TestCase
     {
         parent::setUp();
         $this->connection = $this->getSynapseConnection();
-        $this->platform = $this->connection->getDatabasePlatform();
         $this->schemaQb = new SynapseSchemaQueryBuilder();
         $this->tableQb = new SynapseTableQueryBuilder();
     }
