@@ -60,6 +60,9 @@ jobs:
     secrets:
       BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      OAUTH_TOKEN_GITHUB: ${{ secrets.OAUTH_TOKEN_GITHUB }}
+      GCS_CREDENTIALS: ${{ secrets.GCS_CREDENTIALS }}
     needs: build
 
   test_results:
