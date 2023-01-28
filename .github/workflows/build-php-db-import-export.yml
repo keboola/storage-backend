@@ -83,7 +83,7 @@ jobs:
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/image.tar
+          docker load --input /tmp/php-db-import-export.tar
       -
         name: Load data to ${{ matrix.storage }}
         run: |
@@ -104,7 +104,7 @@ jobs:
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/image.tar
+          docker load --input /tmp/php-db-import-export.tar
       -
         name: Load data to ${{ matrix.storage }}
         run: |
@@ -130,7 +130,7 @@ jobs:
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/image.tar
+          docker load --input /tmp/php-db-import-export.tar
       -
         name: Load data to ${{ matrix.storage }}
         run: |
