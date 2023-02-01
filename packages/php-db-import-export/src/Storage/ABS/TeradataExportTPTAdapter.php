@@ -128,7 +128,7 @@ DESCRIPTION 'Export data from Teradata to Microsoft Azure Blob Storage'
             ATTR
             (
                 AccessModuleName = 'libazureaxsmod.so',
-                AccessModuleInitStr = '-ConfigDir "%s" -Container "%s" -Prefix "%s/" -Object "%s" %s'
+                AccessModuleInitStr = '-ConfigDir "%s" -Container "%s" -Prefix "%s" -Object "%s" %s'
             )
         )
         SELECT * FROM OPERATOR ( \$EXPORT
@@ -142,7 +142,7 @@ DESCRIPTION 'Export data from Teradata to Microsoft Azure Blob Storage'
 EOD,
             $absConfigDir,
             $destination->getContainer(),
-            $path->getPathWithoutRoot(),
+            $path->getPathWithoutRoot() ? ($path->getPathWithoutRoot() . '/') : '',
             $path->getFileName() . ($exportOptions->isCompressed() ? '.gz' : ''),
             $exportOptions->generateABSSizeOptions(),
             $source->getFromStatement()
