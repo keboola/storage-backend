@@ -45,5 +45,13 @@ services:
     privileged: true
     volumes:
       - exa-volume:/exa
+  production74:
+    <<: *prod
+    build:
+      context: .
+      dockerfile: Dockerfile.74
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
 volumes:
   exa-volume:
