@@ -69,6 +69,20 @@ env:
   GCS_INTEGRATION_NAME: CI_PHP_IE_LIB
 
 jobs:
+  build74:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build docker image
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker-compose build --pull production74
+      - name: Check
+        run: |
+          docker-compose run production74 composer ci
   build:
     runs-on: ubuntu-latest
     steps:
