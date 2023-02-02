@@ -70,10 +70,12 @@ jobs:
             path: 'packages/php-datatypes'
             repo: 'git@github.com:keboola/php-datatypes.git'
             lastTag: '6.1.0'
+            sshKey: 'PHP_DATATYPES_SSH_PRIVATE_KEY'
           - name: 'php-table-backend-utils'
             path: 'packages/php-table-backend-utils'
             repo: 'git@github.com:keboola/php-table-backend-utils'
             lastTag: '1.14.1'
+            sshKey: 'PHP_TABLE_BACKEND_UTILS_SSH_PRIVATE_KEY'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -81,7 +83,7 @@ jobs:
           fetch-depth: 0
       - uses: webfactory/ssh-agent@fc49353b67b2b7c1e0e6a600572d01a69f2672dd
         with:
-          ssh-private-key: ${{ secrets.PHP_DATATYPES_SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets[matrix.sshKey] }}
 
       - name: Split monorepo
         run: |
