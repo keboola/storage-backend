@@ -12,7 +12,6 @@ class DebugLogger extends AbstractLogger
     /**
      * @inheritDoc
      */
-    // @phpstan-ignore-next-line
     public function log($level, $message, array $context = []): void
     {
         assert(is_string($level));

@@ -1,3 +1,5 @@
+ARG PHP_VERSION=8.1
+
 FROM quay.io/keboola/aws-cli as td
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_ACCESS_KEY_ID
@@ -5,7 +7,7 @@ RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x8
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
-FROM php:8.1-cli
+FROM php:${PHP_VERSION:-8.1}-cli-buster
 
 ARG GITHUB_OAUTH_TOKEN
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
