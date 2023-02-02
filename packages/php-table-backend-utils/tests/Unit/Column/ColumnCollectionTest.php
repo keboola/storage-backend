@@ -27,9 +27,9 @@ class ColumnCollectionTest extends TestCase
 
     /**
      * @dataProvider  tooMuchColumnsProviderWithLimits
-     * @param SynapseColumn|TeradataColumn $definitionClass
+     * @param class-string<SynapseColumn|TeradataColumn> $definitionClass
      */
-    public function testTooMuchColumns($definitionClass, int $limit): void
+    public function testTooMuchColumns(string $definitionClass, int $limit): void
     {
         $cols = [];
         for ($i = 0; $i < $limit + 2; $i++) {
@@ -43,9 +43,9 @@ class ColumnCollectionTest extends TestCase
 
     /**
      * @dataProvider  tooMuchColumnsProviderWithNoLimits
-     * @param SnowflakeColumn|ExasolColumn $definitionClass
+     * @param class-string<SnowflakeColumn|ExasolColumn> $definitionClass
      */
-    public function testNoColumnsLimit($definitionClass, int $limit): void
+    public function testNoColumnsLimit(string $definitionClass, int $limit): void
     {
         $cols = [];
         for ($i = 0; $i < $limit + 2; $i++) {

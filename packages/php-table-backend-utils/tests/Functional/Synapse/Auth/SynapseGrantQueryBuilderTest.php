@@ -10,6 +10,7 @@ use Keboola\TableBackendUtils\Auth\Grant\Synapse\GrantOptions;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\Permission;
 use Keboola\TableBackendUtils\Auth\Grant\Synapse\RevokeOptions;
 use Keboola\TableBackendUtils\Auth\SynapseGrantQueryBuilder;
+use Keboola\TableBackendUtils\Escaping\SynapseQuote;
 
 class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 {
@@ -80,20 +81,20 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 
         $this->connection->executeStatement(sprintf(
             'CREATE ROLE %s',
-            $this->platform->quoteSingleIdentifier($this->currentLogin . '_ROLE')
+            SynapseQuote::quoteSingleIdentifier($this->currentLogin . '_ROLE')
         ));
 
         assert($this->currentLogin !== null);
         $this->connection->executeStatement(sprintf(
             'CREATE SCHEMA %s AUTHORIZATION %s',
-            $this->platform->quoteSingleIdentifier(self::TEST_SCHEMA),
-            $this->platform->quoteSingleIdentifier($this->currentLogin)
+            SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SynapseQuote::quoteSingleIdentifier($this->currentLogin)
         ));
 
         $this->connection->executeStatement(sprintf(
             'CREATE TABLE %s.%s ([col1] nvarchar(4000) NOT NULL DEFAULT \'\')',
-            $this->platform->quoteSingleIdentifier(self::TEST_SCHEMA),
-            $this->platform->quoteSingleIdentifier(self::TEST_TABLE)
+            SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SynapseQuote::quoteSingleIdentifier(self::TEST_TABLE)
         ));
     }
 
