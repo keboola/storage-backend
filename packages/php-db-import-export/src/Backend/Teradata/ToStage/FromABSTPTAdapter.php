@@ -226,7 +226,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
                     'AccessModuleInitStr = \'-ConfigDir "%s" -Container "%s" -Prefix "%s" -Object "%s" -SinglePartFile True\'',
                     $absConfigDir,
                     $path->getRoot(),
-                    $path->getPathWithoutRoot() . '/',
+                    $path->getPathWithoutRoot() ? ($path->getPathWithoutRoot() . '/') : '',
                     $path->getFileName(),
                 );
             } else {
