@@ -62,5 +62,6 @@ services:
     privileged: true
     volumes:
       - exa-volume:/exa
+
 volumes:
   exa-volume:

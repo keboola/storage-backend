@@ -11,7 +11,7 @@ parameters:
 			path: src/Backend/Snowflake/Exporter.php
 
 		-
-			message: "#^Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
+			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 1
 			path: src/Backend/Snowflake/Exporter.php
 
@@ -21,7 +21,7 @@ parameters:
 			path: src/Backend/Snowflake/Importer.php
 
 		-
-			message: "#^Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
+			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 1
 			path: src/Backend/Snowflake/Importer.php
 
@@ -31,7 +31,7 @@ parameters:
 			path: src/Backend/Synapse/Exporter.php
 
 		-
-			message: "#^Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
+			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 1
 			path: src/Backend/Synapse/Exporter.php
 
@@ -81,7 +81,7 @@ parameters:
 			path: src/Storage/ABS/SourceFile.php
 
 		-
-			message: "#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#"
+			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, mixed given\\.$#"
 			count: 1
 			path: src/Storage/ABS/SourceFile.php
 
@@ -241,7 +241,7 @@ parameters:
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$keys of function array_combine expects array\\<int\\|string\\>, mixed given\\.$#"
+			message: "#^Parameter \\#1 \\$keys of function array_combine expects array, mixed given\\.$#"
 			count: 1
 			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
 
@@ -329,4 +329,3 @@ parameters:
 			message: "#^Variable \\$destination in PHPDoc tag @var does not match assigned variable \\$options\\.$#"
 			count: 1
 			path: tests/unit/Storage/ABS/SynapseExportAdapterTest.php
-

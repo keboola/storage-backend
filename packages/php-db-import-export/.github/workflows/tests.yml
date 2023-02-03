@@ -10,6 +10,7 @@ concurrency: tests
 
 env:
   BUILD_PREFIX: gh
+  PHP_VERSION_E2E: '8.1'
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
@@ -71,24 +72,42 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - '7.4'
+          - '8.1'
     steps:
       -
         name: Checkout
         uses: actions/checkout@v3
       -
         name: Build docker image
+        if: ${{ matrix.php-version != env.PHP_VERSION_E2E }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
-          docker-compose build --pull production
+          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} production
+      -
+        name: Build docker image
+        if: ${{ matrix.php-version == env.PHP_VERSION_E2E }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} production
           docker save -o /tmp/image.tar php-db-import-export_production:latest
       -
         name: Check
+        if: ${{ matrix.php-version != env.PHP_VERSION_E2E }}
         run: |
+          docker-compose run production php -v
           docker-compose run production composer ci
       -
         name: Upload docker image
+        if: ${{ matrix.php-version == env.PHP_VERSION_E2E }}
         uses: actions/upload-artifact@v2
         with:
           name: image

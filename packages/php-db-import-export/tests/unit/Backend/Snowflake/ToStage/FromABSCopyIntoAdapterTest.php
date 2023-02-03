@@ -22,17 +22,21 @@ class FromABSCopyIntoAdapterTest extends BaseTestCase
     {
         /** @var Storage\ABS\SourceFile|MockObject $source */
         $source = $this->createMock(Storage\ABS\SourceFile::class);
-        $source->expects(self::any())->method('getCsvOptions')->willReturn(new CsvOptions());
-        $source->expects(self::once())->method('getManifestEntries')->willReturn(['https://url']);
+        $source->expects(self::any())->method('getCsvOptions')
+            ->willReturn(new CsvOptions());
+        $source->expects(self::once())->method('getManifestEntries')
+            ->willReturn(['azure://xxx.blob.core.windows.net/xx/xxx.csv']);
+        $source->expects(self::any())->method('getContainerUrl')
+            ->willReturn('azure://xxx.blob.core.windows.net/xx/');
 
         $conn = $this->mockConnection();
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
 COPY INTO "schema"."stagingTable" 
-FROM ''
+FROM 'azure://xxx.blob.core.windows.net/xx/'
 CREDENTIALS=(AZURE_SAS_TOKEN='')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
-FILES = ('https://url')
+FILES = ('xxx.csv')
 EOT
         );
 
@@ -67,18 +71,22 @@ EOT
     {
         /** @var Storage\ABS\SourceFile|MockObject $source */
         $source = $this->createMock(Storage\ABS\SourceFile::class);
-        $source->expects(self::any())->method('getCsvOptions')->willReturn(new CsvOptions());
-        $source->expects(self::once())->method('getManifestEntries')->willReturn(['https://url']);
+        $source->expects(self::any())->method('getCsvOptions')
+            ->willReturn(new CsvOptions());
+        $source->expects(self::once())->method('getManifestEntries')
+            ->willReturn(['azure://xxx.blob.core.windows.net/xx/xxx.csv']);
+        $source->expects(self::any())->method('getContainerUrl')
+            ->willReturn('azure://xxx.blob.core.windows.net/xx/');
 
         $conn = $this->mockConnection();
         // @codingStandardsIgnoreStart
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
 COPY INTO "schema"."stagingTable" 
-FROM ''
+FROM 'azure://xxx.blob.core.windows.net/xx/'
 CREDENTIALS=(AZURE_SAS_TOKEN='')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' SKIP_HEADER = 3 FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
-FILES = ('https://url')
+FILES = ('xxx.csv')
 EOT
         );
         // @codingStandardsIgnoreEnd
@@ -117,20 +125,24 @@ EOT
 
         // limit for snflk files in one query is 1000
         for ($i = 1; $i < 1005; $i++) {
-            $entries[] = "file{$i}";
-            $entriesWithoutBucket[] = "'file{$i}'";
+            $entries[] = "azure://xxx.blob.core.windows.net/xx/file{$i}.csv";
+            $entriesWithoutBucket[] = "'file{$i}.csv'";
         }
 
         /** @var Storage\ABS\SourceFile|MockObject $source */
         $source = $this->createMock(Storage\ABS\SourceFile::class);
-        $source->expects(self::any())->method('getCsvOptions')->willReturn(new CsvOptions());
-        $source->expects(self::once())->method('getManifestEntries')->willReturn($entries);
+        $source->expects(self::any())->method('getCsvOptions')
+            ->willReturn(new CsvOptions());
+        $source->expects(self::once())->method('getManifestEntries')
+            ->willReturn($entries);
+        $source->expects(self::any())->method('getContainerUrl')
+            ->willReturn('azure://xxx.blob.core.windows.net/xx/');
 
         $conn = $this->mockConnection();
 
         $qTemplate = <<<EOT
 COPY INTO "schema"."stagingTable" 
-FROM ''
+FROM 'azure://xxx.blob.core.windows.net/xx/'
 CREDENTIALS=(AZURE_SAS_TOKEN='')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
 FILES = (%s)
