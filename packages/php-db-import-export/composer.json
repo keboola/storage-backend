@@ -10,7 +10,7 @@
         "google/cloud-bigquery": "^1.23",
         "google/cloud-storage": "^1.27",
         "keboola/csv-options": "^1",
-        "keboola/php-csv-db-import": "dev-CT-807-php8 as 6.0",
+        "keboola/php-csv-db-import": "^6",
         "keboola/php-datatypes": "^6.2",
         "keboola/php-file-storage-utils": ">=0.2",
         "keboola/php-temp": "^2.0",
