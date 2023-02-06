@@ -57,7 +57,7 @@ jobs:
         contains(fromJson('["success"]'), needs.build_datatypes.result)
     steps:
       - name: Tests passed
-        run: echo "Tests passed"
+        run: echo "Tests passed" >> $GITHUB_STATE
 
   monorepo_split:
     needs: test_results
