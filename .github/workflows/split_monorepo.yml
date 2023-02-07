@@ -1,0 +1,66 @@
+name: 'Packages Split'
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+jobs:
+  packages_split:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          -
+            local_path: 'php-datatypes'
+            split_repository: 'php-datatypes'
+          -
+            local_path: 'php-table-backend-utils'
+            split_repository: 'php-table-backend-utils'
+
+    steps:
+      - uses: actions/checkout@v2
+          
+          # no tag
+      -
+          if: "!startsWith(github.ref, 'refs/tags/')"
+          uses: "symplify/monorepo-split-github-action@2.1"
+          with:
+            package_directory: 'packages/${{ matrix.package.local_path }}'
+
+            repository_organization: 'keboola'
+            repository_name: '${{ matrix.package.split_repository }}'
+
+            # [optional, with "github.com" as default]
+            repository_host: git.private.com:1234
+
+            user_name: "Keboola CI"
+            user_email: "devel@keboola.com"
+
+          # with tag
+      -
+          if: "startsWith(github.ref, 'refs/tags/')"
+          uses: "symplify/monorepo-split-github-action@2.1"
+          with:
+            tag: ${GITHUB_REF#refs/tags/}
+
+            package_directory: 'packages/${{ matrix.package.local_path }}'
+
+            repository_organization: 'keboola'
+            repository_name: '${{ matrix.package.split_repository }}'
+
+            # [optional, with "github.com" as default]
+            repository_host: git.private.com:1234
+
+            # ↓ the user signed under the split commit
+            user_name: "Keboola CI"
+            user_email: "devel@keboola.com"
+
+
