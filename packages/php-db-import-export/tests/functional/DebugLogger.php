@@ -11,6 +11,7 @@ class DebugLogger extends AbstractLogger
 {
     /**
      * @inheritDoc
+     * @param mixed[] $context
      */
     public function log($level, $message, array $context = []): void
     {

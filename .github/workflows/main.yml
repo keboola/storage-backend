@@ -16,6 +16,7 @@ jobs:
     outputs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
+      changed-php-db-import-export: ${{ steps.changes.outputs.php-db-import-export }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
@@ -26,6 +27,8 @@ jobs:
               - 'packages/php-datatypes/**'
             php-table-backend-utils:
               - 'packages/php-table-backend-utils/**'
+            php-db-import-export:
+              - 'packages/php-db-import-export/**'
 
   build_datatypes:
     uses: ./.github/workflows/build-php-datatypes.yml
@@ -48,10 +51,33 @@ jobs:
       BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: build
 
+  build_php_db_import_export:
+    uses: ./.github/workflows/build-php-db-import-export.yml
+    with:
+      hasCodeChanged: ${{ needs.build.outputs.changed-php-db-import-export == 'true' }}
+      isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
+      BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7 # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
+    secrets:
+      BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      IE_AWS_SECRET_ACCESS_KEY: ${{ secrets.IE_AWS_SECRET_ACCESS_KEY }}
+      OAUTH_TOKEN_GITHUB: ${{ secrets.OAUTH_TOKEN_GITHUB }}
+      GCS_CREDENTIALS: ${{ secrets.GCS_CREDENTIALS }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.CI_SNOWFLAKE_PASSWORD }}
+      BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      TERADATA_PASSWORD: ${{ secrets.IE_TERADATA_PASSWORD }}
+      ABS_TERADATA_PASSWORD: ${{ secrets.IE_ABS_TERADATA_PASSWORD }}
+      EXASOL_PASSWORD: ${{ secrets.IE_EXASOL_PASSWORD }}
+      EXA_SAAS_TOKEN: ${{ secrets.IE_EXA_SAAS_TOKEN }}
+    needs: build
+
   test_results:
     needs:
         - build_datatypes
         - build_php_table_backend_utils
+        - build_php_db_import_export
     runs-on: ubuntu-latest
     if: |
         contains(fromJson('["success"]'), needs.build_datatypes.result)
