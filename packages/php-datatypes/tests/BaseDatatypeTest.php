@@ -11,6 +11,7 @@ class BaseDatatypeTest extends TestCase
 {
     public function testIsValid(): void
     {
+        $this->assertTrue(true);
         $this->assertTrue(BaseType::isValid('BOOLEAN'));
 
         $this->assertFalse(BaseType::isValid('Boolean'));
