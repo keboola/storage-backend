@@ -49,23 +49,6 @@ ENV LANGUAGE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
-# Snowflake ODBC
-# https://github.com/docker-library/php/issues/103#issuecomment-353674490
-RUN set -ex; \
-    docker-php-source extract; \
-    { \
-        echo '# https://github.com/docker-library/php/issues/103#issuecomment-353674490'; \
-        echo 'AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl'; \
-        echo; \
-        cat /usr/src/php/ext/odbc/config.m4; \
-    } > temp.m4; \
-    mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
-    docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
-    docker-php-ext-install odbc; \
-    docker-php-source delete
-
-
-
 #Synapse ODBC
 RUN set -ex; \
     pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \

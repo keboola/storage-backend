@@ -42,10 +42,6 @@ RUN apt-get update -q \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl
 
-ENV LANGUAGE=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-
 # Snowflake ODBC
 # https://github.com/docker-library/php/issues/103#issuecomment-353674490
 RUN set -ex; \
@@ -59,8 +55,7 @@ RUN set -ex; \
     mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
     docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
     docker-php-ext-install odbc; \
-    docker-php-source delete
-
+    docker-php-source delete 
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
 
@@ -69,3 +64,82 @@ RUN pecl install xdebug-3.1.6 \
 
 FROM base AS dev
 WORKDIR /code
+
+FROM base AS php-table-backend-utils
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_ACCESS_KEY_ID
+RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
+RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
+
+ARG SQLSRV_VERSION=5.10.1
+ARG SNOWFLAKE_ODBC_VERSION=2.25.6
+ARG SNOWFLAKE_GPG_KEY=630D9F3CAB551AF3
+
+ENV LANGUAGE=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+ARG COMPOSER_MIRROR_PATH_REPOS=1
+ARG COMPOSER_HOME=/tmp/composer
+ENV LIB_NAME=php-table-backend-utils
+ENV LIB_HOME=/code/${LIB_NAME}
+WORKDIR ${LIB_HOME}
+
+COPY ${LIB_HOME}/docker/php-prod.ini /usr/local/etc/php/php.ini
+
+#Synapse ODBC
+RUN set -ex; \
+    pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
+    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
+    docker-php-source delete
+
+## Snowflake
+COPY ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol
+COPY ./docker/snowflake/simba.snowflake.ini /usr/lib/snowflake/odbc/lib/simba.snowflake.ini
+
+RUN mkdir -p ~/.gnupg \
+    && chmod 700 ~/.gnupg \
+    && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
+    && mkdir -p /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY \
+    && gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys $SNOWFLAKE_GPG_KEY \
+    && gpg --export $SNOWFLAKE_GPG_KEY > /usr/share/debsig/keyrings/$SNOWFLAKE_GPG_KEY/debsig.gpg \
+    && curl https://sfc-repo.snowflakecomputing.com/odbc/linux/$SNOWFLAKE_ODBC_VERSION/snowflake-odbc-$SNOWFLAKE_ODBC_VERSION.x86_64.deb --output /tmp/snowflake-odbc.deb \
+    && debsig-verify /tmp/snowflake-odbc.deb \
+    && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
+    && dpkg -i /tmp/snowflake-odbc.deb
+
+# Teradata
+COPY --from=0 /tmp/teradata/tdodbc.deb /tmp/teradata/tdodbc.deb
+COPY docker/teradata/odbc.ini /tmp/teradata/odbc_td.ini
+COPY docker/teradata/odbcinst.ini /tmp/teradata/odbcinst_td.ini
+
+RUN dpkg -i /tmp/teradata/tdodbc.deb \
+    && cat /tmp/teradata/odbc_td.ini >> /etc/odbc.ini \
+    && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
+    && rm -r /tmp/teradata \
+    && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
+    && docker-php-ext-install pdo_odbc \
+    && docker-php-source delete
+
+ENV ODBCHOME = /opt/teradata/client/ODBC_64/
+ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
+ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
+ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
+
+#Exasol
+COPY --from=0 /tmp/exasol/odbc.tar.gz /tmp/exasol/odbc.tar.gz
+RUN set -ex; \
+    mkdir -p /tmp/exasol/odbc /opt/exasol ;\
+    tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
+    cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
+    echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
+    rm -rf /tmp/exasol;
+
+COPY packages/${LIB_NAME}/composer.json ./
+RUN --mount=type=bind,target=/packages,source=packages \
+    --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
+    composer install $COMPOSER_FLAGS
+
+COPY packages/${LIB_NAME} ./
+
+
