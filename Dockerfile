@@ -45,17 +45,18 @@ RUN apt-get update -q \
 # Snowflake ODBC
 # https://github.com/docker-library/php/issues/103#issuecomment-353674490
 RUN set -ex; \
-    docker-php-source extract; \
-    { \
-        echo '# https://github.com/docker-library/php/issues/103#issuecomment-353674490'; \
-        echo 'AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl'; \
-        echo; \
-        cat /usr/src/php/ext/odbc/config.m4; \
-    } > temp.m4; \
-    mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
-    docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
-    docker-php-ext-install odbc; \
-    docker-php-source delete 
+    	docker-php-source extract; \
+    	{ \
+    		echo '# https://github.com/docker-library/php/issues/103#issuecomment-271413933'; \
+    		echo 'AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl'; \
+    		echo; \
+    		cat /usr/src/php/ext/odbc/config.m4; \
+    	} > temp.m4; \
+    	mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
+    	apk add --no-cache unixodbc-dev; \
+    	docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
+    	docker-php-ext-install odbc; \
+    	docker-php-source delete
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
 
