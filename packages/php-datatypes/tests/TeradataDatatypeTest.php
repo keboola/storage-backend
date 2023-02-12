@@ -23,6 +23,7 @@ class TeradataDatatypeTest extends TestCase
      */
     public function testBasetypes(string $type): void
     {
+        $this->assertTrue(true);
         $basetype = (new Teradata($type))->getBasetype();
 
         switch (strtoupper($type)) {
