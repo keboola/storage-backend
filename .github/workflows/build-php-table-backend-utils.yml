@@ -7,6 +7,9 @@ on:
       isTag:
         required: true
         type: boolean
+      hasDependChanged:
+        required: true
+        type: boolean
       BUILD_AWS_ACCESS_KEY_ID:
         type: string
         required: true
@@ -58,7 +61,7 @@ defaults:
 
 jobs:
   build_image_php74_table_backend_utils:
-    if: ${{ inputs.hasCodeChanged || inputs.isTag }}
+    if: ${{ inputs.hasCodeChanged || inputs.isTag || (inputs.isTag && inputs.hasDependChanged)}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
