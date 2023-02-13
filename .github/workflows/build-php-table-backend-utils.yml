@@ -146,7 +146,7 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
-        run: docker-compose run dev-php-table-backend-utils composer tests-${{ matrix.suite }}
+        run: docker-compose run dev-php-table-backend-utils:modified composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
       -
