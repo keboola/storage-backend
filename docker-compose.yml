@@ -1,13 +1,50 @@
 version: "3.4"
 
 services:
-  dev:
-    profiles: [ ci, dev ]
-    build:
+  dev: &dev
+    build: &dev-build
       context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
       target: dev
     working_dir: /code
     command: [ /bin/bash ]
     volumes:
       - .:/code
 
+  dev-php-table-backend-utils:
+    platform: linux/amd64
+    image: dev-php-table-backend-utils
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    working_dir: /code/packages/php-table-backend-utils
+    volumes:
+      - .:/code
+    environment:
+      - TEST_PREFIX
+      - ABS_ACCOUNT_NAME
+      - ABS_ACCOUNT_KEY
+      - ABS_CONTAINER_NAME
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
+      - SYNAPSE_UID
+      - SYNAPSE_PWD
+      - SYNAPSE_DATABASE
+      - SYNAPSE_SERVER
+      - TERADATA_HOST
+      - TERADATA_PORT
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
+      - TERADATA_DATABASE
+      - EXASOL_HOST
+      - EXASOL_USERNAME
+      - EXASOL_PASSWORD
+      - BQ_KEY_FILE

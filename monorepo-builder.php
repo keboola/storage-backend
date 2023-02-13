@@ -19,6 +19,7 @@ return static function (MBConfig $mbConfig): void {
     $mbConfig->packageDirectories([__DIR__ . '/packages']);
     // register custom most recent tag resolver
     $servicesConfigurator = $mbConfig->services();
+    $mbConfig->defaultBranch('main');
     $servicesConfigurator
         ->set(TagResolverInterface::class, MostRecentTagWithoutRepositoryPrefixResolver::class)
         ->autowire();
