@@ -95,13 +95,13 @@ jobs:
           docker-compose run dev-php-table-backend-utils composer install
           docker-compose run dev-php-table-backend-utils composer check
           docker commit $(docker ps -alq) dev-php-table-backend-utils:modified
-          docker save -o /tmp/php-table-backend-utils.tar dev-php-table-backend-utils:modified
+          docker save -o /tmp/dev-php-table-backend-utils.tar dev-php-table-backend-utils:modified
       -
         name: Upload docker image
         uses: actions/upload-artifact@v3
         with:
           name: image
-          path: /tmp/php-table-backend-utils.tar
+          path: /tmp/dev-php-table-backend-utils.tar
 
   build_php_table_backend_utils:
     runs-on: ubuntu-latest
@@ -124,7 +124,7 @@ jobs:
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/php-table-backend-utils.tar
+          docker load --input /tmp/dev-php-table-backend-utils.tar
       #
       # Before tests, start services
       -
@@ -146,7 +146,7 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
-        run: docker-compose run --rm dev-php-table-backend-utils composer tests-${{ matrix.suite }}
+        run: docker-compose run dev-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
       -
