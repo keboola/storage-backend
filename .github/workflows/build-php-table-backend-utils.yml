@@ -145,8 +145,10 @@ jobs:
       -
         name: Tests ${{ matrix.suite }}
         env:
+          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           SUITE: ${{ matrix.suite }}
-        run: docker-compose run dev-php-table-backend-utils:modified composer tests-${{ matrix.suite }}
+        run: docker-compose run dev-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
       -
