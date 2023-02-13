@@ -93,8 +93,8 @@ jobs:
         run: |
           docker-compose build dev-php-table-backend-utils
           docker-compose run dev-php-table-backend-utils composer install
-          docker commit $(docker ps -alq) dev-php-table-backend-utils:modified
           docker-compose run dev-php-table-backend-utils composer check
+          docker commit $(docker ps -alq) dev-php-table-backend-utils:modified
           docker save -o /tmp/php-table-backend-utils.tar dev-php-table-backend-utils:modified
       -
         name: Upload docker image
@@ -146,7 +146,7 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
-        run: docker-compose run dev-php-table-backend-utils composer tests-${{ matrix.suite }}
+        run: docker-compose run --rm dev-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
       -
