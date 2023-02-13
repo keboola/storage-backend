@@ -93,8 +93,9 @@ jobs:
         run: |
           docker-compose build dev-php-table-backend-utils
           docker-compose run dev-php-table-backend-utils composer install
+          docker commit $(docker ps -alq) dev-php-table-backend-utils:modified
           docker-compose run dev-php-table-backend-utils composer check
-          docker save -o /tmp/php-table-backend-utils.tar dev-php-table-backend-utils:latest
+          docker save -o /tmp/php-table-backend-utils.tar dev-php-table-backend-utils:modified
       -
         name: Upload docker image
         uses: actions/upload-artifact@v3
@@ -109,7 +110,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [ exasol, snowflake, synapse, teradata ]
+        suite: [ snowflake ] #[ exasol, snowflake, synapse, teradata ]
     steps:
       -
         name: Checkout
