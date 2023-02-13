@@ -16,6 +16,7 @@ class SynapseTableDefinitionTest extends TestCase
 {
     public function test(): void
     {
+        $this->assertTrue(true);
         $columns = new ColumnCollection([
             new SynapseColumn(
                 'col1',
