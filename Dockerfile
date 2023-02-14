@@ -68,7 +68,7 @@ FROM base AS php-table-backend-utils
 ARG COMPOSER_MIRROR_PATH_REPOS=1
 ARG COMPOSER_HOME=/tmp/composer
 ENV LIB_NAME=php-table-backend-utils
-ENV LIB_HOME=/code/${LIB_NAME}
+ENV LIB_HOME=/code/packages/${LIB_NAME}
 WORKDIR ${LIB_HOME}
 
 ENV LANGUAGE=en_US.UTF-8
