@@ -92,7 +92,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build dev-php-table-backend-utils
-          docker-compose run dev-php-table-backend-utils composer install
           docker-compose run dev-php-table-backend-utils composer check
           docker commit $(docker ps -alq) dev-php-table-backend-utils:latest
           docker save -o /tmp/dev-php-table-backend-utils.tar dev-php-table-backend-utils:latest
