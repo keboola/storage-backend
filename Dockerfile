@@ -69,7 +69,6 @@ ARG COMPOSER_MIRROR_PATH_REPOS=1
 ARG COMPOSER_HOME=/tmp/composer
 ENV LIB_NAME=php-table-backend-utils
 ENV LIB_HOME=/code/packages/${LIB_NAME}
-WORKDIR ${LIB_HOME}
 
 ENV LANGUAGE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
@@ -132,7 +131,8 @@ RUN set -ex; \
     echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
     rm -rf /tmp/exasol;
 
-COPY packages code/packages
+COPY packages ./packages
+WORKDIR ${LIB_HOME}
 COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
 RUN --mount=type=bind,target=/packages,source=packages \
     --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
