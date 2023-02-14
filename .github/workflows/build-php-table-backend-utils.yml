@@ -94,8 +94,8 @@ jobs:
           docker-compose build dev-php-table-backend-utils
           docker-compose run dev-php-table-backend-utils composer install
           docker-compose run dev-php-table-backend-utils composer check
-          docker commit $(docker ps -alq) dev-php-table-backend-utils:modified
-          docker save -o /tmp/dev-php-table-backend-utils.tar dev-php-table-backend-utils:modified
+          docker commit $(docker ps -alq) dev-php-table-backend-utils:latest
+          docker save -o /tmp/dev-php-table-backend-utils.tar dev-php-table-backend-utils:latest
       -
         name: Upload docker image
         uses: actions/upload-artifact@v3
@@ -148,7 +148,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           SUITE: ${{ matrix.suite }}
-        run: docker-compose run dev-php-table-backend-utils composer tests-${{ matrix.suite }}
+        run: |
+          docker-compose run dev-php-table-backend-utils composer install
+          docker-compose run dev-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
       -

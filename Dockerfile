@@ -133,8 +133,8 @@ RUN set -ex; \
     rm -rf /tmp/exasol;
 
 COPY packages/${LIB_NAME}/composer.json ./
-RUN --mount=type=bind,target=/packages,source=packages \
-    --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
-    composer install $COMPOSER_FLAGS
+RUN #--mount=type=bind,target=/packages,source=packages \
+#    --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
+#    composer install $COMPOSER_FLAGS
 
 COPY packages/${LIB_NAME} ./
