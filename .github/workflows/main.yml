@@ -38,7 +38,7 @@ jobs:
       - name: Upload base dev monorepo docker image
         uses: actions/upload-artifact@v3
         with:
-          name: image
+          name: ci-monorepo
           path: /tmp/ci-monorepo.tar
 
   build_datatypes:

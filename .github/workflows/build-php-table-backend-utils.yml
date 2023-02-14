@@ -78,7 +78,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: image
+          name: ci-monorepo
           path: /tmp
       - name: Load Base monorepo Docker image
         run: |
@@ -99,7 +99,7 @@ jobs:
         name: Upload docker image
         uses: actions/upload-artifact@v3
         with:
-          name: image
+          name: dev-php-table-backend-utils
           path: /tmp/dev-php-table-backend-utils.tar
 
   build_php_table_backend_utils:
@@ -118,7 +118,7 @@ jobs:
         name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: image
+          name: dev-php-table-backend-utils
           path: /tmp
       -
         name: Load Docker image
