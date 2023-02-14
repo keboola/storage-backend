@@ -149,7 +149,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           SUITE: ${{ matrix.suite }}
         run: |
-          docker-compose run dev-php-table-backend-utils composer install
           docker-compose run dev-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
