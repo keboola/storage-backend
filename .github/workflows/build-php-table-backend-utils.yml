@@ -72,18 +72,17 @@ jobs:
     if: ${{ inputs.hasCodeChanged || inputs.isTag }}
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Build docker image
-        env:
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: image
+          path: /tmp
+      - name: Load Base monorepo Docker image
         run: |
-          docker-compose build dev
-          docker-compose run dev composer install --no-progress --ansi
-          docker-compose run dev vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
+          docker load --input /tmp/ci-monorepo.tar
       -
         name: Check
         env:
@@ -91,9 +90,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
+          docker-compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
           docker-compose build dev-php-table-backend-utils
-          docker-compose run dev-php-table-backend-utils pwd
-          docker-compose run dev-php-table-backend-utils ls -la
           docker-compose run dev-php-table-backend-utils composer check
           docker commit $(docker ps -alq) dev-php-table-backend-utils:latest
           docker save -o /tmp/dev-php-table-backend-utils.tar dev-php-table-backend-utils:latest

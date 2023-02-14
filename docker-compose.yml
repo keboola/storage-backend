@@ -2,6 +2,7 @@ version: "3.4"
 
 services:
   dev: &dev
+    platform: linux/amd64
     build: &dev-build
       context: .
       args:
@@ -12,6 +13,17 @@ services:
     command: [ /bin/bash ]
     volumes:
       - .:/code
+
+  ci-monorepo:
+    platform: linux/amd64
+    image: ci-monorepo
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    working_dir: /code
+    command: [ /bin/bash ]
 
   dev-php-table-backend-utils:
     platform: linux/amd64

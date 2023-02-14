@@ -26,6 +26,20 @@ jobs:
               - 'packages/php-datatypes/**'
             php-table-backend-utils:
               - 'packages/php-table-backend-utils/**'
+      -
+        name: Build docker image
+        env:
+          DOCKER_BUILDKIT: 1
+          AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          docker-compose build ci-monorepo
+          docker save -o /tmp/ci-monorepo.tar ci-monorepo:latest
+      - name: Upload base dev monorepo docker image
+        uses: actions/upload-artifact@v3
+        with:
+          name: image
+          path: /tmp/ci-monorepo.tar
 
   build_datatypes:
     uses: ./.github/workflows/build-php-datatypes.yml

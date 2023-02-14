@@ -61,6 +61,13 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN pecl install xdebug-3.1.6 \
  && docker-php-ext-enable xdebug
 
+COPY composer.json ./
+
+COPY src src/
+COPY monorepo-builder.php .
+
+RUN composer install $COMPOSER_FLAGS
+
 FROM base AS dev
 WORKDIR /code
 
