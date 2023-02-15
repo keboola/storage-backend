@@ -69,13 +69,15 @@ jobs:
         run: |
           docker load --input /tmp/ci-monorepo.tar
       -
+        name: Monorepo Localize Composer Paths
+        run: docker-compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
+      -
         name: Check
         env:
           DOCKER_BUILDKIT: 1
           AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
-          docker-compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
           docker-compose build ci-php-table-backend-utils
           docker-compose run ci-php-table-backend-utils composer check
           docker commit $(docker ps -alq) ci-php-table-backend-utils:latest
