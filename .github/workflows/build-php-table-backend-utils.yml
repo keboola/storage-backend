@@ -63,22 +63,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Build docker image
-        env:
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ci-monorepo
+          path: /tmp
+      - name: Load Base monorepo Docker image
         run: |
-          docker-compose build production74
-      - name: Check
-        run: |
-          docker-compose run production74 composer check
-  build_image_php_table_backend_utils:
-    if: ${{ inputs.hasCodeChanged || inputs.isTag }}
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
+          docker load --input /tmp/ci-monorepo.tar
       -
         name: Build docker image
         env:
