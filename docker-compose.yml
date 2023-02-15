@@ -1,9 +1,9 @@
 version: "3.4"
 
 services:
-  dev: &dev
+  dev:
     platform: linux/amd64
-    build: &dev-build
+    build:
       context: .
       args:
         - AWS_ACCESS_KEY_ID
