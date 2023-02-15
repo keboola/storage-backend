@@ -53,7 +53,7 @@ env:
   EXASOL_PASSWORD: exasol
 
 jobs:
-  build_image_php74_table_backend_utils:
+  build_image_php_table_backend_utils:
     if: ${{ inputs.hasCodeChanged || inputs.isTag }}
     runs-on: ubuntu-latest
     steps:
