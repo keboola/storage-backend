@@ -27,6 +27,18 @@ services:
     volumes:
       - .:/code
 
+  dev-php-datatypes:
+    platform: linux/amd64
+    build:
+      context: .
+      target: dev
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    working_dir: /code/packages/php-datatypes
+    volumes:
+      - .:/code
+
   dev-php-table-backend-utils:
     platform: linux/amd64
     build:
