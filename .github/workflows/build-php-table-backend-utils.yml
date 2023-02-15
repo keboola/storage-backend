@@ -103,12 +103,12 @@ jobs:
         name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: image
+          name: ci-php-table-backend-utils
           path: /tmp
       -
         name: Load Docker image
         run: |
-          docker load --input /tmp/php-table-backend-utils.tar
+          docker load --input /tmp/ci-php-table-backend-utils.tar
       #
       # Before tests, start services
       -
@@ -129,8 +129,13 @@ jobs:
       -
         name: Tests ${{ matrix.suite }}
         env:
+          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           SUITE: ${{ matrix.suite }}
-        run: docker-compose run production composer tests-${{ matrix.suite }}
+          DOCKER_BUILDKIT: 1
+        run: |
+          export DOCKER_BUILDKIT=1 
+          docker-compose run ci-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
       -
