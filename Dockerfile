@@ -32,6 +32,7 @@ RUN apt-get update -q \
         debsig-verify \
         dirmngr \
         gpg-agent \
+        msodbcsql17 \
         libonig-dev \
         libxml2-dev \
         awscli \
@@ -130,7 +131,6 @@ ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
 ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
 
 #Exasol
-#COPY --from=0 /tmp/exasol/odbc.tar.gz /tmp/exasol/odbc.tar.gz
 RUN set -ex; \
     mkdir -p /tmp/exasol/odbc /opt/exasol ;\
     tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
