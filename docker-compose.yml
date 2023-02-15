@@ -94,3 +94,10 @@ services:
       - EXASOL_USERNAME
       - EXASOL_PASSWORD
       - BQ_KEY_FILE
+  exasol:
+    image: exasol/docker-db:latest
+    privileged: true
+    volumes:
+      - exa-volume:/exa
+volumes:
+  exa-volume:
