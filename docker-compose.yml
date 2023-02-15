@@ -94,6 +94,14 @@ services:
       - EXASOL_USERNAME
       - EXASOL_PASSWORD
       - BQ_KEY_FILE
+  ci-php-table-backend-utils74:
+    <<: *dev
+    build:
+      context: .
+      dockerfile: Dockerfile.74
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
   exasol:
     image: exasol/docker-db:latest
     privileged: true
