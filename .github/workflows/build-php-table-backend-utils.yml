@@ -70,7 +70,7 @@ jobs:
           docker load --input /tmp/ci-monorepo.tar
       - name: Monorepo Localize Composer Paths
         run: docker-compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
-        
+
       - name: Build docker image
         env:
           AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}

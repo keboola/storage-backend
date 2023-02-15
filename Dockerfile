@@ -143,4 +143,4 @@ WORKDIR ${LIB_HOME}
 COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
 RUN --mount=type=bind,target=/packages,source=packages \
     --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
-    composer install $COMPOSER_FLAGS \
+    composer install $COMPOSER_FLAGS
