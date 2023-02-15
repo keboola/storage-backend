@@ -24,6 +24,8 @@ services:
         - AWS_SECRET_ACCESS_KEY
     working_dir: /code
     command: [ /bin/bash ]
+    volumes:
+      - .:/code
 
   dev-php-table-backend-utils:
     platform: linux/amd64
