@@ -23,7 +23,7 @@ COPY docker/composer-install.sh /tmp/composer-install.sh
 RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update -q \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends\
         git \
@@ -116,11 +116,11 @@ RUN set -ex; \
 
 ## Composer - deps always cached unless changed
 # First copy only composer files
-COPY composer.* /code/
+COPY packages/php-table-backend-utils/composer.* /code/
 # Download dependencies, but don't run scripts or init autoloaders as the app is missing
 RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 # copy rest of the app
-COPY . /code/
+COPY packages/php-table-backend-utils/ /code/
 # run normal composer - all deps are cached already
 RUN composer install $COMPOSER_FLAGS
 
