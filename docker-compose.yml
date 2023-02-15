@@ -1,13 +1,96 @@
 version: "3.4"
 
 services:
-  dev:
-    profiles: [ ci, dev ]
-    build:
+  dev: &dev
+    platform: linux/amd64
+    build: &dev-build
       context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
       target: dev
     working_dir: /code
     command: [ /bin/bash ]
     volumes:
       - .:/code
 
+  ci-monorepo:
+    platform: linux/amd64
+    image: ci-monorepo
+    build:
+      context: .
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    working_dir: /code
+    command: [ /bin/bash ]
+
+  dev-php-table-backend-utils:
+    platform: linux/amd64
+    build:
+      context: .
+      target: php-table-backend-utils
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    working_dir: /code/packages/php-table-backend-utils
+    volumes:
+      - .:/code
+    environment:
+      - TEST_PREFIX
+      - ABS_ACCOUNT_NAME
+      - ABS_ACCOUNT_KEY
+      - ABS_CONTAINER_NAME
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
+      - SYNAPSE_UID
+      - SYNAPSE_PWD
+      - SYNAPSE_DATABASE
+      - SYNAPSE_SERVER
+      - TERADATA_HOST
+      - TERADATA_PORT
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
+      - TERADATA_DATABASE
+      - EXASOL_HOST
+      - EXASOL_USERNAME
+      - EXASOL_PASSWORD
+      - BQ_KEY_FILE
+
+  ci-php-table-backend-utils:
+    platform: linux/amd64
+    image: ci-php-table-backend-utils
+    build:
+      context: .
+      target: php-table-backend-utils
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    environment:
+      - TEST_PREFIX
+      - ABS_ACCOUNT_NAME
+      - ABS_ACCOUNT_KEY
+      - ABS_CONTAINER_NAME
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
+      - SYNAPSE_UID
+      - SYNAPSE_PWD
+      - SYNAPSE_DATABASE
+      - SYNAPSE_SERVER
+      - TERADATA_HOST
+      - TERADATA_PORT
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
+      - TERADATA_DATABASE
+      - EXASOL_HOST
+      - EXASOL_USERNAME
+      - EXASOL_PASSWORD
+      - BQ_KEY_FILE
