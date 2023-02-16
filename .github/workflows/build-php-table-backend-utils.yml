@@ -167,7 +167,6 @@ jobs:
           SUITE: ${{ matrix.suite }}
           DOCKER_BUILDKIT: 1
         run: |
-          export DOCKER_BUILDKIT=1 
           docker-compose run ci-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
