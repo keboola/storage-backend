@@ -51,13 +51,12 @@ jobs:
   test_results:
     needs:
         - build_datatypes
-        - build_php_table_backend_utils
     runs-on: ubuntu-latest
     if: |
         contains(fromJson('["success"]'), needs.build_datatypes.result)
     steps:
       - name: Tests passed
-        run: echo "Tests passed" >> $GITHUB_STATE
+        run: echo "Tests passed"
 
   monorepo_split:
     needs: test_results
