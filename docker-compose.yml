@@ -116,6 +116,29 @@ services:
       args:
         - AWS_ACCESS_KEY_ID
         - AWS_SECRET_ACCESS_KEY
+
+  dev-php-db-import-export:
+    platform: linux/amd64
+    build:
+      context: .
+      target: php-db-import-export
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    working_dir: /code/packages/php-db-import-export
+    volumes:
+      - .:/code
+
+  ci-php-db-import-export:
+    platform: linux/amd64
+    image: ci-php-table-backend-utils
+    build:
+      context: .
+      target: php-db-import-export
+      args:
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+
   exasol:
     image: exasol/docker-db:latest
     privileged: true
