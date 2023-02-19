@@ -138,6 +138,47 @@ services:
       args:
         - AWS_ACCESS_KEY_ID
         - AWS_SECRET_ACCESS_KEY
+    environment:
+      - ABS_ACCOUNT_NAME
+      - ABS_ACCOUNT_KEY
+      - ABS_CONTAINER_NAME
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
+      - SYNAPSE_UID
+      - SYNAPSE_PWD
+      - SYNAPSE_DATABASE
+      - SYNAPSE_SERVER
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_S3_BUCKET
+      - AWS_S3_KEY
+      - AWS_REGION
+      - EXASOL_HOST
+      - EXASOL_USERNAME
+      - EXASOL_PASSWORD
+      - BUILD_PREFIX
+      - TERADATA_HOST
+      - TERADATA_USERNAME
+      - TERADATA_PASSWORD
+      - TERADATA_PORT
+      - TERADATA_DATABASE
+      - ABS_TERADATA_HOST
+      - ABS_TERADATA_USERNAME
+      - ABS_TERADATA_PASSWORD
+      - ABS_TERADATA_PORT
+      - ABS_TERADATA_DATABASE
+      - GITHUB_OAUTH_TOKEN
+      - STORAGE_TYPE
+      - GCS_CREDENTIALS
+      - GCS_BUCKET_NAME
+      - GCS_INTEGRATION_NAME
+      - BQ_KEY_FILE
+      - BQ_BUCKET_NAME
+      - SUITE
 
   exasol:
     image: exasol/docker-db:latest
