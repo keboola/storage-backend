@@ -131,7 +131,7 @@ services:
 
   ci-php-db-import-export:
     platform: linux/amd64
-    image: ci-php-table-backend-utils
+    image: ci-php-db-import-export
     build:
       context: .
       target: php-db-import-export
