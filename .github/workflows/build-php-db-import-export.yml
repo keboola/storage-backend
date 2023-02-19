@@ -28,7 +28,7 @@ on:
 env:
   BUILD_PREFIX: gh
   PHP_VERSION_E2E: '8.1'
-#  # Snowflake
+  # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
   SNOWFLAKE_USER: KEBOOLA_CI_PHP_IE_LIB
@@ -76,12 +76,12 @@ env:
   AWS_S3_BUCKET: ci-php-ie-lib
   AWS_S3_KEY: ${{ github.run_id }}-${{ github.run_number }}
   AWS_REGION: us-east-1
-#  # ABS
+  # ABS
   ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
   ABS_ACCOUNT_NAME: 7nybfrempo4vcbd4248b7ca
   ABS_CONTAINER_NAME: ${{ github.run_id }}-${{ github.run_number }}
 #  GITHUB_OAUTH_TOKEN: ${{ secrets.OAUTH_TOKEN_GITHUB }}
-#  #GCS
+  #GCS
   GCS_BUCKET_NAME: ci-import-export-lib
 #  GCS_CREDENTIALS: ${{ secrets.GCS_CREDENTIALS }}
   GCS_INTEGRATION_NAME: CI_PHP_IE_LIB
@@ -167,94 +167,65 @@ jobs:
         name: Load data to ${{ matrix.storage }}
         run: |
           docker-compose run ci-php-db-import-export composer loadS3
-#  load-abs:
-#    runs-on: ubuntu-latest
-#    needs: build
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Download artifact
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: image
-#          path: /tmp
-#      -
-#        name: Load Docker image
-#        run: |
-#          docker load --input /tmp/image.tar
-#      -
-#        name: Load data to ${{ matrix.storage }}
-#        run: |
-#          docker-compose run production composer loadAbs
-#  load-gcs:
-#    runs-on: ubuntu-latest
-#    needs: build
-#    strategy:
-#      matrix:
-#        suite:
-#          - snowflake
-#          - bigquery
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Download artifact
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: image
-#          path: /tmp
-#      -
-#        name: Load Docker image
-#        run: |
-#          docker load --input /tmp/image.tar
-#      -
-#        name: Load data to ${{ matrix.storage }}
-#        run: |
-#          docker-compose run production composer loadGcs-${{ matrix.suite }}
-#  #
-#  # Test matrix
-#  testsABS:
-#    runs-on: ubuntu-latest
-#    needs: load-abs
-#    concurrency: ${{ matrix.suite }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        suite:
-#          - snowflake-abs
-#          - teradata-tpt-abs
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Download artifact
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: image
-#          path: /tmp
-#      -
-#        name: Load Docker image
-#        run: |
-#          docker load --input /tmp/image.tar
-#      -
-#        name: Tests ${{ matrix.suite }}
-#        env:
-#          SUITE: ${{ matrix.suite }}
-#        run: docker-compose run production composer tests-${{ matrix.suite }}
-  testsS3:
+  load-abs:
     runs-on: ubuntu-latest
-    needs: load-s3
+    needs: build
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ci-php-db-import-export
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/ci-php-db-import-export.tar
+      -
+        name: Load data to ${{ matrix.storage }}
+        run: |
+          docker-compose run ci-php-db-import-export composer loadAbs
+  load-gcs:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        suite:
+          - snowflake
+          - bigquery
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ci-php-db-import-export
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/ci-php-db-import-export.tar
+      -
+        name: Load data to ${{ matrix.storage }}
+        run: |
+          docker-compose run ci-php-db-import-export composer loadGcs-${{ matrix.suite }}
+
+  # Test matrix
+  testsABS:
+    runs-on: ubuntu-latest
+    needs: load-abs
     concurrency: ${{ matrix.suite }}
     strategy:
       fail-fast: false
       matrix:
         suite:
-          - snowflake-s3
-#          - teradata-tpt-s3
+          - snowflake-abs
+          - teradata-tpt-abs
     steps:
       -
         name: Checkout
@@ -274,234 +245,263 @@ jobs:
         env:
           SUITE: ${{ matrix.suite }}
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
-#  testsGCS:
-#    runs-on: ubuntu-latest
-#    needs: load-gcs
-#    concurrency: ${{ matrix.suite }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        suite:
-#          - snowflake-gcs
-#          - bigquery
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Download artifact
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: image
-#          path: /tmp
-#      -
-#        name: Load Docker image
-#        run: |
-#          docker load --input /tmp/image.tar
-#      -
-#        name: Tests ${{ matrix.suite }}
-#        env:
-#          SUITE: ${{ matrix.suite }}
-#        run: docker-compose run production composer tests-${{ matrix.suite }}
-#  testsAll:
-#    runs-on: ubuntu-latest
-#    needs: [load-s3, load-abs]
-#    concurrency: ${{ matrix.suite }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        suite:
-#          - storage
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Download artifact
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: image
-#          path: /tmp
-#      -
-#        name: Load Docker image
-#        run: |
-#          docker load --input /tmp/image.tar
-#      -
-#        name: Tests ${{ matrix.suite }}
-#        env:
-#          SUITE: ${{ matrix.suite }}
-#        run: docker-compose run production composer tests-${{ matrix.suite }}
-#
-#  pre-synapse-tests:
-#    runs-on: ubuntu-latest
-#    needs: build
-#    concurrency: synapse-tests
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Synapse start
-#        run: |
-#          bash ./provisioning/scripts/synapseRun.sh -r || exit 1
-#          bash ./provisioning/scripts/synapseRun.sh -w || exit 1
-#
-#  synapse-tests:
-#    runs-on: ubuntu-latest
-#    needs: [load-abs, pre-synapse-tests]
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        suite:
-#          - synapse
-#          - synapse-mi
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Download artifact
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: image
-#          path: /tmp
-#      -
-#        name: Load Docker image
-#        run: |
-#          docker load --input /tmp/image.tar
-#      #
-#      # TESTS
-#      #
-#      -
-#        name: Tests ${{ matrix.suite }}
-#        env:
-#          SUITE: ${{ matrix.suite }}
-#        run: docker-compose run production composer tests-${{ matrix.suite }}
-#  post-synapse-tests:
-#    runs-on: ubuntu-latest
-#    needs: synapse-tests
-#    if: ${{ always() }}
-#    concurrency: synapse-tests
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Synapse stop
-#        if: ${{ always() }}
-#        run: |
-#          bash ./provisioning/scripts/synapseRun.sh -p || exit 1
-#  #
-#  #  pre-exasol-tests:
-#  #    runs-on: ubuntu-latest
-#  #    needs: build
-#  #    concurrency: exasol-tests
-#  #    steps:
-#  #      -
-#  #        name: Checkout
-#  #        uses: actions/checkout@v3
-#  #      -
-#  #        name: Exasol start
-#  #        run: |
-#  #          bash ./docker/exasol/createDeleteServer.sh -w || exit 1
-#
-#  exasol-tests:
-#    runs-on: ubuntu-latest
-#    needs: [load-s3]
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        suite:
-#          - exasol
-#    steps:
-#      -
-#        name: Checkout
-#        uses: actions/checkout@v3
-#      -
-#        name: Download artifact
-#        uses: actions/download-artifact@v2
-#        with:
-#          name: image
-#          path: /tmp
-#      -
-#        name: Load Docker image
-#        run: |
-#          docker load --input /tmp/image.tar
-#      #
-#      # TESTS
-#      #
-#      -
-#        name: Tests ${{ matrix.suite }}
-#        env:
-#          SUITE: ${{ matrix.suite }}
-#        run: docker-compose run production composer tests-${{ matrix.suite }}
-#  #  post-exasol-tests:
-#  #    runs-on: ubuntu-latest
-#  #    needs: exasol-tests
-#  #    if: ${{ always() }}
-#  #    concurrency: exasol-tests
-#  #    steps:
-#  #      -
-#  #        name: Checkout
-#  #        uses: actions/checkout@v3
-#  #      -
-#  #        name: Exasol stop
-#  #        if: ${{ always() }}
-#  #        run: |
-#  #          bash ./docker/exasol/createDeleteServer.sh -p || exit 1
-#
-#  #
+  testsS3:
+    runs-on: ubuntu-latest
+    needs: load-s3
+    concurrency: ${{ matrix.suite }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - snowflake-s3
+          - teradata-tpt-s3
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ci-php-db-import-export
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/ci-php-db-import-export.tar
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+  testsGCS:
+    runs-on: ubuntu-latest
+    needs: load-gcs
+    concurrency: ${{ matrix.suite }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - snowflake-gcs
+          - bigquery
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ci-php-db-import-export
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/ci-php-db-import-export.tar
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+  testsAll:
+    runs-on: ubuntu-latest
+    needs: [load-s3, load-abs]
+    concurrency: ${{ matrix.suite }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - storage
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ci-php-db-import-export
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/ci-php-db-import-export.tar
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+
+  pre-synapse-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    concurrency: synapse-tests
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Synapse start
+        run: |
+          bash ./provisioning/scripts/synapseRun.sh -r || exit 1
+          bash ./provisioning/scripts/synapseRun.sh -w || exit 1
+
+  synapse-tests:
+    runs-on: ubuntu-latest
+    needs: [load-abs, pre-synapse-tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - synapse
+          - synapse-mi
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ci-php-db-import-export
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/ci-php-db-import-export.tar
+      #
+      # TESTS
+      #
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+  post-synapse-tests:
+    runs-on: ubuntu-latest
+    needs: synapse-tests
+    if: ${{ always() }}
+    concurrency: synapse-tests
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Synapse stop
+        if: ${{ always() }}
+        run: |
+          bash ./provisioning/scripts/synapseRun.sh -p || exit 1
+
+  #  pre-exasol-tests:
+  #    runs-on: ubuntu-latest
+  #    needs: build
+  #    concurrency: exasol-tests
+  #    steps:
+  #      -
+  #        name: Checkout
+  #        uses: actions/checkout@v3
+  #      -
+  #        name: Exasol start
+  #        run: |
+  #          bash ./docker/exasol/createDeleteServer.sh -w || exit 1
+
+  exasol-tests:
+    runs-on: ubuntu-latest
+    needs: [load-s3]
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - exasol
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ci-php-db-import-export
+          path: /tmp
+      -
+        name: Load Docker image
+        run: |
+          docker load --input /tmp/ci-php-db-import-export.tar
+      #
+      # TESTS
+      #
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+  #  post-exasol-tests:
+  #    runs-on: ubuntu-latest
+  #    needs: exasol-tests
+  #    if: ${{ always() }}
+  #    concurrency: exasol-tests
+  #    steps:
+  #      -
+  #        name: Checkout
+  #        uses: actions/checkout@v3
+  #      -
+  #        name: Exasol stop
+  #        if: ${{ always() }}
+  #        run: |
+  #          bash ./docker/exasol/createDeleteServer.sh -p || exit 1
+
+  #
   # Clean up uploaded data
   clean-s3:
     runs-on: ubuntu-latest
-    needs: [testsS3] #[testsS3, testsAll, exasol-tests]
+    needs: [testsS3, testsAll, exasol-tests]
     if: ${{ always() }}
     steps:
       -
         name: 'Clean S3'
         run: |
           aws s3 rm s3://${{ env.AWS_S3_BUCKET }}/${{env.AWS_S3_KEY}} --recursive
-#  clean-gcs-snowflake:
-#    runs-on: ubuntu-latest
-#    needs: [testsGCS, testsAll]
-#    if: ${{ always() }}
-#    steps:
-#      -
-#        name: 'Login GCS'
-#        uses: 'google-github-actions/auth@v0'
-#        with:
-#          credentials_json: '${{ env.GCS_CREDENTIALS }}'
-#      -
-#        name: 'Set up Cloud SDK'
-#        uses: 'google-github-actions/setup-gcloud@v0'
-#      -
-#        name: 'Clean GCS'
-#        run: 'gsutil -m rm -r gs://${{env.GCS_BUCKET_NAME}}/*'
-#  clean-gcs-bigquery:
-#    runs-on: ubuntu-latest
-#    needs: [ testsGCS, testsAll ]
-#    if: ${{ always() }}
-#    steps:
-#      - name: 'Login GCS'
-#        uses: 'google-github-actions/auth@v0'
-#        with:
-#          credentials_json: '${{ env.BQ_KEY_FILE }}'
-#      - name: 'Set up Cloud SDK'
-#        uses: 'google-github-actions/setup-gcloud@v0'
-#      - name: 'Clean GCS'
-#        run: 'gsutil -m rm -r gs://${{env.BQ_BUCKET_NAME}}/*'
-#  clean-abs:
-#    runs-on: ubuntu-latest
-#    needs: [testsABS, testsAll, synapse-tests]
-#    if: ${{ always() }}
-#    steps:
-#      -
-#        name: 'Install azure cli'
-#        run: 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'
-#      -
-#        name: 'Clean blob storage'
-#        run: |
-#          az storage container delete \
-#          --account-key ${{ env.ABS_ACCOUNT_KEY }} \
-#          --account-name ${{ env.ABS_ACCOUNT_NAME }} \
-#          --name ${{ env.ABS_CONTAINER_NAME }}
+  clean-gcs-snowflake:
+    runs-on: ubuntu-latest
+    needs: [testsGCS, testsAll]
+    if: ${{ always() }}
+    steps:
+      -
+        name: 'Login GCS'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ env.GCS_CREDENTIALS }}'
+      -
+        name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      -
+        name: 'Clean GCS'
+        run: 'gsutil -m rm -r gs://${{env.GCS_BUCKET_NAME}}/*'
+  clean-gcs-bigquery:
+    runs-on: ubuntu-latest
+    needs: [ testsGCS, testsAll ]
+    if: ${{ always() }}
+    steps:
+      - name: 'Login GCS'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ env.BQ_KEY_FILE }}'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      - name: 'Clean GCS'
+        run: 'gsutil -m rm -r gs://${{env.BQ_BUCKET_NAME}}/*'
+  clean-abs:
+    runs-on: ubuntu-latest
+    needs: [testsABS, testsAll, synapse-tests]
+    if: ${{ always() }}
+    steps:
+      -
+        name: 'Install azure cli'
+        run: 'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'
+      -
+        name: 'Clean blob storage'
+        run: |
+          az storage container delete \
+          --account-key ${{ env.ABS_ACCOUNT_KEY }} \
+          --account-name ${{ env.ABS_ACCOUNT_NAME }} \
+          --name ${{ env.ABS_CONTAINER_NAME }}
