@@ -85,6 +85,15 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.IE_AWS_SECRET_ACCESS_KEY }}
       ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
       SNOWFLAKE_PASSWORD: ${{ secrets.CI_SNOWFLAKE_PASSWORD }}
+      SYNAPSE_PWD: ${{ secrets.IE_SYNAPSE_PWD }}
+      AZURE_CLIENT_SECRET: ${{ secrets.IE_AZURE_CLIENT_SECRET }}
+      TERADATA_PASSWORD: ${{ secrets.IE_TERADATA_PASSWORD }}
+      ABS_TERADATA_PASSWORD: ${{ secrets.IE_ABS_TERADATA_PASSWORD }}
+      EXASOL_PASSWORD: ${{ secrets.IE_EXASOL_PASSWORD }}
+      EXA_SAAS_TOKEN: ${{ secrets.IE_EXA_SAAS_TOKEN }}
+      BQ_KEY_FILE: ${{ secrets.IE_BQ_KEY_FILE }}
+      OAUTH_TOKEN_GITHUB: ${{ secrets.IE_OAUTH_TOKEN_GITHUB }}
+      GCS_CREDENTIALS: ${{ secrets.IE_GCS_CREDENTIALS }}
     needs: build
 
   test_results:
