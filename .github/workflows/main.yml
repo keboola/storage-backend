@@ -84,6 +84,7 @@ jobs:
       BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.IE_AWS_SECRET_ACCESS_KEY }}
       ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.CI_SNOWFLAKE_PASSWORD }}
     needs: build
 
   test_results:
