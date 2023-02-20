@@ -57,7 +57,7 @@ env:
 
 jobs:
   build_image_php74_table_backend_utils:
-    if: ${{ inputs.hasCodeChanged || inputs.isTag || (inputs.isRequiredRepoChanged && inputs.isTag)}}
+    if: ${{ inputs.hasCodeChanged || inputs.isTag || inputs.isRequiredRepoChanged }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -86,7 +86,7 @@ jobs:
         run: |
           docker-compose run ci-php-table-backend-utils74 composer check
   build_image_php_table_backend_utils:
-    if: ${{ inputs.hasCodeChanged || inputs.isTag || (inputs.isRequiredRepoChanged && inputs.isTag)}}
+    if: ${{ inputs.hasCodeChanged || inputs.isTag || inputs.isRequiredRepoChanged }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
