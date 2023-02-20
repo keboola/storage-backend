@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
         always()
-        && (contains(fromJson('["success", "skipped"]'), needs.build_datatypes.result) || contains(fromJson('["success", "skipped"]'), needs.build_php_table_backend_utils.result))
+        && (contains(fromJson('["success", "skipped"]'), needs.build_datatypes.result) && contains(fromJson('["success", "skipped"]'), needs.build_php_table_backend_utils.result))
     steps:
       - name: Tests passed
         run: echo "Tests passed"
