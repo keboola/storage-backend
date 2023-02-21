@@ -161,7 +161,7 @@ jobs:
       -
         name: Upload docker image
         if: ${{ matrix.php-version == env.PHP_VERSION_E2E }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ci-php-db-import-export
           path: /tmp/ci-php-db-import-export.tar
