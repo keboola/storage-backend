@@ -1,0 +1,14 @@
+parameters:
+    level: max
+    paths:
+        - contract
+        - tests
+        - Shared
+    excludePaths:
+        analyseAndScan:
+            - tests/generated/*
+    ignoreErrors:
+
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon

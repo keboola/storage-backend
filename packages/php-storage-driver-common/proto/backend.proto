@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package keboola.storageDriver.command.backend;
+/**
+ * Command is used when backend is registered into Keboola connection
+ * Command will check if connection works and if registered user has all necessary grants
+ * Each backend can setup needed resources
+ */
+message InitBackendCommand {
+  google.protobuf.Any meta = 1; // custom object for each backend
+}
+
+/**
+ * Response which is always returned as result of InitBackendCommand
+ */
+message InitBackendResponse {
+  google.protobuf.Any meta = 1; // custom object for each backend
+  message InitBackendSynapseMeta {
+    string globalRoleName = 1; // Global role user
+  }
+}
+
+/**
+ * Command is used when backend is removed from Keboola connection
+ */
+message RemoveBackendCommand {
+  google.protobuf.Any meta = 1; // custom object for each backend
+}
