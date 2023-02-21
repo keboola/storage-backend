@@ -107,8 +107,9 @@ jobs:
     with:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-common == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
-#      BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7 # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
+      BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAGLSOOWW2 # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
     secrets:
+      BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.CD_AWS_SECRET_ACCESS_KEY }}
     needs: build
 
   test_results:
