@@ -31,7 +31,7 @@ jobs:
             php-table-backend-utils:
               - 'packages/php-table-backend-utils/**'
             php-db-import-export:
-              - 'packages/php-db-import-export/**'\
+              - 'packages/php-db-import-export/**'
             php-storage-driver-common:
               - 'packages/php-storage-driver-common/**'
             table-utils-requirements:
