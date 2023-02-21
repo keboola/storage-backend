@@ -131,6 +131,11 @@ jobs:
             repo: 'git@github.com:keboola/php-table-backend-utils'
             lastTag: '1.14.1'
             sshKey: 'PHP_TABLE_BACKEND_UTILS_SSH_PRIVATE_KEY'
+          - name: 'php-db-import-export'
+            path: 'packages/php-db-import-export'
+            repo: 'git@github.com:keboola/php-db-import-export'
+            lastTag: 'v1.20.1'
+            sshKey: 'PHP_DB_IMPORT_EXPORT_SSH_PRIVATE_KEY'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
