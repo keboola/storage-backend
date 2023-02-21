@@ -172,3 +172,15 @@ COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
 RUN --mount=type=bind,target=/packages,source=packages \
     --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
     composer install $COMPOSER_FLAGS
+
+FROM base AS php-storage-driver-common
+
+ENV LIB_NAME=php-storage-driver-common
+ENV LIB_HOME=/code/packages/${LIB_NAME}
+
+COPY packages ./packages
+WORKDIR ${LIB_HOME}
+COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
+RUN --mount=type=bind,target=/packages,source=packages \
+    --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
+    composer install $COMPOSER_FLAGS

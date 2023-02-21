@@ -185,5 +185,44 @@ services:
     privileged: true
     volumes:
       - exa-volume:/exa
+
+  dev-php-storage-driver-common:
+    platform: linux/amd64
+    build:
+      context: .
+      target: php-storage-driver-common
+      args:
+        - GITHUB_OAUTH_TOKEN
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    environment:
+      - DEBUG
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_S3_BUCKET
+      - AWS_REGION
+      - BUILD_PREFIX
+    working_dir: /code/packages/php-storage-driver-common
+    volumes:
+      - .:/code
+
+  ci-php-storage-driver-common:
+    platform: linux/amd64
+    image: php-storage-driver-common
+    build:
+      context: .
+      target: php-db-import-export
+      args:
+        - GITHUB_OAUTH_TOKEN
+        - AWS_ACCESS_KEY_ID
+        - AWS_SECRET_ACCESS_KEY
+    environment:
+      - DEBUG
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_S3_BUCKET
+      - AWS_REGION
+      - BUILD_PREFIX
+
 volumes:
   exa-volume:
