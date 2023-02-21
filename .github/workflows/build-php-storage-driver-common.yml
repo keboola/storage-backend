@@ -1,0 +1,42 @@
+on:
+  workflow_call:
+    inputs:
+      hasCodeChanged:
+        required: true
+        type: boolean
+      isTag:
+        required: true
+        type: boolean
+
+concurrency: build-php-storage-driver-common
+
+jobs:
+  build_common_driver:
+    if: ${{ inputs.hasCodeChanged || inputs.isTag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v1
+
+      - name: Build Image
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          GITHUB_OAUTH_TOKEN: ${{ secrets.BUILD_GITHUB_OAUTH_TOKEN }}
+        run: docker-compose build common-driver
+
+      - name: Prepare stubs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.S3_AWS_REGION }}
+        run: docker-compose run --rm common-driver composer loadS3
+
+      - name: Run Tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.S3_AWS_REGION }}
+        run: docker-compose run --rm common-driver composer ci

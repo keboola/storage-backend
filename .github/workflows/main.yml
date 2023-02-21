@@ -17,6 +17,7 @@ jobs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
       changed-php-db-import-export: ${{ steps.changes.outputs.php-db-import-export }}
+      changed-php-storage-driver-common: ${{ steps.changes.outputs.php-storage-driver-common }}
       table-utils-requirements: ${{ steps.changes.outputs.table-utils-requirements }}
       db-import-export-requirements: ${{ steps.changes.outputs.db-import-export-requirements }}
     steps:
@@ -30,7 +31,9 @@ jobs:
             php-table-backend-utils:
               - 'packages/php-table-backend-utils/**'
             php-db-import-export:
-              - 'packages/php-db-import-export/**'
+              - 'packages/php-db-import-export/**'\
+            php-storage-driver-common:
+              - 'packages/php-storage-driver-common/**'
             table-utils-requirements:
               - 'packages/php-datatypes/**'
             db-import-export-requirements:
@@ -99,11 +102,21 @@ jobs:
       SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.IE_SYNAPSE_PRINCIPAL_PASSWORD }}
     needs: build
 
+  build_php_storage_driver_common:
+    uses: ./.github/workflows/build-php-storage-driver-common.yml
+    with:
+      hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-common == 'true' }}
+      isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
+#      BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7 # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
+    secrets:
+    needs: build
+
   test_results:
     needs:
         - build_datatypes
         - build_php_table_backend_utils
         - build_php_db_import_export
+        - build_php_storage_driver_common
     runs-on: ubuntu-latest
     if: |
       always()
@@ -136,6 +149,11 @@ jobs:
             repo: 'git@github.com:keboola/php-db-import-export'
             lastTag: 'v1.20.1'
             sshKey: 'PHP_DB_IMPORT_EXPORT_SSH_PRIVATE_KEY'
+          - name: 'php-storage-driver-common'
+            path: 'packages/php-storage-driver-common'
+            repo: 'git@github.com:keboola/php-storage-driver-common'
+            lastTag: 'v2.5.0'
+            sshKey: 'PHP_STORAGE_DRIVER_COMMON_SSH_PRIVATE_KEY'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
