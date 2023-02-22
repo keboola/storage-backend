@@ -70,7 +70,7 @@ To be able to run tests to include all changes and packages requested via compos
 
 However, by creating a new CLI interpreter in PHPStorm we will achieve that the changes will be reflected in the whole monorepo.
 
-So for each lib we will create our own interpreter.
+So for each lib we will create our own interpreter. Also add env variables for each interpreter separately when creating a new interpreter.
 
 For example for lib `php-table-backend-utils` as seen in the picture.
 
