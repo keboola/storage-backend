@@ -20,9 +20,13 @@ RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list  \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add -  \
     && apt-get update -q \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends\
         git \
+        apt-transport-https \
+        ca-certificates \
         locales \
         unzip \
         unixodbc \
@@ -36,6 +40,8 @@ RUN apt-get update -q \
         libonig-dev \
         libxml2-dev \
         awscli \
+        parallel \
+        google-cloud-cli \
 	&& rm -r /var/lib/apt/lists/* \
 	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
 	&& locale-gen \
@@ -69,14 +75,8 @@ COPY monorepo-builder.php .
 
 RUN composer install $COMPOSER_FLAGS
 
-FROM base AS dev
-WORKDIR /code
-
-FROM base AS php-table-backend-utils
 ARG COMPOSER_MIRROR_PATH_REPOS=1
 ARG COMPOSER_HOME=/tmp/composer
-ENV LIB_NAME=php-table-backend-utils
-ENV LIB_HOME=/code/packages/${LIB_NAME}
 
 ENV LANGUAGE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
@@ -111,6 +111,7 @@ RUN mkdir -p ~/.gnupg \
     && dpkg -i /tmp/snowflake-odbc.deb
 
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
+RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
 ## Teradata
@@ -120,7 +121,6 @@ COPY docker/teradata/odbcinst.ini /tmp/teradata/odbcinst_td.ini
 RUN dpkg -i /tmp/teradata/tdodbc.deb \
     && cat /tmp/teradata/odbc_td.ini >> /etc/odbc.ini \
     && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
-    && rm -r /tmp/teradata \
     && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
     && docker-php-ext-install pdo_odbc \
     && docker-php-source delete
@@ -130,6 +130,14 @@ ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
 ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
 ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
 
+# Teradata Utils
+#COPY --from=td /tmp/teradata/tdutils.tar.gz /tmp/teradata/tdutils.tar.gz
+RUN cd /tmp/teradata \
+    && tar -xvaf tdutils.tar.gz \
+    && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase s3axsmod azureaxsmod \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/teradata
+
 #Exasol
 RUN set -ex; \
     mkdir -p /tmp/exasol/odbc /opt/exasol ;\
@@ -137,6 +145,26 @@ RUN set -ex; \
     cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
     echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
     rm -rf /tmp/exasol;
+
+FROM base AS dev
+WORKDIR /code
+
+FROM base AS php-table-backend-utils
+
+ENV LIB_NAME=php-table-backend-utils
+ENV LIB_HOME=/code/packages/${LIB_NAME}
+
+COPY packages ./packages
+WORKDIR ${LIB_HOME}
+COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
+RUN --mount=type=bind,target=/packages,source=packages \
+    --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
+    composer install $COMPOSER_FLAGS
+
+FROM base AS php-db-import-export
+
+ENV LIB_NAME=php-db-import-export
+ENV LIB_HOME=/code/packages/${LIB_NAME}
 
 COPY packages ./packages
 WORKDIR ${LIB_HOME}
