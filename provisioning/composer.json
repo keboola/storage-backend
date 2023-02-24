@@ -1,7 +1,7 @@
 {
     "require": {
         "symfony/console": "^5.2",
-        "symfony/process": "^4.4|^5.0|^6.0",
+        "symfony/process": "^5.2",
         "symfony/filesystem": "^5.2"
     },
     "autoload": {

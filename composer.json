@@ -12,40 +12,59 @@
         "ext-odbc": "*",
         "ext-pdo": "*",
         "google/cloud-bigquery": "^1.23",
+        "google/cloud-storage": "^1.27",
         "keboola/common-exceptions": "^1",
+        "keboola/csv-options": "^1",
+        "keboola/php-csv-db-import": "^6",
+        "keboola/php-file-storage-utils": ">=0.2",
+        "keboola/php-temp": "^2.0",
         "keboola/php-utils": "^4.1",
         "keboola/retry": "^0.5.0",
-        "php": "^7.4|^8"
+        "microsoft/azure-storage-blob": "^1.4",
+        "php": "^7.4|^8",
+        "symfony/console": "^5.2",
+        "symfony/filesystem": "^5.2",
+        "symfony/process": "^4.4|^5.0|^6.0"
     },
     "require-dev": {
-        "keboola/coding-standard": "^13.0",
-        "php-parallel-lint/php-parallel-lint": "^1",
-        "phpstan/phpdoc-parser": "1.5.1",
+        "keboola/coding-standard": "^14",
+        "php-parallel-lint/php-parallel-lint": "^1.3",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpdoc-parser": "^1.6",
         "phpstan/phpstan": "^1",
         "phpstan/phpstan-phpunit": "^1",
         "phpunit/phpunit": "^9",
+        "react/async": "^4||^3",
         "squizlabs/php_codesniffer": "^3",
+        "symfony/finder": "^5.4",
         "symplify/monorepo-builder": "11.1.30.72"
     },
     "autoload": {
         "psr-4": {
-            "Keboola\\StorageBackend\\": "src/",
             "Keboola\\Datatype\\": "packages/php-datatypes/src/",
+            "Keboola\\Db\\ImportExport\\": "packages/php-db-import-export/src/",
+            "Keboola\\Provisioning\\": "packages/php-db-import-export/provisioning/./src",
+            "Keboola\\StorageBackend\\": "src/",
             "Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
             "Keboola\\DatatypeTest\\": "packages/php-datatypes/tests/",
+            "Tests\\Keboola\\Db\\ImportExportCommon\\": "packages/php-db-import-export/tests/Common",
+            "Tests\\Keboola\\Db\\ImportExportFunctional\\": "packages/php-db-import-export/tests/functional/",
+            "Tests\\Keboola\\Db\\ImportExportUnit\\": "packages/php-db-import-export/tests/unit",
             "Tests\\Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/tests"
         }
     },
     "replace": {
+        "keboola/db-import-export": "self.version",
         "keboola/php-datatypes": "self.version",
         "keboola/table-backend-utils": "self.version"
     },
     "config": {
         "allow-plugins": {
+            "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
