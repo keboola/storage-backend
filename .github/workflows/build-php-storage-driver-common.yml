@@ -1,0 +1,70 @@
+on:
+  workflow_call:
+    inputs:
+      hasCodeChanged:
+        required: true
+        type: boolean
+      isTag:
+        required: true
+        type: boolean
+      BUILD_AWS_ACCESS_KEY_ID:
+        type: string
+        required: true
+    secrets:
+      BUILD_AWS_SECRET_ACCESS_KEY:
+        required: true
+      S3_BUCKET:
+        required: true
+      S3_AWS_REGION:
+        required: true
+
+concurrency: build-php-storage-driver-common
+
+jobs:
+  build_common_driver:
+    if: ${{ inputs.hasCodeChanged || inputs.isTag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v1
+
+      - name: Build Image
+        env:
+          DOCKER_BUILDKIT: 1
+          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+        run: docker-compose build ci-php-storage-driver-common
+
+      - name: Prepare stubs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.S3_AWS_REGION }}
+        run: docker-compose run --rm ci-php-storage-driver-common composer loadS3
+
+      - name: Run Tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_REGION: ${{ secrets.S3_AWS_REGION }}
+        run: docker-compose run --rm ci-php-storage-driver-common composer ci
+  protoc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v1
+
+      - name: Build Image
+        env:
+          DOCKER_BUILDKIT: 1
+          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
+        run: docker-compose build
+
+      - name: Check generated files
+        run: |
+          docker-compose run --rm dev-php-storage-driver-common /bin/bash ./etc/ci/scripts/generate_tmp_proto.sh
+          cd packages/php-storage-driver-common/
+          diff -rq tmp_generated generated

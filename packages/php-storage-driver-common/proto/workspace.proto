@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package keboola.storageDriver.command.workspace;
+
+/**
+ * Command is used when new workspace is created in Keboola connection
+ * Command will:
+ * - create new workspace which is usually new schema
+ * - create role which should be owner of schema and has all needed grant's
+ * - create user with password which is used to connect into workspace
+ * - make project role member of workspace role, so project user has also all needed grants on workspace as it will perform data loads
+ * - if read only storage is supported project read only role is also assigned to workspace role so user can read from all project tables
+ */
+message CreateWorkspaceCommand {
+  string stackPrefix = 1; // static prefix of stack used
+  string projectId = 2; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+  string workspaceId = 3; // Keboola Connection workspace id
+  string projectUserName = 4; // backend user associated with project
+  string projectRoleName = 5; // backend role associated with project, role should contain all grants and be assigned to project user
+  string projectReadOnlyRoleName = 6; // backend read only role associated with project, role has read access for all buckets in project and containing tables
+  google.protobuf.Any meta = 7; // metadata specific for each backend
+  /**
+   * Teradata backend metadata
+   */
+  message CreateWorkspaceTeradataMeta {
+    string permSpace = 1; // size of perm space allocated with workspace, example `1e9`
+    string spoolSpace = 2; // size of spool space allocated with workspace, example `1e9`
+  }
+}
+/**
+ * Response contain all resources names created by create workspace command
+ */
+message CreateWorkspaceResponse {
+  string workspaceUserName = 1; // newly created user name associated with workspace
+  string workspaceRoleName = 2; // newly created role name associated with workspace
+  string workspacePassword = 3; // workspace user password
+  string workspaceObjectName = 4; // resulting object name actually stored in backend
+}
+/**
+ * Command will remove workspace, all it's content and resource
+ */
+message DropWorkspaceCommand {
+  string workspaceUserName = 1; // backend user associated with workspace
+  string workspaceRoleName = 2; // backend role associated with workspace
+  string workspaceObjectName = 3; // object name in backend which will be removed
+  bool isCascade = 4; // drop all object workspace contains
+}
+/**
+ * Command will remove workspace content
+ */
+message ClearWorkspaceCommand {
+  string workspaceObjectName = 1; // object name in backend which will be removed
+  bool ignoreErrors = 2; // if true all backend errors should be ignored and command will always pass
+}
+/**
+ * Command reset workspace password
+ */
+message ResetWorkspacePasswordCommand {
+  string workspaceUserName = 1; // backend user associated with workspace
+}
+/**
+ * Response contain new password created by reset workspace password command
+ */
+message ResetWorkspacePasswordResponse {
+  string workspaceUserName = 1; // workspace user name
+  string workspacePassword = 2; // workspace user password
+}
+
+/**
+ * Command will remove single workspace object
+ */
+message DropWorkspaceObjectCommand {
+  string workspaceObjectName = 1; // database or user name in backend
+  string objectNameToDrop = 2; // object name in backend which will be removed
+  bool ignoreIfNotExists = 3; // if true non-existing object should be ignored and command will always pass
+}
+
+/**
+ * Command will make some project role member of workspace role
+ * This way is handled load from linked bucket when parent project of the workspace has no access to other project bucket and load is performed by project where is source bucket
+ */
+message GrantWorkspaceAccessToProjectCommand {
+  string workspaceUserName = 1;
+  string workspaceRoleName = 2;
+  string workspaceObjectName = 3;
+  string projectUserName = 4;
+  string projectRoleName = 5;
+}
+
+/**
+ * Command will revert grant made by GrantWorkspaceAccessToProjectCommand
+ */
+message RevokeWorkspaceAccessToProjectCommand {
+  string workspaceUserName = 1;
+  string workspaceRoleName = 2;
+  string workspaceObjectName = 3;
+  string projectUserName = 4;
+  string projectRoleName = 5;
+}
