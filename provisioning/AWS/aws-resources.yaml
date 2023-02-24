@@ -35,6 +35,18 @@ Resources:
                 token.actions.githubusercontent.com:aud: !Ref OIDCAudience
               StringLike:
                 token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:*
+      Policies:
+        - PolicyName: DownloadDrivers
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource:
+                  - arn:aws:s3:::keboola-drivers/*
+                  - arn:aws:s3:::keboola-drivers
+                Effect: Allow
 
   GithubOidc:
     Type: AWS::IAM::OIDCProvider
