@@ -13,6 +13,9 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     outputs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
@@ -22,6 +25,14 @@ jobs:
       db-import-export-requirements: ${{ steps.changes.outputs.db-import-export-requirements }}
     steps:
       - uses: actions/checkout@v3
+
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-Role-1LL8Q3IJUVX11
+          aws-region: us-east-1
+
       - uses: dorny/paths-filter@v2
         id: changes
         with:
@@ -43,8 +54,6 @@ jobs:
         name: Build docker image
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build ci-monorepo
           docker-compose run ci-monorepo composer install
