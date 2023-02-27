@@ -237,6 +237,7 @@ services:
         - GITHUB_OAUTH_TOKEN
         - AWS_ACCESS_KEY_ID
         - AWS_SECRET_ACCESS_KEY
+        - AWS_SESSION_TOKEN
     environment:
       - DEBUG
       - AWS_ACCESS_KEY_ID
@@ -258,6 +259,7 @@ services:
         - GITHUB_OAUTH_TOKEN
         - AWS_ACCESS_KEY_ID
         - AWS_SECRET_ACCESS_KEY
+        - AWS_SESSION_TOKEN
     environment:
       - DEBUG
       - AWS_ACCESS_KEY_ID

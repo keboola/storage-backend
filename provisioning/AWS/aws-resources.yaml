@@ -18,6 +18,51 @@ Conditions:
     - ""
 
 Resources:
+  FileStorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ci-storage-driver-common
+  StorageDriverCommonRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !If
+                - CreateOIDCProvider
+                - !Ref GithubOidc
+                - !Ref OIDCProviderArn
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: !Ref OIDCAudience
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:*
+      Policies:
+        - PolicyName: DownloadDrivers
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource:
+                  - arn:aws:s3:::keboola-drivers/*
+                  - arn:aws:s3:::keboola-drivers
+                Effect: Allow
+        - PolicyName: FileStorage
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource:
+                  - arn:aws:s3:::ci-storage-driver-common/*
+                  - arn:aws:s3:::ci-storage-driver-common
+                Effect: Allow
   BaseStorageBackendRole:
     Type: AWS::IAM::Role
     Properties:
@@ -61,3 +106,5 @@ Resources:
 Outputs:
   BaseStorageBackendRole:
     Value: !GetAtt BaseStorageBackendRole.Arn
+  StorageDriverCommonRole:
+    Value: !GetAtt StorageDriverCommonRole.Arn
