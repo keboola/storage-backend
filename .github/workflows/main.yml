@@ -30,7 +30,7 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-Role-1LL8Q3IJUVX11
+          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-Role-53UXVACPPEKO
           aws-region: us-east-1
 
       - uses: dorny/paths-filter@v2
