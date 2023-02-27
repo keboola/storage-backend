@@ -60,8 +60,12 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                 Resource:
-                  - arn:aws:s3:::ci-storage-driver-common/*
-                  - arn:aws:s3:::ci-storage-driver-common
+                  - Fn::GetAtt: [ FileStorageBucket, "Arn" ]
+                  - !Join
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - !Ref FileStorageBucket
+                      - /*
                 Effect: Allow
   BaseStorageBackendRole:
     Type: AWS::IAM::Role
