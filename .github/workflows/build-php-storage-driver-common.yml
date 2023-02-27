@@ -52,6 +52,7 @@ jobs:
         run: docker-compose run --rm ci-php-storage-driver-common composer ci
   protoc:
     runs-on: ubuntu-latest
+    if: ${{ inputs.hasCodeChanged || inputs.isTag }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v1
