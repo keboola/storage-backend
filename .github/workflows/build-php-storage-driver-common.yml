@@ -29,7 +29,7 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-13IIR3PN73H8Y
+          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
           aws-region: us-east-1
       - name: Build Image
         env:
@@ -60,7 +60,7 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-13IIR3PN73H8Y
+          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
           aws-region: us-east-1
       - name: Build Image
         env:

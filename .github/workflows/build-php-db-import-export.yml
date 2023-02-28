@@ -10,12 +10,7 @@ on:
       isRequiredRepoChanged:
         required: true
         type: boolean
-      BUILD_AWS_ACCESS_KEY_ID:
-        type: string
-        required: true
     secrets:
-      BUILD_AWS_SECRET_ACCESS_KEY:
-        required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
       ABS_ACCOUNT_KEY:
@@ -109,6 +104,9 @@ env:
 jobs:
   build:
     if: ${{ inputs.hasCodeChanged || inputs.isTag || inputs.isRequiredRepoChanged }}
+    permissions:
+      id-token: write
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -120,6 +118,12 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
+          aws-region: us-east-1
 
       - name: Download artifact
         uses: actions/download-artifact@v3
@@ -138,8 +142,6 @@ jobs:
         if: ${{ matrix.php-version != env.PHP_VERSION_E2E }}
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} ci-php-db-import-export
       -
@@ -147,8 +149,6 @@ jobs:
         if: ${{ matrix.php-version == env.PHP_VERSION_E2E }}
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} ci-php-db-import-export
           docker save -o /tmp/ci-php-db-import-export.tar ci-php-db-import-export:latest

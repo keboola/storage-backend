@@ -18,7 +18,7 @@ Conditions:
     - ""
 
 Resources:
-  FileStorageBucket:
+  CommonDriverStorageBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: ci-storage-driver-common
@@ -60,11 +60,11 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                 Resource:
-                  - Fn::GetAtt: [ FileStorageBucket, "Arn" ]
+                  - Fn::GetAtt: [ CommonDriverStorageBucket, "Arn" ]
                   - !Join
                     - ''
                     - - 'arn:aws:s3:::'
-                      - !Ref FileStorageBucket
+                      - !Ref CommonDriverStorageBucket
                       - /*
                 Effect: Allow
   BaseStorageBackendRole:
