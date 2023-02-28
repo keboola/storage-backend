@@ -12,6 +12,19 @@ Storage backend related tools monorepo
 ## Adding new repository
 If you want to add a new repository to monorep, please follow the [instructions](adopt-new-repository.md).
 
+## Provisioning of resources
+Some libraries need to install backend drivers that are stored on S3 for this purpose we create a [cloudformation template](provisioning/AWS/aws-resources.yaml).
+This cloudformation template is managed manually on the corresponding AWS stack for CI. When adding a new library to the monorepo, we can use the base role for building and use
+as in [main.yml](.github/workflows/main.yml) on line 32, or add the new role to the cloudformation template and assign the necessary resources to it.
+```yaml
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+```
+
 ## How to use monorepo and packages
 We maintaining the monorepo with the [symplify/monorepo-builder](https://github.com/symplify/monorepo-builder).
 
