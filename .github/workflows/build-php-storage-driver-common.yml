@@ -7,9 +7,6 @@ on:
       isTag:
         required: true
         type: boolean
-      ROLE_AWS_REGION:
-        required: true
-        type: string
     secrets:
       S3_BUCKET:
         required: true
@@ -17,6 +14,10 @@ on:
         required: true
 
 concurrency: build-php-storage-driver-common
+
+env:
+  AWS_CREDENTIALS_REGION: us-east-1
+  AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
 
 jobs:
   build_common_driver:
@@ -32,8 +33,8 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
-          aws-region: ${{ inputs.ROLE_AWS_REGION }}
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Build Image
         env:
           DOCKER_BUILDKIT: 1
@@ -63,8 +64,8 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
-          aws-region: ${{ inputs.ROLE_AWS_REGION }}
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Build Image
         env:
           DOCKER_BUILDKIT: 1

@@ -10,9 +10,6 @@ on:
       isRequiredRepoChanged:
         required: true
         type: boolean
-      ROLE_AWS_REGION:
-        required: true
-        type: string
     secrets:
       SNOWFLAKE_PASSWORD:
         required: true
@@ -24,6 +21,8 @@ on:
         required: true
 env:
   TEST_PREFIX: gh_
+  AWS_CREDENTIALS_REGION: us-east-1
+  AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
@@ -66,8 +65,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
-          aws-region: ${{ inputs.ROLE_AWS_REGION }}
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
@@ -100,8 +99,8 @@ jobs:
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
-          aws-region: ${{ inputs.ROLE_AWS_REGION }}
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
@@ -149,8 +148,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
-          aws-region: ${{ inputs.ROLE_AWS_REGION }}
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       -
         name: Download artifact
         uses: actions/download-artifact@v3
