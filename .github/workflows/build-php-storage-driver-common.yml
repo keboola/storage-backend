@@ -7,6 +7,9 @@ on:
       isTag:
         required: true
         type: boolean
+      ROLE_AWS_REGION:
+        required: true
+        type: string
     secrets:
       S3_BUCKET:
         required: true
@@ -30,7 +33,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
-          aws-region: us-east-1
+          aws-region: ${{ inputs.ROLE_AWS_REGION }}
       - name: Build Image
         env:
           DOCKER_BUILDKIT: 1
@@ -61,7 +64,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
-          aws-region: us-east-1
+          aws-region: ${{ inputs.ROLE_AWS_REGION }}
       - name: Build Image
         env:
           DOCKER_BUILDKIT: 1

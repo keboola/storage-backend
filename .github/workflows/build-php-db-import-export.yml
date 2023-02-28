@@ -10,6 +10,9 @@ on:
       isRequiredRepoChanged:
         required: true
         type: boolean
+      ROLE_AWS_REGION:
+        required: true
+        type: string
     secrets:
       AWS_SECRET_ACCESS_KEY:
         required: true
@@ -123,7 +126,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
-          aws-region: us-east-1
+          aws-region: ${{ inputs.ROLE_AWS_REGION }}
 
       - name: Download artifact
         uses: actions/download-artifact@v3
