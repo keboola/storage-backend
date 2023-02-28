@@ -61,11 +61,7 @@ Resources:
                   - s3:PutObject
                 Resource:
                   - Fn::GetAtt: [ CommonDriverStorageBucket, "Arn" ]
-                  - !Join
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - !Ref CommonDriverStorageBucket
-                      - /*
+                  - !Sub 'arn:aws:s3:::${CommonDriverStorageBucket}/*'
                 Effect: Allow
   BaseStorageBackendRole:
     Type: AWS::IAM::Role
