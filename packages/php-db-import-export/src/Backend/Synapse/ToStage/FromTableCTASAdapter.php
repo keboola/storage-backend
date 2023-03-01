@@ -17,9 +17,12 @@ use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\SynapseTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use Throwable;
 
 class FromTableCTASAdapter implements CopyAdapterInterface
 {
+    private const TMP_TABLE_SUFFIX = '_tmp_rename';
+
     private Connection $connection;
 
     public function __construct(Connection $connection)
@@ -48,16 +51,37 @@ class FromTableCTASAdapter implements CopyAdapterInterface
             );
         }
 
+        $tempTableName = $destination->getTableName() . self::TMP_TABLE_SUFFIX;
         try {
+            // if temp table exists for some reason from previous run, drop it
+            (new SynapseTableReflection(
+                $this->connection,
+                $destination->getSchemaName(),
+                $tempTableName
+            ))->getObjectId();
+            // rename table to tmp
+            $this->connection->executeQuery(
+                (new SynapseTableQueryBuilder())->getDropTableCommand(
+                    $destination->getSchemaName(),
+                    $tempTableName
+                )
+            );
+        } catch (TableNotExistsReflectionException $e) {
+            // ignore if table not exists
+        }
+        try {
+            // check if table exists
             (new SynapseTableReflection(
                 $this->connection,
                 $destination->getSchemaName(),
                 $destination->getTableName()
             ))->getObjectId();
+            // rename table to temp
             $this->connection->executeQuery(
-                (new SynapseTableQueryBuilder())->getDropTableCommand(
+                (new SynapseTableQueryBuilder())->getRenameTableCommand(
                     $destination->getSchemaName(),
-                    $destination->getTableName()
+                    $destination->getTableName(),
+                    $tempTableName
                 )
             );
         } catch (TableNotExistsReflectionException $e) {
@@ -66,10 +90,32 @@ class FromTableCTASAdapter implements CopyAdapterInterface
 
         $sql = FromTableCTASAdapterSqlBuilder::getCTASCommand($destination, $source, $importOptions);
 
-        if ($source instanceof SelectSource) {
-            $this->connection->executeQuery($sql, $source->getQueryBindings(), $source->getDataTypes());
-        } else {
-            $this->connection->executeStatement($sql);
+        $dropTempTable = true;
+        try {
+            if ($source instanceof SelectSource) {
+                $this->connection->executeQuery($sql, $source->getQueryBindings(), $source->getDataTypes());
+            } else {
+                $this->connection->executeStatement($sql);
+            }
+        } catch (Throwable $e) {
+            $dropTempTable = false;
+            // if ctas fails rename table back
+            $this->connection->executeQuery(
+                (new SynapseTableQueryBuilder())->getRenameTableCommand(
+                    $destination->getSchemaName(),
+                    $tempTableName,
+                    $destination->getTableName()
+                )
+            );
+        }
+
+        if ($dropTempTable) {
+            $this->connection->executeQuery(
+                (new SynapseTableQueryBuilder())->getDropTableCommand(
+                    $destination->getSchemaName(),
+                    $tempTableName
+                )
+            );
         }
 
         $ref = new SynapseTableReflection(
