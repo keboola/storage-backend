@@ -69,27 +69,40 @@ class FromTableCTASAdapter implements CopyAdapterInterface
         } catch (TableNotExistsReflectionException $e) {
             // ignore if table not exists
         }
+
+        $isMainTableTemporary = false;
         try {
             // check if table exists
-            (new SynapseTableReflection(
+            $ref = (new SynapseTableReflection(
                 $this->connection,
                 $destination->getSchemaName(),
                 $destination->getTableName()
-            ))->getObjectId();
-            // rename table to temp
-            $this->connection->executeQuery(
-                (new SynapseTableQueryBuilder())->getRenameTableCommand(
-                    $destination->getSchemaName(),
-                    $destination->getTableName(),
-                    $tempTableName
-                )
-            );
+            ));
+            $ref->getObjectId();
+            $isMainTableTemporary = $ref->isTemporary();
+            if ($isMainTableTemporary) {
+                // drop table
+                $this->connection->executeQuery(
+                    (new SynapseTableQueryBuilder())->getDropTableCommand(
+                        $destination->getSchemaName(),
+                        $destination->getTableName()
+                    )
+                );
+            } else {
+                // rename table to temp
+                $this->connection->executeQuery(
+                    (new SynapseTableQueryBuilder())->getRenameTableCommand(
+                        $destination->getSchemaName(),
+                        $destination->getTableName(),
+                        $tempTableName
+                    )
+                );
+            }
         } catch (TableNotExistsReflectionException $e) {
             // ignore if table not exists
         }
 
         $sql = FromTableCTASAdapterSqlBuilder::getCTASCommand($destination, $source, $importOptions);
-
         $dropTempTable = true;
         try {
             if ($source instanceof SelectSource) {
@@ -100,16 +113,18 @@ class FromTableCTASAdapter implements CopyAdapterInterface
         } catch (Throwable $e) {
             $dropTempTable = false;
             // if ctas fails rename table back
-            $this->connection->executeQuery(
-                (new SynapseTableQueryBuilder())->getRenameTableCommand(
-                    $destination->getSchemaName(),
-                    $tempTableName,
-                    $destination->getTableName()
-                )
-            );
+            if ($isMainTableTemporary === false) {
+                $this->connection->executeQuery(
+                    (new SynapseTableQueryBuilder())->getRenameTableCommand(
+                        $destination->getSchemaName(),
+                        $tempTableName,
+                        $destination->getTableName()
+                    )
+                );
+            }
         }
 
-        if ($dropTempTable) {
+        if ($dropTempTable === true && $isMainTableTemporary === false) {
             $this->connection->executeQuery(
                 (new SynapseTableQueryBuilder())->getDropTableCommand(
                     $destination->getSchemaName(),
