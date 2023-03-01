@@ -172,3 +172,30 @@ COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
 RUN --mount=type=bind,target=/packages,source=packages \
     --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
     composer install $COMPOSER_FLAGS
+
+FROM base AS php-storage-driver-common
+
+ENV LIB_NAME=php-storage-driver-common
+ENV LIB_HOME=/code/packages/${LIB_NAME}
+
+COPY packages ./packages
+WORKDIR ${LIB_HOME}
+COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
+RUN --mount=type=bind,target=/packages,source=packages \
+    --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
+    composer install $COMPOSER_FLAGS
+
+RUN mkdir -p /tmp/protoc && \
+    curl -sSLf \
+    -o /tmp/protoc/protoc.zip \
+    https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-linux-x86_64.zip && \
+    unzip /tmp/protoc/protoc.zip -d /tmp/protoc && \
+    mv /tmp/protoc/bin/protoc /usr/local/bin && \
+    mv /tmp/protoc/include/google /usr/local/include && \
+    chmod +x /usr/local/bin/protoc && \
+    rm -rf /tmp/protoc
+
+RUN curl -sSLf \
+        -o /usr/local/bin/install-php-extensions \
+        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x /usr/local/bin/install-php-extensions

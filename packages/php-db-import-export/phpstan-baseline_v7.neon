@@ -329,3 +329,18 @@ parameters:
 			message: "#^Variable \\$destination in PHPDoc tag @var does not match assigned variable \\$options\\.$#"
 			count: 1
 			path: tests/unit/Storage/ABS/SynapseExportAdapterTest.php
+		-
+			message: "#^Left side of && is always true\\.$#"
+			count: 1
+			path: tests/functional/ImportExportBaseTest.php
+
+		-
+			message: "#^Left side of && is always true\\.$#"
+			count: 1
+			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
+
+		-
+			message: "#^Left side of && is always true\\.$#"
+			count: 1
+			path: tests/functional/Teradata/ToFinal/IncrementalImportTest.php
+
