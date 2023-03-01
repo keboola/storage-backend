@@ -10,9 +10,6 @@ on:
       isRequiredRepoChanged:
         required: true
         type: boolean
-      BUILD_AWS_ACCESS_KEY_ID:
-        type: string
-        required: true
     secrets:
       SNOWFLAKE_PASSWORD:
         required: true
@@ -22,10 +19,10 @@ on:
         required: true
       TERADATA_PASSWORD:
         required: true
-      BUILD_AWS_SECRET_ACCESS_KEY:
-        required: true
 env:
   TEST_PREFIX: gh_
+  AWS_CREDENTIALS_REGION: us-east-1
+  AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
@@ -59,10 +56,17 @@ jobs:
   build_image_php74_table_backend_utils:
     if: ${{ inputs.hasCodeChanged || inputs.isTag || inputs.isRequiredRepoChanged }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
@@ -77,9 +81,6 @@ jobs:
           docker-compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
 
       - name: Build docker image
-        env:
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build ci-php-table-backend-utils74
       - name: Check
@@ -88,10 +89,18 @@ jobs:
   build_image_php_table_backend_utils:
     if: ${{ inputs.hasCodeChanged || inputs.isTag || inputs.isRequiredRepoChanged }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
@@ -109,8 +118,6 @@ jobs:
         name: Check
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build ci-php-table-backend-utils
           docker-compose run ci-php-table-backend-utils composer check
@@ -125,6 +132,9 @@ jobs:
 
   build_php_table_backend_utils:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: build_image_php_table_backend_utils
     concurrency: ${{ matrix.suite }}
     strategy:
@@ -135,6 +145,11 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       -
         name: Download artifact
         uses: actions/download-artifact@v3
@@ -165,8 +180,6 @@ jobs:
       -
         name: Tests ${{ matrix.suite }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           SUITE: ${{ matrix.suite }}
           DOCKER_BUILDKIT: 1
         run: |

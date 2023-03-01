@@ -9,10 +9,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  AWS_CREDENTIALS_REGION: us-east-1
+  AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
 jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     outputs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
@@ -22,6 +28,14 @@ jobs:
       db-import-export-requirements: ${{ steps.changes.outputs.db-import-export-requirements }}
     steps:
       - uses: actions/checkout@v3
+
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       - uses: dorny/paths-filter@v2
         id: changes
         with:
@@ -43,8 +57,6 @@ jobs:
         name: Build docker image
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose build ci-monorepo
           docker-compose run ci-monorepo composer install
@@ -69,13 +81,11 @@ jobs:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-table-backend-utils == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
       isRequiredRepoChanged: ${{ needs.build.outputs.table-utils-requirements== 'true' }}
-      BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7 # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
     secrets:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
       SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
       TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
-      BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     needs: build
 
   build_php_db_import_export:
@@ -84,9 +94,7 @@ jobs:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-db-import-export == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
       isRequiredRepoChanged: ${{ needs.build.outputs.db-import-export-requirements == 'true' }}
-      BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAMOX5NOG7 # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
     secrets:
-      BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.IE_AWS_SECRET_ACCESS_KEY }}
       ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
       SNOWFLAKE_PASSWORD: ${{ secrets.CI_SNOWFLAKE_PASSWORD }}
@@ -107,9 +115,7 @@ jobs:
     with:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-common == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
-      BUILD_AWS_ACCESS_KEY_ID: AKIAQ4QRYXTAJQ32HBOK # this sucks, but can't use env here. See https://github.com/orgs/community/discussions/26671#discussioncomment-3252793
     secrets:
-      BUILD_AWS_SECRET_ACCESS_KEY: ${{ secrets.CD_AWS_SECRET_ACCESS_KEY }}
       S3_BUCKET: ${{ secrets.S3_BUCKET }}
       S3_AWS_REGION: ${{ secrets.S3_AWS_REGION }}
     needs: build

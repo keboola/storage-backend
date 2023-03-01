@@ -7,12 +7,7 @@ on:
       isTag:
         required: true
         type: boolean
-      BUILD_AWS_ACCESS_KEY_ID:
-        type: string
-        required: true
     secrets:
-      BUILD_AWS_SECRET_ACCESS_KEY:
-        required: true
       S3_BUCKET:
         required: true
       S3_AWS_REGION:
@@ -20,49 +15,61 @@ on:
 
 concurrency: build-php-storage-driver-common
 
+env:
+  AWS_CREDENTIALS_REGION: us-east-1
+  AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
+
 jobs:
   build_common_driver:
     if: ${{ inputs.hasCodeChanged || inputs.isTag }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout Code
         uses: actions/checkout@v1
-
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Build Image
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: docker-compose build ci-php-storage-driver-common
 
       - name: Prepare stubs
         env:
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
           AWS_REGION: ${{ secrets.S3_AWS_REGION }}
         run: docker-compose run --rm ci-php-storage-driver-common composer loadS3
 
       - name: Run Tests
         env:
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
           AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
           AWS_REGION: ${{ secrets.S3_AWS_REGION }}
         run: docker-compose run --rm ci-php-storage-driver-common composer ci
   protoc:
     runs-on: ubuntu-latest
     if: ${{ inputs.hasCodeChanged || inputs.isTag }}
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout Code
         uses: actions/checkout@v1
-
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
       - name: Build Image
         env:
           DOCKER_BUILDKIT: 1
-          AWS_ACCESS_KEY_ID: ${{ inputs.BUILD_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
-        run: docker-compose build
+        run: docker-compose build dev-php-storage-driver-common
 
       - name: Check generated files
         run: |
