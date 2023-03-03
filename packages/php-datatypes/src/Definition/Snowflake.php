@@ -43,6 +43,11 @@ class Snowflake extends Common
     public const TYPE_VARIANT = 'VARIANT';
     public const TYPE_BINARY = 'BINARY';
     public const TYPE_VARBINARY = 'VARBINARY';
+    public const TYPE_OBJECT = 'OBJECT';
+    public const TYPE_ARRAY = 'ARRAY';
+    public const TYPE_GEOGRAPHY = 'GEOGRAPHY';
+    public const TYPE_GEOMETRY = 'GEOMETRY';
+
     public const TYPES = [
         self::TYPE_NUMBER,
         self::TYPE_DECIMAL,
@@ -75,6 +80,10 @@ class Snowflake extends Common
         self::TYPE_VARIANT,
         self::TYPE_BINARY,
         self::TYPE_VARBINARY,
+        self::TYPE_OBJECT,
+        self::TYPE_ARRAY,
+        self::TYPE_GEOGRAPHY,
+        self::TYPE_GEOMETRY,
     ];
 
     public const MAX_VARCHAR_LENGTH = 16777216;

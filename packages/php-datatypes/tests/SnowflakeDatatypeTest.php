@@ -98,6 +98,10 @@ class SnowflakeDatatypeTest extends TestCase
         new Snowflake('binary');
         new Snowflake('varbinary');
         new Snowflake('VARBINARY');
+        new Snowflake('OBJECT');
+        new Snowflake('ARRAY');
+        new Snowflake('GEOGRAPHY');
+        new Snowflake('GEOMETRY');
         new Snowflake('BINARY', ['length' => '']);
         new Snowflake('VARBINARY', ['length' => '']);
         new Snowflake('BINARY', ['length' => '1']);
