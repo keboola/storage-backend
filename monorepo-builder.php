@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Keboola\StorageBackend\MostRecentTagWithoutRepositoryPrefixResolver;
+use Keboola\StorageBackend\AddTagPerPackagesWhenRepoIsReleasedWorker;
 use Symplify\MonorepoBuilder\Config\MBConfig;
 use Symplify\MonorepoBuilder\Contract\Git\TagResolverInterface;
 use Symplify\MonorepoBuilder\Release\Process\ProcessRunner;
@@ -27,11 +28,9 @@ return static function (MBConfig $mbConfig): void {
     $mbConfig->workers([
         UpdateReplaceReleaseWorker::class,
         SetCurrentMutualDependenciesReleaseWorker::class,
-        AddTagToChangelogReleaseWorker::class,
         TagVersionReleaseWorker::class,
+        AddTagPerPackagesWhenRepoIsReleasedWorker::class,
 //        PushTagReleaseWorker::class,
-        SetNextMutualDependenciesReleaseWorker::class,
-        UpdateBranchAliasReleaseWorker::class,
 //        PushNextDevReleaseWorker::class,
     ]);
 };
