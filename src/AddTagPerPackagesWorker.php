@@ -8,7 +8,7 @@ use PharIo\Version\Version;
 use Symplify\MonorepoBuilder\Release\Contract\ReleaseWorker\ReleaseWorkerInterface;
 use Symplify\MonorepoBuilder\Release\Process\ProcessRunner;
 
-final class AddTagPerPackagesWhenRepoIsReleasedWorker implements ReleaseWorkerInterface
+final class AddTagPerPackagesWorker implements ReleaseWorkerInterface
 {
     /**
      * @var \Symplify\MonorepoBuilder\Release\Process\ProcessRunner
@@ -27,12 +27,14 @@ final class AddTagPerPackagesWhenRepoIsReleasedWorker implements ReleaseWorkerIn
         }, $directories);
 
         foreach ($directories as $directory) {
-            $this->processRunner->run('git tag ' . $directory . '/' . $version->getOriginalString());
+            // e.g. php-datatypes/7.0.0, php-table-backend-utils/7.0.0 ...
+            $tagName = $directory . '/' . $version->getOriginalString();
+            $this->processRunner->run('git tag ' . $tagName);
         }
     }
 
     public function getDescription(Version $version): string
     {
-        return 'From the `/packages` folder, it takes all the packages and creates a tag for them on release.';
+        return sprintf('Add local tag "%s" for all libraries whit a prefix for each lib. e.g. `php-datatypes/7.0.0`, `php-table-backend-utils/7.0.0` ...', $version->getOriginalString());
     }
 }
