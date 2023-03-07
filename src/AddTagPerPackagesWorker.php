@@ -4,31 +4,41 @@ declare(strict_types=1);
 
 namespace Keboola\StorageBackend;
 
+use MonorepoBuilderPrefix202301\Symplify\PackageBuilder\Parameter\ParameterProvider;
+use MonorepoBuilderPrefix202301\Symplify\SmartFileSystem\SmartFileInfo;
 use PharIo\Version\Version;
+use Symplify\MonorepoBuilder\FileSystem\ComposerJsonProvider;
 use Symplify\MonorepoBuilder\Release\Contract\ReleaseWorker\ReleaseWorkerInterface;
 use Symplify\MonorepoBuilder\Release\Process\ProcessRunner;
+use Symplify\MonorepoBuilder\ValueObject\Option;
 
 final class AddTagPerPackagesWorker implements ReleaseWorkerInterface
 {
+    private ProcessRunner $processRunner;
+
+    private ComposerJsonProvider $composerJsonProvider;
+
     /**
-     * @var \Symplify\MonorepoBuilder\Release\Process\ProcessRunner
+     * @var string[]
      */
-    private $processRunner;
-    public function __construct(ProcessRunner $processRunner)
-    {
+    private array $packageDirectoriesExcludes;
+
+    public function __construct(
+        ProcessRunner $processRunner,
+        ComposerJsonProvider $composerJsonProvider,
+        ParameterProvider $parameterProvider
+    ) {
         $this->processRunner = $processRunner;
+        $this->composerJsonProvider = $composerJsonProvider;
+        $this->packageDirectoriesExcludes = $parameterProvider->provideArrayParameter(Option::PACKAGE_DIRECTORIES_EXCLUDES);
     }
     public function work(Version $version) : void
     {
-//      I have to go through the packages folder, from composer.json it's not possible, they often have different names than the repository itself, what I need for split script
-        $directories = glob('/code/packages/*' , GLOB_ONLYDIR);
-        $directories = array_map(function ($item) {
-            return str_replace('/code/packages/', '', $item);
-        }, $directories);
+        $packagesFileInfos = $this->getPackagesFileInfos();
 
-        foreach ($directories as $directory) {
+        foreach ($packagesFileInfos as $directory) {
             // e.g. php-datatypes/7.0.0, php-table-backend-utils/7.0.0 ...
-            $tagName = $directory . '/' . $version->getOriginalString();
+            $tagName = $this->generatePackageTagName($directory, $version);
             $this->processRunner->run('git tag ' . $tagName);
         }
     }
@@ -36,5 +46,26 @@ final class AddTagPerPackagesWorker implements ReleaseWorkerInterface
     public function getDescription(Version $version): string
     {
         return sprintf('Add local tag "%s" for all libraries with a prefix for each lib. e.g. `php-datatypes/7.0.0`, `php-table-backend-utils/7.0.0` ...', $version->getOriginalString());
+    }
+
+    /**
+     * @return SmartFileInfo[]
+     */
+    private function getPackagesFileInfos(): array
+    {
+        // return all packages except those in excluded directories
+        return array_filter($this->composerJsonProvider->getPackagesComposerFileInfos(), function ($packageFileInfo) {
+            foreach ($this->packageDirectoriesExcludes as $packageDirectoryExclude) {
+                if (strpos($packageFileInfo->getPath(), $packageDirectoryExclude) !== false) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    private function generatePackageTagName(SmartFileInfo $directory, Version $version): string
+    {
+        return basename($directory->getRelativeDirectoryPath()) . '/' . $version->getOriginalString();
     }
 }

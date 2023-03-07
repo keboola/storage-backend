@@ -19,6 +19,9 @@ use Symplify\MonorepoBuilder\Release\ReleaseWorker\UpdateReplaceReleaseWorker;
 return static function (MBConfig $mbConfig): void {
     $mbConfig->packageDirectories([__DIR__ . '/packages']);
     // register custom most recent tag resolver
+
+    $mbConfig->packageDirectoriesExcludes([__DIR__ . '/packages/php-db-import-export/provisioning']);
+
     $servicesConfigurator = $mbConfig->services();
     $mbConfig->defaultBranch('main');
     $servicesConfigurator
