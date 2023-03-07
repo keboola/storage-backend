@@ -35,6 +35,6 @@ final class AddTagPerPackagesWorker implements ReleaseWorkerInterface
 
     public function getDescription(Version $version): string
     {
-        return sprintf('Add local tag "%s" for all libraries whit a prefix for each lib. e.g. `php-datatypes/7.0.0`, `php-table-backend-utils/7.0.0` ...', $version->getOriginalString());
+        return sprintf('Add local tag "%s" for all libraries with a prefix for each lib. e.g. `php-datatypes/7.0.0`, `php-table-backend-utils/7.0.0` ...', $version->getOriginalString());
     }
 }
