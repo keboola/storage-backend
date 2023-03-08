@@ -36,9 +36,9 @@ final class AddTagPerPackagesWorker implements ReleaseWorkerInterface
     {
         $packagesFileInfos = $this->getPackagesFileInfos();
 
-        foreach ($packagesFileInfos as $directory) {
+        foreach ($packagesFileInfos as $packagesFileInfo) {
             // e.g. php-datatypes/7.0.0, php-table-backend-utils/7.0.0 ...
-            $tagName = $this->generatePackageTagName($directory, $version);
+            $tagName = $this->generatePackageTagName($packagesFileInfo, $version);
             $this->processRunner->run('git tag ' . $tagName);
         }
     }
@@ -64,8 +64,8 @@ final class AddTagPerPackagesWorker implements ReleaseWorkerInterface
         });
     }
 
-    private function generatePackageTagName(SmartFileInfo $directory, Version $version): string
+    private function generatePackageTagName(SmartFileInfo $smartFileInfo, Version $version): string
     {
-        return basename($directory->getRelativeDirectoryPath()) . '/' . $version->getOriginalString();
+        return basename($smartFileInfo->getRelativeDirectoryPath()) . '/' . $version->getOriginalString();
     }
 }
