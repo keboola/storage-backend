@@ -26,6 +26,7 @@
         "phpstan/phpstan-phpunit": "^1",
         "phpunit/phpunit": "^9",
         "react/async": "^4||^3",
+        "symfony/console": "^6.2",
         "symfony/finder": "^5.4"
     },
     "autoload": {
@@ -37,7 +38,8 @@
         "psr-4": {
             "Tests\\Keboola\\Db\\ImportExportCommon\\": "tests/Common",
             "Tests\\Keboola\\Db\\ImportExportUnit\\": "tests/unit",
-            "Tests\\Keboola\\Db\\ImportExportFunctional\\": "tests/functional/"
+            "Tests\\Keboola\\Db\\ImportExportFunctional\\": "tests/functional/",
+            "Tests\\Keboola\\Db\\ImportExportExperiments\\": "tests/Experiments"
         }
     },
     "scripts": {
@@ -66,7 +68,6 @@
             "@tests-unit",
             "@tests-functional"
         ],
-
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=*/vendor/* --extensions=php .",
         "phpcs-report": "phpcs -n --report=source -s --ignore=*/vendor/* --extensions=php .",
@@ -77,6 +78,7 @@
         "loadGcs-snowflake": "php ./tests/Common/StubLoader/loader.php gcs-snowflake",
         "loadGcs-bigquery": "php ./tests/Common/StubLoader/loader.php gcs-bigquery",
         "init-synapse": "php ./tests/InitSynapse.php",
+        "experiment": "php ./tests/Experiments/cli.php",
         "load-data": [
             "@loadAbs",
             "@loadS3",

@@ -15,7 +15,7 @@ class DebugLogger extends AbstractLogger
     public function log($level, $message, array $context = []): void
     {
         assert(is_string($level));
-        self::log($message, $level, $context);
+        self::logMsg($message, $level, $context);
     }
 
     /**
