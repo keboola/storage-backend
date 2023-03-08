@@ -75,3 +75,8 @@ So for each lib we will create our own interpreter. Also add env variables for e
 For example for lib `php-table-backend-utils` as seen in the picture.
 
 ![Cli interpreter in phpstorm](cli-interpreter-table-utils.png?raw=true "Cli interpreter in phpstorm")
+
+1. Then you need to configure Test Framework in `PHP->Test Frameworks`
+2. Click on + and select PHPUnit by Remote Interpreter ![PHPUnit by Remote Interpreter](add-phpunit-local.png?raw=true "PHPUnit by Remote Interpreter")
+3. And in path to script select the path to `keboola/storage-backend/vendor/autoload.php` ![Path to autoload](path-to-autload.png?raw=true "Path to autoload")
+4. Click ok
