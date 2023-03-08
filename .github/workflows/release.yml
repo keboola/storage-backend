@@ -1,0 +1,32 @@
+name: Release new version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+jobs:
+  bare_run:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        uses: actions/checkout@v3
+      -
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+      -
+        run: |
+          git config --global user.email "devel@keboola.com"                           
+          git config --global user.name "Keboola CI"
+          LATEST_TAG=$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags origin '*.*.*' | cut --fields=2 | sed -E --expression="s/(refs\/tags\/)v/\1/g" | sort | tail --lines=1)
+          git fetch origin $LATEST_TAG:$LATEST_TAG
+          composer install
+          php vendor/bin/monorepo-builder release ${{ inputs.version }}
