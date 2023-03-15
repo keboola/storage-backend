@@ -74,7 +74,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
 
         /** @var string $definition */
         $definition = $this->connection->fetchOne($sql);
-        $isValid = preg_match('/CREATE[\s\S]*VIEW[\s\S]*AS[\s\S]*SELECT[\s\S]*FROM[\s\S]*/', $definition);
+        $isValid = preg_match('/CREATE[\s\S]*VIEW[\s\S]*AS[\s\S]*SELECT[\s\S]*FROM[\s\S]*/i', $definition);
         if ($isValid === 0) {
             throw InvalidViewDefinitionException::createForMissingDefinition($this->schemaName, $this->viewName);
         }
