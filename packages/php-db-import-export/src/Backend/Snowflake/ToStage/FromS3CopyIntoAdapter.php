@@ -78,7 +78,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
             'COPY INTO %s.%s FROM %s 
                 CREDENTIALS = (AWS_KEY_ID = %s AWS_SECRET_KEY = %s)
                 REGION = %s
-                FILE_FORMAT = (TYPE=CSV %s)
+                FILE_FORMAT = (TYPE=CSV %s, NULL_IF=(\'\'))
                 FILES = (%s)',
             SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
