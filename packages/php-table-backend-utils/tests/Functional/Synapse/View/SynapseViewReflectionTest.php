@@ -96,6 +96,28 @@ EOT
             ,
             $viewRef->getViewDefinition()
         );
+
+        // try same with lowe case
+        $this->connection->executeStatement(
+            sprintf(
+                'CREATE VIEW [%s].[%s] AS select * from [%s].[%s];',
+                self::TEST_SCHEMA,
+                '[utils-test_ref-view2',
+                self::TEST_SCHEMA,
+                self::TABLE_GENERIC
+            )
+        );
+
+        $viewRef = new SynapseViewReflection($this->connection, self::TEST_SCHEMA, '[utils-test_ref-view2');
+        self::assertEquals(
+        // phpcs:disable
+            <<< EOT
+CREATE VIEW [utils-test_ref-table-schema].[[utils-test_ref-view2]\r\nAS select * from [utils-test_ref-table-schema].[utils-test_ref];
+EOT
+            // phpcs:enable
+            ,
+            $viewRef->getViewDefinition()
+        );
     }
 
     public function testGetViewDefinitionCannotBeObtained(): void
