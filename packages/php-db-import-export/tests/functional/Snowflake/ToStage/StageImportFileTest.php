@@ -238,7 +238,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $this->getSnowflakeImportOptions()
         );
 
-        self::assertEquals([
+        self::assertSame([
             ['id' => '1', 'col1' => 'test', 'col2' => '50'],
             ['id' => '2', 'col1' => null, 'col2' => '500'],
             ['id' => '3', 'col1' => 'Bageta', 'col2' => null],
