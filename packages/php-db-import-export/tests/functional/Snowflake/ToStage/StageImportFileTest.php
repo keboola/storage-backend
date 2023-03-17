@@ -204,7 +204,10 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         ];
     }
 
-    public function testWithNullifyValue(): void
+    /**
+     * @dataProvider nullifyFileProvider
+     */
+    public function testWithNullifyValue(string $fileName): void
     {
         $this->initTable(self::TABLE_NULLIFY);
 
@@ -224,7 +227,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         );
         $importer->importToStagingTable(
             $this->getSourceInstanceFromCsv(
-                'nullify.csv',
+                $fileName,
                 new CsvOptions(),
                 [
                     'id',
@@ -249,6 +252,17 @@ class StageImportFileTest extends SnowflakeBaseTestCase
                 SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName())
             )
         ));
+    }
+
+    public function nullifyFileProvider(): Generator
+    {
+        yield 'with empty value' => [
+            'nullify.csv',
+        ];
+
+        yield 'with empty value in quotes' => [
+            'nullify-with-quotes.csv',
+        ];
     }
 
 // testCopyIntoInvalidTypes
