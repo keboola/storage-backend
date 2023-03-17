@@ -30,16 +30,17 @@ class FromABSCopyIntoAdapterTest extends BaseTestCase
             ->willReturn('azure://xxx.blob.core.windows.net/xx/');
 
         $conn = $this->mockConnection();
+        // @codingStandardsIgnoreStart
         $conn->expects(self::once())->method('executeStatement')->with(
             <<<EOT
 COPY INTO "schema"."stagingTable" 
 FROM 'azure://xxx.blob.core.windows.net/xx/'
 CREDENTIALS=(AZURE_SAS_TOKEN='')
-FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
+FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE, NULL_IF=(''))
 FILES = ('xxx.csv')
 EOT
         );
-
+        // @codingStandardsIgnoreEnd
         $conn->expects(self::once())->method('fetchAllAssociative')
             // phpcs:ignore
             ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
@@ -85,7 +86,7 @@ EOT
 COPY INTO "schema"."stagingTable" 
 FROM 'azure://xxx.blob.core.windows.net/xx/'
 CREDENTIALS=(AZURE_SAS_TOKEN='')
-FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' SKIP_HEADER = 3 FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
+FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' SKIP_HEADER = 3 FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE, NULL_IF=(''))
 FILES = ('xxx.csv')
 EOT
         );
@@ -140,13 +141,15 @@ EOT
 
         $conn = $this->mockConnection();
 
+        // @codingStandardsIgnoreStart
         $qTemplate = <<<EOT
 COPY INTO "schema"."stagingTable" 
 FROM 'azure://xxx.blob.core.windows.net/xx/'
 CREDENTIALS=(AZURE_SAS_TOKEN='')
-FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
+FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE, NULL_IF=(''))
 FILES = (%s)
 EOT;
+        // @codingStandardsIgnoreEnd
         $q1 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 0, 1000)));
         $q2 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 1000, 5)));
         $conn->expects(self::exactly(2))->method('executeStatement')->withConsecutive([$q1], [$q2]);

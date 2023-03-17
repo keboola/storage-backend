@@ -36,7 +36,7 @@ COPY INTO "schema"."stagingTable" FROM ''
         SKIP_HEADER = 0,
         FIELD_OPTIONALLY_ENCLOSED_BY = '\"',
         ESCAPE_UNENCLOSED_FIELD = NONE
-        )
+        , NULL_IF=(''))
                 FILES = ('https:url')
 EOT
         );
@@ -86,7 +86,7 @@ COPY INTO "schema"."stagingTable" FROM ''
         SKIP_HEADER = 3,
         FIELD_OPTIONALLY_ENCLOSED_BY = '\"',
         ESCAPE_UNENCLOSED_FIELD = NONE
-        )
+        , NULL_IF=(''))
                 FILES = ('https:url')
 EOT
         );
@@ -146,7 +146,7 @@ COPY INTO "schema"."stagingTable" FROM 's3://bucket'
         SKIP_HEADER = 0,
         FIELD_OPTIONALLY_ENCLOSED_BY = '\"',
         ESCAPE_UNENCLOSED_FIELD = NONE
-        )
+        , NULL_IF=(''))
                 FILES = (%s)
 EOT;
         $q1 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 0, 1000)));
