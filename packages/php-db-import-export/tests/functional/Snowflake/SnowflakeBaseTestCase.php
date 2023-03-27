@@ -30,6 +30,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
     public const TABLE_MULTI_PK_WITH_TS = 'multi_pk_ts';
     public const TABLE_SINGLE_PK = 'single_pk';
     public const TABLE_OUT_CSV_2COLS = 'out_csv_2Cols';
+    public const TABLE_NULL_EMPTY_STRING = 'null-and-empty-string';
     public const TABLE_OUT_CSV_2COLS_WITHOUT_TS = 'out_csv_2Cols_without_ts';
     public const TABLE_OUT_LEMMA = 'out_lemma';
     public const TABLE_OUT_NO_TIMESTAMP_TABLE = 'out_no_timestamp_table';
@@ -332,6 +333,17 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
                     'CREATE TABLE %s.%s (
                                 "col1" VARCHAR(2000000)         ,
                                 "col2" VARCHAR(2000000)      
+            );',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName)
+                ));
+                break;
+            case self::TABLE_NULL_EMPTY_STRING:
+                $this->connection->executeQuery(sprintf(
+                    'CREATE TABLE %s.%s (
+                                "col" BOOLEAN         ,
+                                "str" VARCHAR(2000000),
+                                "_timestamp" TIMESTAMP
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName)
