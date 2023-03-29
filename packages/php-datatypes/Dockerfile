@@ -1,4 +1,4 @@
-FROM php:7.4-cli
+FROM php:8.1-cli
 MAINTAINER Ondrej Hlavacek <ondrej.hlavacek@keboola.com>
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
