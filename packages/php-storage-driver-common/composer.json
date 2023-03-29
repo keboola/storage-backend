@@ -5,8 +5,8 @@
     "type": "project",
     "authors": [
         {
-            "name": "Roman Bracinik",
-            "email": "roman.bracinik@keboola.com"
+            "name": "Keboola",
+            "email": "devel@keboola.com"
         }
     ],
     "require": {

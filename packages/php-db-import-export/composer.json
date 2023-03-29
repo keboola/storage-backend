@@ -1,5 +1,11 @@
 {
     "name": "keboola/db-import-export",
+    "authors": [
+        {
+            "name": "Keboola",
+            "email": "devel@keboola.com"
+        }
+    ],
     "description": "Package allows to import files to Snowflake from multiple cloud storages",
     "license": "MIT",
     "require": {

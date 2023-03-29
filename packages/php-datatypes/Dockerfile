@@ -1,5 +1,5 @@
 FROM php:8.1-cli
-MAINTAINER Ondrej Hlavacek <ondrej.hlavacek@keboola.com>
+MAINTAINER Keboola <devel@keboola.com>
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
