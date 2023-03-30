@@ -211,8 +211,7 @@ class SqlBuilder
 
             // for string base type convert null values to empty string ''
             //phpcs:ignore
-            // TODO: coalesce could be skipped in input mapping to workspace for typed and non typed tables https://keboola.atlassian.net/browse/KBC-2886
-            if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
+            if (!$importOptions->usingUserDefinedTypes() && $columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                 $columnsSetSql[] = sprintf(
                     'COALESCE(%s, \'\') AS %s',
                     SnowflakeQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
@@ -292,19 +291,9 @@ class SqlBuilder
             );
         }
 
-        // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-        if (!$importOptions->isNullManipulationEnabled()) {
-            $columnsComparisonSql = array_map(
-                static function ($columnName) {
-                    return sprintf(
-                        '"dest".%s != "src".%s',
-                        SnowflakeQuote::quoteSingleIdentifier($columnName),
-                        SnowflakeQuote::quoteSingleIdentifier($columnName)
-                    );
-                },
-                $stagingTableDefinition->getColumnsNames()
-            );
-        } else {
+        $columnsComparisonSql = [];
+        if ($importOptions->isNullManipulationEnabled()) {
+            // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
             $columnsComparisonSql = array_map(
                 static function ($columnName) {
                     return sprintf(
@@ -322,6 +311,18 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
         );
+
+        if (empty($columnsComparisonSql)) {
+            return sprintf(
+                'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s',
+                $dest,
+                implode(', ', $columnsSet),
+                QuoteHelper::quoteIdentifier($stagingTableDefinition->getSchemaName()),
+                QuoteHelper::quoteIdentifier($stagingTableDefinition->getTableName()),
+                $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions),
+            );
+        }
+
         return sprintf(
             'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s AND (%s)',
             $dest,
