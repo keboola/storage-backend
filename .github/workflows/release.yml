@@ -23,10 +23,20 @@ jobs:
           php-version: '8.1'
           coverage: none
       -
+        name: Prepare
         run: |
           git config --global user.email "devel@keboola.com"                           
           git config --global user.name "Keboola CI"
           LATEST_TAG=$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags origin '*.*.*' | cut --fields=2 | sed -E --expression="s/(refs\/tags\/)v/\1/g" | sort | tail --lines=1)
           git fetch origin $LATEST_TAG:$LATEST_TAG
           composer install
-          php vendor/bin/monorepo-builder release ${{ inputs.version }}
+
+      -
+        name: Release new version
+        run: php vendor/bin/monorepo-builder release ${{ inputs.version }}
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main

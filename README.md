@@ -10,6 +10,18 @@ Storage backend related tools monorepo
 | [keboola/php-db-import-export](https://github.com/keboola/php-db-import-export)         | Load/Import CSV, Load/Import CSV, Unload/Export, supports: `S3`,`ABS`,`GCS`, `Snowflake`, `Synapse`, `Teradata`, `Exasol`, `BigQuery` |
 | [keboola/php-storage-driver-common](https://github.com/keboola/php-storage-driver-common) | Keboola high level common storage backend driver                                                                                      |
 
+## Release new version
+The release of the new version is handled by `monorepo-builder.php` which does the necessary steps automatically.
+Beware that if you run the script locally, you need to add a `--dry-run` switch after the release command, otherwise you will push the tags to the repository and tear the repo.
+
+### How to proceed with a new release
+The release process is managed using `.github/workflows/release.yml` so just go to the actions in GitHub repository and run the [workflow](https://github.com/keboola/storage-backend/actions/workflows/release.yml).
+
+After clicking on `Run workflow`, select the desired version and click on the Run workflow button.
+
+![Create new release](create-new-release.png?raw=true "Create new release")
+
+An action is triggered that resolves the dependencies of the individual packages, creates the new tags needed, and this triggers a split action for the individual monorepo packages.
 
 ## Adding new repository
 If you want to add a new repository to monorep, please follow the [instructions](adopt-new-repository.md).
