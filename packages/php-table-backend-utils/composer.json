@@ -1,16 +1,22 @@
 {
     "name": "keboola/table-backend-utils",
+    "authors": [
+        {
+            "name": "Keboola",
+            "email": "devel@keboola.com"
+        }
+    ],
     "description": "Package allows to import files to Snowflake from multiple cloud storages",
     "license": "MIT",
     "require": {
-        "php": "^7.4|^8",
+        "php": "^8.1",
         "ext-json": "*",
         "ext-odbc": "*",
         "ext-pdo": "*",
         "doctrine/dbal": "^3.3",
         "google/cloud-bigquery": "^1.23",
         "keboola/common-exceptions": "^1",
-        "keboola/php-datatypes": "^6.3",
+        "keboola/php-datatypes": "^6.3|^7",
         "keboola/php-utils": "^4.1",
         "keboola/retry": "^0.5.0"
     },

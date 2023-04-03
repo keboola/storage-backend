@@ -5,12 +5,12 @@
     "type": "project",
     "authors": [
         {
-            "name": "Roman Bracinik",
-            "email": "roman.bracinik@keboola.com"
+            "name": "Keboola",
+            "email": "devel@keboola.com"
         }
     ],
     "require": {
-        "php": "^7.4|^8",
+        "php": "^8.1",
         "ext-json": "*",
         "google/protobuf": "^3.21",
         "keboola/php-file-storage-utils": "^0.2.2",

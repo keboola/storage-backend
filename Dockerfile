@@ -3,6 +3,7 @@
 ARG PHP_VERSION=8.1
 
 FROM php:${PHP_VERSION}-cli-buster AS base
+MAINTAINER Keboola <devel@keboola.com>
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -61,7 +62,7 @@ RUN set -ex; \
     mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
     docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
     docker-php-ext-install odbc; \
-    docker-php-source delete 
+    docker-php-source delete
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
 

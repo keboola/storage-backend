@@ -110,15 +110,6 @@ services:
       - EXASOL_USERNAME
       - EXASOL_PASSWORD
       - BQ_KEY_FILE
-  ci-php-table-backend-utils74:
-    platform: linux/amd64
-    build:
-      context: .
-      dockerfile: Dockerfile.74
-      args:
-        - AWS_ACCESS_KEY_ID
-        - AWS_SECRET_ACCESS_KEY
-        - AWS_SESSION_TOKEN
 
   dev-php-db-import-export:
     platform: linux/amd64

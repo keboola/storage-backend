@@ -1,4 +1,4 @@
 FROM keboola/php-storage-driver-common
 
-RUN pecl install xdebug-3.1.6 \
+RUN pecl install xdebug \
   && docker-php-ext-enable xdebug

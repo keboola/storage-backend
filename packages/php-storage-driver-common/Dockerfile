@@ -1,4 +1,5 @@
-FROM php:7.4-cli-buster
+FROM php:8.1-cli-buster
+MAINTAINER Keboola <devel@keboola.com>
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive

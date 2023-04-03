@@ -8,6 +8,7 @@ RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtili
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
 FROM php:${PHP_VERSION:-8.1}-cli-buster
+MAINTAINER Keboola <devel@keboola.com>
 
 ARG GITHUB_OAUTH_TOKEN
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
