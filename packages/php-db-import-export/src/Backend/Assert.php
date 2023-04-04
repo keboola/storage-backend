@@ -23,7 +23,7 @@ class Assert
         $it0 = $source->getIterator();
         $it1 = $destination->getIterator();
         while ($it0->valid() || $it1->valid()) {
-            if (in_array($it0->current()->getColumnName(), $ignoreColumns, true)) {
+            if ($it0->valid() && in_array($it0->current()->getColumnName(), $ignoreColumns, true)) {
                 $it0->next();
                 if (!$it0->valid() && !$it1->valid()) {
                     break;
