@@ -6,6 +6,9 @@ namespace Keboola\Db\ImportExport;
 
 class ImportOptions implements ImportOptionsInterface
 {
+    /** @var string[] */
+    private array $ignoreColumns;
+
     private bool $useTimestamp;
 
     /** @var string[] */
@@ -23,24 +26,25 @@ class ImportOptions implements ImportOptionsInterface
     public const NULL_MANIPULATION_ENABLED = true;
     public const NULL_MANIPULATION_SKIP = false;
 
-
-
     /**
      * @param string[] $convertEmptyValuesToNull
      * @param self::USING_TYPES_* $usingTypes
+     * @param string[] $ignoreColumns
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = self::SKIP_NO_LINE,
-        string $usingTypes = self::USING_TYPES_STRING
+        string $usingTypes = self::USING_TYPES_STRING,
+        array $ignoreColumns = []
     ) {
         $this->useTimestamp = $useTimestamp;
         $this->convertEmptyValuesToNull = $convertEmptyValuesToNull;
         $this->isIncremental = $isIncremental;
         $this->numberOfIgnoredLines = $numberOfIgnoredLines;
         $this->usingTypes = $usingTypes;
+        $this->ignoreColumns = $ignoreColumns;
     }
 
     /**
@@ -69,5 +73,10 @@ class ImportOptions implements ImportOptionsInterface
     public function usingUserDefinedTypes(): bool
     {
         return $this->usingTypes === self::USING_TYPES_USER;
+    }
+
+    public function ignoreColumns(): array
+    {
+        return $this->ignoreColumns;
     }
 }

@@ -22,4 +22,9 @@ interface ImportOptionsInterface
     public function useTimestamp(): bool;
 
     public function usingUserDefinedTypes(): bool;
+
+    /**
+     * @return string[]
+     */
+    public function ignoreColumns(): array;
 }

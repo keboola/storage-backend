@@ -49,6 +49,54 @@ class AssertTest extends TestCase
         );
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertSameColumnsIgnore(): void
+    {
+        // first in cols
+        Assert::assertSameColumns(
+            new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test2'),
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            ['test2']
+        );
+
+        // middle
+        Assert::assertSameColumns(
+            new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test2'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            ['test2']
+        );
+
+        // end
+        Assert::assertSameColumns(
+            new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+                SnowflakeColumn::createGenericColumn('test2'),
+            ]),
+            new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            ['test2']
+        );
+    }
+
     public function testAssertSameColumnsInvalidCountExtraSource(): void
     {
         $sourceCols = [

@@ -60,7 +60,8 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                     $source->getSchema(),
                     $source->getTableName()
                 ))->getColumnsDefinitions(),
-                $destination->getColumnsDefinitions()
+                $destination->getColumnsDefinitions(),
+                $importOptions->ignoreColumns()
             );
         }
 

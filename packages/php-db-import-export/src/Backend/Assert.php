@@ -12,15 +12,23 @@ use Keboola\TableBackendUtils\Column\ColumnInterface;
 class Assert
 {
     /**
+     * @param string[] $ignoreSourceColumns
      * @throws ColumnsMismatchException
      */
     public static function assertSameColumns(
         ColumnCollection $source,
-        ColumnCollection $destination
+        ColumnCollection $destination,
+        array $ignoreSourceColumns = []
     ): void {
         $it0 = $source->getIterator();
         $it1 = $destination->getIterator();
         while ($it0->valid() || $it1->valid()) {
+            if ($it0->valid() && in_array($it0->current()->getColumnName(), $ignoreSourceColumns, true)) {
+                $it0->next();
+                if (!$it0->valid() && !$it1->valid()) {
+                    break;
+                }
+            }
             if ($it0->valid() && $it1->valid()) {
                 /** @var ColumnInterface $sourceCol */
                 $sourceCol = $it0->current();
