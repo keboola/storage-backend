@@ -843,7 +843,7 @@ EOT
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" != "src"."col1" OR "dest"."col2" != "src"."col2")',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1" ',
             $sql
         );
         $this->connection->executeStatement($sql);
@@ -1054,6 +1054,97 @@ EOT
                 (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
             );
         }
+    }
+    public function testGetUpdateWithPkCommandNullManipulationWithTimestamp(): void
+    {
+        $timestampInit = new DateTime('2020-01-01 00:00:01');
+        $timestampSet = new DateTime('2020-01-01 01:01:01');
+        $this->createTestSchema();
+        $this->createTestTableWithColumns(true);
+        $this->createStagingTableWithData(false);
+
+        // create fake destination and say that there is pk on col1
+        $fakeDestination = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1']
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            []
+        );
+
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2","_timestamp") VALUES (1,\'1\',\'1\',\'%s\')',
+                self::TEST_TABLE_IN_SCHEMA,
+                $timestampInit->format(DateTimeHelper::FORMAT)
+            )
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'col1' => '1',
+                'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+        ], $result);
+
+        // use timestamp
+        $options = new SnowflakeImportOptions(
+            ['col1'],
+            false,
+            true,
+            0,
+            SnowflakeImportOptions::SAME_TABLES_REQUIRED,
+            SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+        );
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            $options,
+            $timestampSet->format(DateTimeHelper::FORMAT)
+        );
+
+        self::assertEquals(
+        // phpcs:ignore
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1" ',
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'col1' => '1',
+                'col2' => '1',
+                '_timestamp' => $timestampSet->format(DateTimeHelper::FORMAT),
+            ],
+        ], $result);
     }
 
     private function getStagingTableDefinition(): SnowflakeTableDefinition
