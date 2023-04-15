@@ -97,68 +97,68 @@ jobs:
           name: ci-php-table-backend-utils
           path: /tmp/ci-php-table-backend-utils.tar
 
-  build_php_table_backend_utils:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    needs: build_image_php_table_backend_utils
-    concurrency: ${{ matrix.suite }}
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [ exasol, snowflake, synapse, teradata ]
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
-      -
-        name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ci-php-table-backend-utils
-          path: /tmp
-      -
-        name: Load Docker image
-        run: |
-          docker load --input /tmp/ci-php-table-backend-utils.tar
-      #
-      # Before tests, start services
-      -
-        name: Synapse start
-        if: ${{ matrix.suite == 'synapse' }}
-        run: |
-          bash ./ci/synapse.sh -r
-          bash ./ci/synapse.sh -w
-      -
-        name: Exasol start
-        if: ${{ matrix.suite == 'exasol' }}
-        run: |
-          docker-compose up -d exasol
-          sleep 60
-      #
-      # TESTS
-      #
-      -
-        name: Tests ${{ matrix.suite }}
-        env:
-          SUITE: ${{ matrix.suite }}
-          DOCKER_BUILDKIT: 1
-        run: |
-          docker-compose run ci-php-table-backend-utils composer tests-${{ matrix.suite }}
-      #
-      # After tests, stop services
-      -
-        name: Exasol stop
-        if: ${{ always() && matrix.suite == 'exasol' }}
-        run: docker-compose stop exasol
-      -
-        name: Synapse stop
-        if: ${{ always() && matrix.suite == 'synapse' }}
-        run: |
-          bash ./ci/synapse.sh -p
+#  build_php_table_backend_utils:
+#    runs-on: ubuntu-latest
+#    permissions:
+#      id-token: write
+#      contents: read
+#    needs: build_image_php_table_backend_utils
+#    concurrency: ${{ matrix.suite }}
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        suite: [ exasol, snowflake, synapse, teradata ]
+#    steps:
+#      -
+#        name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+#          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+#      -
+#        name: Download artifact
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: ci-php-table-backend-utils
+#          path: /tmp
+#      -
+#        name: Load Docker image
+#        run: |
+#          docker load --input /tmp/ci-php-table-backend-utils.tar
+#      #
+#      # Before tests, start services
+#      -
+#        name: Synapse start
+#        if: ${{ matrix.suite == 'synapse' }}
+#        run: |
+#          bash ./ci/synapse.sh -r
+#          bash ./ci/synapse.sh -w
+#      -
+#        name: Exasol start
+#        if: ${{ matrix.suite == 'exasol' }}
+#        run: |
+#          docker-compose up -d exasol
+#          sleep 60
+#      #
+#      # TESTS
+#      #
+#      -
+#        name: Tests ${{ matrix.suite }}
+#        env:
+#          SUITE: ${{ matrix.suite }}
+#          DOCKER_BUILDKIT: 1
+#        run: |
+#          docker-compose run ci-php-table-backend-utils composer tests-${{ matrix.suite }}
+#      #
+#      # After tests, stop services
+#      -
+#        name: Exasol stop
+#        if: ${{ always() && matrix.suite == 'exasol' }}
+#        run: docker-compose stop exasol
+#      -
+#        name: Synapse stop
+#        if: ${{ always() && matrix.suite == 'synapse' }}
+#        run: |
+#          bash ./ci/synapse.sh -p

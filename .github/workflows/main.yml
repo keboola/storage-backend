@@ -136,45 +136,45 @@ jobs:
       - name: Tests passed
         run: echo "Tests passed"
 
-  monorepo_split:
-    needs: test_results
-    runs-on: ubuntu-latest
-    if : startsWith(github.ref, 'refs/tags/')
-    concurrency: ${{ matrix.repo }}
-    strategy:
-      matrix:
-        include:
-          - name: 'php-datatypes'
-            path: 'packages/php-datatypes'
-            repo: 'git@github.com:keboola/php-datatypes.git'
-            lastTag: '6.1.0'
-            sshKey: 'PHP_DATATYPES_SSH_PRIVATE_KEY'
-          - name: 'php-table-backend-utils'
-            path: 'packages/php-table-backend-utils'
-            repo: 'git@github.com:keboola/php-table-backend-utils'
-            lastTag: '1.14.1'
-            sshKey: 'PHP_TABLE_BACKEND_UTILS_SSH_PRIVATE_KEY'
-          - name: 'php-db-import-export'
-            path: 'packages/php-db-import-export'
-            repo: 'git@github.com:keboola/php-db-import-export'
-            lastTag: 'v1.20.1'
-            sshKey: 'PHP_DB_IMPORT_EXPORT_SSH_PRIVATE_KEY'
-          - name: 'php-storage-driver-common'
-            path: 'packages/php-storage-driver-common'
-            repo: 'git@github.com:keboola/php-storage-driver-common'
-            lastTag: 'v2.5.0'
-            sshKey: 'PHP_STORAGE_DRIVER_COMMON_SSH_PRIVATE_KEY'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: webfactory/ssh-agent@fc49353b67b2b7c1e0e6a600572d01a69f2672dd
-        with:
-          ssh-private-key: ${{ secrets[matrix.sshKey] }}
-
-      - name: Split monorepo
-        run: |
-          ssh-add -l
-          docker build -t monorepo-tools ./bin
-          docker run -v $PWD:/monorepo -w /monorepo -v $SSH_AUTH_SOCK:/ssh-agent -v ~/.ssh/known_hosts:/root/.ssh/known_hosts -e SSH_AUTH_SOCK=/ssh-agent monorepo-tools bin/split-repo.sh . ${{ matrix.repo }} ${{ matrix.path }} ${{ matrix.name }}/ ${{ matrix.lastTag}}
+#  monorepo_split:
+#    needs: test_results
+#    runs-on: ubuntu-latest
+#    if : startsWith(github.ref, 'refs/tags/')
+#    concurrency: ${{ matrix.repo }}
+#    strategy:
+#      matrix:
+#        include:
+#          - name: 'php-datatypes'
+#            path: 'packages/php-datatypes'
+#            repo: 'git@github.com:keboola/php-datatypes.git'
+#            lastTag: '6.1.0'
+#            sshKey: 'PHP_DATATYPES_SSH_PRIVATE_KEY'
+#          - name: 'php-table-backend-utils'
+#            path: 'packages/php-table-backend-utils'
+#            repo: 'git@github.com:keboola/php-table-backend-utils'
+#            lastTag: '1.14.1'
+#            sshKey: 'PHP_TABLE_BACKEND_UTILS_SSH_PRIVATE_KEY'
+#          - name: 'php-db-import-export'
+#            path: 'packages/php-db-import-export'
+#            repo: 'git@github.com:keboola/php-db-import-export'
+#            lastTag: 'v1.20.1'
+#            sshKey: 'PHP_DB_IMPORT_EXPORT_SSH_PRIVATE_KEY'
+#          - name: 'php-storage-driver-common'
+#            path: 'packages/php-storage-driver-common'
+#            repo: 'git@github.com:keboola/php-storage-driver-common'
+#            lastTag: 'v2.5.0'
+#            sshKey: 'PHP_STORAGE_DRIVER_COMMON_SSH_PRIVATE_KEY'
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#      - uses: webfactory/ssh-agent@fc49353b67b2b7c1e0e6a600572d01a69f2672dd
+#        with:
+#          ssh-private-key: ${{ secrets[matrix.sshKey] }}
+#
+#      - name: Split monorepo
+#        run: |
+#          ssh-add -l
+#          docker build -t monorepo-tools ./bin
+#          docker run -v $PWD:/monorepo -w /monorepo -v $SSH_AUTH_SOCK:/ssh-agent -v ~/.ssh/known_hosts:/root/.ssh/known_hosts -e SSH_AUTH_SOCK=/ssh-agent monorepo-tools bin/split-repo.sh . ${{ matrix.repo }} ${{ matrix.path }} ${{ matrix.name }}/ ${{ matrix.lastTag}}
