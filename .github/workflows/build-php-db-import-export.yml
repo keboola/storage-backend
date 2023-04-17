@@ -461,7 +461,7 @@ jobs:
   post-exasol-tests:
     runs-on: ubuntu-latest
     needs: exasol-tests
-    if: ${{ inputs.hasCodeChanged || inputs.isTag || inputs.isRequiredRepoChanged }}
+    if: ${{ always() }}
     concurrency: exasol-tests
     steps:
       -
