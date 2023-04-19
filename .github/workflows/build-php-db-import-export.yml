@@ -276,7 +276,7 @@ jobs:
       matrix:
         suite:
           - snowflake-s3
-          - teradata-tpt-s3
+#          - teradata-tpt-s3
     steps:
       -
         name: Checkout

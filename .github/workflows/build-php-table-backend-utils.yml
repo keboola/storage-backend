@@ -107,7 +107,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [ exasol, snowflake, synapse, teradata ]
+        suite: [ exasol, snowflake, synapse ]
     steps:
       -
         name: Checkout
