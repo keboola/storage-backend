@@ -46,6 +46,32 @@ class SnowflakeColumnTest extends TestCase
         self::assertEquals('16777216', $column->getColumnDefinition()->getLength());
     }
 
+    public function testVarcharCollate(): void
+    {
+        $data = [
+            'Row' => '1',
+            'name' => 'first_name',
+            'type' => 'VARCHAR(16777216) COLLATE \'cs\'',
+            'kind' => 'COLUMN',
+            'null?' => 'Y',
+            'default' => '',
+            'primary key' => 'N',
+            'unique key' => '',
+            'check' => '',
+            'expression' => '',
+            'comment' => '',
+            'policy name' => '',
+        ];
+
+        $column = SnowflakeColumn::createFromDB($data);
+        var_dump($column->getColumnDefinition()->getSQLDefinition());
+        self::assertEquals('first_name', $column->getColumnName());
+        self::assertEquals('VARCHAR (16777216)', $column->getColumnDefinition()->getSQLDefinition());
+        self::assertEquals('VARCHAR', $column->getColumnDefinition()->getType());
+        self::assertEquals('', $column->getColumnDefinition()->getDefault());
+        self::assertEquals('16777216', $column->getColumnDefinition()->getLength());
+    }
+
     public function testCreateFromDBNotNullInt(): void
     {
         $data = [
