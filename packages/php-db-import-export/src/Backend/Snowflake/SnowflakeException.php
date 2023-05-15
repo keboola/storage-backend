@@ -38,6 +38,14 @@ class SnowflakeException extends Exception
             );
         }
 
+        if (preg_match('/ \'([^\']*)\' cannot be inserted because it\'s bigger than column size/', $e->getMessage(), $output_array) === 1) {
+            return new Exception(
+                'Load error: ' . $e->getMessage(),
+                Exception::ROW_SIZE_TOO_LARGE,
+                $e
+            );
+        }
+
         return $e;
     }
 }

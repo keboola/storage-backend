@@ -70,5 +70,13 @@ class SnowflakeExceptionTest extends TestCase
             0,
             false,
         ];
+
+        yield 'bigger than column size' => [
+            'An exception occurred while executing a query: String \'[{\"\"xxx\"\": \"\"xxx\"\", \"\"xx\"\": null, \"\"xx\"\": \"\"xxx\"\", \"\"xxx\"\": false, \"\"xxx\"\": \"\"xxx\"\", \"\"xxx\"\": [{\"\"xx\"\": \"\"xx\"\", \"\"xx\"\": \"\"xx\"\", \"\"xx\"\":...\' cannot be inserted because it\'s bigger than column size',
+            ImportException::class,
+            'Load error: An exception occurred while executing a query: String \'[{\"\"xxx\"\": \"\"xxx\"\", \"\"xx\"\": null, \"\"xx\"\": \"\"xxx\"\", \"\"xxx\"\": false, \"\"xxx\"\": \"\"xxx\"\", \"\"xxx\"\": [{\"\"xx\"\": \"\"xx\"\", \"\"xx\"\": \"\"xx\"\", \"\"xx\"\":...\' cannot be inserted because it\'s bigger than column size',
+            11, // ROW_SIZE_TOO_LARGE
+            true,
+        ];
     }
 }
