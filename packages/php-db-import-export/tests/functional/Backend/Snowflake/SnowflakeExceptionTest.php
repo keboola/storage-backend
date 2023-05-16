@@ -63,6 +63,14 @@ class SnowflakeExceptionTest extends TestCase
             true,
         ];
 
+        yield 'value conversion 2' => [
+            "Numeric value 'ma\'le' is not recognized",
+            ImportException::class,
+            "Load error: Numeric value 'ma\'le' is not recognized",
+            13, // VALUE_CONVERSION
+            true,
+        ];
+
         yield 'unknown exception' => [
             'Some error',
             RuntimeException::class,
@@ -70,5 +78,22 @@ class SnowflakeExceptionTest extends TestCase
             0,
             false,
         ];
+
+        yield 'bigger than column size' => [
+            'An exception occurred while executing a query: String \'[{\"\"xxx\"\": \"\"xxx\"\", \"\"xx\"\": null, \"\"xx\"\": \"\"xxx\"\", \"\"xxx\"\": false, \"\"xxx\"\": \"\"xxx\"\", \"\"xxx\"\": [{\"\"xx\"\": \"\"xx\"\", \"\"xx\"\": \"\"xx\"\", \"\"xx\"\":...\' cannot be inserted because it\'s bigger than column size',
+            ImportException::class,
+            'Load error: An exception occurred while executing a query: String \'[{\"\"xxx\"\": \"\"xxx\"\", \"\"xx\"\": null, \"\"xx\"\": \"\"xxx\"\", \"\"xxx\"\": false, \"\"xxx\"\": \"\"xxx\"\", \"\"xxx\"\": [{\"\"xx\"\": \"\"xx\"\", \"\"xx\"\": \"\"xx\"\", \"\"xx\"\":...\' cannot be inserted because it\'s bigger than column size',
+            11, // ROW_SIZE_TOO_LARGE
+            true,
+        ];
+
+        yield 'bigger than column size 2' => [
+            "An exception occurred while executing a query: String '\''' cannot be inserted because it's bigger than column size",
+            ImportException::class,
+            'Load error: An exception occurred while executing a query: String \'\\\'\'\' cannot be inserted because it\'s bigger than column size',
+            11, // ROW_SIZE_TOO_LARGE
+            true,
+        ];
+
     }
 }
