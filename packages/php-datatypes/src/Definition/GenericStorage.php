@@ -137,4 +137,12 @@ class GenericStorage extends Common
     {
         throw new LogicException('Method is not implemented yet.');
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypesAllowedInFilters(): array
+    {
+        return [];
+    }
 }

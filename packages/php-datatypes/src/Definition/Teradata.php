@@ -702,4 +702,36 @@ class Teradata extends Common
 
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypesAllowedInFilters(): array
+    {
+        return [
+            self::TYPE_BYTEINT,
+            self::TYPE_BIGINT,
+            self::TYPE_SMALLINT,
+            self::TYPE_INTEGER,
+            self::TYPE_INT,
+            self::TYPE_DECIMAL,
+            self::TYPE_NUMERIC,
+            self::TYPE_DEC,
+            self::TYPE_FLOAT,
+            self::TYPE_DOUBLE_PRECISION,
+            self::TYPE_REAL,
+            self::TYPE_NUMBER,
+            self::TYPE_DATE,
+            self::TYPE_TIME,
+            self::TYPE_TIMESTAMP,
+            self::TYPE_TIME_WITH_ZONE,
+            self::TYPE_TIMESTAMP_WITH_ZONE,
+            self::TYPE_CHAR,
+            self::TYPE_CHARACTER,
+            self::TYPE_VARCHAR,
+            self::TYPE_CHARV,
+            self::TYPE_CHARACTERV,
+            self::TYPE_LONG_VARCHAR,
+        ];
+    }
 }

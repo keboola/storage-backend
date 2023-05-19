@@ -12,16 +12,46 @@ use LogicException;
 
 class Redshift extends Common
 {
+    public const SMALLINT = 'SMALLINT';
+    public const INT2 = 'INT2';
+    public const INTEGER = 'INTEGER';
+    public const INT = 'INT';
+    public const INT4 = 'INT4';
+    public const BIGINT = 'BIGINT';
+    public const INT8 = 'INT8';
+    public const DECIMAL = 'DECIMAL';
+    public const NUMERIC = 'NUMERIC';
+    public const REAL = 'REAL';
+    public const FLOAT4 = 'FLOAT4';
+    public const DOUBLE_PRECISION = 'DOUBLE PRECISION';
+    public const FLOAT8 = 'FLOAT8';
+    public const FLOAT = 'FLOAT';
+    public const BOOLEAN = 'BOOLEAN';
+    public const BOOL = 'BOOL';
+    public const CHAR = 'CHAR';
+    public const CHARACTER = 'CHARACTER';
+    public const NCHAR = 'NCHAR';
+    public const BPCHAR = 'BPCHAR';
+    public const VARCHAR = 'VARCHAR';
+    public const CHARACTER_VARYING = 'CHARACTER VARYING';
+    public const NVARCHAR = 'NVARCHAR';
+    public const TEXT = 'TEXT';
+    public const DATE = 'DATE';
+    public const TIMESTAMP = 'TIMESTAMP';
+    public const TIMESTAMP_WITHOUT_TIME_ZONE = 'TIMESTAMP WITHOUT TIME ZONE';
+    public const TIMESTAMPTZ = 'TIMESTAMPTZ';
+    public const TIMESTAMP_WITH_TIME_ZONE = 'TIMESTAMP WITH TIME ZONE';
+
     public const TYPES = [
-        'SMALLINT', 'INT2', 'INTEGER', 'INT', 'INT4', 'BIGINT', 'INT8',
-        'DECIMAL', 'NUMERIC',
-        'REAL', 'FLOAT4', 'DOUBLE PRECISION', 'FLOAT8', 'FLOAT',
-        'BOOLEAN', 'BOOL',
-        'CHAR', 'CHARACTER', 'NCHAR', 'BPCHAR',
-        'VARCHAR', 'CHARACTER VARYING', 'NVARCHAR', 'TEXT',
-        'DATE',
-        'TIMESTAMP', 'TIMESTAMP WITHOUT TIME ZONE',
-        'TIMESTAMPTZ', 'TIMESTAMP WITH TIME ZONE',
+        self::SMALLINT, self::INT2, self::INTEGER, self::INT, self::INT4, self::BIGINT, self::INT8,
+        self::DECIMAL, self::NUMERIC,
+        self::REAL, self::FLOAT4, self::DOUBLE_PRECISION, self::FLOAT8, self::FLOAT,
+        self::BOOLEAN, self::BOOL,
+        self::CHAR, self::CHARACTER, self::NCHAR, self::BPCHAR,
+        self::VARCHAR, self::CHARACTER_VARYING, self::NVARCHAR, self::TEXT,
+        self::DATE,
+        self::TIMESTAMP, self::TIMESTAMP_WITHOUT_TIME_ZONE,
+        self::TIMESTAMPTZ, self::TIMESTAMP_WITH_TIME_ZONE,
     ];
 
     protected ?string $compression = null;
@@ -145,8 +175,8 @@ class Redshift extends Common
     {
         $valid = true;
         switch (strtoupper($type)) {
-            case 'DECIMAL':
-            case 'NUMERIC':
+            case self::DECIMAL:
+            case self::NUMERIC:
                 if (is_null($length) || $length === '') {
                     break;
                 }
@@ -172,10 +202,10 @@ class Redshift extends Common
                     break;
                 }
                 break;
-            case 'VARCHAR':
-            case 'CHARACTER VARYING':
-            case 'TEXT':
-            case 'NVARCHAR':
+            case self::VARCHAR:
+            case self::CHARACTER_VARYING:
+            case self::TEXT:
+            case self::NVARCHAR:
                 if (is_null($length) || $length === '') {
                     break;
                 }
@@ -188,10 +218,10 @@ class Redshift extends Common
                     break;
                 }
                 break;
-            case 'CHAR':
-            case 'CHARACTER':
-            case 'NCHAR':
-            case 'BPCHAR':
+            case self::CHAR:
+            case self::CHARACTER:
+            case self::NCHAR:
+            case self::BPCHAR:
                 if (is_null($length)) {
                     break;
                 }
@@ -204,10 +234,10 @@ class Redshift extends Common
                     break;
                 }
                 break;
-            case 'TIMESTAMP':
-            case 'TIMESTAMP WITHOUT TIME ZONE':
-            case 'TIMESTAMPTZ':
-            case 'TIMESTAMP WITH TIME ZONE':
+            case self::TIMESTAMP:
+            case self::TIMESTAMP_WITHOUT_TIME_ZONE:
+            case self::TIMESTAMPTZ:
+            case self::TIMESTAMP_WITH_TIME_ZONE:
                 if (is_null($length) || $length === '') {
                     break;
                 }
@@ -247,81 +277,97 @@ class Redshift extends Common
             case '':
                 break;
             case 'BYTEDICT':
-                if (in_array($type, ['BOOLEAN', 'BOOL'])) {
+                if (in_array($type, [self::BOOLEAN, self::BOOL])) {
                     $valid = false;
                 }
                 break;
             case 'DELTA':
                 if (!in_array($type, [
-                    'SMALLINT',
-                    'INT2',
-                    'INT',
-                    'INTEGER',
-                    'INT4',
-                    'BIGINT',
-                    'INT8',
-                    'DATE',
-                    'TIMESTAMP',
-                    'TIMESTAMP WITHOUT TIME ZONE',
-                    'TIMESTAMPTZ',
-                    'TIMESTAMP WITH TIMEZONE',
-                    'DECIMAL',
-                    'NUMERIC',
+                    self::SMALLINT,
+                    self::INT2,
+                    self::INT,
+                    self::INTEGER,
+                    self::INT4,
+                    self::BIGINT,
+                    self::INT8,
+                    self::DATE,
+                    self::TIMESTAMP,
+                    self::TIMESTAMP_WITHOUT_TIME_ZONE,
+                    self::TIMESTAMPTZ,
+                    self::TIMESTAMP_WITH_TIME_ZONE,
+                    self::DECIMAL,
+                    self::NUMERIC,
                 ])) {
                     $valid = false;
                 }
                 break;
             case 'DELTA32K':
                 if (!in_array($type, [
-                    'INT',
-                    'INTEGER',
-                    'INT4',
-                    'BIGINT',
-                    'INT8',
-                    'DATE',
-                    'TIMESTAMP',
-                    'TIMESTAMP WITHOUT TIME ZONE',
-                    'TIMESTAMPTZ',
-                    'TIMESTAMP WITH TIMEZONE',
-                    'DECIMAL',
-                    'NUMERIC',
+                    self::INT,
+                    self::INTEGER,
+                    self::INT4,
+                    self::BIGINT,
+                    self::INT8,
+                    self::DATE,
+                    self::TIMESTAMP,
+                    self::TIMESTAMP_WITHOUT_TIME_ZONE,
+                    self::TIMESTAMPTZ,
+                    self::TIMESTAMP_WITH_TIME_ZONE,
+                    self::DECIMAL,
+                    self::NUMERIC,
                 ])) {
                     $valid = false;
                 }
                 break;
             case 'LZO':
-                if (in_array($type, ['BOOLEAN', 'BOOL', 'REAL', 'FLOAT4', 'DOUBLE PRECISION', 'FLOAT8', 'FLOAT'])) {
+                if (in_array($type, [
+                    self::BOOLEAN,
+                    self::BOOL,
+                    self::REAL,
+                    self::FLOAT4,
+                    self::DOUBLE_PRECISION,
+                    self::FLOAT8,
+                    self::FLOAT,
+                ])) {
                     $valid = false;
                 }
                 break;
             case 'MOSTLY8':
                 if (!in_array($type, [
-                    'SMALLINT',
-                    'INT2',
-                    'INT',
-                    'INTEGER',
-                    'INT4',
-                    'BIGINT',
-                    'INT8',
-                    'DECIMAL',
-                    'NUMERIC',
+                    self::SMALLINT,
+                    self::INT2,
+                    self::INT,
+                    self::INTEGER,
+                    self::INT4,
+                    self::BIGINT,
+                    self::INT8,
+                    self::DECIMAL,
+                    self::NUMERIC,
                 ])) {
                     $valid = false;
                 }
                 break;
             case 'MOSTLY16':
-                if (!in_array($type, ['INT', 'INTEGER', 'INT4', 'BIGINT', 'INT8', 'DECIMAL', 'NUMERIC'])) {
+                if (!in_array($type, [
+                    self::INT,
+                    self::INTEGER,
+                    self::INT4,
+                    self::BIGINT,
+                    self::INT8,
+                    self::DECIMAL,
+                    self::NUMERIC,
+                ])) {
                     $valid = false;
                 }
                 break;
             case 'MOSTLY32':
-                if (!in_array($type, ['BIGINT', 'INT8', 'DECIMAL', 'NUMERIC'])) {
+                if (!in_array($type, [self::BIGINT, self::INT8, self::DECIMAL, self::NUMERIC])) {
                     $valid = false;
                 }
                 break;
             case 'TEXT255':
             case 'TEXT32K':
-                if (!in_array($type, ['VARCHAR', 'CHARACTER VARYING', 'NVARCHAR', 'TEXT'])) {
+                if (!in_array($type, [self::VARCHAR, self::CHARACTER_VARYING, self::NVARCHAR, self::TEXT])) {
                     $valid = false;
                 }
                 break;
@@ -337,37 +383,37 @@ class Redshift extends Common
     public function getBasetype(): string
     {
         switch (strtoupper($this->type)) {
-            case 'SMALLINT':
-            case 'INT2':
-            case 'INTEGER':
-            case 'INT':
-            case 'INT4':
-            case 'BIGINT':
-            case 'INT8':
+            case self::SMALLINT:
+            case self::INT2:
+            case self::INTEGER:
+            case self::INT:
+            case self::INT4:
+            case self::BIGINT:
+            case self::INT8:
                 $basetype = BaseType::INTEGER;
                 break;
-            case 'DECIMAL':
-            case 'NUMERIC':
+            case self::DECIMAL:
+            case self::NUMERIC:
                 $basetype = BaseType::NUMERIC;
                 break;
-            case 'REAL':
-            case 'FLOAT4':
-            case 'DOUBLE PRECISION':
-            case 'FLOAT8':
-            case 'FLOAT':
+            case self::REAL:
+            case self::FLOAT4:
+            case self::DOUBLE_PRECISION:
+            case self::FLOAT8:
+            case self::FLOAT:
                 $basetype = BaseType::FLOAT;
                 break;
-            case 'BOOLEAN':
-            case 'BOOL':
+            case self::BOOLEAN:
+            case self::BOOL:
                 $basetype = BaseType::BOOLEAN;
                 break;
-            case 'DATE':
+            case self::DATE:
                 $basetype = BaseType::DATE;
                 break;
-            case 'TIMESTAMP':
-            case 'TIMESTAMP WITHOUT TIME ZONE':
-            case 'TIMESTAMPTZ':
-            case 'TIMESTAMP WITH TIME ZONE':
+            case self::TIMESTAMP:
+            case self::TIMESTAMP_WITHOUT_TIME_ZONE:
+            case self::TIMESTAMPTZ:
+            case self::TIMESTAMP_WITH_TIME_ZONE:
                 $basetype = BaseType::TIMESTAMP;
                 break;
             default:
@@ -395,5 +441,43 @@ class Redshift extends Common
             ];
         }
         return $metadata;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypesAllowedInFilters(): array
+    {
+        return [
+            self::SMALLINT,
+            self::INT2,
+            self::INTEGER,
+            self::INT,
+            self::INT4,
+            self::BIGINT,
+            self::INT8,
+            self::DECIMAL,
+            self::NUMERIC,
+            self::REAL,
+            self::FLOAT4,
+            self::DOUBLE_PRECISION,
+            self::FLOAT8,
+            self::FLOAT,
+            self::BOOLEAN,
+            self::BOOL,
+            self::CHAR,
+            self::CHARACTER,
+            self::NCHAR,
+            self::BPCHAR,
+            self::VARCHAR,
+            self::CHARACTER_VARYING,
+            self::NVARCHAR,
+            self::TEXT,
+            self::DATE,
+            self::TIMESTAMP,
+            self::TIMESTAMP_WITHOUT_TIME_ZONE,
+            self::TIMESTAMPTZ,
+            self::TIMESTAMP_WITH_TIME_ZONE,
+        ];
     }
 }

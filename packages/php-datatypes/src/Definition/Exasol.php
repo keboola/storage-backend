@@ -437,4 +437,45 @@ class Exasol extends Common
 
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypesAllowedInFilters(): array
+    {
+        return [
+            self::TYPE_DECIMAL,
+            self::TYPE_DOUBLE_PRECISION,
+            self::TYPE_BOOLEAN,
+            self::TYPE_DATE,
+            self::TYPE_TIMESTAMP,
+            self::TYPE_TIMESTAMP_WITH_LOCAL_ZONE,
+            self::TYPE_INTERVAL_YEAR_TO_MONTH,
+            self::TYPE_INTERVAL_DAY_TO_SECOND,
+            self::TYPE_CHAR,
+            self::TYPE_VARCHAR,
+            self::TYPE_BIGINT,
+            self::TYPE_INT,
+            self::TYPE_INTEGER,
+            self::TYPE_SHORTINT,
+            self::TYPE_SMALLINT,
+            self::TYPE_TINYINT,
+            self::TYPE_BOOL,
+            self::TYPE_CHAR_VARYING,
+            self::TYPE_CHARACTER,
+            self::TYPE_CHARACTER_LARGE_OBJECT,
+            self::TYPE_CHARACTER_VARYING,
+            self::TYPE_DEC,
+            self::TYPE_LONG_VARCHAR,
+            self::TYPE_NCHAR,
+            self::TYPE_NUMBER,
+            self::TYPE_NUMERIC,
+            self::TYPE_NVARCHAR,
+            self::TYPE_NVARCHAR2,
+            self::TYPE_VARCHAR2,
+            self::TYPE_DOUBLE,
+            self::TYPE_FLOAT,
+            self::TYPE_REAL,
+        ];
+    }
 }

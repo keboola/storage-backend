@@ -328,4 +328,31 @@ class Bigquery extends Common
 
         return false;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypesAllowedInFilters(): array
+    {
+        return [
+            self::TYPE_BOOL,
+            self::TYPE_DATE,
+            self::TYPE_DATETIME,
+            self::TYPE_TIME,
+            self::TYPE_TIMESTAMP,
+            self::TYPE_INT64,
+            self::TYPE_INT,
+            self::TYPE_SMALLINT,
+            self::TYPE_INTEGER,
+            self::TYPE_BIGINT,
+            self::TYPE_TINYINT,
+            self::TYPE_BYTEINT,
+            self::TYPE_NUMERIC,
+            self::TYPE_DECIMAL,
+            self::TYPE_BIGNUMERIC,
+            self::TYPE_BIGDECIMAL,
+            self::TYPE_FLOAT64,
+            self::TYPE_STRING,
+        ];
+    }
 }
