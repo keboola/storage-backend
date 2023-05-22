@@ -20,6 +20,12 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 {
     public const DEPENDENT_OBJECT_TABLE = 'TABLE';
     public const DEPENDENT_OBJECT_VIEW = 'VIEW';
+    public const COLUMN_KIND_COLUMN = 'COLUMN';
+    public const COLUMN_KIND_VIRTUAL = 'VIRTUAL';
+    public const RECOGNIZED_COLUMN_KINDS = [
+        self::COLUMN_KIND_COLUMN,
+        self::COLUMN_KIND_VIRTUAL,
+    ];
 
     private Connection $connection;
 
@@ -53,7 +59,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         /** @var array<array{TABLE_TYPE:string,BYTES:string,ROW_COUNT:string}> $row */
         $row = $this->connection->fetchAllAssociative(
             sprintf(
-                //phpcs:ignore
+            //phpcs:ignore
                 'SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;',
                 SnowflakeQuote::quote($this->schemaName),
                 SnowflakeQuote::quote($this->tableName)
@@ -125,7 +131,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $columns = [];
 
         foreach ($columnsMeta as $col) {
-            if ($col['kind'] === 'COLUMN') {
+            if (\in_array($col['kind'], self::RECOGNIZED_COLUMN_KINDS)) {
                 $columns[] = SnowflakeColumn::createFromDB($col);
             }
         }
@@ -182,6 +188,16 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $this->cacheTableProps();
         assert($this->isTemporary !== null);
         return $this->isTemporary;
+    }
+
+    /**
+     * @throws TableNotExistsReflectionException
+     */
+    public function isExternal(): bool
+    {
+        $this->cacheTableProps();
+        assert($this->isExternal !== null);
+        return $this->isExternal;
     }
 
     /**

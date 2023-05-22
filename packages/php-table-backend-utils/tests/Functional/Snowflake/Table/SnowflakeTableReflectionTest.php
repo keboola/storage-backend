@@ -115,6 +115,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         $this->expectException(TableNotExistsReflectionException::class);
         $ref->getTableStats();
     }
+
     public function testGetTableStats(): void
     {
         $this->initTable();
@@ -599,5 +600,58 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
 
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'notExisting');
         self::assertFalse($ref->exists());
+    }
+
+    public function testDetectVirtualColumn()
+    {
+        $this->connection->executeQuery(
+            <<<SQL
+CREATE OR REPLACE TABLE car_sales
+    (
+     src variant,
+     dealer VARCHAR(255) AS (src:dealership::string)
+)
+AS
+SELECT PARSE_JSON(column1) AS src
+FROM VALUES
+         ('{
+    "date" : "2017-04-28",
+    "dealership" : "Valley View Auto Sales"
+}'),
+         ('{
+    "date" : "2017-04-28",
+    "dealership" : "Tindel Toyota"
+}') v;
+SQL
+        );
+
+        $ref = new SnowflakeTableReflection($this->connection, 'tmp_daily_temperature', 'notExisting');
+
+        $columns = $ref->getColumnsDefinitions();
+        $this->assertEquals(['src', 'dealer'], $columns);
+        $expectedDefinitions = [
+            'src' => [
+                'type' => Snowflake::TYPE_VARIANT,
+                'length' => 255,
+                'nullable' => false,
+                ],
+            'dealer' => [
+                'type' => Snowflake::TYPE_VARCHAR,
+                'length' => 255,
+                'nullable' => false,
+            ],
+        ];
+        foreach ($columns as $column) {
+            $this->assertSame(
+                $expectedDefinitions[$column->getColumnName()],
+                $column->getColumnDefinition()->toArray()
+            );
+        }
+
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM car_sales');
+        $this->assertSame([
+            ["src" => '{"date":"2017-04-28","dealership":"Valley View Auto Sales"}', "dealer" => "Valley View Auto Sales"],
+            ["src" => '{"date":"2017-04-28","dealership":"Tindel Toyota"}', "dealer" => "Tindel Toyota"],
+        ], $data);
     }
 }
