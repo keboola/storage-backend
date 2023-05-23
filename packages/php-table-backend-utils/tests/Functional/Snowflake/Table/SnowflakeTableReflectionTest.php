@@ -602,43 +602,38 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         self::assertFalse($ref->exists());
     }
 
-    public function testDetectVirtualColumn()
+    public function testDetectVirtualColumn(): void
     {
+        $this->createSchema(self::TEST_SCHEMA);
         $this->connection->executeQuery(
             <<<SQL
-CREATE OR REPLACE TABLE car_sales
+CREATE OR REPLACE TABLE CAR_SALES
     (
-     src variant,
-     dealer VARCHAR(255) AS (src:dealership::string)
+     SRC variant,
+     DEALER VARCHAR(255) AS (src:dealership::string)
 )
 AS
 SELECT PARSE_JSON(column1) AS src
 FROM VALUES
-         ('{
-    "date" : "2017-04-28",
-    "dealership" : "Valley View Auto Sales"
-}'),
-         ('{
-    "date" : "2017-04-28",
-    "dealership" : "Tindel Toyota"
-}') v;
+         ('{"date":"2017-04-28","dealership":"Valley View Auto Sales"}'),
+         ('{"date":"2017-04-28","dealership":"Tindel Toyota"}') v;
 SQL
         );
 
-        $ref = new SnowflakeTableReflection($this->connection, 'tmp_daily_temperature', 'notExisting');
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'CAR_SALES');
 
         $columns = $ref->getColumnsDefinitions();
-        $this->assertEquals(['src', 'dealer'], $columns);
+        $this->assertEquals(['SRC', 'DEALER'], $ref->getColumnsNames());
         $expectedDefinitions = [
-            'src' => [
+            'SRC' => [
                 'type' => Snowflake::TYPE_VARIANT,
-                'length' => 255,
-                'nullable' => false,
+                'length' => null,
+                'nullable' => true,
                 ],
-            'dealer' => [
+            'DEALER' => [
                 'type' => Snowflake::TYPE_VARCHAR,
-                'length' => 255,
-                'nullable' => false,
+                'length' => '255',
+                'nullable' => true,
             ],
         ];
         foreach ($columns as $column) {
@@ -650,8 +645,20 @@ SQL
 
         $data = $this->connection->fetchAllAssociative('SELECT * FROM car_sales');
         $this->assertSame([
-            ["src" => '{"date":"2017-04-28","dealership":"Valley View Auto Sales"}', "dealer" => "Valley View Auto Sales"],
-            ["src" => '{"date":"2017-04-28","dealership":"Tindel Toyota"}', "dealer" => "Tindel Toyota"],
+            [
+                'SRC' => '{
+  "date": "2017-04-28",
+  "dealership": "Valley View Auto Sales"
+}',
+                'DEALER' => 'Valley View Auto Sales',
+            ],
+            [
+                'SRC' => '{
+  "date": "2017-04-28",
+  "dealership": "Tindel Toyota"
+}',
+                'DEALER' => 'Tindel Toyota',
+            ],
         ], $data);
         $this->assertFalse($ref->isExternal());
     }

@@ -140,7 +140,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $columns = [];
 
         foreach ($columnsMeta as $col) {
-            if (\in_array($col['kind'], self::RECOGNIZED_COLUMN_KINDS)) {
+            if (in_array($col['kind'], self::RECOGNIZED_COLUMN_KINDS)) {
                 $columns[] = SnowflakeColumn::createFromDB($col);
             }
         }
