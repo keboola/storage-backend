@@ -37,6 +37,8 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     private ?bool $isTemporary = null;
 
+    private ?bool $isExternal = null;
+
     private ?int $sizeBytes = null;
 
     private ?int $rowCount = null;
@@ -70,10 +72,17 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         }
         $this->sizeBytes = (int) $row[0]['BYTES'];
         $this->rowCount = (int) $row[0]['ROW_COUNT'];
+        $this->isExternal = false;
+
         switch (strtoupper($row[0]['TABLE_TYPE'])) {
             case 'BASE TABLE':
                 $this->isTemporary = false;
                 $this->isView = false;
+                return;
+            case 'EXTERNAL TABLE':
+                $this->isTemporary = false;
+                $this->isView = false;
+                $this->isExternal = true;
                 return;
             case 'LOCAL TEMPORARY':
             case 'TEMPORARY TABLE':

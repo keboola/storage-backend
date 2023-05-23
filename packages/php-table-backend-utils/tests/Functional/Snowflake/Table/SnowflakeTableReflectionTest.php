@@ -653,5 +653,6 @@ SQL
             ["src" => '{"date":"2017-04-28","dealership":"Valley View Auto Sales"}', "dealer" => "Valley View Auto Sales"],
             ["src" => '{"date":"2017-04-28","dealership":"Tindel Toyota"}', "dealer" => "Tindel Toyota"],
         ], $data);
+        $this->assertFalse($ref->isExternal());
     }
 }
