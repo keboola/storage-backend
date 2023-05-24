@@ -662,4 +662,33 @@ SQL
         ], $data);
         $this->assertFalse($ref->isExternal());
     }
+
+    public function testDetectExternalTable(): void
+    {
+        $this->createSchema(self::TEST_SCHEMA);
+        $this->connection->executeQuery(
+            <<<SQL
+CREATE OR REPLACE STAGE s3_stage URL = 's3://xxxx'
+    CREDENTIALS = ( AWS_KEY_ID = 'XXX' AWS_SECRET_KEY = 'YYY');
+SQL
+        );
+        $this->connection->executeQuery(
+            <<<SQL
+CREATE OR REPLACE
+EXTERNAL TABLE MY_LITTLE_EXT_TABLE (
+    ID NUMBER(38,0) AS (VALUE:c1::INT),
+    FIRST_NAME VARCHAR(255) AS (VALUE:c2::STRING)
+    ) 
+    LOCATION=@s3_stage/data 
+    REFRESH_ON_CREATE = FALSE 
+    AUTO_REFRESH = FALSE 
+    FILE_FORMAT = (TYPE = CSV SKIP_HEADER=1 TRIM_SPACE=TRUE );
+SQL
+        );
+
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'MY_LITTLE_EXT_TABLE');
+        $this->assertTrue($ref->isExternal());
+        // value is an implicit column for external tables
+        $this->assertEquals(['VALUE', 'ID', 'FIRST_NAME'], $ref->getColumnsNames());
+    }
 }
