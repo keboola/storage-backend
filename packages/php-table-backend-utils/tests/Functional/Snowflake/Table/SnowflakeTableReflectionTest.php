@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaReflection;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
@@ -685,6 +686,10 @@ EXTERNAL TABLE MY_LITTLE_EXT_TABLE (
     FILE_FORMAT = (TYPE = CSV SKIP_HEADER=1 TRIM_SPACE=TRUE );
 SQL
         );
+
+        // external table is considered as a table just with external flag
+        $refSchema = new SnowflakeSchemaReflection($this->connection, self::TEST_SCHEMA);
+        $this->assertEquals(['MY_LITTLE_EXT_TABLE'], $refSchema->getTablesNames());
 
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'MY_LITTLE_EXT_TABLE');
         $this->assertTrue($ref->isExternal());
