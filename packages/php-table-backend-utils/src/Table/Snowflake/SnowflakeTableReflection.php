@@ -9,6 +9,7 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Keboola\TableBackendUtils\Table\TableKind;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
@@ -33,11 +34,9 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     private string $tableName;
 
-    private ?bool $isView = null;
-
     private ?bool $isTemporary = null;
 
-    private ?bool $isExternal = null;
+    private TableKind $kind = TableKind::TABLE;
 
     private ?int $sizeBytes = null;
 
@@ -55,7 +54,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
      */
     private function cacheTableProps(bool $force = false): void
     {
-        if ($force === false && $this->isView !== null && $this->isTemporary !== null) {
+        if ($force === false && $this->isTemporary !== null) {
             return;
         }
         /** @var array<array{TABLE_TYPE:string,BYTES:string,ROW_COUNT:string}> $row */
@@ -72,26 +71,22 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         }
         $this->sizeBytes = (int) $row[0]['BYTES'];
         $this->rowCount = (int) $row[0]['ROW_COUNT'];
-        $this->isExternal = false;
 
         switch (strtoupper($row[0]['TABLE_TYPE'])) {
             case 'BASE TABLE':
                 $this->isTemporary = false;
-                $this->isView = false;
                 return;
             case 'EXTERNAL TABLE':
                 $this->isTemporary = false;
-                $this->isView = false;
-                $this->isExternal = true;
+                $this->kind = TableKind::EXTERNAL;
                 return;
             case 'LOCAL TEMPORARY':
             case 'TEMPORARY TABLE':
                 $this->isTemporary = true;
-                $this->isView = false;
                 return;
             case 'VIEW':
                 $this->isTemporary = false;
-                $this->isView = true;
+                $this->kind = TableKind::VIEW;
                 return;
             default:
                 throw new RuntimeException(sprintf(
@@ -200,16 +195,6 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     }
 
     /**
-     * @throws TableNotExistsReflectionException
-     */
-    public function isExternal(): bool
-    {
-        $this->cacheTableProps();
-        assert($this->isExternal !== null);
-        return $this->isExternal;
-    }
-
-    /**
      * @return array<int, array<string, mixed>>
      * array{
      *  schema_name: string,
@@ -295,7 +280,8 @@ WHERE REFERENCED_OBJECT_TYPE = %s
             $this->tableName,
             $this->isTemporary(),
             $this->getColumnsDefinitions(),
-            $this->getPrimaryKeysNames()
+            $this->getPrimaryKeysNames(),
+            $this->kind
         );
     }
 
@@ -313,7 +299,6 @@ WHERE REFERENCED_OBJECT_TYPE = %s
     public function isView(): bool
     {
         $this->cacheTableProps();
-        assert($this->isView !== null);
-        return $this->isView;
+        return $this->kind === TableKind::VIEW;
     }
 }

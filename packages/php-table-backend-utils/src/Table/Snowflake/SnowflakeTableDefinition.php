@@ -7,8 +7,10 @@ namespace Keboola\TableBackendUtils\Table\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Keboola\TableBackendUtils\Table\TableKind;
+use Keboola\TableBackendUtils\Table\TableMultiKindInterface;
 
-final class SnowflakeTableDefinition implements TableDefinitionInterface
+final class SnowflakeTableDefinition implements TableDefinitionInterface, TableMultiKindInterface
 {
     private string $schemaName;
 
@@ -29,7 +31,8 @@ final class SnowflakeTableDefinition implements TableDefinitionInterface
         string $tableName,
         bool $isTemporary,
         ColumnCollection $columns,
-        array $primaryKeysNames
+        array $primaryKeysNames,
+        private readonly TableKind $kind = TableKind::TABLE,
     ) {
         $this->schemaName = $schemaName;
         $this->tableName = $tableName;
@@ -78,5 +81,10 @@ final class SnowflakeTableDefinition implements TableDefinitionInterface
     public function isTemporary(): bool
     {
         return $this->isTemporary;
+    }
+
+    public function getKind(): TableKind
+    {
+        return $this->kind;
     }
 }
