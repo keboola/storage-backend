@@ -13,12 +13,16 @@ class Assert
 {
     /**
      * @param string[] $ignoreSourceColumns
+     * @param string[] $simpleLengthTypes
+     * @param string[] $complexLengthTypes
      * @throws ColumnsMismatchException
      */
     public static function assertSameColumns(
         ColumnCollection $source,
         ColumnCollection $destination,
-        array $ignoreSourceColumns = []
+        array $ignoreSourceColumns = [],
+        array $simpleLengthTypes = [],
+        array $complexLengthTypes = [],
     ): void {
         $it0 = $source->getIterator();
         $it1 = $destination->getIterator();
@@ -46,17 +50,97 @@ class Assert
                     throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
                 }
 
-                $isLengthMismatch = $sourceDef->getLength() !== $destDef->getLength();
-
-                if ($isLengthMismatch) {
-                    throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
-                }
+                self::assertLengthMismatch(
+                    $sourceCol,
+                    $destCol,
+                    $simpleLengthTypes,
+                    $complexLengthTypes
+                );
             } else {
                 throw ColumnsMismatchException::createColumnsCountMismatch($source, $destination);
             }
 
             $it0->next();
             $it1->next();
+        }
+    }
+
+    private static function isLengthMismatchSimpleLength(Common $sourceDef, Common $destDef): bool
+    {
+        $isSourceNumeric = is_numeric($sourceDef->getLength());
+        $isDestNumeric = is_numeric($destDef->getLength());
+        if ($isSourceNumeric && $isDestNumeric) {
+            return (int) $sourceDef->getLength() > (int) $destDef->getLength();
+        }
+        if ($isSourceNumeric !== $isDestNumeric) {
+            // if one is numeric but other not => mismatch
+            return true;
+        }
+        return false;
+    }
+
+    private static function isLengthMismatchComplexLength(
+        string $sourcePrecision,
+        string $sourceScale,
+        string $destinationPrecision,
+        string $destinationScale
+    ): bool {
+        return $sourcePrecision > $destinationPrecision || $sourceScale > $destinationScale;
+    }
+
+    private static function isMismatchComplexLength(Common $sourceDef, Common $destDef): bool
+    {
+        assert($sourceDef->getLength() !== null); // both will never fail this is checked in assertLengthMismatch
+        assert($destDef->getLength() !== null);
+        $sourceLength = explode(',', $sourceDef->getLength());
+        $destLength = explode(',', $destDef->getLength());
+        $isSourceComplex = count($sourceLength) === 2;
+        $isDestComplex = count($destLength) === 2;
+        return match (true) {
+            $isSourceComplex && $isDestComplex => self::isLengthMismatchComplexLength(
+                sourcePrecision: $sourceLength[0],
+                sourceScale: $sourceLength[1],
+                destinationPrecision: $destLength[0],
+                destinationScale: $destLength[1]
+            ),
+            $isSourceComplex !== $isDestComplex => false,
+            default => self::isLengthMismatchSimpleLength(
+                $sourceDef,
+                $destDef
+            ),
+        };
+    }
+
+    /**
+     * @param string[] $simpleLengthTypes
+     * @param string[] $complexLengthTypes
+     */
+    private static function assertLengthMismatch(
+        ColumnInterface $sourceCol,
+        ColumnInterface $destCol,
+        array $simpleLengthTypes = [],
+        array $complexLengthTypes = [],
+    ): void {
+        /** @var Common $sourceDef */
+        $sourceDef = $sourceCol->getColumnDefinition();
+        /** @var Common $destDef */
+        $destDef = $destCol->getColumnDefinition();
+
+        if ($sourceDef->getLength() === null || $destDef->getLength() === null) {
+            // if any of the lengths is null do simple equals check
+            $isLengthMismatch = $sourceDef->getLength() !== $destDef->getLength();
+        } else {
+            $isSimpleLengthType = in_array(strtoupper($sourceDef->getType()), $simpleLengthTypes, true);
+            $isComplexLengthType = in_array(strtoupper($sourceDef->getType()), $complexLengthTypes, true);
+            $isLengthMismatch = match (true) {
+                $isSimpleLengthType => self::isLengthMismatchSimpleLength($sourceDef, $destDef),
+                $isComplexLengthType => self::isMismatchComplexLength($sourceDef, $destDef),
+                default => $sourceDef->getLength() !== $destDef->getLength(),
+            };
+        }
+
+        if ($isLengthMismatch) {
+            throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
         }
     }
 }
