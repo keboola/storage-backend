@@ -13,8 +13,8 @@ class Assert
 {
     /**
      * @param string[] $ignoreSourceColumns
-     * @param string[] $simpleLengthTypes
-     * @param string[] $complexLengthTypes
+     * @param string[] $simpleLengthTypes - list of types where length is represented by single number
+     * @param string[] $complexLengthTypes - list of numeric types where length is presented by <scale:int>,<precision:int>
      * @throws ColumnsMismatchException
      */
     public static function assertSameColumns(
@@ -80,10 +80,10 @@ class Assert
     }
 
     private static function isLengthMismatchComplexLength(
-        string $sourcePrecision,
-        string $sourceScale,
-        string $destinationPrecision,
-        string $destinationScale
+        int $sourcePrecision,
+        int $sourceScale,
+        int $destinationPrecision,
+        int $destinationScale
     ): bool {
         return $sourcePrecision > $destinationPrecision || $sourceScale > $destinationScale;
     }
@@ -98,10 +98,10 @@ class Assert
         $isDestComplex = count($destLength) === 2;
         return match (true) {
             $isSourceComplex && $isDestComplex => self::isLengthMismatchComplexLength(
-                sourcePrecision: $sourceLength[0],
-                sourceScale: $sourceLength[1],
-                destinationPrecision: $destLength[0],
-                destinationScale: $destLength[1]
+                sourcePrecision: (int) $sourceLength[0],
+                sourceScale: (int) $sourceLength[1],
+                destinationPrecision: (int) $destLength[0],
+                destinationScale: (int) $destLength[1]
             ),
             $isSourceComplex !== $isDestComplex => false,
             default => self::isLengthMismatchSimpleLength(
@@ -112,6 +112,31 @@ class Assert
     }
 
     /**
+     * checks if destination length is compatible (same or bigger) with source length.
+     * Examples:
+     *
+     * With simple type and no simpleLengthTypes defined:
+     * - source VARCHAR(255) -> destination VARCHAR(255) is OK;
+     * - source VARCHAR(255) -> destination VARCHAR(1000) fail;
+     * - source VARCHAR(1000) -> destination VARCHAR(255) fail;
+     * With complex type and no complexLengthTypes defined:
+     * - source DECIMAL(22,2) -> destination DECIMAL(22,2) is OK;
+     * - source DECIMAL(20,2) -> destination DECIMAL(22,2) fails;
+     * - source DECIMAL(22,2) -> destination DECIMAL(22,3) fails;
+     * - source DECIMAL(22,2) -> destination DECIMAL(20,2) fails;
+     * - source DECIMAL(22,2) -> destination DECIMAL(22,1) fails;
+     *
+     * With simple type and simpleLengthTypes defined:
+     * - source VARCHAR(255) -> destination VARCHAR(255) is OK;
+     * - source VARCHAR(255) -> destination VARCHAR(1000) is OK;
+     * - source VARCHAR(1000) -> destination VARCHAR(255) fail;
+     * With complex type and complexLengthTypes defined:
+     * - source DECIMAL(22,2) -> destination DECIMAL(22,2) is OK;
+     * - source DECIMAL(20,2) -> destination DECIMAL(22,2) is OK;
+     * - source DECIMAL(22,2) -> destination DECIMAL(22,3) is OK;
+     * - source DECIMAL(22,2) -> destination DECIMAL(20,2) fails;
+     * - source DECIMAL(22,2) -> destination DECIMAL(22,1) fails;
+     *
      * @param string[] $simpleLengthTypes
      * @param string[] $complexLengthTypes
      */
