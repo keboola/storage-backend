@@ -9,5 +9,5 @@ enum TableKind: string
     case TABLE = 'table';
     case VIEW = 'view';
     // Snowflake external table
-    case EXTERNAL = 'external';
+    case SNOWFLAKE_EXTERNAL = 'snowflake-external-table';
 }

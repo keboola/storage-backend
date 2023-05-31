@@ -78,7 +78,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
                 return;
             case 'EXTERNAL TABLE':
                 $this->isTemporary = false;
-                $this->kind = TableKind::EXTERNAL;
+                $this->kind = TableKind::SNOWFLAKE_EXTERNAL;
                 return;
             case 'LOCAL TEMPORARY':
             case 'TEMPORARY TABLE':
