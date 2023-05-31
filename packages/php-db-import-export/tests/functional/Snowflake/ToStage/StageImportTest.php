@@ -243,7 +243,7 @@ class StageImportTest extends SnowflakeBaseTestCase
             'CREATE OR REPLACE TABLE %s.%s (
             "id" INTEGER,
     "first_name" VARCHAR(100),
-    "last_name" VARCHAR(101)
+    "last_name" VARCHAR(99)
 );'
         );
 
@@ -266,7 +266,7 @@ class StageImportTest extends SnowflakeBaseTestCase
 
         $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage(
-            'Source destination columns mismatch. "last_name VARCHAR (100)"->"last_name VARCHAR (101)"'
+            'Source destination columns mismatch. "last_name VARCHAR (100)"->"last_name VARCHAR (99)"'
         );
         $importer->importToStagingTable(
             $source,

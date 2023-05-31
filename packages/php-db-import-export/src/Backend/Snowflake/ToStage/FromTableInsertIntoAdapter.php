@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\ToStage;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Assert;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
@@ -61,7 +62,35 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                     $source->getTableName()
                 ))->getColumnsDefinitions(),
                 $destination->getColumnsDefinitions(),
-                $importOptions->ignoreColumns()
+                $importOptions->ignoreColumns(),
+                [
+                    Snowflake::TYPE_VARCHAR,
+                    Snowflake::TYPE_CHAR,
+                    Snowflake::TYPE_CHARACTER,
+                    Snowflake::TYPE_STRING,
+                    Snowflake::TYPE_TEXT,
+
+                    Snowflake::TYPE_TIME,
+                    Snowflake::TYPE_DATETIME,
+                    Snowflake::TYPE_TIMESTAMP,
+                    Snowflake::TYPE_TIMESTAMP_NTZ,
+                    Snowflake::TYPE_TIMESTAMP_LTZ,
+                    Snowflake::TYPE_TIMESTAMP_TZ,
+
+                    Snowflake::TYPE_FLOAT,
+                    Snowflake::TYPE_FLOAT4,
+                    Snowflake::TYPE_FLOAT8,
+                    Snowflake::TYPE_REAL,
+
+                    Snowflake::TYPE_BINARY,
+                    Snowflake::TYPE_VARBINARY,
+
+                ],
+                [
+                    Snowflake::TYPE_NUMBER,
+                    Snowflake::TYPE_DECIMAL,
+                    Snowflake::TYPE_NUMERIC,
+                ]
             );
         }
 
