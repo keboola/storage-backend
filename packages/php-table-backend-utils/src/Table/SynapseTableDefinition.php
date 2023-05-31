@@ -99,8 +99,8 @@ final class SynapseTableDefinition implements TableDefinitionInterface
         return $this->tableIndex;
     }
 
-    public function getKind(): TableKind
+    public function getTableType(): TableType
     {
-        return TableKind::TABLE;
+        return TableType::TABLE;
     }
 }

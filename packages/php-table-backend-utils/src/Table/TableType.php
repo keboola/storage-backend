@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Table;
 
-enum TableKind: string
+enum TableType: string
 {
     case TABLE = 'table';
     case VIEW = 'view';

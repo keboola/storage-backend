@@ -9,10 +9,10 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
-use Keboola\TableBackendUtils\Table\TableKind;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
+use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use RuntimeException;
 use Throwable;
@@ -36,7 +36,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
 
     private ?bool $isTemporary = null;
 
-    private TableKind $kind = TableKind::TABLE;
+    private TableType $tableType = TableType::TABLE;
 
     private ?int $sizeBytes = null;
 
@@ -78,7 +78,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
                 return;
             case 'EXTERNAL TABLE':
                 $this->isTemporary = false;
-                $this->kind = TableKind::SNOWFLAKE_EXTERNAL;
+                $this->tableType = TableType::SNOWFLAKE_EXTERNAL;
                 return;
             case 'LOCAL TEMPORARY':
             case 'TEMPORARY TABLE':
@@ -86,7 +86,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
                 return;
             case 'VIEW':
                 $this->isTemporary = false;
-                $this->kind = TableKind::VIEW;
+                $this->tableType = TableType::VIEW;
                 return;
             default:
                 throw new RuntimeException(sprintf(
@@ -281,7 +281,7 @@ WHERE REFERENCED_OBJECT_TYPE = %s
             $this->isTemporary(),
             $this->getColumnsDefinitions(),
             $this->getPrimaryKeysNames(),
-            $this->kind
+            $this->tableType
         );
     }
 
@@ -299,6 +299,6 @@ WHERE REFERENCED_OBJECT_TYPE = %s
     public function isView(): bool
     {
         $this->cacheTableProps();
-        return $this->kind === TableKind::VIEW;
+        return $this->tableType === TableType::VIEW;
     }
 }

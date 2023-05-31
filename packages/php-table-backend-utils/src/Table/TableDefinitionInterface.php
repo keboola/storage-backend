@@ -24,5 +24,5 @@ interface TableDefinitionInterface
 
     public function isTemporary(): bool;
 
-    public function getKind(): TableKind;
+    public function getTableType(): TableType;
 }

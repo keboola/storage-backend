@@ -7,7 +7,7 @@ namespace Keboola\TableBackendUtils\Table\Teradata;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
-use Keboola\TableBackendUtils\Table\TableKind;
+use Keboola\TableBackendUtils\Table\TableType;
 
 final class TeradataTableDefinition implements TableDefinitionInterface
 {
@@ -81,8 +81,8 @@ final class TeradataTableDefinition implements TableDefinitionInterface
         return $this->isTemporary;
     }
 
-    public function getKind(): TableKind
+    public function getTableType(): TableType
     {
-        return TableKind::TABLE;
+        return TableType::TABLE;
     }
 }

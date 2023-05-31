@@ -12,8 +12,8 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaReflection;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
-use Keboola\TableBackendUtils\Table\TableKind;
 use Keboola\TableBackendUtils\Table\TableStats;
+use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
@@ -665,7 +665,7 @@ SQL
         ], $data);
         /** @var SnowflakeTableDefinition $definition */
         $definition = $ref->getTableDefinition();
-        $this->assertEquals(TableKind::TABLE, $definition->getKind());
+        $this->assertEquals(TableType::TABLE, $definition->getTableType());
     }
 
     public function testDetectExternalTable(): void
@@ -698,7 +698,7 @@ SQL
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'MY_LITTLE_EXT_TABLE');
         /** @var SnowflakeTableDefinition $definition */
         $definition = $ref->getTableDefinition();
-        $this->assertEquals(TableKind::SNOWFLAKE_EXTERNAL, $definition->getKind());
+        $this->assertEquals(TableType::SNOWFLAKE_EXTERNAL, $definition->getTableType());
         // value is an implicit column for external tables
         $this->assertEquals(['VALUE', 'ID', 'FIRST_NAME'], $ref->getColumnsNames());
     }
