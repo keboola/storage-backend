@@ -80,20 +80,33 @@ class SnowflakeExceptionTest extends TestCase
         ];
 
         yield 'bigger than column size' => [
+            // phpcs:ignore
             'An exception occurred while executing a query: String \'[{\"\"xxx\"\": \"\"xxx\"\", \"\"xx\"\": null, \"\"xx\"\": \"\"xxx\"\", \"\"xxx\"\": false, \"\"xxx\"\": \"\"xxx\"\", \"\"xxx\"\": [{\"\"xx\"\": \"\"xx\"\", \"\"xx\"\": \"\"xx\"\", \"\"xx\"\":...\' cannot be inserted because it\'s bigger than column size',
             ImportException::class,
+            // phpcs:ignore
             'Load error: An exception occurred while executing a query: String \'[{\"\"xxx\"\": \"\"xxx\"\", \"\"xx\"\": null, \"\"xx\"\": \"\"xxx\"\", \"\"xxx\"\": false, \"\"xxx\"\": \"\"xxx\"\", \"\"xxx\"\": [{\"\"xx\"\": \"\"xx\"\", \"\"xx\"\": \"\"xx\"\", \"\"xx\"\":...\' cannot be inserted because it\'s bigger than column size',
             11, // ROW_SIZE_TOO_LARGE
             true,
         ];
 
         yield 'bigger than column size 2' => [
+            // phpcs:ignore
             "An exception occurred while executing a query: String '\''' cannot be inserted because it's bigger than column size",
             ImportException::class,
+            // phpcs:ignore
             'Load error: An exception occurred while executing a query: String \'\\\'\'\' cannot be inserted because it\'s bigger than column size',
             11, // ROW_SIZE_TOO_LARGE
             true,
         ];
 
+        yield 'Out of range' => [
+            // phpcs:ignore
+            "An exception occurred while executing a query: Numeric value '123.123' is out of range",
+            ImportException::class,
+            // phpcs:ignore
+            'Load error: An exception occurred while executing a query: Numeric value \'123.123\' is out of range',
+            11, // ROW_SIZE_TOO_LARGE
+            true,
+        ];
     }
 }
