@@ -8,9 +8,8 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableKind;
-use Keboola\TableBackendUtils\Table\TableMultiKindInterface;
 
-final class SnowflakeTableDefinition implements TableDefinitionInterface, TableMultiKindInterface
+final class SnowflakeTableDefinition implements TableDefinitionInterface
 {
     private string $schemaName;
 

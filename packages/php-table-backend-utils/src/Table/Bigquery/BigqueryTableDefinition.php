@@ -7,6 +7,7 @@ namespace Keboola\TableBackendUtils\Table\Bigquery;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Keboola\TableBackendUtils\Table\TableKind;
 
 final class BigqueryTableDefinition implements TableDefinitionInterface
 {
@@ -79,5 +80,10 @@ final class BigqueryTableDefinition implements TableDefinitionInterface
     public function isTemporary(): bool
     {
         return $this->isTemporary;
+    }
+
+    public function getKind(): TableKind
+    {
+        return TableKind::TABLE;
     }
 }
