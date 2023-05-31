@@ -9,8 +9,11 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaReflection;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
+use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
@@ -115,6 +118,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         $this->expectException(TableNotExistsReflectionException::class);
         $ref->getTableStats();
     }
+
     public function testGetTableStats(): void
     {
         $this->initTable();
@@ -599,5 +603,103 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
 
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'notExisting');
         self::assertFalse($ref->exists());
+    }
+
+    public function testDetectVirtualColumn(): void
+    {
+        $this->createSchema(self::TEST_SCHEMA);
+        $this->connection->executeQuery(
+            <<<SQL
+CREATE OR REPLACE TABLE CAR_SALES
+    (
+     SRC variant,
+     DEALER VARCHAR(255) AS (src:dealership::string)
+)
+AS
+SELECT PARSE_JSON(column1) AS src
+FROM VALUES
+         ('{"date":"2017-04-28","dealership":"Valley View Auto Sales"}'),
+         ('{"date":"2017-04-28","dealership":"Tindel Toyota"}') v;
+SQL
+        );
+
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'CAR_SALES');
+
+        $columns = $ref->getColumnsDefinitions();
+        $this->assertEquals(['SRC', 'DEALER'], $ref->getColumnsNames());
+        $expectedDefinitions = [
+            'SRC' => [
+                'type' => Snowflake::TYPE_VARIANT,
+                'length' => null,
+                'nullable' => true,
+                ],
+            'DEALER' => [
+                'type' => Snowflake::TYPE_VARCHAR,
+                'length' => '255',
+                'nullable' => true,
+            ],
+        ];
+        foreach ($columns as $column) {
+            $this->assertSame(
+                $expectedDefinitions[$column->getColumnName()],
+                $column->getColumnDefinition()->toArray()
+            );
+        }
+
+        $data = $this->connection->fetchAllAssociative('SELECT * FROM car_sales');
+        $this->assertSame([
+            [
+                'SRC' => '{
+  "date": "2017-04-28",
+  "dealership": "Valley View Auto Sales"
+}',
+                'DEALER' => 'Valley View Auto Sales',
+            ],
+            [
+                'SRC' => '{
+  "date": "2017-04-28",
+  "dealership": "Tindel Toyota"
+}',
+                'DEALER' => 'Tindel Toyota',
+            ],
+        ], $data);
+        /** @var SnowflakeTableDefinition $definition */
+        $definition = $ref->getTableDefinition();
+        $this->assertEquals(TableType::TABLE, $definition->getTableType());
+    }
+
+    public function testDetectExternalTable(): void
+    {
+        $this->createSchema(self::TEST_SCHEMA);
+        $this->connection->executeQuery(
+            <<<SQL
+CREATE OR REPLACE STAGE s3_stage URL = 's3://xxxx'
+    CREDENTIALS = ( AWS_KEY_ID = 'XXX' AWS_SECRET_KEY = 'YYY');
+SQL
+        );
+        $this->connection->executeQuery(
+            <<<SQL
+CREATE OR REPLACE
+EXTERNAL TABLE MY_LITTLE_EXT_TABLE (
+    ID NUMBER(38,0) AS (VALUE:c1::INT),
+    FIRST_NAME VARCHAR(255) AS (VALUE:c2::STRING)
+    ) 
+    LOCATION=@s3_stage/data 
+    REFRESH_ON_CREATE = FALSE 
+    AUTO_REFRESH = FALSE 
+    FILE_FORMAT = (TYPE = CSV SKIP_HEADER=1 TRIM_SPACE=TRUE );
+SQL
+        );
+
+        // external table is considered as a table just with external flag
+        $refSchema = new SnowflakeSchemaReflection($this->connection, self::TEST_SCHEMA);
+        $this->assertEquals(['MY_LITTLE_EXT_TABLE'], $refSchema->getTablesNames());
+
+        $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'MY_LITTLE_EXT_TABLE');
+        /** @var SnowflakeTableDefinition $definition */
+        $definition = $ref->getTableDefinition();
+        $this->assertEquals(TableType::SNOWFLAKE_EXTERNAL, $definition->getTableType());
+        // value is an implicit column for external tables
+        $this->assertEquals(['VALUE', 'ID', 'FIRST_NAME'], $ref->getColumnsNames());
     }
 }

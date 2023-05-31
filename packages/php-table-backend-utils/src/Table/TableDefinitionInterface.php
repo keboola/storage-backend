@@ -23,4 +23,6 @@ interface TableDefinitionInterface
     public function getPrimaryKeysNames(): array;
 
     public function isTemporary(): bool;
+
+    public function getTableType(): TableType;
 }

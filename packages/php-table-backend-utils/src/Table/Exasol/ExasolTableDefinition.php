@@ -7,6 +7,7 @@ namespace Keboola\TableBackendUtils\Table\Exasol;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Keboola\TableBackendUtils\Table\TableType;
 
 final class ExasolTableDefinition implements TableDefinitionInterface
 {
@@ -78,5 +79,10 @@ final class ExasolTableDefinition implements TableDefinitionInterface
     public function isTemporary(): bool
     {
         return $this->isTemporary;
+    }
+
+    public function getTableType(): TableType
+    {
+        return TableType::TABLE;
     }
 }
