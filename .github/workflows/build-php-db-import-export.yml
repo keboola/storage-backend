@@ -82,7 +82,7 @@ env:
   EXASOL_PASSWORD: ${{ secrets.EXASOL_PASSWORD }}
   EXA_SAAS_DB_ID: 5ThvKt2NQEqTf-QVEBcNeg
   EXA_SAAS_HOST: https://cloud.exasol.com
-  EXA_SAAS_USER_ID: oAVqZoHnSRO5rAjahTgAkg
+  EXA_SAAS_USER_ID: org_W0xrKhY2DEnGwmSO
   EXA_SAAS_TOKEN: ${{ secrets.EXA_SAAS_TOKEN }}
   # Bigquery
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
