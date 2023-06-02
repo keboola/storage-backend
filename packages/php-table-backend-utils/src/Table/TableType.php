@@ -8,6 +8,7 @@ enum TableType: string
 {
     case TABLE = 'table';
     case VIEW = 'view';
-    // Snowflake external table
-    case SNOWFLAKE_EXTERNAL = 'snowflake-external-table';
+
+    // Snowflake|bigquery|redshift external table
+    case EXTERNAL = 'external-table';
 }

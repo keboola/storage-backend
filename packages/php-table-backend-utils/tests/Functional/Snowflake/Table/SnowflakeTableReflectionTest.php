@@ -698,7 +698,7 @@ SQL
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'MY_LITTLE_EXT_TABLE');
         /** @var SnowflakeTableDefinition $definition */
         $definition = $ref->getTableDefinition();
-        $this->assertEquals(TableType::SNOWFLAKE_EXTERNAL, $definition->getTableType());
+        $this->assertEquals(TableType::EXTERNAL, $definition->getTableType());
         // value is an implicit column for external tables
         $this->assertEquals(['VALUE', 'ID', 'FIRST_NAME'], $ref->getColumnsNames());
     }
