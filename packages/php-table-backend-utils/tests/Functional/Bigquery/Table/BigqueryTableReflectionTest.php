@@ -10,6 +10,7 @@ use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
+use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
@@ -31,6 +32,15 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             'first_name',
             'last_name',
         ], $ref->getColumnsNames());
+    }
+
+    public function testTableTypeAsTable(): void
+    {
+        $this->initTable();
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
+
+        self::assertSame(TableType::TABLE, $ref->getTableType());
+        self::assertSame(TableType::TABLE, $ref->getTableDefinition()->getTableType());
     }
 
     /**
