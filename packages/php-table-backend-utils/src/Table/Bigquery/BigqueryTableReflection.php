@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
+use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use LogicException;
 
@@ -180,12 +181,36 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
             $this->tableName,
             $this->isTemporary(),
             $this->getColumnsDefinitions(),
-            $this->getPrimaryKeysNames()
+            $this->getPrimaryKeysNames(),
+            $this->getTableType()
         );
     }
 
     public function exists(): bool
     {
         return $this->bqClient->dataset($this->datasetName)->table($this->tableName)->exists();
+    }
+
+    public function getTableType(): TableType
+    {
+        $query = $this->bqClient->query(
+            sprintf(
+                'SELECT table_type FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_schema = %s AND table_name = %s',
+                BigqueryQuote::quoteSingleIdentifier($this->datasetName),
+                BigqueryQuote::quoteSingleIdentifier($this->datasetName),
+                BigqueryQuote::quote($this->tableName)
+            )
+        );
+
+        $result = $this->bqClient->runQuery($query);
+
+        /** @var array<string, string> $current */
+        $current = $result->getIterator()->current();
+
+        return match($current['table_type']) {
+            'EXTERNAL' => TableType::EXTERNAL,
+            'VIEW', 'MATERIALIZED VIEW' => TableType::VIEW,
+            default => TableType::TABLE
+        };
     }
 }
