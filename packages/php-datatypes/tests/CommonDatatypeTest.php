@@ -57,11 +57,14 @@ class CommonDatatypeTest extends TestCase
             }
         }
 
-        $datatype = $this->getMockForAbstractClass(Common::class, ['NUMERIC', [
-            'length' => '10,0',
-            'nullable' => false,
-            'default' => '0',
-        ]]);
+        $datatype = $this->getMockForAbstractClass(Common::class, [
+            'NUMERIC',
+            [
+                'length' => '10,0',
+                'nullable' => false,
+                'default' => '0',
+            ],
+        ]);
         $datatype->method('getBasetype')->willReturn('NUMERIC');
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
@@ -79,5 +82,41 @@ class CommonDatatypeTest extends TestCase
                 $this->assertEquals('NUMERIC', $mdat['value']);
             }
         }
+    }
+
+    public function testToMetadataWithEmptyLength(): void
+    {
+        $datatype = $this->getMockForAbstractClass(Common::class, [
+            'NUMERIC',
+            [
+                'length' => '0',
+                'nullable' => false,
+                'default' => '0',
+            ],
+        ]);
+        $datatype->method('getBasetype')->willReturn('NUMERIC');
+        $md = $datatype->toMetadata();
+        $this->assertSame([
+            [
+                'key' => 'KBC.datatype.type',
+                'value' => 'NUMERIC',
+            ],
+            [
+                'key' => 'KBC.datatype.nullable',
+                'value' => false,
+            ],
+            [
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'NUMERIC',
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '0',
+            ],
+            [
+                'key' => 'KBC.datatype.default',
+                'value' => '0',
+            ],
+        ], $md);
     }
 }

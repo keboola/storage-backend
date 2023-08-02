@@ -101,13 +101,13 @@ abstract class Common implements DefinitionInterface
                 'value' => $this->getBasetype(),
             ],
         ];
-        if ($this->getLength()) {
+        if ($this->getLength() !== null) {
             $metadata[] = [
                 'key' => self::KBC_METADATA_KEY_LENGTH,
                 'value' => $this->getLength(),
             ];
         }
-        if (!is_null($this->getDefault())) {
+        if ($this->getDefault() !== null) {
             $metadata[] = [
                 'key' => self::KBC_METADATA_KEY_DEFAULT,
                 'value' => $this->getDefault(),
