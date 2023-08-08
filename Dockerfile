@@ -186,7 +186,7 @@ RUN --mount=type=bind,target=/packages,source=packages \
 RUN mkdir -p /tmp/protoc && \
     curl -sSLf \
     -o /tmp/protoc/protoc.zip \
-    https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-linux-x86_64.zip && \
+    https://github.com/protocolbuffers/protobuf/releases/download/v23.4/protoc-23.4-linux-x86_64.zip && \
     unzip /tmp/protoc/protoc.zip -d /tmp/protoc && \
     mv /tmp/protoc/bin/protoc /usr/local/bin && \
     mv /tmp/protoc/include/google /usr/local/include && \
