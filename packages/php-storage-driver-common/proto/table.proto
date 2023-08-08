@@ -150,6 +150,8 @@ message ImportExportShared {
     enum ImportType {
       FULL = 0; // destination table is truncated before import
       INCREMENTAL = 1; // rows are added into table
+      VIEW = 2; // only view is created from source
+      CLONE = 3; // clone of object if supported (CTAS or copy can be used as polyfill of clone)
     }
     int32 numberOfIgnoredLines = 4; // number of lines that are skipped, usually used values is 1 to skip csv header
     /**
