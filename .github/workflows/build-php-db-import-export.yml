@@ -500,7 +500,7 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v0'
       -
         name: 'Clean GCS'
-        run: 'gsutil -m rm -r gs://${{env.GCS_BUCKET_NAME}}/*'
+        run: 'gsutil -m rm -r -f gs://${{env.GCS_BUCKET_NAME}}/* || true'
   clean-gcs-bigquery:
     runs-on: ubuntu-latest
     needs: [ testsGCS, testsAll ]
@@ -514,7 +514,7 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
       - name: 'Clean GCS'
-        run: 'gsutil -m rm -r gs://${{env.BQ_BUCKET_NAME}}/*'
+        run: 'gsutil -m rm -r -f gs://${{env.BQ_BUCKET_NAME}}/* || true'
   clean-abs:
     runs-on: ubuntu-latest
     needs: [testsABS, testsAll, synapse-tests]

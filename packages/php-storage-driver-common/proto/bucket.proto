@@ -12,6 +12,7 @@ message CreateBucketCommand {
   string stackPrefix = 1; // static prefix of stack used
   string projectId = 2; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
   string bucketId = 3; // id of created bucket example `out.c-API-tests-5df4589250af36e0980a7a61436fd5aa6e21f782`
+  string branchId = 7; // id of branch where bucket is created
   string projectRoleName = 4; // backend role associated with project, role should contain all grants and be assigned to project user
   string projectReadOnlyRoleName = 5; // backend read only role associated with project, role has read access for all buckets in project and containing tables
   google.protobuf.Any meta = 6; // metadata specific for each backend

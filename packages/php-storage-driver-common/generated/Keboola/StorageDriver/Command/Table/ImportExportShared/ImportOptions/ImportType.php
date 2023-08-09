@@ -27,10 +27,24 @@ class ImportType
      * Generated from protobuf enum <code>INCREMENTAL = 1;</code>
      */
     const INCREMENTAL = 1;
+    /**
+     * only view is created from source
+     *
+     * Generated from protobuf enum <code>VIEW = 2;</code>
+     */
+    const VIEW = 2;
+    /**
+     * clone of object if supported (CTAS or copy can be used as polyfill of clone)
+     *
+     * Generated from protobuf enum <code>CLONE = 3;</code>
+     */
+    const PBCLONE = 3;
 
     private static $valueToName = [
         self::FULL => 'FULL',
         self::INCREMENTAL => 'INCREMENTAL',
+        self::VIEW => 'VIEW',
+        self::PBCLONE => 'CLONE',
     ];
 
     public static function name($value)
@@ -47,8 +61,12 @@ class ImportType
     {
         $const = __CLASS__ . '::' . strtoupper($name);
         if (!defined($const)) {
-            throw new UnexpectedValueException(sprintf(
-                    'Enum %s has no value defined for name %s', __CLASS__, $name));
+            $pbconst =  __CLASS__. '::PB' . strtoupper($name);
+            if (!defined($pbconst)) {
+                throw new UnexpectedValueException(sprintf(
+                        'Enum %s has no value defined for name %s', __CLASS__, $name));
+            }
+            return constant($pbconst);
         }
         return constant($const);
     }

@@ -36,6 +36,12 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      */
     protected $bucketId = '';
     /**
+     * id of branch where bucket is created
+     *
+     * Generated from protobuf field <code>string branchId = 7;</code>
+     */
+    protected $branchId = '';
+    /**
      * backend role associated with project, role should contain all grants and be assigned to project user
      *
      * Generated from protobuf field <code>string projectRoleName = 4;</code>
@@ -66,6 +72,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
      *     @type string $bucketId
      *           id of created bucket example `out.c-API-tests-5df4589250af36e0980a7a61436fd5aa6e21f782`
+     *     @type string $branchId
+     *           id of branch where bucket is created
      *     @type string $projectRoleName
      *           backend role associated with project, role should contain all grants and be assigned to project user
      *     @type string $projectReadOnlyRoleName
@@ -153,6 +161,32 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->bucketId = $var;
+
+        return $this;
+    }
+
+    /**
+     * id of branch where bucket is created
+     *
+     * Generated from protobuf field <code>string branchId = 7;</code>
+     * @return string
+     */
+    public function getBranchId()
+    {
+        return $this->branchId;
+    }
+
+    /**
+     * id of branch where bucket is created
+     *
+     * Generated from protobuf field <code>string branchId = 7;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setBranchId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->branchId = $var;
 
         return $this;
     }
