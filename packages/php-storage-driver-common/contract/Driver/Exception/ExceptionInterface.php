@@ -26,6 +26,7 @@ interface ExceptionInterface extends ApplicationExceptionInterface, ExceptionWit
     public const ERR_SCHEMA_NOT_FOUND = 2003;
     public const ERR_TABLE_NOT_FOUND = 2004;
     public const ERR_COLUMN_NOT_FOUND = 2005;
+    public const ERR_OBJECT_ALREADY_EXISTS = 2006;
     // DB or other backend resource full
     public const ERR_RESOURCE_FULL = 2006;
 
