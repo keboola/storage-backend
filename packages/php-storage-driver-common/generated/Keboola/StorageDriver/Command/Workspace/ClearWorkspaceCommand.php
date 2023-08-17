@@ -28,6 +28,12 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
      */
     protected $ignoreErrors = false;
+    /**
+     * list of objects which will not be removed
+     *
+     * Generated from protobuf field <code>repeated string objectsToPreserve = 3;</code>
+     */
+    private $objectsToPreserve;
 
     /**
      * Constructor.
@@ -39,6 +45,8 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *           object name in backend which will be removed
      *     @type bool $ignoreErrors
      *           if true all backend errors should be ignored and command will always pass
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $objectsToPreserve
+     *           list of objects which will not be removed
      * }
      */
     public function __construct($data = NULL) {
@@ -94,6 +102,32 @@ class ClearWorkspaceCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkBool($var);
         $this->ignoreErrors = $var;
+
+        return $this;
+    }
+
+    /**
+     * list of objects which will not be removed
+     *
+     * Generated from protobuf field <code>repeated string objectsToPreserve = 3;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getObjectsToPreserve()
+    {
+        return $this->objectsToPreserve;
+    }
+
+    /**
+     * list of objects which will not be removed
+     *
+     * Generated from protobuf field <code>repeated string objectsToPreserve = 3;</code>
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setObjectsToPreserve($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $this->objectsToPreserve = $arr;
 
         return $this;
     }

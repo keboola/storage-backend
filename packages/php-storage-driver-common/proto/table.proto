@@ -181,6 +181,15 @@ message ImportExportShared {
        */
       USER_DEFINED_TABLE = 1;
     }
+    /**
+     * Mode of table creation if import should fail if table exists or replace it
+     * Create mode is ignored when importType is INCREMENTAL
+     */
+    enum CreateMode {
+      CREATE = 0; // import will fail if table exists unless importType is INCREMENTAL
+      REPLACE = 1; // import will replace destination table if exists unless importType is INCREMENTAL
+    }
+    CreateMode createMode = 8;
   }
   /**
    * Common export options

@@ -58,6 +58,10 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.ImportStrategy importStrategy = 7;</code>
      */
     protected $importStrategy = 0;
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.CreateMode createMode = 8;</code>
+     */
+    protected $createMode = 0;
 
     /**
      * Constructor.
@@ -80,6 +84,7 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *     @type int $importStrategy
      *          *
      *           Import strategy type decide internal handling and type casting
+     *     @type int $createMode
      * }
      */
     public function __construct($data = NULL) {
@@ -265,6 +270,28 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\ImportStrategy::class);
         $this->importStrategy = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.CreateMode createMode = 8;</code>
+     * @return int
+     */
+    public function getCreateMode()
+    {
+        return $this->createMode;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.CreateMode createMode = 8;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setCreateMode($var)
+    {
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\CreateMode::class);
+        $this->createMode = $var;
 
         return $this;
     }
