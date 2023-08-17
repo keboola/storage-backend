@@ -53,6 +53,7 @@ message DropWorkspaceCommand {
 message ClearWorkspaceCommand {
   string workspaceObjectName = 1; // object name in backend which will be removed
   bool ignoreErrors = 2; // if true all backend errors should be ignored and command will always pass
+  repeated string objectsToPreserve = 3; // list of objects which will not be removed
 }
 /**
  * Command reset workspace password
