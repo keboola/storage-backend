@@ -61,7 +61,14 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
             ->skipLeadingRows($importOptions->getNumberOfIgnoredLines())
             ->quote($source->getCsvOptions()->getEnclosure())
             ->allowQuotedNewlines(true);
-        $job = $this->bqClient->runJob($loadConfig);
+
+        $job = $this->bqClient->runJob($loadConfig, [
+            'configuration' => [
+                'load' => [
+                    'preserveAsciiControlCharacters' => true,
+                ],
+            ],
+        ]);
 
         if (!$job->isComplete()) {
             throw new Exception('Job has not yet completed');
