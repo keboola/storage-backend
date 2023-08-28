@@ -14,6 +14,7 @@ interface DriverCommandHandlerInterface
     public function __invoke(
         Message $credentials,
         Message $command,
-        array $features
+        array $features,
+        Message $runtimeOptions,
     ): ?Message;
 }
