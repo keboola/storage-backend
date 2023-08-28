@@ -11,4 +11,13 @@ message DriverRequest {
   google.protobuf.Any credentials = 1; // credentials needed to connect into backend
   google.protobuf.Any command = 2; // command object used for actions
   repeated string features = 3; // list of features which could be processed by backend
+  RuntimeOptions runtimeOptions = 4; // backend runtime options configuration, runId, tags,...
+}
+
+/**
+ * Backend runtime options for change query tagging, size of backend,...
+ */
+message RuntimeOptions {
+  string runId = 1; // runId
+  google.protobuf.Any meta = 2; // metadata specific for each backend
 }
