@@ -34,6 +34,12 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string features = 3;</code>
      */
     private $features;
+    /**
+     * backend runtime options configuration, runId, tags,...
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.common.RuntimeOptions runtimeOptions = 4;</code>
+     */
+    protected $runtimeOptions = null;
 
     /**
      * Constructor.
@@ -47,6 +53,8 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
      *           command object used for actions
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $features
      *           list of features which could be processed by backend
+     *     @type \Keboola\StorageDriver\Command\Common\RuntimeOptions $runtimeOptions
+     *           backend runtime options configuration, runId, tags,...
      * }
      */
     public function __construct($data = NULL) {
@@ -148,6 +156,42 @@ class DriverRequest extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->features = $arr;
+
+        return $this;
+    }
+
+    /**
+     * backend runtime options configuration, runId, tags,...
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.common.RuntimeOptions runtimeOptions = 4;</code>
+     * @return \Keboola\StorageDriver\Command\Common\RuntimeOptions|null
+     */
+    public function getRuntimeOptions()
+    {
+        return $this->runtimeOptions;
+    }
+
+    public function hasRuntimeOptions()
+    {
+        return isset($this->runtimeOptions);
+    }
+
+    public function clearRuntimeOptions()
+    {
+        unset($this->runtimeOptions);
+    }
+
+    /**
+     * backend runtime options configuration, runId, tags,...
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.common.RuntimeOptions runtimeOptions = 4;</code>
+     * @param \Keboola\StorageDriver\Command\Common\RuntimeOptions $var
+     * @return $this
+     */
+    public function setRuntimeOptions($var)
+    {
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Common\RuntimeOptions::class);
+        $this->runtimeOptions = $var;
 
         return $this;
     }
