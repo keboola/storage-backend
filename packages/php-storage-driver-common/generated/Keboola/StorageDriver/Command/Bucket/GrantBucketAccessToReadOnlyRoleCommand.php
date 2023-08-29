@@ -22,7 +22,11 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
      */
     protected $projectReadOnlyRoleName = '';
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 3;</code>
+     * Generated from protobuf field <code>string branchId = 3;</code>
+     */
+    protected $branchId = '';
+    /**
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
     protected $meta = null;
 
@@ -34,6 +38,7 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
      *
      *     @type string $bucketObjectName
      *     @type string $projectReadOnlyRoleName
+     *     @type string $branchId
      *     @type \Google\Protobuf\Any $meta
      * }
      */
@@ -87,7 +92,29 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 3;</code>
+     * Generated from protobuf field <code>string branchId = 3;</code>
+     * @return string
+     */
+    public function getBranchId()
+    {
+        return $this->branchId;
+    }
+
+    /**
+     * Generated from protobuf field <code>string branchId = 3;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setBranchId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->branchId = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @return \Google\Protobuf\Any|null
      */
     public function getMeta()
@@ -106,7 +133,7 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
     }
 
     /**
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 3;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */

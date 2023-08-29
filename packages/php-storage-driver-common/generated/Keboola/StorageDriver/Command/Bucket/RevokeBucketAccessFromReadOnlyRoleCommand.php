@@ -32,9 +32,13 @@ class RevokeBucketAccessFromReadOnlyRoleCommand extends \Google\Protobuf\Interna
      */
     protected $ignoreErrors = false;
     /**
+     * Generated from protobuf field <code>string branchId = 4;</code>
+     */
+    protected $branchId = '';
+    /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      */
     protected $meta = null;
 
@@ -50,6 +54,7 @@ class RevokeBucketAccessFromReadOnlyRoleCommand extends \Google\Protobuf\Interna
      *           backend read only role associated with project
      *     @type bool $ignoreErrors
      *           if true all backend errors should be ignored and command will always pass
+     *     @type string $branchId
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -138,9 +143,31 @@ class RevokeBucketAccessFromReadOnlyRoleCommand extends \Google\Protobuf\Interna
     }
 
     /**
+     * Generated from protobuf field <code>string branchId = 4;</code>
+     * @return string
+     */
+    public function getBranchId()
+    {
+        return $this->branchId;
+    }
+
+    /**
+     * Generated from protobuf field <code>string branchId = 4;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setBranchId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->branchId = $var;
+
+        return $this;
+    }
+
+    /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @return \Google\Protobuf\Any|null
      */
     public function getMeta()
@@ -161,7 +188,7 @@ class RevokeBucketAccessFromReadOnlyRoleCommand extends \Google\Protobuf\Interna
     /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */

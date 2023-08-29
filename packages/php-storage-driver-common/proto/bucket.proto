@@ -97,12 +97,14 @@ message UnshareBucketCommand {
 message GrantBucketAccessToReadOnlyRoleCommand {
   string bucketObjectName = 1;
   string projectReadOnlyRoleName = 2;
-  google.protobuf.Any meta = 3;
+  string branchId = 3;
+  google.protobuf.Any meta = 4;
 }
 
 message RevokeBucketAccessFromReadOnlyRoleCommand {
   string bucketObjectName = 1; // object name in backend
   string projectReadOnlyRoleName = 2; // backend read only role associated with project
   bool ignoreErrors = 3; // if true all backend errors should be ignored and command will always pass
-  google.protobuf.Any meta = 4; // metadata specific for each backend
+  string branchId = 4;
+  google.protobuf.Any meta = 5; // metadata specific for each backend
 }
