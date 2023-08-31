@@ -101,6 +101,13 @@ message GrantBucketAccessToReadOnlyRoleCommand {
   google.protobuf.Any meta = 4;
 }
 
+/**
+ * Response which is always returned as result of GrantBucketAccessToReadOnlyRoleCommand
+ */
+message GrantBucketAccessToReadOnlyRoleResponse {
+  string createBucketObjectName = 1; // resulting object name actually stored in backend
+}
+
 message RevokeBucketAccessFromReadOnlyRoleCommand {
   string bucketObjectName = 1; // object name in backend
   string projectReadOnlyRoleName = 2; // backend read only role associated with project
