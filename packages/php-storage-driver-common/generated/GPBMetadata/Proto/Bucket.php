@@ -72,17 +72,17 @@ spoolSpace (	"D
 meta (2.google.protobuf.Any"™
 &GrantBucketAccessToReadOnlyRoleCommand
 bucketObjectName (	
-projectReadOnlyRoleName (	
-branchId (	"
-meta (2.google.protobuf.Any"I
+projectReadOnlyRoleName (	"
+meta (2.google.protobuf.Any
+branchId (	"I
 \'GrantBucketAccessToReadOnlyRoleResponse
 createBucketObjectName (	"²
 )RevokeBucketAccessFromReadOnlyRoleCommand
 bucketObjectName (	
 projectReadOnlyRoleName (	
-ignoreErrors (
-branchId (	"
-meta (2.google.protobuf.Anybproto3'
+ignoreErrors ("
+meta (2.google.protobuf.Any
+branchId (	bproto3'
         , true);
 
         static::$is_initialized = true;
