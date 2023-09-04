@@ -37,10 +37,6 @@ class RevokeBucketAccessFromReadOnlyRoleCommand extends \Google\Protobuf\Interna
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
      */
     protected $meta = null;
-    /**
-     * Generated from protobuf field <code>string branchId = 5;</code>
-     */
-    protected $branchId = '';
 
     /**
      * Constructor.
@@ -56,7 +52,6 @@ class RevokeBucketAccessFromReadOnlyRoleCommand extends \Google\Protobuf\Interna
      *           if true all backend errors should be ignored and command will always pass
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
-     *     @type string $branchId
      * }
      */
     public function __construct($data = NULL) {
@@ -174,28 +169,6 @@ class RevokeBucketAccessFromReadOnlyRoleCommand extends \Google\Protobuf\Interna
     {
         GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
         $this->meta = $var;
-
-        return $this;
-    }
-
-    /**
-     * Generated from protobuf field <code>string branchId = 5;</code>
-     * @return string
-     */
-    public function getBranchId()
-    {
-        return $this->branchId;
-    }
-
-    /**
-     * Generated from protobuf field <code>string branchId = 5;</code>
-     * @param string $var
-     * @return $this
-     */
-    public function setBranchId($var)
-    {
-        GPBUtil::checkString($var, True);
-        $this->branchId = $var;
 
         return $this;
     }

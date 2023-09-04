@@ -29,6 +29,10 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
      * Generated from protobuf field <code>string branchId = 4;</code>
      */
     protected $branchId = '';
+    /**
+     * Generated from protobuf field <code>string stackPrefix = 5;</code>
+     */
+    protected $stackPrefix = '';
 
     /**
      * Constructor.
@@ -40,6 +44,7 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
      *     @type string $projectReadOnlyRoleName
      *     @type \Google\Protobuf\Any $meta
      *     @type string $branchId
+     *     @type string $stackPrefix
      * }
      */
     public function __construct($data = NULL) {
@@ -141,6 +146,28 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
     {
         GPBUtil::checkString($var, True);
         $this->branchId = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string stackPrefix = 5;</code>
+     * @return string
+     */
+    public function getStackPrefix()
+    {
+        return $this->stackPrefix;
+    }
+
+    /**
+     * Generated from protobuf field <code>string stackPrefix = 5;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setStackPrefix($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->stackPrefix = $var;
 
         return $this;
     }

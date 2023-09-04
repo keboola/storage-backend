@@ -99,6 +99,7 @@ message GrantBucketAccessToReadOnlyRoleCommand {
   string projectReadOnlyRoleName = 2;
   google.protobuf.Any meta = 3;
   string branchId = 4;
+  string stackPrefix = 5;
 }
 
 /**
@@ -113,5 +114,4 @@ message RevokeBucketAccessFromReadOnlyRoleCommand {
   string projectReadOnlyRoleName = 2; // backend read only role associated with project
   bool ignoreErrors = 3; // if true all backend errors should be ignored and command will always pass
   google.protobuf.Any meta = 4; // metadata specific for each backend
-  string branchId = 5;
 }
