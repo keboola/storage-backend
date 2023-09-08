@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportCommon\StorageType;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
+use Throwable;
 
 class StageImportFileTest extends SnowflakeBaseTestCase
 {
@@ -342,5 +343,134 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $stagingTable,
             $this->getSnowflakeImportOptions()
         );
+    }
+
+    public function nullCases(): Generator
+    {
+        // STRING
+        yield 'nullable string col, empty csv' => [
+            'csv/null/null_as_empty.csv',
+            '"col" string',
+            [
+                'id' => '1',
+                'col' => null,
+            ],
+        ];
+        yield 'nullable string col, string "" csv' => [
+            'csv/null/null_as_empty_string.csv',
+            '"col" string',
+            [
+                'id' => '1',
+                'col' => '',
+            ],
+        ];
+        yield 'not nullable string col, empty csv' => [
+            'csv/null/null_as_empty.csv',
+            '"col" string not null',
+            function (Throwable $e, self $self): void {
+                $self->assertStringContainsString('NULL result in a non-nullable column', $e->getMessage());
+                $self->assertInstanceOf(LegacyImportException::class, $e);
+            },
+        ];
+        yield 'not nullable string col, string "" csv' => [
+            'csv/null/null_as_empty_string.csv',
+            '"col" string not null',
+            [
+                'id' => '1',
+                'col' => '',
+            ],
+        ];
+
+        // Numeric
+        yield 'nullable numeric col, empty csv' => [
+            'csv/null/null_as_empty.csv',
+            '"col" numeric',
+            [
+                'id' => '1',
+                'col' => null,
+            ],
+        ];
+        yield 'nullable numeric col, string "" csv' => [
+            'csv/null/null_as_empty_string.csv',
+            '"col" numeric',
+            function (Throwable $e, self $self): void {
+                $self->assertStringContainsString('Numeric value \'\' is not recognized', $e->getMessage());
+                $self->assertInstanceOf(LegacyImportException::class, $e);
+            },
+        ];
+        yield 'not nullable numeric col, empty csv' => [
+            'csv/null/null_as_empty.csv',
+            '"col" numeric not null',
+            function (Throwable $e, self $self): void {
+                $self->assertStringContainsString('NULL result in a non-nullable column', $e->getMessage());
+                $self->assertInstanceOf(LegacyImportException::class, $e);
+            },
+        ];
+        yield 'not nullable numeric col, string "" csv' => [
+            'csv/null/null_as_empty_string.csv',
+            '"col" numeric not null',
+            function (Throwable $e, self $self): void {
+                $self->assertStringContainsString('Numeric value \'\' is not recognized', $e->getMessage());
+                $self->assertInstanceOf(LegacyImportException::class, $e);
+            },
+        ];
+    }
+
+    /**
+     * @dataProvider nullCases
+     * @param array<string,mixed>|callable(Throwable,self):void $expected
+     */
+    public function testNullConverting(string $csv, string $cols, array|callable $expected): void
+    {
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'CREATE OR REPLACE TABLE  %s."test_null" (
+            "id"  int,
+              %s
+            );',
+            SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+            $cols
+        ));
+
+        $importer = new ToStageImporter($this->connection);
+        $ref = new SnowflakeTableReflection(
+            $this->connection,
+            $this->getSourceSchemaName(),
+            'test_null'
+        );
+
+        try {
+            $importer->importToStagingTable(
+                $this->getSourceInstanceFromCsv(
+                    $csv,
+                    new CsvOptions(),
+                    [
+                        'id',
+                        'col',
+                    ],
+                    false,
+                    false
+                ),
+                $ref->getTableDefinition(),
+                $this->getSnowflakeImportOptions()
+            );
+            if (is_callable($expected)) {
+                $this->fail('Exception was not thrown');
+            }
+        } catch (Throwable $e) {
+            if (is_callable($expected)) {
+                $expected($e, $this);
+            }
+        }
+        if (is_array($expected)) {
+            self::assertSame(
+                $expected,
+                $this->connection->fetchAssociative(sprintf(
+                    'SELECT * FROM %s.%s',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier('test_null')
+                ))
+            );
+        }
     }
 }
