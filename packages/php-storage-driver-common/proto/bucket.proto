@@ -95,11 +95,12 @@ message UnshareBucketCommand {
 }
 
 message GrantBucketAccessToReadOnlyRoleCommand {
-  string bucketObjectName = 1;
+  repeated string path = 1;
   string projectReadOnlyRoleName = 2;
   google.protobuf.Any meta = 3;
   string branchId = 4;
   string stackPrefix = 5;
+  string destinationObjectName = 6;
 }
 
 /**
