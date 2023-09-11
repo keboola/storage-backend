@@ -70,13 +70,13 @@ spoolSpace (	"D
 bucketShareRoleName (	
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any"Á
-&GrantBucketAccessToReadOnlyRoleCommand
-path (	
+&GrantBucketAccessToReadOnlyRoleCommand
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any
 branchId (	
 stackPrefix (	
-destinationObjectName (	"I
+destinationObjectName (	
+path (	"I
 \'GrantBucketAccessToReadOnlyRoleResponse
 createBucketObjectName (	" 
 )RevokeBucketAccessFromReadOnlyRoleCommand

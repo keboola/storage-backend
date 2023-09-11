@@ -14,10 +14,6 @@ use Google\Protobuf\Internal\GPBUtil;
 class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>repeated string path = 1;</code>
-     */
-    private $path;
-    /**
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 2;</code>
      */
     protected $projectReadOnlyRoleName = '';
@@ -37,6 +33,10 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
      * Generated from protobuf field <code>string destinationObjectName = 6;</code>
      */
     protected $destinationObjectName = '';
+    /**
+     * Generated from protobuf field <code>repeated string path = 7;</code>
+     */
+    private $path;
 
     /**
      * Constructor.
@@ -44,39 +44,17 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
      * @param array $data {
      *     Optional. Data for populating the Message object.
      *
-     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *     @type string $projectReadOnlyRoleName
      *     @type \Google\Protobuf\Any $meta
      *     @type string $branchId
      *     @type string $stackPrefix
      *     @type string $destinationObjectName
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      * }
      */
     public function __construct($data = NULL) {
         \GPBMetadata\Proto\Bucket::initOnce();
         parent::__construct($data);
-    }
-
-    /**
-     * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @return \Google\Protobuf\Internal\RepeatedField
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * Generated from protobuf field <code>repeated string path = 1;</code>
-     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
-     * @return $this
-     */
-    public function setPath($var)
-    {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
-        $this->path = $arr;
-
-        return $this;
     }
 
     /**
@@ -195,6 +173,28 @@ class GrantBucketAccessToReadOnlyRoleCommand extends \Google\Protobuf\Internal\M
     {
         GPBUtil::checkString($var, True);
         $this->destinationObjectName = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>repeated string path = 7;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Generated from protobuf field <code>repeated string path = 7;</code>
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setPath($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $this->path = $arr;
 
         return $this;
     }
