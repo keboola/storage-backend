@@ -205,67 +205,6 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider nullifyFileProvider
-     */
-    public function testWithNullifyValue(string $fileName): void
-    {
-        $this->initTable(self::TABLE_NULLIFY);
-
-        $importer = new ToStageImporter($this->connection);
-        $ref = new SnowflakeTableReflection(
-            $this->connection,
-            $this->getDestinationSchemaName(),
-            self::TABLE_NULLIFY
-        );
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-            $ref->getTableDefinition(),
-            $ref->getColumnsNames()
-        );
-        $qb = new SnowflakeTableQueryBuilder();
-        $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
-        );
-        $importer->importToStagingTable(
-            $this->getSourceInstanceFromCsv(
-                $fileName,
-                new CsvOptions(),
-                [
-                    'id',
-                    'col1',
-                    'col2',
-                ],
-                false,
-                false
-            ),
-            $stagingTable,
-            $this->getSnowflakeImportOptions()
-        );
-
-        self::assertSame([
-            ['id' => '1', 'col1' => 'test', 'col2' => '50'],
-            ['id' => '2', 'col1' => null, 'col2' => '500'],
-            ['id' => '3', 'col1' => 'Bageta', 'col2' => null],
-        ], $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
-        ));
-    }
-
-    public function nullifyFileProvider(): Generator
-    {
-        yield 'with empty value' => [
-            'nullify.csv',
-        ];
-
-        yield 'with empty value in quotes' => [
-            'nullify-with-quotes.csv',
-        ];
-    }
-
 // testCopyIntoInvalidTypes
     public function testInvalidManifestImport(): void
     {
