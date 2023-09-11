@@ -30,7 +30,10 @@ class SnowflakeException extends Exception
             );
         }
 
-        if (preg_match('/ \'(.*)\' is not recognized/', $e->getMessage(), $output_array) === 1) {
+        // phpcs:ignore
+        $isNullInNotNullCol = preg_match('/NULL result in a non-nullable column/', $e->getMessage(), $output_array) === 1;
+        $isNotRecognized = preg_match('/ \'(.*)\' is not recognized/', $e->getMessage(), $output_array) === 1;
+        if ($isNullInNotNullCol || $isNotRecognized) {
             return new Exception(
                 'Load error: ' . $e->getMessage(),
                 Exception::VALUE_CONVERSION,
@@ -39,16 +42,16 @@ class SnowflakeException extends Exception
         }
 
         $isOutOfRange = preg_match(
-                '/.*out of range/',
-                $e->getMessage(),
-                $output_array
-            ) === 1;
+            '/.*out of range/',
+            $e->getMessage(),
+            $output_array
+        ) === 1;
 
         $isBiggerThenColumnSize = preg_match(
-                '/ \'(.*)\' cannot be inserted because it\'s bigger than column size/',
-                $e->getMessage(),
-                $output_array
-            ) === 1;
+            '/ \'(.*)\' cannot be inserted because it\'s bigger than column size/',
+            $e->getMessage(),
+            $output_array
+        ) === 1;
 
         if ($isBiggerThenColumnSize || $isOutOfRange) {
             return new Exception(
