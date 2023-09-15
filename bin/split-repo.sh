@@ -54,19 +54,20 @@ lasttagname = '${LAST_TAG_IN_SINGLEREPO}'
 tagname = refname.decode('utf-8').split('/')[-1]
 if version.parse(tagname) <= version.parse(lasttagname):
   # print('[%s] skipped' % (refname.decode('utf-8')))
-  return b'refs/tags/SKIP'
+  return b'refs/tags/SKIP' + refname
 
 # tag, but not matching prefix -> SKIP
 if not refname.startswith(b'refs/tags/${TAG_PREFIX}'):
   # print('[%s] skipped' % (refname.decode('utf-8')))
-  return b'refs/tags/SKIP'
+  return b'refs/tags/SKIP' + refname
 
 # tag, with correct prefix -> strip prefix
 rewrittenTag = refname[len(b'refs/tags/${TAG_PREFIX}'):];
 print('[%s] rewritten to [%s]' % (refname.decode('utf-8'), rewrittenTag.decode('utf-8')))
 return b'refs/tags/' + rewrittenTag
 "
-git update-ref -d refs/tags/SKIP
+echo ">> Removing skipped tags"
+git tag | grep '^SKIP' | xargs -I {} git tag -d {}
 
 echo ">> Push to target repo '${TARGET_REPO_URL}'"
 git remote add split "${TARGET_REPO_URL}"
