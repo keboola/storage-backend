@@ -15,5 +15,10 @@ interface DefinitionInterface
 
     public function getBasetype(): string;
 
+    /**
+     * @return string[]
+     */
+    public static function getTypesAllowedInFilters(): array;
+
     public static function getTypeByBasetype(string $basetype): string;
 }

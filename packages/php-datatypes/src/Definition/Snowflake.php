@@ -374,4 +374,41 @@ class Snowflake extends Common
 
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypesAllowedInFilters(): array
+    {
+        return [
+            self::TYPE_NUMBER,
+            self::TYPE_DECIMAL,
+            self::TYPE_NUMERIC,
+            self::TYPE_INT,
+            self::TYPE_INTEGER,
+            self::TYPE_BIGINT,
+            self::TYPE_SMALLINT,
+            self::TYPE_TINYINT,
+            self::TYPE_BYTEINT,
+            self::TYPE_FLOAT,
+            self::TYPE_FLOAT4,
+            self::TYPE_FLOAT8,
+            self::TYPE_DOUBLE,
+            self::TYPE_DOUBLE_PRECISION,
+            self::TYPE_REAL,
+            self::TYPE_VARCHAR,
+            self::TYPE_CHAR,
+            self::TYPE_CHARACTER,
+            self::TYPE_STRING,
+            self::TYPE_TEXT,
+            self::TYPE_BOOLEAN,
+            self::TYPE_DATE,
+            self::TYPE_DATETIME,
+            self::TYPE_TIME,
+            self::TYPE_TIMESTAMP,
+            self::TYPE_TIMESTAMP_NTZ,
+            self::TYPE_TIMESTAMP_LTZ,
+            self::TYPE_TIMESTAMP_TZ,
+        ];
+    }
 }
