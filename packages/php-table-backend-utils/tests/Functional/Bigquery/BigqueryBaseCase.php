@@ -14,6 +14,7 @@ class BigqueryBaseCase extends TestCase
     public const TESTS_PREFIX = 'utilsTest_';
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'refTableSchema';
     public const TABLE_GENERIC = self::TESTS_PREFIX . 'refTab';
+    public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
     protected BigQueryClient $bqClient;
 

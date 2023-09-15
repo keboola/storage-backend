@@ -14,9 +14,13 @@ use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use LogicException;
+use Throwable;
 
 class BigqueryTableReflection implements TableReflectionInterface
 {
+    public const DEPENDENT_OBJECT_TABLE = 'TABLE';
+    public const DEPENDENT_OBJECT_VIEW = 'VIEW';
+
     private BigQueryClient $bqClient;
 
     private string $datasetName;
@@ -187,5 +191,42 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
     public function exists(): bool
     {
         return $this->bqClient->dataset($this->datasetName)->table($this->tableName)->exists();
+    }
+
+    public static function getDependentViewsForObject(
+        BigQueryClient $bqClient,
+        string $objectName,
+        string $schemaName,
+        string $objectType = self::DEPENDENT_OBJECT_TABLE
+    ): array {
+        $views = $bqClient->runQuery(
+            $bqClient->query(
+                sprintf(
+                    'SELECT * FROM %s.INFORMATION_SCHEMA.VIEWS;',
+                    BigqueryQuote::quoteSingleIdentifier($schemaName)
+                )
+            )
+        );
+
+        $objectNameWithSchema = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($schemaName),
+            BigqueryQuote::quoteSingleIdentifier($objectName)
+        );
+        $dependentViews = [];
+        foreach ($views as $viewRow) {
+            if ($viewRow['view_definition'] === null
+                || strpos($viewRow['view_definition'], $objectNameWithSchema) === false
+            ) {
+                continue;
+            }
+
+            $dependentViews[] = [
+                'schema_name' => $viewRow['table_schema'],
+                'name' => $viewRow['table_name'],
+            ];
+        }
+
+        return $dependentViews;
     }
 }
