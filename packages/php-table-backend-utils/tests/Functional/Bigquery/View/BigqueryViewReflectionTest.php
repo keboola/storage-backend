@@ -36,7 +36,6 @@ class BigqueryViewReflectionTest extends BigqueryBaseCase
             'schema_name' => self::TEST_SCHEMA,
             'name' => $secondViewName,
         ], $dependentViews[0]);
-
     }
 
     private function initView(string $viewName, string $parentName): void
@@ -71,7 +70,10 @@ class BigqueryViewReflectionTest extends BigqueryBaseCase
             ),
             $viewRef->getViewDefinition()
         );
-        self::assertStringContainsString('AS SELECT * FROM `utilsTest_refTableSchema`.`utilsTest_refTab`', $viewRef->getViewDefinition());
+        self::assertStringContainsString(
+            'AS SELECT * FROM `utilsTest_refTableSchema`.`utilsTest_refTab`',
+            $viewRef->getViewDefinition()
+        );
     }
 
     public function testRefreshView(): void

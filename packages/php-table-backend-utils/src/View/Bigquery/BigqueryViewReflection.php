@@ -62,14 +62,12 @@ class BigqueryViewReflection implements ViewReflectionInterface
         $this->bqClient->runQuery($this->bqClient->query(sprintf('DROP VIEW %s', $objectNameWithSchema)));
         try {
             $this->bqClient->runQuery(
-                $this->bqClient->query(
-                    sprintf(
+                $this->bqClient->query(sprintf(
                     'CREATE VIEW %s.%s AS %s',
                     BigqueryQuote::quoteSingleIdentifier($this->datasetName),
                     BigqueryQuote::quoteSingleIdentifier($this->viewName),
                     $definition
-                    )
-                )
+                ))
             );
         } catch (JobException $e) {
             throw InvalidViewDefinitionException::createViewRefreshError($this->datasetName, $this->viewName, $e);
