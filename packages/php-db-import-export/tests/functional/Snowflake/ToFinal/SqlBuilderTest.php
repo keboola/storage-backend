@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
@@ -303,12 +304,13 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
             $stagingTableDefinition,
             $tableDefinition,
             new SnowflakeImportOptions(
-                [],
-                false,
-                false,
-                0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
         );
 
@@ -475,12 +477,13 @@ EOT
             $fakeStage,
             $destination,
             new SnowflakeImportOptions(
-                [],
-                false,
-                false,
-                0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             '2020-01-01 00:00:00'
         );
@@ -832,12 +835,13 @@ EOT
             $fakeStage,
             $fakeDestination,
             new SnowflakeImportOptions(
-                [],
-                false,
-                false,
-                0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             '2020-01-01 00:00:00'
         );
@@ -1110,12 +1114,13 @@ EOT
 
         // use timestamp
         $options = new SnowflakeImportOptions(
-            ['col1'],
-            false,
-            true,
-            0,
-            SnowflakeImportOptions::SAME_TABLES_REQUIRED,
-            SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            convertEmptyValuesToNull: ['col1'],
+            isIncremental: false,
+            useTimestamp: true,
+            numberOfIgnoredLines: 0,
+            requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
+            nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
         );
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,

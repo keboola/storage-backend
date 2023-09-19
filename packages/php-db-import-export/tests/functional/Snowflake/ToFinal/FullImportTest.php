@@ -14,6 +14,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
@@ -68,7 +69,7 @@ class FullImportTest extends SnowflakeBaseTestCase
             1,
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
-            ['_timestamp'],
+            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             [
                 Snowflake::TYPE_VARIANT,
                 Snowflake::TYPE_BINARY,
@@ -603,10 +604,11 @@ select 1,
                 self::TABLE_OUT_NO_TIMESTAMP_TABLE,
             ],
             new SnowflakeImportOptions(
-                [],
-                false,
-                false, // don't use timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false, // don't use timestamp
+                numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             $escapingStub->getRows(),
             7,

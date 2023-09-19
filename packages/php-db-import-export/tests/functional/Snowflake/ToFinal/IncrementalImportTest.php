@@ -14,6 +14,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\IncrementalImporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -29,10 +30,11 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
         int $skipLines = ImportOptions::SKIP_FIRST_LINE
     ): SnowflakeImportOptions {
         return new SnowflakeImportOptions(
-            [],
-            true,
-            true,
-            $skipLines
+            convertEmptyValuesToNull: [],
+            isIncremental: true,
+            useTimestamp: true,
+            numberOfIgnoredLines: $skipLines,
+            ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
         );
     }
 
@@ -86,14 +88,14 @@ SELECT 1,
 
         // skipping header
         $options = new SnowflakeImportOptions(
-            [],
-            false,
-            false,
-            1,
-            SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
-            SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
-            ['_timestamp'],
-            [
+            convertEmptyValuesToNull: [],
+            isIncremental: false,
+            useTimestamp: false,
+            numberOfIgnoredLines: 1,
+            requireSameTables: SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
+            nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
+            autoCastTypes: [
                 Snowflake::TYPE_VARIANT,
                 Snowflake::TYPE_BINARY,
                 Snowflake::TYPE_VARBINARY,
@@ -204,10 +206,11 @@ SELECT 2,
                 ['id']
             ),
             new SnowflakeImportOptions(
-                [],
-                false,
-                false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false, // disable timestamp
+                numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
@@ -217,10 +220,11 @@ SELECT 2,
                 ['id']
             ),
             new SnowflakeImportOptions(
-                [],
-                true, // incremental
-                false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                convertEmptyValuesToNull: [],
+                isIncremental: true, // incremental
+                useTimestamp: false, // disable timestamp
+                numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             [$this->getDestinationSchemaName(), 'accounts_without_ts'],
             $accountsStub->getRows(),
@@ -259,10 +263,11 @@ SELECT 2,
                 ['VisitID', 'Value', 'MenuItem']
             ),
             new SnowflakeImportOptions(
-                [],
-                true, // incremental
-                false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                convertEmptyValuesToNull: [],
+                isIncremental: true, // incremental
+                useTimestamp: false, // disable timestamp
+                numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             $this->getSourceInstance(
                 'multi-pk.increment.csv',
