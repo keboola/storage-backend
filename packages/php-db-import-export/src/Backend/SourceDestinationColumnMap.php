@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend;
 
+use Error;
 use Exception;
 use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -81,11 +82,13 @@ final class SourceDestinationColumnMap
 
     public function getDestination(ColumnInterface $source): ColumnInterface
     {
-        $destination = $this->map[$source];
-        if (!$destination instanceof ColumnInterface) {
+        try {
+            $destination = $this->map[$source];
+        } catch (Error $e) {
             // this can happen only when class is used with different source and destination tables instances
             throw new Exception(sprintf('Column "%s" not found in destination table', $source->getColumnName()));
         }
+        assert($destination !== null);
         return $destination;
     }
 }
