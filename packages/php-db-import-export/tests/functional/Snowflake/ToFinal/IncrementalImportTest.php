@@ -6,6 +6,8 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
 use Generator;
 use Keboola\Csv\CsvFile;
+use Keboola\Datatype\Definition\Snowflake;
+use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\IncrementalImporter;
@@ -14,6 +16,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactor
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
@@ -40,6 +43,124 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
         $this->cleanSchema($this->getSourceSchemaName());
         $this->createSchema($this->getSourceSchemaName());
         $this->createSchema($this->getDestinationSchemaName());
+    }
+
+    /**
+     * Test is testing loading of semi-structured data into typed table.
+     *
+     * We ignore here GEOGRAPHY and GEOMETRY as they act differently when casting from string
+     * https://docs.snowflake.com/en/sql-reference/functions/to_geography
+     * https://docs.snowflake.com/en/sql-reference/functions/to_geometry
+     *
+     * This test is not using CSV but inserting data directly into stage table to mimic this behavior
+     */
+    public function testLoadTypedTableWithCastingValues(): void
+    {
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'CREATE TABLE %s."types" (
+              "id" NUMBER,
+              "VARIANT" VARIANT,
+              "BINARY" BINARY,
+              "VARBINARY" VARBINARY,
+              "OBJECT" OBJECT,
+              "ARRAY" ARRAY,
+              "_timestamp" TIMESTAMP,
+               PRIMARY KEY ("id")
+            );',
+            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+        ));
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+SELECT 1, 
+      TO_VARIANT(\'3.14\'),
+      TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+      TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+      OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
+      ARRAY_CONSTRUCT(1, 2, 3, NULL)
+;',
+            $this->getDestinationSchemaName(),
+            'types'
+        ));
+
+        // skipping header
+        $options = new SnowflakeImportOptions(
+            [],
+            false,
+            false,
+            1,
+            SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
+            SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            ['_timestamp'],
+            [
+                Snowflake::TYPE_VARIANT,
+                Snowflake::TYPE_BINARY,
+                Snowflake::TYPE_VARBINARY,
+                Snowflake::TYPE_OBJECT,
+                Snowflake::TYPE_ARRAY,
+            ]
+        );
+
+        $destinationRef = new SnowflakeTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            'types'
+        );
+        /** @var SnowflakeTableDefinition $destination */
+        $destination = $destinationRef->getTableDefinition();
+        $stagingTable = StageTableDefinitionFactory::createVarcharStagingTableDefinition(
+            $destination->getSchemaName(),
+            [
+                'id',
+                'VARIANT',
+                'BINARY',
+                'VARBINARY',
+                'OBJECT',
+                'ARRAY',
+            ]
+        );
+
+        $qb = new SnowflakeTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+SELECT 1, 
+       TO_VARCHAR(TO_VARIANT(\'3.14\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+;',
+            $stagingTable->getSchemaName(),
+            $stagingTable->getTableName()
+        ));
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+SELECT 2, 
+       TO_VARCHAR(TO_VARIANT(\'3.14\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+;',
+            $stagingTable->getSchemaName(),
+            $stagingTable->getTableName()
+        ));
+        $toFinalTableImporter = new IncrementalImporter($this->connection);
+
+        $toFinalTableImporter->importToTable(
+            $stagingTable,
+            $destination,
+            $options,
+            new ImportState($stagingTable->getTableName())
+        );
+
+        self::assertEquals(2, $destinationRef->getRowsCount());
     }
 
     /**

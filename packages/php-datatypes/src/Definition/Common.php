@@ -93,10 +93,12 @@ abstract class Common implements DefinitionInterface
             [
                 'key' => self::KBC_METADATA_KEY_TYPE,
                 'value' => $this->getType(),
-            ],[
+            ],
+            [
                 'key' => self::KBC_METADATA_KEY_NULLABLE,
                 'value' => $this->isNullable(),
-            ],[
+            ],
+            [
                 'key' => self::KBC_METADATA_KEY_BASETYPE,
                 'value' => $this->getBasetype(),
             ],
@@ -165,5 +167,10 @@ abstract class Common implements DefinitionInterface
             return false;
         }
         return (int) $length >= $min && (int) $length <= $max;
+    }
+
+    public function isSameType(DefinitionInterface $definition): bool
+    {
+        return $this->type === $definition->getType();
     }
 }

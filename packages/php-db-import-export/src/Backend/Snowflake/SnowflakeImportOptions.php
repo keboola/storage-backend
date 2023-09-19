@@ -8,6 +8,11 @@ use Keboola\Db\ImportExport\ImportOptions;
 
 class SnowflakeImportOptions extends ImportOptions
 {
+    /**
+     * @var string[]
+     */
+    private array $autoCastTypes;
+
     /** @var self::SAME_TABLES_* */
     private bool $requireSameTables;
 
@@ -19,6 +24,7 @@ class SnowflakeImportOptions extends ImportOptions
      * @param self::SAME_TABLES_* $requireSameTables
      * @param self::NULL_MANIPULATION_* $nullManipulation
      * @param string[] $ignoreColumns
+     * @param string[] $autoCastTypes
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -27,7 +33,8 @@ class SnowflakeImportOptions extends ImportOptions
         int $numberOfIgnoredLines = 0,
         bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED,
         bool $nullManipulation = self::NULL_MANIPULATION_ENABLED,
-        array $ignoreColumns = []
+        array $ignoreColumns = [],
+        array $autoCastTypes = [],
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -39,6 +46,7 @@ class SnowflakeImportOptions extends ImportOptions
         );
         $this->requireSameTables = $requireSameTables;
         $this->nullManipulation = $nullManipulation;
+        $this->autoCastTypes = $autoCastTypes;
     }
 
     public function isRequireSameTables(): bool
@@ -49,5 +57,13 @@ class SnowflakeImportOptions extends ImportOptions
     public function isNullManipulationEnabled(): bool
     {
         return $this->nullManipulation === self::NULL_MANIPULATION_ENABLED;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function autoCastTypes(): array
+    {
+        return $this->autoCastTypes;
     }
 }
