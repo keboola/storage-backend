@@ -560,7 +560,16 @@ select 1,
                 []
             ),
             [$this->getDestinationSchemaName(), self::TABLE_TABLE],
-            $this->getSnowflakeImportOptions(),
+            new SnowflakeImportOptions(
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: true,
+                numberOfIgnoredLines: 1,
+                ignoreColumns: [
+                    ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+                    'lemmaIndex'
+                ]
+            ),
             [['table', 'column', null]],
             1,
             self::TABLE_TABLE,

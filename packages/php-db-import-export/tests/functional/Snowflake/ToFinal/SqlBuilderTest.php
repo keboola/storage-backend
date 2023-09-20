@@ -412,7 +412,9 @@ EOT
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
-            $this->getDummyImportOptions(),
+            new SnowflakeImportOptions(
+                ignoreColumns: ['id']
+            ),
             '2020-01-01 00:00:00'
         );
 
@@ -483,7 +485,9 @@ EOT
                 numberOfIgnoredLines: 0,
                 requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
                 nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
-                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
+                ignoreColumns: [
+                    'id',
+                ],
             ),
             '2020-01-01 00:00:00'
         );
@@ -599,7 +603,10 @@ EOT
         );
 
         // convert col1 to null
-        $options = new SnowflakeImportOptions(['col1']);
+        $options = new SnowflakeImportOptions(
+            convertEmptyValuesToNull: ['col1'],
+            ignoreColumns: ['id'],
+        );
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
@@ -661,7 +668,12 @@ EOT
         );
 
         // use timestamp
-        $options = new SnowflakeImportOptions(['col1'], false, true);
+        $options = new SnowflakeImportOptions(
+            convertEmptyValuesToNull: ['col1'],
+            isIncremental: false,
+            useTimestamp: true,
+            ignoreColumns: ['id'],
+        );
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
