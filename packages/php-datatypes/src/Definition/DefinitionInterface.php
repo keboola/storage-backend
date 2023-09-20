@@ -24,6 +24,4 @@ interface DefinitionInterface
     public function getDefault(): ?string;
 
     public static function getTypeByBasetype(string $basetype): string;
-
-    public function isSameType(DefinitionInterface $definition): bool;
 }

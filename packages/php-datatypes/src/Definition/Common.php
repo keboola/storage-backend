@@ -168,9 +168,4 @@ abstract class Common implements DefinitionInterface
         }
         return (int) $length >= $min && (int) $length <= $max;
     }
-
-    public function isSameType(DefinitionInterface $definition): bool
-    {
-        return $this->type === $definition->getType();
-    }
 }

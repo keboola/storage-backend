@@ -102,11 +102,6 @@ final class SourceDestinationColumnMapTest extends TestCase
                     {
                         throw new Exception('Not implemented');
                     }
-
-                    public function isSameType(DefinitionInterface $definition): bool
-                    {
-                        throw new Exception('Not implemented');
-                    }
                 };
             }
 
