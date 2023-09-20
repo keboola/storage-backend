@@ -841,7 +841,10 @@ EOD,
             convertEmptyValuesToNull: ['col1'],
             isIncremental: false,
             useTimestamp: true,
-            ignoreColumns: ['id'],
+            ignoreColumns: [
+                'id',
+                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
+            ],
         );
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
