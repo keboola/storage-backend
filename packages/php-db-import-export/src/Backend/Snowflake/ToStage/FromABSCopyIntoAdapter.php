@@ -92,7 +92,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
             'COPY INTO %s.%s 
 FROM %s
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
-FILE_FORMAT = (TYPE=CSV %s)
+FILE_FORMAT = (TYPE=CSV %s, NULL_IF=())
 FILES = (%s)',
             SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),

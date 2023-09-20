@@ -16,6 +16,13 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 
 class SqlBuilder
 {
+    private const CONVERT_EMPTY_VALUES_TO_NULL_TYPES = [
+        Snowflake::TYPE_VARCHAR,
+        Snowflake::TYPE_CHAR,
+        Snowflake::TYPE_CHARACTER,
+        Snowflake::TYPE_STRING,
+        Snowflake::TYPE_TEXT,
+    ];
     public const SRC_ALIAS = 'src';
 
     public function getBeginTransaction(): string
@@ -191,6 +198,19 @@ class SqlBuilder
             // output mapping same tables are required do not convert nulls to empty strings
             if (!$importOptions->isNullManipulationEnabled()) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
+                $sourceColumnName = SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
+                if (!in_array(
+                    $destinationColumn->getColumnDefinition()->getType(),
+                    self::CONVERT_EMPTY_VALUES_TO_NULL_TYPES,
+                    true
+                )) {
+                    // if type is not string type convert empty string to null
+                    $sourceColumnName = sprintf(
+                        'IFF(%s = \'\', NULL, %s)',
+                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
+                    );
+                }
                 $type = $destinationColumn->getColumnDefinition()->getType();
                 $useAutoCast = in_array($type, $importOptions->autoCastTypes(), true);
                 $isSameType = $type === $sourceColumn->getColumnDefinition()->getType();
@@ -199,7 +219,7 @@ class SqlBuilder
                         // object can't be casted from string but can be casted from variant
                         $columnsSetSql[] = sprintf(
                             'CAST(TO_VARIANT(%s) AS %s) AS %s',
-                            SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                            $sourceColumnName,
                             $destinationColumn->getColumnDefinition()->getSQLDefinition(),
                             SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
                         );
@@ -207,13 +227,13 @@ class SqlBuilder
                     }
                     $columnsSetSql[] = sprintf(
                         'CAST(%s AS %s) AS %s',
-                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                        $sourceColumnName,
                         $destinationColumn->getColumnDefinition()->getSQLDefinition(),
                         SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
                     );
                     continue;
                 }
-                $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
+                $columnsSetSql[] = $sourceColumnName;
                 continue;
             }
 
@@ -291,6 +311,22 @@ class SqlBuilder
         foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
             if (!$importOptions->isNullManipulationEnabled()) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
+                $sourceColumnName = sprintf(
+                    '"src".%s',
+                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
+                );
+                if (!in_array(
+                    $destinationColumn->getColumnDefinition()->getType(),
+                    self::CONVERT_EMPTY_VALUES_TO_NULL_TYPES,
+                    true
+                )) {
+                    // if type is not string type convert empty string to null
+                    $sourceColumnName = sprintf(
+                        'IFF("src".%s = \'\', NULL, "src".%s)',
+                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
+                    );
+                }
                 $type = $destinationColumn->getColumnDefinition()->getType();
                 $useAutoCast = in_array($type, $importOptions->autoCastTypes(), true);
                 $isSameType = $type === $sourceColumn->getColumnDefinition()->getType();
@@ -298,26 +334,26 @@ class SqlBuilder
                     if ($type === Snowflake::TYPE_OBJECT) {
                         // object can't be casted from string but can be casted from variant
                         $columnsSet[] = sprintf(
-                            '%s = CAST(TO_VARIANT("src".%s) AS %s)',
-                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                            '%s = CAST(TO_VARIANT(%s) AS %s)',
                             SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                            $sourceColumnName,
                             $destinationColumn->getColumnDefinition()->getSQLDefinition(),
                         );
                         continue;
                     }
                     $columnsSet[] = sprintf(
-                        '%s = CAST("src".%s AS %s)',
-                        SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                        '%s = CAST(%s AS %s)',
                         SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                        $sourceColumnName,
                         $destinationColumn->getColumnDefinition()->getSQLDefinition(),
                     );
                     continue;
                 }
 
                 $columnsSet[] = sprintf(
-                    '%s = "src".%s',
+                    '%s = %s',
                     SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                    $sourceColumnName,
                 );
                 continue;
             }

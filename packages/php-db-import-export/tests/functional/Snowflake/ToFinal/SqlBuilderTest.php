@@ -572,7 +572,7 @@ SELECT \'1\',
 
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY") (SELECT "pk1",CAST("VARIANT" AS VARIANT) AS "VARIANT",CAST("BINARY" AS BINARY) AS "BINARY",CAST("VARBINARY" AS VARBINARY) AS "VARBINARY",CAST(TO_VARIANT("OBJECT") AS OBJECT) AS "OBJECT",CAST("ARRAY" AS ARRAY) AS "ARRAY" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY") (SELECT "pk1",CAST(IFF("VARIANT" = \'\', NULL, "VARIANT") AS VARIANT) AS "VARIANT",CAST(IFF("BINARY" = \'\', NULL, "BINARY") AS BINARY) AS "BINARY",CAST(IFF("VARBINARY" = \'\', NULL, "VARBINARY") AS VARBINARY) AS "VARBINARY",CAST(TO_VARIANT(IFF("OBJECT" = \'\', NULL, "OBJECT")) AS OBJECT) AS "OBJECT",CAST(IFF("ARRAY" = \'\', NULL, "ARRAY") AS ARRAY) AS "ARRAY" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
             $sql
         );
 
@@ -1165,7 +1165,7 @@ SELECT \'1\',
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = CAST("src"."BINARY" AS BINARY), "VARBINARY" = CAST("src"."VARBINARY" AS VARBINARY), "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST("src"."ARRAY" AS ARRAY) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST(IFF("src"."VARIANT" = \'\', NULL, "src"."VARIANT") AS VARIANT), "BINARY" = CAST(IFF("src"."BINARY" = \'\', NULL, "src"."BINARY") AS BINARY), "VARBINARY" = CAST(IFF("src"."VARBINARY" = \'\', NULL, "src"."VARBINARY") AS VARBINARY), "OBJECT" = CAST(TO_VARIANT(IFF("src"."OBJECT" = \'\', NULL, "src"."OBJECT")) AS OBJECT), "ARRAY" = CAST(IFF("src"."ARRAY" = \'\', NULL, "src"."ARRAY") AS ARRAY) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
             $sql
         );
         $this->connection->executeStatement($sql);
