@@ -195,6 +195,28 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
+    public function testIgnoreColumnsMoreThanOne(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $source = new ColumnCollection([
+            $this->getColumn('col1', 'string'),
+            $this->getColumn('col2', 'string'),
+        ]);
+        $destination = new ColumnCollection([
+            $this->getColumn('col1', 'bool'),
+            $this->getColumn('col2', 'bool'),
+            $this->getColumn('col3', 'bool'),
+            $this->getColumn('col4', 'bool'),
+            $this->getColumn('col5', 'bool'),
+        ]);
+
+        new SourceDestinationColumnMap(
+            $source,
+            $destination,
+            ['col3', 'col4', 'col5']
+        );
+    }
+
     public function testColumnNotFound(): void
     {
         [, , $map] = $this->getMap();

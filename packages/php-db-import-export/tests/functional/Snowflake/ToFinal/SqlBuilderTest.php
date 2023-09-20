@@ -843,7 +843,7 @@ EOD,
             useTimestamp: true,
             ignoreColumns: [
                 'id',
-                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
+                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
             ],
         );
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
