@@ -567,7 +567,7 @@ select 1,
                 numberOfIgnoredLines: 1,
                 ignoreColumns: [
                     ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
-                    'lemmaIndex'
+                    'lemmaIndex',
                 ]
             ),
             [['table', 'column', null]],
