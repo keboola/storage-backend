@@ -58,7 +58,8 @@ class SnowflakeExceptionTest extends TestCase
         yield 'value conversion' => [
             "Numeric value 'male' is not recognized",
             ImportException::class,
-            "Load error: Numeric value 'male' is not recognized",
+            // phpcs:ignore
+            "Load error: Numeric value 'male' is not recognized. Value you are trying to load cannot be converted to used datatype.",
             13, // VALUE_CONVERSION
             true,
         ];
@@ -66,7 +67,8 @@ class SnowflakeExceptionTest extends TestCase
         yield 'value conversion 2' => [
             "Numeric value 'ma\'le' is not recognized",
             ImportException::class,
-            "Load error: Numeric value 'ma\'le' is not recognized",
+            // phpcs:ignore
+            "Load error: Numeric value 'ma\'le' is not recognized. Value you are trying to load cannot be converted to used datatype.",
             13, // VALUE_CONVERSION
             true,
         ];
@@ -106,6 +108,30 @@ class SnowflakeExceptionTest extends TestCase
             // phpcs:ignore
             'Load error: An exception occurred while executing a query: Numeric value \'123.123\' is out of range',
             11, // ROW_SIZE_TOO_LARGE
+            true,
+        ];
+
+        yield 'GEO casting error' => [
+            'Error parsing Geo input: xxx. Did not recognize valid GeoJSON, (E)WKT or (E)WKB.',
+            ImportException::class,
+            'Load error: Error parsing Geo input: xxx. Did not recognize valid GeoJSON, (E)WKT or (E)WKB.',
+            13, // VALUE_CONVERSION
+            true,
+        ];
+
+        yield 'OBJECT casting error' => [
+            'An exception occurred while executing a query: Failed to cast variant value "xxx" to OBJECT',
+            ImportException::class,
+            'Load error: An exception occurred while executing a query: Failed to cast value "xxx" to OBJECT',
+            13, // VALUE_CONVERSION
+            true,
+        ];
+
+        yield 'Binary casting error' => [
+            "The following string is not a legal hex-encoded value: 'xxx'",
+            ImportException::class,
+            "Load error: The following string is not a legal hex-encoded value: 'xxx'",
+            13, // VALUE_CONVERSION
             true,
         ];
     }

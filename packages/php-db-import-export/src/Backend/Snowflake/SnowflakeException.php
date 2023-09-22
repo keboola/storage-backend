@@ -31,11 +31,24 @@ class SnowflakeException extends Exception
         }
 
         // phpcs:ignore
-        $isNullInNotNullCol = preg_match('/NULL result in a non-nullable column/', $e->getMessage(), $output_array) === 1;
-        $isNotRecognized = preg_match('/ \'(.*)\' is not recognized/', $e->getMessage(), $output_array) === 1;
-        if ($isNullInNotNullCol || $isNotRecognized) {
+        $message = $e->getMessage();
+        $isObjectCastFail = preg_match('/Failed to cast variant value .* to OBJECT/', $message, $output_array) === 1;
+        if ($isObjectCastFail) {
+            // remove variant from message as it would confuse users
+            // we are using TO_OBJECT(TO_VARIANT(...)) casting combination
+            $message = str_replace('variant ', '', $message);
+        }
+        $isInvalidGeo = preg_match('/Error parsing Geo input/', $message, $output_array) === 1;
+        // phpcs:ignore
+        $isInvalidBinary = preg_match('/The following string is not a legal hex-encoded value/', $message, $output_array) === 1;
+        $isNullInNotNullCol = preg_match('/NULL result in a non-nullable column/', $message, $output_array) === 1;
+        $isNotRecognized = preg_match('/ \'(.*)\' is not recognized/', $message, $output_array) === 1;
+        if ($isNotRecognized) {
+            $message .= '. Value you are trying to load cannot be converted to used datatype.';
+        }
+        if ($isNullInNotNullCol || $isNotRecognized || $isInvalidBinary || $isInvalidGeo || $isObjectCastFail) {
             return new Exception(
-                'Load error: ' . $e->getMessage(),
+                'Load error: ' . $message,
                 Exception::VALUE_CONVERSION,
                 $e
             );
