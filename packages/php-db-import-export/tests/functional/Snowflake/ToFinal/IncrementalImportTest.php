@@ -50,10 +50,6 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
     /**
      * Test is testing loading of semi-structured data into typed table.
      *
-     * We ignore here GEOGRAPHY and GEOMETRY as they act differently when casting from string
-     * https://docs.snowflake.com/en/sql-reference/functions/to_geography
-     * https://docs.snowflake.com/en/sql-reference/functions/to_geometry
-     *
      * This test is not using CSV but inserting data directly into stage table to mimic this behavior
      */
     public function testLoadTypedTableWithCastingValues(): void
@@ -67,6 +63,8 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
               "VARBINARY" VARBINARY,
               "OBJECT" OBJECT,
               "ARRAY" ARRAY,
+              "GEOGRAPHY" GEOGRAPHY,
+              "GEOMETRY" GEOMETRY,
               "_timestamp" TIMESTAMP,
                PRIMARY KEY ("id")
             );',
@@ -74,13 +72,15 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
         ));
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 1, 
       TO_VARIANT(\'3.14\'),
       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
       OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
-      ARRAY_CONSTRUCT(1, 2, 3, NULL)
+      ARRAY_CONSTRUCT(1, 2, 3, NULL),
+      \'POINT(-122.35 37.55)\',
+      \'POINT(1820.12 890.56)\'
 ;',
             $this->getDestinationSchemaName(),
             'types'
@@ -95,13 +95,6 @@ SELECT 1,
             requireSameTables: SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            autoCastTypes: [
-                Snowflake::TYPE_VARIANT,
-                Snowflake::TYPE_BINARY,
-                Snowflake::TYPE_VARBINARY,
-                Snowflake::TYPE_OBJECT,
-                Snowflake::TYPE_ARRAY,
-            ]
         );
 
         $destinationRef = new SnowflakeTableReflection(
@@ -120,6 +113,8 @@ SELECT 1,
                 'VARBINARY',
                 'OBJECT',
                 'ARRAY',
+                'GEOGRAPHY',
+                'GEOMETRY',
             ]
         );
 
@@ -129,26 +124,30 @@ SELECT 1,
         );
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 1, 
        TO_VARCHAR(TO_VARIANT(\'3.14\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       \'POINT(-122.35 37.55)\',
+       \'POINT(1820.12 890.56)\'
 ;',
             $stagingTable->getSchemaName(),
             $stagingTable->getTableName()
         ));
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 2, 
        TO_VARCHAR(TO_VARIANT(\'3.14\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       \'POINT(-122.35 37.55)\',
+       \'POINT(1820.12 890.56)\'
 ;',
             $stagingTable->getSchemaName(),
             $stagingTable->getTableName()

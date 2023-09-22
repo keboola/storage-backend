@@ -559,20 +559,13 @@ SELECT \'1\',
                 requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
                 nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-                autoCastTypes: [
-                    Snowflake::TYPE_VARIANT,
-                    Snowflake::TYPE_BINARY,
-                    Snowflake::TYPE_VARBINARY,
-                    Snowflake::TYPE_OBJECT,
-                    Snowflake::TYPE_ARRAY,
-                ],
             ),
             '2020-01-01 00:00:00'
         );
 
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY") (SELECT "pk1",CAST("VARIANT" AS VARIANT) AS "VARIANT",CAST("BINARY" AS BINARY) AS "BINARY",CAST("VARBINARY" AS VARBINARY) AS "VARBINARY",CAST(TO_VARIANT("OBJECT") AS OBJECT) AS "OBJECT",CAST("ARRAY" AS ARRAY) AS "ARRAY" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY") (SELECT "pk1",CAST("VARIANT" AS VARIANT) AS "VARIANT","BINARY","VARBINARY",CAST(TO_VARIANT("OBJECT") AS OBJECT) AS "OBJECT",CAST("ARRAY" AS ARRAY) AS "ARRAY" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
             $sql
         );
 
@@ -1153,19 +1146,12 @@ SELECT \'1\',
                 requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
                 nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-                autoCastTypes: [
-                    Snowflake::TYPE_VARIANT,
-                    Snowflake::TYPE_BINARY,
-                    Snowflake::TYPE_VARBINARY,
-                    Snowflake::TYPE_OBJECT,
-                    Snowflake::TYPE_ARRAY,
-                ],
             ),
             '2020-01-01 00:00:00'
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = CAST("src"."BINARY" AS BINARY), "VARBINARY" = CAST("src"."VARBINARY" AS VARBINARY), "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST("src"."ARRAY" AS ARRAY) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST("src"."ARRAY" AS ARRAY) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
             $sql
         );
         $this->connection->executeStatement($sql);

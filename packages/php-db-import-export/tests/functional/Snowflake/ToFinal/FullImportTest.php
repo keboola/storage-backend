@@ -39,10 +39,6 @@ class FullImportTest extends SnowflakeBaseTestCase
     /**
      * Test is testing loading of semi-structured data into typed table.
      *
-     * We ignore here GEOGRAPHY and GEOMETRY as they act differently when casting from string
-     * https://docs.snowflake.com/en/sql-reference/functions/to_geography
-     * https://docs.snowflake.com/en/sql-reference/functions/to_geometry
-     *
      * This test is not using CSV but inserting data directly into stage table to mimic this behavior
      */
     public function testLoadTypedTableWithCastingValues(): void
@@ -56,6 +52,8 @@ class FullImportTest extends SnowflakeBaseTestCase
               "VARBINARY" VARBINARY,
               "OBJECT" OBJECT,
               "ARRAY" ARRAY,
+              "GEOGRAPHY" GEOGRAPHY,
+              "GEOMETRY" GEOMETRY,
               "_timestamp" TIMESTAMP
             );',
             SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
@@ -69,14 +67,7 @@ class FullImportTest extends SnowflakeBaseTestCase
             1,
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
-            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            [
-                Snowflake::TYPE_VARIANT,
-                Snowflake::TYPE_BINARY,
-                Snowflake::TYPE_VARBINARY,
-                Snowflake::TYPE_OBJECT,
-                Snowflake::TYPE_ARRAY,
-            ]
+            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
         );
 
         $destinationRef = new SnowflakeTableReflection(
@@ -95,6 +86,8 @@ class FullImportTest extends SnowflakeBaseTestCase
                 'VARBINARY',
                 'OBJECT',
                 'ARRAY',
+                'GEOGRAPHY',
+                'GEOMETRY',
             ]
         );
 
@@ -104,13 +97,15 @@ class FullImportTest extends SnowflakeBaseTestCase
         );
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 select 1, 
        TO_VARCHAR(TO_VARIANT(\'3.14\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       \'POINT(-122.35 37.55)\',
+       \'POINT(1820.12 890.56)\'
 ;',
             $stagingTable->getSchemaName(),
             $stagingTable->getTableName()

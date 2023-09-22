@@ -16,6 +16,11 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 
 class SqlBuilder
 {
+    private const AUTO_CASTING_TYPES = [
+        Snowflake::TYPE_VARIANT,
+        Snowflake::TYPE_OBJECT,
+        Snowflake::TYPE_ARRAY,
+    ];
     public const SRC_ALIAS = 'src';
 
     public function getBeginTransaction(): string
@@ -192,7 +197,7 @@ class SqlBuilder
             if (!$importOptions->isNullManipulationEnabled()) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
                 $type = $destinationColumn->getColumnDefinition()->getType();
-                $useAutoCast = in_array($type, $importOptions->autoCastTypes(), true);
+                $useAutoCast = in_array($type, self::AUTO_CASTING_TYPES, true);
                 $isSameType = $type === $sourceColumn->getColumnDefinition()->getType();
                 if ($useAutoCast && !$isSameType) {
                     if ($type === Snowflake::TYPE_OBJECT) {
@@ -292,7 +297,7 @@ class SqlBuilder
             if (!$importOptions->isNullManipulationEnabled()) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
                 $type = $destinationColumn->getColumnDefinition()->getType();
-                $useAutoCast = in_array($type, $importOptions->autoCastTypes(), true);
+                $useAutoCast = in_array($type, self::AUTO_CASTING_TYPES, true);
                 $isSameType = $type === $sourceColumn->getColumnDefinition()->getType();
                 if ($useAutoCast && !$isSameType) {
                     if ($type === Snowflake::TYPE_OBJECT) {
