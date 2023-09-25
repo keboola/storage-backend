@@ -27,7 +27,7 @@ class SnowflakeImportOptions extends ImportOptions
         int $numberOfIgnoredLines = 0,
         bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED,
         bool $nullManipulation = self::NULL_MANIPULATION_ENABLED,
-        array $ignoreColumns = []
+        array $ignoreColumns = [],
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,

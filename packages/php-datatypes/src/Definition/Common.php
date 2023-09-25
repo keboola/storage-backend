@@ -93,10 +93,12 @@ abstract class Common implements DefinitionInterface
             [
                 'key' => self::KBC_METADATA_KEY_TYPE,
                 'value' => $this->getType(),
-            ],[
+            ],
+            [
                 'key' => self::KBC_METADATA_KEY_NULLABLE,
                 'value' => $this->isNullable(),
-            ],[
+            ],
+            [
                 'key' => self::KBC_METADATA_KEY_BASETYPE,
                 'value' => $this->getBasetype(),
             ],

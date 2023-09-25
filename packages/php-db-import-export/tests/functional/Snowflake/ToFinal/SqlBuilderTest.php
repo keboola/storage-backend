@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
@@ -303,12 +304,13 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
             $stagingTableDefinition,
             $tableDefinition,
             new SnowflakeImportOptions(
-                [],
-                false,
-                false,
-                0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
         );
 
@@ -410,7 +412,9 @@ EOT
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
-            $this->getDummyImportOptions(),
+            new SnowflakeImportOptions(
+                ignoreColumns: ['id']
+            ),
             '2020-01-01 00:00:00'
         );
 
@@ -452,6 +456,168 @@ EOT
         ], $result);
     }
 
+    public function testGetInsertAllIntoTargetTableCommandCasting(): void
+    {
+        $this->createTestSchema();
+        $destination = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('pk1'),
+                new SnowflakeColumn(
+                    'VARIANT',
+                    new Snowflake(
+                        Snowflake::TYPE_VARIANT
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'BINARY',
+                    new Snowflake(
+                        Snowflake::TYPE_BINARY
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'VARBINARY',
+                    new Snowflake(
+                        Snowflake::TYPE_VARBINARY
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'OBJECT',
+                    new Snowflake(
+                        Snowflake::TYPE_OBJECT
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'ARRAY',
+                    new Snowflake(
+                        Snowflake::TYPE_ARRAY
+                    ),
+                ),
+            ]),
+            ['pk1']
+        );
+        $stage = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('pk1'),
+                $this->createNullableGenericColumn('VARIANT'),
+                $this->createNullableGenericColumn('BINARY'),
+                $this->createNullableGenericColumn('VARBINARY'),
+                $this->createNullableGenericColumn('OBJECT'),
+                $this->createNullableGenericColumn('ARRAY'),
+            ]),
+            []
+        );
+        $this->connection->executeStatement(
+            (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition($destination)
+        );
+        $this->connection->executeStatement(
+            (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition($stage)
+        );
+
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+SELECT \'1\', 
+       TO_VARIANT(\'4.14\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  24::VARIANT),
+       ARRAY_CONSTRUCT(1, 2, 3, NULL)
+;',
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+        ));
+
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+SELECT \'1\', 
+       TO_VARCHAR(TO_VARIANT(\'3.14\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+;',
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+        ));
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
+            $stage,
+            $destination,
+            new SnowflakeImportOptions(
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
+            ),
+            '2020-01-01 00:00:00'
+        );
+
+        self::assertEquals(
+        // phpcs:ignore
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY") (SELECT "pk1",CAST("VARIANT" AS VARIANT) AS "VARIANT","BINARY","VARBINARY",CAST(TO_VARIANT("OBJECT") AS OBJECT) AS "OBJECT",CAST("ARRAY" AS ARRAY) AS "ARRAY" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
+            $sql
+        );
+
+        $out = $this->connection->executeStatement($sql);
+        self::assertEquals(1, $out);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        self::assertEqualsCanonicalizing([
+            [
+                'pk1' => '1',
+                'VARIANT' => '"3.14"',
+                'BINARY' => '1',
+                'VARBINARY' => '1',
+                'OBJECT' => <<<EOD
+{
+  "age": 42,
+  "name": "Jones"
+}
+EOD,
+                'ARRAY' => <<<EOD
+[
+  "[1,2,3,undefined]"
+]
+EOD,
+            ],
+            [
+                'pk1' => '1',
+                'VARIANT' => '"4.14"',
+                'BINARY' => '1',
+                'VARBINARY' => '1',
+                'OBJECT' => <<<EOD
+{
+  "age": 24,
+  "name": "Jones"
+}
+EOD,
+                'ARRAY' => <<<EOD
+[
+  1,
+  2,
+  3,
+  undefined
+]
+EOD,
+            ],
+        ], $result);
+    }
+
     public function testGetInsertAllIntoTargetTableCommandSameTables(): void
     {
         $this->createTestSchema();
@@ -475,12 +641,15 @@ EOT
             $fakeStage,
             $destination,
             new SnowflakeImportOptions(
-                [],
-                false,
-                false,
-                0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
+                ignoreColumns: [
+                    'id',
+                ],
             ),
             '2020-01-01 00:00:00'
         );
@@ -596,7 +765,10 @@ EOT
         );
 
         // convert col1 to null
-        $options = new SnowflakeImportOptions(['col1']);
+        $options = new SnowflakeImportOptions(
+            convertEmptyValuesToNull: ['col1'],
+            ignoreColumns: ['id'],
+        );
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
@@ -658,7 +830,15 @@ EOT
         );
 
         // use timestamp
-        $options = new SnowflakeImportOptions(['col1'], false, true);
+        $options = new SnowflakeImportOptions(
+            convertEmptyValuesToNull: ['col1'],
+            isIncremental: false,
+            useTimestamp: true,
+            ignoreColumns: [
+                'id',
+                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            ],
+        );
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
@@ -832,12 +1012,13 @@ EOT
             $fakeStage,
             $fakeDestination,
             new SnowflakeImportOptions(
-                [],
-                false,
-                false,
-                0,
-                ImportOptions::SAME_TABLES_NOT_REQUIRED,
-                ImportOptions::NULL_MANIPULATION_SKIP //<- skipp null manipulation
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             '2020-01-01 00:00:00'
         );
@@ -858,6 +1039,145 @@ EOT
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '2',
+            ],
+        ], $result);
+    }
+
+    public function testGetUpdateWithPkCommandCasting(): void
+    {
+        $this->createTestSchema();
+        $destination = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('pk1'),
+                new SnowflakeColumn(
+                    'VARIANT',
+                    new Snowflake(
+                        Snowflake::TYPE_VARIANT
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'BINARY',
+                    new Snowflake(
+                        Snowflake::TYPE_BINARY
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'VARBINARY',
+                    new Snowflake(
+                        Snowflake::TYPE_VARBINARY
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'OBJECT',
+                    new Snowflake(
+                        Snowflake::TYPE_OBJECT
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'ARRAY',
+                    new Snowflake(
+                        Snowflake::TYPE_ARRAY
+                    ),
+                ),
+            ]),
+            ['pk1']
+        );
+        $stage = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('pk1'),
+                $this->createNullableGenericColumn('VARIANT'),
+                $this->createNullableGenericColumn('BINARY'),
+                $this->createNullableGenericColumn('VARBINARY'),
+                $this->createNullableGenericColumn('OBJECT'),
+                $this->createNullableGenericColumn('ARRAY'),
+            ]),
+            []
+        );
+        $this->connection->executeStatement(
+            (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition($destination)
+        );
+        $this->connection->executeStatement(
+            (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition($stage)
+        );
+
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+SELECT \'1\', 
+       TO_VARIANT(\'4.14\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
+       ARRAY_CONSTRUCT(1, 2, 3, NULL)
+;',
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+        ));
+
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+SELECT \'1\', 
+       TO_VARCHAR(TO_VARIANT(\'3.14\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+;',
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+        ));
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $stage,
+            $destination,
+            new SnowflakeImportOptions(
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 0,
+                requireSameTables: ImportOptions::SAME_TABLES_NOT_REQUIRED,
+                nullManipulation: ImportOptions::NULL_MANIPULATION_SKIP, //<- skipp null manipulation
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
+            ),
+            '2020-01-01 00:00:00'
+        );
+        self::assertEquals(
+        // phpcs:ignore
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST("src"."ARRAY" AS ARRAY) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
+            $sql
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA
+        ));
+
+        self::assertEquals([
+            [
+                'pk1' => '1',
+                'VARIANT' => '"3.14"',
+                'BINARY' => '1',
+                'VARBINARY' => '1',
+                'OBJECT' => <<<EOD
+{
+  "age": 42,
+  "name": "Jones"
+}
+EOD,
+                'ARRAY' => <<<EOD
+[
+  "[1,2,3,undefined]"
+]
+EOD,
             ],
         ], $result);
     }
@@ -1055,6 +1375,7 @@ EOT
             );
         }
     }
+
     public function testGetUpdateWithPkCommandNullManipulationWithTimestamp(): void
     {
         $timestampInit = new DateTime('2020-01-01 00:00:01');
@@ -1110,12 +1431,13 @@ EOT
 
         // use timestamp
         $options = new SnowflakeImportOptions(
-            ['col1'],
-            false,
-            true,
-            0,
-            SnowflakeImportOptions::SAME_TABLES_REQUIRED,
-            SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            convertEmptyValuesToNull: ['col1'],
+            isIncremental: false,
+            useTimestamp: true,
+            numberOfIgnoredLines: 0,
+            requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
+            nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
         );
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,

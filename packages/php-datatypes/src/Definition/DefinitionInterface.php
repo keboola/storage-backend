@@ -15,5 +15,13 @@ interface DefinitionInterface
 
     public function getBasetype(): string;
 
+    public function getType(): string;
+
+    public function getLength(): ?string;
+
+    public function isNullable(): bool;
+
+    public function getDefault(): ?string;
+
     public static function getTypeByBasetype(string $basetype): string;
 }

@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToStage;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -176,11 +177,12 @@ class StageImportTest extends SnowflakeBaseTestCase
             $source,
             $targetTableRef->getTableDefinition(),
             new SnowflakeImportOptions(
-                [],
-                false,
-                true,
-                1,
-                SnowflakeImportOptions::SAME_TABLES_REQUIRED
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: true,
+                numberOfIgnoredLines: 1,
+                requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             )
         );
     }
@@ -225,11 +227,12 @@ class StageImportTest extends SnowflakeBaseTestCase
             $source,
             $targetTableRef->getTableDefinition(),
             new SnowflakeImportOptions(
-                [],
-                false,
-                true,
-                1,
-                SnowflakeImportOptions::SAME_TABLES_REQUIRED
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: true,
+                numberOfIgnoredLines: 1,
+                requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             )
         );
     }
@@ -272,11 +275,12 @@ class StageImportTest extends SnowflakeBaseTestCase
             $source,
             $targetTableRef->getTableDefinition(),
             new SnowflakeImportOptions(
-                [],
-                false,
-                true,
-                1,
-                SnowflakeImportOptions::SAME_TABLES_REQUIRED
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: true,
+                numberOfIgnoredLines: 1,
+                requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             )
         );
     }

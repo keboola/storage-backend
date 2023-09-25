@@ -7,11 +7,14 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Datatype\Definition\Snowflake;
+use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Snowflake\Table;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
@@ -31,6 +34,92 @@ class FullImportTest extends SnowflakeBaseTestCase
         $this->cleanSchema($this->getSourceSchemaName());
         $this->createSchema($this->getSourceSchemaName());
         $this->createSchema($this->getDestinationSchemaName());
+    }
+
+    /**
+     * Test is testing loading of semi-structured data into typed table.
+     *
+     * This test is not using CSV but inserting data directly into stage table to mimic this behavior
+     */
+    public function testLoadTypedTableWithCastingValues(): void
+    {
+        $this->connection->executeQuery(sprintf(
+            /** @lang Snowflake */
+            'CREATE TABLE %s."types" (
+              "id"  NUMBER,
+              "VARIANT" VARIANT,
+              "BINARY" BINARY,
+              "VARBINARY" VARBINARY,
+              "OBJECT" OBJECT,
+              "ARRAY" ARRAY,
+              "GEOGRAPHY" GEOGRAPHY,
+              "GEOMETRY" GEOMETRY,
+              "_timestamp" TIMESTAMP
+            );',
+            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+        ));
+
+        // skipping header
+        $options = new SnowflakeImportOptions(
+            [],
+            false,
+            false,
+            1,
+            SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
+            SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+        );
+
+        $destinationRef = new SnowflakeTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            'types'
+        );
+        /** @var SnowflakeTableDefinition $destination */
+        $destination = $destinationRef->getTableDefinition();
+        $stagingTable = StageTableDefinitionFactory::createVarcharStagingTableDefinition(
+            $destination->getSchemaName(),
+            [
+                'id',
+                'VARIANT',
+                'BINARY',
+                'VARBINARY',
+                'OBJECT',
+                'ARRAY',
+                'GEOGRAPHY',
+                'GEOMETRY',
+            ]
+        );
+
+        $qb = new SnowflakeTableQueryBuilder();
+        $this->connection->executeStatement(
+            $qb->getCreateTableCommandFromDefinition($stagingTable)
+        );
+        $this->connection->executeQuery(sprintf(
+        /** @lang Snowflake */
+            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
+select 1, 
+       TO_VARCHAR(TO_VARIANT(\'3.14\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
+       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       \'POINT(-122.35 37.55)\',
+       \'POINT(1820.12 890.56)\'
+;',
+            $stagingTable->getSchemaName(),
+            $stagingTable->getTableName()
+        ));
+        $toFinalTableImporter = new FullImporter($this->connection);
+
+        $toFinalTableImporter->importToTable(
+            $stagingTable,
+            $destination,
+            $options,
+            new ImportState($stagingTable->getTableName())
+        );
+
+        self::assertEquals(1, $destinationRef->getRowsCount());
     }
 
     public function testLoadToTableWithNullValuesShouldPass(): void
@@ -466,7 +555,16 @@ class FullImportTest extends SnowflakeBaseTestCase
                 []
             ),
             [$this->getDestinationSchemaName(), self::TABLE_TABLE],
-            $this->getSnowflakeImportOptions(),
+            new SnowflakeImportOptions(
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: true,
+                numberOfIgnoredLines: 1,
+                ignoreColumns: [
+                    ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+                    'lemmaIndex',
+                ]
+            ),
             [['table', 'column', null]],
             1,
             self::TABLE_TABLE,
@@ -510,10 +608,11 @@ class FullImportTest extends SnowflakeBaseTestCase
                 self::TABLE_OUT_NO_TIMESTAMP_TABLE,
             ],
             new SnowflakeImportOptions(
-                [],
-                false,
-                false, // don't use timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false, // don't use timestamp
+                numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
+                ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
             $escapingStub->getRows(),
             7,
