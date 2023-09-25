@@ -45,7 +45,7 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
         yield 'OBJECT string' => [
             'column' => new SnowflakeColumn('id', new Snowflake(Snowflake::TYPE_OBJECT)),
             'insertData' => '\'xxx\'',
-            'expectedMessage' => '/Failed to cast variant value .* to OBJECT/',
+            'expectedMessage' => '/Failed to cast value .* to OBJECT/',
         ];
         yield 'GEOGRAPHY string' => [
             'column' => new SnowflakeColumn('id', new Snowflake(Snowflake::TYPE_GEOGRAPHY)),
