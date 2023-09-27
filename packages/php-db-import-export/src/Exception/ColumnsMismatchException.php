@@ -33,6 +33,15 @@ class ColumnsMismatchException extends ImportExportException
         ));
     }
 
+    public static function createColumnByNameMissing(
+        ColumnInterface $sourceDef
+    ): ColumnsMismatchException {
+        return new self(sprintf(
+            'Source column "%s" not found in destination table',
+            $sourceDef->getColumnName(),
+        ));
+    }
+
     public static function createColumnsCountMismatch(
         ColumnCollection $source,
         ColumnCollection $destination

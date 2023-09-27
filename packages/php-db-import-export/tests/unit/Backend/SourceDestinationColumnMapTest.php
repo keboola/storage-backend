@@ -126,7 +126,7 @@ final class SourceDestinationColumnMapTest extends TestCase
         };
     }
 
-    public function testCreateForTables(): void
+    public function testCreateForTablesModeKeep(): void
     {
         $col1 = $this->getColumn('col1', 'string');
         $source = $this->createMock(TableDefinitionInterface::class);
@@ -143,7 +143,34 @@ final class SourceDestinationColumnMapTest extends TestCase
 
         $map = SourceDestinationColumnMap::createForTables(
             $source,
-            $destination
+            $destination,
+            [],
+            SourceDestinationColumnMap::MODE_MAP_BY_ORDER
+        );
+
+        $this->assertSame($col1Dest, $map->getDestination($col1));
+    }
+
+    public function testCreateForTablesModeNameOrder(): void
+    {
+        $col1 = $this->getColumn('col1', 'string');
+        $source = $this->createMock(TableDefinitionInterface::class);
+        $source->expects(self::once())->method('getColumnsDefinitions')->willReturn(new ColumnCollection([
+            $col1,
+            $this->getColumn('col2', 'string'),
+        ]));
+        $col1Dest = $this->getColumn('col1', 'bool');
+        $destination = $this->createMock(TableDefinitionInterface::class);
+        $destination->expects(self::once())->method('getColumnsDefinitions')->willReturn(new ColumnCollection([
+            $col1Dest,
+            $this->getColumn('col2', 'bool'),
+        ]));
+
+        $map = SourceDestinationColumnMap::createForTables(
+            $source,
+            $destination,
+            [],
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME
         );
 
         $this->assertSame($col1Dest, $map->getDestination($col1));
@@ -156,7 +183,7 @@ final class SourceDestinationColumnMapTest extends TestCase
         $this->assertSame($col1Dest, $map->getDestination($col1));
     }
 
-    public function testColumnMismatch(): void
+    public function testColumnMismatchModeKeep(): void
     {
         $source = new ColumnCollection([
             $this->getColumn('col1', 'string'),
@@ -175,7 +202,28 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
-    public function testIgnoreColumn(): void
+    public function testColumnMismatchModeNameOrder(): void
+    {
+        $source = new ColumnCollection([
+            $this->getColumn('col1', 'string'),
+            $this->getColumn('col2', 'string'),
+            $this->getColumn('col3', 'bool'),
+        ]);
+        $destination = new ColumnCollection([
+            $this->getColumn('col1', 'bool'),
+            $this->getColumn('col2', 'bool'),
+        ]);
+
+        $this->expectException(ColumnsMismatchException::class);
+        new SourceDestinationColumnMap(
+            $source,
+            $destination,
+            [],
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+        );
+    }
+
+    public function testIgnoreColumnModeKeep(): void
     {
         $this->expectNotToPerformAssertions();
         $source = new ColumnCollection([
@@ -195,7 +243,28 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
-    public function testIgnoreColumnsMoreThanOne(): void
+    public function testIgnoreColumnModeNameOrder(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $source = new ColumnCollection([
+            $this->getColumn('col1', 'string'),
+            $this->getColumn('col2', 'string'),
+            $this->getColumn('col3', 'bool'),
+        ]);
+        $destination = new ColumnCollection([
+            $this->getColumn('col1', 'bool'),
+            $this->getColumn('col2', 'bool'),
+        ]);
+
+        new SourceDestinationColumnMap(
+            $source,
+            $destination,
+            ['col3'],
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+        );
+    }
+
+    public function testIgnoreColumnsMoreThanOneModeKeep(): void
     {
         $this->expectNotToPerformAssertions();
         $source = new ColumnCollection([
@@ -217,7 +286,54 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
-    public function testColumnNotFound(): void
+    public function testIgnoreColumnsMoreThanOneModeNameOrderImplicitIgnore(): void
+    {
+        // test is expected not to fails since extra columns in destination are ignored
+        $this->expectNotToPerformAssertions();
+        $source = new ColumnCollection([
+            $this->getColumn('col1', 'string'),
+            $this->getColumn('col2', 'string'),
+        ]);
+        $destination = new ColumnCollection([
+            $this->getColumn('col1', 'bool'),
+            $this->getColumn('col2', 'bool'),
+            $this->getColumn('col3', 'bool'),
+            $this->getColumn('col4', 'bool'),
+            $this->getColumn('col5', 'bool'),
+        ]);
+
+        new SourceDestinationColumnMap(
+            $source,
+            $destination,
+            [],
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+        );
+    }
+
+    public function testIgnoreColumnsMoreThanOneModeNameOrderExplicitIgnoreInSource(): void
+    {
+        $this->expectNotToPerformAssertions();
+        $source = new ColumnCollection([
+            $this->getColumn('col1', 'string'),
+            $this->getColumn('col2', 'string'),
+            $this->getColumn('col3', 'bool'),
+            $this->getColumn('col4', 'bool'),
+            $this->getColumn('col5', 'bool'),
+        ]);
+        $destination = new ColumnCollection([
+            $this->getColumn('col1', 'bool'),
+            $this->getColumn('col2', 'bool'),
+        ]);
+
+        new SourceDestinationColumnMap(
+            $source,
+            $destination,
+            ['col3', 'col4', 'col5'],
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+        );
+    }
+
+    public function testColumnNotFoundModeKeep(): void
     {
         [, , $map] = $this->getMap();
 
