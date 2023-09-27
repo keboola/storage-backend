@@ -72,18 +72,7 @@ final class SourceDestinationColumnMap
             $this->buildMapBasedOnOrder();
             return;
         }
-        foreach ($this->source as $sourceColumn) {
-            if ($this->isColumnNameInIgnoredList($sourceColumn->getColumnName())) {
-                continue;
-            }
-            foreach ($this->destination as $destinationColumn) {
-                if ($destinationColumn->getColumnName() === $sourceColumn->getColumnName()) {
-                    $this->map[$sourceColumn] = $destinationColumn;
-                    continue 2;
-                }
-            }
-            throw ColumnsMismatchException::createColumnByNameMissing($sourceColumn);
-        }
+        $this->buildMapBasedOnNames();
     }
 
     private function buildMapBasedOnOrder(): void
@@ -111,6 +100,22 @@ final class SourceDestinationColumnMap
             }
             $it0->next();
             $it1->next();
+        }
+    }
+
+    private function buildMapBasedOnNames(): void
+    {
+        foreach ($this->source as $sourceColumn) {
+            if ($this->isColumnNameInIgnoredList($sourceColumn->getColumnName())) {
+                continue;
+            }
+            foreach ($this->destination as $destinationColumn) {
+                if ($destinationColumn->getColumnName() === $sourceColumn->getColumnName()) {
+                    $this->map[$sourceColumn] = $destinationColumn;
+                    continue 2;
+                }
+            }
+            throw ColumnsMismatchException::createColumnByNameMissing($sourceColumn);
         }
     }
 
