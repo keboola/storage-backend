@@ -19,17 +19,30 @@ use WeakMap;
 final class SourceDestinationColumnMap
 {
     /**
+     * This mode will keep order of columns in both tables
+     * Map will fail if columns count is different
+     */
+    public const MODE_MAP_BY_ORDER = 'order';
+    /**
+     * This mode will take source order and map destination columns by name
+     * Map will fail if column is missing on one of the tables
+     */
+    public const MODE_MAP_BY_NAME = 'name';
+
+    /**
      * @var WeakMap<ColumnInterface,ColumnInterface>
      */
     private WeakMap $map;
 
     /**
      * @param string[] $ignoreColumns
+     * @param self::MODE_* $mode
      */
     public function __construct(
         private readonly ColumnCollection $source,
         private readonly ColumnCollection $destination,
         private readonly array $ignoreColumns = [],
+        private readonly string $mode = self::MODE_MAP_BY_ORDER,
     ) {
         $this->map = new WeakMap();
         $this->buildMap();
@@ -37,20 +50,32 @@ final class SourceDestinationColumnMap
 
     /**
      * @param string[] $ignoreColumns
+     * @param self::MODE_* $mode
      */
     public static function createForTables(
         TableDefinitionInterface $source,
         TableDefinitionInterface $destination,
         array $ignoreColumns = [],
+        string $mode = self::MODE_MAP_BY_ORDER,
     ): self {
         return new self(
             $source->getColumnsDefinitions(),
             $destination->getColumnsDefinitions(),
-            $ignoreColumns
+            $ignoreColumns,
+            $mode
         );
     }
 
     private function buildMap(): void
+    {
+        if ($this->mode === self::MODE_MAP_BY_ORDER) {
+            $this->buildMapBasedOnOrder();
+            return;
+        }
+        $this->buildMapBasedOnNames();
+    }
+
+    private function buildMapBasedOnOrder(): void
     {
         $it0 = $this->source->getIterator();
         $it1 = $this->destination->getIterator();
@@ -75,6 +100,22 @@ final class SourceDestinationColumnMap
             }
             $it0->next();
             $it1->next();
+        }
+    }
+
+    private function buildMapBasedOnNames(): void
+    {
+        foreach ($this->source as $sourceColumn) {
+            if ($this->isColumnNameInIgnoredList($sourceColumn->getColumnName())) {
+                continue;
+            }
+            foreach ($this->destination as $destinationColumn) {
+                if ($destinationColumn->getColumnName() === $sourceColumn->getColumnName()) {
+                    $this->map[$sourceColumn] = $destinationColumn;
+                    continue 2;
+                }
+            }
+            throw ColumnsMismatchException::createColumnByNameMissing($sourceColumn);
         }
     }
 
@@ -113,6 +154,11 @@ final class SourceDestinationColumnMap
      */
     private function isIgnoredColumn(Generator $it): bool
     {
-        return $it->valid() && in_array($it->current()->getColumnName(), $this->ignoreColumns, true);
+        return $it->valid() && $this->isColumnNameInIgnoredList($it->current()->getColumnName());
+    }
+
+    private function isColumnNameInIgnoredList(string $name): bool
+    {
+        return in_array($name, $this->ignoreColumns, true);
     }
 }

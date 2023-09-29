@@ -170,7 +170,8 @@ class SqlBuilder
         $columnMap = SourceDestinationColumnMap::createForTables(
             $sourceTableDefinition,
             $destinationTableDefinition,
-            $importOptions->ignoreColumns()
+            $importOptions->ignoreColumns(),
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME
         );
         $destinationTable = sprintf(
             '%s.%s',
@@ -289,7 +290,8 @@ class SqlBuilder
         $columnMap = SourceDestinationColumnMap::createForTables(
             $stagingTableDefinition,
             $destinationDefinition,
-            $importOptions->ignoreColumns()
+            $importOptions->ignoreColumns(),
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME
         );
         $columnsSet = [];
 
