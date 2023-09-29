@@ -3,6 +3,7 @@ syntax = "proto3";
 import "google/protobuf/any.proto";
 import "google/protobuf/struct.proto";
 import "proto/info.proto";
+import "proto/backend/bigQuery.proto";
 
 package keboola.storageDriver.command.table;
 
@@ -38,6 +39,12 @@ message CreateTableCommand {
   google.protobuf.Any meta = 5; // metadata specific for each backend
   message SynapseTableMeta {
 
+  }
+  message BigQueryTableMeta {
+    keboola.storageDriver.backend.bigQuery.TimePartitioning timePartitioning = 1;
+    keboola.storageDriver.backend.bigQuery.RangePartitioning rangePartitioning = 2;
+    bool requirePartitionFilter = 3;
+    keboola.storageDriver.backend.bigQuery.Clustering clustering = 4;
   }
 }
 

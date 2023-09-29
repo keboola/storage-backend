@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package keboola.storageDriver.backend.bigQuery;
+
+message TimePartitioning {
+  string type = 1;
+  string expirationMs = 2;
+  string field = 3;
+}
+message RangePartitioning {
+  string field = 1;
+  Range range = 2;
+  message Range {
+    string start = 1;
+    string end = 2;
+    string interval = 3;
+  }
+}
+
+message Clustering {
+  repeated string fields = 1;
+}
