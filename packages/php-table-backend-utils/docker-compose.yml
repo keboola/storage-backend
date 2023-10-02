@@ -41,7 +41,7 @@ services:
     <<: *dev
     build: docker/xdebug
   exasol:
-    image: exasol/docker-db:latest
+    image: exasol/docker-db:latest-7.1
     privileged: true
     volumes:
       - exa-volume:/exa
