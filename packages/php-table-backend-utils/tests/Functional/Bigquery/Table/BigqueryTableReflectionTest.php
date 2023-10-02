@@ -78,6 +78,46 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
      */
     public function tableColsDataProvider(): Generator
     {
+        yield 'ARRAY simple' => [
+            'ARRAY<INT64>',
+            // sql which goes to table
+            'ARRAY<INTEGER>',
+            // expected sql from getSQLDefinition
+            'ARRAY', // expected type from db
+            null, // default
+            'INTEGER', // length
+            true, // nullable
+        ];
+        yield 'ARRAY complex' => [
+            'ARRAY<STRUCT<x ARRAY<STRUCT<x_z ARRAY<INT64>,x_v INT64>>,t STRUCT<h INT64>, m NUMERIC(12)>>',
+            // sql which goes to table
+            'ARRAY<STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)>>',
+            // expected sql from getSQLDefinition
+            'ARRAY', // expected type from db
+            null, // default
+            'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)>', // length
+            true, // nullable
+        ];
+        yield 'STRUCT simple' => [
+            'STRUCT<x INTEGER>',
+            // sql which goes to table
+            'STRUCT<x INTEGER>',
+            // expected sql from getSQLDefinition
+            'STRUCT', // expected type from db
+            null, // default
+            'x INTEGER', // length
+            true, // nullable
+        ];
+        yield 'STRUCT complex' => [
+            'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INT64>,x_v INT64>>,t STRUCT<h INT64>, m NUMERIC(12)>',
+            // sql which goes to table
+            'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)>',
+            // expected sql from getSQLDefinition
+            'STRUCT', // expected type from db
+            null, // default
+            'x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)', // length
+            true, // nullable
+        ];
         yield 'DECIMAL' => [
             'DECIMAL(29,0)', // sql which goes to table
             'NUMERIC(29)', // expected sql from getSQLDefinition
@@ -85,6 +125,14 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             null, // default
             '29', // length
             true, // nullable
+        ];
+        yield 'DECIMAL NOT NULL' => [
+            'DECIMAL(29,0) NOT NULL', // sql which goes to table
+            'NUMERIC(29) NOT NULL', // expected sql from getSQLDefinition
+            'NUMERIC', // expected type from db
+            null, // default
+            '29', // length
+            false, // nullable
         ];
         yield 'NUMERIC' => [
             'NUMERIC(30,2)', // sql which goes to table
@@ -112,48 +160,48 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         ];
         yield 'INT' => [
             'INT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'INTEGER' => [
             'INTEGER', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'BIGINT' => [
             'BIGINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'SMALLINT' => [
             'SMALLINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'TINYINT' => [
             'TINYINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'BYTEINT' => [
             'BYTEINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
@@ -268,6 +316,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
         $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 2, 'karel', 'motycka');
 
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
         /** @var TableStats $stats2 */
         $stats2 = $ref->getTableStats();
         self::assertEquals(2, $stats2->getRowsCount());
@@ -286,6 +335,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         foreach ($data as $item) {
             $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, ...$item);
         }
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertEquals(2, $ref->getRowsCount());
     }
 

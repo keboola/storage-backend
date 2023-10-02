@@ -13,6 +13,21 @@ use LogicException;
  * Class Bigquery
  *
  * https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types
+ *
+ * @phpstan-type BigqueryTableFieldSchema array{
+ *   name: string,
+ *   type: string,
+ *   mode?: 'NULLABLE'|'REQUIRED'|'REPEATED',
+ *   fields?: array<mixed>,
+ *   description?: string,
+ *   maxLength?: string,
+ *   precision?: string,
+ *   scale?: string,
+ *   roundingMode?: 'ROUNDING_MODE_UNSPECIFIED'|'ROUND_HALF_AWAY_FROM_ZERO'|'ROUND_HALF_EVEN',
+ *   collation?: string,
+ *   defaultValueExpression?: string
+ *  }
+ * structure returned by BQ REST API, fields is recursive but this is not supported by phpstan
  */
 class Bigquery extends Common
 {
@@ -92,8 +107,16 @@ class Bigquery extends Common
 
     public const MAX_LENGTH = 9223372036854775807;
 
+    /** @phpstan-var BigqueryTableFieldSchema|null */
+    private ?array $fieldAsArray = null;
+
     /**
-     * @param array{length?:string|null, nullable?:bool, default?:string|null} $options
+     * @phpstan-param array{
+     *     length?:string|null,
+     *     nullable?:bool,
+     *     default?:string|null,
+     *     fieldAsArray?:BigqueryTableFieldSchema
+     * } $options
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
@@ -103,13 +126,19 @@ class Bigquery extends Common
         $this->validateType($type);
         $this->validateLength($type, $options['length'] ?? null);
 
-        $diff = array_diff(array_keys($options), ['length', 'nullable', 'default']);
+        $diff = array_diff(array_keys($options), ['length', 'nullable', 'default', 'fieldAsArray']);
         if ($diff !== []) {
             throw new InvalidOptionException("Option '{$diff[0]}' not supported");
         }
 
         if (array_key_exists('default', $options) && $options['default'] === '') {
             unset($options['default']);
+        }
+        if (array_key_exists('fieldAsArray', $options)) {
+            if (is_array($options['fieldAsArray'])) {
+                $this->fieldAsArray = $options['fieldAsArray'];
+            }
+            unset($options['fieldAsArray']);
         }
         parent::__construct($type, $options);
     }
@@ -129,6 +158,14 @@ class Bigquery extends Common
             }
         }
         return $out;
+    }
+
+    /**
+     * @phpstan-return BigqueryTableFieldSchema|null
+     */
+    public function getFieldAsArray(): ?array
+    {
+        return $this->fieldAsArray;
     }
 
     public function getSQLDefinition(): string

@@ -92,6 +92,7 @@ class FullImportTest extends BigqueryBaseTestCase
             $importState
         );
 
+        $destinationRef->refresh();
         self::assertEquals(5, $destinationRef->getRowsCount());
     }
 
@@ -147,6 +148,7 @@ class FullImportTest extends BigqueryBaseTestCase
             $importState
         );
 
+        $destinationRef->refresh();
         self::assertEquals(2, $destinationRef->getRowsCount());
     }
 
@@ -209,6 +211,7 @@ class FullImportTest extends BigqueryBaseTestCase
             $importState
         );
 
+        $destinationRef->refresh();
         self::assertEquals(4, $destinationRef->getRowsCount());
     }
 
@@ -281,6 +284,7 @@ class FullImportTest extends BigqueryBaseTestCase
             $importState
         );
 
+        $destinationRef->refresh();
         self::assertEquals(6, $destinationRef->getRowsCount());
     }
 

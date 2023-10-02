@@ -64,7 +64,6 @@ class SnowflakeColumnTest extends TestCase
         ];
 
         $column = SnowflakeColumn::createFromDB($data);
-        var_dump($column->getColumnDefinition()->getSQLDefinition());
         self::assertEquals('first_name', $column->getColumnName());
         self::assertEquals('VARCHAR (16777216)', $column->getColumnDefinition()->getSQLDefinition());
         self::assertEquals('VARCHAR', $column->getColumnDefinition()->getType());

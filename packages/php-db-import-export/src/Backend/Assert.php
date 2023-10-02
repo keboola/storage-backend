@@ -14,7 +14,8 @@ class Assert
     /**
      * @param string[] $ignoreSourceColumns
      * @param string[] $simpleLengthTypes - list of types where length is represented by single number
-     * @param string[] $complexLengthTypes - list of numeric types where length is presented by <scale:int>,<precision:int>
+     * @param string[] $complexLengthTypes
+     * - list of numeric types where length is presented by <scale:int>,<precision:int>
      * @throws ColumnsMismatchException
      */
     public static function assertSameColumns(

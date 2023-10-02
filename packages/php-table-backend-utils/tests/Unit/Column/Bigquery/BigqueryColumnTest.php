@@ -25,20 +25,12 @@ class BigqueryColumnTest extends TestCase
     public function testCreateFromDB(): void
     {
         $data = [
-            'table_catalog' => 'project',
-            'table_schema' => 'bucket_dataset',
-            'table_name' => 'table_name',
-            'column_name' => 'first_name',
-            'ordinal_position' => 1,
-            'is_nullable' => 'YES',
-            'data_type' => 'STRING(50)',
-            'is_hidden' => 'NO',
-            'is_system_defined' => 'NO',
-            'is_partitioning_column' => 'NO',
-            'clustering_ordinal_position' => null,
-            'collation_name' => 'NULL',
-            'column_default' => 'NULL',
-            'rounding_mode' => null,
+            'name' => 'first_name',
+            'type' => 'STRING',
+            'mode' => 'NULLABLE',
+            'fields' => [],
+            'description' => 'string',
+            'maxLength' => '50',
         ];
 
         $column = BigqueryColumn::createFromDB($data);
@@ -52,20 +44,17 @@ class BigqueryColumnTest extends TestCase
     public function testCreateFromDBNotNullInt(): void
     {
         $data = [
-            'table_catalog' => 'project',
-            'table_schema' => 'bucket_dataset',
-            'table_name' => 'table_name',
-            'column_name' => 'age',
-            'ordinal_position' => 1,
-            'is_nullable' => 'NO',
-            'data_type' => 'NUMERIC(38,9)',
-            'is_hidden' => 'NO',
-            'is_system_defined' => 'NO',
-            'is_partitioning_column' => 'NO',
-            'clustering_ordinal_position' => null,
-            'collation_name' => 'NULL',
-            'column_default' => '18',
-            'rounding_mode' => null,
+            'name' => 'age',
+            'type' => 'NUMERIC',
+            'mode' => 'REQUIRED',
+            'fields' => [],
+            'description' => 'string',
+            'maxLength' => 'string',
+            'precision' => '38',
+            'scale' => '9',
+            'roundingMode' => 'ROUNDING_MODE_UNSPECIFIED',
+            'collation' => 'string',
+            'defaultValueExpression' => '18',
         ];
 
         $column = BigqueryColumn::createFromDB($data);
@@ -99,79 +88,169 @@ class BigqueryColumnTest extends TestCase
     public function repeatedDataTypeProvider(): Generator
     {
         yield 'array int' => [
-            'ARRAY<INT64>',
-            'ARRAY',
-            'INT64',
+            'dataToExtend' => [
+                'mode' => 'REPEATED',
+                'type' => 'INTEGER',
+            ],
+            'expectedSqlDefinition' => 'ARRAY<INTEGER>',
+            'expectedType' => 'ARRAY',
+            'expectedLength' => 'INTEGER',
         ];
 
         yield 'array bytes' => [
-            'ARRAY<BYTES(5)>',
-            'ARRAY',
-            'BYTES(5)',
+            'dataToExtend' => [
+                'mode' => 'REPEATED',
+                'type' => 'BYTES',
+                'maxLength' => '5',
+            ],
+            'expectedSqlDefinition' => 'ARRAY<BYTES(5)>',
+            'expectedType' => 'ARRAY',
+            'expectedLength' => 'BYTES(5)',
         ];
 
         yield 'array struct array int' => [
-            'ARRAY<STRUCT<x ARRAY<INT64>>>',
-            'ARRAY',
-            'STRUCT<x ARRAY<INT64>>',
+            'dataToExtend' => [
+                'mode' => 'REPEATED',
+                'type' => 'RECORD',
+                'fields' => [
+                    [
+                        'name' => 'x',
+                        'type' => 'INTEGER',
+                        'mode' => 'REPEATED',
+                    ],
+                ],
+            ],
+            'expectedSqlDefinition' => 'ARRAY<STRUCT<x ARRAY<INTEGER>>>',
+            'expectedType' => 'ARRAY',
+            'expectedLength' => 'STRUCT<x ARRAY<INTEGER>>',
         ];
 
         yield 'array struct array struct array int' => [
-            'ARRAY<STRUCT<x ARRAY<STRUCT<x_z ARRAY<INT64>>>>>',
-            'ARRAY',
-            'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INT64>>>>',
+            'dataToExtend' => [
+                'mode' => 'REPEATED',
+                'type' => 'RECORD',
+                'fields' => [
+                    [
+                        'name' => 'x',
+                        'type' => 'RECORD',
+                        'mode' => 'REPEATED',
+                        'fields' => [
+                            [
+                                'name' => 'x_z',
+                                'type' => 'INTEGER',
+                                'mode' => 'REPEATED',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'expectedSqlDefinition' => 'ARRAY<STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>>>>>',
+            'expectedType' => 'ARRAY',
+            'expectedLength' => 'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>>>>',
         ];
 
         yield 'struct int' => [
-            'STRUCT<INT64>',
-            'STRUCT',
-            'INT64',
+            'dataToExtend' => [
+                'type' => 'RECORD',
+                'fields' => [
+                    [
+                        'name' => 'y',
+                        'type' => 'INTEGER',
+                    ],
+                ],
+            ],
+            'expectedSqlDefinition' => 'STRUCT<y INTEGER>',
+            'expectedType' => 'STRUCT',
+            'expectedLength' => 'y INTEGER',
         ];
 
         yield 'struct bytes' => [
-            'STRUCT<xZ BYTES(10)>',
-            'STRUCT',
-            'xZ BYTES(10)',
+            'dataToExtend' => [
+                'type' => 'RECORD',
+                'fields' => [
+                    [
+                        'name' => 'xZ',
+                        'type' => 'BYTES',
+                        'maxLength' => '10',
+                    ],
+                ],
+            ],
+            'expectedSqlDefinition' => 'STRUCT<xZ BYTES(10)>',
+            'expectedType' => 'STRUCT',
+            'expectedLength' => 'xZ BYTES(10)',
         ];
 
         yield 'struct of struct' => [
-            'STRUCT<x STRUCT<y INT64, z INT64>>',
-            'STRUCT',
-            'x STRUCT<y INT64, z INT64>',
+            'dataToExtend' => [
+                'type' => 'RECORD',
+                'fields' => [
+                    [
+                        'name' => 'x',
+                        'type' => 'RECORD',
+                        'fields' => [
+                            [
+                                'name' => 'y',
+                                'type' => 'INTEGER',
+                            ],
+                            [
+                                'name' => 'z',
+                                'type' => 'INTEGER',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'expectedSqlDefinition' => 'STRUCT<x STRUCT<y INTEGER,z INTEGER>>',
+            'expectedType' => 'STRUCT',
+            'expectedLength' => 'x STRUCT<y INTEGER,z INTEGER>',
         ];
 
         yield 'struct array' => [
-            'STRUCT<x_y ARRAY<INT64>>',
-            'STRUCT',
-            'x_y ARRAY<INT64>',
+            'dataToExtend' => [
+                'type' => 'RECORD',
+                'fields' => [
+                    [
+                        'name' => 'x_y',
+                        'type' => 'INTEGER',
+                        'mode' => 'REPEATED',
+                    ],
+                ],
+            ],
+            'expectedSqlDefinition' => 'STRUCT<x_y ARRAY<INTEGER>>',
+            'expectedType' => 'STRUCT',
+            'expectedLength' => 'x_y ARRAY<INTEGER>',
         ];
     }
 
     /**
+     * @param array<mixed> $dataToExtend
      * @dataProvider repeatedDataTypeProvider
      */
-    public function testCreateArrayColumn(string $dataType, string $expectedType, string $expectedLength): void
-    {
+    public function testCreateArrayColumn(
+        array $dataToExtend,
+        string $expectedSqlDefinition,
+        string $expectedType,
+        string $expectedLength
+    ): void {
         $data = [
-            'table_catalog' => 'project',
-            'table_schema' => 'bucket_dataset',
-            'table_name' => 'table_name',
-            'column_name' => 'age',
-            'ordinal_position' => 1,
-            'is_nullable' => 'NO',
-            'data_type' => $dataType,
-            'is_hidden' => 'NO',
-            'is_system_defined' => 'NO',
-            'is_partitioning_column' => 'NO',
-            'clustering_ordinal_position' => null,
-            'collation_name' => 'NULL',
-            'column_default' => '',
-            'rounding_mode' => null,
+            'name' => 'age',
+            'mode' => 'NULLABLE',
+            'fields' => [],
+            'description' => 'string',
+            'maxLength' => 'string',
+            'precision' => 'string',
+            'scale' => 'string',
+            'roundingMode' => 'ROUNDING_MODE_UNSPECIFIED',
+            'collation' => 'string',
+            'defaultValueExpression' => '',
         ];
 
+        $data = array_merge($data, $dataToExtend);
+
+        //@phpstan-ignore-next-line
         $column = BigqueryColumn::createFromDB($data);
         self::assertEquals('age', $column->getColumnName());
-        self::assertEquals($dataType, $column->getColumnDefinition()->getSQLDefinition());
+        self::assertEquals($expectedSqlDefinition, $column->getColumnDefinition()->getSQLDefinition());
         self::assertEquals($expectedType, $column->getColumnDefinition()->getType());
         self::assertEquals('', $column->getColumnDefinition()->getDefault());
         self::assertEquals($expectedLength, $column->getColumnDefinition()->getLength());
