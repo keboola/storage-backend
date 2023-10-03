@@ -84,12 +84,25 @@ message TableInfo {
 
 
   /**
-   * BigQuery table metadata
+   * Additional metadata retrieved from Bigquery table
+   * Structure is based on Bigquery REST API v2 https://cloud.google.com/bigquery/docs/reference/rest/v2/tables
    */
   message BigQueryTableMeta {
     keboola.storageDriver.backend.bigQuery.TimePartitioning timePartitioning = 1;
     keboola.storageDriver.backend.bigQuery.RangePartitioning rangePartitioning = 2;
     bool requirePartitionFilter = 3;
     keboola.storageDriver.backend.bigQuery.Clustering clustering = 4;
+    // list of partitions
+    repeated Partition partitions = 5;
+    /**
+     * Bigquery table partition detail based on INFORMATION_SCHEMA.PARTITIONS
+     * https://cloud.google.com/bigquery/docs/information-schema-partitions
+     */
+    message Partition {
+      string partition_id = 1;
+      string rowsNumber = 2;
+      string lastModifiedTime = 3;
+      string storageTier = 4;
+    }
   }
 }

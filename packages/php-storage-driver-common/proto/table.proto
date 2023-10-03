@@ -40,6 +40,10 @@ message CreateTableCommand {
   message SynapseTableMeta {
 
   }
+  /**
+   * Additional metadata used to create table in Bigquery
+   * Structure is based on Bigquery REST API v2 https://cloud.google.com/bigquery/docs/reference/rest/v2/tables
+   */
   message BigQueryTableMeta {
     keboola.storageDriver.backend.bigQuery.TimePartitioning timePartitioning = 1;
     keboola.storageDriver.backend.bigQuery.RangePartitioning rangePartitioning = 2;

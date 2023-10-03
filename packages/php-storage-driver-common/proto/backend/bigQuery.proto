@@ -2,11 +2,19 @@ syntax = "proto3";
 
 package keboola.storageDriver.backend.bigQuery;
 
+/**
+ * Based on Bigquery REST API v2
+ * https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#TimePartitioning
+ */
 message TimePartitioning {
   string type = 1;
   string expirationMs = 2;
   string field = 3;
 }
+/**
+ * Based on Bigquery REST API v2
+ * https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#rangepartitioning
+ */
 message RangePartitioning {
   string field = 1;
   Range range = 2;
@@ -17,6 +25,10 @@ message RangePartitioning {
   }
 }
 
+/**
+ * Based on Bigquery REST API v2
+ * https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#clustering
+ */
 message Clustering {
   repeated string fields = 1;
 }

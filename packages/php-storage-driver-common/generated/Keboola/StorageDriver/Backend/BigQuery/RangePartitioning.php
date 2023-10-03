@@ -9,6 +9,10 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Based on Bigquery REST API v2
+ * https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#rangepartitioning
+ *
  * Generated from protobuf message <code>keboola.storageDriver.backend.bigQuery.RangePartitioning</code>
  */
 class RangePartitioning extends \Google\Protobuf\Internal\Message

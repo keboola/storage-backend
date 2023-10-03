@@ -10,7 +10,8 @@ use Google\Protobuf\Internal\GPBUtil;
 
 /**
  **
- * BigQuery table metadata
+ * Additional metadata retrieved from Bigquery table
+ * Structure is based on Bigquery REST API v2 https://cloud.google.com/bigquery/docs/reference/rest/v2/tables
  *
  * Generated from protobuf message <code>keboola.storageDriver.command.info.TableInfo.BigQueryTableMeta</code>
  */
@@ -32,6 +33,12 @@ class BigQueryTableMeta extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.backend.bigQuery.Clustering clustering = 4;</code>
      */
     protected $clustering = null;
+    /**
+     * list of partitions
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableInfo.BigQueryTableMeta.Partition partitions = 5;</code>
+     */
+    private $partitions;
 
     /**
      * Constructor.
@@ -43,6 +50,8 @@ class BigQueryTableMeta extends \Google\Protobuf\Internal\Message
      *     @type \Keboola\StorageDriver\Backend\BigQuery\RangePartitioning $rangePartitioning
      *     @type bool $requirePartitionFilter
      *     @type \Keboola\StorageDriver\Backend\BigQuery\Clustering $clustering
+     *     @type array<\Keboola\StorageDriver\Command\Info\TableInfo\BigQueryTableMeta\Partition>|\Google\Protobuf\Internal\RepeatedField $partitions
+     *           list of partitions
      * }
      */
     public function __construct($data = NULL) {
@@ -164,6 +173,32 @@ class BigQueryTableMeta extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \Keboola\StorageDriver\Backend\BigQuery\Clustering::class);
         $this->clustering = $var;
+
+        return $this;
+    }
+
+    /**
+     * list of partitions
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableInfo.BigQueryTableMeta.Partition partitions = 5;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getPartitions()
+    {
+        return $this->partitions;
+    }
+
+    /**
+     * list of partitions
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.info.TableInfo.BigQueryTableMeta.Partition partitions = 5;</code>
+     * @param array<\Keboola\StorageDriver\Command\Info\TableInfo\BigQueryTableMeta\Partition>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setPartitions($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Info\TableInfo\BigQueryTableMeta\Partition::class);
+        $this->partitions = $arr;
 
         return $this;
     }
