@@ -127,6 +127,52 @@ class BigqueryTableReflection implements TableReflectionInterface
         $this->table->reload();
     }
 
+    public function getPartitioningConfiguration(): PartitioningConfig|null
+    {
+        $this->throwIfNotExists();
+        $info = $this->table->info();
+        $timePartitioning = null;
+        if (array_key_exists('timePartitioning', $info)) {
+            $data = $info['timePartitioning'];
+            $timePartitioning = new TimePartitioningConfig(
+                $data['type'],
+                $data['expirationMs'] ?? null,
+                $data['field'] ?? null
+            );
+        }
+        $rangePartitioning = null;
+        if (array_key_exists('rangePartitioning', $info)) {
+            $data = $info['rangePartitioning'];
+            $rangePartitioning = new RangePartitioningConfig(
+                $data['field'],
+                $data['range']['start'],
+                $data['range']['end'],
+                $data['range']['interval']
+            );
+        }
+
+        $requirePartitionFilter = false;
+        if (array_key_exists('requirePartitionFilter', $info)) {
+            $requirePartitionFilter = $info['requirePartitionFilter'];
+        }
+
+        return new PartitioningConfig(
+            $timePartitioning,
+            $rangePartitioning,
+            $requirePartitionFilter
+        );
+    }
+
+    public function getClusteringConfiguration(): ClusteringConfig|null
+    {
+        $this->throwIfNotExists();
+        $info = $this->table->info();
+        if (!array_key_exists('clustering', $info)) {
+            return null;
+        }
+        return new ClusteringConfig($info['clustering']['fields']);
+    }
+
     /**
      * @return Partition[]
      */

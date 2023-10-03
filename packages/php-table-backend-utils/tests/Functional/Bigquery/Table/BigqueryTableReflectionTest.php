@@ -9,6 +9,10 @@ use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use Keboola\TableBackendUtils\Table\Bigquery\ClusteringConfig;
+use Keboola\TableBackendUtils\Table\Bigquery\PartitioningConfig;
+use Keboola\TableBackendUtils\Table\Bigquery\RangePartitioningConfig;
+use Keboola\TableBackendUtils\Table\Bigquery\TimePartitioningConfig;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
@@ -428,5 +432,147 @@ SQL,
         )));
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
         $this->assertCount(1, $ref->getPartitionsList());
+    }
+
+    public function partitioningProvider(): Generator
+    {
+        yield 'Time simple' => [
+            'config' => [
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                ],
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                new TimePartitioningConfig(
+                    'DAY',
+                    null,
+                    null
+                ),
+                null,
+                false
+            ),
+            'expectedClustering' => null,
+        ];
+
+        yield 'Time field + expiration + filter' => [
+            'config' => [
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                    'field' => 'timestamp',
+                    'expirationMs' => '100000',
+                ],
+                'requirePartitionFilter' => true,
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                new TimePartitioningConfig(
+                    'DAY',
+                    '100000',
+                    'timestamp'
+                ),
+                null,
+                true
+            ),
+            'expectedClustering' => null,
+        ];
+
+        yield 'Range' => [
+            'config' => [
+                'rangePartitioning' => [
+                    'field' => 'id',
+                    'range' => [
+                        'start' => '1',
+                        'end' => '100',
+                        'interval' => '10',
+                    ],
+                ],
+                'requirePartitionFilter' => true,
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                null,
+                new RangePartitioningConfig(
+                    'id',
+                    '1',
+                    '100',
+                    '10'
+                ),
+                true
+            ),
+            'expectedClustering' => null,
+        ];
+
+        yield 'Clustering, both partitioning created, only range is created' => [
+            'config' => [
+                'rangePartitioning' => [
+                    'field' => 'id',
+                    'range' => [
+                        'start' => '1',
+                        'end' => '100',
+                        'interval' => '10',
+                    ],
+                ],
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                    'field' => 'timestamp',
+                    'expirationMs' => '100000',
+                ],
+                'clustering' => [
+                    'fields' => ['id', 'timestamp'],
+                ],
+                'requirePartitionFilter' => true,
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                null,
+                new RangePartitioningConfig(
+                    'id',
+                    '1',
+                    '100',
+                    '10'
+                ),
+                true
+            ),
+            'expectedClustering' => new ClusteringConfig(['id', 'timestamp']),
+        ];
+    }
+
+    /**
+     * @param array<mixed> $config
+     * @dataProvider partitioningProvider
+     */
+    public function testTableWithPartitioningConfig(
+        array $config,
+        ?PartitioningConfig $expectedPartitioning,
+        ?ClusteringConfig $expectedClustering
+    ): void {
+        $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
+        $options = [
+            'schema' => [
+                'fields' => [
+                    [
+                        'name' => 'id',
+                        'type' => 'INTEGER',
+                        'mode' => 'NULLABLE',
+                    ],
+                    [
+                        'name' => 'test',
+                        'type' => 'STRING',
+                        'mode' => 'NULLABLE',
+                        'maxLength' => '10',
+                    ],
+                    [
+                        'name' => 'timestamp',
+                        'type' => 'TIMESTAMP',
+                        'mode' => 'REQUIRED',
+                    ],
+                ],
+            ],
+        ];
+        $dataset->createTable(
+            'test-partitions',
+            array_merge($options, $config)
+        );
+
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
+        $this->assertEquals($expectedClustering, $ref->getClusteringConfiguration());
+        $this->assertEquals($expectedPartitioning, $ref->getPartitioningConfiguration());
     }
 }

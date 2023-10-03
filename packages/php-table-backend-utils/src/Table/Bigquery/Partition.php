@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Table\Bigquery;
 
+use Google\Cloud\BigQuery\Timestamp;
+
 final class Partition
 {
     public function __construct(
