@@ -375,4 +375,58 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             $this->assertSame('Table "notExisting" not found.', $e->getMessage());
         }
     }
+
+    public function testTableWithPartitioning(): void
+    {
+        $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
+        $dataset->createTable(
+            'test-partitions',
+            [
+                'schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'BIGNUMERIC',
+                            'mode' => 'NULLABLE',
+                        ],
+                        [
+                            'name' => 'test',
+                            'type' => 'STRING',
+                            'mode' => 'NULLABLE',
+                            'maxLength' => '10',
+                        ],
+                    ],
+                ],
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                    'expirationMs' => null,
+                    'field' => null,
+                ],
+                'rangePartitioning' => null,
+                'clustering' => [
+                    'fields' => [
+                        'test',
+                        'id',
+                    ],
+                ],
+                'requirePartitionFilter' => false,
+            ]
+        );
+
+        $rows = [];
+        foreach (range(1, 100) as $row) {
+            $rows[] = sprintf('(%d,\'test\')', $row);
+        }
+
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            <<<SQL
+INSERT %s.%s (`id`,`test`) VALUES %s;
+SQL,
+            BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            BigqueryQuote::quoteSingleIdentifier('test-partitions'),
+            implode(',', $rows)
+        )));
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
+        $this->assertCount(1, $ref->getPartitionsList());
+    }
 }
