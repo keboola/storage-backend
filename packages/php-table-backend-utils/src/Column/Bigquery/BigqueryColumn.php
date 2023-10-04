@@ -6,6 +6,7 @@ namespace Keboola\TableBackendUtils\Column\Bigquery;
 
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Datatype\Definition\DefinitionInterface;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\RESTtoSQLDatatypeConverter;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 
 /**
@@ -67,7 +68,7 @@ class BigqueryColumn implements ColumnInterface
     {
         return new self(
             $dbResponse['name'],
-            RESTtoSQLDatatypeConverter::createFromDB($dbResponse)
+            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat($dbResponse)
         );
     }
 }
