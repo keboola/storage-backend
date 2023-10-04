@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Keboola\TableBackendUtils\Column\Bigquery;
+namespace Keboola\TableBackendUtils\Column\Bigquery\Parser;
 
 use Exception;
 use Keboola\Datatype\Definition\Bigquery;
@@ -12,11 +12,37 @@ use Keboola\Datatype\Definition\Bigquery;
  */
 final class RESTtoSQLDatatypeConverter
 {
+    /**
+     * @phpstan-param BigqueryTableFieldSchema $dbResponse
+     */
+    public static function convertColumnToSQLFormat(array $dbResponse): Bigquery
+    {
+        $type = self::getType($dbResponse['type']);
+        if (self::isRepeated($dbResponse)) {
+            $type = Bigquery::TYPE_ARRAY;
+        }
+        $default = $dbResponse['defaultValueExpression'] ?? null;
+        $length = self::getTypeLength($type, $dbResponse);
+
+        /** @var array{length?:string|null, nullable?:bool, default?:string|null} $options */
+        $options = [
+            'nullable' => self::isNullable($dbResponse),
+            'length' => $length,
+            'default' => $default,
+        ];
+        return new Bigquery(
+            $type,
+            $options
+        );
+    }
+
+    /**
+     * Convert types returned by api to valid types for BQ
+     * tables can't be created with this types
+     */
     private static function getType(string $type): string
     {
         return match ($type) {
-            // convert types returned by api to valid types for BQ
-            // tables can't be created with this types
             'FLOAT' => Bigquery::TYPE_FLOAT64,
             'BOOLEAN' => Bigquery::TYPE_BOOL,
             'RECORD' => Bigquery::TYPE_STRUCT,
@@ -25,8 +51,32 @@ final class RESTtoSQLDatatypeConverter
     }
 
     /**
+     * Returns type length as string for Bigquery datatype from php-datatypes
+     *
      * @phpstan-param BigqueryTableFieldSchema $dbResponse
-     * return precision,scale in format used in php-datatype as string
+     */
+    private static function getTypeLength(string $type, array $dbResponse): ?string
+    {
+        return match ($type) {
+            Bigquery::TYPE_BYTES, Bigquery::TYPE_STRING => $dbResponse['maxLength'] ?? null,
+            Bigquery::TYPE_NUMERIC, Bigquery::TYPE_BIGNUMERIC => self::getLengthForNumber($dbResponse),
+            Bigquery::TYPE_ARRAY, Bigquery::TYPE_STRUCT => self::getRecordTypeLength($dbResponse, true),
+            default => null
+        };
+    }
+
+    /**
+     * @phpstan-param BigqueryTableFieldSchema $dbResponse
+     */
+    private static function isNullable(array $dbResponse): bool
+    {
+        return array_key_exists('mode', $dbResponse) ? $dbResponse['mode'] !== 'REQUIRED' : true;
+    }
+
+    /**
+     * Returns precision,scale in format used in php-datatypes as string
+     *
+     * @phpstan-param BigqueryTableFieldSchema $dbResponse
      */
     private static function getLengthForNumber(array $dbResponse): string
     {
@@ -122,58 +172,13 @@ final class RESTtoSQLDatatypeConverter
     /**
      * @phpstan-param BigqueryTableFieldSchema $dbResponse
      */
-    private static function getTypeLength(mixed $type, array $dbResponse): mixed
-    {
-        return match ($type) {
-            Bigquery::TYPE_BYTES, Bigquery::TYPE_STRING => $dbResponse['maxLength'] ?? null,
-            Bigquery::TYPE_NUMERIC, Bigquery::TYPE_BIGNUMERIC => self::getLengthForNumber($dbResponse),
-            Bigquery::TYPE_ARRAY, Bigquery::TYPE_STRUCT => self::getRecordTypeLength($dbResponse, true),
-            default => null
-        };
-    }
-
-    /**
-     * @phpstan-param BigqueryTableFieldSchema $dbResponse
-     */
     private static function isRepeated(array $dbResponse): bool
     {
         return array_key_exists('mode', $dbResponse) && $dbResponse['mode'] === 'REPEATED';
     }
 
-    /**
-     * @phpstan-param BigqueryTableFieldSchema $dbResponse
-     */
-    public static function createFromDB(array $dbResponse): Bigquery
-    {
-        $type = self::getType($dbResponse['type']);
-        if (self::isRepeated($dbResponse)) {
-            $type = Bigquery::TYPE_ARRAY;
-        }
-        $default = $dbResponse['defaultValueExpression'] ?? null;
-        $length = self::getTypeLength($type, $dbResponse);
-
-        /** @var array{length?:string|null, nullable?:bool, default?:string|null} $options */
-        $options = [
-            'nullable' => self::isNullable($dbResponse),
-            'length' => $length,
-            'default' => $default,
-        ];
-        return new Bigquery(
-            $type,
-            $options
-        );
-    }
-
     private static function isStruct(string $type): bool
     {
         return $type === 'RECORD';
-    }
-
-    /**
-     * @phpstan-param BigqueryTableFieldSchema $dbResponse
-     */
-    private static function isNullable(array $dbResponse): bool
-    {
-        return array_key_exists('mode', $dbResponse) ? $dbResponse['mode'] !== 'REQUIRED' : true;
     }
 }
