@@ -6,8 +6,12 @@ namespace Keboola\TableBackendUtils\Column\Bigquery;
 
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Datatype\Definition\DefinitionInterface;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\RESTtoSQLDatatypeConverter;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 
+/**
+ * @phpstan-import-type BigqueryTableFieldSchema from Bigquery
+ */
 class BigqueryColumn implements ColumnInterface
 {
     private string $columnName;
@@ -58,48 +62,13 @@ class BigqueryColumn implements ColumnInterface
     }
 
     /**
-     * @param array{
-     *  table_catalog: string,
-     *  table_schema: string,
-     *  table_name: string,
-     *  column_name: string,
-     *  ordinal_position: int,
-     *  is_nullable: string,
-     *  data_type: string,
-     *  is_hidden: string,
-     *  is_system_defined: string,
-     *  is_partitioning_column: string,
-     *  clustering_ordinal_position: ?string,
-     *  collation_name: string,
-     *  column_default: string,
-     *  rounding_mode: ?string,
-     * } $dbResponse
+     * @phpstan-param BigqueryTableFieldSchema $dbResponse
      */
     public static function createFromDB(array $dbResponse): BigqueryColumn
     {
-        $type = $dbResponse['data_type'];
-        $default = $dbResponse['column_default'] === 'NULL' ? null : $dbResponse['column_default'];
-        $length = null;
-        $matches = [];
-        if (preg_match('/([a-z]+)\<([A-Za-z(A-Za-z_\,0-9)<> ]+)\>/ui', $dbResponse['data_type'], $matches)) {
-            $type = $matches[1];
-            $length = $matches[2];
-        } else {
-            if (preg_match('/^(\w+)\(([0-9\, ]+)\)$/ui', $dbResponse['data_type'], $matches)) {
-                $type = $matches[1];
-                $length = str_replace(' ', '', $matches[2]);
-            }
-        }
-
-        /** @var array{length?:string|null, nullable?:bool, default?:string|null} $options */
-        $options = [
-            'nullable' => $dbResponse['is_nullable'] === 'YES',
-            'length' => $length,
-            'default' => $default,
-        ];
-        return new self($dbResponse['column_name'], new Bigquery(
-            $type,
-            $options
-        ));
+        return new self(
+            $dbResponse['name'],
+            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat($dbResponse)
+        );
     }
 }

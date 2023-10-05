@@ -9,6 +9,10 @@ use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use Keboola\TableBackendUtils\Table\Bigquery\ClusteringConfig;
+use Keboola\TableBackendUtils\Table\Bigquery\PartitioningConfig;
+use Keboola\TableBackendUtils\Table\Bigquery\RangePartitioningConfig;
+use Keboola\TableBackendUtils\Table\Bigquery\TimePartitioningConfig;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
@@ -78,6 +82,46 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
      */
     public function tableColsDataProvider(): Generator
     {
+        yield 'ARRAY simple' => [
+            'ARRAY<INT64>',
+            // sql which goes to table
+            'ARRAY<INTEGER>',
+            // expected sql from getSQLDefinition
+            'ARRAY', // expected type from db
+            null, // default
+            'INTEGER', // length
+            true, // nullable
+        ];
+        yield 'ARRAY complex' => [
+            'ARRAY<STRUCT<x ARRAY<STRUCT<x_z ARRAY<INT64>,x_v INT64>>,t STRUCT<h INT64>, m NUMERIC(12)>>',
+            // sql which goes to table
+            'ARRAY<STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)>>',
+            // expected sql from getSQLDefinition
+            'ARRAY', // expected type from db
+            null, // default
+            'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)>', // length
+            true, // nullable
+        ];
+        yield 'STRUCT simple' => [
+            'STRUCT<x INTEGER>',
+            // sql which goes to table
+            'STRUCT<x INTEGER>',
+            // expected sql from getSQLDefinition
+            'STRUCT', // expected type from db
+            null, // default
+            'x INTEGER', // length
+            true, // nullable
+        ];
+        yield 'STRUCT complex' => [
+            'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INT64>,x_v INT64>>,t STRUCT<h INT64>, m NUMERIC(12)>',
+            // sql which goes to table
+            'STRUCT<x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)>',
+            // expected sql from getSQLDefinition
+            'STRUCT', // expected type from db
+            null, // default
+            'x ARRAY<STRUCT<x_z ARRAY<INTEGER>,x_v INTEGER>>,t STRUCT<h INTEGER>,m NUMERIC(12)', // length
+            true, // nullable
+        ];
         yield 'DECIMAL' => [
             'DECIMAL(29,0)', // sql which goes to table
             'NUMERIC(29)', // expected sql from getSQLDefinition
@@ -85,6 +129,14 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             null, // default
             '29', // length
             true, // nullable
+        ];
+        yield 'DECIMAL NOT NULL' => [
+            'DECIMAL(29,0) NOT NULL', // sql which goes to table
+            'NUMERIC(29) NOT NULL', // expected sql from getSQLDefinition
+            'NUMERIC', // expected type from db
+            null, // default
+            '29', // length
+            false, // nullable
         ];
         yield 'NUMERIC' => [
             'NUMERIC(30,2)', // sql which goes to table
@@ -112,48 +164,48 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         ];
         yield 'INT' => [
             'INT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'INTEGER' => [
             'INTEGER', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'BIGINT' => [
             'BIGINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'SMALLINT' => [
             'SMALLINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'TINYINT' => [
             'TINYINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
         ];
         yield 'BYTEINT' => [
             'BYTEINT', // sql which goes to table
-            'INT64', // expected sql from getSQLDefinition
-            'INT64', // expected type from db
+            'INTEGER', // expected sql from getSQLDefinition
+            'INTEGER', // expected type from db
             null, // default
             null, // length
             true, // nullable
@@ -268,6 +320,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 1, 'lojza', 'lopata');
         $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, 2, 'karel', 'motycka');
 
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
         /** @var TableStats $stats2 */
         $stats2 = $ref->getTableStats();
         self::assertEquals(2, $stats2->getRowsCount());
@@ -286,6 +339,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         foreach ($data as $item) {
             $this->insertRowToTable(self::TEST_SCHEMA, self::TABLE_GENERIC, ...$item);
         }
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertEquals(2, $ref->getRowsCount());
     }
 
@@ -324,5 +378,201 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         } catch (TableNotExistsReflectionException $e) {
             $this->assertSame('Table "notExisting" not found.', $e->getMessage());
         }
+    }
+
+    public function testTableWithPartitioning(): void
+    {
+        $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
+        $dataset->createTable(
+            'test-partitions',
+            [
+                'schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'BIGNUMERIC',
+                            'mode' => 'NULLABLE',
+                        ],
+                        [
+                            'name' => 'test',
+                            'type' => 'STRING',
+                            'mode' => 'NULLABLE',
+                            'maxLength' => '10',
+                        ],
+                    ],
+                ],
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                    'expirationMs' => null,
+                    'field' => null,
+                ],
+                'rangePartitioning' => null,
+                'clustering' => [
+                    'fields' => [
+                        'test',
+                        'id',
+                    ],
+                ],
+                'requirePartitionFilter' => false,
+            ]
+        );
+
+        $rows = [];
+        foreach (range(1, 100) as $row) {
+            $rows[] = sprintf('(%d,\'test\')', $row);
+        }
+
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            <<<SQL
+INSERT %s.%s (`id`,`test`) VALUES %s;
+SQL,
+            BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            BigqueryQuote::quoteSingleIdentifier('test-partitions'),
+            implode(',', $rows)
+        )));
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
+        $this->assertCount(1, $ref->getPartitionsList());
+    }
+
+    public function partitioningProvider(): Generator
+    {
+        yield 'Time simple' => [
+            'config' => [
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                ],
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                new TimePartitioningConfig(
+                    'DAY',
+                    null,
+                    null
+                ),
+                null,
+                false
+            ),
+            'expectedClustering' => null,
+        ];
+
+        yield 'Time field + expiration + filter' => [
+            'config' => [
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                    'field' => 'timestamp',
+                    'expirationMs' => '100000',
+                ],
+                'requirePartitionFilter' => true,
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                new TimePartitioningConfig(
+                    'DAY',
+                    '100000',
+                    'timestamp'
+                ),
+                null,
+                true
+            ),
+            'expectedClustering' => null,
+        ];
+
+        yield 'Range' => [
+            'config' => [
+                'rangePartitioning' => [
+                    'field' => 'id',
+                    'range' => [
+                        'start' => '1',
+                        'end' => '100',
+                        'interval' => '10',
+                    ],
+                ],
+                'requirePartitionFilter' => true,
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                null,
+                new RangePartitioningConfig(
+                    'id',
+                    '1',
+                    '100',
+                    '10'
+                ),
+                true
+            ),
+            'expectedClustering' => null,
+        ];
+
+        yield 'Clustering, both partitioning created, only range is created' => [
+            'config' => [
+                'rangePartitioning' => [
+                    'field' => 'id',
+                    'range' => [
+                        'start' => '1',
+                        'end' => '100',
+                        'interval' => '10',
+                    ],
+                ],
+                'timePartitioning' => [
+                    'type' => 'DAY',
+                    'field' => 'timestamp',
+                    'expirationMs' => '100000',
+                ],
+                'clustering' => [
+                    'fields' => ['id', 'timestamp'],
+                ],
+                'requirePartitionFilter' => true,
+            ],
+            'expectedPartitioning' => new PartitioningConfig(
+                null,
+                new RangePartitioningConfig(
+                    'id',
+                    '1',
+                    '100',
+                    '10'
+                ),
+                true
+            ),
+            'expectedClustering' => new ClusteringConfig(['id', 'timestamp']),
+        ];
+    }
+
+    /**
+     * @param array<mixed> $config
+     * @dataProvider partitioningProvider
+     */
+    public function testTableWithPartitioningConfig(
+        array $config,
+        ?PartitioningConfig $expectedPartitioning,
+        ?ClusteringConfig $expectedClustering
+    ): void {
+        $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
+        $options = [
+            'schema' => [
+                'fields' => [
+                    [
+                        'name' => 'id',
+                        'type' => 'INTEGER',
+                        'mode' => 'NULLABLE',
+                    ],
+                    [
+                        'name' => 'test',
+                        'type' => 'STRING',
+                        'mode' => 'NULLABLE',
+                        'maxLength' => '10',
+                    ],
+                    [
+                        'name' => 'timestamp',
+                        'type' => 'TIMESTAMP',
+                        'mode' => 'REQUIRED',
+                    ],
+                ],
+            ],
+        ];
+        $dataset->createTable(
+            'test-partitions',
+            array_merge($options, $config)
+        );
+
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
+        $this->assertEquals($expectedClustering, $ref->getClusteringConfiguration());
+        $this->assertEquals($expectedPartitioning, $ref->getPartitioningConfiguration());
     }
 }

@@ -244,7 +244,7 @@ class BigqueryDatatypeTest extends TestCase
             ];
             $tests[] = [
                 $type,
-                ['default' => '',  'nullable' => false],
+                ['default' => '', 'nullable' => false],
                 $type . ' NOT NULL',
             ];
             $tests[] = [
@@ -379,5 +379,20 @@ class BigqueryDatatypeTest extends TestCase
         }
         new Bigquery($type, $options);
         $this->expectNotToPerformAssertions();
+    }
+
+    public function testFieldAsArray(): void
+    {
+        $def = new Bigquery('ARRAY', [
+            'fieldAsArray' => [
+                'name' => 'test',
+                'type' => 'STRING',
+            ],
+        ]);
+
+        $this->assertSame([
+            'name' => 'test',
+            'type' => 'STRING',
+        ], $def->getFieldAsArray());
     }
 }

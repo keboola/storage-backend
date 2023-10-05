@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Table\Bigquery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Google\Cloud\BigQuery\Table;
+use Google\Cloud\BigQuery\Timestamp;
+use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
@@ -15,99 +18,53 @@ use Keboola\TableBackendUtils\Table\TableStatsInterface;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use LogicException;
 
+/**
+ * @phpstan-import-type BigqueryTableFieldSchema from Bigquery
+ */
 class BigqueryTableReflection implements TableReflectionInterface
 {
-    private BigQueryClient $bqClient;
-
-    private string $datasetName;
-
-    private string $tableName;
+    private Table $table;
 
     private bool $isTemporary = false;
 
-    public function __construct(BigQueryClient $bqClient, string $datasetName, string $tableName)
+    public function __construct(
+        private readonly BigQueryClient $bqClient,
+        private readonly string $datasetName,
+        private readonly string $tableName
+    ) {
+        $this->table = $bqClient->dataset($this->datasetName)->table($this->tableName);
+    }
+
+    private function throwIfNotExists(): void
     {
-        $this->tableName = $tableName;
-        $this->datasetName = $datasetName;
-        $this->bqClient = $bqClient;
+        if ($this->exists() === false) {
+            throw new TableNotExistsReflectionException(sprintf('Table "%s" not found.', $this->tableName));
+        }
     }
 
     /** @return  string[] */
     public function getColumnsNames(): array
     {
-        if ($this->exists() === false) {
-            throw new TableNotExistsReflectionException(sprintf('Table "%s" not found.', $this->tableName));
-        }
-        $query = $this->bqClient->query(
-            sprintf(
-                'SELECT column_name FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
-                BigqueryQuote::quoteSingleIdentifier($this->datasetName),
-                BigqueryQuote::quote($this->tableName)
-            )
-        );
-        $queryResults = $this->bqClient->runQuery($query);
+        $this->throwIfNotExists();
 
         $columns = [];
         /**
-         * @var array{
-         *  table_catalog: string,
-         *  table_schema: string,
-         *  table_name: string,
-         *  column_name: string,
-         *  ordinal_position: int,
-         *  is_nullable: string,
-         *  data_type: string,
-         *  is_hidden: string,
-         *  is_system_defined: string,
-         *  is_partitioning_column: string,
-         *  clustering_ordinal_position: ?string,
-         *  collation_name: string,
-         *  column_default: string,
-         *  rounding_mode: ?string,
-         * } $row
+         * @phpstan-var BigqueryTableFieldSchema $row
          */
-        foreach ($queryResults as $row) {
-            $columns[] = $row['column_name'];
+        foreach ($this->table->info()['schema']['fields'] as $row) {
+            $columns[] = $row['name'];
         }
         return $columns;
     }
 
     public function getColumnsDefinitions(): ColumnCollection
     {
-        if ($this->exists() === false) {
-            throw new TableNotExistsReflectionException(sprintf('Table "%s" not found.', $this->tableName));
-        }
-        $query = $this->bqClient->query(
-            sprintf(
-                'SELECT * EXCEPT(is_generated, generation_expression, is_stored, is_updatable) 
-FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
-                BigqueryQuote::quoteSingleIdentifier($this->datasetName),
-                BigqueryQuote::quote($this->tableName)
-            )
-        );
-
-        $queryResults = $this->bqClient->runQuery($query);
-
+        $this->throwIfNotExists();
         $columns = [];
         /**
-         * @var array{
-         *  table_catalog: string,
-         *  table_schema: string,
-         *  table_name: string,
-         *  column_name: string,
-         *  ordinal_position: int,
-         *  is_nullable: string,
-         *  data_type: string,
-         *  is_hidden: string,
-         *  is_system_defined: string,
-         *  is_partitioning_column: string,
-         *  clustering_ordinal_position: ?string,
-         *  collation_name: string,
-         *  column_default: string,
-         *  rounding_mode: ?string,
-         * } $row
+         * @phpstan-var BigqueryTableFieldSchema $row
          */
-        foreach ($queryResults as $row) {
+        foreach ($this->table->info()['schema']['fields'] as $row) {
             $columns[] = BigqueryColumn::createFromDB($row);
         }
 
@@ -116,20 +73,8 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
 
     public function getRowsCount(): int
     {
-        if ($this->exists() === false) {
-            throw new TableNotExistsReflectionException(sprintf('Table "%s" not found.', $this->tableName));
-        }
-        $query = $this->bqClient->query(sprintf(
-            'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
-            BigqueryQuote::quoteSingleIdentifier($this->datasetName),
-            BigqueryQuote::quoteSingleIdentifier($this->tableName)
-        ));
-
-        $result = $this->bqClient->runQuery($query);
-
-        /** @var array<string, string> $current */
-        $current = $result->getIterator()->current();
-        return (int) $current['NumberOfRows'];
+        $this->throwIfNotExists();
+        return (int) $this->table->info()['numRows'];
     }
 
     /** @return  array<string> */
@@ -140,20 +85,8 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
 
     public function getTableStats(): TableStatsInterface
     {
-        $sql = sprintf(
-            'SELECT size_bytes FROM %s.__TABLES__ WHERE table_id=%s',
-            BigqueryQuote::quoteSingleIdentifier($this->datasetName),
-            BigqueryQuote::quote($this->tableName)
-        );
-        $result = $this->bqClient->runQuery($this->bqClient->query($sql));
-
-        /** @var array<string, string>|null $current */
-        $current = $result->getIterator()->current();
-        if ($current === null) {
-            throw new TableNotExistsReflectionException('Table does not exist');
-        }
-
-        return new TableStats((int) $current['size_bytes'], $this->getRowsCount());
+        $this->throwIfNotExists();
+        return new TableStats((int) $this->table->info()['numBytes'], $this->getRowsCount());
     }
 
     public function isTemporary(): bool
@@ -186,6 +119,92 @@ FROM %s.INFORMATION_SCHEMA.COLUMNS WHERE table_name = %s',
 
     public function exists(): bool
     {
-        return $this->bqClient->dataset($this->datasetName)->table($this->tableName)->exists();
+        return $this->table->exists();
+    }
+
+    public function refresh(): void
+    {
+        $this->table->reload();
+    }
+
+    public function getPartitioningConfiguration(): PartitioningConfig|null
+    {
+        $this->throwIfNotExists();
+        $info = $this->table->info();
+        $timePartitioning = null;
+        if (array_key_exists('timePartitioning', $info)) {
+            $data = $info['timePartitioning'];
+            $timePartitioning = new TimePartitioningConfig(
+                $data['type'],
+                $data['expirationMs'] ?? null,
+                $data['field'] ?? null
+            );
+        }
+        $rangePartitioning = null;
+        if (array_key_exists('rangePartitioning', $info)) {
+            $data = $info['rangePartitioning'];
+            $rangePartitioning = new RangePartitioningConfig(
+                $data['field'],
+                $data['range']['start'],
+                $data['range']['end'],
+                $data['range']['interval']
+            );
+        }
+
+        $requirePartitionFilter = false;
+        if (array_key_exists('requirePartitionFilter', $info)) {
+            $requirePartitionFilter = $info['requirePartitionFilter'];
+        }
+
+        return new PartitioningConfig(
+            $timePartitioning,
+            $rangePartitioning,
+            $requirePartitionFilter
+        );
+    }
+
+    public function getClusteringConfiguration(): ClusteringConfig|null
+    {
+        $this->throwIfNotExists();
+        $info = $this->table->info();
+        if (!array_key_exists('clustering', $info)) {
+            return null;
+        }
+        return new ClusteringConfig($info['clustering']['fields']);
+    }
+
+    /**
+     * @return Partition[]
+     */
+    public function getPartitionsList(): array
+    {
+        $this->throwIfNotExists();
+        $query = $this->bqClient->query(sprintf(
+            'SELECT * FROM %s.INFORMATION_SCHEMA.PARTITIONS WHERE table_name = %s',
+            BigqueryQuote::quoteSingleIdentifier($this->datasetName),
+            BigqueryQuote::quote($this->tableName)
+        ));
+
+        $result = $this->bqClient->runQuery($query);
+
+        $partitions = [];
+        /**
+         * @var array{
+         *      partition_id: string,
+         *      total_rows: int,
+         *      last_modified_time: Timestamp,
+         *      storage_tier: string
+         *  } $partition
+         */
+        foreach ($result as $partition) {
+            $partitions[] = new Partition(
+                $partition['partition_id'],
+                (string) $partition['total_rows'],
+                (string) $partition['last_modified_time'],
+                $partition['storage_tier'],
+            );
+        }
+
+        return $partitions;
     }
 }

@@ -483,6 +483,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             $sql
         );
         $this->bqClient->runQuery($this->bqClient->query($sql));
+        $ref->refresh();
         self::assertEquals(0, $ref->getRowsCount());
     }
 
