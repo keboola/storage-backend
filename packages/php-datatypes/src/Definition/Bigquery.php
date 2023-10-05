@@ -28,6 +28,7 @@ use LogicException;
  *   defaultValueExpression?: string
  *  }
  * structure returned by BQ REST API, fields is recursive but this is not supported by phpstan
+ * Table schema docs: https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#TableSchema
  */
 class Bigquery extends Common
 {

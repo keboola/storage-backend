@@ -7,17 +7,14 @@ namespace Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens;
 use ArrayIterator;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\ComplexTypeTokenizer;
 
-class InternalTokenWithNested
+class TokenizerNestedToken extends TokenizerToken
 {
-    public string $type = ComplexTypeTokenizer::T_NESTED;
-
-    public string $token = 'nested';
-
     /**
-     * @param ArrayIterator<int, InternalToken|InternalTokenWithNested> $nested
+     * @param ArrayIterator<int, TokenizerToken|TokenizerNestedToken> $nested
      */
     public function __construct(
         public readonly ArrayIterator $nested,
     ) {
+        parent::__construct(ComplexTypeTokenizer::T_NESTED, 'nested');
     }
 }

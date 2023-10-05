@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens;
 
-class InternalTokenWithLevel
+class TokenizerTokenWithLevel extends TokenizerToken
 {
     public function __construct(
-        public readonly string $type,
-        public readonly string $token,
+        string $type,
+        string $token,
         public readonly int $level,
     ) {
+        parent::__construct($type, $token);
     }
 }

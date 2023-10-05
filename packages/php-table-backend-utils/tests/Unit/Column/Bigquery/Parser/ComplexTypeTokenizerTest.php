@@ -7,8 +7,8 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column\Bigquery\Parser;
 use ArrayIterator;
 use Generator;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\ComplexTypeTokenizer;
-use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\InternalToken;
-use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\InternalTokenWithNested;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerNestedToken;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerToken;
 use PHPUnit\Framework\TestCase;
 
 class ComplexTypeTokenizerTest extends TestCase
@@ -232,7 +232,7 @@ class ComplexTypeTokenizerTest extends TestCase
     }
 
     /**
-     * @param ArrayIterator<int, InternalToken|InternalTokenWithNested> $tokens
+     * @param ArrayIterator<int, TokenizerToken|TokenizerNestedToken> $tokens
      * @return array<mixed>
      */
     private function recursiveIteratorToArray(ArrayIterator $tokens): array
@@ -247,12 +247,12 @@ class ComplexTypeTokenizerTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private function tokenToArray(InternalToken|InternalTokenWithNested $token): array
+    private function tokenToArray(TokenizerToken|TokenizerNestedToken $token): array
     {
         $res = [
             'type' => $token->type,
         ];
-        if ($token instanceof InternalTokenWithNested) {
+        if ($token instanceof TokenizerNestedToken) {
             $res['nested'] = $this->recursiveIteratorToArray($token->nested);
         } else {
             $res['token'] = $token->token;

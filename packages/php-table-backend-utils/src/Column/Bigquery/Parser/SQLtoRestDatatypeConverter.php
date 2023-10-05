@@ -7,18 +7,26 @@ namespace Keboola\TableBackendUtils\Column\Bigquery\Parser;
 use ArrayIterator;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
-use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\InternalToken;
-use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\InternalTokenWithNested;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerNestedToken;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerToken;
 use RuntimeException;
 
 /**
  * @phpstan-import-type BigqueryTableFieldSchema from Bigquery
+ *
+ * Class can convert BigqueryColumn defition to Bigquery REST API schema
+ * REST API schema is defined by custom type Bigquery::BigqueryTableFieldSchema
  */
 final class SQLtoRestDatatypeConverter
 {
     /**
      * @phpstan-param array{type: string,name:string}|BigqueryTableFieldSchema $schema
      * @phpstan-return BigqueryTableFieldSchema
+     *
+     * Function will set REST api format for length of column
+     * - maxLength
+     * - precision
+     * - scale
      */
     private static function updateSchemaLength(?string $length, array $schema): array
     {
@@ -46,19 +54,22 @@ final class SQLtoRestDatatypeConverter
 
     /**
      * @phpstan-param array{name?:string}|BigqueryTableFieldSchema $schema
-     * @phpstan-param ArrayIterator<int, InternalToken|InternalTokenWithNested> $tokens
+     * @phpstan-param ArrayIterator<int, TokenizerToken|TokenizerNestedToken> $tokens
      * @phpstan-return array<mixed>|BigqueryTableFieldSchema
+     *
+     * Recursive funtion to convert tokenized SQL definition to REST API schema
      */
     private static function convertTokenToSchema(
-        InternalTokenWithNested|InternalToken $token,
+        TokenizerNestedToken|TokenizerToken $token,
         array $schema,
         ArrayIterator $tokens
     ): array {
         if ($token->type === ComplexTypeTokenizer::T_NAME) {
+            // handle T_NAME name of column
             $schema['name'] = $token->token;
             // set point to next which is always type after name
             $tokens->next();
-            /** @var InternalToken $typeToken */
+            /** @var TokenizerToken $typeToken */
             $typeToken = $tokens->current();
             if ($typeToken->type === ComplexTypeTokenizer::T_TYPE) {
                 $schema = self::convertTokenToSchema($typeToken, $schema, $tokens);
@@ -73,17 +84,18 @@ final class SQLtoRestDatatypeConverter
         }
 
         if ($token->type === ComplexTypeTokenizer::T_TYPE) {
+            // handle T_TYPE datatype of column
             $schema['type'] = $token->token;
             if ($token->token === 'ARRAY') {
                 // REPEATED can be RECORD or TYPE
                 $schema['mode'] = 'REPEATED';
                 $tokens->next();
                 // set pointer to next token which is always NESTED `ARRAY<TYPE>`
-                /** @var InternalToken|InternalTokenWithNested $arrayTokenNested */
+                /** @var TokenizerToken|TokenizerNestedToken $arrayTokenNested */
                 $arrayTokenNested = $tokens->current();
                 assert(
-                    $arrayTokenNested instanceof InternalTokenWithNested,
-                    sprintf('Expected class "%s" got "%s"', InternalTokenWithNested::class, $arrayTokenNested::class)
+                    $arrayTokenNested instanceof TokenizerNestedToken,
+                    sprintf('Expected class "%s" got "%s"', TokenizerNestedToken::class, $arrayTokenNested::class)
                 );
                 $nestedTokens = $arrayTokenNested->nested;
                 $firstNestedToken = $nestedTokens->current();
@@ -94,14 +106,15 @@ final class SQLtoRestDatatypeConverter
                 $schema['fields'] = [];
                 // set pointer to next token which is always NESTED for STRUCT
                 $tokens->next();
-                /** @var InternalToken|InternalTokenWithNested $structNested */
+                /** @var TokenizerToken|TokenizerNestedToken $structNested */
                 $structNested = $tokens->current();
                 assert(
-                    $structNested instanceof InternalTokenWithNested,
-                    sprintf('Expected class "%s" got "%s"', InternalTokenWithNested::class, $structNested::class)
+                    $structNested instanceof TokenizerNestedToken,
+                    sprintf('Expected class "%s" got "%s"', TokenizerNestedToken::class, $structNested::class)
                 );
                 foreach ($structNested->nested as $nestedToken) {
                     if ($nestedToken->type !== ComplexTypeTokenizer::T_NAME) {
+                        // each STRUCT field must start with T_NAME
                         continue;
                     }
                     $schema['fields'][] = self::convertTokenToSchema($nestedToken, [], $structNested->nested);
@@ -110,12 +123,14 @@ final class SQLtoRestDatatypeConverter
                 // other types than complex STRUCT or ARRAY
                 $tokens->next();
                 if ($tokens->valid()) {
-                    /** @var InternalToken $lengthToken */
+                    /** @var TokenizerToken $lengthToken */
                     $lengthToken = $tokens->current();
                     if ($lengthToken->type === ComplexTypeTokenizer::T_LENGTH) {
+                        // if next token is T_LENGTH then update schema length
                         /** @phpstan-ignore-next-line */
                         $schema = self::updateSchemaLength($lengthToken->token, $schema);
                     } elseif ($lengthToken->type === ComplexTypeTokenizer::T_FIELD_DELIMITER) {
+                        // if next token is `,` T_FIELD_DELIMITER then end to start another loop with next field
                         return $schema;
                     } else {
                         throw new RuntimeException(sprintf(
@@ -130,6 +145,7 @@ final class SQLtoRestDatatypeConverter
             return $schema;
         }
         if ($token->type === ComplexTypeTokenizer::T_FIELD_DELIMITER) {
+            // if next token is `,` T_FIELD_DELIMITER then end to start another loop with next field
             return $schema;
         }
         throw new RuntimeException(sprintf(
