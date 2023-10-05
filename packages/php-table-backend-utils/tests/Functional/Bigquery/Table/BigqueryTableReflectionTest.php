@@ -7,6 +7,8 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Bigquery\Table;
 use Generator;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\RESTtoSQLDatatypeConverter;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\SQLtoRestDatatypeConverter;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\Bigquery\ClusteringConfig;
@@ -75,6 +77,19 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         self::assertEquals($expectedType, $definition->getType(), 'type doesnt match');
         self::assertEquals($expectedNullable, $definition->isNullable(), 'nullable flag doesnt match');
         self::assertEquals($expectedSqlDefinition, $definition->getSQLDefinition(), 'SQL definition doesnt match');
+
+        // check that SQLtoRestDatatypeConverter returns same definition as BQ REST API
+        self::assertEquals(
+            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
+                $this->bqClient
+                    ->dataset(self::TEST_SCHEMA)
+                    ->table(self::TABLE_GENERIC)
+                    ->info()['schema']['fields'][1]
+            ),
+            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
+                SQLtoRestDatatypeConverter::convertColumnToRestFormat($column)
+            )
+        );
     }
 
     /**
@@ -135,6 +150,14 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             'NUMERIC(29) NOT NULL', // expected sql from getSQLDefinition
             'NUMERIC', // expected type from db
             null, // default
+            '29', // length
+            false, // nullable
+        ];
+        yield 'DECIMAL NOT NULL DEFAULT' => [
+            'DECIMAL(29,0) DEFAULT 1 NOT NULL', // sql which goes to table
+            'NUMERIC(29) DEFAULT 1 NOT NULL', // expected sql from getSQLDefinition
+            'NUMERIC', // expected type from db
+            '1', // default
             '29', // length
             false, // nullable
         ];

@@ -6,6 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column\Bigquery;
 
 use Generator;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\SQLtoRestDatatypeConverter;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -234,15 +235,6 @@ class BigqueryColumnTest extends TestCase
     ): void {
         $data = [
             'name' => 'age',
-            'mode' => 'NULLABLE',
-            'fields' => [],
-            'description' => 'string',
-            'maxLength' => 'string',
-            'precision' => 'string',
-            'scale' => 'string',
-            'roundingMode' => 'ROUNDING_MODE_UNSPECIFIED',
-            'collation' => 'string',
-            'defaultValueExpression' => '',
         ];
 
         $data = array_merge($data, $dataToExtend);
@@ -254,5 +246,6 @@ class BigqueryColumnTest extends TestCase
         self::assertEquals($expectedType, $column->getColumnDefinition()->getType());
         self::assertEquals('', $column->getColumnDefinition()->getDefault());
         self::assertEquals($expectedLength, $column->getColumnDefinition()->getLength());
+        $this->assertEqualsCanonicalizing($data, SQLtoRestDatatypeConverter::convertColumnToRestFormat($column));
     }
 }
