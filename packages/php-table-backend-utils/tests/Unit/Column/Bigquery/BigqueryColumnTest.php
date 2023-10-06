@@ -66,6 +66,22 @@ class BigqueryColumnTest extends TestCase
         self::assertEquals('38,9', $column->getColumnDefinition()->getLength());
     }
 
+    public function testCreateFromNumericEmpty(): void
+    {
+        $data = [
+            'name' => 'age',
+            'type' => 'NUMERIC',
+            'mode' => 'REQUIRED',
+        ];
+
+        $column = BigqueryColumn::createFromDB($data);
+        self::assertEquals('age', $column->getColumnName());
+        self::assertEquals('NUMERIC NOT NULL', $column->getColumnDefinition()->getSQLDefinition());
+        self::assertEquals('NUMERIC', $column->getColumnDefinition()->getType());
+        self::assertEquals(null, $column->getColumnDefinition()->getDefault());
+        self::assertEquals(null, $column->getColumnDefinition()->getLength());
+    }
+
     public function testCreateTimestampColumn(): void
     {
         $col = BigqueryColumn::createTimestampColumn();
