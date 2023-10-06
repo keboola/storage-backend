@@ -190,13 +190,19 @@ class BigqueryTableReflection implements TableReflectionInterface
         $partitions = [];
         /**
          * @var array{
-         *      partition_id: string,
+         *      partition_id: string|null,
          *      total_rows: int,
          *      last_modified_time: Timestamp,
          *      storage_tier: string
          *  } $partition
          */
         foreach ($result as $partition) {
+            if ($partition['partition_id'] === null) {
+                // by default table has one unnamed partition
+                // this would be confusing as partitioning is not set in this case
+                // ignore this partition without id
+                continue;
+            }
             $partitions[] = new Partition(
                 $partition['partition_id'],
                 (string) $partition['total_rows'],

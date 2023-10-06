@@ -38,11 +38,13 @@ class BigqueryDatatypeTest extends TestCase
             ['numeric', '0'],
             ['numeric', '24,10'],
             ['numeric', '38,8'],
+            ['numeric', '38'],
 
             ['bignumeric', 'notANumber'],
             ['bignumeric', '0'],
             ['bignumeric', '100'],
             ['bignumeric', '75,30'],
+            ['bignumeric', '78'],
 
             ['bigdecimal', 'notANumber'],
             ['bigdecimal', '0'],

@@ -457,6 +457,43 @@ SQL,
         $this->assertCount(1, $ref->getPartitionsList());
     }
 
+    public function testTableWithoutPartitioning(): void
+    {
+        $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
+        $dataset->createTable(
+            'test-partitions',
+            [
+                'schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'BIGNUMERIC',
+                            'mode' => 'NULLABLE',
+                        ],
+                        [
+                            'name' => 'test',
+                            'type' => 'STRING',
+                            'mode' => 'NULLABLE',
+                            'maxLength' => '10',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            <<<SQL
+INSERT %s.%s (`id`,`test`) VALUES (1,'test');
+SQL,
+            BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            BigqueryQuote::quoteSingleIdentifier('test-partitions')
+        )));
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
+        // expect none partition returned by reflection class
+        // there is one unnamed partition even when no partitioning is set and we ignore it
+        $this->assertCount(0, $ref->getPartitionsList());
+    }
+
     public function partitioningProvider(): Generator
     {
         yield 'Time simple' => [

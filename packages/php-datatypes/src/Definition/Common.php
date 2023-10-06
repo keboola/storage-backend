@@ -147,7 +147,10 @@ abstract class Common implements DefinitionInterface
         if (isset($parts[1]) && ((int) $parts[1] > $secondMax)) {
             return false;
         }
-        return !($firstMustBeBigger && isset($parts[1]) && (int) $parts[1] > (int) $parts[0]);
+        $hasSecondPart = isset($parts[1]);
+        $secondPartIsGreaterThanFirst = $hasSecondPart && (int) $parts[1] > (int) $parts[0];
+
+        return !($firstMustBeBigger && $secondPartIsGreaterThanFirst);
     }
 
     /**

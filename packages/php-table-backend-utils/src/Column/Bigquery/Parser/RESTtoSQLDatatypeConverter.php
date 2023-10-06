@@ -12,10 +12,6 @@ use Keboola\Datatype\Definition\Bigquery;
  */
 final class RESTtoSQLDatatypeConverter
 {
-    // maximal precision for BIGNUMERIC is 76 and it's default when not set
-    private const DEFAULT_PRECISION_BIGNUMERIC = 76;
-    // maximal precision for NUMERIC is 38 and it's default when not set
-    private const DEFAULT_PRECISION_NUMERIC = 38;
 
     /**
      * @phpstan-param BigqueryTableFieldSchema $dbResponse
@@ -83,17 +79,13 @@ final class RESTtoSQLDatatypeConverter
      *
      * @phpstan-param BigqueryTableFieldSchema $dbResponse
      */
-    private static function getLengthForNumber(array $dbResponse): string
+    private static function getLengthForNumber(array $dbResponse): ?string
     {
         if (array_key_exists('precision', $dbResponse) === false) {
-            $precision = match ($dbResponse['type']) { // when precision is not set, set default for each type
-                Bigquery::TYPE_BIGNUMERIC => self::DEFAULT_PRECISION_BIGNUMERIC,
-                Bigquery::TYPE_NUMERIC => self::DEFAULT_PRECISION_NUMERIC,
-                default => throw new Exception(sprintf('Unknown type "%s"', $dbResponse['type']))
-            };
-        } else {
-            $precision = $dbResponse['precision'];
+            // when precision is not set, set length to null
+            return null;
         }
+        $precision = $dbResponse['precision'];
 
         if (array_key_exists('scale', $dbResponse) === false) {
             return (string) $precision;

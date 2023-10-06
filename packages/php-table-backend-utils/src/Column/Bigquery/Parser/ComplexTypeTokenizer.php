@@ -76,17 +76,19 @@ final class ComplexTypeTokenizer
                 continue;
             }
 
-            if (preg_match('/\w+/', $input, $matchType, PREG_NO_ERROR, $index)) {
-                $positionCharacterAfter = $index + strlen($matchType[0]);
+            if (preg_match('/^[a-zA-Z0-9-_]+(?=\s|$)/i', substr($input, $index), $matchName, PREG_NO_ERROR)) {
+                $positionCharacterAfter = $index + strlen($matchName[0]);
                 if ($length > $positionCharacterAfter && $input[$positionCharacterAfter] === ' ') {
                     // if next character is space, then this is T_NAME (name of column)
-                    $tokens->append(new TokenizerToken(self::T_NAME, $matchType[0]));
-                    $index += strlen($matchType[0]);
+                    $tokens->append(new TokenizerToken(self::T_NAME, $matchName[0]));
+                    $index += strlen($matchName[0]);
                     continue;
                 }
+            }
 
-                $tokens->append(new TokenizerToken(self::T_TYPE, $matchType[0]));
-                $index += strlen($matchType[0]);
+            if (preg_match('/(\w+)(?:<.*>)*/', substr($input, $index), $matchType, PREG_NO_ERROR)) {
+                $tokens->append(new TokenizerToken(self::T_TYPE, $matchType[1]));
+                $index += strlen($matchType[1]);
                 // check type followed by length definition
                 if ($length > $index && $input[$index] === '(') {
                     // length start
@@ -105,7 +107,8 @@ final class ComplexTypeTokenizer
             }
 
             throw new RuntimeException(sprintf(
-                'Unexpected token on position "%d" in "%s"',
+                'Unexpected token "%s" on position "%d" in "%s"',
+                $input[$index],
                 $index,
                 substr($input, $index)
             ));
