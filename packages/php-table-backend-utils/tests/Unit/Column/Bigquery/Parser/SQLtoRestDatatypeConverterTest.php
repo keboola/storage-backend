@@ -402,4 +402,30 @@ class SQLtoRestDatatypeConverterTest extends TestCase
         $rest = SQLtoRestDatatypeConverter::convertColumnToRestFormat($col);
         self::assertSame($expected, $rest);
     }
+
+    public function testLongName(): void
+    {
+        $options = [
+            'nullable' => true,
+            'length' => 'STRUCT<array_struct_array-int_array-string ARRAY<NUMERIC(10)>>',
+        ];
+        $col = new BigqueryColumn('array_struct_array-int_array-string', new Bigquery(
+            Bigquery::TYPE_ARRAY,
+            $options
+        ));
+        $rest = SQLtoRestDatatypeConverter::convertColumnToRestFormat($col);
+        self::assertSame([
+            'name' => 'array_struct_array-int_array-string',
+            'type' => 'RECORD',
+            'mode' => 'REPEATED',
+            'fields' => [
+                '0' => [
+                    'name' => 'array_struct_array-int_array-string',
+                    'type' => 'NUMERIC',
+                    'mode' => 'REPEATED',
+                    'precision' => '10',
+                ],
+            ],
+        ], $rest);
+    }
 }
