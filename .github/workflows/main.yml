@@ -86,6 +86,7 @@ jobs:
       SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
       SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
       TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
+      BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
     needs: build
 
   build_php_db_import_export:
