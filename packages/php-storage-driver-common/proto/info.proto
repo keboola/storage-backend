@@ -47,10 +47,15 @@ message DatabaseInfo {
 message SchemaInfo {
   repeated ObjectInfo objects = 1;
 }
-/**
- * TODO
- */
-message ViewInfo {}
+
+message ViewInfo {
+  repeated string path = 1; // path where view is located
+  string viewName = 2; // view name
+  repeated TableInfo.TableColumn columns = 3; // table columns definitions
+  repeated string primaryKeysNames = 4; // primary key columns names
+  int64 rowsCount = 5;
+  google.protobuf.Any meta = 6; // metadata specific for each backend
+}
 
 /**
  * Generic table information's
