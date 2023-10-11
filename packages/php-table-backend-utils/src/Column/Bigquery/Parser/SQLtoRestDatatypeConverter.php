@@ -6,10 +6,10 @@ namespace Keboola\TableBackendUtils\Column\Bigquery\Parser;
 
 use ArrayIterator;
 use Keboola\Datatype\Definition\Bigquery;
+use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerNestedToken;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerToken;
-use RuntimeException;
 
 /**
  * @phpstan-import-type BigqueryTableFieldSchema from Bigquery
@@ -74,7 +74,7 @@ final class SQLtoRestDatatypeConverter
             if ($typeToken->type === ComplexTypeTokenizer::T_TYPE) {
                 $schema = self::convertTokenToSchema($typeToken, $schema, $tokens);
             } else {
-                throw new RuntimeException(sprintf(
+                throw new ParsingComplexTypeLengthException(sprintf(
                     'Unexpected token "%s" for field "%s". Type of field is expected.',
                     $typeToken->token,
                     $token->token,
@@ -133,7 +133,7 @@ final class SQLtoRestDatatypeConverter
                         // if next token is `,` T_FIELD_DELIMITER then end to start another loop with next field
                         return $schema;
                     } else {
-                        throw new RuntimeException(sprintf(
+                        throw new ParsingComplexTypeLengthException(sprintf(
                             'Unexpected token "%s" for column "%s" of type "%s". Length of column is expected.',
                             $lengthToken->token,
                             $schema['name'] ?? 'unknown',
@@ -148,7 +148,7 @@ final class SQLtoRestDatatypeConverter
             // if next token is `,` T_FIELD_DELIMITER then end to start another loop with next field
             return $schema;
         }
-        throw new RuntimeException(sprintf(
+        throw new ParsingComplexTypeLengthException(sprintf(
             'Unexpected token "%s" for field "%s". Name or type of field is expected.',
             $token->token,
             $schema['name'] ?? 'unknown',
@@ -166,7 +166,11 @@ final class SQLtoRestDatatypeConverter
             $tokens = (new ComplexTypeTokenizer())->tokenize(
                 $column->getColumnName() . ' ' . $definition->getSQLDefinition()
             );
-            $schema = self::convertTokenToSchema($tokens->current(), [], $tokens);
+            try {
+                $schema = self::convertTokenToSchema($tokens->current(), [], $tokens);
+            } catch (ParsingComplexTypeLengthException $e) {
+                throw new InvalidLengthException($e->getMessage());
+            }
         } else {
             // others
             $schema = [
