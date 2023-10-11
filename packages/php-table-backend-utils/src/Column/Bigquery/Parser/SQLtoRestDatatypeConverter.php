@@ -150,7 +150,7 @@ final class SQLtoRestDatatypeConverter
         }
         throw new ParsingComplexTypeLengthException(sprintf(
             'Unexpected token "%s" for field "%s". Name or type of field is expected.',
-            $token->token,
+            $token->type === ComplexTypeTokenizer::T_NESTED ? '<' : $token->token,
             $schema['name'] ?? 'unknown',
         ));
     }
@@ -162,14 +162,30 @@ final class SQLtoRestDatatypeConverter
     {
         $definition = $column->getColumnDefinition();
         if (in_array(strtoupper($definition->getType()), [Bigquery::TYPE_ARRAY, Bigquery::TYPE_STRUCT], true)) {
+            if ($definition->getLength() === null | $definition->getLength() === '') {
+                throw new InvalidLengthException(
+                    sprintf(
+                        'Invalid column "%s" definition "%s". STRUCT|ARRAY type must have definition.',
+                        $column->getColumnName(),
+                        $definition->getSQLDefinition(),
+                    ),
+                );
+            }
             // complex types
-            $tokens = (new ComplexTypeTokenizer())->tokenize(
-                $column->getColumnName() . ' ' . $definition->getSQLDefinition()
-            );
             try {
+                $tokens = (new ComplexTypeTokenizer())->tokenize(
+                    $column->getColumnName() . ' ' . $definition->getSQLDefinition()
+                );
                 $schema = self::convertTokenToSchema($tokens->current(), [], $tokens);
             } catch (ParsingComplexTypeLengthException $e) {
-                throw new InvalidLengthException($e->getMessage());
+                throw new InvalidLengthException(
+                    sprintf(
+                        'Invalid column "%s" definition "%s". %s',
+                        $column->getColumnName(),
+                        $definition->getSQLDefinition(),
+                        $e->getMessage(),
+                    ),
+                );
             }
         } else {
             // others
