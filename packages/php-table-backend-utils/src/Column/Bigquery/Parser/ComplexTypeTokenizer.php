@@ -36,31 +36,31 @@ final class ComplexTypeTokenizer
     private const T_COMPLEX_END = 'T_COMPLEX_END';
     private const REGEX_MATCH_TYPE = <<<EOD
 / # Matches types ARRAY<> or types inside complex types INT, INT() ,...
-(\w+) # Match and capture one or more word characters
+(\w+)  # Match and capture one or more word characters
 # Match zero or more occurrences of the following non-capturing group
 (
   # Start of non-capturing group
-  (?:           # Match the following, but don't capture it
-    <           # Match the opening angle bracket
-    .*          # Match any character (.) zero or more times (*) inside brackets
-    >           # Match the closing angle bracket
+  (?:  # Match the following, but don't capture it
+    <  # Match the opening angle bracket
+    .* # Match any character (.) zero or more times (*) inside brackets
+    >  # Match the closing angle bracket
   )             
-  *             # Match the non-capturing group zero or more times
+  *  # Match the non-capturing group zero or more times
 )
 /ix
 EOD;
     private const REGEX_MATCH_NAME = <<<EOD
 / # Name requires need space after it there is a space or end of string
-^ # Start at the beginning of the string
-[a-zA-Z0-9-_]+ # Match one or more alphanumeric characters, hyphens, or underscores
-(?=\s|$) # check for a space (\s) or the end of the string ($), but don't include it in the match
+^                # Start at the beginning of the string
+[a-zA-Z0-9-_]+   # Match one or more alphanumeric characters, hyphens, or underscores
+(?=\s|$)         # check for a space (\s) or the end of the string ($), but don't include it in the match
 /ix
 EOD;
     private const REGEX_MATCH_LENGTH = <<<EOD
 / # matches everything between () to get length of field
-\( # Match an opening parenthesis "("
+\(    # Match an opening parenthesis "("
 (.*?) # Match and capture any characters (.) non-greedily (*) within a pair of parentheses
-\) # Match a closing parenthesis ")"
+\)    # Match a closing parenthesis ")"
 /x
 EOD;
 
