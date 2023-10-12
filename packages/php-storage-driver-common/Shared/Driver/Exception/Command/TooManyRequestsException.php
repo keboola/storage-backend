@@ -11,7 +11,11 @@ final class TooManyRequestsException extends Exception
 {
     public const TOO_MANY_REQUESTS = 'Command did not succeeded due to too many requests.';
 
-    public function __construct(string $message = self::TOO_MANY_REQUESTS, int $code = self::ERR_RESOURCE_FULL, ?Throwable $previous = null)
+    public function __construct(
+        string $message = self::TOO_MANY_REQUESTS,
+        int $code = self::ERR_RESOURCE_FULL,
+        ?Throwable $previous = null
+    )
     {
         parent::__construct(
             $message,
