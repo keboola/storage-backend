@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.3
+# syntax=docker/dockerfile:1.4.0
 
 ARG PHP_VERSION=8.1
 
@@ -15,7 +15,7 @@ ARG AWS_SESSION_TOKEN
 WORKDIR /code/
 
 COPY docker/php/php.ini /usr/local/etc/php/php.ini
-COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/
+COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
