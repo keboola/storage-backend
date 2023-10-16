@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Bigquery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use GuzzleHttp\Client;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientHandler;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -44,6 +46,7 @@ class BigqueryBaseCase extends TestCase
 
     /**
      * Get credentials from envs
+     *
      * @return array<string, string>
      */
     protected function getCredentials(): array
@@ -88,6 +91,7 @@ class BigqueryBaseCase extends TestCase
     {
         return new BigQueryClient([
             'keyFile' => $this->getCredentials(),
+            'httpHandler' => new BigQueryClientHandler(new Client()),
         ]);
     }
 

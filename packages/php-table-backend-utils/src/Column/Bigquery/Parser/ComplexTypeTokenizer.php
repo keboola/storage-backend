@@ -34,6 +34,35 @@ final class ComplexTypeTokenizer
     private const T_COMPLEX_START = 'T_COMPLEX_START';
     // end of complex type >
     private const T_COMPLEX_END = 'T_COMPLEX_END';
+    private const REGEX_MATCH_TYPE = <<<EOD
+/ # Matches types ARRAY<> or types inside complex types INT, INT() ,...
+(\w+)  # Match and capture one or more word characters
+# Match zero or more occurrences of the following non-capturing group
+(
+  # Start of non-capturing group
+  (?:  # Match the following, but don't capture it
+    <  # Match the opening angle bracket
+    .* # Match any character (.) zero or more times (*) inside brackets
+    >  # Match the closing angle bracket
+  )             
+  *  # Match the non-capturing group zero or more times
+)
+/ix
+EOD;
+    private const REGEX_MATCH_NAME = <<<EOD
+/ # Name requires need space after it there is a space or end of string
+^                # Start at the beginning of the string
+[a-zA-Z0-9-_]+   # Match one or more alphanumeric characters, hyphens, or underscores
+(?=\s|$)         # check for a space (\s) or the end of the string ($), but don't include it in the match
+/ix
+EOD;
+    private const REGEX_MATCH_LENGTH = <<<EOD
+/ # matches everything between () to get length of field
+\(    # Match an opening parenthesis "("
+(.*?) # Match and capture any characters (.) non-greedily (*) within a pair of parentheses
+\)    # Match a closing parenthesis ")"
+/x
+EOD;
 
     /**
      * @phpstan-return ArrayIterator<int, TokenizerToken|TokenizerNestedToken>
@@ -45,6 +74,8 @@ final class ComplexTypeTokenizer
         $length = strlen($input);
 
         $complexNestedLevel = 0;
+        $expectTypeNext = false;
+        $expectDelimiterOrCloseNext = false;
         while ($index < $length) {
             if ($input[$index] === ' ') {
                 // skip whitespace
@@ -56,12 +87,14 @@ final class ComplexTypeTokenizer
             if ($input[$index] === ',') {
                 // comma is only between fields in struct
                 $tokens->append(new TokenizerToken(self::T_FIELD_DELIMITER, ','));
+                $expectDelimiterOrCloseNext = false;
                 $index++;
                 continue;
             }
 
             if ($input[$index] === '<') {
                 // T_COMPLEX_START
+                $expectDelimiterOrCloseNext = false;
                 $tokens->append(new TokenizerTokenWithLevel(self::T_COMPLEX_START, '<', $complexNestedLevel));
                 $complexNestedLevel++;
                 $index++;
@@ -71,14 +104,23 @@ final class ComplexTypeTokenizer
             if ($input[$index] === '>') {
                 // T_COMPLEX_END
                 $complexNestedLevel--;
+                $expectDelimiterOrCloseNext = false;
                 $tokens->append(new TokenizerTokenWithLevel(self::T_COMPLEX_END, '>', $complexNestedLevel));
                 $index++;
                 continue;
             }
 
-            if (preg_match('/^[a-zA-Z0-9-_]+(?=\s|$)/i', substr($input, $index), $matchName, PREG_NO_ERROR)) {
+            if (preg_match(self::REGEX_MATCH_NAME, substr($input, $index), $matchName, PREG_NO_ERROR)) {
                 $positionCharacterAfter = $index + strlen($matchName[0]);
                 if ($length > $positionCharacterAfter && $input[$positionCharacterAfter] === ' ') {
+                    if ($expectTypeNext) {
+                        throw new ParsingComplexTypeLengthException(sprintf(
+                            'Unexpected token on position "%d" in "%s". Type of field expected.',
+                            $index,
+                            substr($input, $index)
+                        ));
+                    }
+                    $expectTypeNext = true;
                     // if next character is space, then this is T_NAME (name of column)
                     $tokens->append(new TokenizerToken(self::T_NAME, $matchName[0]));
                     $index += strlen($matchName[0]);
@@ -86,17 +128,27 @@ final class ComplexTypeTokenizer
                 }
             }
 
-            if (preg_match('/(\w+)(?:<.*>)*/', substr($input, $index), $matchType, PREG_NO_ERROR)) {
+            if (preg_match(self::REGEX_MATCH_TYPE, substr($input, $index), $matchType, PREG_NO_ERROR)) {
+                if ($expectDelimiterOrCloseNext) {
+                    throw new ParsingComplexTypeLengthException(sprintf(
+                        // phpcs:ignore
+                        'Unexpected token on position "%d" in "%s". Expected "," followed by next field or end of ARRAY|STRUCT.',
+                        $index,
+                        substr($input, $index)
+                    ));
+                }
+                $expectTypeNext = false;
+                $expectDelimiterOrCloseNext = true;
                 $tokens->append(new TokenizerToken(self::T_TYPE, $matchType[1]));
                 $index += strlen($matchType[1]);
                 // check type followed by length definition
                 if ($length > $index && $input[$index] === '(') {
                     // length start
-                    if (preg_match('/\((.*?)\)/', substr($input, $index), $matchLength)) {
+                    if (preg_match(self::REGEX_MATCH_LENGTH, substr($input, $index), $matchLength)) {
                         $tokens->append(new TokenizerToken(self::T_LENGTH, $matchLength[1]));
                         $index += strlen($matchLength[1]) + 2; // skip content + 2 ()
                     } else {
-                        throw new RuntimeException(sprintf(
+                        throw new ParsingComplexTypeLengthException(sprintf(
                             'Unexpected token on position "%d" in "%s". Closing parenthesis not found.',
                             $index,
                             substr($input, $index)
@@ -106,7 +158,7 @@ final class ComplexTypeTokenizer
                 continue;
             }
 
-            throw new RuntimeException(sprintf(
+            throw new ParsingComplexTypeLengthException(sprintf(
                 'Unexpected token "%s" on position "%d" in "%s"',
                 $input[$index],
                 $index,

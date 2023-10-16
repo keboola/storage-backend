@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column\Bigquery\Parser;
 use ArrayIterator;
 use Generator;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\ComplexTypeTokenizer;
+use Keboola\TableBackendUtils\Column\Bigquery\Parser\ParsingComplexTypeLengthException;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerNestedToken;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerToken;
 use PHPUnit\Framework\TestCase;
@@ -229,6 +230,30 @@ class ComplexTypeTokenizerTest extends TestCase
     {
         $tokens = (new ComplexTypeTokenizer())->tokenize($def);
         $this->assertSame($expected, $this->recursiveIteratorToArray($tokens));
+    }
+
+    public function errorDefinitions(): Generator
+    {
+        yield 'Invalid length close' => [
+            'column ARRAY<STRING(123245',
+            'Unexpected token on position "19" in "(123245". Closing parenthesis not found.',
+        ];
+
+        yield 'expected delimiter of next field' => [
+            'column ARRAY<STRING(123245) invalid',
+            // phpcs:ignore
+            'Unexpected token on position "28" in "invalid". Expected "," followed by next field or end of ARRAY|STRUCT.',
+        ];
+    }
+
+    /**
+     * @dataProvider errorDefinitions
+     */
+    public function testTokenizationErrors(string $def, string $expectedException): void
+    {
+        $this->expectException(ParsingComplexTypeLengthException::class);
+        $this->expectExceptionMessage($expectedException);
+        (new ComplexTypeTokenizer())->tokenize($def);
     }
 
     /**

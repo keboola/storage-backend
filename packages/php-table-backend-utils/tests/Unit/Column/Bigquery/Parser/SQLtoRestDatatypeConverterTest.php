@@ -6,6 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column\Bigquery\Parser;
 
 use Generator;
 use Keboola\Datatype\Definition\Bigquery;
+use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\SQLtoRestDatatypeConverter;
 use PHPUnit\Framework\TestCase;
@@ -238,6 +239,20 @@ class SQLtoRestDatatypeConverterTest extends TestCase
                 'defaultValueExpression' => '\'test\'',
             ],
         ];
+        yield 'myCol STRUCT<' => [ // it will fail in BQ but not in parser
+            'type' => Bigquery::TYPE_STRUCT,
+            'length' => '<',
+            'default' => null,
+            'nullable' => false,
+            'expected' => ['name' => 'myCol', 'type' => 'RECORD', 'fields' => []],
+        ];
+        yield 'myCol STRUCT<>' => [ // it will fail in BQ but not in parser
+            'type' => Bigquery::TYPE_STRUCT,
+            'length' => '<>',
+            'default' => null,
+            'nullable' => false,
+            'expected' => ['name' => 'myCol', 'type' => 'RECORD', 'fields' => []],
+        ];
         yield 'ARRAY<STRING>' => [
             'type' => Bigquery::TYPE_ARRAY,
             'length' => 'STRING',
@@ -401,6 +416,73 @@ class SQLtoRestDatatypeConverterTest extends TestCase
         ));
         $rest = SQLtoRestDatatypeConverter::convertColumnToRestFormat($col);
         self::assertSame($expected, $rest);
+    }
+
+    public function definitionsErrors(): Generator
+    {
+        yield 'myCol ARRAY<>' => [
+            'type' => Bigquery::TYPE_ARRAY,
+            'length' => '',
+            'expected' => 'Invalid column "myCol" definition "ARRAY". STRUCT|ARRAY type must have definition.',
+        ];
+        yield 'myCol STRUCT<>' => [
+            'type' => Bigquery::TYPE_STRUCT,
+            'length' => '',
+            'expected' => 'Invalid column "myCol" definition "STRUCT". STRUCT|ARRAY type must have definition.',
+        ];
+        yield 'myCol ARRAY<<>' => [
+            'type' => Bigquery::TYPE_ARRAY,
+            'length' => '<',
+            // phpcs:ignore
+            'expected' => 'Invalid column "myCol" definition "ARRAY<<>". Unexpected token "<" for field "myCol". Name or type of field is expected.',
+        ];
+        yield 'myCol ARRAY<<>>' => [
+            'type' => Bigquery::TYPE_ARRAY,
+            'length' => '<>', // <> is added automatically
+            // phpcs:ignore
+            'expected' => 'Invalid column "myCol" definition "ARRAY<<>>". Unexpected token "<" for field "myCol". Name or type of field is expected.',
+        ];
+        yield 'myCol ARRAY<<xxx, xxx>>' => [
+            'type' => Bigquery::TYPE_ARRAY,
+            'length' => '<xxx, xxx>',
+            // phpcs:ignore
+            'expected' => 'Invalid column "myCol" definition "ARRAY<<xxx, xxx>>". Unexpected token "<" for field "myCol". Name or type of field is expected.',
+        ];
+        yield 'myCol ARRAY<STRING(123245>' => [
+            'type' => Bigquery::TYPE_ARRAY,
+            'length' => 'STRING(123245',
+            // phpcs:ignore
+            'expected' => 'Invalid column "myCol" definition "ARRAY<STRING(123245>". Unexpected token on position "18" in "(123245>". Closing parenthesis not found.',
+        ];
+        yield 'myCol ARRAY<STRING(123245) invalid' => [
+            'type' => Bigquery::TYPE_ARRAY,
+            'length' => 'STRING(123245) invalid',
+            // phpcs:ignore
+            'expected' => 'Invalid column "myCol" definition "ARRAY<STRING(123245) invalid>". Unexpected token on position "27" in "invalid>". Expected "," followed by next field or end of ARRAY|STRUCT.',
+        ];
+    }
+
+    /**
+     * @dataProvider definitionsErrors
+     */
+    public function testErrors(
+        string $type,
+        ?string $length,
+        string $expectedError
+    ): void {
+        $options = [
+            'length' => $length,
+        ];
+        $col = new BigqueryColumn('myCol', new Bigquery(
+            $type,
+            $options
+        ));
+        try {
+            SQLtoRestDatatypeConverter::convertColumnToRestFormat($col);
+            $this->fail('it should fail');
+        } catch (InvalidLengthException $e) {
+            $this->assertSame($expectedError, $e->getMessage());
+        }
     }
 
     public function testLongName(): void
