@@ -51,9 +51,17 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
             throw new Exception(sprintf('Table "%s" does not exist', $destination->getTableName()));
         }
 
+        // fix ASCII0 error
+        $options = [
+            'configuration' => [
+                'load' => [
+                    'preserveAsciiControlCharacters' => true,
+                ],
+            ],
+        ];
         // parameter is no nullable, but when I set first entry and removed it from array file won't import
         // so this only possible solution
-        $loadConfig = $table->loadFromStorage(reset($entries))
+        $loadConfig = $table->loadFromStorage(reset($entries), $options)
             ->sourceFormat('CSV')
             ->sourceUris($entries)
             ->autodetect(false)
@@ -62,13 +70,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
             ->quote($source->getCsvOptions()->getEnclosure())
             ->allowQuotedNewlines(true);
 
-        $job = $this->bqClient->runJob($loadConfig, [
-            'configuration' => [
-                'load' => [
-                    'preserveAsciiControlCharacters' => true,
-                ],
-            ],
-        ]);
+        $job = $this->bqClient->runJob($loadConfig);
 
         if (!$job->isComplete()) {
             throw new Exception('Job has not yet completed');

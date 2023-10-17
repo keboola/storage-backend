@@ -120,7 +120,7 @@ class StageImportTest extends BigqueryBaseTestCase
             )
         );
 
-        self::assertEquals(2, $state->getResult()->getImportedRowsCount());
+        self::assertEquals(3, $state->getResult()->getImportedRowsCount());
     }
 
     public function testFailingImport(): void
