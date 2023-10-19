@@ -67,6 +67,24 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: "storage-backend-build"
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "delete",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 100
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
   BaseStorageBackendRole:
     Type: AWS::IAM::Role
     Properties:
