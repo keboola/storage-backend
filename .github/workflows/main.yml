@@ -12,6 +12,7 @@ on:
 env:
   AWS_CREDENTIALS_REGION: us-east-1
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
+  MAIN_BRANCH: main
 jobs:
 
   build:
@@ -26,9 +27,16 @@ jobs:
       changed-php-storage-driver-common: ${{ steps.changes.outputs.php-storage-driver-common }}
       table-utils-requirements: ${{ steps.changes.outputs.table-utils-requirements }}
       db-import-export-requirements: ${{ steps.changes.outputs.db-import-export-requirements }}
+      isReleaseTag: ${{ steps.checkReleaseTag.outputs.isReleaseTag }}
     steps:
       - uses: actions/checkout@v3
 
+      - name: Check build type
+        id: checkReleaseTag
+        run: |
+          git fetch origin $MAIN_BRANCH
+          echo "isReleaseTag=$(if [ "$(git rev-parse origin/$MAIN_BRANCH)" == "$(git rev-parse HEAD)" ]; then echo 1; else echo 0; fi)" >> "$GITHUB_OUTPUT"
+          echo "isReleaseTag=$(if [ "$(git rev-parse origin/$MAIN_BRANCH)" == "$(git rev-parse HEAD)" ]; then echo 1; else echo 0; fi)"
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -69,6 +77,7 @@ jobs:
           path: /tmp/ci-monorepo.tar
 
   build_datatypes:
+    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
     uses: ./.github/workflows/build-php-datatypes.yml
     with:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-datatypes == 'true' }}
@@ -76,6 +85,7 @@ jobs:
     needs: build
 
   build_php_table_backend_utils:
+    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
     uses: ./.github/workflows/build-php-table-backend-utils.yml
     with:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-table-backend-utils == 'true' }}
@@ -90,6 +100,7 @@ jobs:
     needs: build
 
   build_php_db_import_export:
+    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
     uses: ./.github/workflows/build-php-db-import-export.yml
     with:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-db-import-export == 'true' }}
@@ -112,6 +123,7 @@ jobs:
     needs: build
 
   build_php_storage_driver_common:
+    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
     uses: ./.github/workflows/build-php-storage-driver-common.yml
     with:
       hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-common == 'true' }}
