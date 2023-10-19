@@ -63,6 +63,10 @@ Resources:
                   - Fn::GetAtt: [ CommonDriverStorageBucket, "Arn" ]
                   - !Sub 'arn:aws:s3:::${CommonDriverStorageBucket}/*'
                 Effect: Allow
+  BuildRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: "storage-backend-build"
   BaseStorageBackendRole:
     Type: AWS::IAM::Role
     Properties:
@@ -81,6 +85,25 @@ Resources:
               StringLike:
                 token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:*
       Policies:
+        - PolicyName: PushBuildImage
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - ecr:GetAuthorizationToken
+                Resource: '*'
+                Effect: Allow
+              - Action:
+                  - ecr:CompleteLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:InitiateLayerUpload
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource:
+                  - !GetAtt BuildRepository.Arn
+                Effect: Allow
         - PolicyName: DownloadDrivers
           PolicyDocument:
             Version: "2012-10-17"
