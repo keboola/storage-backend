@@ -8,5 +8,6 @@ use Keboola\FileStorage\Path\RelativePathInterface;
 
 interface SlicedManifestGeneratorInterface
 {
+    public const CHUNK_SIZE_256_KB = 1024 * 256; // 256KB
     public function generateAndSaveManifest(RelativePathInterface $path): void;
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\GCS\ManifestGenerator;
 
 use Google\Cloud\Storage\StorageClient;
+use Google\Cloud\Storage\WriteStream;
 use JsonException;
 use Keboola\Db\ImportExport\Storage\SlicedManifestGeneratorInterface;
 use Keboola\FileStorage\Path\RelativePathInterface;
@@ -38,12 +39,17 @@ class GcsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
         $manifest = [
             'entries' => $entries,
         ];
-
-        $bucket->upload(
-            json_encode($manifest, JSON_THROW_ON_ERROR),
-            [
-                'name' => $path->getPathnameWithoutRoot() . 'manifest',
-            ]
-        );
+        $writeStream = new WriteStream(null, [
+            'chunkSize' => self::CHUNK_SIZE_256_KB
+        ]);
+        $uploader = $bucket->getStreamableUploader($writeStream, [
+            'name' => $path->getPathnameWithoutRoot() . 'manifest',
+        ]);
+        $writeStream->setUploader($uploader);
+        $stream = fopen('data://text/plain,' . json_encode($manifest, JSON_THROW_ON_ERROR), 'r');
+        while (($line = stream_get_line($stream, self::CHUNK_SIZE_256_KB)) !== false) {
+            $writeStream->write($line);
+        }
+        $writeStream->close();
     }
 }
