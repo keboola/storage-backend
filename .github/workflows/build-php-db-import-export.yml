@@ -461,7 +461,8 @@ jobs:
   post-exasol-tests:
     runs-on: ubuntu-latest
     needs: exasol-tests
-    if: ${{ always() }}
+    if: |
+      always() && (needs.exasol-tests.result != 'skipped')
     concurrency: exasol-tests
     steps:
       -
@@ -478,7 +479,13 @@ jobs:
   clean-s3:
     runs-on: ubuntu-latest
     needs: [testsS3, testsAll, exasol-tests]
-    if: ${{ always() }}
+    if: |
+      always() 
+      && (
+        (needs.testsS3.result != 'skipped')
+        || (needs.testsAll.result != 'skipped')
+        || (needs.exasol-tests.result != 'skipped')
+      )
     steps:
       -
         name: 'Clean S3'
@@ -487,7 +494,12 @@ jobs:
   clean-gcs-snowflake:
     runs-on: ubuntu-latest
     needs: [testsGCS, testsAll]
-    if: ${{ always() }}
+    if: |
+      always() 
+      && (
+        (needs.testsGCS.result != 'skipped')
+        || (needs.testsAll.result != 'skipped')
+      )
     steps:
       - uses: 'actions/checkout@v3'
       -
@@ -504,7 +516,12 @@ jobs:
   clean-gcs-bigquery:
     runs-on: ubuntu-latest
     needs: [ testsGCS, testsAll ]
-    if: ${{ always() }}
+    if: |
+      always() 
+      && (
+        (needs.testsGCS.result != 'skipped')
+        || (needs.testsAll.result != 'skipped')
+      )
     steps:
       - uses: 'actions/checkout@v3'
       - name: 'Login GCS'
@@ -518,7 +535,13 @@ jobs:
   clean-abs:
     runs-on: ubuntu-latest
     needs: [testsABS, testsAll, synapse-tests]
-    if: ${{ always() }}
+    if: |
+      always() 
+      && (
+        (needs.testsABS.result != 'skipped')
+        || (needs.testsAll.result != 'skipped')
+        || (needs.synapse-tests.result != 'skipped')
+      )
     steps:
       -
         name: 'Install azure cli'
