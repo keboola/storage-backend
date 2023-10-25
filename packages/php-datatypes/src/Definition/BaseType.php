@@ -13,6 +13,7 @@ class BaseType
     public const NUMERIC = 'NUMERIC';
     public const STRING = 'STRING';
     public const TIMESTAMP = 'TIMESTAMP';
+    public const TEST = 'TIMESTAMP';
 
     public const TYPES = [
         self::BOOLEAN,
