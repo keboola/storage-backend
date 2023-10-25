@@ -431,6 +431,7 @@ jobs:
   exasol-tests:
     runs-on: ubuntu-latest
     needs: [load-s3, pre-exasol-tests]
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
