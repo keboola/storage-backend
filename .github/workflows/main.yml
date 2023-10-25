@@ -156,7 +156,7 @@ jobs:
   monorepo_split:
     needs: test_results
     runs-on: ubuntu-latest
-    if : github.ref_type == 'tag'
+    if : always() && needs.test_results.result == 'success' && github.ref_type == 'tag'
     concurrency: ${{ matrix.repo }}
     strategy:
       matrix:
