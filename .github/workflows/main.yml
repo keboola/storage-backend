@@ -145,6 +145,7 @@ jobs:
         && contains(fromJson('["success", "skipped"]'), needs.build_datatypes.result) 
         && contains(fromJson('["success", "skipped"]'), needs.build_php_table_backend_utils.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_db_import_export.result)
+        && contains(fromJson('["success", "skipped"]'), needs.build_php_storage_driver_common.result)
     steps:
       - name: Tests passed
         run: echo "Tests passed"
