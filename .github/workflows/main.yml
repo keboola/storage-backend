@@ -12,7 +12,7 @@ on:
 env:
   AWS_CREDENTIALS_REGION: us-east-1
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
-  MAIN_BRANCH: main
+  MAIN_BRANCH: roman-test-fix-release
 jobs:
 
   build:
