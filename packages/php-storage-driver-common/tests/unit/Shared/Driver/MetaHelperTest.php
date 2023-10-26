@@ -20,6 +20,7 @@ class MetaHelperTest extends TestCase
             $this->createMock(Message::class)
         );
         $this->assertNull($result);
+        $this->assertNull($result);
     }
 
     public function testGetMetaNoMetaSet(): void
