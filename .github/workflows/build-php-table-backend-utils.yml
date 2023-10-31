@@ -26,6 +26,7 @@ env:
   AWS_CREDENTIALS_REGION: us-east-1
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
   ECR_REPOSITORY: storage-backend-build
+  LOCAL_IMAGE: ci-php-table-backend-utils
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
@@ -98,17 +99,22 @@ jobs:
         name: Check
         env:
           DOCKER_BUILDKIT: 1
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
+
         run: |
-          docker-compose build ci-php-table-backend-utils
-          docker-compose run ci-php-table-backend-utils composer check
-          docker commit $(docker ps -alq) ci-php-table-backend-utils:latest
-          docker save -o /tmp/ci-php-table-backend-utils.tar ci-php-table-backend-utils:latest
+          docker-compose build $LOCAL_IMAGE
+          docker-compose run $LOCAL_IMAGE composer check
       -
-        name: Upload docker image
-        uses: actions/upload-artifact@v3
-        with:
-          name: ci-php-table-backend-utils
-          path: /tmp/ci-php-table-backend-utils.tar
+        name: Push docker image
+        env:
+          DOCKER_BUILDKIT: 1
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ env.LOCAL_IMAGE }}-${{ github.sha }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
+        run: |
+          docker tag $LOCAL_IMAGE:latest $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   build_php_table_backend_utils:
     runs-on: ubuntu-latest
@@ -125,21 +131,29 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
-      - name: Configure AWS Credentials
+
+      -
+        name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ci-php-table-backend-utils
-          path: /tmp
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       -
-        name: Load Docker image
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-table-backend-utils.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       #
       # Before tests, start services
       -
