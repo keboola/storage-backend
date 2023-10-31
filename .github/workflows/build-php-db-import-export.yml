@@ -223,6 +223,9 @@ jobs:
           docker-compose run ci-php-db-import-export composer loadS3
   load-abs:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: build
     steps:
       -
@@ -257,6 +260,9 @@ jobs:
           docker-compose run ci-php-db-import-export composer loadAbs
   load-gcs:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: build
     strategy:
       matrix:
@@ -297,6 +303,9 @@ jobs:
   # Test matrix
   testsABS:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: load-abs
     concurrency: ${{ matrix.suite }}
     strategy:
@@ -338,6 +347,9 @@ jobs:
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsS3:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: load-s3
     concurrency: ${{ matrix.suite }}
     strategy:
@@ -389,6 +401,9 @@ jobs:
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsGCS:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: load-gcs
     concurrency: ${{ matrix.suite }}
     strategy:
@@ -430,6 +445,9 @@ jobs:
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsAll:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: [load-s3, load-abs]
     concurrency: ${{ matrix.suite }}
     strategy:
@@ -495,6 +513,9 @@ jobs:
 
   synapse-tests:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: [load-abs, pre-synapse-tests]
     strategy:
       fail-fast: false
@@ -567,6 +588,9 @@ jobs:
 
   exasol-tests:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: [load-s3, pre-exasol-tests]
     continue-on-error: true
     strategy:
@@ -629,6 +653,9 @@ jobs:
   # Clean up uploaded data
   clean-s3:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     needs: [testsS3, testsAll, exasol-tests]
     if: |
       always() 
