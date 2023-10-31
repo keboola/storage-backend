@@ -90,8 +90,8 @@ env:
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
   BQ_BUCKET_NAME: ie-ci-files-bucket
   # S3
-  AWS_ACCESS_KEY_ID: AKIASFZVQM6IHFATWR4X
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  S3_AWS_ACCESS_KEY_ID: AKIASFZVQM6IHFATWR4X
+  S3_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_S3_BUCKET: ci-php-ie-lib
   AWS_S3_KEY: ${{ github.run_id }}-${{ github.run_number }}
   AWS_REGION: us-east-1
@@ -205,6 +205,15 @@ jobs:
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
+
+      -
+        name: Configure AWS Credentials for S3
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+          aws-access-key-id: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
       -
         name: Load data to ${{ matrix.storage }}
         run: |
@@ -360,6 +369,16 @@ jobs:
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
+
+      -
+        name: Configure AWS Credentials for S3
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+          aws-access-key-id: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
+
       -
         name: Tests ${{ matrix.suite }}
         env:
@@ -441,6 +460,16 @@ jobs:
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
+
+      -
+        name: Configure AWS Credentials for S3
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+          aws-access-key-id: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
+
       -
         name: Tests ${{ matrix.suite }}
         env:
@@ -606,6 +635,14 @@ jobs:
         || (needs.exasol-tests.result != 'skipped')
       )
     steps:
+      -
+        name: Configure AWS Credentials for S3
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+          aws-access-key-id: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
       -
         name: 'Clean S3'
         run: |
