@@ -162,7 +162,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} $LOCAL_IMAGE
@@ -203,7 +203,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -248,7 +248,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -290,7 +290,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -335,7 +335,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -379,7 +379,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -433,7 +433,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -476,7 +476,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -544,7 +544,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -619,7 +619,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
