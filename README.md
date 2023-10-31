@@ -21,7 +21,7 @@ as in [main.yml](.github/workflows/main.yml) on line 32, or add the new role to 
 ```yaml
       -
         name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
