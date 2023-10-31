@@ -177,6 +177,9 @@ jobs:
 
   # Load stubs to S3/ABS
   load-s3:
+    permissions:
+      id-token: write
+      contents: read
     runs-on: ubuntu-latest
     needs: build
     steps:
