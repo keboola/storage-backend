@@ -46,6 +46,7 @@ env:
   AWS_CREDENTIALS_REGION: us-east-1
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
   ECR_REPOSITORY: storage-backend-build
+  LOCAL_IMAGE: ci-php-db-import-export
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
@@ -136,6 +137,7 @@ jobs:
         name: Pull image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -150,29 +152,28 @@ jobs:
         if: ${{ matrix.php-version != env.PHP_VERSION_E2E }}
         env:
           DOCKER_BUILDKIT: 1
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} ci-php-db-import-export
+          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} $LOCAL_IMAGE
       -
-        name: Build docker image
+        name: Push docker image
         if: ${{ matrix.php-version == env.PHP_VERSION_E2E }}
         env:
           DOCKER_BUILDKIT: 1
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} ci-php-db-import-export
-          docker save -o /tmp/ci-php-db-import-export.tar ci-php-db-import-export:latest
-      -
-        name: Check
+          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} $LOCAL_IMAGE
+          docker tag $LOCAL_IMAGE:latest $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Check
         if: ${{ matrix.php-version != env.PHP_VERSION_E2E }}
         run: |
           docker-compose run ci-php-db-import-export php -v
           docker-compose run ci-php-db-import-export composer ci
-      -
-        name: Upload docker image
-        if: ${{ matrix.php-version == env.PHP_VERSION_E2E }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ci-php-db-import-export
-          path: /tmp/ci-php-db-import-export.tar
 
   # Load stubs to S3/ABS
   load-s3:
@@ -183,15 +184,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       -
         name: Load data to ${{ matrix.storage }}
         run: |
@@ -204,15 +217,28 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
+
       -
         name: Load data to ${{ matrix.storage }}
         run: |
@@ -230,15 +256,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       -
         name: Load data to ${{ matrix.storage }}
         run: |
@@ -260,15 +298,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       -
         name: Tests ${{ matrix.suite }}
         env:
@@ -289,15 +339,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       -
         name: Tests ${{ matrix.suite }}
         env:
@@ -318,15 +380,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       -
         name: Tests ${{ matrix.suite }}
         env:
@@ -346,15 +420,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       -
         name: Tests ${{ matrix.suite }}
         env:
@@ -389,15 +475,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       #
       # TESTS
       #
@@ -449,15 +547,27 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
       -
-        name: Download artifact
-        uses: actions/download-artifact@v3
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: ci-php-db-import-export
-          path: /tmp
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       -
-        name: Load Docker image
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}-${{ matrix.php-version }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker load --input /tmp/ci-php-db-import-export.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       #
       # TESTS
       #

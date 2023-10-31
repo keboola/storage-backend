@@ -23,7 +23,7 @@ jobs:
     outputs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
-      changed-php-db-import-export: ${{ steps.changes.outputs.php-db-import-export }}
+      changed-php-db-import-export: 'true'
       changed-php-storage-driver-common: ${{ steps.changes.outputs.php-storage-driver-common }}
       table-utils-requirements: ${{ steps.changes.outputs.table-utils-requirements }}
       db-import-export-requirements: ${{ steps.changes.outputs.db-import-export-requirements }}
