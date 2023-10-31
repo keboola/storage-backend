@@ -18,6 +18,7 @@ concurrency: build-php-storage-driver-common
 env:
   AWS_CREDENTIALS_REGION: us-east-1
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-StorageDriverCommonRole-YR2IMK1ZN47R
+  ECR_REPOSITORY: storage-backend-build
 
 jobs:
   build_common_driver:

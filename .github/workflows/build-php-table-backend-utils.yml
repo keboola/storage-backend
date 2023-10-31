@@ -25,6 +25,8 @@ env:
   TEST_PREFIX: gh_
   AWS_CREDENTIALS_REGION: us-east-1
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
+  ECR_REPOSITORY: storage-backend-build
+
   # Snowflake
   SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
   SNOWFLAKE_PORT: 443
@@ -72,14 +74,21 @@ jobs:
         with:
           role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ci-monorepo
-          path: /tmp
-      - name: Load Base monorepo Docker image
+
+      -
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker load --input /tmp/ci-monorepo.tar
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ci-monorepo:latest
+
       -
         name: Monorepo Localize Composer Paths
         run: |
