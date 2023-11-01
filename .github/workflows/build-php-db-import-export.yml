@@ -210,14 +210,6 @@ jobs:
           docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
 
       -
-        name: Configure AWS Credentials for S3
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
-          aws-access-key-id: ${{ env.S3_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-      -
         name: Load data to ${{ matrix.storage }}
         env:
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
