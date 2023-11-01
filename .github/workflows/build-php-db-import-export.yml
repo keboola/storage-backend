@@ -219,6 +219,9 @@ jobs:
           aws-secret-access-key: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
       -
         name: Load data to ${{ matrix.storage }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: |
           docker-compose run ci-php-db-import-export composer loadS3
   load-abs:
