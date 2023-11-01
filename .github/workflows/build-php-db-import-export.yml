@@ -339,6 +339,8 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
+          AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsS3:
     runs-on: ubuntu-latest
@@ -430,6 +432,8 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
+          AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsAll:
     runs-on: ubuntu-latest
@@ -537,6 +541,8 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
+          AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   post-synapse-tests:
     runs-on: ubuntu-latest
@@ -612,6 +618,8 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
+          AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
 
   post-exasol-tests:
