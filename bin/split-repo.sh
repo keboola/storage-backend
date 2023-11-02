@@ -47,6 +47,7 @@ from packaging import version
 
 last_tag_name = b'${LAST_TAG_IN_SINGLEREPO}'
 tag_prefix = b'${TAG_PREFIX}'
+# copied from refname-callback.sh
 ## begin copy-paste
 # print(b'Checking %s for prefix %s' % (refname, b'${TAG_PREFIX}'))
 # not a tag -> keep as is
