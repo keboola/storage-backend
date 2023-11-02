@@ -47,6 +47,7 @@ from packaging import version
 
 last_tag_name = b'${LAST_TAG_IN_SINGLEREPO}'
 tag_prefix = b'${TAG_PREFIX}'
+## begin copy-paste
 # print(b'Checking %s for prefix %s' % (refname, b'${TAG_PREFIX}'))
 # not a tag -> keep as is
 if not refname.startswith(b'refs/tags/'):
@@ -70,6 +71,7 @@ rewritten_tag = refname[len(b'refs/tags/' + tag_prefix):]
 
 print('[%s] rewritten to [%s]' % (refname.decode('utf-8'), rewritten_tag.decode('utf-8')))
 return b'refs/tags/' + rewritten_tag
+## end copy-paste
 "
 echo ">> Removing skipped tags"
 git tag | grep '^SKIP' | xargs -I {} git tag -d {}

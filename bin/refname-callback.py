@@ -7,8 +7,9 @@ def convertRef(refname):
     last_tag_name = b'2.7.0'
     tag_prefix = b'prefix/'
 
+## The below code should in inserted into split-repo.sh --refname-callback (skip the first few lines)
 ## ------- cut here ✂ --------
-
+## begin copy-paste
     # print(b'Checking %s for prefix %s' % (refname, b'${TAG_PREFIX}'))
     # not a tag -> keep as is
     if not refname.startswith(b'refs/tags/'):
@@ -32,15 +33,23 @@ def convertRef(refname):
 
     print('[%s] rewritten to [%s]' % (refname.decode('utf-8'), rewritten_tag.decode('utf-8')))
     return b'refs/tags/' + rewritten_tag
-
+## end copy-paste
 ## ------- cut here ✂ --------
 
 ## TESTS ##
 print(convertRef(b'refs/tags/2.7.1'))
+# b'refs/tags/SKIP-no-prefix-refs/tags/2.7.1'
 print(convertRef(b'refs/tags/2.7.1-dev'))
+# b'refs/tags/SKIP-no-prefix-refs/tags/2.7.1-dev'
 print(convertRef(b'refs/tags/CT-12345'))
+# b'refs/tags/SKIP-invalid-refs/tags/CT-12345'
 print(convertRef(b'refs/tags/debug-new-repo'))
+# b'refs/tags/SKIP-invalid-refs/tags/debug-new-repo'
 print(convertRef(b'refs/tags/prefix/debug-new-repo'))
+# b'refs/tags/SKIP-invalid-refs/tags/prefix/debug-new-repo'
 print(convertRef(b'refs/tags/prefix/2.7.1-dev'))
+# [refs/tags/prefix/2.7.1-dev] rewritten to [2.7.1-dev]
 print(convertRef(b'refs/tags/prefix/2.7.1'))
+# b'refs/tags/2.7.1-dev'
 print(convertRef(b'refs/tags/all/2.7.1-dev'))
+# b'refs/tags/SKIP-no-prefix-refs/tags/all/2.7.1-dev'
