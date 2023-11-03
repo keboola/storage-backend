@@ -37,19 +37,64 @@ def convertRef(refname):
 ## ------- cut here ✂ --------
 
 ## TESTS ##
-print(convertRef(b'refs/tags/2.7.1'))
-# b'refs/tags/SKIP-no-prefix-refs/tags/2.7.1'
-print(convertRef(b'refs/tags/2.7.1-dev'))
-# b'refs/tags/SKIP-no-prefix-refs/tags/2.7.1-dev'
-print(convertRef(b'refs/tags/CT-12345'))
-# b'refs/tags/SKIP-invalid-refs/tags/CT-12345'
-print(convertRef(b'refs/tags/debug-new-repo'))
-# b'refs/tags/SKIP-invalid-refs/tags/debug-new-repo'
-print(convertRef(b'refs/tags/prefix/debug-new-repo'))
-# b'refs/tags/SKIP-invalid-refs/tags/prefix/debug-new-repo'
-print(convertRef(b'refs/tags/prefix/2.7.1-dev'))
-# [refs/tags/prefix/2.7.1-dev] rewritten to [2.7.1-dev]
-print(convertRef(b'refs/tags/prefix/2.7.1'))
-# b'refs/tags/2.7.1-dev'
-print(convertRef(b'refs/tags/all/2.7.1-dev'))
-# b'refs/tags/SKIP-no-prefix-refs/tags/all/2.7.1-dev'
+
+test_cases = {
+    "Test 1": {
+        "input": b'refs/tags/2.7.1',
+        "expected_output": b'refs/tags/SKIP-no-prefix-refs/tags/2.7.1'
+    },
+    "Test 2": {
+        "input": b'refs/tags/2.7.1-dev',
+        "expected_output": b'refs/tags/SKIP-no-prefix-refs/tags/2.7.1-dev'
+    },
+    "Test 3": {
+        "input": b'refs/tags/CT-12345',
+        "expected_output": b'refs/tags/SKIP-invalid-refs/tags/CT-12345'
+    },
+    "Test 4": {
+        "input": b'refs/tags/debug-new-repo',
+        "expected_output": b'refs/tags/SKIP-invalid-refs/tags/debug-new-repo'
+    },
+    "Test 5": {
+        "input": b'refs/tags/prefix/debug-new-repo',
+        "expected_output": b'refs/tags/SKIP-invalid-refs/tags/prefix/debug-new-repo'
+    },
+    "Test 6": {
+        "input": b'refs/tags/prefix/2.7.1-dev',
+        "expected_output": b'refs/tags/2.7.1-dev'
+    },
+    "Test 7": {
+        "input": b'refs/tags/prefix/2.7.1',
+        "expected_output": b'refs/tags/2.7.1'
+    },
+    "Test 8": {
+        "input": b'refs/tags/all/2.7.1-dev',
+        "expected_output": b'refs/tags/SKIP-no-prefix-refs/tags/all/2.7.1-dev'
+    }
+}
+
+for test_name, test_data in test_cases.items():
+
+    bold = "\x1b[1m"  # ANSI escape code for bold text
+    reset_color = "\x1b[0m"  # Reset text attributes
+
+    print(f'{bold}## {test_name}{reset_color}')
+
+    input_value = test_data["input"]
+    expected_output = test_data["expected_output"]
+    result = convertRef(input_value)
+
+    input_str = input_value.decode('utf-8')
+    result_str = result.decode('utf-8')
+    expected_str = expected_output.decode('utf-8')
+
+    match = result == expected_output
+    color = "\x1b[32m" if match else "\x1b[31m"  # Green for match, red for mismatch
+    reset_color = "\x1b[0m"
+
+
+    print(f'Input: {input_str}')
+    print(f'Output: {color}{result_str}{reset_color}')
+    print(f'Expected: {expected_str}')
+    print('Match:', color + ('Match' if match else 'Mismatch') + reset_color)
+    print()
