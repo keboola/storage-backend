@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Google\Cloud\Core\Exception\BadRequestException;
+use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\ToStageImporter;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use Throwable;
 
 class StageImportTest extends BigqueryBaseTestCase
 {
@@ -159,6 +162,52 @@ class StageImportTest extends BigqueryBaseTestCase
             );
             self::fail('should fail');
         } catch (BadRequestException $e) {
+            // nor target table nor LOG/ERR tables should be present
+            $scheRef = new BigquerySchemaReflection($this->bqClient, self::TEST_DATABASE);
+            $tables = $scheRef->getTablesNames();
+            self::assertCount(1, $tables); // table should be present, only import fails
+        }
+    }
+
+    public function testLoadNullToRequiredColumn(): void
+    {
+        $query = $this->bqClient->query(
+        // table is one column short - import should fail
+            sprintf(
+                'CREATE TABLE %s.%s
+     (
+      `id` INT64 NOT NULL,
+      `name` STRING(100) NOT NULL,
+      `price` STRING(100)
+     );',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            )
+        );
+        $this->bqClient->runQuery($query);
+
+        $importer = new ToStageImporter($this->bqClient);
+        $ref = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_DATABASE,
+            self::TABLE_GENERIC
+        );
+
+        try {
+            $importer->importToStagingTable(
+                $this->createGCSSourceInstanceFromCsv('nullify.csv', new CsvOptions()),
+                $ref->getTableDefinition(),
+                $this->getImportOptions(
+                    [],
+                    false,
+                    false,
+                    1
+                )
+            );
+            self::fail('should fail');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(BigqueryException::class, $e);
+            $this->assertEquals('lalal', $e->getMessage());
             // nor target table nor LOG/ERR tables should be present
             $scheRef = new BigquerySchemaReflection($this->bqClient, self::TEST_DATABASE);
             $tables = $scheRef->getTablesNames();

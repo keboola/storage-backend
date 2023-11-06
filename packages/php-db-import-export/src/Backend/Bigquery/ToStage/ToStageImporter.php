@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Bigquery\ToStage;
 
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Exception\JobException;
+use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ImportState;
@@ -48,7 +49,7 @@ final class ToStageImporter implements ToStageImporterInterface
                     $options
                 )
             );
-        } catch (JobException $e) {
+        } catch (JobException|ServiceException $e) {
             throw BigqueryException::covertException($e);
         }
         $state->stopTimer(self::TIMER_TABLE_IMPORT);
