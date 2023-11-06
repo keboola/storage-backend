@@ -21,3 +21,38 @@ message RuntimeOptions {
   string runId = 1; // runId
   google.protobuf.Any meta = 2; // metadata specific for each backend
 }
+
+/**
+ * Generic log message compliant with PSR-3
+ */
+message LogMessage {
+  Level level = 1;
+  // log levels according to RFC 5424
+  enum Level {
+    Emergency = 0;
+    Alert = 1;
+    Critical = 2;
+    Error = 3;
+    Warning = 4;
+    Notice = 5;
+    Informational = 6;
+    Debug = 7;
+  }
+  string message = 2;
+  google.protobuf.Any context = 3;
+}
+
+/**
+ * Generic response returned by driver
+ * Each command handler returns own response
+ * This response is wrapper around command response for returning additional data
+ */
+message DriverResponse {
+  google.protobuf.Any commandResponse = 1; // response returned by executed command
+  /**
+   * List of log messages returned by driver
+   * List is not general purpose log, for this purpose internal logger should be used,
+   * but log is used for returning messages significant for end user which are stored in job log
+   */
+  repeated LogMessage messages = 2;
+}
