@@ -6,7 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Google\Cloud\Core\Exception\BadRequestException;
 use Keboola\CsvOptions\CsvOptions;
-use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryInputDataException;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Storage\Bigquery\Table;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
@@ -206,8 +206,7 @@ class StageImportTest extends BigqueryBaseTestCase
             );
             self::fail('should fail');
         } catch (Throwable $e) {
-            $this->assertInstanceOf(BigqueryException::class, $e);
-            $this->assertStringContainsString('Required column value is missing', $e->getMessage());
+            $this->assertInstanceOf(BigqueryInputDataException::class, $e);
         }
     }
 
@@ -289,8 +288,7 @@ class StageImportTest extends BigqueryBaseTestCase
             );
             self::fail('should fail');
         } catch (Throwable $e) {
-            $this->assertInstanceOf(BigqueryException::class, $e);
-            $this->assertStringContainsString('Required field name cannot be null', $e->getMessage());
+            $this->assertInstanceOf(BigqueryInputDataException::class, $e);
         }
     }
 }

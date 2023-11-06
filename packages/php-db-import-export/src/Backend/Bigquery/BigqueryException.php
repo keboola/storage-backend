@@ -14,6 +14,9 @@ class BigqueryException extends Exception
     public static function covertException(JobException|ServiceException $e): Throwable
     {
         if ($e instanceof ServiceException) {
+            if (str_contains($e->getMessage(), 'Required column value is missing')) {
+                return new BigqueryInputDataException($e->getMessage());
+            }
             return new self($e->getMessage());
         }
         return $e;
@@ -28,7 +31,7 @@ class BigqueryException extends Exception
         foreach ($jobInfo['status']['errors'] ?? [] as $error) {
             if (str_contains($error['message'], 'Required column value is missing')) {
                 $errorMessage = $error['message'];
-                break;
+                return new BigqueryInputDataException($errorMessage);
             }
         }
 
