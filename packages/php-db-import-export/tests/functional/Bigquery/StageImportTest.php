@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Google\Cloud\Core\Exception\BadRequestException;
-use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Storage\Bigquery\Table;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
@@ -169,10 +169,10 @@ class StageImportTest extends BigqueryBaseTestCase
         }
     }
 
-    public function testLoadNullToRequiredColumn(): void
+    public function testLoadFromFileWithNullValueToRequiredColumn(): void
     {
         $query = $this->bqClient->query(
-        // table is one column short - import should fail
+        // name is NOT NULL, but nullify file contains null value for this column
             sprintf(
                 'CREATE TABLE %s.%s
      (
@@ -207,11 +207,90 @@ class StageImportTest extends BigqueryBaseTestCase
             self::fail('should fail');
         } catch (Throwable $e) {
             $this->assertInstanceOf(BigqueryException::class, $e);
-            $this->assertEquals('lalal', $e->getMessage());
-            // nor target table nor LOG/ERR tables should be present
-            $scheRef = new BigquerySchemaReflection($this->bqClient, self::TEST_DATABASE);
-            $tables = $scheRef->getTablesNames();
-            self::assertCount(1, $tables); // table should be present, only import fails
+            $this->assertStringContainsString('Required column value is missing', $e->getMessage());
+        }
+    }
+
+    public function testLoadFromTableWithNullValueToRequiredColumn(): void
+    {
+        $sourceTable = self::TABLE_GENERIC . '_source';
+        $destinationTable = self::TABLE_GENERIC . '_dest';
+
+        $destinationPath = [
+            BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+            BigqueryQuote::quoteSingleIdentifier($destinationTable),
+        ];
+        $sourcePath = [
+            BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+            BigqueryQuote::quoteSingleIdentifier($sourceTable),
+        ];
+
+        // create destination with NOT NULL
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s
+     (
+      `id` INT64 NOT NULL,
+      `name` STRING(100) NOT NULL,
+      `price` STRING(100)
+     );',
+                ...$destinationPath
+            )
+        );
+        $this->bqClient->runQuery($query);
+
+        // create source table
+        $query = $this->bqClient->query(
+        // table is one column short - import should fail
+            sprintf(
+                'CREATE TABLE %s.%s
+     (
+      `id` INT64 NOT NULL,
+      `name` STRING(100),
+      `price` STRING(100)
+     );',
+                ...$sourcePath
+            )
+        );
+        $this->bqClient->runQuery($query);
+
+        // load source table with some NULLs
+        $query = $this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s VALUES (1, NULL, \'1000\');',
+                ...$sourcePath
+            )
+        );
+        $this->bqClient->runQuery($query);
+
+        $importer = new ToStageImporter($this->bqClient);
+        $ref = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_DATABASE,
+            $destinationTable
+        );
+
+        try {
+            // load SOURCE which contains NULL to DESTINATION which has NOT NULL column
+            $importer->importToStagingTable(
+                new Table(
+                    self::TEST_DATABASE,
+                    $sourceTable,
+                    [],
+                    [],
+                ),
+                $ref->getTableDefinition(),
+                $this->getImportOptions(
+                    [],
+                    false,
+                    false,
+                    1
+                )
+            );
+            self::fail('should fail');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(BigqueryException::class, $e);
+            $this->assertStringContainsString('Required field name cannot be null', $e->getMessage());
         }
     }
 }

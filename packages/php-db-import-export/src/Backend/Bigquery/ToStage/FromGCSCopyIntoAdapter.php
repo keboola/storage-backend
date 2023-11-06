@@ -6,7 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Bigquery\ToStage;
 
 use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
-use Google\Cloud\Core\Exception\BadRequestException;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
@@ -77,8 +77,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         }
         // check if the job has errors
         if (isset($job->info()['status']['errorResult'])) {
-            $error = $job->info()['status']['errorResult']['message'];
-            throw new BadRequestException($error);
+            throw BigqueryException::createExceptionFromJobResult($job->info());
         }
 
         $ref = new BigqueryTableReflection(
