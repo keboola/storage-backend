@@ -17,7 +17,7 @@ class SessionFactory
 
     public function createSession(): Session
     {
-        return Session::createFromJob($this->bqClient->startJob(
+        return Session::createFromJob($this->bqClient->runJob(
             $this->bqClient->query(
                 'SELECT 1',
                 [
