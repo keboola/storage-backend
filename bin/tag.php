@@ -2,9 +2,9 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
+use Composer\Semver\Semver;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Finder\Finder;
@@ -22,6 +22,20 @@ function runCmd($commandLine, $cwd): string
     $output = $p->getOutput();
     // remove trailing new line
     return rtrim($output);
+}
+
+function isValidStableSemver(string $tag): bool
+{
+    $versionParser = new \Composer\Semver\VersionParser;
+    try {
+        $version = $versionParser->normalize($tag);
+        if ($versionParser::parseStability($version) === 'stable') {
+            return true;
+        }
+    } catch (Throwable) {
+        // ignore
+    }
+    return false;
 }
 
 (new SingleCommandApplication())
@@ -46,31 +60,38 @@ function runCmd($commandLine, $cwd): string
         $package = $helper->ask($input, $output, $question);
         $output->writeln(sprintf('You have just selected: "%s"', basename($package)));
 
-        $tagPrefix = sprintf("%s/%s-", basename($package), $branch);
+        $packagePrefix = basename($package) . '/';
+        $tags = runCmd(sprintf(
+            'git tag --sort=refname -l \'%s*\'',
+            $packagePrefix
+        ),
+            $cwd
+        );
+        $tags = explode(PHP_EOL, $tags);
+        $tags = array_map(fn($i) => str_replace($packagePrefix, '', $i), $tags);
+        $tags = array_filter($tags, fn($i) => isValidStableSemver($i));
+        $tags = Semver::rsort($tags);
+        $latest = '1';
+        if ($tags !== []) {
+            $latest = $tags[0];
+        }
 
+        $tagSuffix = '-dev';
+        $tagPrefix = sprintf("%s/%s-%s-", basename($package), $latest, $branch);
         $tags = runCmd(sprintf('git tag --sort=refname -l \'%s*\'', $tagPrefix), $cwd);
         $tags = explode(PHP_EOL, $tags);
 
         $lastNumericTagId = 0;
         if ($tags !== []) {
             foreach ($tags as $tag) {
-                $tagId = str_replace($tagPrefix, '', $tag);
+                $tagId = str_replace([$tagPrefix, $tagSuffix], '', $tag);
                 if (is_numeric($tagId)) {
                     $lastNumericTagId = (int) $tagId;
                 }
             }
         }
         $newTagId = $lastNumericTagId + 1;
-        $question = new Question(
-            sprintf(
-                'Add tag suffix "%s{suffix}" manually or ignore this by pressing <enter> which will set "%s"',
-                $tagPrefix,
-                $tagPrefix . $newTagId
-            ),
-            $newTagId
-        );
-        $suffix = $helper->ask($input, $output, $question);
-        $newTag = $tagPrefix . $suffix;
+        $newTag = $tagPrefix . $newTagId . $tagSuffix;
 
         $output->writeln(sprintf('New tag will be "%s"', $newTag));
 
