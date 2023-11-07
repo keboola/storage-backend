@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
-use Google\Cloud\Core\Exception\BadRequestException;
 use Keboola\CsvOptions\CsvOptions;
+use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryInputDataException;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Storage\Bigquery\Table;
@@ -161,7 +161,7 @@ class StageImportTest extends BigqueryBaseTestCase
                 )
             );
             self::fail('should fail');
-        } catch (BadRequestException $e) {
+        } catch (BigqueryException $e) {
             // nor target table nor LOG/ERR tables should be present
             $scheRef = new BigquerySchemaReflection($this->bqClient, self::TEST_DATABASE);
             $tables = $scheRef->getTablesNames();
