@@ -14,7 +14,7 @@ class BigqueryException extends Exception
     public static function covertException(JobException|ServiceException $e): Throwable
     {
         if ($e instanceof ServiceException) {
-            if (str_contains($e->getMessage(), 'Required column value is missing')) {
+            if (preg_match('/.*Required field .+ cannot be null.*/m', $e->getMessage(), $output_array) === 1) {
                 return new BigqueryInputDataException($e->getMessage());
             }
             return new self($e->getMessage());
