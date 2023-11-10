@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable;
 
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Exception\JobException;
+use Google\Cloud\Core\Exception\ServiceException;
 use Keboola\Db\Import\Result;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
@@ -101,7 +102,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $session
                 );
             }
-        } catch (JobException $e) {
+        } catch (JobException|ServiceException $e) {
             throw BigqueryException::covertException($e);
         }
 
