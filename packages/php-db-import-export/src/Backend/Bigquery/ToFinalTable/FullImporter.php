@@ -20,6 +20,7 @@ use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 final class FullImporter implements ToFinalTableImporterInterface
 {
@@ -171,6 +172,12 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getCommitTransaction(),
                 $session->getAsQueryOptions()
             ));
+        } catch (Throwable $e) {
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getRollbackTransaction(),
+                $session->getAsQueryOptions()
+            ));
+            throw $e;
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // 5 drop dedup table
