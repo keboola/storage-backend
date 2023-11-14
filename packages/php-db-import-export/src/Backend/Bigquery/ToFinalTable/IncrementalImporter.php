@@ -20,6 +20,7 @@ use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 final class IncrementalImporter implements ToFinalTableImporterInterface
 {
@@ -135,8 +136,18 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
         } catch (JobException|ServiceException $e) {
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getRollbackTransaction(),
+                $session->getAsQueryOptions()
+            ));
             throw BigqueryException::covertException($e);
-        } finally {
+        } catch (Throwable $e) {
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getRollbackTransaction(),
+                $session->getAsQueryOptions()
+            ));
+            throw $e;
+        }  finally {
             if (isset($deduplicationTableDefinition)) {
                 // drop dedup table
                 $this->bqClient->runQuery($this->bqClient->query(
