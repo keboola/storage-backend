@@ -126,6 +126,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         $deduplicationTableName = BackendHelper::generateTempDedupTableName();
 
         try {
+            $transactionStarted = false;
             // 2 transfer data from source to dedup table with dedup process
             $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getCreateDedupTable(
@@ -155,6 +156,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getBeginTransaction(),
                 $session->getAsQueryOptions()
             ));
+            $transactionStarted = true;
 
             // 4 move data with INSERT INTO
             $this->bqClient->runQuery($this->bqClient->query(
@@ -173,10 +175,12 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $session->getAsQueryOptions()
             ));
         } catch (Throwable $e) {
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getRollbackTransaction(),
-                $session->getAsQueryOptions()
-            ));
+            if ($transactionStarted) {
+                $this->bqClient->runQuery($this->bqClient->query(
+                    $this->sqlBuilder->getRollbackTransaction(),
+                    $session->getAsQueryOptions()
+                ));
+            }
             throw $e;
         } finally {
             if (isset($deduplicationTableDefinition)) {
