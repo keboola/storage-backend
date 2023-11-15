@@ -20,6 +20,7 @@ use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 final class FullImporter implements ToFinalTableImporterInterface
 {
@@ -125,6 +126,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         $deduplicationTableName = BackendHelper::generateTempDedupTableName();
 
         try {
+            $transactionStarted = false;
             // 2 transfer data from source to dedup table with dedup process
             $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getCreateDedupTable(
@@ -154,6 +156,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getBeginTransaction(),
                 $session->getAsQueryOptions()
             ));
+            $transactionStarted = true;
 
             // 4 move data with INSERT INTO
             $this->bqClient->runQuery($this->bqClient->query(
@@ -171,6 +174,14 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getCommitTransaction(),
                 $session->getAsQueryOptions()
             ));
+        } catch (Throwable $e) {
+            if ($transactionStarted) {
+                $this->bqClient->runQuery($this->bqClient->query(
+                    $this->sqlBuilder->getRollbackTransaction(),
+                    $session->getAsQueryOptions()
+                ));
+            }
+            throw $e;
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // 5 drop dedup table

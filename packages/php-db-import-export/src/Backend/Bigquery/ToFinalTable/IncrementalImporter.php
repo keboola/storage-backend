@@ -20,6 +20,7 @@ use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Throwable;
 
 final class IncrementalImporter implements ToFinalTableImporterInterface
 {
@@ -56,6 +57,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
         $timestampValue = DateTimeHelper::getNowFormatted();
         try {
+            $transactionStarted = false;
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
                 // has PKs for dedup
                 $deduplicationTableName = BackendHelper::generateTempDedupTableName();
@@ -83,6 +85,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $this->sqlBuilder->getBeginTransaction(),
                     $session->getAsQueryOptions()
                 ));
+                $transactionStarted = true;
 
                 // 1. Run UPDATE command to update rows in final table with updated data based on PKs
                 $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
@@ -113,6 +116,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $this->sqlBuilder->getBeginTransaction(),
                     $session->getAsQueryOptions()
                 ));
+                $transactionStarted = true;
             }
 
             // insert into destination table
@@ -135,7 +139,21 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
         } catch (JobException|ServiceException $e) {
+            if ($transactionStarted) {
+                $this->bqClient->runQuery($this->bqClient->query(
+                    $this->sqlBuilder->getRollbackTransaction(),
+                    $session->getAsQueryOptions()
+                ));
+            }
             throw BigqueryException::covertException($e);
+        } catch (Throwable $e) {
+            if ($transactionStarted) {
+                $this->bqClient->runQuery($this->bqClient->query(
+                    $this->sqlBuilder->getRollbackTransaction(),
+                    $session->getAsQueryOptions()
+                ));
+            }
+            throw $e;
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // drop dedup table
