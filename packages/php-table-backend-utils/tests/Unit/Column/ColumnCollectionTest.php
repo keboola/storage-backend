@@ -82,7 +82,7 @@ class ColumnCollectionTest extends TestCase
                 ],
                 'snowflake' => [
                     SnowflakeColumn::class,
-                    1201,
+                    10000,
                 ],
             ];
     }
