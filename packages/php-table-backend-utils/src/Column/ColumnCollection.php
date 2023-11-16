@@ -24,8 +24,10 @@ final class ColumnCollection extends Collection
         // https://docs.teradata.com/r/Teradata-VantageTM-Database-Design/March-2019/Teradata-System-Limits/Database-Limits
         Redshift::class => 1600,
         // https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_usage.html
-        Snowflake::class => 1201,
-        // limit is 16MB -> manual limit to 1200 + timestamp
+        Snowflake::class => 10000,
+        // it's complicated with columns limit in SNFLK
+        // but standard tables should have limit of 10k columns
+        // https://community.snowflake.com/s/question/0D5Do00000Lm9RFKAZ/what-is-the-maximum-number-of-columns-in-a-normal-table-in-snowflake-ive-read-somewhere-that-it-was-a-soft-limit-of-2000-but-that-was-a-few-years-ago-other-sources-have-said-its-now-10000-as-of-2021-does-anyone-have-a-definitive-answer-please
     ];
 
     /**
