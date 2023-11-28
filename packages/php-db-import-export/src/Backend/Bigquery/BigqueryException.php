@@ -27,8 +27,6 @@ class BigqueryException extends Exception
     public static function createExceptionFromJobResult(array $jobInfo): Throwable
     {
         $errorMessage = $jobInfo['status']['errorResult']['message'] ?? 'Unknown error';
-
-        $pattern = '/Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: [0-9]+; errors: [0-9]+; max bad: [0-9]+; error percent: [0-9]+/';
         $jobErrors = $jobInfo['status']['errors'] ?? [];
 
         // detecting missing required column. Record with `Required column value is missing` substring contains
@@ -40,17 +38,16 @@ class BigqueryException extends Exception
             }
         }
 
-        $isMultipleErrors = preg_match($pattern, $errorMessage, $matches);
         $filteredJobErrors = array_filter($jobErrors, function ($error) use ($jobInfo) {
             // the errorResult is the first in list of errors as well
             return $error['message'] !== $jobInfo['status']['errorResult']['message'];
         });
         $countOfErrors = count($filteredJobErrors);
-        if ($isMultipleErrors) {
+        $parsingErrors = array_filter($filteredJobErrors, function ($error) {
+            return self::isUserError($error['message'], $error['reason']);
+        });
+        if (count($parsingErrors) > 0) {
             // filter parsing errors
-            $parsingErrors = array_filter($filteredJobErrors, function ($error) {
-                return self::isUserError($error['message'], $error['reason']);
-            });
             $areExtraErrors = count($parsingErrors) !== $countOfErrors;
             return new BigqueryInputDataException(self::getErrorMessageForErrorList($parsingErrors, $areExtraErrors, $jobInfo['jobReference']['jobId']));
 
