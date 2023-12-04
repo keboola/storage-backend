@@ -50,28 +50,6 @@ class BigqueryException extends Exception
             // filter parsing errors
             $areExtraErrors = count($parsingErrors) !== $countOfErrors;
             return new BigqueryInputDataException(self::getErrorMessageForErrorList($parsingErrors, $areExtraErrors, $jobInfo['jobReference']['jobId']));
-
-            if (count($filteredJobErrors) > 0 && count($filteredJobErrors) < 10) {
-                // if there is reasonable number of errors, we can output them all
-                $errors = implode(PHP_EOL, array_map(function ($error) {
-                    return $error['message'];
-                }, $filteredJobErrors));
-                return new BigqueryInputDataException('CSV processing failed:' . PHP_EOL . $errors);
-            }
-
-            if (count($filteredJobErrors) > 10) {
-                $filteredJobErrors = array_slice($filteredJobErrors, 0, 10);
-                // if there is too many errors, we can output only first 10 with link to further details
-                $tooManyErrorsMessage = sprintf(
-                    'CSV processing failed with too many errors (for details see job detail %s):',
-                    $jobInfo['selfLink'],
-                );
-                $errors = implode(PHP_EOL, array_map(function ($error) {
-                    return $error['message'];
-                }, $filteredJobErrors));
-                return new BigqueryInputDataException($tooManyErrorsMessage . PHP_EOL . $errors);
-            }
-            // else there are no further errors, so it's not the expected case, let it fall through
         }
 
         return new self($errorMessage);
