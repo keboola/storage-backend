@@ -227,13 +227,14 @@ class Bigquery extends Common
     }
 
     /**
-     * @return array{type:string,length:string|null,nullable:bool}
+     * @return array{type:string,length:string|null,default:string|null,nullable:bool}
      */
     public function toArray(): array
     {
         return [
             'type' => $this->getType(),
             'length' => $this->getLength(),
+            'default' => $this->getDefault(),
             'nullable' => $this->isNullable(),
         ];
     }
