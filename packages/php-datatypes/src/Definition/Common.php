@@ -126,7 +126,7 @@ abstract class Common implements DefinitionInterface
         $length,
         int $firstMax,
         int $secondMax,
-        bool $firstMustBeBigger = true
+        bool $firstMustBeBigger = true,
     ): bool {
         if ($this->isEmpty($length)) {
             return true;

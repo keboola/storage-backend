@@ -124,7 +124,7 @@ class Oracle extends Common
             BaseType::NUMERIC, BaseType::FLOAT, BaseType::BOOLEAN, BaseType::INTEGER => self::TYPE_NUMBER,
             BaseType::TIMESTAMP, BaseType::DATE => self::TYPE_DATE,
             default => throw new InvalidTypeException(
-                sprintf('No Oracle type mapped for base type "%s"', $basetype)
+                sprintf('No Oracle type mapped for base type "%s"', $basetype),
             ),
         };
     }

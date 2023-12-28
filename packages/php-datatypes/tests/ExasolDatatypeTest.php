@@ -67,11 +67,11 @@ class ExasolDatatypeTest extends TestCase
     {
         self::assertSame(
             BaseType::NUMERIC,
-            (new Exasol('NUMBER', ['length' => '10,5']))->getBasetype()
+            (new Exasol('NUMBER', ['length' => '10,5']))->getBasetype(),
         );
         self::assertSame(
             BaseType::FLOAT,
-            (new Exasol('NUMBER', ['length' => null]))->getBasetype()
+            (new Exasol('NUMBER', ['length' => null]))->getBasetype(),
         );
     }
 
@@ -202,7 +202,7 @@ class ExasolDatatypeTest extends TestCase
                     ['length' => '20,20', 'default' => 10, 'nullable' => true],
                     'NUMBER (20,20) DEFAULT 10',
                 ],
-            ]
+            ],
         );
     }
 
