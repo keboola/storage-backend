@@ -24,7 +24,7 @@ switch ($argv[1]) {
 
         $loader = new AbsLoader(
             (string) getenv('ABS_ACCOUNT_NAME'),
-            (string) getenv('ABS_CONTAINER_NAME')
+            (string) getenv('ABS_CONTAINER_NAME'),
         );
         $loader->deleteContainer();
         $loader->createContainer();
@@ -36,7 +36,7 @@ switch ($argv[1]) {
         $loader = new S3Loader(
             (string) getenv('AWS_REGION'),
             (string) getenv('AWS_S3_BUCKET'),
-            (string) getenv('AWS_S3_KEY')
+            (string) getenv('AWS_S3_KEY'),
         );
         $loader->clearBucket();
         $loader->load();

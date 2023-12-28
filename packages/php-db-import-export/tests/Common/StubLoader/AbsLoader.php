@@ -26,14 +26,14 @@ class AbsLoader extends BaseStubLoader
 
     public function __construct(
         string $accountName,
-        string $containerName
+        string $containerName,
     ) {
         $this->accountName = $accountName;
         $this->containerName = $containerName;
         $this->connectionString = sprintf(
             'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=core.windows.net',
             $accountName,
-            getenv('ABS_ACCOUNT_KEY')
+            getenv('ABS_ACCOUNT_KEY'),
         );
     }
 
@@ -62,7 +62,7 @@ class AbsLoader extends BaseStubLoader
         if ($this->blobService === null) {
             echo "Creating blob service \n";
             $this->blobService = ClientFactory::createClientFromConnectionString(
-                $this->connectionString
+                $this->connectionString,
             );
         }
         return $this->blobService;
@@ -98,7 +98,7 @@ class AbsLoader extends BaseStubLoader
             $promises[] = $this->getBlobService()->createBlockBlobAsync(
                 $this->containerName,
                 strtr($file->getPathname(), [self::BASE_DIR => '']),
-                $file->getContents()
+                $file->getContents(),
             );
         }
 
@@ -113,12 +113,12 @@ class AbsLoader extends BaseStubLoader
                             'azure://%s.%s/%s/not-exists.csv',
                             $this->accountName,
                             Resources::BLOB_BASE_DNS_NAME,
-                            $this->containerName
+                            $this->containerName,
                         ),
                         'mandatory' => true,
                     ],
                 ],
-            ], JSON_THROW_ON_ERROR)
+            ], JSON_THROW_ON_ERROR),
         );
 
         foreach ($promises as $promise) {
@@ -150,7 +150,7 @@ class AbsLoader extends BaseStubLoader
                         Resources::BLOB_BASE_DNS_NAME,
                         $this->containerName,
                         $directory->getBasename(),
-                        $file->getFilename()
+                        $file->getFilename(),
                     ),
                     'mandatory' => true,
                 ];
@@ -160,7 +160,7 @@ class AbsLoader extends BaseStubLoader
                 '%s/%s.%s.csvmanifest',
                 $directory->getPathname(),
                 self::MANIFEST_SUFFIX,
-                $directory->getBasename()
+                $directory->getBasename(),
             );
             file_put_contents($manifestFilePath, guzzle_json_encode($manifest));
         }
