@@ -108,6 +108,8 @@ class Bigquery extends Common
 
     public const MAX_LENGTH = 9223372036854775807;
 
+    public const METADATA_BACKEND = 'bigquery';
+
     /** @phpstan-var BigqueryTableFieldSchema|null */
     private ?array $fieldAsArray = null;
 

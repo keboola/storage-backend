@@ -315,6 +315,8 @@ class Teradata extends Common
         self::TYPE_NUMBER => '-128,-128',
     ];
 
+    public const METADATA_BACKEND = 'teradata';
+
     private bool $isLatin = false;
 
     // depends on Char Type column in HELP TABLE column

@@ -24,6 +24,8 @@ class Redshift extends Common
         'TIMESTAMPTZ', 'TIMESTAMP WITH TIME ZONE',
     ];
 
+    public const METADATA_BACKEND = 'redshift';
+
     protected ?string $compression = null;
 
     /**
