@@ -14,12 +14,12 @@ final class TooManyRequestsException extends Exception
     public function __construct(
         string $message = self::TOO_MANY_REQUESTS,
         int $code = self::ERR_RESOURCE_FULL,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct(
             $message,
             $code,
-            $previous
+            $previous,
         );
     }
 }

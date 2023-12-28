@@ -22,7 +22,7 @@ final class Password
     public static function generate(
         int $length = self::DEFAULT_PASSWORD_LENGTH,
         int $usedSets = self::DEFAULT_SETS,
-        string $excludeChars = self::DEFAULT_EXCLUDED_CHARACTERS
+        string $excludeChars = self::DEFAULT_EXCLUDED_CHARACTERS,
     ): string {
 
         $sets = [];

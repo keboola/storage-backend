@@ -11,7 +11,7 @@ class SynapseNameGenerator extends GenericNameGenerator
         return strtoupper(
             $this->stackPrefix
             . 'GLOBAL_SCHEMA_OWNER'
-            . self::ROLE_SUFFIX
+            . self::ROLE_SUFFIX,
         );
     }
 }

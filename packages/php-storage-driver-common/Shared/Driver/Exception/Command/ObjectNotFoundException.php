@@ -18,7 +18,7 @@ final class ObjectNotFoundException extends Exception implements
         $this->objectName = $objectName;
         parent::__construct(sprintf(
             'Object "%s" not found.',
-            $objectName
+            $objectName,
         ), $code, $previous);
     }
 

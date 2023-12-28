@@ -17,7 +17,7 @@ class GenericNameGenerator implements BackendNameGeneratorInterface, BackendSupp
     protected string $stackPrefix;
 
     public function __construct(
-        string $clientDbPrefix
+        string $clientDbPrefix,
     ) {
         if ($clientDbPrefix === '') {
             throw new LogicException('Client db prefix must be set');
@@ -48,8 +48,8 @@ class GenericNameGenerator implements BackendNameGeneratorInterface, BackendSupp
             sprintf(
                 '%s-%s',
                 $this->createObjectNameForProject($projectId),
-                $bucketId
-            )
+                $bucketId,
+            ),
         );
     }
 
@@ -85,14 +85,14 @@ class GenericNameGenerator implements BackendNameGeneratorInterface, BackendSupp
 
     public function createShareRoleNameForBucket(
         string $projectId,
-        string $bucketId
+        string $bucketId,
     ): string {
         return strtoupper(sprintf(
             '%s_%s_%s%s',
             rtrim($this->stackPrefix, '_'),
             $projectId,
             $bucketId,
-            self::SHARE_ROLE_SUFFIX
+            self::SHARE_ROLE_SUFFIX,
         ));
     }
 }

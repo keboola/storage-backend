@@ -13,7 +13,7 @@ final class CommandNotSupportedException extends Exception implements
     {
         parent::__construct(sprintf(
             'Command "%s" not supported.',
-            $command
+            $command,
         ));
     }
 }

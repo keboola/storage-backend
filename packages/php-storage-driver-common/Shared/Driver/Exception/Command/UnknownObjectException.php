@@ -16,10 +16,10 @@ final class UnknownObjectException extends Exception implements
         parent::__construct(
             sprintf(
                 'Unknown object "%s".',
-                $objectName
+                $objectName,
             ),
             $code,
-            $previous
+            $previous,
         );
     }
 }

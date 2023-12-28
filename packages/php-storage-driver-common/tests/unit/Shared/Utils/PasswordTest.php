@@ -21,7 +21,7 @@ class PasswordTest extends TestCase
             $this->assertMatchesRegularExpression(
                 '~^[^0O1Il]+$~',
                 $password,
-                'Characters "0O1Il" are not excluded from password.'
+                'Characters "0O1Il" are not excluded from password.',
             );
         }
     }
@@ -31,7 +31,7 @@ class PasswordTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/[0-9]+/',
             $password,
-            sprintf('Password "%s" missing numeric characters.', $password)
+            sprintf('Password "%s" missing numeric characters.', $password),
         );
     }
 
@@ -40,7 +40,7 @@ class PasswordTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/[A-Z]+/',
             $password,
-            sprintf('Password "%s" missing uppercase characters.', $password)
+            sprintf('Password "%s" missing uppercase characters.', $password),
         );
     }
 
@@ -49,7 +49,7 @@ class PasswordTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/[a-z]+/',
             $password,
-            sprintf('Password "%s" missing lowercase characters.', $password)
+            sprintf('Password "%s" missing lowercase characters.', $password),
         );
     }
 
@@ -62,7 +62,7 @@ class PasswordTest extends TestCase
                 Password::SET_LOWERCASE |
                 Password::SET_UPPERCASE |
                 Password::SET_NUMBER |
-                Password::SET_SPECIAL_CHARACTERS
+                Password::SET_SPECIAL_CHARACTERS,
             );
             $this->assertPasswordHasNumber($password);
             $this->assertPasswordHasUppercase($password);
@@ -72,7 +72,7 @@ class PasswordTest extends TestCase
             $this->assertMatchesRegularExpression(
                 '~^[^0O1Il]+$~',
                 $password,
-                'Characters "0O1Il" are not excluded from password.'
+                'Characters "0O1Il" are not excluded from password.',
             );
         }
     }
@@ -82,7 +82,7 @@ class PasswordTest extends TestCase
         $this->assertMatchesRegularExpression(
             '/[_\-\!\$\.\+\/\@\#\%\&\*\?]+/',
             $password,
-            sprintf('Password "%s" missing special characters.', $password)
+            sprintf('Password "%s" missing special characters.', $password),
         );
     }
 
@@ -96,7 +96,7 @@ class PasswordTest extends TestCase
                 Password::SET_UPPERCASE |
                 Password::SET_NUMBER |
                 Password::SET_SPECIAL_CHARACTERS,
-                'abc'
+                'abc',
             );
             $this->assertPasswordHasNumber($password);
             $this->assertPasswordHasUppercase($password);
@@ -106,7 +106,7 @@ class PasswordTest extends TestCase
             $this->assertMatchesRegularExpression(
                 '~^[^abc]+$~',
                 $password,
-                'Characters "abc" are not excluded from password.'
+                'Characters "abc" are not excluded from password.',
             );
         }
     }

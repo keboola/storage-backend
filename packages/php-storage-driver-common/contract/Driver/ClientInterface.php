@@ -17,6 +17,6 @@ interface ClientInterface
         Message $credentials,
         Message $command,
         array $features,
-        Message $runtimeOptions
+        Message $runtimeOptions,
     ): ?Message;
 }
