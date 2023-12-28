@@ -16,7 +16,7 @@ class GrantOptionsTest extends TestCase
         $options = new GrantOptions([Permission::GRANT_VIEW_DEFINITION], 'ToMyUser');
         $this->assertSame(
             [Permission::GRANT_VIEW_DEFINITION],
-            $options->getPermissions()
+            $options->getPermissions(),
         );
         $this->assertFalse($options->isAllowGrantOption());
         $this->assertSame([], $options->getOnTargetPath());
@@ -32,7 +32,7 @@ class GrantOptionsTest extends TestCase
             ->setAllowGrantOption(GrantOptions::OPTION_ALLOW_GRANT_OPTION);
         $this->assertSame(
             [Permission::GRANT_VIEW_DEFINITION],
-            $options->getPermissions()
+            $options->getPermissions(),
         );
         $this->assertTrue($options->isAllowGrantOption());
         $this->assertSame(['path'], $options->getOnTargetPath());

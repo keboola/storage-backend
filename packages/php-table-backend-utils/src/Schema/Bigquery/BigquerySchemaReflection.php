@@ -36,7 +36,7 @@ class BigquerySchemaReflection implements SchemaReflectionInterface
             sprintf(
                 'SELECT * FROM %s.INFORMATION_SCHEMA.TABLES WHERE `table_type` != \'VIEW\';',
                 BigqueryQuote::quoteSingleIdentifier($this->datasetName),
-            )
+            ),
         );
         $queryResults = $this->bqClient->runQuery($query);
 
@@ -79,7 +79,7 @@ class BigquerySchemaReflection implements SchemaReflectionInterface
             sprintf(
                 'SELECT * FROM %s.INFORMATION_SCHEMA.VIEWS;',
                 BigqueryQuote::quoteSingleIdentifier($this->datasetName),
-            )
+            ),
         );
         $queryResults = $this->bqClient->runQuery($query);
 

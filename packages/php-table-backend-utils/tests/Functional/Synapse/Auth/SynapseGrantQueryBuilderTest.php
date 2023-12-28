@@ -81,20 +81,20 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 
         $this->connection->executeStatement(sprintf(
             'CREATE ROLE %s',
-            SynapseQuote::quoteSingleIdentifier($this->currentLogin . '_ROLE')
+            SynapseQuote::quoteSingleIdentifier($this->currentLogin . '_ROLE'),
         ));
 
         assert($this->currentLogin !== null);
         $this->connection->executeStatement(sprintf(
             'CREATE SCHEMA %s AUTHORIZATION %s',
             SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SynapseQuote::quoteSingleIdentifier($this->currentLogin)
+            SynapseQuote::quoteSingleIdentifier($this->currentLogin),
         ));
 
         $this->connection->executeStatement(sprintf(
             'CREATE TABLE %s.%s ([col1] nvarchar(4000) NOT NULL DEFAULT \'\')',
             SynapseQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SynapseQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            SynapseQuote::quoteSingleIdentifier(self::TEST_TABLE),
         ));
     }
 
@@ -344,7 +344,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
         bool $allowGrantOption,
         bool $grantToRole,
         string $expectedGrant,
-        string $expectedRevoke
+        string $expectedRevoke,
     ): void {
         assert($this->currentLogin !== null);
         if ($useCurrentLoginOnEndPath) {
@@ -354,7 +354,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 
         $options = (new GrantOptions(
             $permissions,
-            $grantTo
+            $grantTo,
         ))
             ->setOnTargetPath($grantOnTargetPath)
             ->grantOnSubject($grantSubject)
@@ -371,7 +371,7 @@ class SynapseGrantQueryBuilderTest extends BaseAuthTestCase
 
         $options = (new RevokeOptions(
             $permissions,
-            $grantTo
+            $grantTo,
         ))
             ->setOnTargetPath($grantOnTargetPath)
             ->revokeOnSubject($grantSubject)

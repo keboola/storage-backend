@@ -35,7 +35,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
         $objectNameWithSchema = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
-            SynapseQuote::quoteSingleIdentifier($this->viewName)
+            SynapseQuote::quoteSingleIdentifier($this->viewName),
         );
 
         /**
@@ -69,7 +69,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
         $sql = sprintf(
             'SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s',
             SynapseQuote::quote($this->schemaName),
-            SynapseQuote::quote($this->viewName)
+            SynapseQuote::quote($this->viewName),
         );
 
         /** @var string $definition */
@@ -94,7 +94,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
         $objectNameWithSchema = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
-            SynapseQuote::quoteSingleIdentifier($this->viewName)
+            SynapseQuote::quoteSingleIdentifier($this->viewName),
         );
 
         $this->connection->executeStatement(sprintf('DROP VIEW %s', $objectNameWithSchema));

@@ -18,7 +18,7 @@ class TeradataColumnTest extends TestCase
         self::assertEquals('myCol', $col->getColumnName());
         self::assertEquals(
             'VARCHAR (32000) NOT NULL DEFAULT \'\' CHARACTER SET UNICODE',
-            $col->getColumnDefinition()->getSQLDefinition()
+            $col->getColumnDefinition()->getSQLDefinition(),
         );
         self::assertEquals('VARCHAR', $col->getColumnDefinition()->getType());
         self::assertEquals('\'\'', $col->getColumnDefinition()->getDefault());
@@ -32,7 +32,7 @@ class TeradataColumnTest extends TestCase
         self::assertEquals('tmp', $column->getColumnName());
         self::assertEquals(
             'VARCHAR (32000) NOT NULL DEFAULT \'\' CHARACTER SET UNICODE',
-            $column->getColumnDefinition()->getSQLDefinition()
+            $column->getColumnDefinition()->getSQLDefinition(),
         );
         self::assertEquals('VARCHAR', $column->getColumnDefinition()->getType());
         self::assertEquals('\'\'', $column->getColumnDefinition()->getDefault());
@@ -47,7 +47,7 @@ class TeradataColumnTest extends TestCase
         self::assertEquals('tmp', $column->getColumnName());
         self::assertEquals(
             'VARCHAR (32000) NOT NULL DEFAULT \'\' CHARACTER SET UNICODE',
-            $column->getColumnDefinition()->getSQLDefinition()
+            $column->getColumnDefinition()->getSQLDefinition(),
         );
         self::assertEquals('VARCHAR', $column->getColumnDefinition()->getType());
         self::assertEquals('\'\'', $column->getColumnDefinition()->getDefault());

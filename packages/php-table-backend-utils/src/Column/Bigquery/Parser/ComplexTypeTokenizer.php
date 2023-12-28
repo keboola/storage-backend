@@ -117,7 +117,7 @@ EOD;
                         throw new ParsingComplexTypeLengthException(sprintf(
                             'Unexpected token on position "%d" in "%s". Type of field expected.',
                             $index,
-                            substr($input, $index)
+                            substr($input, $index),
                         ));
                     }
                     $expectTypeNext = true;
@@ -134,7 +134,7 @@ EOD;
                         // phpcs:ignore
                         'Unexpected token on position "%d" in "%s". Expected "," followed by next field or end of ARRAY|STRUCT.',
                         $index,
-                        substr($input, $index)
+                        substr($input, $index),
                     ));
                 }
                 $expectTypeNext = false;
@@ -151,7 +151,7 @@ EOD;
                         throw new ParsingComplexTypeLengthException(sprintf(
                             'Unexpected token on position "%d" in "%s". Closing parenthesis not found.',
                             $index,
-                            substr($input, $index)
+                            substr($input, $index),
                         ));
                     }
                 }
@@ -162,7 +162,7 @@ EOD;
                 'Unexpected token "%s" on position "%d" in "%s"',
                 $input[$index],
                 $index,
-                substr($input, $index)
+                substr($input, $index),
             ));
         }
 

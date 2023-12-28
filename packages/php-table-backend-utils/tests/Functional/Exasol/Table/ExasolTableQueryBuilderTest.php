@@ -110,7 +110,7 @@ class ExasolTableQueryBuilderTest extends ExasolBaseCase
         array $primaryKeys,
         array $expectedColumnNames,
         array $expectedPKs,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);
@@ -118,7 +118,7 @@ class ExasolTableQueryBuilderTest extends ExasolBaseCase
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            $primaryKeys
+            $primaryKeys,
         );
         self::assertSame($expectedSql, $sql);
         $this->connection->executeQuery($sql);
@@ -213,9 +213,9 @@ EOT
                     [
                         ExasolColumn::createGenericColumn('col1'),
                         ExasolColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                []
+                [],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -236,9 +236,9 @@ EOT
                     [
                         ExasolColumn::createGenericColumn('col1'),
                         ExasolColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1']
+                ['col1'],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -260,9 +260,9 @@ EOT
                     [
                         ExasolColumn::createGenericColumn('col1'),
                         ExasolColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1', 'col2']
+                ['col1', 'col2'],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -285,9 +285,9 @@ EOT
                     [
                         ExasolColumn::createGenericColumn('col1'),
                         ExasolColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1', 'col2']
+                ['col1', 'col2'],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -307,7 +307,7 @@ EOT
     public function testGetCreateTableCommandFromDefinition(
         ExasolTableDefinition $definition,
         string $expectedSql,
-        bool $createPrimaryKeys
+        bool $createPrimaryKeys,
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);

@@ -18,7 +18,7 @@ final class ConnectionRetryWrapper implements Connection
 
     public function __construct(
         Connection $connection,
-        RetryProxyInterface $retryProxy
+        RetryProxyInterface $retryProxy,
     ) {
         $this->connection = $connection;
         $this->retryProxy = $retryProxy;

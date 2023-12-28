@@ -65,7 +65,7 @@ class BigqueryBaseCase extends TestCase
     protected function initTable(
         string $schema = self::TEST_SCHEMA,
         string $table = self::TABLE_GENERIC,
-        bool $createNewSchema = true
+        bool $createNewSchema = true,
     ): void {
         if ($createNewSchema) {
             $this->createDataset($schema);
@@ -80,8 +80,8 @@ class BigqueryBaseCase extends TestCase
     `last_name` STRING(100)
 );',
                 BigqueryQuote::quoteSingleIdentifier($schema),
-                BigqueryQuote::quoteSingleIdentifier($table)
-            )
+                BigqueryQuote::quoteSingleIdentifier($table),
+            ),
         );
 
         $this->bqClient->runQuery($query);
@@ -105,7 +105,7 @@ class BigqueryBaseCase extends TestCase
         string $tableName,
         int $id,
         string $firstName,
-        string $lastName
+        string $lastName,
     ): void {
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
@@ -113,7 +113,7 @@ class BigqueryBaseCase extends TestCase
             BigqueryQuote::quoteSingleIdentifier($tableName),
             $id,
             BigqueryQuote::quote($firstName),
-            BigqueryQuote::quote($lastName)
+            BigqueryQuote::quote($lastName),
         )));
     }
 }

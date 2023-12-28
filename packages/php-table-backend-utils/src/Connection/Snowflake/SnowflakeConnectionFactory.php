@@ -29,7 +29,7 @@ class SnowflakeConnectionFactory
         string $user,
         string $password,
         array $params,
-        ?Configuration $config = null
+        ?Configuration $config = null,
     ): Connection {
         /** @var array{
          *     'port'?:string,
@@ -54,11 +54,11 @@ class SnowflakeConnectionFactory
                 'host' => $host,
                 'user' => $user,
                 'password' => $password,
-            ]
+            ],
         );
         return DriverManager::getConnection(
             $params,
-            $config
+            $config,
         );
     }
 }

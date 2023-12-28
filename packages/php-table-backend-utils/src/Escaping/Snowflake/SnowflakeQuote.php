@@ -30,7 +30,7 @@ class SnowflakeQuote implements QuoteInterface
     {
         return implode('.', array_map(
             fn(string $part) => self::quoteSingleIdentifier($part),
-            $parts
+            $parts,
         ));
     }
 }

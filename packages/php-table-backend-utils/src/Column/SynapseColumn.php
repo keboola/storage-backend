@@ -79,8 +79,8 @@ final class SynapseColumn implements ColumnInterface
                 (string) preg_replace(
                     '/^\(\((.+)\)\)$/',
                     '\\1',
-                    $default
-                )
+                    $default,
+                ),
             );
         }
 
@@ -90,7 +90,7 @@ final class SynapseColumn implements ColumnInterface
                 'nullable' => strtolower($dbResponse['column_is_nullable']) === '1',
                 'length' => $length,
                 'default' => $default,
-            ]
+            ],
         );
 
         return new self($dbResponse['column_name'], $definition);
@@ -104,12 +104,12 @@ final class SynapseColumn implements ColumnInterface
                 'length' => '4000', // should be changed to max in future
                 'nullable' => false,
                 'default' => '\'\'',
-            ]
+            ],
         );
 
         return new self(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -131,8 +131,8 @@ final class SynapseColumn implements ColumnInterface
         return new self(
             $columnName,
             new Synapse(
-                Synapse::TYPE_DATETIME2
-            )
+                Synapse::TYPE_DATETIME2,
+            ),
         );
     }
 }

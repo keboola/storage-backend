@@ -42,8 +42,8 @@ final class TeradataTableReflection implements TableReflectionInterface
             sprintf(
                 'HELP TABLE %s.%s',
                 TeradataQuote::quoteSingleIdentifier($this->dbName),
-                TeradataQuote::quoteSingleIdentifier($this->tableName)
-            )
+                TeradataQuote::quoteSingleIdentifier($this->tableName),
+            ),
         );
 
         return array_map(static fn($table) => trim($table['Column Name']), $columns);
@@ -67,8 +67,8 @@ final class TeradataTableReflection implements TableReflectionInterface
             sprintf(
                 'HELP TABLE %s.%s',
                 TeradataQuote::quoteSingleIdentifier($this->dbName),
-                TeradataQuote::quoteSingleIdentifier($this->tableName)
-            )
+                TeradataQuote::quoteSingleIdentifier($this->tableName),
+            ),
         );
 
         // types with structure of length <totalDigits>,<fractionalDigits> hidden in extra columns in table description
@@ -109,7 +109,7 @@ final class TeradataTableReflection implements TableReflectionInterface
             $fractionalTypes,
             $timeTypes,
             $charTypes,
-            $totalTypes
+            $totalTypes,
         ): TeradataColumn {
             $colName = trim($col['Column Name']);
             $colType = trim($col['Type']);
@@ -140,8 +140,8 @@ final class TeradataTableReflection implements TableReflectionInterface
                         'nullable' => $col['Nullable'] === 'Y',
                         'isLatin' => $isLatin,
                         'default' => is_string($defaultvalue) ? trim($defaultvalue) : $defaultvalue,
-                    ]
-                )
+                    ],
+                ),
             );
         }, $columns);
 
@@ -154,7 +154,7 @@ final class TeradataTableReflection implements TableReflectionInterface
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($this->dbName),
-            TeradataQuote::quoteSingleIdentifier($this->tableName)
+            TeradataQuote::quoteSingleIdentifier($this->tableName),
         ));
         return (int) $result;
     }
@@ -173,7 +173,7 @@ final class TeradataTableReflection implements TableReflectionInterface
          AND DatabaseName = %s 
          AND TableName = %s ORDER BY ColumnName;",
             TeradataQuote::quote($this->dbName),
-            TeradataQuote::quote($this->tableName)
+            TeradataQuote::quote($this->tableName),
         );
 
         /** @var array<array{'ColumnName':string}> $data */
@@ -190,7 +190,7 @@ SELECT CURRENTPERM FROM DBC.AllSpaceVX
 WHERE  DATABASENAME = %s AND TABLENAME = %s 
 ',
             TeradataQuote::quote($this->dbName),
-            TeradataQuote::quote($this->tableName)
+            TeradataQuote::quote($this->tableName),
         );
         /** @var string|int $result */
         $result = $this->connection->fetchOne($sql);
@@ -222,7 +222,7 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
             $this->tableName,
             $this->isTemporary(),
             $this->getColumnsDefinitions(),
-            $this->getPrimaryKeysNames()
+            $this->getPrimaryKeysNames(),
         );
     }
 
@@ -231,7 +231,7 @@ WHERE  DATABASENAME = %s AND TABLENAME = %s
         $sql = sprintf(
             'SELECT * FROM DBC.TablesVX WHERE DataBaseName=%s AND TableName=%s;',
             TeradataQuote::quote($this->dbName),
-            TeradataQuote::quote($this->tableName)
+            TeradataQuote::quote($this->tableName),
         );
 
         $data = $this->connection->fetchAllAssociative($sql);

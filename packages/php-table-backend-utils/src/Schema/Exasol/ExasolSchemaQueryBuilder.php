@@ -18,7 +18,7 @@ class ExasolSchemaQueryBuilder
         return sprintf(
             'DROP SCHEMA %s %s',
             ExasolQuote::quoteSingleIdentifier($schemaName),
-            $cascade ? 'CASCADE' : 'RESTRICT'
+            $cascade ? 'CASCADE' : 'RESTRICT',
         );
     }
 }

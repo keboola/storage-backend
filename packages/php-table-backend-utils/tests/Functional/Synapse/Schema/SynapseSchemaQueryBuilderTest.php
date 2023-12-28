@@ -45,8 +45,8 @@ class SynapseSchemaQueryBuilderTest extends SynapseBaseCase
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',
-                self::TEST_SCHEMA
-            )
+                self::TEST_SCHEMA,
+            ),
         );
 
         return array_map(static fn(array $schema) => $schema['name'], $schemas);

@@ -112,13 +112,13 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         array $primaryKeys,
         array $expectedColumnNames,
         array $expectedPKs,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $sql = $this->qb->getCreateTableCommand(
             $this->getDatabaseName(),
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            $primaryKeys
+            $primaryKeys,
         );
         self::assertSame($expectedSql, $sql);
         $this->connection->executeQuery($sql);
@@ -127,7 +127,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $tableReflection = new TeradataTableReflection(
             $this->connection,
             $this->getDatabaseName(),
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
         self::assertSame($expectedColumnNames, $tableReflection->getColumnsNames());
         self::assertSame($expectedPKs, $tableReflection->getPrimaryKeysNames());
@@ -149,22 +149,22 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $sql = $this->qb->getAddColumnCommand(
             $dbName,
             self::TABLE_GENERIC,
-            TeradataColumn::createGenericColumn('col3')
+            TeradataColumn::createGenericColumn('col3'),
         );
         $this->assertEquals(
             sprintf(
                 'ALTER TABLE "%s"."%s" ADD "col3" VARCHAR (32000) NOT NULL DEFAULT \'\' CHARACTER SET UNICODE',
                 $dbName,
-                self::TABLE_GENERIC
+                self::TABLE_GENERIC,
             ),
-            $sql
+            $sql,
         );
         $this->connection->executeQuery($sql);
 
         $tableReflection = new TeradataTableReflection(
             $this->connection,
             $this->getDatabaseName(),
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
         self::assertSame(['col1', 'col2', 'col3'], $tableReflection->getColumnsNames());
 
@@ -176,7 +176,7 @@ class TeradataTableQueryBuilderTest extends TeradataBaseCase
         $tableReflection = new TeradataTableReflection(
             $this->connection,
             $this->getDatabaseName(),
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
         self::assertSame(['col1', 'col3'], $tableReflection->getColumnsNames());
     }
@@ -260,9 +260,9 @@ EOT
                     [
                         TeradataColumn::createGenericColumn('col1'),
                         TeradataColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                []
+                [],
             ),
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
@@ -281,9 +281,9 @@ EOT
                     [
                         TeradataColumn::createGenericColumn('col1'),
                         TeradataColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1']
+                ['col1'],
             ),
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
@@ -303,9 +303,9 @@ EOT
                     [
                         TeradataColumn::createGenericColumn('col1'),
                         TeradataColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1', 'col2']
+                ['col1', 'col2'],
             ),
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
@@ -326,9 +326,9 @@ EOT
                     [
                         TeradataColumn::createGenericColumn('col1'),
                         TeradataColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1', 'col2']
+                ['col1', 'col2'],
             ),
             'query' => <<<EOT
 CREATE MULTISET TABLE "$testDb"."$tableName", FALLBACK
@@ -346,7 +346,7 @@ EOT
     public function testGetCreateTableCommandFromDefinition(
         TeradataTableDefinition $definition,
         string $expectedSql,
-        bool $createPrimaryKeys
+        bool $createPrimaryKeys,
     ): void {
         $this->cleanDatabase($this->getDatabaseName());
         $this->createDatabase($this->getDatabaseName());
@@ -358,7 +358,7 @@ EOT
         $tableReflection = new TeradataTableReflection(
             $this->connection,
             $this->getDatabaseName(),
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
         self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());
         if ($createPrimaryKeys) {
@@ -382,9 +382,9 @@ EOT
                 [
                     TeradataColumn::createGenericColumn('col1'),
                     TeradataColumn::createGenericColumn('col2'),
-                ]
+                ],
             ),
-            ['col1']
+            ['col1'],
         );
 
         // create table
@@ -426,9 +426,9 @@ EOT
                     TeradataColumn::createGenericColumn('col1'),
                     TeradataColumn::createGenericColumn('col2'),
                     TeradataColumn::createGenericColumn('col3'),
-                ]
+                ],
             ),
-            []
+            [],
         );
 
         $sql = $this->qb->getCreateTableCommandFromDefinition($definition, true);
@@ -439,7 +439,7 @@ EOT
                 'INSERT INTO %s.%s VALUES (%s)',
                 TeradataQuote::quoteSingleIdentifier($testDb),
                 TeradataQuote::quoteSingleIdentifier($tableName),
-                implode(',', $i)
+                implode(',', $i),
             ));
         }
         $duplicatedSql = $this->qb->getCommandForDuplicates($testDb, $tableName, ['col2', 'col3']);
@@ -449,7 +449,7 @@ EOT
         $this->connection->executeStatement(sprintf(
             'INSERT INTO %s.%s VALUES (5,3,3)',
             TeradataQuote::quoteSingleIdentifier($testDb),
-            TeradataQuote::quoteSingleIdentifier($tableName)
+            TeradataQuote::quoteSingleIdentifier($tableName),
         ));
 
         $duplicatedSql = $this->qb->getCommandForDuplicates($testDb, $tableName, ['col2', 'col3']);

@@ -43,7 +43,7 @@ CREATE VIEW %s.%s AS
             ExasolQuote::quoteSingleIdentifier($schemaName),
             ExasolQuote::quoteSingleIdentifier($viewName),
             ExasolQuote::quoteSingleIdentifier($schemaName),
-            ExasolQuote::quoteSingleIdentifier($tableName)
+            ExasolQuote::quoteSingleIdentifier($tableName),
         );
         $this->connection->executeQuery($sql);
         self::assertSame([$viewName], $this->schemaRef->getViewsNames());

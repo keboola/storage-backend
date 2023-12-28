@@ -17,7 +17,7 @@ class ColumnException extends RuntimeException implements ApplicationExceptionIn
     public function __construct(
         string $message,
         string $stringCode,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct($message, 0, $previous);
         $this->stringCode = $stringCode;

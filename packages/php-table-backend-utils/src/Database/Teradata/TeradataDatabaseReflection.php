@@ -41,14 +41,14 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         // build escaped list of system users
         $where = sprintf(
             'U.UserName NOT IN (%s)',
-            implode(', ', array_map(static fn($item) => TeradataQuote::quote($item), self::$excludedUsers))
+            implode(', ', array_map(static fn($item) => TeradataQuote::quote($item), self::$excludedUsers)),
         );
 
         // add LIKE
         if ($like !== null) {
             $where .= sprintf(
                 ' AND U.UserName LIKE %s',
-                TeradataQuote::quote("%$like%")
+                TeradataQuote::quote("%$like%"),
             );
         }
 
@@ -56,7 +56,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         /** @var array<array{UserName:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT U.UserName FROM DBC.UsersV U WHERE %s',
-            $where
+            $where,
         ));
 
         // extract data to primitive array
@@ -73,7 +73,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $where = sprintf(
                 ' WHERE RoleName LIKE %s',
-                TeradataQuote::quote("%$like%")
+                TeradataQuote::quote("%$like%"),
             );
         }
 
@@ -81,7 +81,7 @@ final class TeradataDatabaseReflection implements DatabaseReflectionInterface
         /** @var array<array{RoleName:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT RoleName FROM DBC.RoleInfoVX %s',
-            $where
+            $where,
         ));
 
         // extract data to primitive array. Has to be trimmed because it comes with some extra spaces

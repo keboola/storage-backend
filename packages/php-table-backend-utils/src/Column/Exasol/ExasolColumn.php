@@ -28,12 +28,12 @@ final class ExasolColumn implements ColumnInterface
                 'length' => '2000000',
                 'nullable' => false,
                 'default' => '\'\'',
-            ]
+            ],
         );
 
         return new self(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -75,8 +75,8 @@ final class ExasolColumn implements ColumnInterface
                     'length' => self::extractColumnLength($dbResponse),
                     'nullable' => $dbResponse['COLUMN_IS_NULLABLE'] === '1',
                     'default' => $defaultValue === '' ? null : $defaultValue,
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -116,8 +116,8 @@ final class ExasolColumn implements ColumnInterface
         return new ExasolColumn(
             $columnName,
             new Exasol(
-                Exasol::TYPE_TIMESTAMP
-            )
+                Exasol::TYPE_TIMESTAMP,
+            ),
         );
     }
 }

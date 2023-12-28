@@ -28,7 +28,7 @@ class SnowflakeDriver implements Driver
      * } $params
      */
     public function connect(
-        array $params
+        array $params,
     ): SnowflakeConnection {
         $dsn = SnowflakeDSNGenerator::generateDSN($params);
 

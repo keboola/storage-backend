@@ -21,7 +21,7 @@ class ExasolDriver implements Driver
      * } $params
      */
     public function connect(
-        array $params
+        array $params,
     ): ExasolConnection {
         assert(array_key_exists('host', $params));
         assert(array_key_exists('user', $params));

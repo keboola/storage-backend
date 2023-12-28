@@ -62,7 +62,7 @@ final class SQLtoRestDatatypeConverter
     private static function convertTokenToSchema(
         TokenizerNestedToken|TokenizerToken $token,
         array $schema,
-        ArrayIterator $tokens
+        ArrayIterator $tokens,
     ): array {
         if ($token->type === ComplexTypeTokenizer::T_NAME) {
             // handle T_NAME name of column
@@ -95,7 +95,7 @@ final class SQLtoRestDatatypeConverter
                 $arrayTokenNested = $tokens->current();
                 assert(
                     $arrayTokenNested instanceof TokenizerNestedToken,
-                    sprintf('Expected class "%s" got "%s"', TokenizerNestedToken::class, $arrayTokenNested::class)
+                    sprintf('Expected class "%s" got "%s"', TokenizerNestedToken::class, $arrayTokenNested::class),
                 );
                 $nestedTokens = $arrayTokenNested->nested;
                 $firstNestedToken = $nestedTokens->current();
@@ -110,7 +110,7 @@ final class SQLtoRestDatatypeConverter
                 $structNested = $tokens->current();
                 assert(
                     $structNested instanceof TokenizerNestedToken,
-                    sprintf('Expected class "%s" got "%s"', TokenizerNestedToken::class, $structNested::class)
+                    sprintf('Expected class "%s" got "%s"', TokenizerNestedToken::class, $structNested::class),
                 );
                 foreach ($structNested->nested as $nestedToken) {
                     if ($nestedToken->type !== ComplexTypeTokenizer::T_NAME) {
@@ -174,7 +174,7 @@ final class SQLtoRestDatatypeConverter
             // complex types
             try {
                 $tokens = (new ComplexTypeTokenizer())->tokenize(
-                    $column->getColumnName() . ' ' . $definition->getSQLDefinition()
+                    $column->getColumnName() . ' ' . $definition->getSQLDefinition(),
                 );
                 $schema = self::convertTokenToSchema($tokens->current(), [], $tokens);
             } catch (ParsingComplexTypeLengthException $e) {

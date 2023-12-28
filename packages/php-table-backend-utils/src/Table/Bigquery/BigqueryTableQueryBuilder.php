@@ -23,7 +23,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'DROP TABLE %s.%s',
             BigqueryQuote::quoteSingleIdentifier($schemaName),
-            BigqueryQuote::quoteSingleIdentifier($tableName)
+            BigqueryQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -42,7 +42,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
         string $schemaName,
         string $tableName,
         ColumnCollection $columns,
-        array $primaryKeys = []
+        array $primaryKeys = [],
     ): string {
         assert(count($primaryKeys) === 0, 'primary keys aren\'t supported in BQ');
         $columnsSqlDefinitions = [];
@@ -54,7 +54,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSqlDefinitions[] = sprintf(
                 '%s %s',
                 BigqueryQuote::quoteSingleIdentifier($columnName),
-                $columnDefinition->getSQLDefinition()
+                $columnDefinition->getSQLDefinition(),
             );
         }
         $columnsSql = implode(",\n", $columnsSqlDefinitions);
@@ -65,13 +65,13 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
 );',
             BigqueryQuote::quoteSingleIdentifier($schemaName),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-            $columnsSql
+            $columnsSql,
         );
     }
 
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
-        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS,
     ): string {
         assert($definition instanceof BigqueryTableDefinition);
         return $this->getCreateTableCommand(
@@ -80,7 +80,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
             $definition->getColumnsDefinitions(),
             $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
                 ? $definition->getPrimaryKeysNames()
-                : []
+                : [],
         );
     }
 
@@ -88,18 +88,18 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
     {
         assert(
             $columnDefinition->getColumnDefinition()->getDefault() === null,
-            'You cannot add a REQUIRED column to an existing table schema.'
+            'You cannot add a REQUIRED column to an existing table schema.',
         );
         assert(
             $columnDefinition->getColumnDefinition()->isNullable() === true,
-            'You cannot add a REQUIRED column to an existing table schema.'
+            'You cannot add a REQUIRED column to an existing table schema.',
         );
         return sprintf(
             'ALTER TABLE %s.%s ADD COLUMN %s %s',
             BigqueryQuote::quoteSingleIdentifier($schemaName),
             BigqueryQuote::quoteSingleIdentifier($tableName),
             BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-            $columnDefinition->getColumnDefinition()->getSQLDefinition()
+            $columnDefinition->getColumnDefinition()->getSQLDefinition(),
         );
     }
 
@@ -109,7 +109,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
             'ALTER TABLE %s.%s DROP COLUMN %s',
             BigqueryQuote::quoteSingleIdentifier($schemaName),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-            BigqueryQuote::quoteSingleIdentifier($columnName)
+            BigqueryQuote::quoteSingleIdentifier($columnName),
         );
     }
 }

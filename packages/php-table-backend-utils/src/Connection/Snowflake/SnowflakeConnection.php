@@ -24,7 +24,7 @@ class SnowflakeConnection implements Connection
         string $dsn,
         string $user,
         string $password,
-        ?array $options
+        ?array $options,
     ) {
         try {
             $handle = odbc_connect($dsn, $user, $password);

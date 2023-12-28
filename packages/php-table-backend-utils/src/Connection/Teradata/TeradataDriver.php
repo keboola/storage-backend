@@ -31,19 +31,19 @@ class TeradataDriver implements Driver
         array $params,
         ?string $username = null,
         ?string $password = null,
-        array $driverOptions = []
+        array $driverOptions = [],
     ): Connection {
         $dsn = sprintf(
             'DRIVER={Teradata};DBCName=%s;TDMSTPortNumber=%s;Charset=UTF8',
             $params['host'],
-            $params['port']
+            $params['port'],
         );
 
         return new ConnectionRetryWrapper(
             new TeradataConnectionWrapper($dsn, $params['user'] ?? '', $params['password'] ?? ''),
             new RetryProxy(
-                new TeradataRetryPolicy()
-            )
+                new TeradataRetryPolicy(),
+            ),
         );
     }
 

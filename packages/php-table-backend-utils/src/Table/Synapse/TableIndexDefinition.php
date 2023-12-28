@@ -28,7 +28,7 @@ final class TableIndexDefinition
      */
     public function __construct(
         string $indexType,
-        array $indexedColumnsNames = []
+        array $indexedColumnsNames = [],
     ) {
         Assert::assertTableIndex($indexType);
         Assert::assertValidClusteredIndex($indexType, $indexedColumnsNames);

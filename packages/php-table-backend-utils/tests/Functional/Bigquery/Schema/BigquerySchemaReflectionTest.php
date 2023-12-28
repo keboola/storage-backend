@@ -83,7 +83,7 @@ EOT;
     public function testGetCreateTableCommandFromDefinition(
         BigqueryTableDefinition $definition,
         string $expectedSql,
-        bool $createPrimaryKeys
+        bool $createPrimaryKeys,
     ): void {
         $this->cleanDataset($this->getDatasetName());
         $this->createDataset($this->getDatasetName());
@@ -95,7 +95,7 @@ EOT;
         $tableReflection = new BigqueryTableReflection(
             $this->bqClient,
             $this->getDatasetName(),
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
         self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());
         if ($createPrimaryKeys) {
@@ -126,9 +126,9 @@ EOT;
                     [
                         BigqueryColumn::createGenericColumn('col1'),
                         BigqueryColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                []
+                [],
             ),
             'query' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 

@@ -54,7 +54,7 @@ final class ColumnCollection extends Collection
                     throw new ColumnException(
                         // we have to force user to create MAX-1 columns, becase we need 1 for timestamp
                         sprintf('Too many columns. Maximum is %s columns.', $limit - 1),
-                        ColumnException::STRING_CODE_TO_MANY_COLUMNS
+                        ColumnException::STRING_CODE_TO_MANY_COLUMNS,
                     );
                 }
             }

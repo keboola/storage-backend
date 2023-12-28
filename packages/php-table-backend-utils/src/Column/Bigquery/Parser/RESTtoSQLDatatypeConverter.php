@@ -33,7 +33,7 @@ final class RESTtoSQLDatatypeConverter
         ];
         return new Bigquery(
             $type,
-            $options
+            $options,
         );
     }
 

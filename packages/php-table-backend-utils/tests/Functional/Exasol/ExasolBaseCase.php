@@ -31,13 +31,13 @@ class ExasolBaseCase extends TestCase
             (string) getenv('EXASOL_USERNAME'),
             (string) getenv('EXASOL_PASSWORD'),
             null,
-            true
+            true,
         );
     }
 
     protected function initTable(
         string $database = self::TEST_SCHEMA,
-        string $table = self::TABLE_GENERIC
+        string $table = self::TABLE_GENERIC,
     ): void {
         $this->createSchema($database);
         $this->connection->executeQuery(
@@ -48,8 +48,8 @@ class ExasolBaseCase extends TestCase
     "last_name" VARCHAR(100)
 );',
                 ExasolQuote::quoteSingleIdentifier($database),
-                ExasolQuote::quoteSingleIdentifier($table)
-            )
+                ExasolQuote::quoteSingleIdentifier($table),
+            ),
         );
     }
 
@@ -62,8 +62,8 @@ class ExasolBaseCase extends TestCase
         $this->connection->executeQuery(
             sprintf(
                 'DROP SCHEMA %s CASCADE',
-                ExasolQuote::quoteSingleIdentifier($schemaName)
-            )
+                ExasolQuote::quoteSingleIdentifier($schemaName),
+            ),
         );
     }
 
@@ -72,8 +72,8 @@ class ExasolBaseCase extends TestCase
         return (bool) $this->connection->fetchOne(
             sprintf(
                 'SELECT "SCHEMA_NAME" FROM "SYS"."EXA_ALL_SCHEMAS" WHERE "SCHEMA_NAME" = %s',
-                ExasolQuote::quote($schemaName)
-            )
+                ExasolQuote::quote($schemaName),
+            ),
         );
     }
 
@@ -83,8 +83,8 @@ class ExasolBaseCase extends TestCase
         $this->connection->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',
-                ExasolQuote::quoteSingleIdentifier($schemaName)
-            )
+                ExasolQuote::quoteSingleIdentifier($schemaName),
+            ),
         );
     }
 
@@ -92,7 +92,7 @@ class ExasolBaseCase extends TestCase
     {
         self::assertEquals(
             1,
-            $this->connection->fetchOne('SELECT 1')
+            $this->connection->fetchOne('SELECT 1'),
         );
     }
 
@@ -107,14 +107,14 @@ class ExasolBaseCase extends TestCase
         // delete existing users
         $this->connection->executeQuery(sprintf(
             'DROP USER IF EXISTS %s CASCADE',
-            ExasolQuote::quoteSingleIdentifier($userName)
+            ExasolQuote::quoteSingleIdentifier($userName),
         ));
 
         // create user
         $this->connection->executeQuery(sprintf(
             'CREATE USER %s IDENTIFIED BY "%s";',
             ExasolQuote::quoteSingleIdentifier($userName),
-            bin2hex(random_bytes(8))
+            bin2hex(random_bytes(8)),
         ));
     }
 
@@ -123,13 +123,13 @@ class ExasolBaseCase extends TestCase
         // delete existing role
         $this->connection->executeQuery(sprintf(
             'DROP ROLE IF EXISTS %s CASCADE',
-            ExasolQuote::quoteSingleIdentifier($roleName)
+            ExasolQuote::quoteSingleIdentifier($roleName),
         ));
 
         // create role
         $this->connection->executeQuery(sprintf(
             'CREATE ROLE %s;',
-            ExasolQuote::quoteSingleIdentifier($roleName)
+            ExasolQuote::quoteSingleIdentifier($roleName),
         ));
     }
 
@@ -138,7 +138,7 @@ class ExasolBaseCase extends TestCase
         string $tableName,
         int $id,
         string $firstName,
-        string $lastName
+        string $lastName,
     ): void {
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
@@ -146,7 +146,7 @@ class ExasolBaseCase extends TestCase
             ExasolQuote::quoteSingleIdentifier($tableName),
             $id,
             ExasolQuote::quote($firstName),
-            ExasolQuote::quote($lastName)
+            ExasolQuote::quote($lastName),
         ));
     }
 }

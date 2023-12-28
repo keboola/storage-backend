@@ -39,7 +39,7 @@ EOD;
         $sessionSetQuery = $conn->fetchOne(sprintf($fetchSessionSetSql, $sessionId1));
         $this->assertSame(
             'EXEC sys.sp_set_session_context @key = \'wlm_context\', @value = \'test\'',
-            $sessionSetQuery
+            $sessionSetQuery,
         );
 
         // reconnect and check if wlm_context is set on next session
@@ -52,7 +52,7 @@ EOD;
         $sessionSetQuery = $conn->fetchOne(sprintf($fetchSessionSetSql, $sessionId2));
         $this->assertSame(
             'EXEC sys.sp_set_session_context @key = \'wlm_context\', @value = \'test\'',
-            $sessionSetQuery
+            $sessionSetQuery,
         );
     }
 
@@ -65,7 +65,7 @@ EOD;
         $sessionSetQuery = $this->connection->fetchOne(sprintf($fetchSessionSetSql, $sessionId1));
         $this->assertNotSame(
             'EXEC sys.sp_set_session_context @key = \'wlm_context\', @value = \'test\'',
-            $sessionSetQuery
+            $sessionSetQuery,
         );
     }
 }

@@ -17,7 +17,7 @@ class RevokeOptionsTest extends TestCase
         $options = new RevokeOptions([Permission::GRANT_VIEW_DEFINITION], 'ToMyUser');
         $this->assertSame(
             [Permission::GRANT_VIEW_DEFINITION],
-            $options->getPermissions()
+            $options->getPermissions(),
         );
         $this->assertFalse($options->isGrantOptionRevoked());
         $this->assertFalse($options->isRevokedInCascade());
@@ -35,7 +35,7 @@ class RevokeOptionsTest extends TestCase
             ->revokeGrantOption(RevokeOptions::OPTION_DONT_REVOKE_GRANT_OPTION);
         $this->assertSame(
             [Permission::GRANT_VIEW_DEFINITION],
-            $options->getPermissions()
+            $options->getPermissions(),
         );
         $this->assertTrue($options->isRevokedInCascade());
         $this->assertFalse($options->isGrantOptionRevoked());

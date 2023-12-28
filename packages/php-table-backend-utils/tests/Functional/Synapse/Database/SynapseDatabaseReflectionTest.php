@@ -25,7 +25,7 @@ class SynapseDatabaseReflectionTest extends BaseAuthTestCase
 
         $this->connection->executeStatement(sprintf(
             'CREATE ROLE %s',
-            SynapseQuote::quoteSingleIdentifier($this->currentLogin . '_ROLE')
+            SynapseQuote::quoteSingleIdentifier($this->currentLogin . '_ROLE'),
         ));
         $ref = new SynapseDatabaseReflection($this->connection);
         $names = $ref->getRolesNames(self::LOGIN_PREFIX . '%');

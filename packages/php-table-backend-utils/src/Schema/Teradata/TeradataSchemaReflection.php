@@ -32,7 +32,7 @@ final class TeradataSchemaReflection implements SchemaReflectionInterface
 SELECT "TableName" 
 FROM "DBC"."TablesVX" 
 WHERE ("TableKind" = 'T' OR "TableKind" = 'O') AND "DataBaseName"=$database
-EOT
+EOT,
         );
 
         return array_map(static fn($table) => trim($table['TableName']), $tables);
@@ -50,7 +50,7 @@ EOT
 SELECT "TableName" 
 FROM "DBC"."TablesVX" 
 WHERE "TableKind" = 'V' AND "DataBaseName"=$database
-EOT
+EOT,
         );
 
         return array_map(static fn(array $table) => trim($table['TableName']), $tables);

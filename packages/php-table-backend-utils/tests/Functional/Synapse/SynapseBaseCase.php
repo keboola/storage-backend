@@ -29,7 +29,7 @@ class SynapseBaseCase extends TestCase
 
         foreach ($tables as $table) {
             $this->connection->executeStatement(
-                $this->tableQb->getDropTableCommand($schema, $table)
+                $this->tableQb->getDropTableCommand($schema, $table),
             );
         }
 
@@ -44,13 +44,13 @@ class SynapseBaseCase extends TestCase
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',
-                $schema
-            )
+                $schema,
+            ),
         );
 
         foreach ($schemas as $item) {
             $this->connection->executeStatement(
-                $this->schemaQb->getDropSchemaCommand($item['name'])
+                $this->schemaQb->getDropSchemaCommand($item['name']),
             );
         }
     }

@@ -36,7 +36,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'DROP TABLE %s.%s',
             TeradataQuote::quoteSingleIdentifier($schemaName),
-            TeradataQuote::quoteSingleIdentifier($tableName)
+            TeradataQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -48,7 +48,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             $quotedDbName,
             TeradataQuote::quoteSingleIdentifier($sourceTableName),
             $quotedDbName,
-            TeradataQuote::quoteSingleIdentifier($newTableName)
+            TeradataQuote::quoteSingleIdentifier($newTableName),
         );
     }
 
@@ -57,7 +57,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'DELETE %s.%s ALL',
             TeradataQuote::quoteSingleIdentifier($schemaName),
-            TeradataQuote::quoteSingleIdentifier($tableName)
+            TeradataQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -68,7 +68,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
             TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-            $columnDefinition->getColumnDefinition()->getSQLDefinition()
+            $columnDefinition->getColumnDefinition()->getSQLDefinition(),
         );
     }
 
@@ -78,7 +78,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             'ALTER TABLE %s.%s DROP %s',
             TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
-            TeradataQuote::quoteSingleIdentifier($columnName)
+            TeradataQuote::quoteSingleIdentifier($columnName),
         );
     }
 
@@ -89,7 +89,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
         string $schemaName,
         string $tableName,
         ColumnCollection $columns,
-        array $primaryKeys = []
+        array $primaryKeys = [],
     ): string {
         $columnNames = [];
         $columnsSqlDefinitions = [];
@@ -102,7 +102,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSqlDefinitions[] = sprintf(
                 '%s %s',
                 TeradataQuote::quoteSingleIdentifier($columnName),
-                $columnDefinition->getSQLDefinition()
+                $columnDefinition->getSQLDefinition(),
             );
 
             // check if PK can be defined on selected columns
@@ -114,16 +114,16 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
                         sprintf(
                             'Trying to set PK on column %s but type %s is not supported for PK',
                             $columnName,
-                            $columnType
+                            $columnType,
                         ),
-                        self::INVALID_PKS_FOR_TABLE
+                        self::INVALID_PKS_FOR_TABLE,
                     );
                 }
 
                 if ($columnDefinition->isNullable()) {
                     throw new QueryBuilderException(
                         sprintf('Trying to set PK on column %s but this column is nullable', $columnName),
-                        self::INVALID_PKS_FOR_TABLE
+                        self::INVALID_PKS_FOR_TABLE,
                     );
                 }
             }
@@ -135,9 +135,9 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             throw new QueryBuilderException(
                 sprintf(
                     'Trying to set %s as PKs but not present in columns',
-                    implode(',', $pksNotPresentInColumns)
+                    implode(',', $pksNotPresentInColumns),
                 ),
-                self::INVALID_PKS_FOR_TABLE
+                self::INVALID_PKS_FOR_TABLE,
             );
         }
 
@@ -149,8 +149,8 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
                 self::PK_CONSTRAINT_NAME,
                 implode(
                     ', ',
-                    array_map(static fn($item) => TeradataQuote::quoteSingleIdentifier($item), $primaryKeys)
-                )
+                    array_map(static fn($item) => TeradataQuote::quoteSingleIdentifier($item), $primaryKeys),
+                ),
             );
         }
 
@@ -162,13 +162,13 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             TeradataQuote::quoteSingleIdentifier($tableName),
             $columnsSql,
             // NoPI table support duplications in table
-            $primaryKeys !== [] ? '' : ' NO PRIMARY INDEX'
+            $primaryKeys !== [] ? '' : ' NO PRIMARY INDEX',
         );
     }
 
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
-        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS,
     ): string {
         assert($definition instanceof TeradataTableDefinition);
         return $this->getCreateTableCommand(
@@ -177,7 +177,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             $definition->getColumnsDefinitions(),
             $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
                 ? $definition->getPrimaryKeysNames()
-                : []
+                : [],
         );
     }
 
@@ -191,7 +191,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
             self::PK_CONSTRAINT_NAME,
-            implode(',', array_map(fn($item) => TeradataQuote::quoteSingleIdentifier($item), $columns))
+            implode(',', array_map(fn($item) => TeradataQuote::quoteSingleIdentifier($item), $columns)),
         );
     }
 
@@ -201,7 +201,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
             'ALTER TABLE %s.%s DROP CONSTRAINT %s;',
             TeradataQuote::quoteSingleIdentifier($schemaName),
             TeradataQuote::quoteSingleIdentifier($tableName),
-            self::PK_CONSTRAINT_NAME
+            self::PK_CONSTRAINT_NAME,
         );
     }
 
@@ -212,7 +212,7 @@ class TeradataTableQueryBuilder implements TableQueryBuilderInterface
     {
         $formattedColumns = implode(
             ',',
-            array_map(fn($item) => TeradataQuote::quoteSingleIdentifier($item), $columns)
+            array_map(fn($item) => TeradataQuote::quoteSingleIdentifier($item), $columns),
         );
         return sprintf(
             <<<SQL

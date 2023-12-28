@@ -29,7 +29,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'DROP TABLE %s.%s',
             ExasolQuote::quoteSingleIdentifier($schemaName),
-            ExasolQuote::quoteSingleIdentifier($tableName)
+            ExasolQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -39,9 +39,9 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
             throw new QueryBuilderException(
                 sprintf(
                     'Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.',
-                    $newTableName
+                    $newTableName,
                 ),
-                self::INVALID_TABLE_NAME
+                self::INVALID_TABLE_NAME,
             );
         }
 
@@ -51,7 +51,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
             $quotedDbName,
             ExasolQuote::quoteSingleIdentifier($sourceTableName),
             $quotedDbName,
-            ExasolQuote::quoteSingleIdentifier($newTableName)
+            ExasolQuote::quoteSingleIdentifier($newTableName),
         );
     }
 
@@ -60,7 +60,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'TRUNCATE TABLE %s.%s',
             ExasolQuote::quoteSingleIdentifier($schemaName),
-            ExasolQuote::quoteSingleIdentifier($tableName)
+            ExasolQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -71,15 +71,15 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
         string $schemaName,
         string $tableName,
         ColumnCollection $columns,
-        array $primaryKeys = []
+        array $primaryKeys = [],
     ): string {
         if (!$this->validateTableName($tableName)) {
             throw new QueryBuilderException(
                 sprintf(
                     'Invalid table name %s: Only alphanumeric characters dash and underscores are allowed.',
-                    $tableName
+                    $tableName,
                 ),
-                self::INVALID_TABLE_NAME
+                self::INVALID_TABLE_NAME,
             );
         }
 
@@ -97,14 +97,14 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
                 && $columnDefinition->isNullable()) {
                 throw new QueryBuilderException(
                     sprintf('Trying to set PK on column %s but this column is nullable', $columnName),
-                    self::INVALID_PKS_FOR_TABLE
+                    self::INVALID_PKS_FOR_TABLE,
                 );
             }
 
             $columnsSqlDefinitions[] = sprintf(
                 '%s %s',
                 ExasolQuote::quoteSingleIdentifier($columnName),
-                $columnDefinition->getSQLDefinition()
+                $columnDefinition->getSQLDefinition(),
             );
         }
 
@@ -114,9 +114,9 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
             throw new QueryBuilderException(
                 sprintf(
                     'Trying to set %s as PKs but not present in columns',
-                    implode(',', $pksNotPresentInColumns)
+                    implode(',', $pksNotPresentInColumns),
                 ),
-                self::INVALID_PKS_FOR_TABLE
+                self::INVALID_PKS_FOR_TABLE,
             );
         }
 
@@ -124,7 +124,10 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSqlDefinitions[] =
                 sprintf(
                     'CONSTRAINT PRIMARY KEY (%s)',
-                    implode(',', array_map(static fn($item) => ExasolQuote::quoteSingleIdentifier($item), $primaryKeys))
+                    implode(
+                        ',',
+                        array_map(static fn($item) => ExasolQuote::quoteSingleIdentifier($item), $primaryKeys),
+                    ),
                 );
         }
 
@@ -138,7 +141,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
 );',
             ExasolQuote::quoteSingleIdentifier($schemaName),
             ExasolQuote::quoteSingleIdentifier($tableName),
-            $columnsSql
+            $columnsSql,
         );
     }
 
@@ -147,7 +150,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
      */
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
-        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS,
     ): string {
         assert($definition instanceof ExasolTableDefinition);
         return $this->getCreateTableCommand(
@@ -156,7 +159,7 @@ class ExasolTableQueryBuilder implements TableQueryBuilderInterface
             $definition->getColumnsDefinitions(),
             $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
                 ? $definition->getPrimaryKeysNames()
-                : []
+                : [],
         );
     }
 

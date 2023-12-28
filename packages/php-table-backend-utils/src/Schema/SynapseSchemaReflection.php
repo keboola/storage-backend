@@ -32,7 +32,7 @@ SELECT name
 FROM sys.tables
 WHERE schema_name(schema_id) = $schema
 order by name;
-EOT
+EOT,
         );
 
         return array_map(static fn($table) => $table['name'], $tables);
@@ -51,7 +51,7 @@ SELECT name
 FROM sys.views
 WHERE schema_name(schema_id) = $schema
 order by name;
-EOT
+EOT,
         );
 
         return array_map(static fn($table) => $table['name'], $tables);

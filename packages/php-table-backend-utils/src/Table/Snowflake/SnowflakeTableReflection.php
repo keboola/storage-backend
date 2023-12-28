@@ -63,8 +63,8 @@ final class SnowflakeTableReflection implements TableReflectionInterface
             //phpcs:ignore
                 'SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;',
                 SnowflakeQuote::quote($this->schemaName),
-                SnowflakeQuote::quote($this->tableName)
-            )
+                SnowflakeQuote::quote($this->tableName),
+            ),
         );
         if (count($row) === 0) {
             throw TableNotExistsReflectionException::createForTable([$this->schemaName, $this->tableName]);
@@ -91,7 +91,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
             default:
                 throw new RuntimeException(sprintf(
                     'Table type "%s" is not known.',
-                    $row[0]['TABLE_TYPE']
+                    $row[0]['TABLE_TYPE'],
                 ));
         }
     }
@@ -128,8 +128,8 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'DESC TABLE %s',
-                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,])
-            )
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,]),
+            ),
         );
 
         $columns = [];
@@ -166,8 +166,8 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW PRIMARY KEYS IN TABLE %s',
-                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,])
-            )
+                SnowflakeQuote::createQuotedIdentifierFromParts([$this->schemaName, $this->tableName,]),
+            ),
         );
 
         return array_map(fn($pkRow) => $pkRow['column_name'], $columnsMeta);
@@ -205,7 +205,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         Connection $connection,
         string $objectName,
         string $schemaName,
-        string $objectType = self::DEPENDENT_OBJECT_TABLE
+        string $objectType = self::DEPENDENT_OBJECT_TABLE,
     ): array {
         /** @var string $databaseName */
         $databaseName = $connection->fetchOne('SELECT CURRENT_DATABASE()');
@@ -213,8 +213,8 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         $views = $connection->fetchAllAssociative(
             sprintf(
                 'SHOW VIEWS IN DATABASE %s',
-                SnowflakeQuote::quoteSingleIdentifier($databaseName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($databaseName),
+            ),
         );
 
         $dependentViews = [];
@@ -237,8 +237,8 @@ WHERE REFERENCED_OBJECT_TYPE = %s
                             SnowflakeQuote::quote($objectType),
                             SnowflakeQuote::quote($objectName),
                             SnowflakeQuote::quote($schemaName),
-                            SnowflakeQuote::quote($databaseName)
-                        )
+                            SnowflakeQuote::quote($databaseName),
+                        ),
                     );
 
                     if ($dependentObjects !== []) {
@@ -281,7 +281,7 @@ WHERE REFERENCED_OBJECT_TYPE = %s
             $this->isTemporary(),
             $this->getColumnsDefinitions(),
             $this->getPrimaryKeysNames(),
-            $this->tableType
+            $this->tableType,
         );
     }
 

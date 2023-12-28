@@ -65,7 +65,7 @@ class ExasolTableQueryBuilderTest extends TestCase
     {
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage(
-            'Invalid table name testTable.: Only alphanumeric characters dash and underscores are allowed.'
+            'Invalid table name testTable.: Only alphanumeric characters dash and underscores are allowed.',
         );
         $this->qb->getCreateTableCommand('testDb', 'testTable.', new ColumnCollection([]));
         self::fail('Should fail because of invalid table name');
@@ -75,7 +75,7 @@ class ExasolTableQueryBuilderTest extends TestCase
     {
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage(
-            'Invalid table name testTable.: Only alphanumeric characters dash and underscores are allowed.'
+            'Invalid table name testTable.: Only alphanumeric characters dash and underscores are allowed.',
         );
         $this->qb->getRenameTableCommand('testDb', 'testTable', 'testTable.');
         self::fail('Should fail because of invalid table name');

@@ -50,8 +50,8 @@ class SnowflakeViewReflectionTest extends SnowflakeBaseCase
                 'CREATE VIEW %s AS SELECT * FROM %s.%s;',
                 SnowflakeQuote::quoteSingleIdentifier($viewName),
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier($parentName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($parentName),
+            ),
         );
     }
 
@@ -62,7 +62,7 @@ class SnowflakeViewReflectionTest extends SnowflakeBaseCase
         $viewRef = new SnowflakeViewReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         self::assertEquals(
             'CREATE VIEW "utilsTest_refView" AS SELECT * FROM "utilsTest_refTableSchema"."utilsTest_refTab";',
-            $viewRef->getViewDefinition()
+            $viewRef->getViewDefinition(),
         );
     }
 
@@ -76,7 +76,7 @@ class SnowflakeViewReflectionTest extends SnowflakeBaseCase
         // add new column to table A
         $this->connection->executeQuery(sprintf(
             'ALTER TABLE %s ADD COLUMN "xxx" VARCHAR(300) NULL;',
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         ));
         // check that table A has new column (3->4)
         $tableRef = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);

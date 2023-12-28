@@ -31,7 +31,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
             implode(', ', $options->getPermissions()),
             $on,
             SynapseQuote::quoteSingleIdentifier($options->getGrantTo()),
-            $with
+            $with,
         );
     }
 
@@ -58,7 +58,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
             $permissions,
             $on,
             SynapseQuote::quoteSingleIdentifier($options->getRevokeFrom()),
-            $with
+            $with,
         );
     }
 
@@ -87,7 +87,7 @@ class SynapseGrantQueryBuilder implements GrantQueryBuilderInterface
             $on = sprintf(
                 ' ON %s%s',
                 $grantSubject,
-                $path
+                $path,
             );
         }
         return $on;

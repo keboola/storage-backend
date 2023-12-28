@@ -27,12 +27,12 @@ final class SnowflakeColumn implements ColumnInterface
             [
                 'nullable' => false,
                 'default' => '\'\'',
-            ]
+            ],
         );
 
         return new self(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -75,7 +75,7 @@ final class SnowflakeColumn implements ColumnInterface
                 'nullable' => $dbResponse['null?'] === 'Y',
                 'length' => $length,
                 'default' => $default,
-            ]
+            ],
         ));
     }
 
@@ -84,8 +84,8 @@ final class SnowflakeColumn implements ColumnInterface
         return new self(
             $columnName,
             new Snowflake(
-                Snowflake::TYPE_TIMESTAMP_NTZ
-            )
+                Snowflake::TYPE_TIMESTAMP_NTZ,
+            ),
         );
     }
 }

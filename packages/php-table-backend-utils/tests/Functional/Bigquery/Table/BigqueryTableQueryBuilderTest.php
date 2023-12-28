@@ -39,7 +39,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
         array $primaryKeys,
         array $expectedColumnNames,
         array $expectedPKs,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $this->cleanDataset(self::TEST_SCHEMA);
         $this->createDataset(self::TEST_SCHEMA);
@@ -48,7 +48,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            [] // primary keys aren't supported in BQ
+            [], // primary keys aren't supported in BQ
         );
 
         self::assertSame($expectedSql, $sql);
@@ -120,7 +120,7 @@ EOT
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            [] // primary keys aren't supported in BQ
+            [], // primary keys aren't supported in BQ
         );
 
         $this->bqClient->runQuery($this->bqClient->query($sql));
@@ -130,23 +130,23 @@ EOT
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             new BigqueryColumn('col3', new Bigquery(
-                Bigquery::TYPE_STRING
-            ))
+                Bigquery::TYPE_STRING,
+            )),
         );
         $this->assertEquals(
             sprintf(
                 'ALTER TABLE `%s`.`%s` ADD COLUMN `col3` STRING',
                 self::TEST_SCHEMA,
-                self::TABLE_GENERIC
+                self::TABLE_GENERIC,
             ),
-            $sql
+            $sql,
         );
         $this->bqClient->runQuery($this->bqClient->query($sql));
 
         $tableReflection = new BigqueryTableReflection(
             $this->bqClient,
             self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
         self::assertSame(['col1', 'col2', 'col3'], $tableReflection->getColumnsNames());
 
@@ -155,14 +155,14 @@ EOT
         $this->assertEquals(sprintf(
             'ALTER TABLE `%s`.`%s` DROP COLUMN `col2`',
             self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         ), $sql);
         $this->bqClient->runQuery($this->bqClient->query($sql));
 
         $tableReflection = new BigqueryTableReflection(
             $this->bqClient,
             self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
         self::assertSame(['col1', 'col3'], $tableReflection->getColumnsNames());
     }

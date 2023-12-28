@@ -39,7 +39,7 @@ final class SnowflakeViewReflection implements ViewReflectionInterface
             $this->connection,
             $this->viewName,
             $this->schemaName,
-            SnowflakeTableReflection::DEPENDENT_OBJECT_VIEW
+            SnowflakeTableReflection::DEPENDENT_OBJECT_VIEW,
         );
     }
 
@@ -49,7 +49,7 @@ final class SnowflakeViewReflection implements ViewReflectionInterface
         $result = $this->connection->fetchAssociative(sprintf(
             'SHOW VIEWS LIKE %s IN %s',
             SnowflakeQuote::quote($this->viewName),
-            SnowflakeQuote::quoteSingleIdentifier($this->schemaName)
+            SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
         ));
 
         return $result ? $result['text'] : '';
@@ -62,7 +62,7 @@ final class SnowflakeViewReflection implements ViewReflectionInterface
         $objectNameWithSchema = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
-            SnowflakeQuote::quoteSingleIdentifier($this->viewName)
+            SnowflakeQuote::quoteSingleIdentifier($this->viewName),
         );
 
         $this->connection->executeQuery(sprintf('DROP VIEW %s', $objectNameWithSchema));

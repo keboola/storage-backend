@@ -59,7 +59,7 @@ class SynapseDriver extends AbstractSQLServerDriver
                 $this->constructDsn($params, $dsnOptions),
                 $params['user'] ?? '',
                 $params['password'] ?? '',
-                $driverOptions
+                $driverOptions,
             );
         } catch (NativePdoException $exception) {
             throw PDOException::new($exception);
@@ -71,8 +71,8 @@ class SynapseDriver extends AbstractSQLServerDriver
             $conn->exec(
                 sprintf(
                     'EXEC sys.sp_set_session_context @key = \'wlm_context\', @value = %s',
-                    SynapseQuote::quote($wlmContext)
-                )
+                    SynapseQuote::quote($wlmContext),
+                ),
             );
         }
         return $conn;

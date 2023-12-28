@@ -399,7 +399,7 @@ class SQLtoRestDatatypeConverterTest extends TestCase
         ?string $length,
         ?string $default,
         bool $nullable,
-        array $expected
+        array $expected,
     ): void {
         $options = [
             'nullable' => $nullable,
@@ -412,7 +412,7 @@ class SQLtoRestDatatypeConverterTest extends TestCase
         }
         $col = new BigqueryColumn('myCol', new Bigquery(
             $type,
-            $options
+            $options,
         ));
         $rest = SQLtoRestDatatypeConverter::convertColumnToRestFormat($col);
         self::assertSame($expected, $rest);
@@ -468,14 +468,14 @@ class SQLtoRestDatatypeConverterTest extends TestCase
     public function testErrors(
         string $type,
         ?string $length,
-        string $expectedError
+        string $expectedError,
     ): void {
         $options = [
             'length' => $length,
         ];
         $col = new BigqueryColumn('myCol', new Bigquery(
             $type,
-            $options
+            $options,
         ));
         try {
             SQLtoRestDatatypeConverter::convertColumnToRestFormat($col);
@@ -493,7 +493,7 @@ class SQLtoRestDatatypeConverterTest extends TestCase
         ];
         $col = new BigqueryColumn('array_struct_array-int_array-string', new Bigquery(
             Bigquery::TYPE_ARRAY,
-            $options
+            $options,
         ));
         $rest = SQLtoRestDatatypeConverter::convertColumnToRestFormat($col);
         self::assertSame([
