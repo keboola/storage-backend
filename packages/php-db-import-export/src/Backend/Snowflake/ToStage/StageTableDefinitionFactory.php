@@ -19,7 +19,7 @@ final class StageTableDefinitionFactory
      */
     public static function createStagingTableDefinition(
         TableDefinitionInterface $destination,
-        array $sourceColumnsNames
+        array $sourceColumnsNames,
     ): SnowflakeTableDefinition {
         /** @var SnowflakeTableDefinition $destination */
         $newDefinitions = [];
@@ -39,8 +39,8 @@ final class StageTableDefinitionFactory
                                 'length' => $definition->getColumnDefinition()->getLength(),
                                 'nullable' => true, // set all columns to be nullable
                                 'default' => $definition->getColumnDefinition()->getDefault(),
-                            ]
-                        )
+                            ],
+                        ),
                     );
                     continue 2;
                 }
@@ -54,7 +54,7 @@ final class StageTableDefinitionFactory
             BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames()
+            $destination->getPrimaryKeysNames(),
         );
     }
 
@@ -63,7 +63,7 @@ final class StageTableDefinitionFactory
      */
     public static function createVarcharStagingTableDefinition(
         string $schemaName,
-        array $sourceColumnsNames
+        array $sourceColumnsNames,
     ): SnowflakeTableDefinition {
         $newDefinitions = [];
         // create staging table for source columns in order
@@ -76,7 +76,7 @@ final class StageTableDefinitionFactory
             BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            []
+            [],
         );
     }
 
@@ -89,8 +89,8 @@ final class StageTableDefinitionFactory
                 [
                     'length' => (string) Snowflake::MAX_VARCHAR_LENGTH,
                     'nullable' => true, // set all columns to be nullable
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -99,14 +99,14 @@ final class StageTableDefinitionFactory
      */
     public static function createDedupTableDefinition(
         SnowflakeTableDefinition $destination,
-        array $pkNames
+        array $pkNames,
     ): SnowflakeTableDefinition {
         return new SnowflakeTableDefinition(
             $destination->getSchemaName(),
             BackendHelper::generateTempDedupTableName(),
             true,
             $destination->getColumnsDefinitions(),
-            $pkNames
+            $pkNames,
         );
     }
 }

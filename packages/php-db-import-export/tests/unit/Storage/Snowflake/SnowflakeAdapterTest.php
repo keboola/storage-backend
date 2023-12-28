@@ -26,22 +26,22 @@ class SnowflakeAdapterTest extends BaseTestCase
         $this->assertTrue(
             SnowflakeImportAdapter::isSupported(
                 $snowflakeTable,
-                $snowflakeTable
-            )
+                $snowflakeTable,
+            ),
         );
 
         $this->assertFalse(
             SnowflakeImportAdapter::isSupported(
                 $snowflakeSelectSource,
-                $synapseTable
-            )
+                $synapseTable,
+            ),
         );
 
         $this->assertFalse(
             SnowflakeImportAdapter::isSupported(
                 $absSource,
-                $synapseTable
-            )
+                $synapseTable,
+            ),
         );
     }
 
@@ -51,7 +51,7 @@ class SnowflakeAdapterTest extends BaseTestCase
 
         $conn = $this->mockConnection();
         $conn->expects($this->once())->method('query')->with(
-            'INSERT INTO "schema"."stagingTable" ("col1", "col2") SELECT "col1", "col2" FROM "schema"."table"'
+            'INSERT INTO "schema"."stagingTable" ("col1", "col2") SELECT "col1", "col2" FROM "schema"."table"',
         );
         $conn->expects($this->once())->method('fetchAll')
             ->with('SELECT COUNT(*) AS "count" FROM "schema"."stagingTable"')
@@ -60,7 +60,7 @@ class SnowflakeAdapterTest extends BaseTestCase
                     [
                         'count' => 10,
                     ],
-                ]
+                ],
             );
 
         $destination = new Storage\Snowflake\Table('schema', 'table', ['col1', 'col2']);
@@ -70,7 +70,7 @@ class SnowflakeAdapterTest extends BaseTestCase
             $source,
             $destination,
             $options,
-            'stagingTable'
+            'stagingTable',
         );
 
         $this->assertEquals(10, $count);

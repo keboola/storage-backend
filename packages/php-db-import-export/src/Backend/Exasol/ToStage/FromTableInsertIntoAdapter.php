@@ -28,7 +28,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SelectSource || $source instanceof Table);
         assert($destination instanceof ExasolTableDefinition);
@@ -43,7 +43,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             ExasolQuote::quoteSingleIdentifier($destination->getSchemaName()),
             ExasolQuote::quoteSingleIdentifier($destination->getTableName()),
             implode(', ', $quotedColumns),
-            $source->getFromStatement()
+            $source->getFromStatement(),
         );
 
         if ($source instanceof SelectSource) {
@@ -55,7 +55,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         $ref = new ExasolTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();

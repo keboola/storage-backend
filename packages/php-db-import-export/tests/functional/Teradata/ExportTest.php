@@ -55,7 +55,7 @@ class ExportTest extends TeradataBaseTestCase
         $source = $this->getSourceInstance('big_table.csv', $file->getHeader());
         $destination = new Table(
             $schema,
-            self::BIGGER_TABLE
+            self::BIGGER_TABLE,
         );
         $importOptions = $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE, false);
 
@@ -70,7 +70,7 @@ class ExportTest extends TeradataBaseTestCase
         (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
-            $exportOptions
+            $exportOptions,
         );
 
         /** @var array<int, array> $files */
@@ -107,7 +107,7 @@ class ExportTest extends TeradataBaseTestCase
         $source = $this->getSourceInstance('big_table.csv', $file->getHeader());
         $destination = new Table(
             $schema,
-            self::BIGGER_TABLE
+            self::BIGGER_TABLE,
         );
         $importOptions = $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE, false);
 
@@ -121,7 +121,7 @@ class ExportTest extends TeradataBaseTestCase
         (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
-            $exportOptions
+            $exportOptions,
         );
 
         /** @var array<int, array> $files */
@@ -147,7 +147,7 @@ class ExportTest extends TeradataBaseTestCase
             if ($expectedFileSize !== 0) {
                 self::assertTrue(
                     ($expectedFileSize - 10000) < $fileSize && $fileSize < ($expectedFileSize + 10000),
-                    sprintf('Actual size is %s but expected is %s', $fileSize, $expectedFileSize)
+                    sprintf('Actual size is %s but expected is %s', $fileSize, $expectedFileSize),
                 );
             }
         }
@@ -164,30 +164,30 @@ class ExportTest extends TeradataBaseTestCase
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destinationTable,
         ImportOptions $options,
-        int $repeatImport = 0
+        int $repeatImport = 0,
     ): void {
         $importer = new ToStageImporter($this->connection);
         /** @var Table $destinationTable */
         $destinationRef = new TeradataTableReflection(
             $this->connection,
             $destinationTable->getSchema(),
-            $destinationTable->getTableName()
+            $destinationTable->getTableName(),
         );
         /** @var TeradataTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
 
         // re-insert inserted data -> make the table BIIIG
@@ -206,7 +206,7 @@ class ExportTest extends TeradataBaseTestCase
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
     }
 
@@ -219,7 +219,7 @@ class ExportTest extends TeradataBaseTestCase
         $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
         $destination = new Table(
             $this->getDestinationDbName(),
-            'out_csv_2Cols'
+            'out_csv_2Cols',
         );
         $options = $this->getSimpleImportOptions();
         $this->importTable($source, $destination, $options, 0);
@@ -232,7 +232,7 @@ class ExportTest extends TeradataBaseTestCase
         (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $files = $this->listFiles($this->getExportDir() . '/ts_test');
@@ -244,7 +244,7 @@ class ExportTest extends TeradataBaseTestCase
             CsvOptions::DEFAULT_DELIMITER,
             CsvOptions::DEFAULT_ENCLOSURE,
             CsvOptions::DEFAULT_ESCAPED_BY,
-            1 // skip header
+            1, // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
 
@@ -261,7 +261,7 @@ class ExportTest extends TeradataBaseTestCase
         $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
         $destination = new Table(
             $this->getDestinationDbName(),
-            'accounts-3'
+            'accounts-3',
         );
         $options = $this->getSimpleImportOptions();
 
@@ -272,7 +272,7 @@ class ExportTest extends TeradataBaseTestCase
         $query = sprintf(
             'SELECT %s FROM %s',
             (new SqlBuilder)->getColumnsString($file->getHeader()),
-            $destination->getQuotedTableWithScheme()
+            $destination->getQuotedTableWithScheme(),
         );
         $source = new Storage\Teradata\SelectSource($query);
         $options = $this->getExportOptions();
@@ -281,7 +281,7 @@ class ExportTest extends TeradataBaseTestCase
         (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $files = $this->listFiles($this->getExportDir() . '/tw_test');
@@ -293,7 +293,7 @@ class ExportTest extends TeradataBaseTestCase
             CsvOptions::DEFAULT_DELIMITER,
             CsvOptions::DEFAULT_ENCLOSURE,
             CsvOptions::DEFAULT_ESCAPED_BY,
-            1 // skip header
+            1, // skip header
         );
         $this->assertCsvFilesSame($expected, $actual);
 
@@ -416,7 +416,7 @@ class ExportTest extends TeradataBaseTestCase
     public function testExportImportPipeline(
         bool $compressed,
         bool $singlePartFile,
-        string $exportedFilenameSuffix
+        string $exportedFilenameSuffix,
     ): void {
         // import
         $schema = $this->getDestinationDbName();
@@ -425,7 +425,7 @@ class ExportTest extends TeradataBaseTestCase
         $source = $this->getSourceInstance('big_table.csv', $file->getHeader());
         $destinationTable = new Table(
             $schema,
-            self::BIGGER_TABLE
+            self::BIGGER_TABLE,
         );
         $importOptions = $this->getSimpleImportOptions(ImportOptions::SKIP_FIRST_LINE, false);
 
@@ -438,7 +438,7 @@ class ExportTest extends TeradataBaseTestCase
             TeradataExportOptions::DEFAULT_BUFFER_SIZE,
             TeradataExportOptions::DEFAULT_MAX_OBJECT_SIZE,
             TeradataExportOptions::DEFAULT_SPLIT_ROWS,
-            $singlePartFile
+            $singlePartFile,
         );
         $exportedFilePath = $this->getExportDir() . '/gz_test/gzip.csv';
         $destinationExport = $this->getDestinationInstance($exportedFilePath);
@@ -446,7 +446,7 @@ class ExportTest extends TeradataBaseTestCase
         (new Exporter($this->connection))->exportTable(
             $sourceTable,
             $destinationExport,
-            $exportOptions
+            $exportOptions,
         );
 
         $reImportTableName = 'big_table_re-import';
@@ -457,13 +457,13 @@ class ExportTest extends TeradataBaseTestCase
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
                 TeradataQuote::quoteSingleIdentifier($schema),
-                TeradataQuote::quoteSingleIdentifier(self::BIGGER_TABLE)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::BIGGER_TABLE),
+            ),
         );
 
         $destinationTableReImport = new Table(
             $schema,
-            $reImportTableName
+            $reImportTableName,
         );
 
         $awsKey = (string) getenv('AWS_S3_KEY');
@@ -476,7 +476,7 @@ class ExportTest extends TeradataBaseTestCase
         $sourceReimport = $this->getSourceInstanceFromCsv(
             $exportedFilePath . $exportedFilenameSuffix,
             new CsvOptions(),
-            $file->getHeader()
+            $file->getHeader(),
         );
 
         $this->importTable($sourceReimport, $destinationTableReImport, $importOptions);
@@ -486,7 +486,7 @@ class ExportTest extends TeradataBaseTestCase
                 'SELECT COUNT(*) AS counter FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($schema),
                 TeradataQuote::quoteSingleIdentifier($reImportTableName),
-            )
+            ),
         );
         self::assertEquals(96271, $counter[0]['counter']);
     }

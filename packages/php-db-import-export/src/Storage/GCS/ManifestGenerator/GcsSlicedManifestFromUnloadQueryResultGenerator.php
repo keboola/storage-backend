@@ -40,7 +40,7 @@ class GcsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
             'entries' => $entries,
         ];
         $writeStream = new WriteStream(null, [
-            'chunkSize' => self::CHUNK_SIZE_256_KB
+            'chunkSize' => self::CHUNK_SIZE_256_KB,
         ]);
         $uploader = $bucket->getStreamableUploader($writeStream, [
             'name' => $path->getPathnameWithoutRoot() . 'manifest',

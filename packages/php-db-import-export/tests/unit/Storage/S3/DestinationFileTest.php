@@ -16,7 +16,7 @@ class DestinationFileTest extends BaseTestCase
             's3Secret',
             'eu-central-1',
             'myBucket',
-            'file.csv'
+            'file.csv',
         );
         self::assertInstanceOf(Storage\S3\DestinationFile::class, $destination);
         self::assertInstanceOf(Storage\DestinationInterface::class, $destination);

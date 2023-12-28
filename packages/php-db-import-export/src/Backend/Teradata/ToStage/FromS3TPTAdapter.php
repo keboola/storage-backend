@@ -46,7 +46,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof Storage\S3\SourceFile);
         assert($destination instanceof TeradataTableDefinition);
@@ -74,7 +74,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             [
                 'AWS_ACCESS_KEY_ID' => $source->getKey(),
                 'AWS_SECRET_ACCESS_KEY' => $source->getSecret(),
-            ]
+            ],
         );
         $process->setTimeout(self::TPT_TIMEOUT);
         $process->start();
@@ -100,8 +100,8 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 sprintf(
                     'SELECT * FROM %s.%s',
                     TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
-                    TeradataQuote::quoteSingleIdentifier($logTable)
-                )
+                    TeradataQuote::quoteSingleIdentifier($logTable),
+                ),
             );
             $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $logTable));
         }
@@ -124,7 +124,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
             // drop destination table it's not usable
             $this->connection->executeStatement($qb->getDropTableCommand(
                 $destination->getSchemaName(),
-                $destination->getTableName()
+                $destination->getTableName(),
             ));
             $stdOut = $process->getOutput();
 
@@ -137,7 +137,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 $stdOut,
                 $process->getExitCode(),
                 $this->getLogData($temp),
-                $logContent
+                $logContent,
             );
         }
 
@@ -147,7 +147,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
         $ref = new TeradataTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();
@@ -171,7 +171,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
     private function generateTPTScript(
         Storage\S3\SourceFile $source,
         TeradataTableDefinition $destination,
-        TeradataImportOptions $importOptions
+        TeradataImportOptions $importOptions,
     ): array {
         $temp = new Temp();
         $folder = $temp->getTmpFolder();
@@ -205,7 +205,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                 $source->getBucket(),
                 $prefix,
                 $object,
-                $s3ConfigDir
+                $s3ConfigDir,
             );
         } else {
             if ($source->isSliced()) {
@@ -221,7 +221,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                     $path->getRoot(),
                     $path->getPathWithoutRoot() . '/',
                     $path->getFileName(),
-                    $s3ConfigDir
+                    $s3ConfigDir,
                 );
             } else {
                 // direct load with
@@ -234,7 +234,7 @@ class FromS3TPTAdapter implements CopyAdapterInterface
                     $source->getBucket(),
                     $source->getPrefix(),
                     $source->getFileName(),
-                    $s3ConfigDir
+                    $s3ConfigDir,
                 );
             }
         }

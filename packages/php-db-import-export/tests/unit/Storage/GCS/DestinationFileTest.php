@@ -29,7 +29,7 @@ class DestinationFileTest extends BaseTestCase
                 'token_uri' => '',
                 'auth_provider_x509_cert_url' => '',
                 'client_x509_cert_url' => '',
-            ]
+            ],
         );
         self::assertInstanceOf(Storage\GCS\BaseFile::class, $source);
         self::assertInstanceOf(Storage\DestinationInterface::class, $source);

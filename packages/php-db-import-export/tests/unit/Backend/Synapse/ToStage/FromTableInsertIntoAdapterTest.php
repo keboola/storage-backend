@@ -42,14 +42,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $options = new SynapseImportOptions([]);
         $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $this->assertEquals(10, $count);
@@ -61,7 +61,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             'SELECT * FROM [test_schema].[test_table]',
             ['val'],
             [1],
-            ['col1','col2']
+            ['col1','col2'],
         );
 
         $conn = $this->mockConnection();
@@ -69,7 +69,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
         // phpcs:ignore
             'INSERT INTO [test_schema].[stagingTable] ([col1], [col2]) SELECT * FROM [test_schema].[test_table]',
             ['val'],
-            [1]
+            [1],
         );
         $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [test_schema].[stagingTable]')
@@ -85,14 +85,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $options = new SynapseImportOptions([]);
         $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $this->assertEquals(10, $count);

@@ -20,47 +20,47 @@ final class SynapseException extends ImportExportException
 
     public static function createColumnsCountMismatch(
         ColumnCollection $source,
-        ColumnCollection $destination
+        ColumnCollection $destination,
     ): Throwable {
         $columnsSource = array_map(
             static fn(ColumnInterface $col) => $col->getColumnName(),
-            iterator_to_array($source->getIterator())
+            iterator_to_array($source->getIterator()),
         );
         $columnsDestination = array_map(
             static fn(ColumnInterface $col) => $col->getColumnName(),
-            iterator_to_array($destination->getIterator())
+            iterator_to_array($destination->getIterator()),
         );
         return new self(
             sprintf(
                 'Tables don\'t have same number of columns. Source columns: "%s", Destination columns: "%s"',
                 implode(',', $columnsSource),
-                implode(',', $columnsDestination)
+                implode(',', $columnsDestination),
             ),
-            self::CODE_TABLE_COLUMNS_MISMATCH
+            self::CODE_TABLE_COLUMNS_MISMATCH,
         );
     }
 
     public static function createColumnsNamesMismatch(
         ColumnInterface $sourceDef,
-        ColumnInterface $destDef
+        ColumnInterface $destDef,
     ): Throwable {
         return new self(sprintf(
             'Source destination columns name mismatch. "%s"->"%s"',
             $sourceDef->getColumnName(),
-            $destDef->getColumnName()
+            $destDef->getColumnName(),
         ), self::CODE_TABLE_COLUMNS_MISMATCH);
     }
 
     public static function createColumnsMismatch(
         ColumnInterface $sourceDef,
-        ColumnInterface $destDef
+        ColumnInterface $destDef,
     ): Throwable {
         return new self(sprintf(
             'Source destination columns mismatch. "%s %s"->"%s %s"',
             $sourceDef->getColumnName(),
             $sourceDef->getColumnDefinition()->getSQLDefinition(),
             $destDef->getColumnName(),
-            $destDef->getColumnDefinition()->getSQLDefinition()
+            $destDef->getColumnDefinition()->getSQLDefinition(),
         ), self::CODE_TABLE_COLUMNS_MISMATCH);
     }
 
@@ -76,7 +76,7 @@ final class SynapseException extends ImportExportException
             $message = (string) strstr($e->getMessage(), self::BULK_LOAD_EXCEPTION_BEGINNING);
             return new self(
                 $message,
-                Exception::UNKNOWN_ERROR
+                Exception::UNKNOWN_ERROR,
             );
         }
 
@@ -85,7 +85,7 @@ final class SynapseException extends ImportExportException
             $message = (string) strstr($e->getMessage(), self::DATA_TYPE_CONVERSION_EXCEPTION_BEGINNING);
             return new self(
                 $message,
-                Exception::UNKNOWN_ERROR
+                Exception::UNKNOWN_ERROR,
             );
         }
 

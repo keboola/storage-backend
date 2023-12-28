@@ -27,8 +27,8 @@ class DebugLogger extends AbstractLogger
             sprintf(
                 '%s: %s',
                 strtoupper($level),
-                self::interpolate($message, $context)
-            )
+                self::interpolate($message, $context),
+            ),
         );
     }
 

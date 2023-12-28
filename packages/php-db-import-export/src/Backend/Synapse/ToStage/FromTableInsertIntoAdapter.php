@@ -28,7 +28,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SelectSource || $source instanceof Table);
         assert($destination instanceof SynapseTableDefinition);
@@ -43,7 +43,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             SynapseQuote::quoteSingleIdentifier($destination->getSchemaName()),
             SynapseQuote::quoteSingleIdentifier($destination->getTableName()),
             implode(', ', $quotedColumns),
-            $source->getFromStatement()
+            $source->getFromStatement(),
         );
 
         if ($source instanceof SelectSource) {
@@ -55,7 +55,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();

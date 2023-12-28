@@ -17,7 +17,7 @@ final class StageTableDefinitionFactory
      */
     public static function createStagingTableDefinition(
         TeradataTableDefinition $destination,
-        array $sourceColumnsNames
+        array $sourceColumnsNames,
     ): TeradataTableDefinition {
         $newDefinitions = [];
         // create staging table for source columns in order
@@ -36,8 +36,8 @@ final class StageTableDefinitionFactory
                                 'length' => $definition->getColumnDefinition()->getLength(),
                                 'nullable' => true,
                                 'default' => $definition->getColumnDefinition()->getDefault(),
-                            ]
-                        )
+                            ],
+                        ),
                     );
                     continue 2;
                 }
@@ -51,7 +51,7 @@ final class StageTableDefinitionFactory
             StorageS3Helper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames()
+            $destination->getPrimaryKeysNames(),
         );
     }
 
@@ -64,8 +64,8 @@ final class StageTableDefinitionFactory
                 [
                     'length' => (string) Teradata::DEFAULT_NON_LATIN_CHAR_LENGTH,
                     'nullable' => true,
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -74,7 +74,7 @@ final class StageTableDefinitionFactory
      */
     public static function createStagingTableDefinitionWithText(
         TeradataTableDefinition $destination,
-        array $sourceColumnsNames
+        array $sourceColumnsNames,
     ): TeradataTableDefinition {
         $newDefinitions = [];
         foreach ($sourceColumnsNames as $columnName) {
@@ -86,7 +86,7 @@ final class StageTableDefinitionFactory
             StorageS3Helper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames()
+            $destination->getPrimaryKeysNames(),
         );
     }
 
@@ -95,14 +95,14 @@ final class StageTableDefinitionFactory
      */
     public static function createDedupTableDefinition(
         TeradataTableDefinition $destination,
-        array $pkNames
+        array $pkNames,
     ): TeradataTableDefinition {
         return new TeradataTableDefinition(
             $destination->getSchemaName(),
             StorageS3Helper::generateTempDedupTableName(),
             true,
             $destination->getColumnsDefinitions(),
-            $pkNames
+            $pkNames,
         );
     }
 }

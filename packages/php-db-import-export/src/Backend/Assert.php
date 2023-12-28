@@ -55,7 +55,7 @@ class Assert
                     $sourceCol,
                     $destCol,
                     $simpleLengthTypes,
-                    $complexLengthTypes
+                    $complexLengthTypes,
                 );
             } else {
                 throw ColumnsMismatchException::createColumnsCountMismatch($source, $destination);
@@ -84,7 +84,7 @@ class Assert
         int $sourcePrecision,
         int $sourceScale,
         int $destinationPrecision,
-        int $destinationScale
+        int $destinationScale,
     ): bool {
         return $sourcePrecision > $destinationPrecision || $sourceScale > $destinationScale;
     }
@@ -102,12 +102,12 @@ class Assert
                 sourcePrecision: (int) $sourceLength[0],
                 sourceScale: (int) $sourceLength[1],
                 destinationPrecision: (int) $destLength[0],
-                destinationScale: (int) $destLength[1]
+                destinationScale: (int) $destLength[1],
             ),
             $isSourceComplex !== $isDestComplex => false,
             default => self::isLengthMismatchSimpleLength(
                 $sourceDef,
-                $destDef
+                $destDef,
             ),
         };
     }

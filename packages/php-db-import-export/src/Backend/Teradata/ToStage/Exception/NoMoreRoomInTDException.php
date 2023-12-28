@@ -12,7 +12,7 @@ class NoMoreRoomInTDException extends Exception
     public function __construct(string $dbName)
     {
         parent::__construct(
-            sprintf('No more room in Teradata database %s', $dbName)
+            sprintf('No more room in Teradata database %s', $dbName),
         );
     }
 }

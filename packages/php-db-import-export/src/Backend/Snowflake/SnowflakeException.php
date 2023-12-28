@@ -26,7 +26,7 @@ class SnowflakeException extends Exception
             return new Exception(
                 'Load error: ' . $e->getMessage(),
                 Exception::UNKNOWN_ERROR,
-                $e
+                $e,
             );
         }
 
@@ -50,7 +50,7 @@ class SnowflakeException extends Exception
             return new Exception(
                 'Load error: ' . $message,
                 Exception::VALUE_CONVERSION,
-                $e
+                $e,
             );
         }
 
@@ -62,7 +62,7 @@ class SnowflakeException extends Exception
             return new Exception(
                 'Load error: ' . $e->getMessage(),
                 Exception::ROW_SIZE_TOO_LARGE,
-                $e
+                $e,
             );
         }
 

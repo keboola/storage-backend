@@ -15,7 +15,7 @@ interface ExporterInterface
     public function exportTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $options
+        ExportOptionsInterface $options,
     ): array;
 
     /**

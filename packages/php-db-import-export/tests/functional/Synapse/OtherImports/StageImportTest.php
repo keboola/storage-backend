@@ -43,7 +43,7 @@ class StageImportTest extends SynapseBaseTestCase
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
 
         $this->expectException(Throwable::class);
@@ -51,7 +51,7 @@ class StageImportTest extends SynapseBaseTestCase
         $importer->importToStagingTable(
             $this->createABSSourceInstanceFromCsv('raw.rs.csv', new CsvOptions("\t", '', '\\')),
             StageTableDefinitionFactory::createStagingTableDefinition($ref->getTableDefinition(), $escapingHeader),
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(),
         );
     }
 
@@ -63,13 +63,13 @@ class StageImportTest extends SynapseBaseTestCase
             $this->getSourceSchemaName(),
             'names',
             ['c1', 'c2'],
-            []
+            [],
         );
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
 
         $this->expectException(Exception::class);
@@ -78,9 +78,9 @@ class StageImportTest extends SynapseBaseTestCase
             $source,
             StageTableDefinitionFactory::createStagingTableDefinition(
                 $ref->getTableDefinition(),
-                $ref->getColumnsNames()
+                $ref->getColumnsNames(),
             ),
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(),
         );
     }
 
@@ -94,13 +94,13 @@ class StageImportTest extends SynapseBaseTestCase
             $initialFile->getHeader(),
             true,
             false,
-            ['id']
+            ['id'],
         );
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_3
+            self::TABLE_ACCOUNTS_3,
         );
 
         $this->expectException(Exception::class);
@@ -109,9 +109,9 @@ class StageImportTest extends SynapseBaseTestCase
             $source,
             StageTableDefinitionFactory::createStagingTableDefinition(
                 $ref->getTableDefinition(),
-                $ref->getColumnsNames()
+                $ref->getColumnsNames(),
             ),
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(),
         );
     }
 
@@ -127,14 +127,14 @@ class StageImportTest extends SynapseBaseTestCase
             ],
             false,
             false,
-            ['id']
+            ['id'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
         $this->expectException(Exception::class);
         $this->expectExceptionCode(Exception::COLUMNS_COUNT_NOT_MATCH);
@@ -144,9 +144,9 @@ class StageImportTest extends SynapseBaseTestCase
             $source,
             StageTableDefinitionFactory::createStagingTableDefinition(
                 $ref->getTableDefinition(),
-                $ref->getColumnsNames()
+                $ref->getColumnsNames(),
             ),
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(),
         );
     }
 
@@ -156,22 +156,22 @@ class StageImportTest extends SynapseBaseTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Bulk load data conversion error'
+            '[SQL Server]Bulk load data conversion error',
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer->importToStagingTable(
             $this->createABSSourceInstanceFromCsv(
@@ -183,10 +183,10 @@ class StageImportTest extends SynapseBaseTestCase
                 ],
                 false,
                 false,
-                []
+                [],
             ),
             $stagingTable,
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(),
         );
     }
 
@@ -196,21 +196,21 @@ class StageImportTest extends SynapseBaseTestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Bulk load data conversion error'
+            '[SQL Server]Bulk load data conversion error',
         );
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer->importToStagingTable(
             $this->createABSSourceInstanceFromCsv(
@@ -222,10 +222,10 @@ class StageImportTest extends SynapseBaseTestCase
                 ],
                 false,
                 false,
-                []
+                [],
             ),
             $stagingTable,
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(),
         );
     }
 
@@ -243,32 +243,32 @@ class StageImportTest extends SynapseBaseTestCase
             ],
             false,
             false,
-            []
+            [],
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getSourceSchemaName(),
-            self::TABLE_TYPES
+            self::TABLE_TYPES,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Bulk load data conversion error'
+            '[SQL Server]Bulk load data conversion error',
         );
         $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $this->getSynapseImportOptions()
+            $this->getSynapseImportOptions(),
         );
     }
 
@@ -284,22 +284,22 @@ class StageImportTest extends SynapseBaseTestCase
                 'col1',
                 'col2',
                 'invalidCol',
-            ]
+            ],
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getSourceSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            [...$ref->getColumnsNames(), 'invalidCol']
+            [...$ref->getColumnsNames(), 'invalidCol'],
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         $this->expectException(Exception::class);
@@ -314,8 +314,8 @@ class StageImportTest extends SynapseBaseTestCase
                 ImportOptions::SKIP_FIRST_LINE,
                 null,
                 SynapseImportOptions::SAME_TABLES_REQUIRED,
-                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS
-            )
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS,
+            ),
         );
     }
 
@@ -331,33 +331,33 @@ class StageImportTest extends SynapseBaseTestCase
                 'numCol',
                 'floatCol',
                 'boolCol',
-            ]
+            ],
         );
         $this->connection->exec(sprintf(
             'INSERT INTO [%s].[types] VALUES
               (\'a\', \'test\', \'test\', 1, \'\')
            ;',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getSourceSchemaName(),
-            self::TABLE_TYPES
+            self::TABLE_TYPES,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'Source destination columns mismatch. "numCol NVARCHAR(4000) NOT NULL"->"numCol DECIMAL(10,1)"'
+            'Source destination columns mismatch. "numCol NVARCHAR(4000) NOT NULL"->"numCol DECIMAL(10,1)"',
         );
         $importer->importToStagingTable(
             $source,
@@ -366,8 +366,8 @@ class StageImportTest extends SynapseBaseTestCase
                 ImportOptions::SKIP_FIRST_LINE,
                 null,
                 SynapseImportOptions::SAME_TABLES_REQUIRED,
-                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS
-            )
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS,
+            ),
         );
     }
 }

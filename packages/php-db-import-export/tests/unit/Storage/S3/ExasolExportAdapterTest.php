@@ -19,7 +19,7 @@ class ExasolExportAdapterTest extends BaseTestCase
             's3Secret',
             'eu-central-1',
             'myBucket',
-            'file.csv'
+            'file.csv',
         );
 
         /** @var Connection|MockObject $conn */
@@ -64,7 +64,7 @@ DELIMIT = ALWAYS
 REPLACE
 EOT
             ,
-            []
+            [],
         )->willReturn([]);
 
         $source = new Storage\Exasol\Table('schema', 'table');
@@ -76,8 +76,8 @@ EOT
             $adapter->runCopyCommand(
                 $source,
                 $destination,
-                $options
-            )
+                $options,
+            ),
         );
     }
 
@@ -88,7 +88,7 @@ EOT
             's3Secret',
             'eu-central-1',
             'myBucket',
-            'file.csv'
+            'file.csv',
         );
 
         /** @var Connection|MockObject $conn */
@@ -111,7 +111,7 @@ DELIMIT = ALWAYS
 REPLACE
 EOT
             ,
-            []
+            [],
         )->willReturn([]);
 
         $source = new Storage\Exasol\Table('schema', 'table');
@@ -123,8 +123,8 @@ EOT
             $adapter->runCopyCommand(
                 $source,
                 $destination,
-                $options
-            )
+                $options,
+            ),
         );
     }
 
@@ -135,7 +135,7 @@ EOT
             's3Secret',
             'eu-central-1',
             'myBucket',
-            'file.csv'
+            'file.csv',
         );
 
         /** @var Connection|MockObject $conn */
@@ -180,7 +180,7 @@ DELIMIT = ALWAYS
 REPLACE
 EOT
             ,
-            []
+            [],
         )->willReturn([]);
 
         $source = new Storage\Exasol\SelectSource('SELECT * FROM "schema"."table"');
@@ -192,8 +192,8 @@ EOT
             $adapter->runCopyCommand(
                 $source,
                 $destination,
-                $options
-            )
+                $options,
+            ),
         );
     }
 }

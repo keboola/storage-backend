@@ -27,7 +27,7 @@ class FailedTPTLoadException extends Exception
         string $stdOut,
         ?int $exitCode = null,
         ?string $logContent = null,
-        ?array $logTableContent = null
+        ?array $logTableContent = null,
     ) {
         parent::__construct(
             "Teradata TPT load ended with Error. \n\n 
@@ -36,7 +36,7 @@ class FailedTPTLoadException extends Exception
         logContent :$logContent \n\n 
         logTableContent : "
             . ($logTableContent ? json_encode($logTableContent, JSON_THROW_ON_ERROR) : 'no data') . " \n\n",
-            $exitCode ?? 0
+            $exitCode ?? 0,
         );
         $this->stdErr = $stdErr;
         $this->stdOut = $stdOut;

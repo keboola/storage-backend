@@ -43,14 +43,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
             ]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions([]);
         $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(10, $count);
@@ -63,7 +63,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             ['bind' => 'val'],
             ['col1', 'col2'],
             [],
-            ['1']
+            ['1'],
         );
 
         $conn = $this->mockConnection();
@@ -71,7 +71,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
         // phpcs:ignore
             'INSERT INTO "test_schema"."stagingTable" ("col1", "col2") SELECT * FROM "test_schema"."test_table"',
             ['bind' => 'val'],
-            [1]
+            [1],
         );
         $conn->expects(self::once())->method('fetchAllAssociative')
             // phpcs:ignore
@@ -90,14 +90,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
             ]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions([]);
         $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(10, $count);

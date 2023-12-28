@@ -42,7 +42,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SourceFile);
         assert($destination instanceof ExasolTableDefinition);
@@ -62,7 +62,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         $ref = new ExasolTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();
@@ -74,7 +74,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
     private function getCopyCommand(
         Storage\S3\SourceFile $source,
         ExasolTableDefinition $destination,
-        ExasolImportOptions $importOptions
+        ExasolImportOptions $importOptions,
     ): Generator {
         $destinationSchema = ExasolQuote::quoteSingleIdentifier($destination->getSchemaName());
         $destinationTable = ExasolQuote::quoteSingleIdentifier($destination->getTableName());
@@ -99,7 +99,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
                 static function ($entry) use ($s3Prefix) {
                     return 'FILE ' . ExasolQuote::quote(strtr($entry, [$s3Prefix => '']));
                 },
-                $entries
+                $entries,
             );
 
             // EXA COLUMN SEPARATOR = string between values
@@ -123,7 +123,7 @@ COLUMN DELIMITER=%s
                 implode("\n", $entries),
                 $firstRow,
                 ExasolQuote::quote($source->getCsvOptions()->getDelimiter()),
-                ExasolQuote::quote($source->getCsvOptions()->getEnclosure())
+                ExasolQuote::quote($source->getCsvOptions()->getEnclosure()),
             );
         }
     }

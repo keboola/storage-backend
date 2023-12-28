@@ -19,7 +19,7 @@ class ExportOptions implements ExportOptionsInterface
 
     public function __construct(
         bool $isCompressed = false,
-        bool $generateManifest = self::MANIFEST_SKIP
+        bool $generateManifest = self::MANIFEST_SKIP,
     ) {
         $this->isCompressed = $isCompressed;
         $this->exportId = BackendHelper::generateRandomExportPrefix();

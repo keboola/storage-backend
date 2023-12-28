@@ -39,7 +39,7 @@ final class SourceDestinationColumnMapTest extends TestCase
 
         $map = new SourceDestinationColumnMap(
             $source,
-            $destination
+            $destination,
         );
         return [$col1, $col1Dest, $map];
     }
@@ -111,7 +111,7 @@ final class SourceDestinationColumnMapTest extends TestCase
             }
 
             public static function createTimestampColumn(
-                string $columnName = self::TIMESTAMP_COLUMN_NAME
+                string $columnName = self::TIMESTAMP_COLUMN_NAME,
             ): ColumnInterface {
                 throw new Exception('Not implemented');
             }
@@ -145,7 +145,7 @@ final class SourceDestinationColumnMapTest extends TestCase
             $source,
             $destination,
             [],
-            SourceDestinationColumnMap::MODE_MAP_BY_ORDER
+            SourceDestinationColumnMap::MODE_MAP_BY_ORDER,
         );
 
         $this->assertSame($col1Dest, $map->getDestination($col1));
@@ -170,7 +170,7 @@ final class SourceDestinationColumnMapTest extends TestCase
             $source,
             $destination,
             [],
-            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
         );
 
         $this->assertSame($col1Dest, $map->getDestination($col1));
@@ -198,7 +198,7 @@ final class SourceDestinationColumnMapTest extends TestCase
         $this->expectException(ColumnsMismatchException::class);
         new SourceDestinationColumnMap(
             $source,
-            $destination
+            $destination,
         );
     }
 
@@ -219,7 +219,7 @@ final class SourceDestinationColumnMapTest extends TestCase
             $source,
             $destination,
             [],
-            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
         );
     }
 
@@ -239,7 +239,7 @@ final class SourceDestinationColumnMapTest extends TestCase
         new SourceDestinationColumnMap(
             $source,
             $destination,
-            ['col3']
+            ['col3'],
         );
     }
 
@@ -260,7 +260,7 @@ final class SourceDestinationColumnMapTest extends TestCase
             $source,
             $destination,
             ['col3'],
-            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
         );
     }
 
@@ -282,7 +282,7 @@ final class SourceDestinationColumnMapTest extends TestCase
         new SourceDestinationColumnMap(
             $source,
             $destination,
-            ['col3', 'col4', 'col5']
+            ['col3', 'col4', 'col5'],
         );
     }
 
@@ -306,7 +306,7 @@ final class SourceDestinationColumnMapTest extends TestCase
             $source,
             $destination,
             [],
-            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
         );
     }
 
@@ -329,7 +329,7 @@ final class SourceDestinationColumnMapTest extends TestCase
             $source,
             $destination,
             ['col3', 'col4', 'col5'],
-            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
         );
     }
 

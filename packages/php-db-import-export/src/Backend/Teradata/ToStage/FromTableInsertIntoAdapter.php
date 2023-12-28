@@ -29,7 +29,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SelectSource || $source instanceof Table);
         assert($destination instanceof TeradataTableDefinition);
@@ -44,7 +44,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
             TeradataQuote::quoteSingleIdentifier($destination->getTableName()),
             implode(', ', $quotedColumns),
-            $source->getFromStatement()
+            $source->getFromStatement(),
         );
 
         if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
@@ -52,9 +52,9 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                 (new TeradataTableReflection(
                     $this->connection,
                     $source->getSchema(),
-                    $source->getTableName()
+                    $source->getTableName(),
                 ))->getColumnsDefinitions(),
-                $destination->getColumnsDefinitions()
+                $destination->getColumnsDefinitions(),
             );
         }
 
@@ -67,7 +67,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         $ref = new TeradataTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();

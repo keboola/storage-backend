@@ -35,7 +35,7 @@ class SnowflakeImportOptions extends ImportOptions
             $useTimestamp,
             $numberOfIgnoredLines,
             $requireSameTables === self::SAME_TABLES_REQUIRED ? self::USING_TYPES_USER : self::USING_TYPES_STRING,
-            $ignoreColumns
+            $ignoreColumns,
         );
         $this->requireSameTables = $requireSameTables;
         $this->nullManipulation = $nullManipulation;

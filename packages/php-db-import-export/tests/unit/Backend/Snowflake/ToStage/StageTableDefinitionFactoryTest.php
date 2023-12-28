@@ -24,11 +24,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
                 new SnowflakeColumn('name', new Snowflake(Snowflake::TYPE_DATE)),
                 SnowflakeColumn::createGenericColumn('id'),
             ]),
-            []
+            [],
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
             $definition,
-            ['id', 'name', 'notInDef']
+            ['id', 'name', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -45,7 +45,7 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         // notInDef has default NVARCHAR
         self::assertSame(
             Snowflake::TYPE_VARCHAR,
-            $definitions[2]->getColumnDefinition()->getType()
+            $definitions[2]->getColumnDefinition()->getType(),
         );
     }
 
@@ -54,7 +54,7 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         $columns = ['id', 'name', 'number', 'notInDef'];
         $stageDefinition = StageTableDefinitionFactory::createVarcharStagingTableDefinition(
             'schema',
-            $columns
+            $columns,
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());

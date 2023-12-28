@@ -29,7 +29,7 @@ class SynapseImportOptionsTest extends TestCase
             true,
             SynapseImportOptions::SKIP_FIRST_LINE,
             SynapseImportOptions::CREDENTIALS_MANAGED_IDENTITY,
-            SynapseImportOptions::TABLE_TYPES_CAST
+            SynapseImportOptions::TABLE_TYPES_CAST,
         );
 
         self::assertSame(['col1'], $options->getConvertEmptyValuesToNull());

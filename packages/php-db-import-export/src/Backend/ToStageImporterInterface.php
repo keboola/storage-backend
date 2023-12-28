@@ -16,6 +16,6 @@ interface ToStageImporterInterface
     public function importToStagingTable(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destinationDefinition,
-        ImportOptionsInterface $options
+        ImportOptionsInterface $options,
     ): ImportState;
 }

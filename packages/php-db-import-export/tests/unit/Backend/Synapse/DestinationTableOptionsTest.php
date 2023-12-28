@@ -15,7 +15,7 @@ class DestinationTableOptionsTest extends TestCase
         $options = new DestinationTableOptions(
             ['pk1', 'pk1', 'col1', 'col2'],
             ['pk1', 'pk1'],
-            new TableDistribution()
+            new TableDistribution(),
         );
         self::assertEquals(['pk1', 'pk1', 'col1', 'col2'], $options->getColumnNamesInOrder());
         self::assertEquals(['pk1', 'pk1'], $options->getPrimaryKeys());
@@ -30,8 +30,8 @@ class DestinationTableOptionsTest extends TestCase
             ['pk1', 'pk1'],
             new TableDistribution(
                 TableDistribution::TABLE_DISTRIBUTION_HASH,
-                ['pk1']
-            )
+                ['pk1'],
+            ),
         );
         self::assertEquals(['pk1', 'pk1', 'col1', 'col2'], $options->getColumnNamesInOrder());
         self::assertEquals(['pk1', 'pk1'], $options->getPrimaryKeys());

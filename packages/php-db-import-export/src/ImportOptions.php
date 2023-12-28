@@ -37,7 +37,7 @@ class ImportOptions implements ImportOptionsInterface
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = self::SKIP_NO_LINE,
         string $usingTypes = self::USING_TYPES_STRING,
-        array $ignoreColumns = []
+        array $ignoreColumns = [],
     ) {
         $this->useTimestamp = $useTimestamp;
         $this->convertEmptyValuesToNull = $convertEmptyValuesToNull;

@@ -27,37 +27,37 @@ final class Delete extends BaseCmd
             ->addOption(
                 self::OPTION_AZURE_RESOURCE_GROUP,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         $this
             ->addOption(
                 self::OPTION_SYNAPSE_DW_SERVER_NAME,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         $this
             ->addOption(
                 self::OPTION_SYNAPSE_SQL_SERVER_NAME,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         $this
             ->addOption(
                 self::OPTION_FILE_STORAGE_RESOURCE_ID,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         $this
             ->addOption(
                 self::OPTION_SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         $this
             ->addOption(
                 self::OPTION_STORAGE_ACCOUNT_NAME,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         parent::configure();
     }
@@ -86,8 +86,7 @@ az role assignment delete \
   --assignee $servicePrincipalObjetId \
   --role "Storage Blob Data Contributor" \
   --scope $fileStorageResourceId
-EOT
-        );
+EOT,);
         $output->writeln([
             'Managed identity role removed',
         ]);
@@ -100,8 +99,7 @@ EOT
     --resource-group $resourceGroup \
     --name $synapseDwServerName \
     --server $synapseSqlServerName
-EOT
-        );
+EOT,);
         $output->writeln([
             'Synapse pool removed',
         ]);
@@ -113,8 +111,7 @@ EOT
 az sql server delete -y \
   --resource-group $resourceGroup \
   --name $synapseSqlServerName
-EOT
-        );
+EOT,);
         $output->writeln([
             'Synapse logical sql server removed',
         ]);
@@ -126,8 +123,7 @@ EOT
 az storage account delete -y \
     --resource-group $resourceGroup \
     --name $storageAccountName
-EOT
-        );
+EOT,);
         $output->writeln([
             'Blob storage account removed',
         ]);

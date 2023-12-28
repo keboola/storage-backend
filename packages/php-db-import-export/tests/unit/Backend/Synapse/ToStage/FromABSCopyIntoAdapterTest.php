@@ -44,7 +44,7 @@ WITH (
     IDENTITY_INSERT = 'OFF'
     
 )
-EOT
+EOT,
         );
 
         $conn->expects($this->once())->method('fetchOne')
@@ -58,14 +58,14 @@ EOT
             new ColumnCollection([]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $options = new SynapseImportOptions();
         $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $this->assertEquals(10, $count);
@@ -95,7 +95,7 @@ WITH (
     IDENTITY_INSERT = 'OFF'
     
 )
-EOT
+EOT,
         );
 
         $conn->expects($this->once())->method('fetchOne')
@@ -109,14 +109,14 @@ EOT
             new ColumnCollection([]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $options = new SynapseImportOptions();
         $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $this->assertEquals(10, $count);
@@ -145,7 +145,7 @@ WITH (
     IDENTITY_INSERT = 'OFF'
     ,FIRSTROW=2
 )
-EOT
+EOT,
         );
         $conn->expects($this->once())->method('fetchOne')
             ->with('SELECT COUNT_BIG(*) AS [count] FROM [schema].[stagingTable]')
@@ -158,14 +158,14 @@ EOT
             new ColumnCollection([]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $options = new SynapseImportOptions([], false, false, 1);
         $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $this->assertEquals(10, $count);
@@ -193,7 +193,7 @@ WITH (
     IDENTITY_INSERT = 'OFF'
     
 )
-EOT
+EOT,
         );
 
         $conn->expects($this->once())->method('fetchOne')
@@ -207,20 +207,20 @@ EOT
             new ColumnCollection([]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $options = new SynapseImportOptions(
             [],
             false,
             false,
             SynapseImportOptions::SKIP_NO_LINE,
-            SynapseImportOptions::CREDENTIALS_MANAGED_IDENTITY
+            SynapseImportOptions::CREDENTIALS_MANAGED_IDENTITY,
         );
         $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         $this->assertEquals(10, $count);

@@ -34,7 +34,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SourceFile);
         assert($destination instanceof SynapseTableDefinition);
@@ -49,7 +49,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();
@@ -58,7 +58,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
     private function getCopyCommand(
         Storage\ABS\SourceFile $source,
         SynapseTableDefinition $destination,
-        SynapseImportOptions $importOptions
+        SynapseImportOptions $importOptions,
     ): ?string {
         $destinationSchema = SynapseQuote::quoteSingleIdentifier($destination->getSchemaName());
         $destinationTable = SynapseQuote::quoteSingleIdentifier($destination->getTableName());
@@ -74,7 +74,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
             default:
                 throw new InvalidArgumentException(sprintf(
                     'Unknown Synapse import credentials type "%s".',
-                    $importOptions->getImportCredentialsType()
+                    $importOptions->getImportCredentialsType(),
                 ));
         }
 

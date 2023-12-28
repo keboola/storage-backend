@@ -17,7 +17,7 @@ final class StageTableDefinitionFactory
      */
     public static function createStagingTableDefinition(
         BigqueryTableDefinition $destination,
-        array $sourceColumnsNames
+        array $sourceColumnsNames,
     ): BigqueryTableDefinition {
         $newDefinitions = [];
         // create staging table for source columns in order
@@ -36,8 +36,8 @@ final class StageTableDefinitionFactory
                                 'length' => $definition->getColumnDefinition()->getLength(),
                                 'nullable' => true,
                                 'default' => $definition->getColumnDefinition()->getDefault(),
-                            ]
-                        )
+                            ],
+                        ),
                     );
                     continue 2;
                 }
@@ -51,7 +51,7 @@ final class StageTableDefinitionFactory
             BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames()
+            $destination->getPrimaryKeysNames(),
         );
     }
 
@@ -63,8 +63,8 @@ final class StageTableDefinitionFactory
                 Bigquery::TYPE_STRING,
                 [
                     'nullable' => true,
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -73,7 +73,7 @@ final class StageTableDefinitionFactory
      */
     public static function createStagingTableDefinitionWithText(
         BigqueryTableDefinition $destination,
-        array $sourceColumnsNames
+        array $sourceColumnsNames,
     ): BigqueryTableDefinition {
         $newDefinitions = [];
         foreach ($sourceColumnsNames as $columnName) {
@@ -85,7 +85,7 @@ final class StageTableDefinitionFactory
             BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames()
+            $destination->getPrimaryKeysNames(),
         );
     }
 }

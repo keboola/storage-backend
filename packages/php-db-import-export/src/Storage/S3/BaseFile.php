@@ -23,7 +23,7 @@ abstract class BaseFile
         string $secret,
         string $region,
         string $bucket,
-        string $filePath
+        string $filePath,
     ) {
         $this->key = $key;
         $this->secret = $secret;

@@ -45,7 +45,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptionsInterface $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
     ): int {
         $commands = $this->getCommands($source, $destination, $importOptions, $stagingTableName);
 
@@ -55,7 +55,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),
-            $stagingTableName
+            $stagingTableName,
         ));
 
         return (int) $rows[0]['count'];
@@ -68,7 +68,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
         Storage\S3\SourceFile $source,
         Storage\Snowflake\Table $destination,
         ImportOptionsInterface $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
     ): array {
         $filesToImport = $source->getManifestEntries();
         $commands = [];
@@ -78,7 +78,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
                 static function ($entry) use ($s3Prefix) {
                     return QuoteHelper::quote(strtr($entry, [$s3Prefix => '']));
                 },
-                $entries
+                $entries,
             );
 
             $commands[] = sprintf(
@@ -96,9 +96,9 @@ FILES = (%s)',
                 QuoteHelper::quote($source->getRegion()),
                 implode(' ', CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
                     $importOptions,
-                    $source->getCsvOptions()
+                    $source->getCsvOptions(),
                 )),
-                implode(', ', $quotedFiles)
+                implode(', ', $quotedFiles),
             );
         }
         return $commands;

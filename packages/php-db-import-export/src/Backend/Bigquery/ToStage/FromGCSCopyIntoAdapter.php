@@ -27,7 +27,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof Storage\GCS\SourceFile);
         assert($destination instanceof BigqueryTableDefinition);
@@ -83,7 +83,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         $ref = new BigqueryTableReflection(
             $this->bqClient,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();

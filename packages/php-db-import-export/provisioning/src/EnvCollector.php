@@ -24,7 +24,7 @@ final class EnvCollector
         $fs->appendToFile($this->envFile, sprintf(
             'echo "##vso[task.setvariable variable=%s]%s"' . PHP_EOL,
             $name,
-            $value
+            $value,
         ));
     }
 }

@@ -29,7 +29,7 @@ class SqlCommandBuilder
     public function getCreateStagingTableCommand(
         string $schema,
         string $tableName,
-        array $columns
+        array $columns,
     ): string {
         $columnsSql = array_map(function ($column) {
             return sprintf('%s varchar', QuoteHelper::quoteIdentifier($column));
@@ -38,7 +38,7 @@ class SqlCommandBuilder
             'CREATE TEMPORARY TABLE %s.%s (%s)',
             QuoteHelper::quoteIdentifier($schema),
             QuoteHelper::quoteIdentifier($tableName),
-            implode(', ', $columnsSql)
+            implode(', ', $columnsSql),
         );
     }
 
@@ -50,7 +50,7 @@ class SqlCommandBuilder
         Table $destination,
         array $primaryKeys,
         string $stagingTableName,
-        string $tempTableName
+        string $tempTableName,
     ): string {
         if (empty($primaryKeys)) {
             return '';
@@ -58,7 +58,7 @@ class SqlCommandBuilder
 
         $pkSql = ColumnsHelper::getColumnsString(
             $primaryKeys,
-            ','
+            ',',
         );
 
         $depudeSql = sprintf(
@@ -72,7 +72,7 @@ class SqlCommandBuilder
             $pkSql,
             $pkSql,
             QuoteHelper::quoteIdentifier($destination->getSchema()),
-            QuoteHelper::quoteIdentifier($stagingTableName)
+            QuoteHelper::quoteIdentifier($stagingTableName),
         );
 
         return sprintf(
@@ -80,7 +80,7 @@ class SqlCommandBuilder
             QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($tempTableName),
             ColumnsHelper::getColumnsString($source->getColumnsNames()),
-            $depudeSql
+            $depudeSql,
         );
     }
 
@@ -90,7 +90,7 @@ class SqlCommandBuilder
     public function getDeleteOldItemsCommand(
         Table $destination,
         string $stagingTableName,
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         // Delete updated rows from staging table
         return sprintf(
@@ -98,7 +98,7 @@ class SqlCommandBuilder
             QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
             $destination->getQuotedTableWithScheme(),
-            $this->getPrimayKeyWhereConditions($primaryKeys)
+            $this->getPrimayKeyWhereConditions($primaryKeys),
         );
     }
 
@@ -106,13 +106,13 @@ class SqlCommandBuilder
      * @param string[] $primaryKeys
      */
     private function getPrimayKeyWhereConditions(
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         $pkWhereSql = array_map(function (string $col) {
             return sprintf(
                 '"dest".%s = COALESCE("src".%s, \'\')',
                 QuoteHelper::quoteIdentifier($col),
-                QuoteHelper::quoteIdentifier($col)
+                QuoteHelper::quoteIdentifier($col),
             );
         }, $primaryKeys);
 
@@ -121,12 +121,12 @@ class SqlCommandBuilder
 
     public function getDropCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DROP TABLE %s.%s',
             QuoteHelper::quoteIdentifier($schema),
-            QuoteHelper::quoteIdentifier($tableName)
+            QuoteHelper::quoteIdentifier($tableName),
         );
     }
 
@@ -134,23 +134,23 @@ class SqlCommandBuilder
         SourceInterface $source,
         Table $destination,
         ImportOptionsInterface $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
     ): string {
         $columnsSetSqlSelect = implode(', ', array_map(function ($column) use (
-            $importOptions
+            $importOptions,
         ) {
             if (in_array($column, $importOptions->getConvertEmptyValuesToNull())) {
                 return sprintf(
                     'IFF(%s = \'\', NULL, %s)',
                     QuoteHelper::quoteIdentifier($column),
-                    QuoteHelper::quoteIdentifier($column)
+                    QuoteHelper::quoteIdentifier($column),
                 );
             }
 
             return sprintf(
                 "COALESCE(%s, '') AS %s",
                 QuoteHelper::quoteIdentifier($column),
-                QuoteHelper::quoteIdentifier($column)
+                QuoteHelper::quoteIdentifier($column),
             );
         }, $source->getColumnsNames()));
 
@@ -163,7 +163,7 @@ class SqlCommandBuilder
                 ColumnsHelper::getColumnsString($source->getColumnsNames()),
                 $columnsSetSqlSelect,
                 QuoteHelper::quoteIdentifier($destination->getSchema()),
-                QuoteHelper::quoteIdentifier($stagingTableName)
+                QuoteHelper::quoteIdentifier($stagingTableName),
             );
         }
 
@@ -175,7 +175,7 @@ class SqlCommandBuilder
             $columnsSetSqlSelect,
             DateTimeHelper::getNowFormatted(),
             QuoteHelper::quoteIdentifier($destination->getSchema()),
-            QuoteHelper::quoteIdentifier($stagingTableName)
+            QuoteHelper::quoteIdentifier($stagingTableName),
         );
     }
 
@@ -184,7 +184,7 @@ class SqlCommandBuilder
         Table $destination,
         ImportOptionsInterface $importOptions,
         string $stagingTableName,
-        string $timestampValue
+        string $timestampValue,
     ): string {
         if ($importOptions->useTimestamp()) {
             $insColumns = array_merge($source->getColumnsNames(), [Importer::TIMESTAMP_COLUMN_NAME]);
@@ -199,12 +199,12 @@ class SqlCommandBuilder
                 $columnsSetSql[] = sprintf(
                     'IFF("src".%s = \'\', NULL, %s)',
                     QuoteHelper::quoteIdentifier($columnName),
-                    QuoteHelper::quoteIdentifier($columnName)
+                    QuoteHelper::quoteIdentifier($columnName),
                 );
             } else {
                 $columnsSetSql[] = sprintf(
                     'COALESCE("src".%s, \'\')',
-                    QuoteHelper::quoteIdentifier($columnName)
+                    QuoteHelper::quoteIdentifier($columnName),
                 );
             }
         }
@@ -219,21 +219,21 @@ class SqlCommandBuilder
             ColumnsHelper::getColumnsString($insColumns),
             implode(',', $columnsSetSql),
             QuoteHelper::quoteIdentifier($destination->getSchema()),
-            QuoteHelper::quoteIdentifier($stagingTableName)
+            QuoteHelper::quoteIdentifier($stagingTableName),
         );
     }
 
     public function getRenameTableCommand(
         string $schema,
         string $sourceTableName,
-        string $targetTable
+        string $targetTable,
     ): string {
         return sprintf(
             'ALTER TABLE %s.%s RENAME TO %s.%s',
             QuoteHelper::quoteIdentifier($schema),
             QuoteHelper::quoteIdentifier($sourceTableName),
             QuoteHelper::quoteIdentifier($schema),
-            QuoteHelper::quoteIdentifier($targetTable)
+            QuoteHelper::quoteIdentifier($targetTable),
         );
     }
 
@@ -242,18 +242,18 @@ class SqlCommandBuilder
         return sprintf(
             'SELECT COUNT(*) AS "count" FROM %s.%s',
             QuoteHelper::quoteIdentifier($schema),
-            QuoteHelper::quoteIdentifier($table)
+            QuoteHelper::quoteIdentifier($table),
         );
     }
 
     public function getTruncateTableCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'TRUNCATE %s.%s',
             QuoteHelper::quoteIdentifier($schema),
-            QuoteHelper::quoteIdentifier($tableName)
+            QuoteHelper::quoteIdentifier($tableName),
         );
     }
 
@@ -266,7 +266,7 @@ class SqlCommandBuilder
         ImportOptionsInterface $importOptions,
         string $stagingTableName,
         array $primaryKeys,
-        string $timestamp
+        string $timestamp,
     ): string {
         $columnsSet = [];
         foreach ($source->getColumnsNames() as $columnName) {
@@ -275,13 +275,13 @@ class SqlCommandBuilder
                     '%s = IFF("src".%s = \'\', NULL, "src".%s)',
                     QuoteHelper::quoteIdentifier($columnName),
                     QuoteHelper::quoteIdentifier($columnName),
-                    QuoteHelper::quoteIdentifier($columnName)
+                    QuoteHelper::quoteIdentifier($columnName),
                 );
             } else {
                 $columnsSet[] = sprintf(
                     '%s = COALESCE("src".%s, \'\')',
                     QuoteHelper::quoteIdentifier($columnName),
-                    QuoteHelper::quoteIdentifier($columnName)
+                    QuoteHelper::quoteIdentifier($columnName),
                 );
             }
         }
@@ -290,7 +290,7 @@ class SqlCommandBuilder
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 QuoteHelper::quoteIdentifier(Importer::TIMESTAMP_COLUMN_NAME),
-                $timestamp
+                $timestamp,
             );
         }
 
@@ -300,10 +300,10 @@ class SqlCommandBuilder
                 return sprintf(
                     'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
                     QuoteHelper::quoteIdentifier($columnName),
-                    QuoteHelper::quoteIdentifier($columnName)
+                    QuoteHelper::quoteIdentifier($columnName),
                 );
             },
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
 
         return sprintf(
@@ -313,7 +313,7 @@ class SqlCommandBuilder
             QuoteHelper::quoteIdentifier($destination->getSchema()),
             QuoteHelper::quoteIdentifier($stagingTableName),
             $this->getPrimayKeyWhereConditions($primaryKeys),
-            implode(' OR ', $columnsComparisionSql)
+            implode(' OR ', $columnsComparisionSql),
         );
     }
 }

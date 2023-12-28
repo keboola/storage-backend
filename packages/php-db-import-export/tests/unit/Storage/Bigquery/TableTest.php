@@ -29,7 +29,7 @@ class TableTest extends TestCase
         self::assertEquals('SELECT `col1`, `col2` FROM `schema`.`table`', $source->getFromStatement());
         self::assertEquals(
             'SELECT CAST(`col1` AS STRING), CAST(`col2` AS STRING) FROM `schema`.`table`',
-            $source->getFromStatementWithStringCasting()
+            $source->getFromStatementWithStringCasting(),
         );
     }
 }

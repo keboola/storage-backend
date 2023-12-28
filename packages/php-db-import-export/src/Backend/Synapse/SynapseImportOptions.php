@@ -46,14 +46,14 @@ class SynapseImportOptions extends ImportOptions
         string $importCredentialsType = self::CREDENTIALS_SAS,
         string $castValueTypes = self::TABLE_TYPES_PRESERVE,
         bool $requireSameTables = self::SAME_TABLES_NOT_REQUIRED,
-        string $tableToTableAdapter = self::TABLE_TO_TABLE_ADAPTER_INSERT_INTO
+        string $tableToTableAdapter = self::TABLE_TO_TABLE_ADAPTER_INSERT_INTO,
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
             $isIncremental,
             $useTimestamp,
             $numberOfIgnoredLines,
-            $requireSameTables === self::SAME_TABLES_REQUIRED ? self::USING_TYPES_USER : self::USING_TYPES_STRING
+            $requireSameTables === self::SAME_TABLES_REQUIRED ? self::USING_TYPES_USER : self::USING_TYPES_STRING,
         );
         $this->importCredentialsType = $importCredentialsType;
         $this->castValueTypes = $castValueTypes;

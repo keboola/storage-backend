@@ -34,7 +34,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         array $queryBindings = [],
         array $columnsNames = [],
         ?array $primaryKeysNames = null,
-        array $dataTypes = []
+        array $dataTypes = [],
         // TODO when doing major update - this parametr should be on 3rd position as EXA/TD does
     ) {
         $this->query = $query;

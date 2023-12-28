@@ -24,13 +24,13 @@ class IncrementalImportTest extends TeradataBaseTestCase
     use StorageTrait;
 
     protected function getTeradataIncrementalImportOptions(
-        int $skipLines = ImportOptionsInterface::SKIP_FIRST_LINE
+        int $skipLines = ImportOptionsInterface::SKIP_FIRST_LINE,
     ): TeradataImportOptions {
         return $this->getImportOptions(
             [],
             true,
             true,
-            $skipLines
+            $skipLines,
         );
     }
 
@@ -93,7 +93,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getImportOptions([], false, false, ImportOptionsInterface::SKIP_FIRST_LINE),
             $this->getSourceInstance(
@@ -101,7 +101,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getTeradataIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
@@ -115,26 +115,26 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getImportOptions(
                 [],
                 false,
                 false, // disable timestamp
-                ImportOptionsInterface::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE,
             ),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getImportOptions(
                 [],
                 true,
                 false, // disable timestamp
-                ImportOptionsInterface::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE,
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $expectedAccountsRows,
@@ -147,20 +147,20 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getImportOptions(
                 [],
                 false,
                 true, // disable timestamp
-                ImportOptionsInterface::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE,
             ),
             $this->getSourceInstance(
                 'multi-pk_not-null.increment.csv',
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getTeradataIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
@@ -174,20 +174,20 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getImportOptions(
                 [],
                 false,
                 true, // disable timestamp
-                ImportOptionsInterface::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE,
             ),
             $this->getSourceInstance(
                 'multi-pk.increment.csv',
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getTeradataIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
@@ -201,7 +201,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                []
+                [],
             ),
             $this->getImportOptions([], false, false, 1),
             $this->getSourceInstance(
@@ -209,7 +209,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                []
+                [],
             ),
             $this->getTeradataIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), self::TABLE_NO_PK],
@@ -233,7 +233,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
         array $table,
         array $expected,
         int $expectedImportedRowCount,
-        string $tablesToInit
+        string $tablesToInit,
     ): void {
         [$dbName, $tableName] = $table;
 
@@ -243,7 +243,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
         $destination = (new TeradataTableReflection(
             $this->connection,
             $dbName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         $toStageImporter = new ToStageImporter($this->connection);
@@ -252,56 +252,56 @@ class IncrementalImportTest extends TeradataBaseTestCase
 
         $fullLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $fullLoadSource->getColumnsNames()
+            $fullLoadSource->getColumnsNames(),
         );
         $incrementalLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $incrementalSource->getColumnsNames()
+            $incrementalSource->getColumnsNames(),
         );
 
         try {
             // full load
             $qb = new TeradataTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable),
             );
 
             $importState = $toStageImporter->importToStagingTable(
                 $fullLoadSource,
                 $fullLoadStagingTable,
-                $fullLoadOptions
+                $fullLoadOptions,
             );
             $fullImporter->importToTable(
                 $fullLoadStagingTable,
                 $destination,
                 $fullLoadOptions,
-                $importState
+                $importState,
             );
             // incremental load
             $qb = new TeradataTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable),
             );
             $importState = $toStageImporter->importToStagingTable(
                 $incrementalSource,
                 $incrementalLoadStagingTable,
-                $incrementalOptions
+                $incrementalOptions,
             );
             $result = $incrementalImporter->importToTable(
                 $incrementalLoadStagingTable,
                 $destination,
                 $incrementalOptions,
-                $importState
+                $importState,
             );
         } finally {
             $this->dropTableIfExists(
                 $fullLoadStagingTable->getSchemaName(),
-                $fullLoadStagingTable->getTableName()
+                $fullLoadStagingTable->getTableName(),
             );
 
             $this->dropTableIfExists(
                 $incrementalLoadStagingTable->getSchemaName(),
-                $incrementalLoadStagingTable->getTableName()
+                $incrementalLoadStagingTable->getTableName(),
             );
         }
 
@@ -312,7 +312,7 @@ class IncrementalImportTest extends TeradataBaseTestCase
             $destination,
             $incrementalOptions,
             $expected,
-            0
+            0,
         );
     }
 }

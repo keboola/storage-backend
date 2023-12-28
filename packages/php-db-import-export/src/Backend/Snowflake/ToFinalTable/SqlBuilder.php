@@ -39,7 +39,7 @@ class SqlBuilder
     public function getDedupCommand(
         SnowflakeTableDefinition $stagingTableDefinition,
         SnowflakeTableDefinition $deduplicationTableDefinition,
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         if (empty($primaryKeys)) {
             return '';
@@ -47,13 +47,13 @@ class SqlBuilder
 
         $pkSql = $this->getColumnsString(
             $primaryKeys,
-            ','
+            ',',
         );
 
         $stage = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $depudeSql = sprintf(
@@ -66,20 +66,20 @@ class SqlBuilder
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
             $pkSql,
             $pkSql,
-            $stage
+            $stage,
         );
 
         $deduplication = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName()),
         );
 
         return sprintf(
             'INSERT INTO %s (%s) %s',
             $deduplication,
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
-            $depudeSql
+            $depudeSql,
         );
     }
 
@@ -89,10 +89,10 @@ class SqlBuilder
     public function getColumnsString(
         array $columns,
         string $delimiter = ', ',
-        ?string $tableAlias = null
+        ?string $tableAlias = null,
     ): string {
         return implode($delimiter, array_map(static function ($columns) use (
-            $tableAlias
+            $tableAlias,
         ) {
             $alias = $tableAlias === null ? '' : $tableAlias . '.';
             return $alias . SnowflakeQuote::quoteSingleIdentifier($columns);
@@ -102,18 +102,18 @@ class SqlBuilder
     public function getDeleteOldItemsCommand(
         SnowflakeTableDefinition $stagingTableDefinition,
         SnowflakeTableDefinition $destinationTableDefinition,
-        SnowflakeImportOptions $importOptions
+        SnowflakeImportOptions $importOptions,
     ): string {
         $stagingTable = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $destinationTable = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         return sprintf(
@@ -122,8 +122,8 @@ class SqlBuilder
             $destinationTable,
             $this->getPrimayKeyWhereConditions(
                 $destinationTableDefinition->getPrimaryKeysNames(),
-                $importOptions
-            )
+                $importOptions,
+            ),
         );
     }
 
@@ -132,7 +132,7 @@ class SqlBuilder
      */
     private function getPrimayKeyWhereConditions(
         array $primaryKeys,
-        SnowflakeImportOptions $importOptions
+        SnowflakeImportOptions $importOptions,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions) {
             $str = '"dest".%s = COALESCE("src".%s, \'\')';
@@ -142,7 +142,7 @@ class SqlBuilder
             return sprintf(
                 $str,
                 QuoteHelper::quoteIdentifier($col),
-                QuoteHelper::quoteIdentifier($col)
+                QuoteHelper::quoteIdentifier($col),
             );
         }, $primaryKeys);
 
@@ -152,12 +152,12 @@ class SqlBuilder
 
     public function getDropTableIfExistsCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DROP TABLE IF EXISTS %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($schema),
-            SnowflakeQuote::quoteSingleIdentifier($tableName)
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -165,18 +165,18 @@ class SqlBuilder
         SnowflakeTableDefinition $sourceTableDefinition,
         SnowflakeTableDefinition $destinationTableDefinition,
         SnowflakeImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $columnMap = SourceDestinationColumnMap::createForTables(
             $sourceTableDefinition,
             $destinationTableDefinition,
             $importOptions->ignoreColumns(),
-            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
         );
         $destinationTable = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         $insColumns = $sourceTableDefinition->getColumnsNames();
@@ -186,7 +186,7 @@ class SqlBuilder
         if ($useTimestamp) {
             $insColumns = array_merge(
                 $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             );
         }
 
@@ -207,7 +207,7 @@ class SqlBuilder
                             'CAST(TO_VARIANT(%s) AS %s) AS %s',
                             SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                             $destinationColumn->getColumnDefinition()->getSQLDefinition(),
-                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
+                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
                         );
                         continue;
                     }
@@ -215,7 +215,7 @@ class SqlBuilder
                         'CAST(%s AS %s) AS %s',
                         SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                         $destinationColumn->getColumnDefinition()->getSQLDefinition(),
-                        SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
+                        SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
                     );
                     continue;
                 }
@@ -231,7 +231,7 @@ class SqlBuilder
                     $columnsSetSql[] = sprintf(
                         'IFF(%s = \'\', NULL, %s)',
                         SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
+                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                     );
                     continue;
                 }
@@ -246,7 +246,7 @@ class SqlBuilder
                 $columnsSetSql[] = sprintf(
                     'COALESCE(%s, \'\') AS %s',
                     SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
+                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                 );
                 continue;
             }
@@ -266,18 +266,18 @@ class SqlBuilder
             implode(',', $columnsSetSql),
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
-            SnowflakeQuote::quoteSingleIdentifier(self::SRC_ALIAS)
+            SnowflakeQuote::quoteSingleIdentifier(self::SRC_ALIAS),
         );
     }
 
     public function getTruncateTable(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'TRUNCATE TABLE %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($schema),
-            SnowflakeQuote::quoteSingleIdentifier($tableName)
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -285,13 +285,13 @@ class SqlBuilder
         SnowflakeTableDefinition $stagingTableDefinition,
         SnowflakeTableDefinition $destinationDefinition,
         SnowflakeImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $columnMap = SourceDestinationColumnMap::createForTables(
             $stagingTableDefinition,
             $destinationDefinition,
             $importOptions->ignoreColumns(),
-            SourceDestinationColumnMap::MODE_MAP_BY_NAME
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
         );
         $columnsSet = [];
 
@@ -333,13 +333,13 @@ class SqlBuilder
                     '%s = IFF("src".%s = \'\', NULL, "src".%s)',
                     SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                     SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
+                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                 );
             } else {
                 $columnsSet[] = sprintf(
                     '%s = COALESCE("src".%s, \'\')',
                     SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
+                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                 );
             }
         }
@@ -348,7 +348,7 @@ class SqlBuilder
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-                $timestamp
+                $timestamp,
             );
         }
 
@@ -360,17 +360,17 @@ class SqlBuilder
                     return sprintf(
                         'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
                         SnowflakeQuote::quoteSingleIdentifier($columnName),
-                        SnowflakeQuote::quoteSingleIdentifier($columnName)
+                        SnowflakeQuote::quoteSingleIdentifier($columnName),
                     );
                 },
-                $stagingTableDefinition->getColumnsNames()
+                $stagingTableDefinition->getColumnsNames(),
             );
         }
 
         $dest = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getTableName()),
         );
 
         if (empty($columnsComparisonSql)) {
@@ -391,7 +391,7 @@ class SqlBuilder
             QuoteHelper::quoteIdentifier($stagingTableDefinition->getSchemaName()),
             QuoteHelper::quoteIdentifier($stagingTableDefinition->getTableName()),
             $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions),
-            implode(' OR ', $columnsComparisonSql)
+            implode(' OR ', $columnsComparisonSql),
         );
     }
 }

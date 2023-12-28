@@ -27,7 +27,7 @@ final class ToStageImporter implements ToStageImporterInterface
 
     public function __construct(
         Connection $connection,
-        ?CopyAdapterInterface $adapter = null
+        ?CopyAdapterInterface $adapter = null,
     ) {
         $this->connection = $connection;
         $this->adapter = $adapter;
@@ -36,7 +36,7 @@ final class ToStageImporter implements ToStageImporterInterface
     public function importToStagingTable(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destinationDefinition,
-        ImportOptionsInterface $options
+        ImportOptionsInterface $options,
     ): ImportState {
         assert($options instanceof SnowflakeImportOptions);
         assert($destinationDefinition instanceof SnowflakeTableDefinition);
@@ -51,8 +51,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 $adapter->runCopyCommand(
                     $source,
                     $destinationDefinition,
-                    $options
-                )
+                    $options,
+                ),
             );
         } catch (Exception $e) {
             throw $e;
@@ -85,8 +85,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 throw new LogicException(
                     sprintf(
                         'No suitable adapter found for source: "%s".',
-                        get_class($source)
-                    )
+                        get_class($source),
+                    ),
                 );
         }
         return $adapter;

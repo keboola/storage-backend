@@ -34,7 +34,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         array $queryBindings = [],
         array $dataTypes = [],
         array $columnsNames = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
     ) {
         $this->query = $query;
         $this->queryBindings = $queryBindings;

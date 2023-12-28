@@ -56,7 +56,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         int $expectedNumberOfRows,
         int $expectedFirstLineLength,
         int $skippedLines = 0,
-        bool $markAsSkipped = false
+        bool $markAsSkipped = false,
     ): void {
         if ($markAsSkipped) {
             $this->markTestSkipped('Skipping test SourceDirectory not implemented.');
@@ -67,11 +67,11 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            $table
+            $table,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SnowflakeTableQueryBuilder();
 
@@ -79,23 +79,23 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $qb->getCreateTempTableCommand(
                 $stagingTable->getSchemaName(),
                 $stagingTable->getTableName(),
-                $stagingTable->getColumnsDefinitions()
-            )
+                $stagingTable->getColumnsDefinitions(),
+            ),
         );
         $importer->importToStagingTable(
             $this->getSourceInstanceFromCsv(
-                ...$sourceSetting
+                ...$sourceSetting,
             ),
             $stagingTable,
-            $this->getSnowflakeImportOptions($skippedLines)
+            $this->getSnowflakeImportOptions($skippedLines),
         );
 
         $importedData = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM %s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
+                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
         );
         self::assertCount($expectedNumberOfRows, $importedData);
         self::assertCount($expectedFirstLineLength, $importedData[0]);
@@ -156,7 +156,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
 
         $sourceDirClassExists = class_exists(sprintf(
             'Keboola\Db\ImportExport\Storage\%s\SourceDirectory',
-            getenv('STORAGE_TYPE')
+            getenv('STORAGE_TYPE'),
         ));
         yield 'with directory' => [
             'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
@@ -215,15 +215,15 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_NULLIFY
+            self::TABLE_NULLIFY,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer->importToStagingTable(
             $this->getSourceInstanceFromCsv(
@@ -235,10 +235,10 @@ class StageImportFileTest extends SnowflakeBaseTestCase
                     'col2',
                 ],
                 false,
-                false
+                false,
             ),
             $stagingTable,
-            $this->getSnowflakeImportOptions()
+            $this->getSnowflakeImportOptions(),
         );
 
         self::assertSame([
@@ -249,8 +249,8 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             sprintf(
                 'SELECT * FROM %s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
+                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
         ));
     }
 
@@ -274,15 +274,15 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_WITHOUT_TS
+            self::TABLE_ACCOUNTS_WITHOUT_TS,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         if (getenv('STORAGE_TYPE') === StorageType::STORAGE_ABS) {
@@ -298,10 +298,10 @@ class StageImportFileTest extends SnowflakeBaseTestCase
                 new CsvOptions(),
                 self::TWITTER_COLUMNS,
                 true,
-                false
+                false,
             ),
             $stagingTable,
-            $this->getSnowflakeImportOptions()
+            $this->getSnowflakeImportOptions(),
         );
     }
 
@@ -313,15 +313,15 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $this->getSourceSchemaName(),
-            self::TABLE_TYPES
+            self::TABLE_TYPES,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         $this->expectException(LegacyImportException::class);
@@ -337,10 +337,10 @@ class StageImportFileTest extends SnowflakeBaseTestCase
                     'boolCol',
                 ],
                 false,
-                false
+                false,
             ),
             $stagingTable,
-            $this->getSnowflakeImportOptions()
+            $this->getSnowflakeImportOptions(),
         );
     }
 }

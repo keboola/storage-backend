@@ -71,7 +71,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
                 'pk2',
             ],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->exec($qb->getCreateTableCommandFromDefinition($deduplicationDef));
@@ -79,18 +79,18 @@ class SqlBuilderTest extends SynapseBaseTestCase
         $sql = $this->getBuilder()->getDedupCommand(
             $stageDef,
             $deduplicationDef,
-            $deduplicationDef->getPrimaryKeysNames()
+            $deduplicationDef->getPrimaryKeysNames(),
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO [import-export-test-ng_schema].[#tempTable] ([col1], [col2]) SELECT a.[col1],a.[col2] FROM (SELECT [col1], [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             SynapseQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($deduplicationDef->getTableName())
+            SynapseQuote::quoteSingleIdentifier($deduplicationDef->getTableName()),
         ));
 
         self::assertCount(2, $result);
@@ -106,22 +106,22 @@ class SqlBuilderTest extends SynapseBaseTestCase
             sprintf(
                 'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
+                self::TEST_STAGING_TABLE,
+            ),
         );
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
+                self::TEST_STAGING_TABLE,
+            ),
         );
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
+                self::TEST_STAGING_TABLE,
+            ),
         );
 
         if ($includeEmptyValues) {
@@ -129,8 +129,8 @@ class SqlBuilderTest extends SynapseBaseTestCase
                 sprintf(
                     'INSERT INTO %s.%s([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'\',NULL)',
                     self::TEST_SCHEMA_QUOTED,
-                    self::TEST_STAGING_TABLE
-                )
+                    self::TEST_STAGING_TABLE,
+                ),
             );
         }
 
@@ -154,8 +154,8 @@ class SqlBuilderTest extends SynapseBaseTestCase
                 new SynapseColumn(
                     'id',
                     new Synapse(
-                        Synapse::TYPE_INT
-                    )
+                        Synapse::TYPE_INT,
+                    ),
                 ),
                 SynapseColumn::createGenericColumn('pk1'),
                 SynapseColumn::createGenericColumn('pk2'),
@@ -164,20 +164,20 @@ class SqlBuilderTest extends SynapseBaseTestCase
             ]),
             ['pk1', 'pk2'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
         $tableSql = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($tableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->exec($qb->getCreateTableCommandFromDefinition($tableDefinition));
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id],[pk1],[pk2],[col1],[col2]) VALUES (1,1,1,\'1\',\'1\')',
-                $tableSql
-            )
+                $tableSql,
+            ),
         );
         $stagingTableDefinition = new SynapseTableDefinition(
             self::TEST_SCHEMA,
@@ -191,42 +191,42 @@ class SqlBuilderTest extends SynapseBaseTestCase
             ]),
             ['pk1', 'pk2'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
         $this->connection->exec($qb->getCreateTableCommandFromDefinition($stagingTableDefinition));
         $stagingTableSql = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
-                $stagingTableSql
-            )
+                $stagingTableSql,
+            ),
         );
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([pk1],[pk2],[col1],[col2]) VALUES (2,1,\'1\',\'1\')',
-                $stagingTableSql
-            )
+                $stagingTableSql,
+            ),
         );
 
         $sql = $this->getBuilder()->getDeleteOldItemsCommand(
             $stagingTableDefinition,
-            $tableDefinition
+            $tableDefinition,
         );
 
         $this->assertEquals(
         // phpcs:ignore
             'DELETE [import-export-test-ng_schema].[#stagingTable] WHERE EXISTS (SELECT * FROM [import-export-test-ng_schema].[import-export-test-ng_test] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[pk1] = [import-export-test-ng_schema].[#stagingTable].[pk1] AND [import-export-test-ng_schema].[import-export-test-ng_test].[pk2] = [import-export-test-ng_schema].[#stagingTable].[pk2])',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            $stagingTableSql
+            $stagingTableSql,
         ));
 
         $this->assertCount(1, $result);
@@ -248,7 +248,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
 
         $this->assertEquals(
             'DROP TABLE [import-export-test-ng_schema].[import-export-test-ng_test]',
-            $sql
+            $sql,
         );
 
         $this->connection->exec($sql);
@@ -263,7 +263,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
             self::fail(sprintf(
                 'Table "%s.%s" is expected to not exist.',
                 $schemaName,
-                $tableName
+                $tableName,
             ));
         } catch (TableNotExistsReflectionException $e) {
             $this->assertEquals(sprintf('Table "%s.%s" does not exist.', $schemaName, $tableName), $e->getMessage());
@@ -279,7 +279,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
         $this->assertEquals(
         // phpcs:ignore
             'IF OBJECT_ID (N\'[import-export-test-ng_schema].[import-export-test-ng_test]\', N\'U\') IS NOT NULL DROP TABLE [import-export-test-ng_schema].[import-export-test-ng_test]',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
 
@@ -292,7 +292,7 @@ class SqlBuilderTest extends SynapseBaseTestCase
         $this->assertEquals(
         // phpcs:ignore
             'IF OBJECT_ID (N\'[import-export-test-ng_schema].[import-export-test-ng_test]\', N\'U\') IS NOT NULL DROP TABLE [import-export-test-ng_schema].[import-export-test-ng_test]',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
 
@@ -311,8 +311,7 @@ WITH
       PARTITION ( id RANGE LEFT FOR VALUES ( )),
       CLUSTERED COLUMNSTORE INDEX
     )
-EOT
-        );
+EOT,);
     }
 
     public function testGetInsertAllIntoTargetTableCommand(): void
@@ -332,7 +331,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // no convert values no timestamp
@@ -340,13 +339,13 @@ EOT
             $fakeStage,
             $destination,
             $this->getDummyImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         $this->assertEquals(
         // phpcs:ignore
             'INSERT INTO [import-export-test-ng_schema].[import-export-test-ng_test] ([col1], [col2]) (SELECT CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src])',
-            $sql
+            $sql,
         );
 
         $out = $this->connection->exec($sql);
@@ -354,7 +353,7 @@ EOT
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -386,8 +385,8 @@ EOT
         $col2 = new SynapseColumn(
             'col2',
             new Synapse(
-                Synapse::TYPE_NUMERIC
-            )
+                Synapse::TYPE_NUMERIC,
+            ),
         );
 
         $this->createTestSchema();
@@ -405,7 +404,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // no convert values no timestamp
@@ -413,13 +412,13 @@ EOT
             $fakeStage,
             $destination,
             $this->getDummyImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         $this->assertEquals(
         // phpcs:ignore
             'INSERT INTO [import-export-test-ng_schema].[import-export-test-ng_test] ([col1], [col2]) (SELECT CAST(COALESCE([col1], \'\') as NVARCHAR(4000)) AS [col1],CAST([col2] as NUMERIC) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src])',
-            $sql
+            $sql,
         );
 
         $out = $this->connection->exec($sql);
@@ -427,7 +426,7 @@ EOT
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -457,15 +456,15 @@ EOT
     protected function createTestTableWithColumns(
         bool $includeTimestamp = false,
         bool $includePrimaryKey = false,
-        ?SynapseColumn $overwriteColumn2 = null
+        ?SynapseColumn $overwriteColumn2 = null,
     ): SynapseTableDefinition {
         $tableDefinition = $this->getTestTableWithColumnsDefinition(
             $includeTimestamp,
             $includePrimaryKey,
-            $overwriteColumn2
+            $overwriteColumn2,
         );
         $this->connection->exec(
-            (new SynapseTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition)
+            (new SynapseTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition),
         );
 
         return $tableDefinition;
@@ -478,12 +477,12 @@ EOT
             [
                 'length' => '4000', // should be changed to max in future
                 'nullable' => $nullable,
-            ]
+            ],
         );
 
         return new SynapseColumn(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -503,7 +502,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // convert col1 to null
@@ -512,19 +511,19 @@ EOT
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
         // phpcs:ignore
             'INSERT INTO [import-export-test-ng_schema].[import-export-test-ng_test] ([col1], [col2]) (SELECT NULLIF([col1], \'\'),CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src])',
-            $sql
+            $sql,
         );
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -567,7 +566,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // use timestamp
@@ -576,19 +575,19 @@ EOT
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
         // phpcs:ignore
             'INSERT INTO [import-export-test-ng_schema].[import-export-test-ng_test] ([col1], [col2], [_timestamp]) (SELECT NULLIF([col1], \'\'),CAST(COALESCE([col2], \'\') as NVARCHAR(4000)) AS [col2],\'2020-01-01 00:00:00\' FROM [import-export-test-ng_schema].[#stagingTable] AS [src])',
-            $sql
+            $sql,
         );
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         foreach ($result as $item) {
@@ -608,7 +607,7 @@ EOT
 
         $this->assertEquals(
             'RENAME OBJECT [import-export-test-ng_schema].[import-export-test-ng_test] TO [newTable]',
-            $sql
+            $sql,
         );
 
         $this->connection->exec($sql);
@@ -630,7 +629,7 @@ EOT
         $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(
             'DELETE FROM [import-export-test-ng_schema].[#stagingTable]',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
         $this->assertEquals(0, $ref->getRowsCount());
@@ -652,7 +651,7 @@ EOT
             ]),
             ['col1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
@@ -665,19 +664,19 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id],[col1],[col2]) VALUES (1,\'2\',\'1\')',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEquals([
@@ -693,18 +692,18 @@ EOT
             $fakeStage,
             $fakeDestination,
             $this->getDummyImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
         // phpcs:ignore
             'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEquals([
@@ -728,7 +727,7 @@ EOT
                 ]),
                 [],
                 new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
             ),
             new SynapseTableDefinition(
                 self::TEST_SCHEMA,
@@ -739,16 +738,16 @@ EOT
                 ]),
                 ['id'],
                 new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
             ),
             $this->getDummyImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         // only primary keys will result to empty string as there is nothing to update
         $this->assertEquals(
             '',
-            $sql
+            $sql,
         );
     }
 
@@ -757,8 +756,8 @@ EOT
         $col2 = new SynapseColumn(
             'col2',
             new Synapse(
-                Synapse::TYPE_NUMERIC
-            )
+                Synapse::TYPE_NUMERIC,
+            ),
         );
 
         $this->createTestSchema();
@@ -775,7 +774,7 @@ EOT
             ]),
             ['col1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
@@ -788,19 +787,19 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id],[col1],[col2]) VALUES (1,\'2\',\'1\')',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEquals([
@@ -816,18 +815,18 @@ EOT
             $fakeStage,
             $fakeDestination,
             $this->getDummyImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
         // phpcs:ignore
             'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = [src].[col2] FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NUMERIC) != [src].[col2]) ',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEquals([
@@ -855,7 +854,7 @@ EOT
             ]),
             ['col1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
@@ -868,25 +867,25 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id],[col1],[col2]) VALUES (1,\'\',\'1\')',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id],[col1],[col2]) VALUES (1,\'2\',\'\')',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -909,18 +908,18 @@ EOT
             $fakeStage,
             $fakeDestination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
         // phpcs:ignore
             'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\') FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -956,7 +955,7 @@ EOT
             ]),
             ['col1'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
@@ -969,27 +968,27 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id],[col1],[col2],[_timestamp]) VALUES (1,\'\',\'1\',\'%s\')',
                 self::TEST_TABLE_IN_SCHEMA,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id],[col1],[col2],[_timestamp]) VALUES (1,\'2\',\'\',\'%s\')',
                 self::TEST_TABLE_IN_SCHEMA,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -1013,19 +1012,19 @@ EOT
             $fakeStage,
             $fakeDestination,
             $options,
-            $timestampSet->format(DateTimeHelper::FORMAT) . '.000'
+            $timestampSet->format(DateTimeHelper::FORMAT) . '.000',
         );
 
         $this->assertEquals(
         // phpcs:ignore
             'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [col2] = COALESCE([src].[col2], \'\'), [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[col1] = [src].[col1] AND (COALESCE(CAST([import-export-test-ng_schema].[import-export-test-ng_test].[col2] AS NVARCHAR(4000)), \'\') != COALESCE([src].[col2], \'\')) ',
-            $sql
+            $sql,
         );
         $this->connection->exec($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         foreach ($result as $item) {
@@ -1035,7 +1034,7 @@ EOT
             $this->assertArrayHasKey('_timestamp', $item);
             $this->assertSame(
                 $timestampSet->format(DateTimeHelper::FORMAT),
-                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
+                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT),
             );
         }
     }
@@ -1054,16 +1053,16 @@ EOT
             new ColumnCollection([
                 new SynapseColumn(
                     'id',
-                    new Synapse(Synapse::TYPE_INT)
+                    new Synapse(Synapse::TYPE_INT),
                 ),
                 new SynapseColumn(
                     '_timestamp',
-                    new Synapse(Synapse::TYPE_DATETIME)
+                    new Synapse(Synapse::TYPE_DATETIME),
                 ),
             ]),
             ['id'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($destDef));
@@ -1078,7 +1077,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stageDef));
 
@@ -1086,8 +1085,8 @@ EOT
             sprintf(
                 'INSERT INTO %s.%s([id]) VALUES (1)',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE
-            )
+                self::TEST_STAGING_TABLE,
+            ),
         );
 
         // create fake destination definition without timestamp column
@@ -1100,7 +1099,7 @@ EOT
             ]),
             ['id'],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // insert values into destination
@@ -1108,20 +1107,20 @@ EOT
             sprintf(
                 'INSERT INTO %s([id],[_timestamp]) VALUES (1,\'%s\')',
                 self::TEST_TABLE_IN_SCHEMA,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s([id],[_timestamp]) VALUES (1,\'%s\')',
                 self::TEST_TABLE_IN_SCHEMA,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -1141,19 +1140,19 @@ EOT
             $stageDef,
             $fakeDestination,
             $options,
-            $timestampSet->format(DateTimeHelper::FORMAT) . '.000'
+            $timestampSet->format(DateTimeHelper::FORMAT) . '.000',
         );
 
         $this->assertEquals(
         // phpcs:ignore
             'UPDATE [import-export-test-ng_schema].[import-export-test-ng_test] SET [_timestamp] = \'2020-01-01 01:01:01.000\' FROM [import-export-test-ng_schema].[#stagingTable] AS [src] WHERE [import-export-test-ng_schema].[import-export-test-ng_test].[id] = [src].[id] ',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         /** @var array{id:string,_timestamp:string} $item */
@@ -1162,7 +1161,7 @@ EOT
             $this->assertArrayHasKey('_timestamp', $item);
             $this->assertSame(
                 $timestampSet->format(DateTimeHelper::FORMAT),
-                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
+                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT),
             );
         }
     }
@@ -1179,8 +1178,8 @@ EOT
         $this->connection->exec(
             sprintf(
                 'INSERT INTO %s([id]) VALUES (1)',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
 
         $sql = $this->getBuilder()->getCommitTransaction();
@@ -1216,7 +1215,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         $destination = new SynapseTableDefinition(
@@ -1229,18 +1228,18 @@ EOT
             ]),
             ['pk1'],
             $stage->getTableDistribution(),
-            $stage->getTableIndex()
+            $stage->getTableIndex(),
         );
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'Columns "pk2" can be imported as it was not found between columns "pk1, notExists" of destination table.'
+            'Columns "pk2" can be imported as it was not found between columns "pk1, notExists" of destination table.',
         );
         $this->getBuilder()->$function(
             $stage,
             $destination,
             new SynapseImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
     }
 
@@ -1252,7 +1251,7 @@ EOT
         SynapseTableDefinition $destination,
         SynapseImportOptions $options,
         string $expectedSql,
-        bool $isTimestampExpected = true
+        bool $isTimestampExpected = true,
     ): void {
         $this->createTestSchema();
         $this->createStagingTableWithData(true);
@@ -1261,18 +1260,18 @@ EOT
             $stage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
             $expectedSql,
-            $sql
+            $sql,
         );
         $out = $this->connection->executeStatement($sql);
         $this->assertEquals(2, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         foreach ($result as $item) {
@@ -1290,11 +1289,11 @@ EOT
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
         /** @var SynapseColumn[] $timestampColumns */
         $timestampColumns = array_filter(iterator_to_array($ref->getColumnsDefinitions()), function (
-            SynapseColumn $column
+            SynapseColumn $column,
         ) {
             return $column->getColumnName() === '_timestamp';
         });
@@ -1333,14 +1332,14 @@ EOT
                     new SynapseColumn(
                         'col1',
                         new Synapse(
-                            Synapse::TYPE_INT
-                        )
+                            Synapse::TYPE_INT,
+                        ),
                     ),
                     $this->createGenericColumn('col2'),
                 ]),
                 $stage->getPrimaryKeysNames(),
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseTableDefinition(
                 $stage->getSchemaName(),
@@ -1349,7 +1348,7 @@ EOT
                 $stage->getColumnsDefinitions(),
                 ['pk1', 'pk2'],
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 [],
@@ -1357,7 +1356,7 @@ EOT
                 true,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_CAST
+                SynapseImportOptions::TABLE_TYPES_CAST,
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1374,14 +1373,14 @@ EOT
                     new SynapseColumn(
                         'col1',
                         new Synapse(
-                            Synapse::TYPE_INT
-                        )
+                            Synapse::TYPE_INT,
+                        ),
                     ),
                     $this->createGenericColumn('col2'),
                 ]),
                 $stage->getPrimaryKeysNames(),
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseTableDefinition(
                 $stage->getSchemaName(),
@@ -1395,7 +1394,7 @@ EOT
                 ]),
                 ['pk1', 'pk2'],
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 [],
@@ -1403,7 +1402,7 @@ EOT
                 true,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_CAST
+                SynapseImportOptions::TABLE_TYPES_CAST,
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],ISNULL(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1418,7 +1417,7 @@ EOT
                 $stage->getColumnsDefinitions(),
                 ['pk1', 'pk2'],
                 new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_HASH, ['pk1']),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 ['col1'],
@@ -1426,7 +1425,7 @@ EOT
                 true,            // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_CAST // cast values
+                SynapseImportOptions::TABLE_TYPES_CAST, // cast values
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=HASH([pk1]),HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1441,7 +1440,7 @@ EOT
                 $stage->getColumnsDefinitions(),
                 ['pk1', 'pk2'],
                 new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_HASH, ['pk1']),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
 
             new SynapseImportOptions(
@@ -1450,7 +1449,7 @@ EOT
                 true, // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_PRESERVE // dont cast values
+                SynapseImportOptions::TABLE_TYPES_PRESERVE, // dont cast values
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=HASH([pk1]),HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE([pk1], \'\') AS [pk1],COALESCE([pk2], \'\') AS [pk2],NULLIF([col1], \'\') AS [col1],COALESCE([col2], \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1465,7 +1464,7 @@ EOT
                 $stage->getColumnsDefinitions(),
                 ['pk1', 'pk2'],
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 ['col1'],
@@ -1473,7 +1472,7 @@ EOT
                 true, // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_CAST // cast values
+                SynapseImportOptions::TABLE_TYPES_CAST, // cast values
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1488,7 +1487,7 @@ EOT
                 $stage->getColumnsDefinitions(),
                 ['pk1', 'pk2'],
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 ['col1'],
@@ -1496,7 +1495,7 @@ EOT
                 true, // use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_PRESERVE // don't cast values
+                SynapseImportOptions::TABLE_TYPES_PRESERVE, // don't cast values
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE([pk1], \'\') AS [pk1],COALESCE([pk2], \'\') AS [pk2],NULLIF([col1], \'\') AS [col1],COALESCE([col2], \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1511,7 +1510,7 @@ EOT
                 $stage->getColumnsDefinitions(),
                 ['pk1', 'pk2'],
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 ['col1'],
@@ -1519,7 +1518,7 @@ EOT
                 false, // don't use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_CAST
+                SynapseImportOptions::TABLE_TYPES_CAST,
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],CAST(NULLIF([col1], \'\') as NVARCHAR(4000)) AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1535,7 +1534,7 @@ EOT
                 $stage->getColumnsDefinitions(),
                 ['pk1', 'pk2'],
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 ['col1'],
@@ -1543,7 +1542,7 @@ EOT
                 false, // don't use timestamp
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_PRESERVE // don't cast
+                SynapseImportOptions::TABLE_TYPES_PRESERVE, // don't cast
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2] FROM (SELECT COALESCE([pk1], \'\') AS [pk1],COALESCE([pk2], \'\') AS [pk2],NULLIF([col1], \'\') AS [col1],COALESCE([col2], \'\') AS [col2], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1559,11 +1558,11 @@ EOT
                 // add _timestamp column to destination
                 new ColumnCollection(array_merge(
                     iterator_to_array($stage->getColumnsDefinitions()),
-                    [SynapseColumn::createGenericColumn('_timestamp')]
+                    [SynapseColumn::createGenericColumn('_timestamp')],
                 )),
                 ['pk1', 'pk2'],
                 $stage->getTableDistribution(),
-                $stage->getTableIndex()
+                $stage->getTableIndex(),
             ),
             new SynapseImportOptions(
                 [],
@@ -1571,7 +1570,7 @@ EOT
                 true,
                 0,
                 SynapseImportOptions::CREDENTIALS_SAS,
-                SynapseImportOptions::TABLE_TYPES_CAST
+                SynapseImportOptions::TABLE_TYPES_CAST,
             ),
             // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,HEAP) AS SELECT a.[pk1],a.[pk2],a.[col1],a.[col2],a.[_timestamp] FROM (SELECT COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1],COALESCE(CAST([pk2] as NVARCHAR(4000)), \'\') AS [pk2],COALESCE(CAST([col1] as NVARCHAR(4000)), \'\') AS [col1],COALESCE(CAST([col2] as NVARCHAR(4000)), \'\') AS [col2],CAST(\'2020-01-01 00:00:00\' as DATETIME2) AS [_timestamp], ROW_NUMBER() OVER (PARTITION BY [pk1],[pk2] ORDER BY [pk1],[pk2]) AS "_row_number_" FROM [import-export-test-ng_schema].[#stagingTable]) AS a WHERE a."_row_number_" = 1',
@@ -1592,7 +1591,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
     }
 
@@ -1624,7 +1623,7 @@ EOT
             false,
             false,
             null,
-            true
+            true,
         );
         $this->createStagingTableWithData(true);
 
@@ -1640,7 +1639,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // no convert values no timestamp
@@ -1650,19 +1649,19 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            $cast
+            $cast,
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
             $importOptions,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         $this->assertEquals(
         // phpcs:ignore
             $expectedSQL,
-            $sql
+            $sql,
         );
 
         $out = $this->connection->exec($sql);
@@ -1670,7 +1669,7 @@ EOT
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -1699,7 +1698,7 @@ EOT
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
         $resultColumns = $ref->getColumnsDefinitions();
         $this->assertColumnsDefinitions($resultColumns, $destination, $importOptions);
@@ -1734,8 +1733,8 @@ EOT
                 Synapse::TYPE_NUMERIC,
                 [
                     'length' => '18,0',
-                ]
-            )
+                ],
+            ),
         );
 
         $this->createTestSchema();
@@ -1743,7 +1742,7 @@ EOT
             false,
             false,
             $col2,
-            true
+            true,
         );
         $this->createStagingTableWithData(true);
 
@@ -1759,7 +1758,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // no convert values no timestamp
@@ -1769,19 +1768,19 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            $cast
+            $cast,
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
             $importOptions,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         $this->assertEquals(
         // phpcs:ignore
             $expectedSQL,
-            $sql
+            $sql,
         );
 
         $out = $this->connection->exec($sql);
@@ -1789,7 +1788,7 @@ EOT
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -1818,7 +1817,7 @@ EOT
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
         $resultColumns = $ref->getColumnsDefinitions();
         $this->assertColumnsDefinitions($resultColumns, $destination, $importOptions);
@@ -1853,7 +1852,7 @@ EOT
             false,
             false,
             null,
-            true
+            true,
         );
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
@@ -1867,7 +1866,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // convert col1 to null
@@ -1877,24 +1876,24 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            $cast
+            $cast,
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
             $expectedSQL,
-            $sql
+            $sql,
         );
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -1923,7 +1922,7 @@ EOT
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
         $resultColumns = $ref->getColumnsDefinitions();
         $this->assertColumnsDefinitions($resultColumns, $destination, $options);
@@ -1952,14 +1951,14 @@ EOT
      */
     public function testGetCTASInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(
         string $cast,
-        string $expectedSQL
+        string $expectedSQL,
     ): void {
         $this->createTestSchema();
         $destination = $this->getTestTableWithColumnsDefinition(
             true,
             false,
             null,
-            true
+            true,
         );
         $this->createStagingTableWithData(true);
         // create fake stage and say that there is less columns
@@ -1974,7 +1973,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // use timestamp
@@ -1984,24 +1983,24 @@ EOT
             true,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            $cast
+            $cast,
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
             $expectedSQL,
-            $sql
+            $sql,
         );
         $out = $this->connection->exec($sql);
         $this->assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         foreach ($result as $item) {
@@ -2013,7 +2012,7 @@ EOT
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
         $resultColumns = $ref->getColumnsDefinitions();
         $this->assertColumnsDefinitions($resultColumns, $destination, $options);
@@ -2042,11 +2041,11 @@ EOT
                 function ($name) {
                     return $this->createGenericColumn($name);
                 },
-                $columns
+                $columns,
             )),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stage));
         $records = [
@@ -2062,8 +2061,8 @@ EOT
                     self::TEST_SCHEMA_QUOTED,
                     self::TEST_STAGING_TABLE,
                     implode(',', $columns),
-                    implode(',', $record)
-                )
+                    implode(',', $record),
+                ),
             );
         }
 
@@ -2080,8 +2079,8 @@ EOT
                         [
                             'nullable' => true,
                             'length' => '18,0',
-                        ]
-                    )
+                        ],
+                    ),
                 ),
                 new SynapseColumn(
                     'colNumeric',
@@ -2090,8 +2089,8 @@ EOT
                         [
                             'nullable' => true,
                             'length' => '18,0',
-                        ]
-                    )
+                        ],
+                    ),
                 ),
                 new SynapseColumn(
                     'colInteger',
@@ -2099,8 +2098,8 @@ EOT
                         Synapse::TYPE_INT,
                         [
                             'nullable' => true,
-                        ]
-                    )
+                        ],
+                    ),
                 ),
                 new SynapseColumn(
                     'colFloat',
@@ -2108,8 +2107,8 @@ EOT
                         Synapse::TYPE_FLOAT,
                         [
                             'nullable' => true,
-                        ]
-                    )
+                        ],
+                    ),
                 ),
                 new SynapseColumn(
                     'colBool',
@@ -2117,8 +2116,8 @@ EOT
                         Synapse::TYPE_BIT,
                         [
                             'nullable' => true,
-                        ]
-                    )
+                        ],
+                    ),
                 ),
                 new SynapseColumn(
                     'colDate',
@@ -2126,8 +2125,8 @@ EOT
                         Synapse::TYPE_DATE,
                         [
                             'nullable' => true,
-                        ]
-                    )
+                        ],
+                    ),
                 ),
                 new SynapseColumn(
                     'colTimestamp',
@@ -2136,13 +2135,13 @@ EOT
                         [
                             'nullable' => true,
                             'length' => '7',
-                        ]
-                    )
+                        ],
+                    ),
                 ),
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
         // create fake stage and say that there is less columns
         $fakeStage = new SynapseTableDefinition(
@@ -2161,7 +2160,7 @@ EOT
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
 
         // convert colNumericNull to null
@@ -2171,25 +2170,25 @@ EOT
             false,
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
-            SynapseImportOptions::TABLE_TYPES_CAST
+            SynapseImportOptions::TABLE_TYPES_CAST,
         );
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [import-export-test-ng_schema].[import-export-test-ng_test] WITH (DISTRIBUTION=ROUND_ROBIN,CLUSTERED COLUMNSTORE INDEX) AS SELECT CAST([colNumericNull] as NUMERIC(18,0)) AS [colNumericNull],CAST([colNumeric] as NUMERIC(18,0)) AS [colNumeric],CAST([colInteger] as INT) AS [colInteger],CAST([colFloat] as FLOAT) AS [colFloat],CAST([colBool] as BIT) AS [colBool],CAST([colDate] as DATE) AS [colDate],CAST([colTimestamp] as DATETIME2(7)) AS [colTimestamp],COALESCE(CAST([pk1] as NVARCHAR(4000)), \'\') AS [pk1] FROM [import-export-test-ng_schema].[#stagingTable]',
-            $sql
+            $sql,
         );
         $out = $this->connection->executeStatement($sql);
         $this->assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         $this->assertEqualsCanonicalizing([
@@ -2238,7 +2237,7 @@ EOT
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
         $resultColumns = $ref->getColumnsDefinitions();
         $this->assertColumnsDefinitions($resultColumns, $destination, $options);
@@ -2250,12 +2249,12 @@ EOT
             Synapse::TYPE_INT,
             [
                 'nullable' => false,
-            ]
+            ],
         );
 
         return new SynapseColumn(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -2263,7 +2262,7 @@ EOT
         bool $includeTimestamp = false,
         bool $includePrimaryKey = false,
         ?SynapseColumn $overwriteColumn2 = null,
-        bool $includeNotNullableColumn = false
+        bool $includeNotNullableColumn = false,
     ): SynapseTableDefinition {
         $columns = [];
         $pks = [];
@@ -2271,7 +2270,7 @@ EOT
             $pks[] = 'id';
             $columns[] = new SynapseColumn(
                 'id',
-                new Synapse(Synapse::TYPE_INT)
+                new Synapse(Synapse::TYPE_INT),
             );
         } else {
             $columns[] = $this->createGenericColumn('id');
@@ -2286,7 +2285,7 @@ EOT
         if ($includeTimestamp) {
             $columns[] = new SynapseColumn(
                 '_timestamp',
-                new Synapse(Synapse::TYPE_DATETIME)
+                new Synapse(Synapse::TYPE_DATETIME),
             );
         }
 
@@ -2301,7 +2300,7 @@ EOT
             new ColumnCollection($columns),
             $pks,
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
         return $tableDefinition;
     }
@@ -2309,7 +2308,7 @@ EOT
     private function assertColumnsDefinitions(
         ColumnCollection $resultColumns,
         SynapseTableDefinition $destination,
-        SynapseImportOptions $options
+        SynapseImportOptions $options,
     ): void {
         /** @var SynapseColumn $resultCol */
         foreach ($resultColumns as $resultCol) {
@@ -2329,13 +2328,13 @@ EOT
                 $this->assertSame(
                     $expectedCol->getColumnDefinition()->getSQLDefinition(),
                     $resultCol->getColumnDefinition()->getSQLDefinition(),
-                    sprintf('Column "%s" definition not match.', $resultCol->getColumnName())
+                    sprintf('Column "%s" definition not match.', $resultCol->getColumnName()),
                 );
             } else {
                 $this->assertSame(
                     $expectedCol->getColumnDefinition()->isNullable(),
                     $resultCol->getColumnDefinition()->isNullable(),
-                    sprintf('Column "%s" nullability not match.', $resultCol->getColumnName())
+                    sprintf('Column "%s" nullability not match.', $resultCol->getColumnName()),
                 );
             }
         }

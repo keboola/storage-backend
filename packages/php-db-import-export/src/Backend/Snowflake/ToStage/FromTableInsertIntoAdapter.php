@@ -36,7 +36,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SelectSource || $source instanceof Table);
         assert($destination instanceof SnowflakeTableDefinition);
@@ -51,7 +51,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
             implode(', ', $quotedColumns),
-            $source->getFromStatement()
+            $source->getFromStatement(),
         );
 
         if ($source instanceof Table && $importOptions->isRequireSameTables()) {
@@ -59,7 +59,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                 (new SnowflakeTableReflection(
                     $this->connection,
                     $source->getSchema(),
-                    $source->getTableName()
+                    $source->getTableName(),
                 ))->getColumnsDefinitions(),
                 $destination->getColumnsDefinitions(),
                 $importOptions->ignoreColumns(),
@@ -90,7 +90,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                     Snowflake::TYPE_NUMBER,
                     Snowflake::TYPE_DECIMAL,
                     Snowflake::TYPE_NUMERIC,
-                ]
+                ],
             );
         }
 
@@ -103,7 +103,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();

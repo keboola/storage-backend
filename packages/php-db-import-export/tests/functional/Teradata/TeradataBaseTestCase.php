@@ -104,7 +104,7 @@ class TeradataBaseTestCase extends ImportExportBaseTest
         }
         $db->executeStatement(sprintf(
             'SET SESSION DATABASE %s;',
-            TeradataQuote::quoteSingleIdentifier($dbname)
+            TeradataQuote::quoteSingleIdentifier($dbname),
         ));
 
         return $db;
@@ -118,11 +118,11 @@ class TeradataBaseTestCase extends ImportExportBaseTest
 
         // delete all objects in the DB
         $this->connection->executeQuery(
-            sprintf('DELETE DATABASE %s ALL', TeradataQuote::quoteSingleIdentifier($dbname))
+            sprintf('DELETE DATABASE %s ALL', TeradataQuote::quoteSingleIdentifier($dbname)),
         );
         // drop the empty db
         $this->connection->executeQuery(
-            sprintf('DROP DATABASE %s', TeradataQuote::quoteSingleIdentifier($dbname))
+            sprintf('DROP DATABASE %s', TeradataQuote::quoteSingleIdentifier($dbname)),
         );
     }
 
@@ -152,7 +152,7 @@ CREATE DATABASE %s AS
 
     protected function initSingleTable(
         string $db = self::TERADATA_SOURCE_DATABASE_NAME,
-        string $table = self::TABLE_TABLE
+        string $table = self::TABLE_TABLE,
     ): void {
         if (!$this->dbExists($db)) {
             $this->createDatabase($db);
@@ -165,8 +165,8 @@ CREATE DATABASE %s AS
 "Other"     VARCHAR(50)
     );',
                 TeradataQuote::quoteSingleIdentifier($db),
-                TeradataQuote::quoteSingleIdentifier($table)
-            )
+                TeradataQuote::quoteSingleIdentifier($table),
+            ),
         );
     }
 
@@ -196,8 +196,8 @@ CREATE DATABASE %s AS
 "GlobalID" VARCHAR(500) CHARACTER SET UNICODE
     );',
                         TeradataQuote::quoteSingleIdentifier($dbName),
-                        TeradataQuote::quoteSingleIdentifier($tableName)
-                    )
+                        TeradataQuote::quoteSingleIdentifier($tableName),
+                    ),
                 );
 
                 break;
@@ -214,8 +214,8 @@ CREATE DATABASE %s AS
 "_timestamp" TIMESTAMP
     )',
                         TeradataQuote::quoteSingleIdentifier($dbName),
-                        TeradataQuote::quoteSingleIdentifier($tableName)
-                    )
+                        TeradataQuote::quoteSingleIdentifier($tableName),
+                    ),
                 );
                 break;
             case self::TABLE_SINGLE_PK:
@@ -231,8 +231,8 @@ CREATE DATABASE %s AS
 PRIMARY KEY ("VisitID")
     )',
                         TeradataQuote::quoteSingleIdentifier($dbName),
-                        TeradataQuote::quoteSingleIdentifier($tableName)
-                    )
+                        TeradataQuote::quoteSingleIdentifier($tableName),
+                    ),
                 );
                 break;
             case self::TABLE_MULTI_PK:
@@ -248,8 +248,8 @@ PRIMARY KEY ("VisitID")
 PRIMARY KEY ("VisitID", "Something")
     )',
                         TeradataQuote::quoteSingleIdentifier($dbName),
-                        TeradataQuote::quoteSingleIdentifier($tableName)
-                    )
+                        TeradataQuote::quoteSingleIdentifier($tableName),
+                    ),
                 );
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
@@ -260,7 +260,7 @@ PRIMARY KEY ("VisitID", "Something")
               "row_number" VARCHAR(50) 
            )',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_TRANSLATIONS:
@@ -273,7 +273,7 @@ PRIMARY KEY ("VisitID", "Something")
               "isDeleted" INT
            )',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_OUT_CSV_2COLS:
@@ -285,14 +285,14 @@ PRIMARY KEY ("VisitID", "Something")
           "_timestamp" TIMESTAMP
         );',
                         TeradataQuote::quoteSingleIdentifier($dbName),
-                        TeradataQuote::quoteSingleIdentifier($tableName)
-                    )
+                        TeradataQuote::quoteSingleIdentifier($tableName),
+                    ),
                 );
 
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO %s.%s VALUES (\'x\', \'y\', NOW());',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
 
                 $this->connection->executeQuery(sprintf(
@@ -301,19 +301,19 @@ PRIMARY KEY ("VisitID", "Something")
           "col2" VARCHAR(50) 
         );',
                     TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
 
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
                     TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
 
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
                     TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_OUT_LEMMA:
@@ -325,7 +325,7 @@ PRIMARY KEY ("VisitID", "Something")
                 "_timestamp" TIMESTAMP
             );',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_ACCOUNTS_3:
@@ -347,7 +347,7 @@ PRIMARY KEY ("VisitID", "Something")
                  PRIMARY KEY ("id")
             );',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_TABLE:
@@ -359,7 +359,7 @@ PRIMARY KEY ("VisitID", "Something")
                 "_timestamp" TIMESTAMP
             );',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
@@ -369,7 +369,7 @@ PRIMARY KEY ("VisitID", "Something")
                                 "col2" VARCHAR(50)      
             );',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
 
@@ -382,7 +382,7 @@ PRIMARY KEY ("VisitID", "Something")
               "boolCol"  VARCHAR(50) CHARACTER SET UNICODE,
               "_timestamp" TIMESTAMP
             );',
-                    TeradataQuote::quoteSingleIdentifier($dbName)
+                    TeradataQuote::quoteSingleIdentifier($dbName),
                 ));
 
                 $this->connection->executeQuery(sprintf(
@@ -392,13 +392,13 @@ PRIMARY KEY ("VisitID", "Something")
               "floatCol" float ,
               "boolCol" BYTEINT 
             );',
-                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName())
+                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
                 ));
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO  %s."types" VALUES
               (\'a\', \'10.5\', \'0.3\', 1)
            ;',
-                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName())
+                    TeradataQuote::quoteSingleIdentifier($this->getSourceDbName()),
                 ));
                 break;
             case self::TABLE_ACCOUNTS_WITHOUT_TS:
@@ -419,7 +419,7 @@ PRIMARY KEY ("VisitID", "Something")
                 PRIMARY KEY ("id")
             ) ',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_MULTI_PK_WITH_TS:
@@ -434,7 +434,7 @@ PRIMARY KEY ("VisitID", "Something")
             PRIMARY KEY ("VisitID", "Value", "MenuItem")
             );',
                     TeradataQuote::quoteSingleIdentifier($dbName),
-                    TeradataQuote::quoteSingleIdentifier($tableName)
+                    TeradataQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             default:
@@ -451,7 +451,7 @@ PRIMARY KEY ("VisitID", "Something")
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        string $usingTypes = ImportOptionsInterface::USING_TYPES_STRING
+        string $usingTypes = ImportOptionsInterface::USING_TYPES_STRING,
     ): TeradataImportOptions {
         [$host, $username, $password, $port, $dbname] = $this->getTeradataConnectionParams();
 
@@ -465,7 +465,7 @@ PRIMARY KEY ("VisitID", "Something")
                 $isIncremental,
                 $useTimestamp,
                 $numberOfIgnoredLines,
-                $usingTypes
+                $usingTypes,
             );
     }
 
@@ -474,7 +474,7 @@ PRIMARY KEY ("VisitID", "Something")
         string $bufferSize = TeradataExportOptions::DEFAULT_BUFFER_SIZE,
         string $maxObjectSize = TeradataExportOptions::DEFAULT_MAX_OBJECT_SIZE,
         bool $dontSplitRows = TeradataExportOptions::DEFAULT_SPLIT_ROWS,
-        bool $singlePartFile = TeradataExportOptions::DEFAULT_SINGLE_PART_FILE
+        bool $singlePartFile = TeradataExportOptions::DEFAULT_SINGLE_PART_FILE,
     ): TeradataExportOptions {
         [$host, $username, $password, $port, $dbname] = $this->getTeradataConnectionParams();
 
@@ -489,13 +489,13 @@ PRIMARY KEY ("VisitID", "Something")
                 $maxObjectSize,
                 $dontSplitRows,
                 $singlePartFile,
-                ExportOptions::MANIFEST_AUTOGENERATED
+                ExportOptions::MANIFEST_AUTOGENERATED,
             );
     }
 
     protected function getSimpleImportOptions(
         int $skipLines = ImportOptionsInterface::SKIP_FIRST_LINE,
-        bool $useTimestamp = true
+        bool $useTimestamp = true,
     ): TeradataImportOptions {
         [$host, $username, $password, $port, $dbname] = $this->getTeradataConnectionParams();
 
@@ -508,7 +508,7 @@ PRIMARY KEY ("VisitID", "Something")
                 [],
                 false,
                 $useTimestamp,
-                $skipLines
+                $skipLines,
             );
     }
 
@@ -523,12 +523,12 @@ PRIMARY KEY ("VisitID", "Something")
         TeradataImportOptions $options,
         array $expected,
         $sortKey,
-        string $message = 'Imported tables are not the same as expected'
+        string $message = 'Imported tables are not the same as expected',
     ): void {
         $tableColumns = (new TeradataTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         ))->getColumnsNames();
 
         if ($options->useTimestamp()) {
@@ -553,7 +553,7 @@ PRIMARY KEY ("VisitID", "Something")
                 return TeradataQuote::quoteSingleIdentifier($item);
             }, $tableColumns)),
             TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($destination->getTableName())
+            TeradataQuote::quoteSingleIdentifier($destination->getTableName()),
         );
 
         $queryResult = array_map(static function ($row) {
@@ -566,7 +566,7 @@ PRIMARY KEY ("VisitID", "Something")
             $expected,
             $queryResult,
             $sortKey,
-            $message
+            $message,
         );
     }
 }

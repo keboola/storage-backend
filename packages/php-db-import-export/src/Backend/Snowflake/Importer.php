@@ -39,7 +39,7 @@ class Importer implements ImporterInterface
     private ImportState $importState;
 
     public function __construct(
-        Connection $connection
+        Connection $connection,
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlCommandBuilder();
@@ -51,7 +51,7 @@ class Importer implements ImporterInterface
     public function importTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptionsInterface $options
+        ImportOptionsInterface $options,
     ): Result {
         $adapter = $this->getAdapter($source, $destination);
 
@@ -61,7 +61,7 @@ class Importer implements ImporterInterface
         $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
             $destination->getSchema(),
             $this->importState->getStagingTableName(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         ));
 
         try {
@@ -70,11 +70,11 @@ class Importer implements ImporterInterface
                 $source,
                 $destination,
                 $options,
-                $adapter
+                $adapter,
             );
             $primaryKeys = $this->connection->getTablePrimaryKey(
                 $destination->getSchema(),
-                $destination->getTableName()
+                $destination->getTableName(),
             );
             if ($options->isIncremental()) {
                 $this->doIncrementalLoad($options, $source, $destination, $primaryKeys);
@@ -84,7 +84,7 @@ class Importer implements ImporterInterface
             $this->importState->setImportedColumns($source->getColumnsNames());
         } finally {
             $this->runQuery(
-                $this->sqlBuilder->getDropCommand($destination->getSchema(), $this->importState->getStagingTableName())
+                $this->sqlBuilder->getDropCommand($destination->getSchema(), $this->importState->getStagingTableName()),
             );
         }
 
@@ -93,25 +93,25 @@ class Importer implements ImporterInterface
 
     private function validateColumns(
         Storage\SourceInterface $source,
-        Storage\Snowflake\Table $destination
+        Storage\Snowflake\Table $destination,
     ): void {
         if (count($source->getColumnsNames()) === 0) {
             throw new Exception(
                 'No columns found in CSV file.',
-                Exception::NO_COLUMNS
+                Exception::NO_COLUMNS,
             );
         }
 
         $tableColumns = $this->connection->getTableColumns(
             $destination->getSchema(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         $moreColumns = array_diff($source->getColumnsNames(), $tableColumns);
         if (!empty($moreColumns)) {
             throw new Exception(
                 'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),
-                Exception::COLUMNS_COUNT_NOT_MATCH
+                Exception::COLUMNS_COUNT_NOT_MATCH,
             );
         }
     }
@@ -133,7 +133,7 @@ class Importer implements ImporterInterface
         Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
         ImportOptionsInterface $importOptions,
-        SnowflakeImportAdapterInterface $adapter
+        SnowflakeImportAdapterInterface $adapter,
     ): void {
         try {
             $this->importState->startTimer('copyToStaging');
@@ -141,7 +141,7 @@ class Importer implements ImporterInterface
                 $source,
                 $destination,
                 $importOptions,
-                $this->importState->getStagingTableName()
+                $this->importState->getStagingTableName(),
             );
             $this->importState->stopTimer('copyToStaging');
             $this->importState->addImportedRowsCount($rowsCount);
@@ -160,11 +160,11 @@ class Importer implements ImporterInterface
         ImportOptionsInterface $importOptions,
         Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
-        array $primaryKeys
+        array $primaryKeys,
     ): void {
         $timestampValue = DateTimeHelper::getNowFormatted();
         $this->runQuery(
-            $this->sqlBuilder->getBeginTransaction()
+            $this->sqlBuilder->getBeginTransaction(),
         );
         if (!empty($primaryKeys)) {
             $this->runQuery(
@@ -174,17 +174,17 @@ class Importer implements ImporterInterface
                     $importOptions,
                     $this->importState->getStagingTableName(),
                     $primaryKeys,
-                    $timestampValue
+                    $timestampValue,
                 ),
-                'updateTargetTable'
+                'updateTargetTable',
             );
             $this->runQuery(
                 $this->sqlBuilder->getDeleteOldItemsCommand(
                     $destination,
                     $this->importState->getStagingTableName(),
-                    $primaryKeys
+                    $primaryKeys,
                 ),
-                'deleteUpdatedRowsFromStaging'
+                'deleteUpdatedRowsFromStaging',
             );
             $this->importState->startTimer('dedupStaging');
             $this->dedup($source, $destination, $primaryKeys);
@@ -196,12 +196,12 @@ class Importer implements ImporterInterface
                 $destination,
                 $importOptions,
                 $this->importState->getStagingTableName(),
-                $timestampValue
+                $timestampValue,
             ),
-            'insertIntoTargetFromStaging'
+            'insertIntoTargetFromStaging',
         );
         $this->runQuery(
-            $this->sqlBuilder->getCommitTransaction()
+            $this->sqlBuilder->getCommitTransaction(),
         );
     }
 
@@ -211,13 +211,13 @@ class Importer implements ImporterInterface
     private function dedup(
         Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
-        array $primaryKeys
+        array $primaryKeys,
     ): void {
         $tempTableName = BackendHelper::generateStagingTableName();
         $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
             $destination->getSchema(),
             $tempTableName,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         ));
 
         $this->runQuery(
@@ -226,21 +226,21 @@ class Importer implements ImporterInterface
                 $destination,
                 $primaryKeys,
                 $this->importState->getStagingTableName(),
-                $tempTableName
-            )
+                $tempTableName,
+            ),
         );
         $this->runQuery(
             $this->sqlBuilder->getDropCommand(
                 $destination->getSchema(),
-                $this->importState->getStagingTableName()
-            )
+                $this->importState->getStagingTableName(),
+            ),
         );
         $this->runQuery(
             $this->sqlBuilder->getRenameTableCommand(
                 $destination->getSchema(),
                 $tempTableName,
-                $this->importState->getStagingTableName()
-            )
+                $this->importState->getStagingTableName(),
+            ),
         );
     }
 
@@ -251,7 +251,7 @@ class Importer implements ImporterInterface
         ImportOptionsInterface $importOptions,
         Storage\SourceInterface $source,
         Storage\Snowflake\Table $destination,
-        array $primaryKeys
+        array $primaryKeys,
     ): void {
         if (!empty($primaryKeys)) {
             $this->importState->startTimer('dedup');
@@ -259,25 +259,25 @@ class Importer implements ImporterInterface
             $this->importState->stopTimer('dedup');
         }
         $this->runQuery(
-            $this->sqlBuilder->getBeginTransaction()
+            $this->sqlBuilder->getBeginTransaction(),
         );
         $this->runQuery(
             $this->sqlBuilder->getTruncateTableCommand(
                 $destination->getSchema(),
-                $destination->getTableName()
-            )
+                $destination->getTableName(),
+            ),
         );
         $this->runQuery(
             $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
                 $source,
                 $destination,
                 $importOptions,
-                $this->importState->getStagingTableName()
+                $this->importState->getStagingTableName(),
             ),
-            'copyFromStagingToTarget'
+            'copyFromStagingToTarget',
         );
         $this->runQuery(
-            $this->sqlBuilder->getCommitTransaction()
+            $this->sqlBuilder->getCommitTransaction(),
         );
     }
 
@@ -291,7 +291,7 @@ class Importer implements ImporterInterface
 
     private function getAdapter(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination
+        Storage\DestinationInterface $destination,
     ): SnowflakeImportAdapterInterface {
         $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
@@ -300,8 +300,8 @@ class Importer implements ImporterInterface
                 throw new InternalException(
                     sprintf(
                         'Each snowflake import adapter must implement "%s".',
-                        SnowflakeImportAdapterInterface::class
-                    )
+                        SnowflakeImportAdapterInterface::class,
+                    ),
                 );
             }
             if ($adapter::isSupported($source, $destination)) {
@@ -311,8 +311,8 @@ class Importer implements ImporterInterface
                             'More than one suitable adapter found for Snowflake importer with source: '
                             . '"%s", destination "%s".',
                             get_class($source),
-                            get_class($destination)
-                        )
+                            get_class($destination),
+                        ),
                     );
                 }
                 $adapterForUse = new $adapter($this->connection);
@@ -323,8 +323,8 @@ class Importer implements ImporterInterface
                 sprintf(
                     'No suitable adapter found for Snowflake importer with source: "%s", destination "%s".',
                     get_class($source),
-                    get_class($destination)
-                )
+                    get_class($destination),
+                ),
             );
         }
 

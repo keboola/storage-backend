@@ -37,7 +37,7 @@ FILE 'https:url' --- files
 COLUMN SEPARATOR=','
 COLUMN DELIMITER='"'
 
-EOT
+EOT,
         );
 
         $conn->expects(self::once())->method('fetchOne')
@@ -49,14 +49,14 @@ EOT
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new ExasolImportOptions();
         $adapter = new FromS3CopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(10, $count);
@@ -81,7 +81,7 @@ SKIP=3
 COLUMN SEPARATOR=','
 COLUMN DELIMITER='"'
 
-EOT
+EOT,
         );
 
         $conn->expects(self::once())->method('fetchOne')
@@ -93,14 +93,14 @@ EOT
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new ExasolImportOptions([], false, false, 3);
         $adapter = new FromS3CopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(7, $count);
@@ -150,14 +150,14 @@ EOT;
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new ExasolImportOptions();
         $adapter = new FromS3CopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(7, $count);

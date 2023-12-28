@@ -48,12 +48,12 @@ class SqlCommandBuilderTest extends TestCase
                 'pk2',
             ],
             'stagingTable',
-            'tempTable'
+            'tempTable',
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "schema"."tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_"FROM "schema"."stagingTable") AS a WHERE a."_row_number_" = 1',
-            $sql
+            $sql,
         );
     }
 
@@ -90,7 +90,7 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyTableDestination(),
             [],
             'stagingTable',
-            'tempTable'
+            'tempTable',
         );
         self::assertEquals('', $sql);
     }
@@ -103,12 +103,12 @@ class SqlCommandBuilderTest extends TestCase
             [
                 'pk1',
                 'pk2',
-            ]
+            ],
         );
         self::assertEquals(
         // phpcs:ignore
             'DELETE FROM "schema"."stagingTable" "src" USING "schema"."table" AS "dest" WHERE "dest"."pk1" = COALESCE("src"."pk1", \'\') AND "dest"."pk2" = COALESCE("src"."pk2", \'\') ',
-            $sql
+            $sql,
         );
     }
 
@@ -125,12 +125,12 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummySource(),
             $this->getDummyTableDestination(),
             $this->getDummyImportOptions(),
-            'staging table'
+            'staging table',
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "schema"."table" ("col1", "col2") (SELECT COALESCE("col1", \'\') AS "col1", COALESCE("col2", \'\') AS "col2" FROM "schema"."staging table")',
-            $sql
+            $sql,
         );
 
         // converver values
@@ -139,12 +139,12 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
-            'staging table'
+            'staging table',
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "schema"."table" ("col1", "col2") (SELECT IFF("col1" = \'\', NULL, "col1"), COALESCE("col2", \'\') AS "col2" FROM "schema"."staging table")',
-            $sql
+            $sql,
         );
 
         // use timestamp
@@ -153,17 +153,17 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummySource(),
             $this->getDummyTableDestination(),
             $options,
-            'staging table'
+            'staging table',
         );
         self::assertStringStartsWith(
         // phpcs:ignore
             'INSERT INTO "schema"."table" ("col1", "col2", "_timestamp") (SELECT IFF("col1" = \'\', NULL, "col1"), COALESCE("col2", \'\') AS "col2", \'',
-            $sql
+            $sql,
         );
         // there is datetime between
         self::assertStringEndsWith(
             '\' FROM "schema"."staging table")',
-            $sql
+            $sql,
         );
     }
 
@@ -175,12 +175,12 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyTableDestination(),
             $options,
             'stagingTable',
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "schema"."table" ("col1", "col2") SELECT IFF("src"."col1" = \'\', NULL, "col1"),COALESCE("src"."col2", \'\') FROM "schema"."stagingTable" AS "src"',
-            $sql
+            $sql,
         );
         $options = new ImportOptions(['col1'], false, true);
         $sql = $this->getInstance()->getInsertFromStagingToTargetTableCommand(
@@ -188,12 +188,12 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyTableDestination(),
             $options,
             'stagingTable',
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "schema"."table" ("col1", "col2", "_timestamp") SELECT IFF("src"."col1" = \'\', NULL, "col1"),COALESCE("src"."col2", \'\'),\'2020-01-01 00:00:00\' FROM "schema"."stagingTable" AS "src"',
-            $sql
+            $sql,
         );
     }
 
@@ -224,12 +224,12 @@ class SqlCommandBuilderTest extends TestCase
             $this->getDummyImportOptions(),
             'staging table',
             ['col1'],
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'UPDATE "schema"."table" AS "dest" SET "col1" = COALESCE("src"."col1", \'\'), "col2" = COALESCE("src"."col2", \'\') FROM "schema"."staging table" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\')) ',
-            $sql
+            $sql,
         );
 
         // converver values
@@ -240,12 +240,12 @@ class SqlCommandBuilderTest extends TestCase
             $options,
             'staging table',
             ['col1'],
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'UPDATE "schema"."table" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\') FROM "schema"."staging table" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\')) ',
-            $sql
+            $sql,
         );
 
         // use timestamp
@@ -256,13 +256,13 @@ class SqlCommandBuilderTest extends TestCase
             $options,
             'staging table',
             ['col1'],
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         self::assertEquals(
         // phpcs:ignore
             'UPDATE "schema"."table" AS "dest" SET "col1" = IFF("src"."col1" = \'\', NULL, "src"."col1"), "col2" = COALESCE("src"."col2", \'\'), "_timestamp" = \'2020-01-01 00:00:00\' FROM "schema"."staging table" AS "src" WHERE "dest"."col1" = COALESCE("src"."col1", \'\')  AND (COALESCE(TO_VARCHAR("dest"."col1"), \'\') != COALESCE("src"."col1", \'\') OR COALESCE(TO_VARCHAR("dest"."col2"), \'\') != COALESCE("src"."col2", \'\')) ',
-            $sql
+            $sql,
         );
     }
 }

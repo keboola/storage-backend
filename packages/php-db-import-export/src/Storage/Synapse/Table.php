@@ -30,7 +30,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         string $schema,
         string $tableName,
         array $columns = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
     ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
@@ -61,7 +61,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
     {
         $quotedColumns = array_map(
             static fn(string $column) => SynapseQuote::quoteSingleIdentifier($column),
-            $this->getColumnsNames()
+            $this->getColumnsNames(),
         );
 
         $castedColumns = [];
@@ -70,9 +70,9 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
                 static fn(string $column): string => sprintf(
                     'CAST(%s as NVARCHAR(4000)) AS %s',
                     $column,
-                    $column
+                    $column,
                 ),
-                $quotedColumns
+                $quotedColumns,
             );
         }
 
@@ -83,13 +83,13 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             if ($castValues === true) {
                 $quotedColumns = array_map(
                     static fn(string $column) => sprintf('a.%s', $column),
-                    $quotedColumns
+                    $quotedColumns,
                 );
                 $select = implode(', ', $quotedColumns);
                 $from = sprintf(
                     '(SELECT %s FROM %s) AS a',
                     implode(', ', $castedColumns),
-                    $from
+                    $from,
                 );
             }
         }
@@ -109,7 +109,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schema),
-            SynapseQuote::quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->tableName),
         );
     }
 

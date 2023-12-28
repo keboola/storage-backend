@@ -24,21 +24,21 @@ abstract class BaseCmd extends Command
             ->addOption(
                 self::OPTION_AZURE_SERVICE_PRINCIPAL_TENANT,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
 
         $this
             ->addOption(
                 self::OPTION_AZURE_SERVICE_PRINCIPAL,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
 
         $this
             ->addOption(
                 self::OPTION_AZURE_SERVICE_PRINCIPAL_PASSWORD,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
     }
 

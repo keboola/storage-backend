@@ -35,14 +35,14 @@ class StageImportTest extends SnowflakeBaseTestCase
         $targetTableRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
@@ -51,22 +51,22 @@ class StageImportTest extends SnowflakeBaseTestCase
         $importer->importToStagingTable(
             $source,
             $targetTableRef->getTableDefinition(),
-            $this->getSnowflakeImportOptions()
+            $this->getSnowflakeImportOptions(),
         );
 
         $dataSource = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM %s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier('sourceTable')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('sourceTable'),
+            ),
         );
         $dataDest = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM %s.%s',
                 SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier('targetTable')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('targetTable'),
+            ),
         );
 
         self::assertSame($dataSource, $dataDest);
@@ -80,14 +80,14 @@ class StageImportTest extends SnowflakeBaseTestCase
         $targetTableRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'XXXX', 'last_name'],
-            []
+            [],
         );
 
         $this->expectException(Exception::class);
@@ -96,7 +96,7 @@ class StageImportTest extends SnowflakeBaseTestCase
         $importer->importToStagingTable(
             $source,
             $targetTableRef->getTableDefinition(),
-            $this->getSnowflakeImportOptions()
+            $this->getSnowflakeImportOptions(),
         );
     }
 
@@ -110,8 +110,8 @@ class StageImportTest extends SnowflakeBaseTestCase
                 'ALTER TABLE %s.%s DROP COLUMN %s',
                 SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                 SnowflakeQuote::quoteSingleIdentifier('targetTable'),
-                SnowflakeQuote::quoteSingleIdentifier('first_name')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('first_name'),
+            ),
         );
 
         $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
@@ -120,14 +120,14 @@ class StageImportTest extends SnowflakeBaseTestCase
         $targetTableRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->expectException(Exception::class);
@@ -136,7 +136,7 @@ class StageImportTest extends SnowflakeBaseTestCase
         $importer->importToStagingTable(
             $source,
             $targetTableRef->getTableDefinition(),
-            $this->getSnowflakeImportOptions()
+            $this->getSnowflakeImportOptions(),
         );
     }
 
@@ -151,21 +151,21 @@ class StageImportTest extends SnowflakeBaseTestCase
     "first_name" VARCHAR(100),
     "middle_name" VARCHAR(100),
     "last_name" VARCHAR(100)
-);'
+);',
         );
 
         $importer = new ToStageImporter($this->connection);
         $targetTableRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
@@ -183,7 +183,7 @@ class StageImportTest extends SnowflakeBaseTestCase
                 numberOfIgnoredLines: 1,
                 requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            )
+            ),
         );
     }
 
@@ -198,21 +198,21 @@ class StageImportTest extends SnowflakeBaseTestCase
     "first_name" VARCHAR(100),
     "last_name" VARCHAR(100),
     "middle_name" VARCHAR(100)
-);'
+);',
         );
 
         $importer = new ToStageImporter($this->connection);
         $targetTableRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
@@ -233,7 +233,7 @@ class StageImportTest extends SnowflakeBaseTestCase
                 numberOfIgnoredLines: 1,
                 requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            )
+            ),
         );
     }
 
@@ -247,21 +247,21 @@ class StageImportTest extends SnowflakeBaseTestCase
             "id" INTEGER,
     "first_name" VARCHAR(100),
     "last_name" VARCHAR(99)
-);'
+);',
         );
 
         $importer = new ToStageImporter($this->connection);
         $targetTableRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
@@ -269,7 +269,7 @@ class StageImportTest extends SnowflakeBaseTestCase
 
         $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage(
-            'Source destination columns mismatch. "last_name VARCHAR (100)"->"last_name VARCHAR (99)"'
+            'Source destination columns mismatch. "last_name VARCHAR (100)"->"last_name VARCHAR (99)"',
         );
         $importer->importToStagingTable(
             $source,
@@ -281,7 +281,7 @@ class StageImportTest extends SnowflakeBaseTestCase
                 numberOfIgnoredLines: 1,
                 requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            )
+            ),
         );
     }
 }

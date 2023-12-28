@@ -23,7 +23,7 @@ abstract class BaseFile
         string $container,
         string $filePath,
         string $sasToken,
-        string $accountName
+        string $accountName,
     ) {
         $this->container = $container;
         $this->sasToken = $sasToken;
@@ -46,7 +46,7 @@ abstract class BaseFile
             '%s://%s.blob.core.windows.net/%s/',
             $protocol,
             $this->accountName,
-            $this->container
+            $this->container,
         );
     }
 
@@ -56,13 +56,13 @@ abstract class BaseFile
             return sprintf(
                 'abfss://%s@%s.dfs.core.windows.net/',
                 $this->container,
-                $this->accountName
+                $this->accountName,
             );
         }
         return sprintf(
             'wasbs://%s@%s.blob.core.windows.net/',
             $this->container,
-            $this->accountName
+            $this->accountName,
         );
     }
     public function getContainer(): string

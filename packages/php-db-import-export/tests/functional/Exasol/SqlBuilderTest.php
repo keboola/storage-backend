@@ -65,7 +65,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
             [
                 'pk1',
                 'pk2',
-            ]
+            ],
         );
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($deduplicationDef));
@@ -73,18 +73,18 @@ class SqlBuilderTest extends ExasolBaseTestCase
         $sql = $this->getBuilder()->getDedupCommand(
             $stageDef,
             $deduplicationDef,
-            $deduplicationDef->getPrimaryKeysNames()
+            $deduplicationDef->getPrimaryKeysNames(),
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "import-export-test_schema"."tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM "import-export-test_schema"."stagingTable") AS a WHERE a."_row_number_" = 1',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             ExasolQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($deduplicationDef->getTableName())
+            ExasolQuote::quoteSingleIdentifier($deduplicationDef->getTableName()),
         ));
 
         self::assertCount(2, $result);
@@ -100,22 +100,22 @@ class SqlBuilderTest extends ExasolBaseTestCase
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED
-            )
+                self::TEST_STAGING_TABLE_QUOTED,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED
-            )
+                self::TEST_STAGING_TABLE_QUOTED,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'2\',\'2\')',
                 self::TEST_SCHEMA_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED
-            )
+                self::TEST_STAGING_TABLE_QUOTED,
+            ),
         );
 
         if ($includeEmptyValues) {
@@ -123,8 +123,8 @@ class SqlBuilderTest extends ExasolBaseTestCase
                 sprintf(
                     'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'\',NULL)',
                     self::TEST_SCHEMA_QUOTED,
-                    self::TEST_STAGING_TABLE_QUOTED
-                )
+                    self::TEST_STAGING_TABLE_QUOTED,
+                ),
             );
         }
 
@@ -148,28 +148,28 @@ class SqlBuilderTest extends ExasolBaseTestCase
                 new ExasolColumn(
                     'id',
                     new Exasol(
-                        Exasol::TYPE_INT
-                    )
+                        Exasol::TYPE_INT,
+                    ),
                 ),
                 ExasolColumn::createGenericColumn('pk1'),
                 ExasolColumn::createGenericColumn('pk2'),
                 ExasolColumn::createGenericColumn('col1'),
                 ExasolColumn::createGenericColumn('col2'),
             ]),
-            ['pk1', 'pk2']
+            ['pk1', 'pk2'],
         );
         $tableSql = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($tableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
         );
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($tableDefinition));
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("id","pk1","pk2","col1","col2") VALUES (1,1,1,\'1\',\'1\')',
-                $tableSql
-            )
+                $tableSql,
+            ),
         );
         $stagingTableDefinition = new ExasolTableDefinition(
             self::TEST_SCHEMA,
@@ -181,42 +181,42 @@ class SqlBuilderTest extends ExasolBaseTestCase
                 ExasolColumn::createGenericColumn('col1'),
                 ExasolColumn::createGenericColumn('col2'),
             ]),
-            ['pk1', 'pk2']
+            ['pk1', 'pk2'],
         );
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stagingTableDefinition));
         $stagingTableSql = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
-                $stagingTableSql
-            )
+                $stagingTableSql,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("pk1","pk2","col1","col2") VALUES (2,1,\'1\',\'1\')',
-                $stagingTableSql
-            )
+                $stagingTableSql,
+            ),
         );
 
         $sql = $this->getBuilder()->getDeleteOldItemsCommand(
             $stagingTableDefinition,
-            $tableDefinition
+            $tableDefinition,
         );
 
         self::assertEquals(
         // phpcs:ignore
             'DELETE FROM "import-export-test_schema"."stagingTable" WHERE EXISTS (SELECT * FROM "import-export-test_schema"."import-export-test_test" WHERE COALESCE("import-export-test_schema"."import-export-test_test"."pk1", \'KBC_$#\') = COALESCE("import-export-test_schema"."stagingTable"."pk1", \'KBC_$#\') AND COALESCE("import-export-test_schema"."import-export-test_test"."pk2", \'KBC_$#\') = COALESCE("import-export-test_schema"."stagingTable"."pk2", \'KBC_$#\'))',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            $stagingTableSql
+            $stagingTableSql,
         ));
 
         self::assertCount(1, $result);
@@ -237,7 +237,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
             self::fail(sprintf(
                 'Table "%s.%s" is expected to not exist.',
                 $schemaName,
-                $tableName
+                $tableName,
             ));
         } catch (Exception $e) {
         }
@@ -253,7 +253,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
         self::assertEquals(
         // phpcs:ignore
             'DROP TABLE IF EXISTS "import-export-test_schema"."import-export-test_test"',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
@@ -265,7 +265,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
         self::assertEquals(
         // phpcs:ignore
             'DROP TABLE IF EXISTS "import-export-test_schema"."import-export-test_test"',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
@@ -279,8 +279,7 @@ class SqlBuilderTest extends ExasolBaseTestCase
 CREATE TABLE $table (
     id int NOT NULL
 )
-EOT
-        );
+EOT,);
     }
 
     public function testGetInsertAllIntoTargetTableCommand(): void
@@ -298,7 +297,7 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         // no convert values no timestamp
@@ -306,13 +305,13 @@ EOT
             $fakeStage,
             $destination,
             $this->getDummyImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") (SELECT CAST(COALESCE("col1", \'\') AS NVARCHAR (4000)) AS "col1",CAST(COALESCE("col2", \'\') AS NVARCHAR (4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src")',
-            $sql
+            $sql,
         );
 
         $out = $this->connection->executeStatement($sql);
@@ -320,7 +319,7 @@ EOT
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         self::assertEqualsCanonicalizing([
@@ -349,7 +348,7 @@ EOT
 
     protected function createTestTableWithColumns(
         bool $includeTimestamp = false,
-        bool $includePrimaryKey = false
+        bool $includePrimaryKey = false,
     ): ExasolTableDefinition {
         $columns = [];
         $pks = [];
@@ -357,7 +356,7 @@ EOT
             $pks[] = 'id';
             $columns[] = new ExasolColumn(
                 'id',
-                new Exasol(Exasol::TYPE_INT)
+                new Exasol(Exasol::TYPE_INT),
             );
         } else {
             $columns[] = $this->createNullableGenericColumn('id');
@@ -368,7 +367,7 @@ EOT
         if ($includeTimestamp) {
             $columns[] = new ExasolColumn(
                 '_timestamp',
-                new Exasol(Exasol::TYPE_TIMESTAMP)
+                new Exasol(Exasol::TYPE_TIMESTAMP),
             );
         }
 
@@ -377,10 +376,10 @@ EOT
             self::TEST_TABLE,
             false,
             new ColumnCollection($columns),
-            $pks
+            $pks,
         );
         $this->connection->executeStatement(
-            (new ExasolTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition)
+            (new ExasolTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition),
         );
 
         return $tableDefinition;
@@ -393,12 +392,12 @@ EOT
             [
                 'length' => '4000', // should be changed to max in future
                 'nullable' => true,
-            ]
+            ],
         );
 
         return new ExasolColumn(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -416,7 +415,7 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         // convert col1 to null
@@ -425,19 +424,19 @@ EOT
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS NVARCHAR (4000)) AS "col2" FROM "import-export-test_schema"."stagingTable" AS "src")',
-            $sql
+            $sql,
         );
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         self::assertEqualsCanonicalizing([
@@ -478,7 +477,7 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         // use timestamp
@@ -487,19 +486,19 @@ EOT
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'INSERT INTO "import-export-test_schema"."import-export-test_test" ("col1", "col2", "_timestamp") (SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') AS NVARCHAR (4000)) AS "col2",\'2020-01-01 00:00:00\' FROM "import-export-test_schema"."stagingTable" AS "src")',
-            $sql
+            $sql,
         );
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         foreach ($result as $item) {
@@ -521,7 +520,7 @@ EOT
         $sql = $this->getBuilder()->getTruncateTableWithDeleteCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         self::assertEquals(
             'DELETE FROM "import-export-test_schema"."stagingTable"',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         self::assertEquals(0, $ref->getRowsCount());
@@ -541,7 +540,7 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            ['col1']
+            ['col1'],
         );
         // create fake stage and say that there is less columns
         $fakeStage = new ExasolTableDefinition(
@@ -552,19 +551,19 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("id","col1","col2") VALUES (1,\'2\',\'1\')',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         self::assertEquals([
@@ -580,18 +579,18 @@ EOT
             $fakeStage,
             $fakeDestination,
             $this->getDummyImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import-export-test_schema"."stagingTable") AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         self::assertEquals([
@@ -617,7 +616,7 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            ['col1']
+            ['col1'],
         );
         // create fake stage and say that there is less columns
         $fakeStage = new ExasolTableDefinition(
@@ -628,25 +627,25 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("id","col1","col2") VALUES (1,\'\',\'1\')',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("id","col1","col2") VALUES (1,\'2\',\'\')',
-                self::TEST_TABLE_IN_SCHEMA
-            )
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         self::assertEqualsCanonicalizing([
@@ -669,18 +668,18 @@ EOT
             $fakeStage,
             $fakeDestination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2" FROM (SELECT DISTINCT * FROM "import-export-test_schema"."stagingTable") AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         self::assertEqualsCanonicalizing([
@@ -714,7 +713,7 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            ['col1']
+            ['col1'],
         );
         // create fake stage and say that there is less columns
         $fakeStage = new ExasolTableDefinition(
@@ -725,27 +724,27 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("id","col1","col2","_timestamp") VALUES (1,\'\',\'1\',\'%s\')',
                 self::TEST_TABLE_IN_SCHEMA,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("id","col1","col2","_timestamp") VALUES (1,\'2\',\'\',\'%s\')',
                 self::TEST_TABLE_IN_SCHEMA,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         self::assertEqualsCanonicalizing([
@@ -769,19 +768,19 @@ EOT
             $fakeStage,
             $fakeDestination,
             $options,
-            $timestampSet->format(DateTimeHelper::FORMAT) . '.000'
+            $timestampSet->format(DateTimeHelper::FORMAT) . '.000',
         );
 
         self::assertEquals(
         // phpcs:ignore
             'UPDATE "import-export-test_schema"."import-export-test_test" AS "dest" SET "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01.000\' FROM (SELECT DISTINCT * FROM "import-export-test_schema"."stagingTable") AS "src","import-export-test_schema"."import-export-test_test" AS "dest" WHERE COALESCE("dest"."col1", \'KBC_$#\') = COALESCE("src"."col1", \'KBC_$#\') AND (COALESCE(CAST("dest"."col1" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE(CAST("dest"."col2" AS NVARCHAR (4000)), \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\')) ',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA
+            self::TEST_TABLE_IN_SCHEMA,
         ));
 
         foreach ($result as $item) {
@@ -791,7 +790,7 @@ EOT
             self::assertArrayHasKey('_timestamp', $item);
             self::assertSame(
                 $timestampSet->format(DateTimeHelper::FORMAT),
-                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
+                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT),
             );
         }
     }
@@ -808,7 +807,7 @@ EOT
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
     }
 }

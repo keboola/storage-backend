@@ -18,7 +18,7 @@ class FileNotFoundException extends Exception
     }
 
     public static function createFromFileNotFoundException(
-        FileStorageFileNotFoundException $e
+        FileStorageFileNotFoundException $e,
     ): FileNotFoundException {
         return new self($e->getMessage(), $e);
     }

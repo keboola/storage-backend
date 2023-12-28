@@ -27,7 +27,7 @@ use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 class IncrementalImportTest extends SnowflakeBaseTestCase
 {
     protected function getSnowflakeIncrementalImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): SnowflakeImportOptions {
         return new SnowflakeImportOptions(
             convertEmptyValuesToNull: [],
@@ -68,7 +68,7 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
               "_timestamp" TIMESTAMP,
                PRIMARY KEY ("id")
             );',
-            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
         ));
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
@@ -83,7 +83,7 @@ SELECT 1,
       \'POINT(1820.12 890.56)\'
 ;',
             $this->getDestinationSchemaName(),
-            'types'
+            'types',
         ));
 
         // skipping header
@@ -100,7 +100,7 @@ SELECT 1,
         $destinationRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'types'
+            'types',
         );
         /** @var SnowflakeTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
@@ -115,12 +115,12 @@ SELECT 1,
                 'ARRAY',
                 'GEOGRAPHY',
                 'GEOMETRY',
-            ]
+            ],
         );
 
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
@@ -135,7 +135,7 @@ SELECT 1,
        \'POINT(1820.12 890.56)\'
 ;',
             $stagingTable->getSchemaName(),
-            $stagingTable->getTableName()
+            $stagingTable->getTableName(),
         ));
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
@@ -150,7 +150,7 @@ SELECT 2,
        \'POINT(1820.12 890.56)\'
 ;',
             $stagingTable->getSchemaName(),
-            $stagingTable->getTableName()
+            $stagingTable->getTableName(),
         ));
         $toFinalTableImporter = new IncrementalImporter($this->connection);
 
@@ -158,7 +158,7 @@ SELECT 2,
             $stagingTable,
             $destination,
             $options,
-            new ImportState($stagingTable->getTableName())
+            new ImportState($stagingTable->getTableName()),
         );
 
         self::assertEquals(2, $destinationRef->getRowsCount());
@@ -180,7 +180,7 @@ SELECT 2,
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getSnowflakeImportOptions(),
             $this->getSourceInstance(
@@ -188,7 +188,7 @@ SELECT 2,
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getSnowflakeIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'accounts_3'],
@@ -202,7 +202,7 @@ SELECT 2,
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new SnowflakeImportOptions(
                 convertEmptyValuesToNull: [],
@@ -216,7 +216,7 @@ SELECT 2,
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new SnowflakeImportOptions(
                 convertEmptyValuesToNull: [],
@@ -236,7 +236,7 @@ SELECT 2,
                 $multiPKStub->getColumns(),
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getSnowflakeImportOptions(),
             $this->getSourceInstance(
@@ -244,7 +244,7 @@ SELECT 2,
                 $multiPKStub->getColumns(),
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getSnowflakeIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'multi_pk_ts'],
@@ -259,7 +259,7 @@ SELECT 2,
                 $multiPKWithNullStub->getColumns(),
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             new SnowflakeImportOptions(
                 convertEmptyValuesToNull: [],
@@ -273,7 +273,7 @@ SELECT 2,
                 $multiPKWithNullStub->getColumns(),
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getSnowflakeIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
@@ -298,7 +298,7 @@ SELECT 2,
         array $table,
         array $expected,
         int $expectedImportedRowCount,
-        string $tablesToInit
+        string $tablesToInit,
     ): void {
         $this->initTable($tablesToInit);
 
@@ -306,7 +306,7 @@ SELECT 2,
         $destination = (new SnowflakeTableReflection(
             $this->connection,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         $toStageImporter = new ToStageImporter($this->connection);
@@ -315,59 +315,59 @@ SELECT 2,
 
         $fullLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $fullLoadSource->getColumnsNames()
+            $fullLoadSource->getColumnsNames(),
         );
         $incrementalLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $incrementalSource->getColumnsNames()
+            $incrementalSource->getColumnsNames(),
         );
 
         try {
             // full load
             $qb = new SnowflakeTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable),
             );
 
             $importState = $toStageImporter->importToStagingTable(
                 $fullLoadSource,
                 $fullLoadStagingTable,
-                $fullLoadOptions
+                $fullLoadOptions,
             );
             $fullImporter->importToTable(
                 $fullLoadStagingTable,
                 $destination,
                 $fullLoadOptions,
-                $importState
+                $importState,
             );
             // incremental load
             $qb = new SnowflakeTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable),
             );
             $importState = $toStageImporter->importToStagingTable(
                 $incrementalSource,
                 $incrementalLoadStagingTable,
-                $incrementalOptions
+                $incrementalOptions,
             );
             $result = $incrementalImporter->importToTable(
                 $incrementalLoadStagingTable,
                 $destination,
                 $incrementalOptions,
-                $importState
+                $importState,
             );
         } finally {
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $fullLoadStagingTable->getSchemaName(),
-                    $fullLoadStagingTable->getTableName()
-                )
+                    $fullLoadStagingTable->getTableName(),
+                ),
             );
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $incrementalLoadStagingTable->getSchemaName(),
-                    $incrementalLoadStagingTable->getTableName()
-                )
+                    $incrementalLoadStagingTable->getTableName(),
+                ),
             );
         }
 
@@ -379,7 +379,7 @@ SELECT 2,
             $destination,
             $incrementalOptions,
             $expected,
-            0
+            0,
         );
     }
 }

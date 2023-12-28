@@ -38,14 +38,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
                 ExasolColumn::createGenericColumn('col1'),
                 ExasolColumn::createGenericColumn('col2'),
             ]),
-            []
+            [],
         );
         $options = new ExasolImportOptions([]);
         $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(10, $count);
@@ -57,7 +57,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             'SELECT * FROM "test_schema"."test_table"',
             ['val'],
             ['1'],
-            ['col1', 'col2']
+            ['col1', 'col2'],
         );
 
         $conn = $this->mockConnection();
@@ -65,7 +65,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
         // phpcs:ignore
             'INSERT INTO "test_schema"."stagingTable" ("col1", "col2") SELECT * FROM "test_schema"."test_table"',
             ['val'],
-            [1]
+            [1],
         );
         $conn->expects(self::once())->method('fetchOne')
             ->with('SELECT COUNT(*) AS NumberOfRows FROM "test_schema"."stagingTable"')
@@ -79,14 +79,14 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
                 ExasolColumn::createGenericColumn('col1'),
                 ExasolColumn::createGenericColumn('col2'),
             ]),
-            []
+            [],
         );
         $options = new ExasolImportOptions([]);
         $adapter = new FromTableInsertIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(10, $count);

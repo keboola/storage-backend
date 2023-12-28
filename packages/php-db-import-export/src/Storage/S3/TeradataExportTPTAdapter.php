@@ -34,7 +34,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         assert($source instanceof Storage\SqlSourceInterface);
         assert($destination instanceof DestinationFile);
@@ -54,7 +54,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
             [
                 'AWS_ACCESS_KEY_ID' => $destination->getKey(),
                 'AWS_SECRET_ACCESS_KEY' => $destination->getSecret(),
-            ]
+            ],
         );
         $process->setTimeout(self::TPT_TIMEOUT);
         $process->start();
@@ -98,7 +98,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
     private function generateTPTExportScript(
         SqlSourceInterface $source,
         DestinationFile $destination,
-        TeradataExportOptions $exportOptions
+        TeradataExportOptions $exportOptions,
     ): array {
         $temp = new Temp();
         $folder = $temp->getTmpFolder();
@@ -134,7 +134,7 @@ EOD,
             $destination->getRegion(),
             $s3ConfigDir,
             $exportOptions->generateS3SizeOptions(),
-            $source->getFromStatement()
+            $source->getFromStatement(),
         );
 
         $jobVariableFile = sprintf(

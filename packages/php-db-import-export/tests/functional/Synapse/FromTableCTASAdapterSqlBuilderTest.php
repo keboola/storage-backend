@@ -51,7 +51,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             new ColumnCollection($cols),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
     }
 
@@ -61,22 +61,22 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             sprintf(
                 'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                 $schemaName,
-                $tableName
-            )
+                $tableName,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                 $schemaName,
-                $tableName
-            )
+                $tableName,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
                 $schemaName,
-                $tableName
-            )
+                $tableName,
+            ),
         );
     }
 
@@ -90,7 +90,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             'expectedDestination' => $this->getTableDefinition(
                 $this->getDestinationSchemaName(),
                 'dest',
-                $this->getDefaultColumns()
+                $this->getDefaultColumns(),
             ),
             'requireSameTables' => SynapseImportOptions::SAME_TABLES_REQUIRED,
             // phpcs:ignore
@@ -107,12 +107,12 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
                 [],
                 new TableDistributionDefinition(
                     TableDistributionDefinition::TABLE_DISTRIBUTION_HASH,
-                    ['pk1']
+                    ['pk1'],
                 ),
                 new TableIndexDefinition(
                     TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX,
-                    ['pk1']
-                )
+                    ['pk1'],
+                ),
             ),
             'requireSameTables' => SynapseImportOptions::SAME_TABLES_REQUIRED,
             // phpcs:ignore
@@ -124,7 +124,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             'expectedDestination' => $this->getTableDefinition(
                 $this->getDestinationSchemaName(),
                 'dest',
-                $this->getDefaultColumns()
+                $this->getDefaultColumns(),
             ),
             'requireSameTables' => SynapseImportOptions::SAME_TABLES_NOT_REQUIRED,
             // phpcs:ignore
@@ -132,13 +132,13 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
         ];
 
         $pk1 = new SynapseColumn('pk1', new Synapse(
-            Synapse::TYPE_BIGINT
+            Synapse::TYPE_BIGINT,
         ));
         $pk2 = new SynapseColumn('pk2', new Synapse(
-            Synapse::TYPE_NUMERIC
+            Synapse::TYPE_NUMERIC,
         ));
         $col1 = new SynapseColumn('col1', new Synapse(
-            Synapse::TYPE_VARCHAR
+            Synapse::TYPE_VARCHAR,
         ));
 
         yield 'typed no casting (typed tables with types)' => [
@@ -156,7 +156,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
                     $pk2,
                     $col1,
                     SynapseColumn::createGenericColumn('col2'),
-                ]
+                ],
             ),
             'requireSameTables' => SynapseImportOptions::SAME_TABLES_REQUIRED,
             // phpcs:ignore
@@ -173,7 +173,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             'expectedDestination' => $this->getTableDefinition(
                 $this->getDestinationSchemaName(),
                 'dest',
-                $this->getDefaultColumns()
+                $this->getDefaultColumns(),
             ),
             'requireSameTables' => SynapseImportOptions::SAME_TABLES_NOT_REQUIRED,
             // phpcs:ignore
@@ -189,11 +189,11 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
         array $sourceColumns,
         SynapseTableDefinition $expectedDest,
         bool $requireSameTables,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $source = $this->getTableDefinition($this->getSourceSchemaName(), 'source', $sourceColumns);
         $this->connection->executeStatement(
-            (new SynapseTableQueryBuilder())->getCreateTableCommandFromDefinition($source)
+            (new SynapseTableQueryBuilder())->getCreateTableCommandFromDefinition($source),
         );
         $this->insertData($this->getSourceSchemaName(), 'source');
         $sql = FromTableCTASAdapterSqlBuilder::getCTASCommand(
@@ -201,21 +201,21 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             new Table(
                 $source->getSchemaName(),
                 $source->getTableName(),
-                $source->getColumnsNames()
+                $source->getColumnsNames(),
             ),
-            $this->getImportOptions($requireSameTables)
+            $this->getImportOptions($requireSameTables),
         );
         $this->assertSame($expectedSql, $sql);
         $this->connection->executeStatement($sql);
         $destRef = new SynapseTableReflection(
             $this->connection,
             $expectedDest->getSchemaName(),
-            $expectedDest->getTableName()
+            $expectedDest->getTableName(),
         );
         $this->assertSame(3, $destRef->getRowsCount());
         Assert::assertSameColumns(
             $destRef->getColumnsDefinitions(),
-            $expectedDest->getColumnsDefinitions()
+            $expectedDest->getColumnsDefinitions(),
         );
     }
 
@@ -228,7 +228,7 @@ class FromTableCTASAdapterSqlBuilderTest extends SynapseBaseTestCase
             0,
             SynapseImportOptions::CREDENTIALS_SAS,
             SynapseImportOptions::TABLE_TYPES_PRESERVE,
-            $requireSameTables
+            $requireSameTables,
         );
     }
 

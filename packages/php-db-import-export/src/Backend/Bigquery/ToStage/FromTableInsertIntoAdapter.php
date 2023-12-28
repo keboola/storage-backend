@@ -33,7 +33,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SelectSource || $source instanceof Table);
         assert($destination instanceof BigqueryTableDefinition);
@@ -48,9 +48,9 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                 (new BigqueryTableReflection(
                     $this->bqClient,
                     $source->getSchema(),
-                    $source->getTableName()
+                    $source->getTableName(),
                 ))->getColumnsDefinitions(),
-                $destination->getColumnsDefinitions()
+                $destination->getColumnsDefinitions(),
             );
         }
 
@@ -65,12 +65,12 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
             BigqueryQuote::quoteSingleIdentifier($destination->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($destination->getTableName()),
             implode(', ', $quotedColumns),
-            $select
+            $select,
         );
 
         if ($source instanceof SelectSource) {
             $this->bqClient->runQuery($this->bqClient->query($sql)->parameters(
-                $source->getQueryBindings()
+                $source->getQueryBindings(),
             ));
         } else {
             $this->bqClient->runQuery($this->bqClient->query($sql));
@@ -79,7 +79,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         $ref = new BigqueryTableReflection(
             $this->bqClient,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();

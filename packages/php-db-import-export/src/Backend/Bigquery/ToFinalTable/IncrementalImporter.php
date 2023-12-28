@@ -43,7 +43,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         TableDefinitionInterface $stagingTableDefinition,
         TableDefinitionInterface $destinationTableDefinition,
         ImportOptionsInterface $options,
-        ImportState $state
+        ImportState $state,
     ): Result {
         assert($stagingTableDefinition instanceof BigqueryTableDefinition);
         assert($destinationTableDefinition instanceof BigqueryTableDefinition);
@@ -67,15 +67,15 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $this->sqlBuilder->getCreateDedupTable(
                         $stagingTableDefinition,
                         $deduplicationTableName,
-                        $destinationTableDefinition->getPrimaryKeysNames()
+                        $destinationTableDefinition->getPrimaryKeysNames(),
                     ),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
                 /** @var BigqueryTableDefinition $deduplicationTableDefinition */
                 $deduplicationTableDefinition = (new BigqueryTableReflection(
                     $this->bqClient,
                     $stagingTableDefinition->getSchemaName(),
-                    $deduplicationTableName
+                    $deduplicationTableName,
                 ))->getTableDefinition();
 
                 $tableToCopyFrom = $deduplicationTableDefinition;
@@ -83,7 +83,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
                 $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getBeginTransaction(),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
                 $transactionStarted = true;
 
@@ -94,9 +94,9 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                         $deduplicationTableDefinition,
                         $destinationTableDefinition,
                         $options,
-                        $timestampValue
+                        $timestampValue,
                     ),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
                 $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
 
@@ -106,15 +106,15 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $this->sqlBuilder->getDeleteOldItemsCommand(
                         $deduplicationTableDefinition,
                         $destinationTableDefinition,
-                        $options
+                        $options,
                     ),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
                 $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
             } else {
                 $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getBeginTransaction(),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
                 $transactionStarted = true;
             }
@@ -126,15 +126,15 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $tableToCopyFrom,
                     $destinationTableDefinition,
                     $options,
-                    $timestampValue
+                    $timestampValue,
                 ),
-                $session->getAsQueryOptions()
+                $session->getAsQueryOptions(),
             ));
             $state->stopTimer(self::TIMER_INSERT_INTO_TARGET);
 
             $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getCommitTransaction(),
-                $session->getAsQueryOptions()
+                $session->getAsQueryOptions(),
             ));
 
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
@@ -142,7 +142,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             if ($transactionStarted) {
                 $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getRollbackTransaction(),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
             }
             throw BigqueryException::covertException($e);
@@ -150,7 +150,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             if ($transactionStarted) {
                 $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getRollbackTransaction(),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
             }
             throw $e;
@@ -160,8 +160,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getDropTableIfExistsCommand(
                         $deduplicationTableDefinition->getSchemaName(),
-                        $deduplicationTableDefinition->getTableName()
-                    )
+                        $deduplicationTableDefinition->getTableName(),
+                    ),
                 ));
             }
         }

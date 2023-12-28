@@ -36,7 +36,7 @@ class ExasolExportAdapter implements BackendExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         assert($source instanceof Storage\SqlSourceInterface);
         assert($destination instanceof DestinationFile);
@@ -47,7 +47,7 @@ class ExasolExportAdapter implements BackendExportAdapterInterface
             static function ($entry) use ($suffix) {
                 return 'FILE ' . ExasolQuote::quote($entry . $suffix);
             },
-            $files
+            $files,
         );
 
         $sql = sprintf(
@@ -63,7 +63,7 @@ EOD
             $destination->getBucketURL(),
             $destination->getKey(),
             $destination->getSecret(),
-            implode("\n", $entries)
+            implode("\n", $entries),
         );
         $this->connection->executeStatement($sql, $source->getQueryBindings());
 

@@ -72,22 +72,22 @@ class SqlBuilderTest extends TeradataBaseTestCase
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'2\',\'2\')',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
+            ),
         );
 
         if ($includeEmptyValues) {
@@ -95,8 +95,8 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 sprintf(
                     'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'\',NULL)',
                     TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                    TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
-                )
+                    TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
+                ),
             );
         }
 
@@ -115,7 +115,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
     }
 
@@ -126,18 +126,18 @@ class SqlBuilderTest extends TeradataBaseTestCase
             [
                 'length' => '50', // should be changed to max in future
                 'nullable' => true,
-            ]
+            ],
         );
 
         return new TeradataColumn(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
     protected function createTestTableWithColumns(
         bool $includeTimestamp = false,
-        bool $includePrimaryKey = false
+        bool $includePrimaryKey = false,
     ): TeradataTableDefinition {
         $columns = [];
         $pks = [];
@@ -145,7 +145,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $pks[] = 'id';
             $columns[] = new TeradataColumn(
                 'id',
-                new Teradata(Teradata::TYPE_INT)
+                new Teradata(Teradata::TYPE_INT),
             );
         } else {
             $columns[] = $this->createNullableGenericColumn('id');
@@ -156,7 +156,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         if ($includeTimestamp) {
             $columns[] = new TeradataColumn(
                 '_timestamp',
-                new Teradata(Teradata::TYPE_TIMESTAMP)
+                new Teradata(Teradata::TYPE_TIMESTAMP),
             );
         }
 
@@ -165,10 +165,10 @@ class SqlBuilderTest extends TeradataBaseTestCase
             self::TEST_TABLE,
             false,
             new ColumnCollection($columns),
-            $pks
+            $pks,
         );
         $this->connection->executeStatement(
-            (new TeradataTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition)
+            (new TeradataTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition),
         );
 
         return $tableDefinition;
@@ -189,7 +189,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             self::assertEquals(
             // phpcs:ignore
                 sprintf('DROP TABLE %s."import-export-test_test"', TeradataQuote::quoteSingleIdentifier($this->getTestDBName())),
-                $sql
+                $sql,
             );
             $this->connection->executeStatement($sql);
         } catch (DriverException $e) {
@@ -224,9 +224,9 @@ class SqlBuilderTest extends TeradataBaseTestCase
         self::assertEquals(
             sprintf(
                 'DELETE %s."stagingTable" ALL',
-                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             ),
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         self::assertEquals(0, $ref->getRowsCount());
@@ -249,7 +249,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             [
                 'pk1',
                 'pk2',
-            ]
+            ],
         );
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($deduplicationDef));
@@ -257,19 +257,19 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $sql = $this->getBuilder()->getDedupCommand(
             $stageDef,
             $deduplicationDef,
-            $deduplicationDef->getPrimaryKeysNames()
+            $deduplicationDef->getPrimaryKeysNames(),
         );
         $testDbName = TeradataQuote::quoteSingleIdentifier($this->getTestDBName());
         self::assertEquals(
         // phpcs:ignore
             sprintf('INSERT INTO %s."__temp_tempTable" ("col1", "col2") SELECT a."col1",a."col2" FROM (SELECT "col1", "col2", ROW_NUMBER() OVER (PARTITION BY "pk1","pk2" ORDER BY "pk1","pk2") AS "_row_number_" FROM %s."stagingTable") AS a WHERE a."_row_number_" = 1', $testDbName, $testDbName),
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($deduplicationDef->getTableName())
+            TeradataQuote::quoteSingleIdentifier($deduplicationDef->getTableName()),
         ));
 
         self::assertCount(2, $result);
@@ -291,7 +291,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         // no convert values no timestamp
@@ -299,7 +299,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $fakeStage,
             $destination,
             $this->getImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         self::assertEquals(
@@ -307,9 +307,9 @@ class SqlBuilderTest extends TeradataBaseTestCase
             // phpcs:ignore
                 'INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT CAST(COALESCE("col1", \'\') as VARCHAR (50)) AS "col1",CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             ),
-            $sql
+            $sql,
         );
 
         $out = $this->connection->executeStatement($sql);
@@ -360,7 +360,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         // convert col1 to null
@@ -369,15 +369,15 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
         // phpcs:ignore
             sprintf('INSERT INTO %s."import-export-test_test" ("col1", "col2") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2" FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             ),
-            $sql
+            $sql,
         );
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
@@ -385,7 +385,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
         ));
 
         self::assertEqualsCanonicalizing([
@@ -426,7 +426,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         // use timestamp
@@ -435,16 +435,16 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $fakeStage,
             $destination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         self::assertEquals(
             sprintf(
             // phpcs:ignore
                 'INSERT INTO %s."import-export-test_test" ("col1", "col2", "_timestamp") SELECT NULLIF("col1", \'\'),CAST(COALESCE("col2", \'\') as VARCHAR (50)) AS "col2",\'2020-01-01 00:00:00\' FROM %s."stagingTable" AS "src"',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier($this->getTestDBName())
+                TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             ),
-            $sql
+            $sql,
         );
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
@@ -453,8 +453,8 @@ class SqlBuilderTest extends TeradataBaseTestCase
             sprintf(
                 'SELECT * FROM %s.%s',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
+            ),
         ));
 
         foreach ($result as $item) {
@@ -480,7 +480,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            ['col1']
+            ['col1'],
         );
         // create fake stage and say that there is less columns
         $fakeStage = new TeradataTableDefinition(
@@ -491,21 +491,21 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s.%s("id","col1","col2") VALUES (1,\'2\',\'1\')',
                 TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
         ));
 
         self::assertEquals([
@@ -521,7 +521,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $fakeStage,
             $fakeDestination,
             $this->getImportOptions(),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
         $dest = sprintf('"%s"."%s"', $this->getTestDBName(), self::TEST_TABLE);
         $expectedSql = sprintf(
@@ -530,7 +530,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
-            $dest
+            $dest,
         );
 
         self::assertEquals($expectedSql, $sql);
@@ -539,7 +539,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
         ));
 
         self::assertEquals([
@@ -565,7 +565,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            ['col1']
+            ['col1'],
         );
         // create fake stage and say that there is less columns
         $fakeStage = new TeradataTableDefinition(
@@ -576,18 +576,18 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
         $dest = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s ("id","col1","col2") VALUES (1,\'2\',\'1\')',
-                $dest
-            )
+                $dest,
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
@@ -609,9 +609,9 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 false,
                 false,
                 0,
-                ImportOptionsInterface::USING_TYPES_USER
+                ImportOptionsInterface::USING_TYPES_USER,
             ),
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         $expectedSql = sprintf(
@@ -620,7 +620,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
-            $dest
+            $dest,
         );
 
         self::assertEquals($expectedSql, $sql);
@@ -651,7 +651,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            ['col1']
+            ['col1'],
         );
         // create fake stage and say that there is less columns
         $fakeStage = new TeradataTableDefinition(
@@ -662,20 +662,20 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         $dest = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
         );
 
         $this->connection->executeStatement(
-            sprintf('INSERT INTO %s ("id","col1","col2") VALUES (1,\'\',\'1\')', $dest)
+            sprintf('INSERT INTO %s ("id","col1","col2") VALUES (1,\'\',\'1\')', $dest),
         );
         $this->connection->executeStatement(
-            sprintf('INSERT INTO %s ("id","col1","col2") VALUES (1,\'2\',\'\')', $dest)
+            sprintf('INSERT INTO %s ("id","col1","col2") VALUES (1,\'2\',\'\')', $dest),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
@@ -700,7 +700,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $fakeStage,
             $fakeDestination,
             $options,
-            '2020-01-01 00:00:00'
+            '2020-01-01 00:00:00',
         );
 
         $expectedSql = sprintf(
@@ -709,12 +709,12 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
-            $dest
+            $dest,
         );
         self::assertEquals(
         // phpcs:ignore
             $expectedSql,
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
@@ -751,7 +751,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            ['col1']
+            ['col1'],
         );
         // create fake stage and say that there is less columns
         $fakeStage = new TeradataTableDefinition(
@@ -762,28 +762,28 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
             ]),
-            []
+            [],
         );
 
         $dest = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
-            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE)
+            TeradataQuote::quoteSingleIdentifier(self::TEST_TABLE),
         );
 
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s ("id","col1","col2","_timestamp") VALUES (1,\'\',\'1\',\'%s\')',
                 $dest,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s ("id","col1","col2","_timestamp") VALUES (1,\'2\',\'\',\'%s\')',
                 $dest,
-                $timestampInit->format(DateTimeHelper::FORMAT)
-            )
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
         );
 
         $result = $this->connection->fetchAllAssociative(sprintf('SELECT * FROM %s', $dest));
@@ -808,7 +808,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $fakeStage,
             $fakeDestination,
             $options,
-            $timestampSet->format(DateTimeHelper::FORMAT)
+            $timestampSet->format(DateTimeHelper::FORMAT),
         );
         $expectedSql = sprintf(
         // phpcs:ignore
@@ -816,7 +816,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             $dest,
             TeradataQuote::quoteSingleIdentifier($this->getTestDBName()),
             TeradataQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
-            $dest
+            $dest,
         );
 
         self::assertEquals($expectedSql, $sql);
@@ -833,7 +833,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
             self::assertIsString($item['_timestamp']);
             self::assertSame(
                 $timestampSet->format(DateTimeHelper::FORMAT),
-                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT)
+                (new DateTime($item['_timestamp']))->format(DateTimeHelper::FORMAT),
             );
         }
     }
@@ -851,28 +851,28 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 new TeradataColumn(
                     'id',
                     new Teradata(
-                        Teradata::TYPE_INT
-                    )
+                        Teradata::TYPE_INT,
+                    ),
                 ),
                 TeradataColumn::createGenericColumn('pk1'),
                 TeradataColumn::createGenericColumn('pk2'),
                 TeradataColumn::createGenericColumn('col1'),
                 TeradataColumn::createGenericColumn('col2'),
             ]),
-            ['pk1', 'pk2']
+            ['pk1', 'pk2'],
         );
         $storageTable = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($tableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
         );
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($tableDefinition));
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s ("id","pk1","pk2","col1","col2") VALUES (1,1,1,\'1\',\'1\')',
-                $storageTable
-            )
+                $storageTable,
+            ),
         );
         $stagingTableDefinition = new TeradataTableDefinition(
             $this->getTestDbName(),
@@ -884,31 +884,31 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 TeradataColumn::createGenericColumn('col1'),
                 TeradataColumn::createGenericColumn('col2'),
             ]),
-            ['pk1', 'pk2']
+            ['pk1', 'pk2'],
         );
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stagingTableDefinition));
         $stagingTable = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s ("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
-                $stagingTable
-            )
+                $stagingTable,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s ("pk1","pk2","col1","col2") VALUES (2,1,\'1\',\'1\')',
-                $stagingTable
-            )
+                $stagingTable,
+            ),
         );
 
         $sql = $this->getBuilder()->getDeleteOldItemsCommand(
             $stagingTableDefinition,
             $tableDefinition,
-            $this->getSimpleImportOptions()
+            $this->getSimpleImportOptions(),
         );
 
         $expectedSql = sprintf(
@@ -921,13 +921,13 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         self::assertEquals(
             $expectedSql,
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            $stagingTable
+            $stagingTable,
         ));
 
         self::assertCount(1, $result);
@@ -953,28 +953,28 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 new TeradataColumn(
                     'id',
                     new Teradata(
-                        Teradata::TYPE_INT
-                    )
+                        Teradata::TYPE_INT,
+                    ),
                 ),
                 TeradataColumn::createGenericColumn('pk1'),
                 TeradataColumn::createGenericColumn('pk2'),
                 TeradataColumn::createGenericColumn('col1'),
                 TeradataColumn::createGenericColumn('col2'),
             ]),
-            ['pk1', 'pk2']
+            ['pk1', 'pk2'],
         );
         $storageTable = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($tableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
         );
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($tableDefinition));
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s ("id","pk1","pk2","col1","col2") VALUES (1,1,1,\'1\',\'1\')',
-                $storageTable
-            )
+                $storageTable,
+            ),
         );
         $stagingTableDefinition = new TeradataTableDefinition(
             $this->getTestDbName(),
@@ -986,25 +986,25 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 TeradataColumn::createGenericColumn('col1'),
                 TeradataColumn::createGenericColumn('col2'),
             ]),
-            ['pk1', 'pk2']
+            ['pk1', 'pk2'],
         );
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stagingTableDefinition));
         $stagingTable = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
-                $stagingTable
-            )
+                $stagingTable,
+            ),
         );
         $this->connection->executeStatement(
             sprintf(
                 'INSERT INTO %s("pk1","pk2","col1","col2") VALUES (2,1,\'1\',\'1\')',
-                $stagingTable
-            )
+                $stagingTable,
+            ),
         );
 
         $sql = $this->getBuilder()->getDeleteOldItemsCommand(
@@ -1016,7 +1016,7 @@ class SqlBuilderTest extends TeradataBaseTestCase
                 false,
                 0,
                 ImportOptionsInterface::USING_TYPES_USER,
-            )
+            ),
         );
 
         $expectedSql = sprintf(
@@ -1029,14 +1029,14 @@ class SqlBuilderTest extends TeradataBaseTestCase
         );
         self::assertEquals(
             $expectedSql,
-            $sql
+            $sql,
         );
 
         $this->connection->executeStatement($sql);
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
-            $stagingTable
+            $stagingTable,
         ));
 
         self::assertCount(1, $result);

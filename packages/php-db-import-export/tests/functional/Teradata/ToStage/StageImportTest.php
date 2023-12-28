@@ -37,15 +37,15 @@ class StageImportTest extends TeradataBaseTestCase
       "last_name" CHAR(50)
      );',
                 TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
-                TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new TeradataTableReflection(
             $this->connection,
             $this->getDestinationDbName(),
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
 
         $state = $importer->importToStagingTable(
@@ -55,8 +55,8 @@ class StageImportTest extends TeradataBaseTestCase
                 [],
                 false,
                 false,
-                1
-            )
+                1,
+            ),
         );
 
         self::assertEquals(1, $state->getResult()->getImportedRowsCount());
@@ -73,15 +73,15 @@ class StageImportTest extends TeradataBaseTestCase
       "first_name" CHAR(1)
      );',
                 TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
-                TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new TeradataTableReflection(
             $this->connection,
             $this->getDestinationDbName(),
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
 
         try {
@@ -92,8 +92,8 @@ class StageImportTest extends TeradataBaseTestCase
                     [],
                     false,
                     false,
-                    1
-                )
+                    1,
+                ),
             );
             self::fail('should fail');
         } catch (FailedTPTLoadException $e) {
@@ -117,14 +117,14 @@ class StageImportTest extends TeradataBaseTestCase
         $ref = new TeradataTableReflection(
             $this->connection,
             $dbName,
-            self::BIGGER_TABLE
+            self::BIGGER_TABLE,
         );
 
         $this->expectException(NoMoreRoomInTDException::class);
         $importer->importToStagingTable(
             $this->getSourceInstanceFromCsv('big_table.csv', new CsvOptions()),
             $ref->getTableDefinition(),
-            $this->getImportOptions()
+            $this->getImportOptions(),
         );
     }
 
@@ -140,8 +140,8 @@ class StageImportTest extends TeradataBaseTestCase
     "last_name" VARCHAR(100)
     );',
                 TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
-                TeradataQuote::quoteSingleIdentifier('sourceTable')
-            )
+                TeradataQuote::quoteSingleIdentifier('sourceTable'),
+            ),
         );
 
         $this->connection->executeQuery(
@@ -154,22 +154,22 @@ class StageImportTest extends TeradataBaseTestCase
     "last_name" VARCHAR(100)
     );',
                 TeradataQuote::quoteSingleIdentifier($this->getDestinationDbName()),
-                TeradataQuote::quoteSingleIdentifier('targetTable')
-            )
+                TeradataQuote::quoteSingleIdentifier('targetTable'),
+            ),
         );
 
         $importer = new ToStageImporter($this->connection);
         $targetTableRef = new TeradataTableReflection(
             $this->connection,
             $this->getDestinationDbName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getDestinationDbName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->expectException(ColumnsMismatchException::class);
@@ -182,8 +182,8 @@ class StageImportTest extends TeradataBaseTestCase
                 false,
                 false,
                 0,
-                ImportOptionsInterface::USING_TYPES_USER
-            )
+                ImportOptionsInterface::USING_TYPES_USER,
+            ),
         );
     }
 }

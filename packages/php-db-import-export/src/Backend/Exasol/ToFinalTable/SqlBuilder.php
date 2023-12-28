@@ -27,7 +27,7 @@ class SqlBuilder
     public function getDedupCommand(
         ExasolTableDefinition $stagingTableDefinition,
         ExasolTableDefinition $deduplicationTableDefinition,
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         if (empty($primaryKeys)) {
             return '';
@@ -35,13 +35,13 @@ class SqlBuilder
 
         $pkSql = $this->getColumnsString(
             $primaryKeys,
-            ','
+            ',',
         );
 
         $stage = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $depudeSql = sprintf(
@@ -54,20 +54,20 @@ class SqlBuilder
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
             $pkSql,
             $pkSql,
-            $stage
+            $stage,
         );
 
         $deduplication = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName()),
         );
 
         return sprintf(
             'INSERT INTO %s (%s) %s',
             $deduplication,
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
-            $depudeSql
+            $depudeSql,
         );
     }
 
@@ -77,10 +77,10 @@ class SqlBuilder
     public function getColumnsString(
         array $columns,
         string $delimiter = ', ',
-        ?string $tableAlias = null
+        ?string $tableAlias = null,
     ): string {
         return implode($delimiter, array_map(static function ($columns) use (
-            $tableAlias
+            $tableAlias,
         ) {
             $alias = $tableAlias === null ? '' : $tableAlias . '.';
             return $alias . ExasolQuote::quoteSingleIdentifier($columns);
@@ -89,18 +89,18 @@ class SqlBuilder
 
     public function getDeleteOldItemsCommand(
         ExasolTableDefinition $stagingTableDefinition,
-        ExasolTableDefinition $destinationTableDefinition
+        ExasolTableDefinition $destinationTableDefinition,
     ): string {
         $stagingTable = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $destinationTable = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         return sprintf(
@@ -110,8 +110,8 @@ class SqlBuilder
             $this->getPrimaryKeyWhereConditionsSubstitute(
                 $destinationTableDefinition->getPrimaryKeysNames(),
                 $stagingTable,
-                $destinationTable
-            )
+                $destinationTable,
+            ),
         );
     }
 
@@ -121,7 +121,7 @@ class SqlBuilder
     private function getPrimaryKeyWhereConditionsSubstitute(
         array $primaryKeys,
         string $sourceTable,
-        string $destinationTable
+        string $destinationTable,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($sourceTable, $destinationTable) {
             return sprintf(
@@ -129,7 +129,7 @@ class SqlBuilder
                 $destinationTable,
                 ExasolQuote::quoteSingleIdentifier($col),
                 $sourceTable,
-                ExasolQuote::quoteSingleIdentifier($col)
+                ExasolQuote::quoteSingleIdentifier($col),
             );
         }, $primaryKeys);
 
@@ -142,7 +142,7 @@ class SqlBuilder
     private function getPrimaryKeyWhereConditionsNull(
         array $primaryKeys,
         string $sourceTable,
-        string $destinationTable
+        string $destinationTable,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($sourceTable, $destinationTable) {
             return sprintf(
@@ -154,7 +154,7 @@ class SqlBuilder
                 $destinationTable,
                 ExasolQuote::quoteSingleIdentifier($col),
                 $sourceTable,
-                ExasolQuote::quoteSingleIdentifier($col)
+                ExasolQuote::quoteSingleIdentifier($col),
             );
         }, $primaryKeys);
 
@@ -163,12 +163,12 @@ class SqlBuilder
 
     public function getDropTableIfExistsCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DROP TABLE IF EXISTS %s.%s',
             ExasolQuote::quoteSingleIdentifier($schema),
-            ExasolQuote::quoteSingleIdentifier($tableName)
+            ExasolQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -176,12 +176,12 @@ class SqlBuilder
         ExasolTableDefinition $sourceTableDefinition,
         ExasolTableDefinition $destinationTableDefinition,
         ExasolImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $destinationTable = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         $insColumns = $sourceTableDefinition->getColumnsNames();
@@ -191,7 +191,7 @@ class SqlBuilder
         if ($useTimestamp) {
             $insColumns = array_merge(
                 $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             );
         }
 
@@ -204,7 +204,7 @@ class SqlBuilder
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
                         'NULLIF(%s, \'\')',
-                        ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                        ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 } else {
                     $columnsSetSql[] = ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
@@ -214,7 +214,7 @@ class SqlBuilder
                     'CAST(COALESCE(%s, \'\') AS %s) AS %s',
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $columnDefinition->getColumnDefinition()->getTypeOnlySQLDefinition(),
-                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             }
         }
@@ -230,18 +230,18 @@ class SqlBuilder
             implode(',', $columnsSetSql),
             ExasolQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
             ExasolQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
-            ExasolQuote::quoteSingleIdentifier(self::SRC_ALIAS)
+            ExasolQuote::quoteSingleIdentifier(self::SRC_ALIAS),
         );
     }
 
     public function getTruncateTableWithDeleteCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DELETE FROM %s.%s',
             ExasolQuote::quoteSingleIdentifier($schema),
-            ExasolQuote::quoteSingleIdentifier($tableName)
+            ExasolQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -249,12 +249,12 @@ class SqlBuilder
         ExasolTableDefinition $stagingTableDefinition,
         ExasolTableDefinition $destinationDefinition,
         ExasolImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $dest = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getTableName()),
         );
 
         $columnsSet = [];
@@ -267,7 +267,7 @@ class SqlBuilder
             $columnsSet[] = sprintf(
                 '%s = "src".%s',
                 ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
             );
         }
 
@@ -275,7 +275,7 @@ class SqlBuilder
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 ExasolQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-                $timestamp
+                $timestamp,
             );
         }
 
@@ -288,10 +288,10 @@ class SqlBuilder
                     'COALESCE(CAST("dest".%s AS %s), \'KBC_$#\') != COALESCE("src".%s, \'KBC_$#\')',
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $columnDefinition->getColumnDefinition()->getTypeOnlySQLDefinition(),
-                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             },
-            $columnsList
+            $columnsList,
         );
 
         return sprintf(
@@ -304,9 +304,9 @@ class SqlBuilder
             $this->getPrimaryKeyWhereConditionsSubstitute(
                 $destinationDefinition->getPrimaryKeysNames(),
                 '"src"',
-                '"dest"'
+                '"dest"',
             ),
-            implode(' OR ', $columnsComparisonSql)
+            implode(' OR ', $columnsComparisonSql),
         );
     }
 
@@ -315,12 +315,12 @@ class SqlBuilder
         ExasolTableDefinition $stagingTableDefinition,
         ExasolTableDefinition $destinationDefinition,
         ExasolImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $dest = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+            ExasolQuote::quoteSingleIdentifier($destinationDefinition->getTableName()),
         );
 
         $columnsSet = [];
@@ -333,7 +333,7 @@ class SqlBuilder
             $columnsSet[] = sprintf(
                 '%s = "src".%s',
                 ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
             );
         }
 
@@ -341,7 +341,7 @@ class SqlBuilder
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 ExasolQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-                $timestamp
+                $timestamp,
             );
         }
 
@@ -358,10 +358,10 @@ class SqlBuilder
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    ExasolQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             },
-            $columnsList
+            $columnsList,
         );
 
         return sprintf(
@@ -374,9 +374,9 @@ class SqlBuilder
             $this->getPrimaryKeyWhereConditionsNull(
                 $destinationDefinition->getPrimaryKeysNames(),
                 '"src"',
-                '"dest"'
+                '"dest"',
             ),
-            implode(' OR ', $columnsComparisonSql)
+            implode(' OR ', $columnsComparisonSql),
         );
     }
 }
