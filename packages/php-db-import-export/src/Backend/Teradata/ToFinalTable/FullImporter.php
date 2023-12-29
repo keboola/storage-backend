@@ -31,7 +31,7 @@ final class FullImporter implements ToFinalTableImporterInterface
     use DropTableTrait;
 
     public function __construct(
-        Connection $connection
+        Connection $connection,
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlBuilder();
@@ -41,14 +41,14 @@ final class FullImporter implements ToFinalTableImporterInterface
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $destinationTableDefinition,
         TeradataImportOptions $options,
-        ImportState $state
+        ImportState $state,
     ): void {
         // truncate destination table
         $this->connection->executeStatement(
             $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName()
-            )
+                $destinationTableDefinition->getTableName(),
+            ),
         );
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
 
@@ -57,10 +57,10 @@ final class FullImporter implements ToFinalTableImporterInterface
             $stagingTableDefinition,
             $destinationTableDefinition,
             $options,
-            DateTimeHelper::getNowFormatted()
+            DateTimeHelper::getNowFormatted(),
         );
         $this->connection->executeStatement(
-            $sql
+            $sql,
         );
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
     }
@@ -69,7 +69,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         TableDefinitionInterface $stagingTableDefinition,
         TableDefinitionInterface $destinationTableDefinition,
         ImportOptionsInterface $options,
-        ImportState $state
+        ImportState $state,
     ): Result {
         assert($stagingTableDefinition instanceof TeradataTableDefinition);
         assert($destinationTableDefinition instanceof TeradataTableDefinition);
@@ -83,14 +83,14 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    $state
+                    $state,
                 );
             } else {
                 $this->doLoadFullWithoutDedup(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    $state
+                    $state,
                 );
             }
         } catch (Exception $e) {
@@ -106,14 +106,14 @@ final class FullImporter implements ToFinalTableImporterInterface
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $destinationTableDefinition,
         TeradataImportOptions $options,
-        ImportState $state
+        ImportState $state,
     ): void {
         $state->startTimer(self::TIMER_DEDUP);
 
         // 1. Create table for deduplication
         $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
             $stagingTableDefinition,
-            $destinationTableDefinition->getPrimaryKeysNames()
+            $destinationTableDefinition->getPrimaryKeysNames(),
         );
 
         try {
@@ -126,20 +126,20 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getDedupCommand(
                     $stagingTableDefinition,
                     $deduplicationTableDefinition,
-                    $destinationTableDefinition->getPrimaryKeysNames()
-                )
+                    $destinationTableDefinition->getPrimaryKeysNames(),
+                ),
             );
 
             $this->connection->executeStatement(
-                $this->sqlBuilder->getBeginTransaction()
+                $this->sqlBuilder->getBeginTransaction(),
             );
 
             // 3 truncate destination table
             $this->connection->executeStatement(
                 $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                     $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName()
-                )
+                    $destinationTableDefinition->getTableName(),
+                ),
             );
 
             // 4 move data with INSERT INTO
@@ -148,20 +148,20 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $deduplicationTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    DateTimeHelper::getNowFormatted()
-                )
+                    DateTimeHelper::getNowFormatted(),
+                ),
             );
             $state->stopTimer(self::TIMER_DEDUP);
         } finally {
             // 5 drop dedup table
             $this->dropTableIfExists(
                 $deduplicationTableDefinition->getSchemaName(),
-                $deduplicationTableDefinition->getTableName()
+                $deduplicationTableDefinition->getTableName(),
             );
         }
 
         $this->connection->executeStatement(
-            $this->sqlBuilder->getEndTransaction()
+            $this->sqlBuilder->getEndTransaction(),
         );
     }
 }

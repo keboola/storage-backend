@@ -62,7 +62,7 @@ class ImporterTest extends TestCase
         $importer->setAdapters([get_class(new class implements BackendImportAdapterInterface{
             public static function isSupported(
                 Storage\SourceInterface $source,
-                Storage\DestinationInterface $destination
+                Storage\DestinationInterface $destination,
             ): bool {
                 return false;
             }
@@ -71,7 +71,7 @@ class ImporterTest extends TestCase
                 Storage\SourceInterface $source,
                 Storage\DestinationInterface $destination,
                 ImportOptionsInterface $importOptions,
-                string $stagingTableName
+                string $stagingTableName,
             ): int {
                 return 0;
             }

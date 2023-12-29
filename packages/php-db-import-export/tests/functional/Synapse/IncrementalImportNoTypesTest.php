@@ -37,13 +37,13 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
             $expectedAccountsRows,
         ] = $this->getExpectationFileData(
             'expectation.tw_accounts.increment.csv',
-            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS,
         );
         [
             $multiPkColumns,
         ] = $this->getExpectationFileData(
             'expectation.multi-pk.increment.csv',
-            self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+            self::EXPECTATION_FILE_DATA_KEEP_AS_IS,
         );
 
         $tests = [];
@@ -53,7 +53,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getSynapseImportOptions(),
             $this->createABSSourceInstance(
@@ -61,7 +61,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getSynapseIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'accounts-3'],
@@ -75,7 +75,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new SynapseImportOptions(
                 [],
@@ -83,14 +83,14 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
                 // @phpstan-ignore-next-line
-                getenv('CREDENTIALS_IMPORT_TYPE')
+                getenv('CREDENTIALS_IMPORT_TYPE'),
             ),
             $this->createABSSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new SynapseImportOptions(
                 [],
@@ -98,7 +98,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
                 // @phpstan-ignore-next-line
-                getenv('CREDENTIALS_IMPORT_TYPE')
+                getenv('CREDENTIALS_IMPORT_TYPE'),
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $expectedAccountsRows,
@@ -111,7 +111,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getSynapseImportOptions(),
             $this->createABSSourceInstance(
@@ -119,7 +119,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getSynapseIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'multi-pk'],
@@ -146,7 +146,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
         array $table,
         $expected,
         int $expectedImportedRowCount,
-        array $tablesToInit
+        array $tablesToInit,
     ): void {
         $this->initTables($tablesToInit);
 
@@ -154,7 +154,7 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
         $destination = (new SynapseTableReflection(
             $this->connection,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         $toStageImporter = new ToStageImporter($this->connection);
@@ -163,59 +163,59 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
 
         $fullLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $fullLoadSource->getColumnsNames()
+            $fullLoadSource->getColumnsNames(),
         );
         $incrementalLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $incrementalSource->getColumnsNames()
+            $incrementalSource->getColumnsNames(),
         );
 
         try {
             // full load
             $qb = new SynapseTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable),
             );
 
             $importState = $toStageImporter->importToStagingTable(
                 $fullLoadSource,
                 $fullLoadStagingTable,
-                $fullLoadOptions
+                $fullLoadOptions,
             );
             $fullImporter->importToTable(
                 $fullLoadStagingTable,
                 $destination,
                 $fullLoadOptions,
-                $importState
+                $importState,
             );
             // incremental load
             $qb = new SynapseTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable),
             );
             $importState = $toStageImporter->importToStagingTable(
                 $incrementalSource,
                 $incrementalLoadStagingTable,
-                $incrementalOptions
+                $incrementalOptions,
             );
             $result = $incrementalImporter->importToTable(
                 $incrementalLoadStagingTable,
                 $destination,
                 $incrementalOptions,
-                $importState
+                $importState,
             );
         } finally {
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $fullLoadStagingTable->getSchemaName(),
-                    $fullLoadStagingTable->getTableName()
-                )
+                    $fullLoadStagingTable->getTableName(),
+                ),
             );
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $incrementalLoadStagingTable->getSchemaName(),
-                    $incrementalLoadStagingTable->getTableName()
-                )
+                    $incrementalLoadStagingTable->getTableName(),
+                ),
             );
         }
 
@@ -227,13 +227,13 @@ class IncrementalImportNoTypesTest extends SynapseBaseTestCase
                 $destination,
                 $incrementalOptions,
                 $expected,
-                0
+                0,
             );
         } else {
             $this->assertSynapseTableExpectedRowCount(
                 $destination,
                 $incrementalOptions,
-                $expected
+                $expected,
             );
         }
     }

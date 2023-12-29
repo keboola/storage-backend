@@ -108,6 +108,8 @@ class Bigquery extends Common
 
     public const MAX_LENGTH = 9223372036854775807;
 
+    public const METADATA_BACKEND = 'bigquery';
+
     /** @phpstan-var BigqueryTableFieldSchema|null */
     private ?array $fieldAsArray = null;
 
@@ -319,7 +321,7 @@ class Bigquery extends Common
     protected function validateBigqueryNumericLength(
         $length,
         int $firstMax,
-        int $secondMax
+        int $secondMax,
     ): bool {
         if ($this->isEmpty($length)) {
             return true;
@@ -340,7 +342,7 @@ class Bigquery extends Common
     protected function validateBigNumericLength(
         $length,
         int $firstMax,
-        int $secondMax
+        int $secondMax,
     ): bool {
         if ($this->isEmpty($length)) {
             return true;

@@ -27,7 +27,7 @@ final class TableDistributionDefinition
      */
     public function __construct(
         string $distributionName,
-        array $distributionColumnsNames = []
+        array $distributionColumnsNames = [],
     ) {
         Assert::assertTableDistribution($distributionName);
         Assert::assertValidHashDistribution($distributionName, $distributionColumnsNames);

@@ -14,7 +14,7 @@ class ManifestNotFoundException extends Exception
         parent::__construct(
             'Load error: manifest file was not found.',
             Exception::MANDATORY_FILE_NOT_FOUND,
-            $previous
+            $previous,
         );
     }
 }

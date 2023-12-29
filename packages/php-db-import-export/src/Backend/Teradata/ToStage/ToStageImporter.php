@@ -24,7 +24,7 @@ final class ToStageImporter implements ToStageImporterInterface
     private Connection $connection;
 
     public function __construct(
-        Connection $connection
+        Connection $connection,
     ) {
         $this->connection = $connection;
     }
@@ -32,7 +32,7 @@ final class ToStageImporter implements ToStageImporterInterface
     public function importToStagingTable(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destinationDefinition,
-        ImportOptionsInterface $options
+        ImportOptionsInterface $options,
     ): ImportState {
         assert($destinationDefinition instanceof TeradataTableDefinition);
         assert($options instanceof TeradataImportOptions);
@@ -46,8 +46,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 $adapter->runCopyCommand(
                     $source,
                     $destinationDefinition,
-                    $options
-                )
+                    $options,
+                ),
             );
         } catch (Exception $e) {
             throw TeradataException::covertException($e);
@@ -58,7 +58,7 @@ final class ToStageImporter implements ToStageImporterInterface
     }
 
     private function getAdapter(
-        Storage\SourceInterface $source
+        Storage\SourceInterface $source,
     ): CopyAdapterInterface {
         switch (true) {
             case $source instanceof Storage\S3\SourceFile:
@@ -71,8 +71,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 throw new LogicException(
                     sprintf(
                         'No suitable adapter found for source: "%s".',
-                        get_class($source)
-                    )
+                        get_class($source),
+                    ),
                 );
         }
     }

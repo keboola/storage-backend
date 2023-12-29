@@ -17,7 +17,7 @@ trait GCSSourceTrait
 
     protected function createDummyGCSSourceInstance(
         string $file,
-        bool $isSliced = false
+        bool $isSliced = false,
     ): Storage\GCS\SourceFile {
         return new Storage\GCS\SourceFile(
             'gcsBucket',
@@ -37,7 +37,7 @@ trait GCSSourceTrait
             ],
             new CsvOptions(),
             $isSliced,
-            []
+            [],
         );
     }
 
@@ -50,7 +50,7 @@ trait GCSSourceTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ): Storage\GCS\SourceFile {
         return $this->createGCSSourceInstanceFromCsv(
             $filePath,
@@ -58,7 +58,7 @@ trait GCSSourceTrait
             $columns,
             $isSliced,
             $isDirectory,
-            $primaryKeys
+            $primaryKeys,
         );
     }
 
@@ -74,7 +74,7 @@ trait GCSSourceTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ): Storage\GCS\SourceFile {
         if ($isDirectory) {
             throw new Exception('Directory not supported for GCS');
@@ -88,7 +88,7 @@ trait GCSSourceTrait
             $options,
             $isSliced,
             $columns,
-            $primaryKeys
+            $primaryKeys,
         );
     }
 

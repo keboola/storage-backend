@@ -62,7 +62,7 @@ final class SourceDestinationColumnMap
             $source->getColumnsDefinitions(),
             $destination->getColumnsDefinitions(),
             $ignoreColumns,
-            $mode
+            $mode,
         );
     }
 

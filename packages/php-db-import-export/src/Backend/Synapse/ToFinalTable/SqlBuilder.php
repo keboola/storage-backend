@@ -33,7 +33,7 @@ class SqlBuilder
     public function getDedupCommand(
         SynapseTableDefinition $stagingTableDefinition,
         SynapseTableDefinition $deduplicationTableDefinition,
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         if (empty($primaryKeys)) {
             return '';
@@ -41,13 +41,13 @@ class SqlBuilder
 
         $pkSql = $this->getColumnsString(
             $primaryKeys,
-            ','
+            ',',
         );
 
         $stage = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $depudeSql = sprintf(
@@ -60,20 +60,20 @@ class SqlBuilder
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
             $pkSql,
             $pkSql,
-            $stage
+            $stage,
         );
 
         $deduplication = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName()),
         );
 
         return sprintf(
             'INSERT INTO %s (%s) %s',
             $deduplication,
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
-            $depudeSql
+            $depudeSql,
         );
     }
 
@@ -81,7 +81,7 @@ class SqlBuilder
         SynapseTableDefinition $stagingTableDefinition,
         SynapseTableDefinition $destinationTableDefinition,
         SynapseImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         if (empty($destinationTableDefinition->getPrimaryKeysNames())) {
             return '';
@@ -91,14 +91,14 @@ class SqlBuilder
 
         $pkSql = $this->getColumnsString(
             $destinationTableDefinition->getPrimaryKeysNames(),
-            ','
+            ',',
         );
 
         $columnsInOrder = $destinationTableDefinition->getColumnsNames();
         $timestampColIndex = array_search(
             ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
             $columnsInOrder,
-            true
+            true,
         );
         if ($timestampColIndex !== false) {
             // remove timestamp column if exists in ordered columns
@@ -107,7 +107,7 @@ class SqlBuilder
 
         $timestampNotInColumns = !StringCaseSensitivity::isInArrayCaseInsensitive(
             ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
-            $stagingTableDefinition->getColumnsNames()
+            $stagingTableDefinition->getColumnsNames(),
         );
         $useTimestamp = $timestampNotInColumns && $importOptions->useTimestamp();
 
@@ -119,7 +119,7 @@ class SqlBuilder
         $columnsSetSql = $this->getCTASColumnsSetSql(
             $stagingTableDefinition,
             $destinationTableDefinition,
-            $importOptions
+            $importOptions,
         );
 
         if ($useTimestamp) {
@@ -127,7 +127,7 @@ class SqlBuilder
                 'CAST(%s as %s) AS %s',
                 SynapseQuote::quote($timestamp),
                 Synapse::TYPE_DATETIME2,
-                SynapseQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME)
+                SynapseQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
             );
         }
 
@@ -142,7 +142,7 @@ class SqlBuilder
             $pkSql,
             $pkSql,
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         return sprintf(
@@ -151,7 +151,7 @@ class SqlBuilder
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
             $distributionSql,
             $indexSql,
-            $depudeSql
+            $depudeSql,
         );
     }
 
@@ -161,10 +161,10 @@ class SqlBuilder
     public function getColumnsString(
         array $columns,
         string $delimiter = ', ',
-        ?string $tableAlias = null
+        ?string $tableAlias = null,
     ): string {
         return implode($delimiter, array_map(function ($columns) use (
-            $tableAlias
+            $tableAlias,
         ) {
             $alias = $tableAlias === null ? '' : $tableAlias . '.';
             return $alias . SynapseQuote::quoteSingleIdentifier($columns);
@@ -173,18 +173,18 @@ class SqlBuilder
 
     public function getDeleteOldItemsCommand(
         SynapseTableDefinition $stagingTableDefinition,
-        SynapseTableDefinition $destinationTableDefinition
+        SynapseTableDefinition $destinationTableDefinition,
     ): string {
         $stagingTable = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $destinationTable = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         return sprintf(
@@ -194,8 +194,8 @@ class SqlBuilder
             $this->getPrimaryKeyWhereConditions(
                 $destinationTableDefinition->getPrimaryKeysNames(),
                 $stagingTable,
-                $destinationTable
-            )
+                $destinationTable,
+            ),
         );
     }
 
@@ -205,7 +205,7 @@ class SqlBuilder
     private function getPrimaryKeyWhereConditions(
         array $primaryKeys,
         string $sourceTable,
-        string $destinationTable
+        string $destinationTable,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($sourceTable, $destinationTable) {
             return sprintf(
@@ -213,7 +213,7 @@ class SqlBuilder
                 $destinationTable,
                 SynapseQuote::quoteSingleIdentifier($col),
                 $sourceTable,
-                SynapseQuote::quoteSingleIdentifier($col)
+                SynapseQuote::quoteSingleIdentifier($col),
             );
         }, $primaryKeys);
 
@@ -222,28 +222,28 @@ class SqlBuilder
 
     public function getDropCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DROP TABLE %s.%s',
             SynapseQuote::quoteSingleIdentifier($schema),
-            SynapseQuote::quoteSingleIdentifier($tableName)
+            SynapseQuote::quoteSingleIdentifier($tableName),
         );
     }
 
     public function getDropTableIfExistsCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         $table = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($schema),
-            SynapseQuote::quoteSingleIdentifier($tableName)
+            SynapseQuote::quoteSingleIdentifier($tableName),
         );
         return sprintf(
             'IF OBJECT_ID (N\'%s\', N\'U\') IS NOT NULL DROP TABLE %s',
             $table,
-            $table
+            $table,
         );
     }
 
@@ -251,25 +251,25 @@ class SqlBuilder
         SynapseTableDefinition $sourceTableDefinition,
         SynapseTableDefinition $destinationTableDefinition,
         SynapseImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $destinationTable = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         $insColumns = $sourceTableDefinition->getColumnsNames();
         $includesTimestamp = StringCaseSensitivity::isInArrayCaseInsensitive(
             ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
-            $insColumns
+            $insColumns,
         );
         $useTimestamp = !$includesTimestamp && $importOptions->useTimestamp();
 
         if ($useTimestamp) {
             $insColumns = array_merge(
                 $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             );
         }
 
@@ -279,14 +279,14 @@ class SqlBuilder
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
             $convertEmptyToNull = StringCaseSensitivity::isInArrayCaseInsensitive(
                 $columnDefinition->getColumnName(),
-                $importOptions->getConvertEmptyValuesToNull()
+                $importOptions->getConvertEmptyValuesToNull(),
             );
             if ($convertEmptyToNull) {
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
                         'NULLIF(%s, \'\')',
-                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 } else {
                     $columnsSetSql[] = SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
@@ -296,7 +296,7 @@ class SqlBuilder
                     'CAST(COALESCE(%s, \'\') as %s) AS %s',
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $this->getColumnTypeSqlDefinition($columnDefinition),
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             } else {
                 // on columns other than string dont use COALESCE, use direct cast
@@ -305,7 +305,7 @@ class SqlBuilder
                     'CAST(%s as %s) AS %s',
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $this->getColumnTypeSqlDefinition($columnDefinition),
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             }
         }
@@ -320,7 +320,7 @@ class SqlBuilder
             $this->getColumnsString($insColumns),
             implode(',', $columnsSetSql),
             SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
         );
     }
 
@@ -328,30 +328,30 @@ class SqlBuilder
         SynapseTableDefinition $sourceTableDefinition,
         SynapseTableDefinition $destinationTableDefinition,
         SynapseImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $destinationTable = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         $useTimestamp = !StringCaseSensitivity::isInArrayCaseInsensitive(
             ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
-            $sourceTableDefinition->getColumnsNames()
+            $sourceTableDefinition->getColumnsNames(),
         ) && $importOptions->useTimestamp();
 
         $columnsSetSql = $this->getCTASColumnsSetSql(
             $sourceTableDefinition,
             $destinationTableDefinition,
-            $importOptions
+            $importOptions,
         );
 
         if ($useTimestamp) {
             $columnsSetSql[] = sprintf(
                 '%s AS %s',
                 SynapseQuote::quote($timestamp),
-                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
+                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
             );
         }
 
@@ -365,20 +365,20 @@ class SqlBuilder
             $indexSql,
             implode(',', $columnsSetSql),
             SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
         );
     }
 
     public function getRenameTableCommand(
         string $schema,
         string $sourceTableName,
-        string $targetTable
+        string $targetTable,
     ): string {
         return sprintf(
             'RENAME OBJECT %s.%s TO %s',
             SynapseQuote::quoteSingleIdentifier($schema),
             SynapseQuote::quoteSingleIdentifier($sourceTableName),
-            SynapseQuote::quoteSingleIdentifier($targetTable)
+            SynapseQuote::quoteSingleIdentifier($targetTable),
         );
     }
 
@@ -386,7 +386,7 @@ class SqlBuilder
     {
         $distributionSql = sprintf(
             'DISTRIBUTION=%s',
-            $definition->getTableDistribution()->getDistributionName()
+            $definition->getTableDistribution()->getDistributionName(),
         );
 
         if ($definition->getTableDistribution()->isHashDistribution()) {
@@ -394,8 +394,8 @@ class SqlBuilder
                 '%s(%s)',
                 $distributionSql,
                 SynapseQuote::quoteSingleIdentifier(
-                    $definition->getTableDistribution()->getDistributionColumnsNames()[0]
-                )
+                    $definition->getTableDistribution()->getDistributionColumnsNames()[0],
+                ),
             );
         }
         return $distributionSql;
@@ -410,7 +410,7 @@ class SqlBuilder
             $indexSql = sprintf(
                 '%s(%s)',
                 $definition->getTableIndex()->getIndexType(),
-                implode(',', $quotedColumns)
+                implode(',', $quotedColumns),
             );
         } else {
             $indexSql = $definition->getTableIndex()->getIndexType();
@@ -421,12 +421,12 @@ class SqlBuilder
 
     public function getTruncateTableWithDeleteCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DELETE FROM %s.%s',
             SynapseQuote::quoteSingleIdentifier($schema),
-            SynapseQuote::quoteSingleIdentifier($tableName)
+            SynapseQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -434,12 +434,12 @@ class SqlBuilder
         SynapseTableDefinition $stagingTableDefinition,
         SynapseTableDefinition $destinationDefinition,
         SynapseImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $dest = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
-            SynapseQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+            SynapseQuote::quoteSingleIdentifier($destinationDefinition->getTableName()),
         );
 
         $columnsSet = [];
@@ -447,7 +447,7 @@ class SqlBuilder
         foreach ($stagingTableDefinition->getColumnsDefinitions() as $columnDefinition) {
             $isPrimaryKey = StringCaseSensitivity::isInArrayCaseInsensitive(
                 $columnDefinition->getColumnName(),
-                $destinationDefinition->getPrimaryKeysNames()
+                $destinationDefinition->getPrimaryKeysNames(),
             );
             if ($isPrimaryKey) {
                 // primary keys are not updated
@@ -455,7 +455,7 @@ class SqlBuilder
             }
             $convertEmptyToNull = StringCaseSensitivity::isInArrayCaseInsensitive(
                 $columnDefinition->getColumnName(),
-                $importOptions->getConvertEmptyValuesToNull()
+                $importOptions->getConvertEmptyValuesToNull(),
             );
             if ($convertEmptyToNull) {
                 // use nullif only for string base type
@@ -463,27 +463,27 @@ class SqlBuilder
                     $columnsSet[] = sprintf(
                         '%s = NULLIF([src].%s, \'\')',
                         SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 } else {
                     $columnsSet[] = sprintf(
                         '%s = [src].%s',
                         SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 }
             } else {
                 $sql = sprintf(
                     '%s = [src].%s',
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
 
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $sql = sprintf(
                         '%s = COALESCE([src].%s, \'\')',
                         SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
-                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                        SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 }
 
@@ -495,7 +495,7 @@ class SqlBuilder
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 SynapseQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-                $timestamp
+                $timestamp,
             );
         }
 
@@ -511,7 +511,7 @@ class SqlBuilder
             iterator_to_array($stagingTableDefinition->getColumnsDefinitions()),
             static fn(SynapseColumn $columnDefinition): bool => !StringCaseSensitivity::isInArrayCaseInsensitive(
                 $columnDefinition->getColumnName(),
-                $destinationDefinition->getPrimaryKeysNames()
+                $destinationDefinition->getPrimaryKeysNames(),
             )
         );
 
@@ -531,17 +531,17 @@ class SqlBuilder
                     $dest,
                     SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $this->getColumnTypeSqlDefinition($columnDefinition),
-                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    SynapseQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             },
-            $columnsForComparison
+            $columnsForComparison,
         );
 
         $and = '';
         if (count($columnsComparisonSql) !== 0) {
             $and = sprintf(
                 'AND (%s) ',
-                implode(' OR ', $columnsComparisonSql)
+                implode(' OR ', $columnsComparisonSql),
             );
         }
 
@@ -552,7 +552,7 @@ class SqlBuilder
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             SynapseQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
             $this->getPrimaryKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), '[src]', $dest),
-            $and
+            $and,
         );
     }
 
@@ -572,7 +572,7 @@ class SqlBuilder
     private function getCTASColumnsSetSql(
         SynapseTableDefinition $sourceTableDefinition,
         SynapseTableDefinition $destinationTableDefinition,
-        SynapseImportOptions $importOptions
+        SynapseImportOptions $importOptions,
     ): array {
         $columnsSetSql = [];
         /** @var SynapseColumn $column */
@@ -591,29 +591,29 @@ class SqlBuilder
                     sprintf(
                         'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
                         $column->getColumnName(),
-                        implode(', ', $destinationTableDefinition->getColumnsNames())
+                        implode(', ', $destinationTableDefinition->getColumnsNames()),
                     ),
-                    Exception::UNKNOWN_ERROR
+                    Exception::UNKNOWN_ERROR,
                 );
             }
             $columnTypeDefinition = $this->getColumnTypeSqlDefinition($destinationColumn);
             $convertEmptyToNull = StringCaseSensitivity::isInArrayCaseInsensitive(
                 $column->getColumnName(),
-                $importOptions->getConvertEmptyValuesToNull()
+                $importOptions->getConvertEmptyValuesToNull(),
             );
             if ($convertEmptyToNull) {
                 $columnsSetSql[] = $this->getCTASColumnSetSQLWithConvertEmptyValues(
                     $column,
                     $importOptions,
                     $columnTypeDefinition,
-                    $destinationColumn
+                    $destinationColumn,
                 );
             } else {
                 $columnsSetSql[] = $this->getCTASColumnSetSQL(
                     $column,
                     $importOptions,
                     $columnTypeDefinition,
-                    $destinationColumn
+                    $destinationColumn,
                 );
             }
         }
@@ -624,13 +624,13 @@ class SqlBuilder
         SynapseColumn $source,
         SynapseImportOptions $importOptions,
         string $columnTypeDefinition,
-        SynapseColumn $destinationColumn
+        SynapseColumn $destinationColumn,
     ): string {
         if ($destinationColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
             // convert nulls only for strings
             $colSql = sprintf(
                 'NULLIF(%s, \'\')',
-                SynapseQuote::quoteSingleIdentifier($source->getColumnName())
+                SynapseQuote::quoteSingleIdentifier($source->getColumnName()),
             );
         } else {
             $colSql = SynapseQuote::quoteSingleIdentifier($source->getColumnName());
@@ -639,13 +639,13 @@ class SqlBuilder
             $colSql = sprintf(
                 'CAST(%s as %s)',
                 $colSql,
-                $columnTypeDefinition
+                $columnTypeDefinition,
             );
         }
         return sprintf(
             '%s AS %s',
             $colSql,
-            SynapseQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
+            SynapseQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
         );
     }
 
@@ -653,13 +653,13 @@ class SqlBuilder
         SynapseColumn $sourceColumn,
         SynapseImportOptions $importOptions,
         string $columnTypeDefinition,
-        SynapseColumn $destinationColumn
+        SynapseColumn $destinationColumn,
     ): string {
         if ($importOptions->getCastValueTypes()) {
             $colSql = sprintf(
                 'CAST(%s as %s)',
                 SynapseQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                $columnTypeDefinition
+                $columnTypeDefinition,
             );
         } else {
             $colSql = SynapseQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
@@ -669,20 +669,20 @@ class SqlBuilder
                 // Columns with coalesce are nullable in CTAS
                 $colSql = sprintf(
                     'COALESCE(%s, \'\')',
-                    $colSql
+                    $colSql,
                 );
             } else {
                 // Columns with isnull are not null in CTAS
                 $colSql = sprintf(
                     'ISNULL(%s, \'\')',
-                    $colSql
+                    $colSql,
                 );
             }
         }
         return sprintf(
             '%s AS %s',
             $colSql,
-            SynapseQuote::quoteSingleIdentifier($destinationColumn->getColumnName())
+            SynapseQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
         );
     }
 }

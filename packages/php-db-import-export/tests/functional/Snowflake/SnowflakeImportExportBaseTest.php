@@ -33,7 +33,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         ImportOptions $options,
         array $expected,
         $sortKey,
-        string $message = 'Imported tables are not the same as expected'
+        string $message = 'Imported tables are not the same as expected',
     ): void {
         $tableColumns = $this->connection->getTableColumns($table->getSchema(), $table->getTableName());
 
@@ -57,7 +57,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         $sql = sprintf(
             'SELECT %s FROM %s',
             implode(', ', $columnsSql),
-            $table->getQuotedTableWithScheme()
+            $table->getQuotedTableWithScheme(),
         );
 
         $queryResult = array_map(function ($row) {
@@ -70,7 +70,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             $expected,
             $queryResult,
             $sortKey,
-            $message
+            $message,
         );
     }
 
@@ -81,7 +81,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         string $tableName,
         array $files,
         string $sortKey,
-        string $message
+        string $message,
     ): void {
         $filesContent = [];
         $filesHeader = [];
@@ -99,7 +99,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
                 $this->assertSame(
                     $filesHeader,
                     array_shift($csvFileRows),
-                    'Provided files have incosistent headers'
+                    'Provided files have incosistent headers',
                 );
             }
             foreach ($csvFileRows as $fileRow) {
@@ -110,15 +110,15 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         $queryResult = $this->connection->fetchAll(
             sprintf(
                 'SELECT * FROM %s',
-                $this->connection->quoteIdentifier($tableName)
-            )
+                $this->connection->quoteIdentifier($tableName),
+            ),
         );
 
         $this->assertArrayEqualsSorted(
             $filesContent,
             $queryResult,
             $sortKey,
-            $message
+            $message,
         );
 
         if (!empty($filesHeader)) {
@@ -164,7 +164,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             'INSERT INTO "%s"."out.csv_2Cols" VALUES
                   (\'x\', \'y\', \'%s\');',
             $this->getDestinationSchemaName(),
-            $now
+            $now,
         ));
 
         $this->connection->query(sprintf('CREATE TABLE "%s"."out.csv_2Cols" (
@@ -193,7 +193,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
                 "_timestamp" TIMESTAMP_NTZ,
                 PRIMARY KEY("id")
             )',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $this->connection->query(sprintf(
@@ -212,7 +212,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
                 "idApp" varchar(65535) NOT NULL,
                 PRIMARY KEY("id")
             )',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $this->connection->query(sprintf(
@@ -221,7 +221,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "table" varchar(65535) NOT NULL DEFAULT \'\',
               "_timestamp" TIMESTAMP_NTZ
             );',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $this->connection->query(sprintf(
@@ -232,7 +232,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "boolCol" varchar NOT NULL,
               "_timestamp" TIMESTAMP_NTZ
             );',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $this->connection->query(sprintf(
@@ -242,14 +242,14 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "floatCol" float NOT NULL,
               "boolCol" boolean NOT NULL
             );',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
 
         $this->connection->query(sprintf(
             'INSERT INTO "%s"."types" VALUES 
               (\'a\', \'10.5\', \'0.3\', TRUE)
            ;',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
 
         $this->connection->query(sprintf(
@@ -257,7 +257,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "col1" VARCHAR NOT NULL DEFAULT \'\',
               "col2" VARCHAR NOT NULL DEFAULT \'\'
             );',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $this->connection->query(sprintf(
@@ -267,7 +267,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
               "_timestamp" TIMESTAMP_NTZ,
               PRIMARY KEY("id")
             );',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $this->connection->query(sprintf(
@@ -280,7 +280,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             "_timestamp" TIMESTAMP_NTZ,
             PRIMARY KEY("VisitID","Value","MenuItem")
             );',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
     }
 
@@ -296,14 +296,14 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
         $connection->query(
             sprintf(
                 'USE DATABASE %s',
-                $connection->quoteIdentifier((string) getenv('SNOWFLAKE_DATABASE'))
-            )
+                $connection->quoteIdentifier((string) getenv('SNOWFLAKE_DATABASE')),
+            ),
         );
         $connection->query(
             sprintf(
                 'USE WAREHOUSE %s',
-                $connection->quoteIdentifier((string) getenv('SNOWFLAKE_WAREHOUSE'))
-            )
+                $connection->quoteIdentifier((string) getenv('SNOWFLAKE_WAREHOUSE')),
+            ),
         );
         return $connection;
     }

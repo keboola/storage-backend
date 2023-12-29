@@ -43,7 +43,7 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptionsInterface $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
     ): int {
         $quotedColumns = array_map(function ($column) {
             return $this->connection->quoteIdentifier($column);
@@ -54,17 +54,17 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             $this->connection->quoteIdentifier($destination->getSchema()),
             $this->connection->quoteIdentifier($stagingTableName),
             implode(', ', $quotedColumns),
-            $source->getFromStatement()
+            $source->getFromStatement(),
         );
 
         $this->connection->query(
             $sql,
-            $source instanceof SelectSource ? $source->getQueryBindings() : []
+            $source instanceof SelectSource ? $source->getQueryBindings() : [],
         );
 
         $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
             $destination->getSchema(),
-            $stagingTableName
+            $stagingTableName,
         ));
 
         return (int) $rows[0]['count'];

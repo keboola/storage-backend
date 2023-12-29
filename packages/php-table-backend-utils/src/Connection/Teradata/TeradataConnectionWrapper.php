@@ -20,7 +20,7 @@ class TeradataConnectionWrapper implements Connection
     public function __construct(
         string $dsn,
         string $user,
-        string $password
+        string $password,
     ) {
         try {
             $handle = odbc_connect($dsn, $user, $password);

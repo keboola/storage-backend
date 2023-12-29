@@ -11,7 +11,7 @@ use Throwable;
 
 class BigqueryException extends Exception
 {
-    const MAX_MESSAGES_IN_ERROR_MESSAGE = 10;
+    private const MAX_MESSAGES_IN_ERROR_MESSAGE = 10;
 
     public static function covertException(JobException|ServiceException $e): Throwable
     {
@@ -24,6 +24,7 @@ class BigqueryException extends Exception
         return $e;
     }
 
+    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint
     public static function createExceptionFromJobResult(array $jobInfo): Throwable
     {
         $errorMessage = $jobInfo['status']['errorResult']['message'] ?? 'Unknown error';
@@ -49,7 +50,9 @@ class BigqueryException extends Exception
         if (count($parsingErrors) > 0) {
             // filter parsing errors
             $areExtraErrors = count($parsingErrors) !== $countOfErrors;
-            return new BigqueryInputDataException(self::getErrorMessageForErrorList($parsingErrors, $areExtraErrors, $jobInfo['jobReference']['jobId']));
+            return new BigqueryInputDataException(
+                self::getErrorMessageForErrorList($parsingErrors, $areExtraErrors, $jobInfo['jobReference']['jobId']),
+            );
         }
 
         return new self($errorMessage);
@@ -66,18 +69,27 @@ class BigqueryException extends Exception
         return false;
     }
 
+    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint
     private static function getErrorMessageForErrorList(array $parsingErrors, bool $areExtraErrors, string $jobId)
     {
         $count = count($parsingErrors);
         if ($count > self::MAX_MESSAGES_IN_ERROR_MESSAGE) {
-            return sprintf('There were too many errors during the import. For more information check job "%s" in Google Cloud Console.', $jobId);
+            return sprintf(
+                'There were too many errors during the import. For more information check job "%s"'
+                . 'in Google Cloud Console.',
+                $jobId,
+            );
         }
 
         $message = implode(PHP_EOL, array_map(function ($error) {
             return $error['message'];
         }, $parsingErrors));
         if ($areExtraErrors) {
-            $message .= PHP_EOL . sprintf('There were additional errors during the import. For more information check job "%s" in Google Cloud Console.', $jobId);
+            $message .= PHP_EOL . sprintf(
+                'There were additional errors during the import. For more information check job "%s"'
+                . 'in Google Cloud Console.',
+                $jobId,
+            );
         }
 
         return $message;

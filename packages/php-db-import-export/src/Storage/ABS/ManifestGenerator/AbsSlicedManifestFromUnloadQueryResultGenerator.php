@@ -22,7 +22,7 @@ class AbsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
 
     public function __construct(
         BlobRestProxy $absClient,
-        string $accountName
+        string $accountName,
     ) {
         $this->absClient = $absClient;
         $this->accountName = $accountName;
@@ -42,9 +42,9 @@ class AbsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
                         $path->getProvider(),
                         $path->getRoot(),
                         '',
-                        $object['FILE_NAME']
+                        $object['FILE_NAME'],
                     ),
-                    $this->accountName
+                    $this->accountName,
                 ))->getAbsoluteUrl(),
                 'mandatory' => true,
             ];
@@ -59,7 +59,7 @@ class AbsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
         $this->absClient->createBlockBlob(
             $path->getRoot(),
             $path->getPathnameWithoutRoot() . 'manifest',
-            $encodedManifest
+            $encodedManifest,
         );
     }
 }

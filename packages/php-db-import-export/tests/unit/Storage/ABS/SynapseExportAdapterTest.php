@@ -37,7 +37,7 @@ WITH
 )
 AS
 SELECT * FROM "schema"."table" WHERE id = ?
-EOT
+EOT,
         );
 
         $conn->expects($this->exactly(7))->method('exec')->withConsecutive(
@@ -104,7 +104,7 @@ EOT
 DROP DATABASE SCOPED CREDENTIAL [random_export_id_StorageCredential]
 EOT
                 ,
-            ]
+            ],
         );
 
         $source = new Storage\Synapse\SelectSource('SELECT * FROM "schema"."table" WHERE id = ?', [1]);
@@ -113,7 +113,7 @@ EOT
         $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         ));
     }
 
@@ -153,7 +153,7 @@ WITH
 )
 AS
 SELECT * FROM [schema].[table]
-EOT
+EOT,
         );
 
         $conn->expects($this->exactly(7))->method('exec')->withConsecutive(
@@ -220,7 +220,7 @@ EOT
 DROP DATABASE SCOPED CREDENTIAL [random_export_id_StorageCredential]
 EOT
                 ,
-            ]
+            ],
         );
 
         $source = new Storage\Synapse\Table('schema', 'table');
@@ -229,7 +229,7 @@ EOT
         $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         ));
     }
 
@@ -250,7 +250,7 @@ WITH
 )
 AS
 SELECT * FROM [schema].[table]
-EOT
+EOT,
         );
 
         $conn->expects($this->exactly(7))->method('exec')->withConsecutive(
@@ -317,7 +317,7 @@ EOT
 DROP DATABASE SCOPED CREDENTIAL [random_export_id_StorageCredential]
 EOT
                 ,
-            ]
+            ],
         );
 
         $source = new Storage\Synapse\Table('schema', 'table');
@@ -326,7 +326,7 @@ EOT
         $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         ));
     }
 
@@ -347,7 +347,7 @@ WITH
 )
 AS
 SELECT * FROM [schema].[table]
-EOT
+EOT,
         );
 
         $conn->expects($this->exactly(7))->method('exec')->withConsecutive(
@@ -413,7 +413,7 @@ EOT
 DROP DATABASE SCOPED CREDENTIAL [random_export_id_StorageCredential]
 EOT
                 ,
-            ]
+            ],
         );
 
         $source = new Storage\Synapse\Table('schema', 'table');
@@ -422,7 +422,7 @@ EOT
         $this->assertIsArray($adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         ));
     }
 }

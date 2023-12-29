@@ -44,13 +44,13 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             new ColumnCollection([
                 SynapseColumn::createGenericColumn('col1'),
                 SynapseColumn::createGenericColumn('col2'),
-            ])
+            ]),
         );
 
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [utils-test_qb-schema].[#utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\') WITH (HEAP, LOCATION = USER_DB)',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         // try to create same table
@@ -76,7 +76,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\')',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         $ref = $this->getSynapseTableReflection();
@@ -89,7 +89,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
 
     private function getSynapseTableReflection(
         string $schema = self::TEST_SCHEMA,
-        string $table = self::TEST_TABLE
+        string $table = self::TEST_TABLE,
     ): SynapseTableReflection {
         return new SynapseTableReflection($this->connection, $schema, $table);
     }
@@ -107,7 +107,7 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\', [_timestamp] DATETIME2)',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         $ref = $this->getSynapseTableReflection();
@@ -129,12 +129,12 @@ class SynapseTableQueryBuilderTest extends SynapseBaseCase
             self::TEST_SCHEMA,
             self::TEST_TABLE,
             new ColumnCollection($cols),
-            ['pk1', 'col1']
+            ['pk1', 'col1'],
         );
         $this->assertEquals(
         // phpcs:ignore
             'CREATE TABLE [utils-test_qb-schema].[utils-test_test] ([pk1] INT, [col1] NVARCHAR(4000) NOT NULL DEFAULT \'\', [col2] NVARCHAR(4000) NOT NULL DEFAULT \'\', [_timestamp] DATETIME2, PRIMARY KEY NONCLUSTERED([pk1],[col1]) NOT ENFORCED)',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
         $ref = $this->getSynapseTableReflection();
@@ -250,7 +250,7 @@ EOT
         // create table from definition
         $sql = $qb->getCreateTableCommandFromDefinition(
             $definitionSource,
-            $definePrimaryKeys
+            $definePrimaryKeys,
         );
         $this->connection->executeStatement($sql);
 
@@ -260,52 +260,52 @@ EOT
         $this->assertDefinitionsSame(
             $definitionSource,
             $definitionCreated,
-            $definePrimaryKeys
+            $definePrimaryKeys,
         );
     }
 
     private function assertDefinitionsSame(
         SynapseTableDefinition $expectedDefinition,
         SynapseTableDefinition $actualDefinition,
-        bool $expectPrimaryKeys = true
+        bool $expectPrimaryKeys = true,
     ): void {
         if ($expectPrimaryKeys) {
             self::assertCount(
                 count($expectedDefinition->getPrimaryKeysNames()),
-                $actualDefinition->getPrimaryKeysNames()
+                $actualDefinition->getPrimaryKeysNames(),
             );
             self::assertSame(
                 $expectedDefinition->getPrimaryKeysNames(),
-                $actualDefinition->getPrimaryKeysNames()
+                $actualDefinition->getPrimaryKeysNames(),
             );
         } else {
             self::assertCount(0, $actualDefinition->getPrimaryKeysNames());
         }
         self::assertCount(
             count($expectedDefinition->getColumnsNames()),
-            $actualDefinition->getColumnsNames()
+            $actualDefinition->getColumnsNames(),
         );
         self::assertSame($expectedDefinition->getColumnsNames(), $actualDefinition->getColumnsNames());
         self::assertSame($expectedDefinition->isTemporary(), $actualDefinition->isTemporary());
         self::assertSame(
             $expectedDefinition->getTableDistribution()->getDistributionColumnsNames(),
-            $actualDefinition->getTableDistribution()->getDistributionColumnsNames()
+            $actualDefinition->getTableDistribution()->getDistributionColumnsNames(),
         );
         self::assertSame(
             $expectedDefinition->getTableDistribution()->getDistributionName(),
-            $actualDefinition->getTableDistribution()->getDistributionName()
+            $actualDefinition->getTableDistribution()->getDistributionName(),
         );
         self::assertSame(
             $expectedDefinition->getTableIndex()->getIndexType(),
-            $actualDefinition->getTableIndex()->getIndexType()
+            $actualDefinition->getTableIndex()->getIndexType(),
         );
         self::assertSame(
             $expectedDefinition->getTableIndex()->getIndexedColumnsNames(),
-            $actualDefinition->getTableIndex()->getIndexedColumnsNames()
+            $actualDefinition->getTableIndex()->getIndexedColumnsNames(),
         );
         self::assertCount(
             count($expectedDefinition->getColumnsDefinitions()),
-            $actualDefinition->getColumnsDefinitions()
+            $actualDefinition->getColumnsDefinitions(),
         );
         /** @var SynapseColumn[] $actualColumns */
         $actualColumns = iterator_to_array($actualDefinition->getColumnsDefinitions());
@@ -317,7 +317,7 @@ EOT
             self::assertSame($expectedColumn->getColumnName(), $actualColumns[$key]->getColumnName());
             self::assertSame(
                 $expectedColumn->getColumnDefinition()->getSQLDefinition(),
-                $actualColumns[$key]->getColumnDefinition()->getSQLDefinition()
+                $actualColumns[$key]->getColumnDefinition()->getSQLDefinition(),
             );
         }
     }
@@ -331,7 +331,7 @@ EOT
 
         $this->assertEquals(
             'DROP TABLE [utils-test_qb-schema].[utils-test_test]',
-            $sql
+            $sql,
         );
 
         $this->connection->executeStatement($sql);
@@ -358,8 +358,7 @@ WITH
       PARTITION ( id RANGE LEFT FOR VALUES ( )),  
       CLUSTERED COLUMNSTORE INDEX  
     ) 
-EOT
-            );
+EOT,);
         }
     }
 
@@ -373,7 +372,7 @@ EOT
 
         $this->assertEquals(
             'RENAME OBJECT [utils-test_qb-schema].[utils-test_test] TO [newTable]',
-            $sql
+            $sql,
         );
 
         $this->connection->executeStatement($sql);
@@ -411,8 +410,7 @@ WITH
       PARTITION ( id RANGE LEFT FOR VALUES ( )),  
       CLUSTERED COLUMNSTORE INDEX  
     ) 
-EOT
-        );
+EOT,);
     }
 
     public function testGetTruncateTableCommandTempTable(): void
@@ -429,7 +427,7 @@ EOT
         $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_STAGING_TABLE);
         $this->assertEquals(
             'TRUNCATE TABLE [utils-test_qb-schema].[#stagingTable]',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
@@ -447,17 +445,17 @@ EOT
             $this->connection->executeStatement(sprintf(
                 'INSERT INTO [%s].[%s]([id]) VALUES (1)',
                 self::TEST_SCHEMA,
-                $t
+                $t,
             ));
             $this->connection->executeStatement(sprintf(
                 'INSERT INTO [%s].[%s]([id]) VALUES (2)',
                 self::TEST_SCHEMA,
-                $t
+                $t,
             ));
             $this->connection->executeStatement(sprintf(
                 'INSERT INTO [%s].[%s]([id]) VALUES (3)',
                 self::TEST_SCHEMA,
-                $t
+                $t,
             ));
         }
 
@@ -470,7 +468,7 @@ EOT
         $sql = $qb->getTruncateTableCommand(self::TEST_SCHEMA, self::TEST_TABLE);
         $this->assertEquals(
             'TRUNCATE TABLE [utils-test_qb-schema].[utils-test_test]',
-            $sql
+            $sql,
         );
         $this->connection->executeStatement($sql);
 
@@ -489,28 +487,28 @@ EOT
                     SynapseColumn::createGenericColumn('pk2'),
                     SynapseColumn::createGenericColumn('col1'),
                     SynapseColumn::createGenericColumn('col2'),
-                ])
+                ]),
             ));
             $this->connection->executeStatement(
                 sprintf(
                     'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                     self::TEST_SCHEMA,
-                    $t
-                )
+                    $t,
+                ),
             );
             $this->connection->executeStatement(
                 sprintf(
                     'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (1,1,\'1\',\'1\')',
                     self::TEST_SCHEMA,
-                    $t
-                )
+                    $t,
+                ),
             );
             $this->connection->executeStatement(
                 sprintf(
                     'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'2\',\'2\')',
                     self::TEST_SCHEMA,
-                    $t
-                )
+                    $t,
+                ),
             );
 
             if ($includeEmptyValues) {
@@ -518,8 +516,8 @@ EOT
                     sprintf(
                         'INSERT INTO [%s].[%s]([pk1],[pk2],[col1],[col2]) VALUES (2,2,\'\',NULL)',
                         self::TEST_SCHEMA,
-                        $t
-                    )
+                        $t,
+                    ),
                 );
             }
         }

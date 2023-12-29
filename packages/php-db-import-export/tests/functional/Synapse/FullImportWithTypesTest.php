@@ -57,7 +57,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             ) WITH (DISTRIBUTION=%s)',
                     $this->getDestinationSchemaName(),
-                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
+                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution,
                 ));
                 break;
             case self::TABLE_TYPES:
@@ -69,7 +69,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
               [boolCol] tinyint NOT NULL,
               [_timestamp] datetime2
             );',
-                    $this->getDestinationSchemaName()
+                    $this->getDestinationSchemaName(),
                 ));
 
                 $this->connection->exec(sprintf(
@@ -79,13 +79,13 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
               [floatCol] real NOT NULL,
               [boolCol] tinyint NOT NULL
             );',
-                    $this->getSourceSchemaName()
+                    $this->getSourceSchemaName(),
                 ));
                 $this->connection->exec(sprintf(
                     'INSERT INTO [%s].[types] VALUES
               (\'a\', \'10.5\', \'1.4\', 1)
            ;',
-                    $this->getSourceSchemaName()
+                    $this->getSourceSchemaName(),
                 ));
                 break;
         }
@@ -101,7 +101,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
             $expectedAccounts,
         ] = $this->getExpectationFileData(
             'expectation.tw_accounts-typed.csv',
-            self::EXPECTATION_FILE_DATA_CONVERT_NULLS
+            self::EXPECTATION_FILE_DATA_CONVERT_NULLS,
         );
 
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.changedColumnsOrder.csv');
@@ -113,7 +113,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                 $accountChangedColumnsOrderHeader,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -130,7 +130,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                 $accountsHeader,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSynapseImportOptions(),
@@ -149,7 +149,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                     'numCol',
                     'floatCol',
                     'boolCol',
-                ]
+                ],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -159,7 +159,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                 ImportOptions::SKIP_FIRST_LINE,
                 SynapseImportOptions::TABLE_TYPES_CAST,
                 SynapseImportOptions::SAME_TABLES_REQUIRED,
-                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_CTAS,
             ),
             [['a', '10.5', '1.4', '1']],
             1,
@@ -176,7 +176,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                     'numCol',
                     'floatCol',
                     'boolCol',
-                ]
+                ],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -186,7 +186,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
                 ImportOptions::SKIP_FIRST_LINE,
                 SynapseImportOptions::TABLE_TYPES_CAST,
                 SynapseImportOptions::SAME_TABLES_REQUIRED,
-                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO
+                SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO,
             ),
             [['a', '10.5', '1.4', '1']],
             1,
@@ -206,7 +206,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
         SynapseImportOptions $options,
         array $expected,
         int $expectedImportedRowCount,
-        array $tablesToInit
+        array $tablesToInit,
     ): void {
         $this->initTables($tablesToInit);
 
@@ -214,16 +214,16 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
         $destination = (new SynapseTableReflection(
             $this->connection,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $toStageImporter = new ToStageImporter($this->connection);
         $toFinalTableImporter = new FullImporter($this->connection);
@@ -231,20 +231,20 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
             $importState = $toStageImporter->importToStagingTable(
                 $source,
                 $stagingTable,
-                $options
+                $options,
             );
             $result = $toFinalTableImporter->importToTable(
                 $stagingTable,
                 $destination,
                 $options,
-                $importState
+                $importState,
             );
         } finally {
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $stagingTable->getSchemaName(),
-                    $stagingTable->getTableName()
-                )
+                    $stagingTable->getTableName(),
+                ),
             );
         }
 
@@ -255,7 +255,7 @@ class FullImportWithTypesTest extends SynapseBaseTestCase
             $destination,
             $options,
             $expected,
-            0
+            0,
         );
     }
 }

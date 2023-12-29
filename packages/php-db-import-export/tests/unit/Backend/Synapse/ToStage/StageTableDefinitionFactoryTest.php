@@ -27,11 +27,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
             $definition,
-            ['id', 'name', 'notInDef']
+            ['id', 'name', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -49,12 +49,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -70,11 +70,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
             $definition,
-            ['iD', 'naMe', 'notInDef']
+            ['iD', 'naMe', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -92,12 +92,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -113,11 +113,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
             $definition,
-            ['id', 'name', 'notInDef']
+            ['id', 'name', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -135,12 +135,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -156,12 +156,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
             $definition,
             ['id', 'name', 'notInDef'],
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -181,12 +181,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertTrue($definitions[2]->getColumnDefinition()->isNullable());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -202,12 +202,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(
             $definition,
             ['id', 'name', 'notInDef'],
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX, ['id'])
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX, ['id']),
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -227,17 +227,17 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertTrue($definitions[2]->getColumnDefinition()->isNullable());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is CI
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
         // index is CI
         self::assertSame(
             ['id'],
-            $stageDefinition->getTableIndex()->getIndexedColumnsNames()
+            $stageDefinition->getTableIndex()->getIndexedColumnsNames(),
         );
     }
 
@@ -253,11 +253,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
             $definition,
-            ['id', 'name', 'notInDef']
+            ['id', 'name', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -273,12 +273,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -294,11 +294,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
             $definition,
-            ['id', 'name', 'notInDef']
+            ['id', 'name', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -314,12 +314,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -335,12 +335,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
             $definition,
             ['id', 'name', 'notInDef'],
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -356,12 +356,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -377,11 +377,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
             $definition,
-            ['id', 'name', 'notInDef']
+            ['id', 'name', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -399,12 +399,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -420,11 +420,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
             $definition,
-            ['iD', 'naMe', 'notInDef']
+            ['iD', 'naMe', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -442,12 +442,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -463,11 +463,11 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
             $definition,
-            ['id', 'name', 'notInDef']
+            ['id', 'name', 'notInDef'],
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -485,12 +485,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertSame(Synapse::TYPE_NVARCHAR, $definitions[2]->getColumnDefinition()->getType());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -506,12 +506,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
             $definition,
             ['id', 'name', 'notInDef'],
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX),
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -531,12 +531,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertTrue($definitions[2]->getColumnDefinition()->isNullable());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is heap
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_COLUMNSTORE_INDEX,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
     }
 
@@ -552,12 +552,12 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             ]),
             [],
             new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
         $stageDefinition = StageTableDefinitionFactory::createDedupStagingTableDefinition(
             $definition,
             ['id', 'name', 'notInDef'],
-            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX, ['id'])
+            new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX, ['id']),
         );
 
         self::assertSame('schema', $stageDefinition->getSchemaName());
@@ -577,17 +577,17 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
         self::assertTrue($definitions[2]->getColumnDefinition()->isNullable());
         self::assertSame(
             TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN,
-            $stageDefinition->getTableDistribution()->getDistributionName()
+            $stageDefinition->getTableDistribution()->getDistributionName(),
         );
         // index is CI
         self::assertSame(
             TableIndexDefinition::TABLE_INDEX_TYPE_HEAP,
-            $stageDefinition->getTableIndex()->getIndexType()
+            $stageDefinition->getTableIndex()->getIndexType(),
         );
         // index is CI
         self::assertSame(
             [],
-            $stageDefinition->getTableIndex()->getIndexedColumnsNames()
+            $stageDefinition->getTableIndex()->getIndexedColumnsNames(),
         );
     }
 }

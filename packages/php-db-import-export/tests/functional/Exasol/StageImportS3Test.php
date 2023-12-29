@@ -53,7 +53,7 @@ class StageImportS3Test extends ExasolBaseTestCase
         array $s3Setting,
         int $expectedRowsNumber,
         int $expectedFirstLine,
-        int $skippedLines = 0
+        int $skippedLines = 0,
     ): void {
         $this->initTable($table);
 
@@ -61,30 +61,30 @@ class StageImportS3Test extends ExasolBaseTestCase
         $ref = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            $table
+            $table,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer->importToStagingTable(
             $this->createS3SourceInstanceFromCsv(
-                ...$s3Setting
+                ...$s3Setting,
             ),
             $stagingTable,
-            $this->getExasolImportOptions($skippedLines)
+            $this->getExasolImportOptions($skippedLines),
         );
 
         $importedData = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM %s.%s',
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
         );
         self::assertCount($expectedRowsNumber, $importedData);
         self::assertCount($expectedFirstLine, $importedData[0]);
@@ -189,15 +189,15 @@ class StageImportS3Test extends ExasolBaseTestCase
         $ref = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_NULLIFY
+            self::TABLE_NULLIFY,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer->importToStagingTable(
             $this->createS3SourceInstanceFromCsv(
@@ -209,10 +209,10 @@ class StageImportS3Test extends ExasolBaseTestCase
                     'col2',
                 ],
                 false,
-                false
+                false,
             ),
             $stagingTable,
-            $this->getExasolImportOptions()
+            $this->getExasolImportOptions(),
         );
 
         self::assertEquals([
@@ -223,8 +223,8 @@ class StageImportS3Test extends ExasolBaseTestCase
             sprintf(
                 'SELECT * FROM %s.%s',
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
         ));
     }
 
@@ -237,15 +237,15 @@ class StageImportS3Test extends ExasolBaseTestCase
         $ref = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_ACCOUNTS_WITHOUT_TS
+            self::TABLE_ACCOUNTS_WITHOUT_TS,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         // fails on SQL, no parsing/checking entries before
@@ -257,10 +257,10 @@ class StageImportS3Test extends ExasolBaseTestCase
                 new CsvOptions(),
                 self::TWITTER_COLUMNS,
                 true,
-                false
+                false,
             ),
             $stagingTable,
-            $this->getExasolImportOptions()
+            $this->getExasolImportOptions(),
         );
     }
 
@@ -272,15 +272,15 @@ class StageImportS3Test extends ExasolBaseTestCase
         $ref = new ExasolTableReflection(
             $this->connection,
             $this->getSourceSchemaName(),
-            self::TABLE_TYPES
+            self::TABLE_TYPES,
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $ref->getColumnsNames()
+            $ref->getColumnsNames(),
         );
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
         $this->expectException(Exception::class);
@@ -296,10 +296,10 @@ class StageImportS3Test extends ExasolBaseTestCase
                     'boolCol',
                 ],
                 false,
-                false
+                false,
             ),
             $stagingTable,
-            $this->getExasolImportOptions()
+            $this->getExasolImportOptions(),
         );
     }
 }

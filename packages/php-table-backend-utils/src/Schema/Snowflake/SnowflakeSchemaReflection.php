@@ -30,8 +30,8 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW TABLES IN SCHEMA %s',
-                SnowflakeQuote::quoteSingleIdentifier($this->schemaName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+            ),
         );
 
         return array_map(static fn($table) => $table['name'], $tables);
@@ -46,8 +46,8 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SHOW VIEWS IN SCHEMA %s',
-                SnowflakeQuote::quoteSingleIdentifier($this->schemaName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+            ),
         );
 
         return array_map(static fn($table) => $table['name'], $tables);

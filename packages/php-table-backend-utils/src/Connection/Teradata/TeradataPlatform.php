@@ -132,7 +132,7 @@ class TeradataPlatform extends AbstractPlatform
             $query = preg_replace(
                 '/^(\s*SELECT\b)/im',
                 sprintf('$1 TOP %s', $limit),
-                $query
+                $query,
             );
             if ($query === null) {
                 throw new RuntimeException('Adding LIMIT to SQL retunrs error.');

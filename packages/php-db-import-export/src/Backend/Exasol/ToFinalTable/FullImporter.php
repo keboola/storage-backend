@@ -28,7 +28,7 @@ final class FullImporter implements ToFinalTableImporterInterface
     private SqlBuilder $sqlBuilder;
 
     public function __construct(
-        Connection $connection
+        Connection $connection,
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlBuilder();
@@ -38,7 +38,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         TableDefinitionInterface $stagingTableDefinition,
         TableDefinitionInterface $destinationTableDefinition,
         ImportOptionsInterface $options,
-        ImportState $state
+        ImportState $state,
     ): Result {
         assert($stagingTableDefinition instanceof ExasolTableDefinition);
         assert($destinationTableDefinition instanceof ExasolTableDefinition);
@@ -51,14 +51,14 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    $state
+                    $state,
                 );
             } else {
                 $this->doLoadFullWithoutDedup(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    $state
+                    $state,
                 );
             }
         } catch (Exception $e) {
@@ -74,14 +74,14 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolTableDefinition $stagingTableDefinition,
         ExasolTableDefinition $destinationTableDefinition,
         ExasolImportOptions $options,
-        ImportState $state
+        ImportState $state,
     ): void {
         $state->startTimer(self::TIMER_DEDUP);
 
         // 1. Create table for deduplication
         $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
             $stagingTableDefinition,
-            $destinationTableDefinition->getPrimaryKeysNames()
+            $destinationTableDefinition->getPrimaryKeysNames(),
         );
 
         try {
@@ -94,16 +94,16 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getDedupCommand(
                     $stagingTableDefinition,
                     $deduplicationTableDefinition,
-                    $destinationTableDefinition->getPrimaryKeysNames()
-                )
+                    $destinationTableDefinition->getPrimaryKeysNames(),
+                ),
             );
 
             // 3 truncate destination table
             $this->connection->executeStatement(
                 $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                     $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName()
-                )
+                    $destinationTableDefinition->getTableName(),
+                ),
             );
 
             // 4 move data with INSERT INTO
@@ -112,8 +112,8 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $deduplicationTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    DateTimeHelper::getNowFormatted()
-                )
+                    DateTimeHelper::getNowFormatted(),
+                ),
             );
             $state->stopTimer(self::TIMER_DEDUP);
         } finally {
@@ -121,13 +121,13 @@ final class FullImporter implements ToFinalTableImporterInterface
             $this->connection->executeStatement(
                 $this->sqlBuilder->getDropTableIfExistsCommand(
                     $deduplicationTableDefinition->getSchemaName(),
-                    $deduplicationTableDefinition->getTableName()
-                )
+                    $deduplicationTableDefinition->getTableName(),
+                ),
             );
         }
 
         $this->connection->executeStatement(
-            $this->sqlBuilder->getCommitTransaction()
+            $this->sqlBuilder->getCommitTransaction(),
         );
     }
 
@@ -135,14 +135,14 @@ final class FullImporter implements ToFinalTableImporterInterface
         ExasolTableDefinition $stagingTableDefinition,
         ExasolTableDefinition $destinationTableDefinition,
         ExasolImportOptions $options,
-        ImportState $state
+        ImportState $state,
     ): void {
         // truncate destination table
         $this->connection->executeStatement(
             $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName()
-            )
+                $destinationTableDefinition->getTableName(),
+            ),
         );
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
 
@@ -152,13 +152,13 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $stagingTableDefinition,
                 $destinationTableDefinition,
                 $options,
-                DateTimeHelper::getNowFormatted()
-            )
+                DateTimeHelper::getNowFormatted(),
+            ),
         );
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
 
         $this->connection->executeStatement(
-            $this->sqlBuilder->getCommitTransaction()
+            $this->sqlBuilder->getCommitTransaction(),
         );
     }
 }

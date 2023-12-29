@@ -38,14 +38,14 @@ class FullImportTest extends SynapseBaseTestCase
             ],
             false,
             false,
-            []
+            [],
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_COLUMN_NAME_ROW_NUMBER
+            self::TABLE_COLUMN_NAME_ROW_NUMBER,
         );
         $destination = $ref->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -54,19 +54,19 @@ class FullImportTest extends SynapseBaseTestCase
         ]);
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(2, $result->getImportedRowsCount());
@@ -76,19 +76,19 @@ class FullImportTest extends SynapseBaseTestCase
     {
         $this->connection->query(sprintf(
             'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->query(sprintf(
             'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->query(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'1\', \'\', NULL)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->query(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'2\', NULL, 500)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
 
         $options = new SynapseImportOptions(
@@ -97,51 +97,51 @@ class FullImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
             'nullify_src',
             ['id', 'name', 'price'],
-            []
+            [],
         );
 
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'nullify'
+            'nullify',
         );
         $destination = $ref->getTableDefinition();
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getSourceSchemaName(),
-            'nullify_src'
+            'nullify_src',
         );
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         self::assertCount(2, $importedData);
         self::assertTrue($importedData[0]['name'] === null);
@@ -153,7 +153,7 @@ class FullImportTest extends SynapseBaseTestCase
     {
         $this->connection->query(sprintf(
             'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $options = new SynapseImportOptions(
@@ -162,46 +162,46 @@ class FullImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
         );
         $source = $this->createABSSourceInstance(
             'nullify.csv',
             ['id', 'name', 'price'],
             false,
             false,
-            []
+            [],
         );
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'nullify'
+            'nullify',
         );
         $destination = $ref->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         self::assertCount(3, $importedData);
         self::assertTrue($importedData[1]['name'] === null);

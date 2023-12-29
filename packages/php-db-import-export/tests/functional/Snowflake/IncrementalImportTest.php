@@ -50,14 +50,14 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
                 [],
                 false,
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             $this->getSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
             new ImportOptions(
                 [],
                 true, // incremental
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-without-ts'),
             $expectedAccountsRows,
@@ -87,18 +87,18 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
         ImportOptions $incrementalOptions,
         Storage\DestinationInterface $destination,
         array $expected,
-        int $expectedImportedRowCount
+        int $expectedImportedRowCount,
     ): void {
         (new Importer($this->connection))->importTable(
             $initialSource,
             $destination,
-            $initialOptions
+            $initialOptions,
         );
 
         $result = (new Importer($this->connection))->importTable(
             $incrementalSource,
             $destination,
-            $incrementalOptions
+            $incrementalOptions,
         );
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
 
@@ -107,7 +107,7 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $destination,
             $incrementalOptions,
             $expected,
-            0
+            0,
         );
     }
 }

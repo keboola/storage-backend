@@ -49,27 +49,27 @@ class ConnectionTest extends TeradataBaseCase
         $sqlSelect = sprintf(
             'SELECT * FROM %s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getDatabaseName()),
-            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = :first_name',
             TeradataQuote::quoteSingleIdentifier($this->getDatabaseName()),
-            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindMultipleNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = :first_name AND "last_name" = :last_name ',
             TeradataQuote::quoteSingleIdentifier($this->getDatabaseName()),
-            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindNotNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = ?',
             TeradataQuote::quoteSingleIdentifier($this->getDatabaseName()),
-            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindMultipleNotNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = ? AND "last_name" = ?',
             TeradataQuote::quoteSingleIdentifier($this->getDatabaseName()),
-            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            TeradataQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
 
         $result = $this->connection->fetchAllAssociative($sqlSelect);
@@ -87,7 +87,7 @@ class ConnectionTest extends TeradataBaseCase
                 ],
             ],
             $result,
-            'id'
+            'id',
         );
 
         $result = $this->connection->fetchAllAssociative($sqlSelectBindNamed, ['first_name' => 'franta']);

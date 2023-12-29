@@ -18,7 +18,7 @@ final class StageTableDefinitionFactory
      */
     public static function createStagingTableDefinition(
         TableDefinitionInterface $destination,
-        array $sourceColumnsNames
+        array $sourceColumnsNames,
     ): ExasolTableDefinition {
         /** @var ExasolTableDefinition $destination */
         $newDefinitions = [];
@@ -38,8 +38,8 @@ final class StageTableDefinitionFactory
                                 'length' => $definition->getColumnDefinition()->getLength(),
                                 'nullable' => true, // set all columns to be nullable
                                 'default' => $definition->getColumnDefinition()->getDefault(),
-                            ]
-                        )
+                            ],
+                        ),
                     );
                     continue 2;
                 }
@@ -53,7 +53,7 @@ final class StageTableDefinitionFactory
             BackendHelper::generateStagingTableName(),
             true,
             new ColumnCollection($newDefinitions),
-            $destination->getPrimaryKeysNames()
+            $destination->getPrimaryKeysNames(),
         );
     }
 
@@ -66,8 +66,8 @@ final class StageTableDefinitionFactory
                 [
                     'length' => (string) Exasol::MAX_VARCHAR_LENGTH,
                     'nullable' => true, // set all columns to be nullable
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -76,7 +76,7 @@ final class StageTableDefinitionFactory
      */
     public static function createDedupTableDefinition(
         ExasolTableDefinition $destination,
-        array $pkNames
+        array $pkNames,
     ): ExasolTableDefinition {
         // ensure that PK on dedup table are not null
         $dedupTableColumns = [];
@@ -90,8 +90,8 @@ final class StageTableDefinitionFactory
                         [
                             'length' => $definition->getColumnDefinition()->getLength(),
                             'nullable' => false,
-                        ]
-                    )
+                        ],
+                    ),
                 );
             } else {
                 $dedupTableColumns[] = $definition;
@@ -103,7 +103,7 @@ final class StageTableDefinitionFactory
             BackendHelper::generateTempDedupTableName(),
             true,
             new ColumnCollection($dedupTableColumns),
-            $pkNames
+            $pkNames,
         );
     }
 }

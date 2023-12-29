@@ -20,7 +20,7 @@ class FromTableCTASAdapterSqlBuilder
     public static function getCTASCommand(
         SynapseTableDefinition $destination,
         Storage\SourceInterface $source,
-        SynapseImportOptions $importOptions
+        SynapseImportOptions $importOptions,
     ): string {
         if ($destination->getTableDistribution()->isHashDistribution()) {
             $quotedColumns = array_map(function ($columnName) {
@@ -29,12 +29,12 @@ class FromTableCTASAdapterSqlBuilder
             $distributionSql = sprintf(
                 'DISTRIBUTION = %s(%s)',
                 $destination->getTableDistribution()->getDistributionName(),
-                implode(',', $quotedColumns)
+                implode(',', $quotedColumns),
             );
         } else {
             $distributionSql = sprintf(
                 'DISTRIBUTION = %s',
-                $destination->getTableDistribution()->getDistributionName()
+                $destination->getTableDistribution()->getDistributionName(),
             );
         }
 
@@ -45,7 +45,7 @@ class FromTableCTASAdapterSqlBuilder
             $indexSql = sprintf(
                 '%s(%s)',
                 $destination->getTableIndex()->getIndexType(),
-                implode(',', $quotedColumns)
+                implode(',', $quotedColumns),
             );
         } else {
             $indexSql = $destination->getTableIndex()->getIndexType();
@@ -54,7 +54,7 @@ class FromTableCTASAdapterSqlBuilder
         if ($source instanceof Table) {
             $from = $source->getFromStatementForStaging(
             // cast values only if table is not typed (tables are not required to be same)
-                !$importOptions->areSameTablesRequired()
+                !$importOptions->areSameTablesRequired(),
             );
         }
 
@@ -64,7 +64,7 @@ class FromTableCTASAdapterSqlBuilder
             SynapseQuote::quoteSingleIdentifier($destination->getTableName()),
             $distributionSql,
             $indexSql,
-            $from
+            $from,
         );
     }
 }

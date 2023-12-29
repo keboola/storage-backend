@@ -42,15 +42,15 @@ final class FullImporter implements ToFinalTableImporterInterface
         BigqueryTableDefinition $destinationTableDefinition,
         BigqueryImportOptions $options,
         ImportState $state,
-        Session $session
+        Session $session,
     ): void {
         // truncate destination table
         $this->bqClient->runQuery($this->bqClient->query(
             $this->sqlBuilder->getTruncateTable(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName()
+                $destinationTableDefinition->getTableName(),
             ),
-            $session->getAsQueryOptions()
+            $session->getAsQueryOptions(),
         ));
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
 
@@ -59,11 +59,11 @@ final class FullImporter implements ToFinalTableImporterInterface
             $stagingTableDefinition,
             $destinationTableDefinition,
             $options,
-            DateTimeHelper::getNowFormatted()
+            DateTimeHelper::getNowFormatted(),
         );
         $this->bqClient->runQuery($this->bqClient->query(
             $sql,
-            $session->getAsQueryOptions()
+            $session->getAsQueryOptions(),
         ));
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
     }
@@ -72,7 +72,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         TableDefinitionInterface $stagingTableDefinition,
         TableDefinitionInterface $destinationTableDefinition,
         ImportOptionsInterface $options,
-        ImportState $state
+        ImportState $state,
     ): Result {
         assert($stagingTableDefinition instanceof BigqueryTableDefinition);
         assert($destinationTableDefinition instanceof BigqueryTableDefinition);
@@ -92,7 +92,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $destinationTableDefinition,
                     $options,
                     $state,
-                    $session
+                    $session,
                 );
             } else {
                 $this->doLoadFullWithoutDedup(
@@ -100,7 +100,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $destinationTableDefinition,
                     $options,
                     $state,
-                    $session
+                    $session,
                 );
             }
         } catch (JobException|ServiceException $e) {
@@ -118,7 +118,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         BigqueryTableDefinition $destinationTableDefinition,
         BigqueryImportOptions $options,
         ImportState $state,
-        Session $session
+        Session $session,
     ): void {
         $state->startTimer(self::TIMER_DEDUP);
 
@@ -132,29 +132,29 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getCreateDedupTable(
                     $stagingTableDefinition,
                     $deduplicationTableName,
-                    $destinationTableDefinition->getPrimaryKeysNames()
+                    $destinationTableDefinition->getPrimaryKeysNames(),
                 ),
-                $session->getAsQueryOptions()
+                $session->getAsQueryOptions(),
             ));
             /** @var BigqueryTableDefinition $deduplicationTableDefinition */
             $deduplicationTableDefinition = (new BigqueryTableReflection(
                 $this->bqClient,
                 $stagingTableDefinition->getSchemaName(),
-                $deduplicationTableName
+                $deduplicationTableName,
             ))->getTableDefinition();
 
             // 3 truncate destination table
             $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getTruncateTable(
                     $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName()
+                    $destinationTableDefinition->getTableName(),
                 ),
-                $session->getAsQueryOptions()
+                $session->getAsQueryOptions(),
             ));
 
             $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getBeginTransaction(),
-                $session->getAsQueryOptions()
+                $session->getAsQueryOptions(),
             ));
             $transactionStarted = true;
 
@@ -164,21 +164,21 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $deduplicationTableDefinition,
                     $destinationTableDefinition,
                     $options,
-                    DateTimeHelper::getNowFormatted()
+                    DateTimeHelper::getNowFormatted(),
                 ),
-                $session->getAsQueryOptions()
+                $session->getAsQueryOptions(),
             ));
             $state->stopTimer(self::TIMER_DEDUP);
 
             $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getCommitTransaction(),
-                $session->getAsQueryOptions()
+                $session->getAsQueryOptions(),
             ));
         } catch (Throwable $e) {
             if ($transactionStarted) {
                 $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getRollbackTransaction(),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
             }
             throw $e;
@@ -188,9 +188,9 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getDropTableIfExistsCommand(
                         $deduplicationTableDefinition->getSchemaName(),
-                        $deduplicationTableDefinition->getTableName()
+                        $deduplicationTableDefinition->getTableName(),
                     ),
-                    $session->getAsQueryOptions()
+                    $session->getAsQueryOptions(),
                 ));
             }
         }

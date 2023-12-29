@@ -24,7 +24,7 @@ final class DestinationTableOptions
     public function __construct(
         array $columnNamesInOrder,
         array $primaryKeys,
-        TableDistribution $distribution
+        TableDistribution $distribution,
     ) {
         $this->columnNamesInOrder = $columnNamesInOrder;
         $this->primaryKeys = $primaryKeys;

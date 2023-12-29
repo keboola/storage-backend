@@ -26,7 +26,7 @@ class SynapseUserReflection implements UserReflectionInterface
         foreach ($ids as $id) {
             $this->connection->executeStatement(sprintf(
                 'KILL %s;',
-                SynapseQuote::quote($id)
+                SynapseQuote::quote($id),
             ));
         }
     }
@@ -45,7 +45,7 @@ SELECT c.session_id AS id
 EOD;
         /** @var string[]|false $sessions */
         $sessions = $this->connection->fetchNumeric(
-            sprintf($sql, SynapseQuote::quote($this->userName))
+            sprintf($sql, SynapseQuote::quote($this->userName)),
         );
 
         if ($sessions === false) {

@@ -43,7 +43,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             (string) getenv('EXASOL_HOST'),
             (string) getenv('EXASOL_USERNAME'),
             (string) getenv('EXASOL_PASSWORD'),
-            $this->getDoctrineLogger()
+            $this->getDoctrineLogger(),
         );
     }
 
@@ -52,7 +52,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         string $tableName,
         int $id,
         string $firstName,
-        string $lastName
+        string $lastName,
     ): void {
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
@@ -60,13 +60,13 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             ExasolQuote::quoteSingleIdentifier($tableName),
             $id,
             ExasolQuote::quote($firstName),
-            ExasolQuote::quote($lastName)
+            ExasolQuote::quote($lastName),
         ));
     }
 
     protected function initSingleTable(
         string $schema = self::EXASOL_SOURCE_SCHEMA_NAME,
-        string $table = self::TABLE_TABLE
+        string $table = self::TABLE_TABLE,
     ): void {
         if (!$this->schemaExists($schema)) {
             $this->createSchema($schema);
@@ -80,8 +80,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
     "last_name" VARCHAR(100)
 );',
                 ExasolQuote::quoteSingleIdentifier($schema),
-                ExasolQuote::quoteSingleIdentifier($table)
-            )
+                ExasolQuote::quoteSingleIdentifier($table),
+            ),
         );
     }
 
@@ -96,8 +96,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
           "col2" VARCHAR(20000)  
         );',
                         ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                        ExasolQuote::quoteSingleIdentifier($tableName)
-                    )
+                        ExasolQuote::quoteSingleIdentifier($tableName),
+                    ),
                 );
                 break;
             case self::TABLE_OUT_CSV_2COLS:
@@ -109,14 +109,14 @@ class ExasolBaseTestCase extends ImportExportBaseTest
           "_timestamp" TIMESTAMP
         );',
                         ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                        ExasolQuote::quoteSingleIdentifier($tableName)
-                    )
+                        ExasolQuote::quoteSingleIdentifier($tableName),
+                    ),
                 );
 
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO %s.%s VALUES (\'x\', \'y\', NOW());',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
 
                 $this->connection->executeQuery(sprintf(
@@ -125,19 +125,19 @@ class ExasolBaseTestCase extends ImportExportBaseTest
           "col2" VARCHAR(2000000) 
         );',
                     ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
 
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
                     ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
 
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
                     ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_ACCOUNTS_WITHOUT_TS:
@@ -158,7 +158,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                  CONSTRAINT PRIMARY KEY ("id")
             ) ',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_NULLIFY:
@@ -169,7 +169,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 "col2" VARCHAR(2000000) 
             ) ',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_TYPES:
@@ -181,7 +181,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
               "boolCol"  VARCHAR(2000000) ,
               "_timestamp" TIMESTAMP
             );',
-                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+                    ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                 ));
 
                 $this->connection->executeQuery(sprintf(
@@ -191,13 +191,13 @@ class ExasolBaseTestCase extends ImportExportBaseTest
               "floatCol" float ,
               "boolCol" tinyint 
             );',
-                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
                 ));
                 $this->connection->executeQuery(sprintf(
                     'INSERT INTO  %s."types" VALUES
               (\'a\', \'10.5\', \'0.3\', 1)
            ;',
-                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName())
+                    ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
                 ));
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
@@ -208,7 +208,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
               "_timestamp" TIMESTAMP
            )',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_SINGLE_PK:
@@ -222,7 +222,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             CONSTRAINT PRIMARY KEY ("VisitID")
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_MULTI_PK:
@@ -236,7 +236,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             CONSTRAINT PRIMARY KEY ("VisitID", "Something")
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
                 // table just for EXA because PK cannot have null nor ''
@@ -252,7 +252,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             CONSTRAINT PRIMARY KEY ("VisitID", "Value", "MenuItem")
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_ACCOUNTS_3:
@@ -274,7 +274,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 CONSTRAINT PRIMARY KEY ("id")
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_OUT_LEMMA:
@@ -286,7 +286,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 "_timestamp" TIMESTAMP
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_TABLE:
@@ -298,7 +298,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 "_timestamp" TIMESTAMP
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
@@ -308,7 +308,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                                 "col2" VARCHAR(2000000)      
             );',
                     ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    ExasolQuote::quoteSingleIdentifier($tableName)
+                    ExasolQuote::quoteSingleIdentifier($tableName),
                 ));
                 break;
             default:
@@ -339,8 +339,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         $this->connection->executeQuery(
             sprintf(
                 'DROP SCHEMA %s CASCADE',
-                ExasolQuote::quoteSingleIdentifier($schemaName)
-            )
+                ExasolQuote::quoteSingleIdentifier($schemaName),
+            ),
         );
     }
 
@@ -349,8 +349,8 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         return (bool) $this->connection->fetchOne(
             sprintf(
                 'SELECT "SCHEMA_NAME" FROM "SYS"."EXA_ALL_SCHEMAS" WHERE "SCHEMA_NAME" = %s',
-                ExasolQuote::quote($schemaName)
-            )
+                ExasolQuote::quote($schemaName),
+            ),
         );
     }
 
@@ -359,20 +359,20 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         $this->connection->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',
-                ExasolQuote::quoteSingleIdentifier($schemaName)
-            )
+                ExasolQuote::quoteSingleIdentifier($schemaName),
+            ),
         );
     }
 
     protected function getExasolImportOptions(
         int $skipLines = 1,
-        bool $useTimeStamp = true
+        bool $useTimeStamp = true,
     ): ExasolImportOptions {
         return new ExasolImportOptions(
             [],
             false,
             $useTimeStamp,
-            $skipLines
+            $skipLines,
         );
     }
 
@@ -387,12 +387,12 @@ class ExasolBaseTestCase extends ImportExportBaseTest
         ExasolImportOptions $options,
         array $expected,
         $sortKey,
-        string $message = 'Imported tables are not the same as expected'
+        string $message = 'Imported tables are not the same as expected',
     ): void {
         $tableColumns = (new ExasolTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         ))->getColumnsNames();
 
         if ($options->useTimestamp()) {
@@ -417,7 +417,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
                 return ExasolQuote::quoteSingleIdentifier($item);
             }, $tableColumns)),
             ExasolQuote::quoteSingleIdentifier($destination->getSchemaName()),
-            ExasolQuote::quoteSingleIdentifier($destination->getTableName())
+            ExasolQuote::quoteSingleIdentifier($destination->getTableName()),
         );
 
         $queryResult = array_map(static function ($row) {
@@ -430,7 +430,7 @@ class ExasolBaseTestCase extends ImportExportBaseTest
             $expected,
             $queryResult,
             $sortKey,
-            $message
+            $message,
         );
     }
 }

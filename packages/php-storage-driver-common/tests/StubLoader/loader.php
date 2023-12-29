@@ -18,7 +18,7 @@ switch ($argv[1]) {
 
         $loader = new S3Loader(
             (string) getenv('AWS_REGION'),
-            (string) getenv('AWS_S3_BUCKET')
+            (string) getenv('AWS_S3_BUCKET'),
         );
         $loader->clearBucket();
         $loader->load();

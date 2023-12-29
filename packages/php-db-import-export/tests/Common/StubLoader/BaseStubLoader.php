@@ -22,7 +22,7 @@ abstract class BaseStubLoader
             $sliceName = sprintf('sliced.csv_%d', $i);
             file_put_contents(
                 self::BASE_DIR . 'sliced/2cols-large/' . $sliceName,
-                "\"a\",\"b\"\n"
+                "\"a\",\"b\"\n",
             );
         }
     }
@@ -34,7 +34,7 @@ abstract class BaseStubLoader
         $file = BaseStubLoader::BASE_DIR . 'long_col_6k.csv';
         file_put_contents(
             $file,
-            "\"col1\",\"col2\"\n"
+            "\"col1\",\"col2\"\n",
         );
         $fp = fopen($file, 'ab');
         assert($fp !== false);
@@ -48,7 +48,7 @@ abstract class BaseStubLoader
         $file = BaseStubLoader::BASE_DIR . 'long_col_10k.csv';
         file_put_contents(
             $file,
-            "\"col1\",\"col2\"\n"
+            "\"col1\",\"col2\"\n",
         );
         $fp = fopen($file, 'ab');
         assert($fp !== false);

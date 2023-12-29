@@ -17,7 +17,7 @@ abstract class BaseFile
     public function __construct(
         string $bucket,
         string $filePath,
-        string $storageIntegrationName
+        string $storageIntegrationName,
     ) {
         $this->filePath = $filePath;
         $this->bucket = $bucket;

@@ -73,7 +73,7 @@ class TeradataTableQueryBuilderTest extends TestCase
     {
         $this->assertEquals(
             'ALTER TABLE "myDB"."myTable" ADD CONSTRAINT kbc_pk PRIMARY KEY ("my","rules");',
-            $this->qb->getAddPrimaryKeyCommand('myDB', 'myTable', ['my', 'rules'])
+            $this->qb->getAddPrimaryKeyCommand('myDB', 'myTable', ['my', 'rules']),
         );
     }
 
@@ -81,7 +81,7 @@ class TeradataTableQueryBuilderTest extends TestCase
     {
         $this->assertEquals(
             'ALTER TABLE "myDB"."myTable" DROP CONSTRAINT kbc_pk;',
-            $this->qb->getDropPrimaryKeyCommand('myDB', 'myTable')
+            $this->qb->getDropPrimaryKeyCommand('myDB', 'myTable'),
         );
     }
 
@@ -92,7 +92,7 @@ class TeradataTableQueryBuilderTest extends TestCase
 (
     SELECT ROW_NUMBER() OVER (PARTITION BY "my","rules" ORDER BY "my","rules") AS "_row_number_" FROM "myDB"."myTable"
 ) "data"',
-            $this->qb->getCommandForDuplicates('myDB', 'myTable', ['my', 'rules'])
+            $this->qb->getCommandForDuplicates('myDB', 'myTable', ['my', 'rules']),
         );
     }
 }

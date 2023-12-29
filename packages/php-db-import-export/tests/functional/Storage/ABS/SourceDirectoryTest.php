@@ -19,7 +19,7 @@ class SourceDirectoryTest extends BaseTestCase
             new CsvOptions(),
             [],
             true,
-            true
+            true,
         );
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
@@ -32,7 +32,7 @@ class SourceDirectoryTest extends BaseTestCase
             new CsvOptions(),
             [],
             true,
-            true
+            true,
         );
         $entries = $source->getManifestEntries();
         self::assertCount(2, $entries);
@@ -45,7 +45,7 @@ class SourceDirectoryTest extends BaseTestCase
             new CsvOptions(),
             [],
             true,
-            true
+            true,
         );
         self::assertEquals('lf', $source->getLineEnding());
     }

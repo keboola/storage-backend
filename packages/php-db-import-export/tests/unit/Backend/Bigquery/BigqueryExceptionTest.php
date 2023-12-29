@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Bigquery;
 
@@ -30,6 +30,7 @@ class BigqueryExceptionTest extends TestCase
                 'kind' => 'bigquery#job',
                 'etag' => '/ty8yus/A/JoTZZvf1qgFQ==',
                 'id' => 'tf2-56:US.eb64d133-213d-4e99-9cc0-4e37d0c18de9',
+                // phpcs:ignore Generic.Files.LineLength
                 'selfLink' => 'https://bigquery.googleapis.com/bigquery/v2/projects/tf2-56/jobs/eb64d133-213d-4e99-9cc0-4e37d0c18de9?location=US',
                 'user_email' => 'tf2-56@617348738050.iam.gserviceaccount.com',
                 'configuration' => [
@@ -83,16 +84,19 @@ class BigqueryExceptionTest extends TestCase
                 'status' => [
                     'errorResult' => [
                         'reason' => 'invalid',
+                        // phpcs:ignore Generic.Files.LineLength
                         'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 1; errors: 1; max bad: 0; error percent: 0',
                     ],
                     'errors' => [
                         [
                             'reason' => 'invalid',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 1; errors: 1; max bad: 0; error percent: 0',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                     ],
@@ -105,9 +109,11 @@ class BigqueryExceptionTest extends TestCase
             ],
             function (Throwable $e) {
                 $this->assertStringStartsWith(
-                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD '
-                    . 'HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 '
-                    . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:', $e->getMessage()
+                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp.'
+                    . ' Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]];'
+                    . ' line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 '
+                    . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:',
+                    $e->getMessage(),
                 );
                 $this->assertCount(1, explode(PHP_EOL, $e->getMessage()));
                 $this->assertInstanceOf(BigqueryInputDataException::class, $e);
@@ -118,6 +124,7 @@ class BigqueryExceptionTest extends TestCase
                 'kind' => 'bigquery#job',
                 'etag' => '/ty8yus/A/JoTZZvf1qgFQ==',
                 'id' => 'tf2-56:US.eb64d133-213d-4e99-9cc0-4e37d0c18de9',
+                // phpcs:ignore Generic.Files.LineLength
                 'selfLink' => 'https://bigquery.googleapis.com/bigquery/v2/projects/tf2-56/jobs/eb64d133-213d-4e99-9cc0-4e37d0c18de9?location=US',
                 'user_email' => 'tf2-56@617348738050.iam.gserviceaccount.com',
                 'configuration' => [
@@ -171,21 +178,25 @@ class BigqueryExceptionTest extends TestCase
                 'status' => [
                     'errorResult' => [
                         'reason' => 'invalid',
+                        // phpcs:ignore Generic.Files.LineLength
                         'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2; errors: 2; max bad: 0; error percent: 0',
                     ],
                     'errors' => [
                         [
                             'reason' => 'invalid',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2; errors: 2; max bad: 0; error percent: 0',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                     ],
@@ -197,16 +208,22 @@ class BigqueryExceptionTest extends TestCase
                 ],
             ],
             function (Throwable $e) {
+                // phpcs:ignore Generic.Files.LineLength
                 $this->assertStringStartsWith(
-                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD '
-                    . 'HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 '
-                    . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:', $e->getMessage()
+                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp.'
+                    . 'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]];'
+                    . 'line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 '
+                    . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:',
+                    $e->getMessage(),
                 );
+                // phpcs:ignore Generic.Files.LineLength
                 $this->assertStringContainsString(
                 // different line number
-                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD '
-                    . 'HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 '
-                    . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:', $e->getMessage()
+                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp.'
+                    . ' Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]];'
+                    . ' line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 '
+                    . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:',
+                    $e->getMessage(),
                 );
                 $this->assertCount(2, explode(PHP_EOL, $e->getMessage()));
                 $this->assertInstanceOf(BigqueryInputDataException::class, $e);
@@ -217,6 +234,7 @@ class BigqueryExceptionTest extends TestCase
                 'kind' => 'bigquery#job',
                 'etag' => '/ty8yus/A/JoTZZvf1qgFQ==',
                 'id' => 'tf2-56:US.eb64d133-213d-4e99-9cc0-4e37d0c18de9',
+                // phpcs:ignore Generic.Files.LineLength
                 'selfLink' => 'https://bigquery.googleapis.com/bigquery/v2/projects/tf2-56/jobs/eb64d133-213d-4e99-9cc0-4e37d0c18de9?location=US',
                 'user_email' => 'tf2-56@617348738050.iam.gserviceaccount.com',
                 'configuration' => [
@@ -270,71 +288,85 @@ class BigqueryExceptionTest extends TestCase
                 'status' => [
                     'errorResult' => [
                         'reason' => 'invalid',
+                        // phpcs:ignore Generic.Files.LineLength
                         'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                     ],
                     'errors' => [
                         [
                             'reason' => 'invalid',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
 
@@ -348,7 +380,8 @@ class BigqueryExceptionTest extends TestCase
             ],
             function (Throwable $e) {
                 $this->assertStringStartsWith(
-                    'There were too many errors during the import. For more information check job', $e->getMessage()
+                    'There were too many errors during the import. For more information check job',
+                    $e->getMessage(),
                 );
 
                 $this->assertCount(1, explode(PHP_EOL, $e->getMessage()));
@@ -360,6 +393,7 @@ class BigqueryExceptionTest extends TestCase
                 'kind' => 'bigquery#job',
                 'etag' => '/ty8yus/A/JoTZZvf1qgFQ==',
                 'id' => 'tf2-56:US.eb64d133-213d-4e99-9cc0-4e37d0c18de9',
+                // phpcs:ignore Generic.Files.LineLength
                 'selfLink' => 'https://bigquery.googleapis.com/bigquery/v2/projects/tf2-56/jobs/eb64d133-213d-4e99-9cc0-4e37d0c18de9?location=US',
                 'user_email' => 'tf2-56@617348738050.iam.gserviceaccount.com',
                 'configuration' => [
@@ -413,11 +447,13 @@ class BigqueryExceptionTest extends TestCase
                 'status' => [
                     'errorResult' => [
                         'reason' => 'invalid',
+                        // phpcs:ignore Generic.Files.LineLength
                         'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                     ],
                     'errors' => [
                         [
                             'reason' => 'invalid',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                         ],
                         [
@@ -428,56 +464,67 @@ class BigqueryExceptionTest extends TestCase
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
 
@@ -500,6 +547,7 @@ class BigqueryExceptionTest extends TestCase
                 'kind' => 'bigquery#job',
                 'etag' => '/ty8yus/A/JoTZZvf1qgFQ==',
                 'id' => 'tf2-56:US.eb64d133-213d-4e99-9cc0-4e37d0c18de9',
+                // phpcs:ignore Generic.Files.LineLength
                 'selfLink' => 'https://bigquery.googleapis.com/bigquery/v2/projects/tf2-56/jobs/eb64d133-213d-4e99-9cc0-4e37d0c18de9?location=US',
                 'user_email' => 'tf2-56@617348738050.iam.gserviceaccount.com',
                 'configuration' => [
@@ -553,11 +601,13 @@ class BigqueryExceptionTest extends TestCase
                 'status' => [
                     'errorResult' => [
                         'reason' => 'invalid',
+                        // phpcs:ignore Generic.Files.LineLength
                         'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                     ],
                     'errors' => [
                         [
                             'reason' => 'invalid',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                         ],
                         [
@@ -568,6 +618,7 @@ class BigqueryExceptionTest extends TestCase
                         [
                             'reason' => 'invalid',
                             'location' => 'gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; line_number: 3 byte_offset_to_start_of_line: 17 column_index: 1 column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File: gs://kbc-tf2-files-storage/exp-15/56/files/2023/11/23/3121.keboola7ecguy.gz',
                         ],
 
@@ -582,7 +633,7 @@ class BigqueryExceptionTest extends TestCase
             function (Throwable $e) {
                 $this->assertStringContainsString(
                     'There were additional errors during the import. For more information check job ',
-                    $e->getMessage()
+                    $e->getMessage(),
                 );
                 $this->assertCount(2, explode(PHP_EOL, $e->getMessage()));
                 $this->assertInstanceOf(BigqueryInputDataException::class, $e);
@@ -593,6 +644,7 @@ class BigqueryExceptionTest extends TestCase
                 'kind' => 'bigquery#job',
                 'etag' => '/ty8yus/A/JoTZZvf1qgFQ==',
                 'id' => 'tf2-56:US.eb64d133-213d-4e99-9cc0-4e37d0c18de9',
+                // phpcs:ignore Generic.Files.LineLength
                 'selfLink' => 'https://bigquery.googleapis.com/bigquery/v2/projects/tf2-56/jobs/eb64d133-213d-4e99-9cc0-4e37d0c18de9?location=US',
                 'user_email' => 'tf2-56@617348738050.iam.gserviceaccount.com',
                 'configuration' => [
@@ -646,11 +698,13 @@ class BigqueryExceptionTest extends TestCase
                 'status' => [
                     'errorResult' => [
                         'reason' => 'invalid',
+                        // phpcs:ignore Generic.Files.LineLength
                         'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                     ],
                     'errors' => [
                         [
                             'reason' => 'invalid',
+                            // phpcs:ignore Generic.Files.LineLength
                             'message' => 'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                         ],
                         [
@@ -678,8 +732,9 @@ class BigqueryExceptionTest extends TestCase
             ],
             function (Throwable $e) {
                 $this->assertStringContainsString(
-                    'Error while reading data, error message: CSV processing encountered too many errors, giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
-                    $e->getMessage()
+                    'Error while reading data, error message: CSV processing encountered too many errors,'
+                    . 'giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
+                    $e->getMessage(),
                 );
                 $this->assertInstanceOf(BigqueryException::class, $e);
             },

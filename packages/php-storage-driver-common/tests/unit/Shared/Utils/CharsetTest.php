@@ -13,11 +13,11 @@ class CharsetTest extends TestCase
     {
         $this->assertEquals(
             '0123456789',
-            Charset::getCharlistFromRange('0-9')
+            Charset::getCharlistFromRange('0-9'),
         );
         $this->assertEquals(
             'abcdefghijklmnopqrstuvwxyzABCDEF',
-            Charset::getCharlistFromRange('a-zA-F')
+            Charset::getCharlistFromRange('a-zA-F'),
         );
     }
 }

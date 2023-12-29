@@ -48,7 +48,7 @@ class SourceFile extends BaseFile implements SourceInterface
         bool $isSliced,
         array $columnsNames = [],
         ?array $primaryKeysNames = null,
-        ?string $blobMasterKey = null
+        ?string $blobMasterKey = null,
     ) {
         parent::__construct($container, $filePath, $sasToken, $accountName);
         $this->isSliced = $isSliced;
@@ -94,7 +94,7 @@ class SourceFile extends BaseFile implements SourceInterface
      * @return string[]
      */
     public function getManifestEntries(
-        string $protocol = self::PROTOCOL_AZURE
+        string $protocol = self::PROTOCOL_AZURE,
     ): array {
         $blobClient = $this->getBlobClient();
 
@@ -130,11 +130,11 @@ class SourceFile extends BaseFile implements SourceInterface
             $this->accountName,
             Resources::BLOB_BASE_DNS_NAME,
             Resources::SAS_TOKEN_NAME,
-            $this->sasToken
+            $this->sasToken,
         );
 
         return ClientFactory::createClientFromConnectionString(
-            $SASConnectionString
+            $SASConnectionString,
         );
     }
 
@@ -145,7 +145,7 @@ class SourceFile extends BaseFile implements SourceInterface
     protected function transformManifestEntries(
         array $entries,
         string $protocol,
-        BlobRestProxy $blobClient
+        BlobRestProxy $blobClient,
     ): array {
         return array_map(function ($entryUrl) use ($protocol, $blobClient) {
             // this is temporary solution copy into is not failing when blob not exists

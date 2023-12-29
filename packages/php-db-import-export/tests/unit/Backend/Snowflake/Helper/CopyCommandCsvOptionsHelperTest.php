@@ -15,7 +15,7 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
     {
         $result = CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
             new ImportOptions(),
-            new CsvOptions()
+            new CsvOptions(),
         );
 
         self::assertSame([
@@ -31,8 +31,8 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
             new ImportOptions([], false, false, 1),
             new CsvOptions(
                 CsvOptions::DEFAULT_DELIMITER,
-                ''
-            )
+                '',
+            ),
         );
 
         self::assertSame([
@@ -45,7 +45,7 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
     {
         $result = CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
             new ImportOptions([], false, false, 1),
-            new CsvOptions()
+            new CsvOptions(),
         );
 
         self::assertSame([
@@ -63,8 +63,8 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
             new CsvOptions(
                 CsvOptions::DEFAULT_DELIMITER,
                 '',
-                '\\'
-            )
+                '\\',
+            ),
         );
 
         self::assertSame([

@@ -38,7 +38,7 @@ COPY INTO "schema"."stagingTable" FROM ''
         ESCAPE_UNENCLOSED_FIELD = NONE
         , NULL_IF=(''))
                 FILES = ('https:url')
-EOT
+EOT,
         );
 
         $conn->expects(self::once())->method('fetchAllAssociative')
@@ -55,14 +55,14 @@ EOT
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions();
         $adapter = new FromGCSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(10, $count);
@@ -88,7 +88,7 @@ COPY INTO "schema"."stagingTable" FROM ''
         ESCAPE_UNENCLOSED_FIELD = NONE
         , NULL_IF=(''))
                 FILES = ('https:url')
-EOT
+EOT,
         );
 
         $conn->expects(self::once())->method('fetchAllAssociative')
@@ -105,14 +105,14 @@ EOT
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions([], false, false, 3);
         $adapter = new FromGCSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(7, $count);
@@ -167,14 +167,14 @@ EOT;
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions();
         $adapter = new FromGCSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(7, $count);

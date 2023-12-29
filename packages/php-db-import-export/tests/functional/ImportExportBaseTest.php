@@ -67,7 +67,7 @@ abstract class ImportExportBaseTest extends TestCase
         $this->assertCount(
             count($expectedContent),
             $actualContent,
-            'Csv dont have equals count of items.'
+            'Csv dont have equals count of items.',
         );
     }
 
@@ -77,7 +77,7 @@ abstract class ImportExportBaseTest extends TestCase
             iterator_to_array($expected),
             iterator_to_array($actual),
             0,
-            'Csv files are not same'
+            'Csv files are not same',
         );
     }
 
@@ -90,7 +90,7 @@ abstract class ImportExportBaseTest extends TestCase
         array $expected,
         array $actual,
         $sortKey,
-        string $message = ''
+        string $message = '',
     ): void {
         $comparsion = function ($attrLeft, $attrRight) use ($sortKey) {
             if ($attrLeft[$sortKey] === $attrRight[$sortKey]) {
@@ -129,29 +129,29 @@ abstract class ImportExportBaseTest extends TestCase
             $expectedContent,
             $actualContent,
             0,
-            'Csv files are not same'
+            'Csv files are not same',
         );
     }
 
     protected function getSimpleImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): ImportOptions {
         return new ImportOptions(
             [],
             false,
             true,
-            $skipLines
+            $skipLines,
         );
     }
 
     protected function getSimpleIncrementalImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): ImportOptions {
         return new ImportOptions(
             [],
             true,
             true,
-            $skipLines
+            $skipLines,
         );
     }
 
@@ -163,7 +163,7 @@ abstract class ImportExportBaseTest extends TestCase
      */
     protected function getExpectationFileData(
         string $filePathInDataDir,
-        bool $convertNullsString = self::EXPECTATION_FILE_DATA_KEEP_AS_IS
+        bool $convertNullsString = self::EXPECTATION_FILE_DATA_KEEP_AS_IS,
     ): array {
         $expectedRows = [];
         $expectationFile = new CsvFile(self::DATA_DIR . $filePathInDataDir);
@@ -208,7 +208,7 @@ abstract class ImportExportBaseTest extends TestCase
 
         return new CsvStub(
             $columns,
-            $rows
+            $rows,
         );
     }
 }

@@ -41,7 +41,7 @@ class SnowflakeBaseCase extends TestCase
     protected function initTable(
         string $schema = self::TEST_SCHEMA,
         string $table = self::TABLE_GENERIC,
-        bool $createNewSchema = true
+        bool $createNewSchema = true,
     ): void {
         if ($createNewSchema) {
             $this->createSchema($schema);
@@ -56,8 +56,8 @@ class SnowflakeBaseCase extends TestCase
     "last_name" VARCHAR(100)
 );',
                 SnowflakeQuote::quoteSingleIdentifier($schema),
-                SnowflakeQuote::quoteSingleIdentifier($table)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($table),
+            ),
         );
     }
 
@@ -66,8 +66,8 @@ class SnowflakeBaseCase extends TestCase
         $this->connection->executeQuery(
             sprintf(
                 'CREATE SCHEMA %s;',
-                SnowflakeQuote::quoteSingleIdentifier($schemaName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            ),
         );
     }
 
@@ -80,8 +80,8 @@ class SnowflakeBaseCase extends TestCase
         $this->connection->executeQuery(
             sprintf(
                 'DROP SCHEMA %s CASCADE',
-                SnowflakeQuote::quoteSingleIdentifier($schemaName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            ),
         );
     }
 
@@ -90,8 +90,8 @@ class SnowflakeBaseCase extends TestCase
         return (bool) $this->connection->fetchOne(
             sprintf(
                 'SHOW SCHEMAS LIKE %s',
-                SnowflakeQuote::quote($schemaName)
-            )
+                SnowflakeQuote::quote($schemaName),
+            ),
         );
     }
 
@@ -104,7 +104,7 @@ class SnowflakeBaseCase extends TestCase
     {
         self::assertEquals(
             1,
-            $connection->fetchOne('SELECT 1')
+            $connection->fetchOne('SELECT 1'),
         );
     }
 
@@ -119,14 +119,14 @@ class SnowflakeBaseCase extends TestCase
         // delete existing user
         $this->connection->executeQuery(sprintf(
             'DROP USER IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier($userName)
+            SnowflakeQuote::quoteSingleIdentifier($userName),
         ));
 
         // create user
         $this->connection->executeQuery(sprintf(
             'CREATE USER %s PASSWORD = %s',
             SnowflakeQuote::quoteSingleIdentifier($userName),
-            SnowflakeQuote::quote(bin2hex(random_bytes(8)))
+            SnowflakeQuote::quote(bin2hex(random_bytes(8))),
         ));
     }
 
@@ -135,13 +135,13 @@ class SnowflakeBaseCase extends TestCase
         // delete existing role
         $this->connection->executeQuery(sprintf(
             'DROP ROLE IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier($roleName)
+            SnowflakeQuote::quoteSingleIdentifier($roleName),
         ));
 
         // create role
         $this->connection->executeQuery(sprintf(
             'CREATE ROLE %s;',
-            SnowflakeQuote::quoteSingleIdentifier($roleName)
+            SnowflakeQuote::quoteSingleIdentifier($roleName),
         ));
     }
 
@@ -150,7 +150,7 @@ class SnowflakeBaseCase extends TestCase
         string $tableName,
         int $id,
         string $firstName,
-        string $lastName
+        string $lastName,
     ): void {
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
@@ -158,7 +158,7 @@ class SnowflakeBaseCase extends TestCase
             SnowflakeQuote::quoteSingleIdentifier($tableName),
             $id,
             SnowflakeQuote::quote($firstName),
-            SnowflakeQuote::quote($lastName)
+            SnowflakeQuote::quote($lastName),
         ));
     }
 }

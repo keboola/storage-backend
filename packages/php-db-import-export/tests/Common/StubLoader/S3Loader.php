@@ -25,7 +25,7 @@ class S3Loader extends BaseStubLoader
     public function __construct(
         string $region,
         string $bucket,
-        string $key
+        string $key,
     ) {
         $this->client = new S3Client([
             'region' => $region,
@@ -74,7 +74,7 @@ class S3Loader extends BaseStubLoader
             's3://' . $this->path,
             [
                 'debug' => true,
-            ]
+            ],
         );
 
         // Perform the transfer synchronously.
@@ -88,7 +88,7 @@ class S3Loader extends BaseStubLoader
                     [
                         'url' => sprintf(
                             's3://%snot-exists.csv',
-                            $this->path
+                            $this->path,
                         ),
                         'mandatory' => true,
                     ],
@@ -119,7 +119,7 @@ class S3Loader extends BaseStubLoader
                         's3://%ssliced/%s/%s',
                         $this->path,
                         $directory->getBasename(),
-                        $file->getFilename()
+                        $file->getFilename(),
                     ),
                     'mandatory' => true,
                 ];
@@ -129,7 +129,7 @@ class S3Loader extends BaseStubLoader
                 '%s/%s.%s.csvmanifest',
                 $directory->getPathname(),
                 self::MANIFEST_SUFFIX,
-                $directory->getBasename()
+                $directory->getBasename(),
             );
             file_put_contents($manifestFilePath, guzzle_json_encode($manifest));
         }

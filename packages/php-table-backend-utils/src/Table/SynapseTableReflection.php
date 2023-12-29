@@ -49,7 +49,7 @@ final class SynapseTableReflection implements TableReflectionInterface
         /** @var array<array{name:string}> $columns */
         $columns = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[columns] WHERE [object_id] = %s ORDER BY [column_id]',
-            SynapseQuote::quote($tableId)
+            SynapseQuote::quote($tableId),
         ));
 
         return array_map(static fn($column) => $column['name'], $columns);
@@ -72,27 +72,27 @@ final class SynapseTableReflection implements TableReflectionInterface
         if ($this->isTemporary) {
             $object = SynapseQuote::quote(
                 'tempdb..'
-                . SynapseQuote::quoteSingleIdentifier($this->tableName)
+                . SynapseQuote::quoteSingleIdentifier($this->tableName),
             );
         } else {
             $object = SynapseQuote::quote(
                 SynapseQuote::quoteSingleIdentifier($this->schemaName)
                 . '.' .
-                SynapseQuote::quoteSingleIdentifier($this->tableName)
+                SynapseQuote::quoteSingleIdentifier($this->tableName),
             );
         }
 
         /** @var string|null $objectId */
         $objectId = $this->connection->fetchOne(sprintf(
             'SELECT OBJECT_ID(N%s)',
-            $object
+            $object,
         ));
 
         if ($objectId === null) {
             throw new TableNotExistsReflectionException(sprintf(
                 'Table "%s.%s" does not exist.',
                 $this->schemaName,
-                $this->tableName
+                $this->tableName,
             ));
         }
 
@@ -147,7 +147,7 @@ EOT;
         $count = $this->connection->fetchOne(sprintf(
             'SELECT COUNT_BIG(*) AS [count] FROM %s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
-            SynapseQuote::quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->tableName),
         ));
 
         return (int) $count;
@@ -172,7 +172,7 @@ SELECT COL_NAME(ic.OBJECT_ID,ic.column_id) AS column_name
         sys.index_columns AS ic ON i.OBJECT_ID = ic.OBJECT_ID AND i.index_id = ic.index_id
     WHERE i.is_primary_key = 1 AND i.OBJECT_ID = '$tableId'
     ORDER BY ic.index_column_id
-EOT
+EOT,
         );
 
         return array_map(static fn($item) => $item['column_name'], $result);
@@ -197,15 +197,15 @@ EOT
         $info = $this->connection->fetchAssociative(sprintf(
             'EXEC sp_spaceused \'%s.%s\'',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
-            SynapseQuote::quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->tableName),
         ));
 
         return new TableStats(
             (int) returnBytes(
                 // removes all whitespaces and unit(bytes)
-                preg_replace('/[B\s]+/ui', '', $info['data'])
+                preg_replace('/[B\s]+/ui', '', $info['data']),
             ),
-            (int) $info['rows']
+            (int) $info['rows'],
         );
     }
 
@@ -229,7 +229,7 @@ EOT
         $objectNameWithSchema = sprintf(
             '%s.%s',
             SynapseQuote::quoteSingleIdentifier($this->schemaName),
-            SynapseQuote::quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->tableName),
         );
 
         /**
@@ -268,7 +268,7 @@ EOT
 SELECT distribution_policy_desc
     FROM sys.pdw_table_distribution_properties AS dp
     WHERE dp.OBJECT_ID = '$tableId'
-EOT
+EOT,
         );
         return $distribution;
     }
@@ -287,7 +287,7 @@ SELECT c.name
 FROM sys.pdw_column_distribution_properties AS dp
      INNER JOIN sys.columns AS c ON dp.column_id = c.column_id
 WHERE dp.distribution_ordinal = 1 AND dp.OBJECT_ID = '$tableId' AND c.object_id = '$tableId'
-EOT
+EOT,
         );
 
         return array_map(static fn($item) => $item['name'], $result);
@@ -306,12 +306,12 @@ EOT
             $this->getPrimaryKeysNames(),
             new TableDistributionDefinition(
                 $this->getTableDistribution(),
-                $this->getTableDistributionColumnsNames()
+                $this->getTableDistributionColumnsNames(),
             ),
             new TableIndexDefinition(
                 $this->getTableIndex(),
-                $this->getTableIndexColumnsNames()
-            )
+                $this->getTableIndexColumnsNames(),
+            ),
         );
     }
 
@@ -332,7 +332,7 @@ JOIN sys.schemas s
 FULL OUTER JOIN sys.pdw_table_distribution_properties dp
     ON t.object_id = dp.object_id
 WHERE t.object_id = '$tableId'
-EOT
+EOT,
         );
 
         $indexType = $result[0];
@@ -349,7 +349,7 @@ EOT
 
         throw new LogicException(sprintf(
             'Unknown index type for Synapse "%s"',
-            $indexType
+            $indexType,
         ));
     }
 
@@ -382,7 +382,7 @@ WHERE
     AND EXISTS (SELECT * 
                 FROM sys.columns c2 
                 WHERE ic.object_id = c2.object_id )
-EOT
+EOT,
         );
 
         if ($result === []) {
@@ -397,12 +397,12 @@ EOT
         $object = SynapseQuote::quote(
             SynapseQuote::quoteSingleIdentifier($this->schemaName)
             . '.' .
-            SynapseQuote::quoteSingleIdentifier($this->tableName)
+            SynapseQuote::quoteSingleIdentifier($this->tableName),
         );
 
         $objectId = $this->connection->fetchOne(sprintf(
             'SELECT OBJECT_ID(N%s)',
-            $object
+            $object,
         ));
 
         return $objectId !== null;

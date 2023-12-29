@@ -19,7 +19,7 @@ class GcsSlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInt
     private StorageClient $client;
 
     public function __construct(
-        StorageClient $client
+        StorageClient $client,
     ) {
         $this->client = $client;
     }
@@ -47,7 +47,7 @@ class GcsSlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInt
         ], JSON_THROW_ON_ERROR);
 
         $writeStream = new WriteStream(null, [
-            'chunkSize' => self::CHUNK_SIZE_256_KB
+            'chunkSize' => self::CHUNK_SIZE_256_KB,
         ]);
         $uploader = $bucket->getStreamableUploader($writeStream, [
             'name' => $path->getPathnameWithoutRoot() . 'manifest',

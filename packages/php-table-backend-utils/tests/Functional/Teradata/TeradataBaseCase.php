@@ -30,7 +30,7 @@ class TeradataBaseCase extends TestCase
     }
 
     protected function initTable(
-        string $table = self::TABLE_GENERIC
+        string $table = self::TABLE_GENERIC,
     ): void {
 
         $database = $this->getDatabaseName();
@@ -44,8 +44,8 @@ class TeradataBaseCase extends TestCase
       "last_name" VARCHAR(10000)
      );',
                 TeradataQuote::quoteSingleIdentifier($database),
-                TeradataQuote::quoteSingleIdentifier($table)
-            )
+                TeradataQuote::quoteSingleIdentifier($table),
+            ),
         );
     }
 
@@ -99,7 +99,7 @@ CREATE DATABASE %s AS
         }
         $db->executeStatement(sprintf(
             'SET SESSION DATABASE %s;',
-            TeradataQuote::quoteSingleIdentifier((string) getenv('TERADATA_DATABASE'))
+            TeradataQuote::quoteSingleIdentifier((string) getenv('TERADATA_DATABASE')),
         ));
 
         return $db;
@@ -109,7 +109,7 @@ CREATE DATABASE %s AS
     {
         self::assertEquals(
             1,
-            $connection->fetchOne('SELECT 1')
+            $connection->fetchOne('SELECT 1'),
         );
     }
 
@@ -125,14 +125,14 @@ CREATE DATABASE %s AS
         /** @var array{array{RoleName: string, UserName: string}} $existingUsers */
         $existingUsers = $this->connection->fetchAllAssociative(sprintf(
             'SELECT  UserName FROM DBC.UsersV U WHERE "U"."Username" = %s',
-            TeradataQuote::quote($userName)
+            TeradataQuote::quote($userName),
         ));
 
         // delete existing users
         foreach ($existingUsers as $existingUser) {
             $this->connection->executeQuery(sprintf(
                 'DROP USER %s',
-                TeradataQuote::quoteSingleIdentifier($existingUser['UserName'])
+                TeradataQuote::quoteSingleIdentifier($existingUser['UserName']),
             ));
         }
 
@@ -141,7 +141,7 @@ CREATE DATABASE %s AS
             'CREATE USER %s AS PERM = 0 PASSWORD=%s DEFAULT DATABASE = %s;',
             TeradataQuote::quoteSingleIdentifier($userName),
             TeradataQuote::quoteSingleIdentifier($this->generateRandomPassword()),
-            TeradataQuote::quoteSingleIdentifier($userName . 'DB')
+            TeradataQuote::quoteSingleIdentifier($userName . 'DB'),
         ));
     }
 
@@ -151,21 +151,21 @@ CREATE DATABASE %s AS
         /** @var array{array{RoleName: string}} $existingUsers */
         $existingUsers = $this->connection->fetchAllAssociative(sprintf(
             'SELECT RoleName FROM DBC.RoleInfoVX WHERE RoleName = %s',
-            TeradataQuote::quote($roleName)
+            TeradataQuote::quote($roleName),
         ));
 
         // delete existing roles
         foreach ($existingUsers as $existingUser) {
             $this->connection->executeQuery(sprintf(
                 'DROP ROLE %s',
-                TeradataQuote::quoteSingleIdentifier($existingUser['RoleName'])
+                TeradataQuote::quoteSingleIdentifier($existingUser['RoleName']),
             ));
         }
 
         // create role
         $this->connection->executeQuery(sprintf(
             'CREATE ROLE %s;',
-            TeradataQuote::quoteSingleIdentifier($roleName)
+            TeradataQuote::quoteSingleIdentifier($roleName),
         ));
     }
 
@@ -174,7 +174,7 @@ CREATE DATABASE %s AS
         string $tableName,
         int $id,
         string $firstName,
-        string $lastName
+        string $lastName,
     ): void {
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s VALUES (%d, %s, %s)',
@@ -182,7 +182,7 @@ CREATE DATABASE %s AS
             TeradataQuote::quoteSingleIdentifier($tableName),
             $id,
             TeradataQuote::quote($firstName),
-            TeradataQuote::quote($lastName)
+            TeradataQuote::quote($lastName),
         ));
     }
 
@@ -230,7 +230,7 @@ CREATE DATABASE %s AS
         array $expected,
         array $actual,
         $sortKey,
-        string $message = ''
+        string $message = '',
     ): void {
         $comparison = fn($attrLeft, $attrRight) => $attrLeft[$sortKey] <=> $attrRight[$sortKey];
         usort($expected, $comparison);

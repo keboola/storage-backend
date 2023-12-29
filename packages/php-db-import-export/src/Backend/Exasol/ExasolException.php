@@ -34,7 +34,7 @@ class ExasolException extends Exception
             preg_match(
                 '/^(An exception occurred.*?)\[EXASOL\]\[EXASolution driver\]ETL-2105: (.+)?.\(Session.*/ms',
                 $e->getMessage(),
-                $matches
+                $matches,
             );
 
             return InvalidSourceDataException::createFromDbalException($e, $matches[2]);
@@ -45,12 +45,12 @@ class ExasolException extends Exception
             preg_match(
                 '/^(An exception occurred.*?)(constraint violation - not null.*)=?.in table.*/ms',
                 $e->getMessage(),
-                $matches
+                $matches,
             );
 
             return new Exception(
                 'Load error: ' . ucfirst($matches[2]) . ').',
-                Exception::UNKNOWN_ERROR
+                Exception::UNKNOWN_ERROR,
             );
         }
 

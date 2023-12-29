@@ -11,7 +11,7 @@ trait S3SourceTrait
 {
     protected function createDummyS3SourceInstance(
         string $file,
-        bool $isSliced = false
+        bool $isSliced = false,
     ): Storage\S3\SourceFile {
         return new Storage\S3\SourceFile(
             's3Key',
@@ -21,7 +21,7 @@ trait S3SourceTrait
             $file,
             new CsvOptions(),
             $isSliced,
-            []
+            [],
         );
     }
 
@@ -34,7 +34,7 @@ trait S3SourceTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ): Storage\S3\SourceFile {
         return $this->createS3SourceInstanceFromCsv(
             $filePath,
@@ -42,7 +42,7 @@ trait S3SourceTrait
             $columns,
             $isSliced,
             $isDirectory,
-            $primaryKeys
+            $primaryKeys,
         );
     }
 
@@ -57,7 +57,7 @@ trait S3SourceTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ): Storage\S3\SourceFile {
         if ($isDirectory) {
             $class = Storage\S3\SourceDirectory::class;
@@ -74,7 +74,7 @@ trait S3SourceTrait
             $options,
             $isSliced,
             $columns,
-            $primaryKeys
+            $primaryKeys,
         );
     }
 }

@@ -14,7 +14,7 @@ final class CopyCommandCsvOptionsHelper
      */
     public static function getCsvCopyCommandOptions(
         ImportOptionsInterface $importOptions,
-        CsvOptions $csvOptions
+        CsvOptions $csvOptions,
     ): array {
         $options = [
             sprintf('FIELD_DELIMITER = %s', QuoteHelper::quote($csvOptions->getDelimiter())),

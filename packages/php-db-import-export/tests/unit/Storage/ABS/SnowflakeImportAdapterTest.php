@@ -28,22 +28,22 @@ class SnowflakeImportAdapterTest extends BaseTestCase
         $this->assertTrue(
             SnowflakeImportAdapter::isSupported(
                 $absSource,
-                $snowflakeTable
-            )
+                $snowflakeTable,
+            ),
         );
 
         $this->assertFalse(
             SnowflakeImportAdapter::isSupported(
                 $snowflakeSelectSource,
-                $snowflakeTable
-            )
+                $snowflakeTable,
+            ),
         );
 
         $this->assertFalse(
             SnowflakeImportAdapter::isSupported(
                 $absSource,
-                $synapseTable
-            )
+                $synapseTable,
+            ),
         );
     }
 
@@ -64,7 +64,7 @@ FROM 'containerUrl'
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
 FILES = ('azure://url')
-EOT
+EOT,
         );
         $conn->expects($this->once())->method('fetchAll')
             ->with('SELECT COUNT(*) AS "count" FROM "schema"."stagingTable"')
@@ -73,7 +73,7 @@ EOT
                     [
                         'count' => 10,
                     ],
-                ]
+                ],
             );
 
         $destination = new Storage\Snowflake\Table('schema', 'table');
@@ -83,7 +83,7 @@ EOT
             $source,
             $destination,
             $options,
-            'stagingTable'
+            'stagingTable',
         );
         $this->assertEquals(10, $count);
     }
@@ -133,7 +133,7 @@ FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"
 FILES = ($cmd2Files)
 EOT
                 ,
-            ]
+            ],
         );
         $conn->expects($this->once())->method('fetchAll')
             ->with('SELECT COUNT(*) AS "count" FROM "schema"."stagingTable"')
@@ -142,7 +142,7 @@ EOT
                     [
                         'count' => 10,
                     ],
-                ]
+                ],
             );
 
         $destination = new Storage\Snowflake\Table('schema', 'table');
@@ -152,7 +152,7 @@ EOT
             $source,
             $destination,
             $options,
-            'stagingTable'
+            'stagingTable',
         );
         $this->assertEquals(10, $count);
     }

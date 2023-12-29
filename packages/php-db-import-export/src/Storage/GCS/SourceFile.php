@@ -66,12 +66,12 @@ class SourceFile extends BaseFile implements SourceInterface
         CsvOptions $csvOptions,
         bool $isSliced,
         array $columnsNames = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
     ) {
         parent::__construct(
             $bucket,
             $filePath,
-            $storageIntegrationName
+            $storageIntegrationName,
         );
         $this->isSliced = $isSliced;
         $this->csvOptions = $csvOptions;
@@ -180,7 +180,7 @@ class SourceFile extends BaseFile implements SourceInterface
      */
     protected function transformManifestEntries(
         array $entries,
-        string $protocol
+        string $protocol,
     ): array {
         return array_map(static function ($entryUrl) use ($protocol): string {
             switch ($protocol) {

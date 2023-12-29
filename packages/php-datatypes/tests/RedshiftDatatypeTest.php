@@ -98,13 +98,13 @@ class RedshiftDatatypeTest extends TestCase
         $datatype = new Redshift('VARCHAR');
         $this->assertEquals(
             ['type' => 'VARCHAR', 'length' => null, 'nullable' => true, 'compression' => null],
-            $datatype->toArray()
+            $datatype->toArray(),
         );
 
         $datatype = new Redshift('VARCHAR', ['length' => '50', 'nullable' => false, 'compression' => 'ZSTD']);
         $this->assertEquals(
             ['type' => 'VARCHAR', 'length' => '50', 'nullable' => false, 'compression' => 'ZSTD'],
-            $datatype->toArray()
+            $datatype->toArray(),
         );
     }
 
@@ -112,7 +112,7 @@ class RedshiftDatatypeTest extends TestCase
     {
         $datatype = new Redshift(
             'VARCHAR',
-            ['length' => '50', 'nullable' => false, 'default' => '', 'compression' => 'ZSTD']
+            ['length' => '50', 'nullable' => false, 'default' => '', 'compression' => 'ZSTD'],
         );
 
         $md = $datatype->toMetadata();
@@ -142,7 +142,7 @@ class RedshiftDatatypeTest extends TestCase
     {
         $types = array_merge(
             Redshift::TYPES,
-            array_map(fn($v) => strtolower($v), Redshift::TYPES)
+            array_map(fn($v) => strtolower($v), Redshift::TYPES),
         );
         foreach ($types as $type) {
             $basetype = (new Redshift($type))->getBasetype();

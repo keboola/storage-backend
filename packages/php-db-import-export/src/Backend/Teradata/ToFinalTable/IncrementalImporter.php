@@ -35,7 +35,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
     use DropTableTrait;
 
     public function __construct(
-        Connection $connection
+        Connection $connection,
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlBuilder();
@@ -45,7 +45,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         TableDefinitionInterface $stagingTableDefinition,
         TableDefinitionInterface $destinationTableDefinition,
         ImportOptionsInterface $options,
-        ImportState $state
+        ImportState $state,
     ): Result {
         assert($stagingTableDefinition instanceof TeradataTableDefinition);
         assert($destinationTableDefinition instanceof TeradataTableDefinition);
@@ -64,7 +64,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 // 0. Create table for deduplication
                 $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
                     $stagingTableDefinition,
-                    $destinationTableDefinition->getPrimaryKeysNames()
+                    $destinationTableDefinition->getPrimaryKeysNames(),
                 );
                 $tableToCopyFrom = $deduplicationTableDefinition;
                 $qb = new TeradataTableQueryBuilder();
@@ -75,7 +75,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
                 // transaction has to start here because TD can have DDL at the end of transaction
                 $this->connection->executeStatement(
-                    $this->sqlBuilder->getBeginTransaction()
+                    $this->sqlBuilder->getBeginTransaction(),
                 );
 
                 // 1. Run UPDATE command to update rows in final table with updated data based on PKs
@@ -85,8 +85,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                         $stagingTableDefinition,
                         $destinationTableDefinition,
                         $options,
-                        $timestampValue
-                    )
+                        $timestampValue,
+                    ),
                 );
                 $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
 
@@ -96,8 +96,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $this->sqlBuilder->getDeleteOldItemsCommand(
                         $stagingTableDefinition,
                         $destinationTableDefinition,
-                        $options
-                    )
+                        $options,
+                    ),
                 );
                 $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
 
@@ -107,19 +107,19 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $this->sqlBuilder->getDedupCommand(
                         $stagingTableDefinition,
                         $deduplicationTableDefinition,
-                        $destinationTableDefinition->getPrimaryKeysNames()
-                    )
+                        $destinationTableDefinition->getPrimaryKeysNames(),
+                    ),
                 );
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                         $stagingTableDefinition->getSchemaName(),
-                        $stagingTableDefinition->getTableName()
-                    )
+                        $stagingTableDefinition->getTableName(),
+                    ),
                 );
                 $state->stopTimer(self::TIMER_DEDUP_STAGING);
             } else {
                 $this->connection->executeStatement(
-                    $this->sqlBuilder->getBeginTransaction()
+                    $this->sqlBuilder->getBeginTransaction(),
                 );
             }
 
@@ -130,13 +130,13 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $tableToCopyFrom,
                     $destinationTableDefinition,
                     $options,
-                    $timestampValue
-                )
+                    $timestampValue,
+                ),
             );
             $state->stopTimer(self::TIMER_INSERT_INTO_TARGET);
 
             $this->connection->executeStatement(
-                $this->sqlBuilder->getEndTransaction()
+                $this->sqlBuilder->getEndTransaction(),
             );
 
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
@@ -147,7 +147,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 // 5 drop dedup table
                 $this->dropTableIfExists(
                     $deduplicationTableDefinition->getSchemaName(),
-                    $deduplicationTableDefinition->getTableName()
+                    $deduplicationTableDefinition->getTableName(),
                 );
             }
         }

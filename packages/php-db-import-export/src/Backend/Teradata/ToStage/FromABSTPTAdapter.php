@@ -48,7 +48,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof Storage\ABS\SourceFile);
         assert($destination instanceof TeradataTableDefinition);
@@ -97,8 +97,8 @@ class FromABSTPTAdapter implements CopyAdapterInterface
                 sprintf(
                     'SELECT * FROM %s.%s',
                     TeradataQuote::quoteSingleIdentifier($destination->getSchemaName()),
-                    TeradataQuote::quoteSingleIdentifier($logTable)
-                )
+                    TeradataQuote::quoteSingleIdentifier($logTable),
+                ),
             );
             $this->connection->executeStatement($qb->getDropTableUnsafe($destination->getSchemaName(), $logTable));
         }
@@ -121,7 +121,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
             // drop destination table it's not usable
             $this->connection->executeStatement($qb->getDropTableCommand(
                 $destination->getSchemaName(),
-                $destination->getTableName()
+                $destination->getTableName(),
             ));
             $stdOut = $process->getOutput();
 
@@ -134,7 +134,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
                 $stdOut,
                 $process->getExitCode(),
                 $this->getLogData($temp),
-                $logContent
+                $logContent,
             );
         }
 
@@ -144,7 +144,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
         $ref = new TeradataTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();
@@ -168,7 +168,7 @@ class FromABSTPTAdapter implements CopyAdapterInterface
     private function generateTPTScript(
         Storage\ABS\SourceFile $source,
         TeradataTableDefinition $destination,
-        TeradataImportOptions $importOptions
+        TeradataImportOptions $importOptions,
     ): array {
         $temp = new Temp();
         $folder = $temp->getTmpFolder();

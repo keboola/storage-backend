@@ -24,13 +24,13 @@ final class Deploy extends BaseCmd
             ->addOption(
                 self::OPTION_SERVER_NAME,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         $this
             ->addOption(
                 self::OPTION_AZURE_RESOURCE_GROUP,
                 null,
-                InputOption::VALUE_REQUIRED
+                InputOption::VALUE_REQUIRED,
             );
         parent::configure();
     }
@@ -60,8 +60,7 @@ az group deployment create \
   --output json \
   --parameters \
     suffix=$suffix
-EOT
-        );
+EOT,);
         $outBlobDeploy = $this->getDeploymentResult($outBlobDeploy);
         $storageAccountName = $outBlobDeploy['properties']['outputs']['storageAccountName']['value'];
         $storageAccountKey = $outBlobDeploy['properties']['outputs']['storageAccountKey']['value'];
@@ -89,8 +88,7 @@ az group deployment create \
     warehouseName=$serverName \
     suffix=$suffix \
     warehouseCapacity=900
-EOT
-        );
+EOT,);
 
         $outSynapseDeploy = $this->getDeploymentResult($outSynapseDeploy);
         $synapseSqlServerName = $outSynapseDeploy['properties']['outputs']['sqlServerName']['value'];
@@ -123,8 +121,7 @@ az sql server firewall-rule create \
   --name all \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 255.255.255.255
-EOT
-        );
+EOT,);
 
         $output->writeln([
             'Firewall rule set done',
@@ -136,8 +133,7 @@ EOT
       --display-name $synapseSqlServerName \
       --query "[].objectId" \
       --output tsv
-EOT
-        );
+EOT,);
 
         $output->writeln([
             'SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID: ' . $principalObjectId,
@@ -150,8 +146,7 @@ az resource show \
       -n $storageAccountName \
       --query "id" \
       --output tsv
-EOT
-        );
+EOT,);
 
         $output->writeln([
             'FILE_STORAGE_RESOURCE_ID: ' . $fileStorageResourceId,
@@ -162,8 +157,7 @@ az role assignment create \
       --assignee $principalObjectId \
       --role "Storage Blob Data Contributor" \
       --scope $fileStorageResourceId
-EOT
-        );
+EOT,);
 
         $output->writeln([
             'Managed identity role created',

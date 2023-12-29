@@ -77,8 +77,8 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             sprintf(
                 'ALTER TABLE %s.%s ADD PRIMARY KEY ("id")',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertEquals(['id'], $ref->getPrimaryKeysNames());
@@ -155,7 +155,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         string $expectedType,
         ?string $expectedDefault,
         ?string $expectedLength,
-        bool $expectedNullable
+        bool $expectedNullable,
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);
@@ -167,7 +167,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
 );',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-            $sqlDef
+            $sqlDef,
         );
 
         $this->connection->executeQuery($sql);
@@ -451,16 +451,16 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         self::assertCount(0, $refB->getDependentViews());
 
         $this->connection->executeQuery(
-            'CREATE VIEW TEST_UTIL_SCHEMA.A_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."case_sensitive";'
+            'CREATE VIEW TEST_UTIL_SCHEMA.A_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."case_sensitive";',
         );
         $this->connection->executeQuery(
-            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER AS SELECT * FROM TEST_UTIL_SCHEMA.CASE_SENSITIVE;'
+            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER AS SELECT * FROM TEST_UTIL_SCHEMA.CASE_SENSITIVE;',
         );
         $this->connection->executeQuery(
-            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."CASE_SENSITIVE";'
+            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_ESCAPED AS SELECT * FROM TEST_UTIL_SCHEMA."CASE_SENSITIVE";',
         );
         $this->connection->executeQuery(
-            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_AUTO AS SELECT * FROM TEST_UTIL_SCHEMA.case_sensitive;'
+            'CREATE VIEW TEST_UTIL_SCHEMA.B_UPPER_AUTO AS SELECT * FROM TEST_UTIL_SCHEMA.case_sensitive;',
         );
 
         $dependentViewsA = $refA->getDependentViews();
@@ -476,7 +476,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
                     'name' => 'A_ESCAPED',
                 ],
             ],
-            $dependentViewsA
+            $dependentViewsA,
         );
 
         self::assertSame(
@@ -494,7 +494,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
                     'name' => 'B_UPPER_ESCAPED',
                 ],
             ],
-            $dependentViewsB
+            $dependentViewsB,
         );
     }
 
@@ -536,8 +536,8 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
             sprintf(
                 'CREATE TEMPORARY TABLE %s.%s (id INT)',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier($tableName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($tableName),
+            ),
         );
         $refTemp = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, $tableName);
         self::assertTrue($refTemp->isTemporary());
@@ -563,7 +563,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         string $viewName = self::VIEW_GENERIC,
         string $tableName = self::TABLE_GENERIC,
         string $viewSchema = self::TEST_SCHEMA,
-        string $tableSchema = self::TEST_SCHEMA
+        string $tableSchema = self::TEST_SCHEMA,
     ): void {
         $this->connection->executeQuery(
             sprintf(
@@ -571,8 +571,8 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
                 SnowflakeQuote::quoteSingleIdentifier($viewSchema),
                 SnowflakeQuote::quoteSingleIdentifier($viewName),
                 SnowflakeQuote::quoteSingleIdentifier($tableSchema),
-                SnowflakeQuote::quoteSingleIdentifier($tableName)
-            )
+                SnowflakeQuote::quoteSingleIdentifier($tableName),
+            ),
         );
     }
 
@@ -620,7 +620,7 @@ SELECT PARSE_JSON(column1) AS src
 FROM VALUES
          ('{"date":"2017-04-28","dealership":"Valley View Auto Sales"}'),
          ('{"date":"2017-04-28","dealership":"Tindel Toyota"}') v;
-SQL
+SQL,
         );
 
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, 'CAR_SALES');
@@ -642,7 +642,7 @@ SQL
         foreach ($columns as $column) {
             $this->assertSame(
                 $expectedDefinitions[$column->getColumnName()],
-                $column->getColumnDefinition()->toArray()
+                $column->getColumnDefinition()->toArray(),
             );
         }
 
@@ -675,7 +675,7 @@ SQL
             <<<SQL
 CREATE OR REPLACE STAGE s3_stage URL = 's3://xxxx'
     CREDENTIALS = ( AWS_KEY_ID = 'XXX' AWS_SECRET_KEY = 'YYY');
-SQL
+SQL,
         );
         $this->connection->executeQuery(
             <<<SQL
@@ -688,7 +688,7 @@ EXTERNAL TABLE MY_LITTLE_EXT_TABLE (
     REFRESH_ON_CREATE = FALSE 
     AUTO_REFRESH = FALSE 
     FILE_FORMAT = (TYPE = CSV SKIP_HEADER=1 TRIM_SPACE=TRUE );
-SQL
+SQL,
         );
 
         // external table is considered as a table just with external flag

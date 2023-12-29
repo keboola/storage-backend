@@ -19,7 +19,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
     public function getCreateTempTableCommand(
         string $schemaName,
         string $tableName,
-        ColumnCollection $columns
+        ColumnCollection $columns,
     ): string {
         $this->assertTemporaryTable($tableName);
 
@@ -28,7 +28,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSql[] = sprintf(
                 '%s %s',
                 SynapseQuote::quoteSingleIdentifier($column->getColumnName()),
-                $column->getColumnDefinition()->getSQLDefinition()
+                $column->getColumnDefinition()->getSQLDefinition(),
             );
         }
 
@@ -36,7 +36,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             'CREATE TABLE %s.%s (%s) WITH (HEAP, LOCATION = USER_DB)',
             SynapseQuote::quoteSingleIdentifier($schemaName),
             SynapseQuote::quoteSingleIdentifier($tableName),
-            implode(', ', $columnsSql)
+            implode(', ', $columnsSql),
         );
     }
 
@@ -47,9 +47,9 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
                 sprintf(
                 // phpcs:ignore
                     'Temporary table name invalid, temporary table name must start with "#" a not be empty "%s" supplied.',
-                    $tableName
+                    $tableName,
                 ),
-                QueryBuilderException::STRING_CODE_INVALID_TEMP_TABLE
+                QueryBuilderException::STRING_CODE_INVALID_TEMP_TABLE,
             );
         }
     }
@@ -61,7 +61,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         string $schemaName,
         string $tableName,
         ColumnCollection $columns,
-        array $primaryKeys = []
+        array $primaryKeys = [],
     ): string {
         $columnsSql = [];
         foreach ($columns as $column) {
@@ -72,7 +72,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSql[] = sprintf(
                 '%s %s',
                 SynapseQuote::quoteSingleIdentifier($column->getColumnName()),
-                $column->getColumnDefinition()->getSQLDefinition()
+                $column->getColumnDefinition()->getSQLDefinition(),
             );
         }
 
@@ -80,11 +80,11 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         if (!empty($primaryKeys)) {
             $quotedPrimaryKeys = array_map(
                 static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
-                $primaryKeys
+                $primaryKeys,
             );
             $primaryKeySql = sprintf(
                 ', PRIMARY KEY NONCLUSTERED(%s) NOT ENFORCED',
-                implode(',', $quotedPrimaryKeys)
+                implode(',', $quotedPrimaryKeys),
             );
         }
 
@@ -93,7 +93,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             SynapseQuote::quoteSingleIdentifier($schemaName),
             SynapseQuote::quoteSingleIdentifier($tableName),
             implode(', ', $columnsSql),
-            $primaryKeySql
+            $primaryKeySql,
         );
     }
 
@@ -102,7 +102,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
      */
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
-        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS,
     ): string {
         assert($definition instanceof SynapseTableDefinition);
         $columnsSql = [];
@@ -110,7 +110,7 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSql[] = sprintf(
                 '%s %s',
                 SynapseQuote::quoteSingleIdentifier($column->getColumnName()),
-                $column->getColumnDefinition()->getSQLDefinition()
+                $column->getColumnDefinition()->getSQLDefinition(),
             );
         }
 
@@ -120,38 +120,38 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
         ) {
             $quotedPrimaryKeys = array_map(
                 static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
-                $definition->getPrimaryKeysNames()
+                $definition->getPrimaryKeysNames(),
             );
             $primaryKeySql = sprintf(
                 ', PRIMARY KEY NONCLUSTERED(%s) NOT ENFORCED',
-                implode(',', $quotedPrimaryKeys)
+                implode(',', $quotedPrimaryKeys),
             );
         }
         if ($definition->getTableDistribution()->isHashDistribution()) {
             $quotedColumns = array_map(
                 static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
-                $definition->getTableDistribution()->getDistributionColumnsNames()
+                $definition->getTableDistribution()->getDistributionColumnsNames(),
             );
             $distributionSql = sprintf(
                 'DISTRIBUTION = %s(%s)',
                 $definition->getTableDistribution()->getDistributionName(),
-                implode(',', $quotedColumns)
+                implode(',', $quotedColumns),
             );
         } else {
             $distributionSql = sprintf(
                 'DISTRIBUTION = %s',
-                $definition->getTableDistribution()->getDistributionName()
+                $definition->getTableDistribution()->getDistributionName(),
             );
         }
         if ($definition->getTableIndex()->getIndexType() === TableIndexDefinition::TABLE_INDEX_TYPE_CLUSTERED_INDEX) {
             $quotedColumns = array_map(
                 static fn($columnName) => SynapseQuote::quoteSingleIdentifier($columnName),
-                $definition->getTableIndex()->getIndexedColumnsNames()
+                $definition->getTableIndex()->getIndexedColumnsNames(),
             );
             $indexSql = sprintf(
                 '%s(%s)',
                 $definition->getTableIndex()->getIndexType(),
-                implode(',', $quotedColumns)
+                implode(',', $quotedColumns),
             );
         } else {
             $indexSql = $definition->getTableIndex()->getIndexType();
@@ -164,42 +164,42 @@ class SynapseTableQueryBuilder implements TableQueryBuilderInterface
             implode(', ', $columnsSql),
             $primaryKeySql,
             $distributionSql,
-            $indexSql
+            $indexSql,
         );
     }
 
     public function getDropTableCommand(
         string $schemaName,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DROP TABLE %s.%s',
             SynapseQuote::quoteSingleIdentifier($schemaName),
-            SynapseQuote::quoteSingleIdentifier($tableName)
+            SynapseQuote::quoteSingleIdentifier($tableName),
         );
     }
 
     public function getRenameTableCommand(
         string $schemaName,
         string $sourceTableName,
-        string $newTableName
+        string $newTableName,
     ): string {
         return sprintf(
             'RENAME OBJECT %s.%s TO %s',
             SynapseQuote::quoteSingleIdentifier($schemaName),
             SynapseQuote::quoteSingleIdentifier($sourceTableName),
-            SynapseQuote::quoteSingleIdentifier($newTableName)
+            SynapseQuote::quoteSingleIdentifier($newTableName),
         );
     }
 
     public function getTruncateTableCommand(
         string $schemaName,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'TRUNCATE TABLE %s.%s',
             SynapseQuote::quoteSingleIdentifier($schemaName),
-            SynapseQuote::quoteSingleIdentifier($tableName)
+            SynapseQuote::quoteSingleIdentifier($tableName),
         );
     }
 }

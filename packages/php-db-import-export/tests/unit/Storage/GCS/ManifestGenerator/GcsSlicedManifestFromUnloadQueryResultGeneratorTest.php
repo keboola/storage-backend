@@ -39,7 +39,7 @@ class GcsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
         $path = RelativePath::createFromRootAndPath(
             new GcsProvider(),
             'tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q',
-            'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gz'
+            'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gz',
         );
 
         $generator = new GcsSlicedManifestFromUnloadQueryResultGenerator($gcsClientMock);

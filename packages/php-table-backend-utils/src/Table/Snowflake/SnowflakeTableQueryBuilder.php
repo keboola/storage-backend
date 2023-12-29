@@ -30,7 +30,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSqlDefinitions[] = sprintf(
                 '%s %s',
                 SnowflakeQuote::quoteSingleIdentifier($column->getColumnName()),
-                $columnDefinition->getSQLDefinition()
+                $columnDefinition->getSQLDefinition(),
             );
         }
 
@@ -43,7 +43,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 );',
             SnowflakeQuote::quoteSingleIdentifier($schemaName),
             SnowflakeQuote::quoteSingleIdentifier($tableName),
-            $columnsSql
+            $columnsSql,
         );
     }
 
@@ -52,7 +52,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'DROP TABLE %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($schemaName),
-            SnowflakeQuote::quoteSingleIdentifier($tableName)
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -66,7 +66,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             $quotedDbName,
             SnowflakeQuote::quoteSingleIdentifier($sourceTableName),
             $quotedDbName,
-            SnowflakeQuote::quoteSingleIdentifier($newTableName)
+            SnowflakeQuote::quoteSingleIdentifier($newTableName),
         );
     }
 
@@ -75,7 +75,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         return sprintf(
             'TRUNCATE TABLE %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($schemaName),
-            SnowflakeQuote::quoteSingleIdentifier($tableName)
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -86,7 +86,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         string $schemaName,
         string $tableName,
         ColumnCollection $columns,
-        array $primaryKeys = []
+        array $primaryKeys = [],
     ): string {
         $this->assertTableName($tableName);
 
@@ -102,7 +102,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             $columnsSqlDefinitions[] = sprintf(
                 '%s %s',
                 SnowflakeQuote::quoteSingleIdentifier($columnName),
-                $columnDefinition->getSQLDefinition()
+                $columnDefinition->getSQLDefinition(),
             );
         }
 
@@ -112,9 +112,9 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             throw new QueryBuilderException(
                 sprintf(
                     'Trying to set %s as PKs but not present in columns',
-                    implode(',', $pksNotPresentInColumns)
+                    implode(',', $pksNotPresentInColumns),
                 ),
-                self::INVALID_PKS_FOR_TABLE
+                self::INVALID_PKS_FOR_TABLE,
             );
         }
 
@@ -124,8 +124,8 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                     'PRIMARY KEY (%s)',
                     implode(',', array_map(
                         static fn($item) => SnowflakeQuote::quoteSingleIdentifier($item),
-                        $primaryKeys
-                    ))
+                        $primaryKeys,
+                    )),
                 );
         }
 
@@ -139,7 +139,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 );',
             SnowflakeQuote::quoteSingleIdentifier($schemaName),
             SnowflakeQuote::quoteSingleIdentifier($tableName),
-            $columnsSql
+            $columnsSql,
         );
     }
 
@@ -148,14 +148,14 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
      */
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
-        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS,
     ): string {
         assert($definition instanceof SnowflakeTableDefinition);
         if ($definition->isTemporary()) {
             return $this->getCreateTempTableCommand(
                 $definition->getSchemaName(),
                 $definition->getTableName(),
-                $definition->getColumnsDefinitions()
+                $definition->getColumnsDefinitions(),
             );
         }
 
@@ -165,7 +165,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             $definition->getColumnsDefinitions(),
             $definePrimaryKeys === self::CREATE_TABLE_WITH_PRIMARY_KEYS
                 ? $definition->getPrimaryKeysNames()
-                : []
+                : [],
         );
     }
 
@@ -179,9 +179,9 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             throw new QueryBuilderException(
                 sprintf(
                     'Invalid table name %s: Table must start with __temp_ prefix',
-                    $tableName
+                    $tableName,
                 ),
-                self::INVALID_TABLE_NAME
+                self::INVALID_TABLE_NAME,
             );
         }
     }
@@ -193,9 +193,9 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                 sprintf(
                     // phpcs:ignore
                     'Invalid table name %s: Only alphanumeric characters, dash, underscores and dollar signs are allowed.',
-                    $tableName
+                    $tableName,
                 ),
-                self::INVALID_TABLE_NAME
+                self::INVALID_TABLE_NAME,
             );
         }
 
@@ -203,9 +203,9 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             throw new QueryBuilderException(
                 sprintf(
                     'Invalid table name %s: Name can contain only printable characters.',
-                    $tableName
+                    $tableName,
                 ),
-                self::INVALID_TABLE_NAME
+                self::INVALID_TABLE_NAME,
             );
         }
     }

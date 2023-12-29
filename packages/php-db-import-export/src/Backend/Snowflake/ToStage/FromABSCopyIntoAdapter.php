@@ -39,7 +39,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         try {
             $files = $source->getManifestEntries();
@@ -48,10 +48,10 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
                     $source,
                     $destination,
                     $importOptions,
-                    $files
+                    $files,
                 );
                 $this->connection->executeStatement(
-                    $cmd
+                    $cmd,
                 );
             }
         } catch (Throwable $e) {
@@ -61,7 +61,7 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();
@@ -74,18 +74,18 @@ class FromABSCopyIntoAdapter implements CopyAdapterInterface
         Storage\ABS\SourceFile $source,
         SnowflakeTableDefinition $destination,
         SnowflakeImportOptions $importOptions,
-        array $files
+        array $files,
     ): string {
         $quotedFiles = array_map(
             static function ($entry) use ($source) {
                 return QuoteHelper::quote(
                     strtr(
                         $entry,
-                        [$source->getContainerUrl(BaseFile::PROTOCOL_AZURE) => '']
-                    )
+                        [$source->getContainerUrl(BaseFile::PROTOCOL_AZURE) => ''],
+                    ),
                 );
             },
-            $files
+            $files,
         );
 
         return sprintf(
@@ -102,10 +102,10 @@ FILES = (%s)',
                 ' ',
                 CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
                     $importOptions,
-                    $source->getCsvOptions()
-                )
+                    $source->getCsvOptions(),
+                ),
             ),
-            implode(', ', $quotedFiles)
+            implode(', ', $quotedFiles),
         );
     }
 }

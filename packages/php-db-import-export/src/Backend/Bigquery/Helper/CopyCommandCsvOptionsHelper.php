@@ -15,7 +15,7 @@ final class CopyCommandCsvOptionsHelper
      */
     public static function getCsvCopyCommandOptions(
         ImportOptionsInterface $importOptions,
-        CsvOptions $csvOptions
+        CsvOptions $csvOptions,
     ): array {
         $options = [
             sprintf('field_delimiter=%s', BigqueryQuote::quote($csvOptions->getDelimiter())),

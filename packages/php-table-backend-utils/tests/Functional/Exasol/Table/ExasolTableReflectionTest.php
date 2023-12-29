@@ -44,8 +44,8 @@ class ExasolTableReflectionTest extends ExasolBaseCase
             sprintf(
                 'ALTER TABLE %s.%s ADD CONSTRAINT PRIMARY KEY ("id")',
                 ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
         $ref = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertEquals(['id'], $ref->getPrimaryKeysNames());
@@ -75,7 +75,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
         string $expectedType,
         ?string $expectedDefault,
         ?string $expectedLength,
-        bool $expectedNullable
+        bool $expectedNullable,
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);
@@ -87,7 +87,7 @@ class ExasolTableReflectionTest extends ExasolBaseCase
 );',
             ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-            $sqlDef
+            $sqlDef,
         );
 
         $this->connection->executeQuery($sql);
@@ -588,8 +588,8 @@ class ExasolTableReflectionTest extends ExasolBaseCase
                 ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
                 ExasolQuote::quoteSingleIdentifier(self::VIEW_GENERIC),
                 ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
     }
 

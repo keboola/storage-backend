@@ -48,8 +48,8 @@ class ExasolSchemaQueryBuilderTest extends ExasolBaseCase
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT "SCHEMA_NAME" FROM "SYS"."EXA_ALL_SCHEMAS" WHERE "SCHEMA_NAME" = %s',
-                ExasolQuote::quote(self::TEST_SCHEMA)
-            )
+                ExasolQuote::quote(self::TEST_SCHEMA),
+            ),
         );
 
         return array_map(static fn(array $schema) => trim($schema['SCHEMA_NAME']), $schemas);

@@ -31,14 +31,14 @@ class StageImportTest extends ExasolBaseTestCase
         $targetTableRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
@@ -47,22 +47,22 @@ class StageImportTest extends ExasolBaseTestCase
         $importer->importToStagingTable(
             $source,
             $targetTableRef->getTableDefinition(),
-            $this->getExasolImportOptions()
+            $this->getExasolImportOptions(),
         );
 
         $dataSource = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM %s.%s',
                 ExasolQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                ExasolQuote::quoteSingleIdentifier('sourceTable')
-            )
+                ExasolQuote::quoteSingleIdentifier('sourceTable'),
+            ),
         );
         $dataDest = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT * FROM %s.%s',
                 ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                ExasolQuote::quoteSingleIdentifier('targetTable')
-            )
+                ExasolQuote::quoteSingleIdentifier('targetTable'),
+            ),
         );
 
         self::assertSame($dataSource, $dataDest);
@@ -76,14 +76,14 @@ class StageImportTest extends ExasolBaseTestCase
         $targetTableRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'XXXX', 'last_name'],
-            []
+            [],
         );
 
         $this->expectException(Exception::class);
@@ -92,7 +92,7 @@ class StageImportTest extends ExasolBaseTestCase
         $importer->importToStagingTable(
             $source,
             $targetTableRef->getTableDefinition(),
-            $this->getExasolImportOptions()
+            $this->getExasolImportOptions(),
         );
     }
 
@@ -106,8 +106,8 @@ class StageImportTest extends ExasolBaseTestCase
                 'ALTER TABLE %s.%s DROP COLUMN %s',
                 ExasolQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                 ExasolQuote::quoteSingleIdentifier('targetTable'),
-                ExasolQuote::quoteSingleIdentifier('first_name')
-            )
+                ExasolQuote::quoteSingleIdentifier('first_name'),
+            ),
         );
 
         $this->insertRowToTable($this->getSourceSchemaName(), 'sourceTable', 1, 'a', 'b');
@@ -116,14 +116,14 @@ class StageImportTest extends ExasolBaseTestCase
         $targetTableRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'targetTable'
+            'targetTable',
         );
 
         $source = new Table(
             $this->getSourceSchemaName(),
             'sourceTable',
             ['id', 'first_name', 'last_name'],
-            []
+            [],
         );
 
         $this->expectException(Exception::class);
@@ -132,7 +132,7 @@ class StageImportTest extends ExasolBaseTestCase
         $importer->importToStagingTable(
             $source,
             $targetTableRef->getTableDefinition(),
-            $this->getExasolImportOptions()
+            $this->getExasolImportOptions(),
         );
     }
 }

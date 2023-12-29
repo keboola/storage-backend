@@ -64,8 +64,8 @@ class SynapseViewReflectionTest extends SynapseBaseCase
           [_time] datetime2 NOT NULL DEFAULT \'2020-02-01 00:00:00\'
         );',
                 self::TEST_SCHEMA,
-                self::TABLE_GENERIC
-            )
+                self::TABLE_GENERIC,
+            ),
         );
     }
 
@@ -77,8 +77,8 @@ class SynapseViewReflectionTest extends SynapseBaseCase
                 self::TEST_SCHEMA,
                 $viewName,
                 self::TEST_SCHEMA,
-                $parentName
-            )
+                $parentName,
+            ),
         );
     }
 
@@ -94,7 +94,7 @@ CREATE VIEW [utils-test_ref-table-schema].[utils-test_ref-view]\r\nAS SELECT * F
 EOT
             // phpcs:enable
             ,
-            $viewRef->getViewDefinition()
+            $viewRef->getViewDefinition(),
         );
 
         // try same with lowe case
@@ -104,8 +104,8 @@ EOT
                 self::TEST_SCHEMA,
                 '[utils-test_ref-view2',
                 self::TEST_SCHEMA,
-                self::TABLE_GENERIC
-            )
+                self::TABLE_GENERIC,
+            ),
         );
 
         $viewRef = new SynapseViewReflection($this->connection, self::TEST_SCHEMA, '[utils-test_ref-view2');
@@ -116,7 +116,7 @@ CREATE VIEW [utils-test_ref-table-schema].[[utils-test_ref-view2]\r\nAS select *
 EOT
             // phpcs:enable
             ,
-            $viewRef->getViewDefinition()
+            $viewRef->getViewDefinition(),
         );
     }
 
@@ -139,7 +139,7 @@ EOT
             $colsNames[] = $colsName;
             $cols[] = sprintf(
                 '[%s] INT NOT NULL DEFAULT 0',
-                $colsName
+                $colsName,
             );
         }
 
@@ -147,7 +147,7 @@ EOT
             'CREATE TABLE [%s].[%s] (%s);',
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
-            implode(',', $cols)
+            implode(',', $cols),
         ));
         $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[%s] AS SELECT %s FROM [%s].[%s];',
@@ -155,7 +155,7 @@ EOT
             self::VIEW_GENERIC,
             implode(',', $colsNames),
             self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         ));
     }
 
@@ -167,7 +167,7 @@ EOT
         $this->connection->executeStatement(sprintf(
             'ALTER TABLE [%s].[%s] ADD [xxx] varchar NULL;',
             self::TEST_SCHEMA,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         ));
         $tableRef = new SynapseTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         self::assertCount(4, $tableRef->getColumnsNames());

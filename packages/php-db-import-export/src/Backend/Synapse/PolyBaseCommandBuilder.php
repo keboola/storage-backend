@@ -18,7 +18,7 @@ class PolyBaseCommandBuilder
     public function getCredentialsQuery(
         string $credentialsId,
         string $exportCredentialsType,
-        ?string $blobMasterKey = null
+        ?string $blobMasterKey = null,
     ): string {
         $credentialsId = SynapseQuote::quoteSingleIdentifier($credentialsId);
 
@@ -43,7 +43,7 @@ EOT;
             default:
                 throw new InvalidArgumentException(sprintf(
                     'Unknown Synapse export credentials type "%s".',
-                    $exportCredentialsType
+                    $exportCredentialsType,
                 ));
         }
     }
@@ -51,7 +51,7 @@ EOT;
     public function getDataSourceQuery(
         string $dataSourceId,
         string $containerUrl,
-        string $credentialsId
+        string $credentialsId,
     ): string {
         $dataSourceId = SynapseQuote::quoteSingleIdentifier($dataSourceId);
         $containerUrl = SynapseQuote::quote($containerUrl);
@@ -93,7 +93,7 @@ EOT;
         string $fileFormatId,
         string $dataSourceId,
         string $credentialsId,
-        ?string $tableId
+        ?string $tableId,
     ): Generator {
         if ($tableId !== null) {
             $tableId = SynapseQuote::quoteSingleIdentifier($tableId);
@@ -112,7 +112,7 @@ EOT;
         string $tableId,
         string $exportPath,
         string $dataSourceId,
-        string $fileFormatId
+        string $fileFormatId,
     ): string {
         $tableId = SynapseQuote::quoteSingleIdentifier($tableId);
         $dataSourceId = SynapseQuote::quoteSingleIdentifier($dataSourceId);

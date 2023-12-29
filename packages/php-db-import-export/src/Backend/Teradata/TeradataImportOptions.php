@@ -28,14 +28,14 @@ class TeradataImportOptions extends ImportOptions
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        string $usingTypes = self::USING_TYPES_STRING
+        string $usingTypes = self::USING_TYPES_STRING,
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
             $isIncremental,
             $useTimestamp,
             $numberOfIgnoredLines,
-            $usingTypes
+            $usingTypes,
         );
         $this->teradataHost = $teradataHost;
         $this->teradataUser = $teradataUser;

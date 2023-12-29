@@ -17,42 +17,42 @@ class InvalidViewDefinitionException extends RuntimeException implements Applica
 
     public static function createForNotExistingView(
         string $schemaName,
-        string $viewName
+        string $viewName,
     ): InvalidViewDefinitionException {
         return new self(
             sprintf(
                 'View "%s" in schema "%s" does not exists.',
                 $viewName,
-                $schemaName
-            )
+                $schemaName,
+            ),
         );
     }
 
     public static function createForMissingDefinition(
         string $schemaName,
-        string $viewName
+        string $viewName,
     ): InvalidViewDefinitionException {
         return new self(
             sprintf(
                 'Definition of view "%s" in schema "%s"cannot be obtained from Synapse or it\'s invalid.',
                 $viewName,
-                $schemaName
-            )
+                $schemaName,
+            ),
         );
     }
 
     public static function createViewRefreshError(
         string $schemaName,
         string $viewName,
-        Throwable $previous
+        Throwable $previous,
     ): InvalidViewDefinitionException {
         return new self(
             sprintf(
                 'View "%s" in schema "%s" has to be refreshed manually, since it\'s definition cannot be refreshed.',
                 $viewName,
-                $schemaName
+                $schemaName,
             ),
-            $previous
+            $previous,
         );
     }
 }

@@ -40,7 +40,7 @@ class GcsExportAdapter implements BackendExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         $sql = sprintf(
             'EXPORT DATA
@@ -62,12 +62,12 @@ OPTIONS (
         );
         $this->bqClient->runQuery(
             $this->bqClient->query($sql)
-                ->parameters($source->getQueryBindings())
+                ->parameters($source->getQueryBindings()),
         );
 
         if ($exportOptions->generateManifest()) {
             (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromFolderGenerator(
-                $destination->getClient()
+                $destination->getClient(),
             ))
                 ->generateAndSaveManifest($destination->getRelativePath());
         }

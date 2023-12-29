@@ -91,13 +91,13 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
             1,
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
-            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
         );
 
         $destinationRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'types'
+            'types',
         );
         /** @var SnowflakeTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
@@ -105,12 +105,12 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
             $destination->getSchemaName(),
             [
                 $column->getColumnName(),
-            ]
+            ],
         );
 
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
@@ -118,7 +118,7 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
             $stagingTable->getSchemaName(),
             $stagingTable->getTableName(),
             $column->getColumnName(),
-            $insertData
+            $insertData,
         ));
         $toFinalTableImporter = new FullImporter($this->connection);
 
@@ -127,7 +127,7 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
                 $stagingTable,
                 $destination,
                 $options,
-                new ImportState($stagingTable->getTableName())
+                new ImportState($stagingTable->getTableName()),
             );
             $this->fail('Import must fail');
         } catch (Exception $e) {

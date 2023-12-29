@@ -14,7 +14,7 @@ final class Assert
             throw new LogicException(sprintf(
                 'Unknown table index type: "%s" specified. Available types are %s.',
                 $indexName,
-                implode('|', TableIndexDefinition::AVAILABLE_TABLE_INDEXES)
+                implode('|', TableIndexDefinition::AVAILABLE_TABLE_INDEXES),
             ));
         }
     }
@@ -36,7 +36,7 @@ final class Assert
      */
     public static function assertValidHashDistribution(
         string $tableDistributionName,
-        array $hashDistributionColumnsNames
+        array $hashDistributionColumnsNames,
     ): void {
         if ($tableDistributionName === TableDistributionDefinition::TABLE_DISTRIBUTION_HASH
             && count($hashDistributionColumnsNames) !== 1
@@ -51,7 +51,7 @@ final class Assert
             throw new LogicException(sprintf(
                 'Unknown table distribution: "%s" specified. Available distributions are %s.',
                 $tableDistributionName,
-                implode('|', TableDistributionDefinition::AVAILABLE_TABLE_DISTRIBUTIONS)
+                implode('|', TableDistributionDefinition::AVAILABLE_TABLE_DISTRIBUTIONS),
             ));
         }
     }

@@ -32,7 +32,7 @@ class IncrementalImportTest extends SynapseBaseTestCase
         $fetchSQL = sprintf(
             'SELECT [col1], [col2] FROM [%s].[%s]',
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
 
         $source = new Storage\Synapse\SelectSource(
@@ -43,35 +43,35 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 'col1',
                 'col2',
             ],
-            []
+            [],
         );
         $options = $this->getSynapseImportOptions();
         $importer = new ToStageImporter($this->connection);
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_OUT_CSV_2COLS
+            self::TABLE_OUT_CSV_2COLS,
         );
         $destination = $ref->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
         $importedData = $this->connection->fetchAllAssociative($fetchSQL);
 
@@ -81,21 +81,21 @@ class IncrementalImportTest extends SynapseBaseTestCase
                 (\'e\', \'f\');
         ', $this->getSourceSchemaName()));
         $this->connection->executeStatement(
-            $qb->getDropTableCommand($stagingTable->getSchemaName(), $stagingTable->getTableName())
+            $qb->getDropTableCommand($stagingTable->getSchemaName(), $stagingTable->getTableName()),
         );
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         $importedData = $this->connection->fetchAllAssociative($fetchSQL);
@@ -107,23 +107,23 @@ class IncrementalImportTest extends SynapseBaseTestCase
     {
         $this->connection->executeQuery(sprintf(
             'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify] VALUES(\'4\', NULL, 50)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'1\', \'\', NULL)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'2\', NULL, 500)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
 
         $options = new SynapseImportOptions(
@@ -132,45 +132,45 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
             'nullify_src',
             ['id', 'name', 'price'],
-            []
+            [],
         );
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'nullify'
+            'nullify',
         );
         $destination = $ref->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer = new ToStageImporter($this->connection);
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new IncrementalImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->assertCount(3, $importedData);
         $this->assertTrue($importedData[0]['name'] === null);
@@ -184,28 +184,28 @@ class IncrementalImportTest extends SynapseBaseTestCase
         $this->connection->executeQuery(sprintf(
         // phpcs:ignore
             'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify] VALUES(\'4\', \'3\', 2)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
         // phpcs:ignore
             'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000) NOT NULL, [name] nvarchar(4000) NOT NULL, [price] nvarchar(4000) NOT NULL, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'1\', \'\', \'\')',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'2\', \'\', \'500\')',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'4\', \'\', \'\')',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
 
         $options = new SynapseImportOptions(
@@ -214,45 +214,45 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             SynapseImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
             'nullify_src',
             ['id', 'name', 'price'],
-            ['id']
+            ['id'],
         );
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'nullify'
+            'nullify',
         );
         $destination = $ref->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
             $ref->getTableDefinition(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer = new ToStageImporter($this->connection);
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new IncrementalImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify]',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $expectedData = [
             [
@@ -281,28 +281,28 @@ class IncrementalImportTest extends SynapseBaseTestCase
         $this->connection->executeQuery(sprintf(
         // phpcs:ignore
             'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify] VALUES(\'4\', NULL, NULL)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
         // phpcs:ignore
             'CREATE TABLE [%s].[nullify_src] ([id] nvarchar(4000) NOT NULL, [name] nvarchar(4000) NOT NULL, [price] nvarchar(4000) NOT NULL, PRIMARY KEY NONCLUSTERED([id]) NOT ENFORCED)',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'1\', \'\', \'\')',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'2\', \'\', \'500\')',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify_src] VALUES(\'4\', \'\', \'500\')',
-            $this->getSourceSchemaName()
+            $this->getSourceSchemaName(),
         ));
 
         $options = new SynapseImportOptions(
@@ -311,45 +311,45 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
         );
         $source = new Storage\Synapse\Table(
             $this->getSourceSchemaName(),
             'nullify_src',
             ['id', 'name', 'price'],
-            ['id']
+            ['id'],
         );
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'nullify'
+            'nullify',
         );
         $destination = $ref->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinitionWithText(
             $ref->getTableDefinition(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer = new ToStageImporter($this->connection);
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new IncrementalImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify]',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $expectedData = [
             [
@@ -377,11 +377,11 @@ class IncrementalImportTest extends SynapseBaseTestCase
     {
         $this->connection->executeQuery(sprintf(
             'CREATE TABLE [%s].[nullify] ([id] nvarchar(4000), [name] nvarchar(4000), [price] NUMERIC)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->connection->executeQuery(sprintf(
             'INSERT INTO [%s].[nullify] VALUES(\'4\', NULL, 50)',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
 
         $options = new SynapseImportOptions(
@@ -390,45 +390,45 @@ class IncrementalImportTest extends SynapseBaseTestCase
             false,
             ImportOptions::SKIP_FIRST_LINE,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
         );
         $source = $this->createABSSourceInstance(
             'nullify.csv',
             ['id', 'name', 'price'],
             false,
             false,
-            []
+            [],
         );
         $ref = new SynapseTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'nullify'
+            'nullify',
         );
         $destination = $ref->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $ref->getTableDefinition(),
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SynapseTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importer = new ToStageImporter($this->connection);
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new IncrementalImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
         $importedData = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [id], [name], [price] FROM [%s].[nullify] ORDER BY [id] ASC',
-            $this->getDestinationSchemaName()
+            $this->getDestinationSchemaName(),
         ));
         $this->assertCount(4, $importedData);
         $this->assertTrue($importedData[1]['name'] === null);

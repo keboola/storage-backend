@@ -33,8 +33,8 @@ class TeradataViewReflection implements ViewReflectionInterface
             sprintf(
                 'SELECT * FROM dbc.tables WHERE tablekind=%s AND databasename=%s',
                 TeradataQuote::quote('V'),
-                TeradataQuote::quote($this->databaseName)
-            )
+                TeradataQuote::quote($this->databaseName),
+            ),
         );
 
         /**
@@ -51,28 +51,28 @@ class TeradataViewReflection implements ViewReflectionInterface
                 sprintf(
                     'SHOW VIEW %s.%s',
                     TeradataQuote::quoteSingleIdentifier($this->databaseName),
-                    TeradataQuote::quoteSingleIdentifier(trim($view['TableName']))
-                )
+                    TeradataQuote::quoteSingleIdentifier(trim($view['TableName'])),
+                ),
             );
 
             // trim table name from teradata, returned with whitespaces
             $viewNameWithDatabase = sprintf(
                 '%s.%s',
                 TeradataQuote::quoteSingleIdentifier($this->databaseName),
-                TeradataQuote::quoteSingleIdentifier(trim($view['TableName']))
+                TeradataQuote::quoteSingleIdentifier(trim($view['TableName'])),
             );
 
             // remove create view statement
             $text = str_replace(
                 'CREATE VIEW ' . $viewNameWithDatabase . ' AS SELECT * FROM',
                 '',
-                $viewDefinition[0]['Request Text']
+                $viewDefinition[0]['Request Text'],
             );
 
             $sourceNameWithDatabase = sprintf(
                 '%s.%s',
                 TeradataQuote::quoteSingleIdentifier($this->databaseName),
-                TeradataQuote::quoteSingleIdentifier($this->viewName)
+                TeradataQuote::quoteSingleIdentifier($this->viewName),
             );
 
             if (strpos($text, $sourceNameWithDatabase) === false) {

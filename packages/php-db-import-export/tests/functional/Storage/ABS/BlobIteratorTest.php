@@ -25,7 +25,7 @@ class BlobIteratorTest extends BaseTestCase
         $iterator = new BlobIterator(
             $this->getClient(),
             (string) getenv('ABS_CONTAINER_NAME'),
-            $options
+            $options,
         );
 
         $count = 0;
@@ -48,7 +48,7 @@ class BlobIteratorTest extends BaseTestCase
         $iterator = new BlobIterator(
             $this->getClient(),
             (string) getenv('ABS_CONTAINER_NAME'),
-            $options
+            $options,
         );
 
         $count = 0;
@@ -71,12 +71,12 @@ class BlobIteratorTest extends BaseTestCase
             Resources::SAS_TOKEN_NAME,
             $this->getCredentialsForAzureContainer(
                 (string) getenv('ABS_CONTAINER_NAME'),
-                'rl'
-            )
+                'rl',
+            ),
         );
 
         return ClientFactory::createClientFromConnectionString(
-            $SASConnectionString
+            $SASConnectionString,
         );
     }
 }

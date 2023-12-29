@@ -34,7 +34,7 @@ class TableTest extends TestCase
         self::assertEquals(
         // phpcs:ignore
             'SELECT a.[col1], a.[col2] FROM (SELECT CAST([col1] as NVARCHAR(4000)) AS [col1], CAST([col2] as NVARCHAR(4000)) AS [col2] FROM [schema].[table]) AS a',
-            $source->getFromStatementForStaging(true)
+            $source->getFromStatementForStaging(true),
         );
     }
 }

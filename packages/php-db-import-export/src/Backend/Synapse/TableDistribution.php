@@ -26,7 +26,7 @@ final class TableDistribution
      */
     public function __construct(
         string $distributionName = self::TABLE_DISTRIBUTION_ROUND_ROBIN,
-        array $distributionColumnsNames = []
+        array $distributionColumnsNames = [],
     ) {
         Assert::assertTableDistribution($distributionName);
         Assert::assertValidHashDistribution($distributionName, $distributionColumnsNames);

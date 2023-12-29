@@ -23,13 +23,13 @@ class ExasolImportOptions extends ImportOptions
         bool $isIncremental = false,
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = 0,
-        string $castValueTypes = self::TABLE_TYPES_PRESERVE
+        string $castValueTypes = self::TABLE_TYPES_PRESERVE,
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
             $isIncremental,
             $useTimestamp,
-            $numberOfIgnoredLines
+            $numberOfIgnoredLines,
         );
         $this->castValueTypes = $castValueTypes;
     }

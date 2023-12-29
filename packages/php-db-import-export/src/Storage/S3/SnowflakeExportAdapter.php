@@ -42,7 +42,7 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         $sql = sprintf(
             <<<EOT

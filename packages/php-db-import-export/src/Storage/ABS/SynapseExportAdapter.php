@@ -44,7 +44,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         $compression = $exportOptions->isCompressed() ?
             ',DATA_COMPRESSION = \'org.apache.hadoop.io.compress.GzipCodec\'' :
@@ -65,7 +65,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
             $sql = $this->polyBase->getCredentialsQuery(
                 $credentialsId,
                 $exportOptions->getExportCredentialsType(),
-                $blobMasterKey
+                $blobMasterKey,
             );
             $this->connection->exec($sql);
 
@@ -92,7 +92,7 @@ class SynapseExportAdapter implements SynapseExportAdapterInterface
             $fileFormatId,
             $dataSourceId,
             $credentialsId,
-            $tableId
+            $tableId,
         ) as $sql
         ) {
             try {

@@ -22,14 +22,14 @@ class IncrementalImportTest extends BigqueryBaseTestCase
 {
 
     protected function getBigqueryIncrementalImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): BigqueryImportOptions {
         return new BigqueryImportOptions(
             [],
             true,
             true,
             $skipLines,
-            BigqueryImportOptions::USING_TYPES_STRING
+            BigqueryImportOptions::USING_TYPES_STRING,
         );
     }
 
@@ -58,7 +58,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $accountsNoDedupStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getSimpleImportOptions(),
             $this->getSourceInstance(
@@ -66,7 +66,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $accountsNoDedupStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getBigqueryIncrementalImportOptions(),
             [$this->getDestinationDbName(), 'accounts-3'],
@@ -81,7 +81,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getSimpleImportOptions(),
             $this->getSourceInstance(
@@ -89,7 +89,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getBigqueryIncrementalImportOptions(),
             [$this->getDestinationDbName(), 'accounts-3'],
@@ -104,26 +104,26 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new BigqueryImportOptions(
                 [],
                 false,
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             $this->getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new BigqueryImportOptions(
                 [],
                 true, // incremental
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $accountsStub->getRows(),
@@ -137,7 +137,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $multiPKStub->getColumns(),
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getSimpleImportOptions(),
             $this->getSourceInstance(
@@ -145,7 +145,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $multiPKStub->getColumns(),
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getBigqueryIncrementalImportOptions(),
             [$this->getDestinationDbName(), self::TABLE_MULTI_PK_WITH_TS],
@@ -171,7 +171,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
         array $expected,
         int $expectedImportedRowCount,
         string $tablesToInit,
-        array $dedupCols
+        array $dedupCols,
     ): void {
         $this->initTable($tablesToInit);
 
@@ -180,7 +180,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
         $destination = (new BigqueryTableReflection(
             $this->bqClient,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
         // update PK
         $destination = $this->cloneDefinitionWithDedupCol($destination, $dedupCols);
@@ -191,59 +191,59 @@ class IncrementalImportTest extends BigqueryBaseTestCase
 
         $fullLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $fullLoadSource->getColumnsNames()
+            $fullLoadSource->getColumnsNames(),
         );
         $incrementalLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $incrementalSource->getColumnsNames()
+            $incrementalSource->getColumnsNames(),
         );
 
         try {
             // full load
             $qb = new BigqueryTableQueryBuilder();
             $this->bqClient->runQuery($this->bqClient->query(
-                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable),
             ));
 
             $importState = $toStageImporter->importToStagingTable(
                 $fullLoadSource,
                 $fullLoadStagingTable,
-                $fullLoadOptions
+                $fullLoadOptions,
             );
             $fullImporter->importToTable(
                 $fullLoadStagingTable,
                 $destination,
                 $fullLoadOptions,
-                $importState
+                $importState,
             );
             // incremental load
             $qb = new BigqueryTableQueryBuilder();
             $this->bqClient->runQuery($this->bqClient->query(
-                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable),
             ));
             $importState = $toStageImporter->importToStagingTable(
                 $incrementalSource,
                 $incrementalLoadStagingTable,
-                $incrementalOptions
+                $incrementalOptions,
             );
             $result = $incrementalImporter->importToTable(
                 $incrementalLoadStagingTable,
                 $destination,
                 $incrementalOptions,
-                $importState
+                $importState,
             );
         } finally {
             $this->bqClient->runQuery($this->bqClient->query(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $fullLoadStagingTable->getSchemaName(),
-                    $fullLoadStagingTable->getTableName()
-                )
+                    $fullLoadStagingTable->getTableName(),
+                ),
             ));
             $this->bqClient->runQuery($this->bqClient->query(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $incrementalLoadStagingTable->getSchemaName(),
-                    $incrementalLoadStagingTable->getTableName()
-                )
+                    $incrementalLoadStagingTable->getTableName(),
+                ),
             ));
         }
 
@@ -255,7 +255,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
             $destination,
             $incrementalOptions,
             $expected,
-            0
+            0,
         );
     }
 }

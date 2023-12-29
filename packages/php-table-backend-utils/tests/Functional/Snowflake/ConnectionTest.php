@@ -39,27 +39,27 @@ class ConnectionTest extends SnowflakeBaseCase
         $sqlSelect = sprintf(
             'SELECT * FROM %s.%s',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = :first_name',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindMultipleNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = :first_name AND "last_name" = :last_name ',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindNotNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = ?',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
         $sqlSelectBindMultipleNotNamed = sprintf(
             'SELECT * FROM %s.%s WHERE "first_name" = ? AND "last_name" = ?',
             SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         );
 
         $result = $this->connection->fetchAllAssociative($sqlSelect);
@@ -205,14 +205,14 @@ class ConnectionTest extends SnowflakeBaseCase
         $this->expectExceptionMessage(sprintf(
             // phpcs:ignore
             'An exception occurred while executing a query: String \'%s\' cannot be inserted because it\'s bigger than column size',
-            $longString
+            $longString,
         ));
         $this->insertRowToTable(
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             1,
             'franta',
-            $longString
+            $longString,
         );
     }
 
@@ -225,7 +225,7 @@ class ConnectionTest extends SnowflakeBaseCase
             [
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-            ]
+            ],
         );
 
         $this->expectException(DriverException::class);
@@ -245,7 +245,7 @@ class ConnectionTest extends SnowflakeBaseCase
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
                 'database' => 'invalidDatabase',
-            ]
+            ],
         );
 
         $this->assertConnectionIsWorking($connection);
@@ -254,7 +254,7 @@ class ConnectionTest extends SnowflakeBaseCase
         $this->assertConnectionIsWorking($this->connection);
         $this->assertSame(
             (string) getenv('SNOWFLAKE_DATABASE'),
-            $this->connection->fetchOne('SELECT CURRENT_DATABASE()')
+            $this->connection->fetchOne('SELECT CURRENT_DATABASE()'),
         );
     }
 
@@ -301,7 +301,7 @@ class ConnectionTest extends SnowflakeBaseCase
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
                 'database' => (string) getenv('SNOWFLAKE_DATABASE'),
-            ]
+            ],
         );
 
         $connection->executeQuery('SELECT current_date;');
@@ -313,8 +313,7 @@ class ConnectionTest extends SnowflakeBaseCase
     WHERE QUERY_TEXT = 'SELECT current_date;' 
     ORDER BY START_TIME DESC 
     LIMIT 1
-SQL
-        );
+SQL,);
 
         $this->assertEquals('{"runId":"runIdValue"}', $queries[0]['QUERY_TAG']);
     }
@@ -329,7 +328,7 @@ SQL
             $this->assertSame(WarehouseTimeoutReached::class, get_class($e));
             $this->assertSame(
                 'An exception occurred while executing a query: Query reached its timeout 3 second(s)',
-                $e->getMessage()
+                $e->getMessage(),
             );
         } finally {
             $connection->executeStatement('ALTER SESSION UNSET STATEMENT_TIMEOUT_IN_SECONDS');
@@ -364,27 +363,27 @@ SQL
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
                 'database' => (string) getenv('SNOWFLAKE_DATABASE'),
                 'schema' => 'tableUtils-testSchema',
-            ]
+            ],
         );
         //tests if you set schema in constructor it really set in connection
         $this->assertSame(
             'tableUtils-testSchema',
-            $connection->fetchOne('SELECT CURRENT_SCHEMA()')
+            $connection->fetchOne('SELECT CURRENT_SCHEMA()'),
         );
         $this->connection->close();
         $connection->close();
 
         //main connection has still no schema
         $this->assertNull(
-            $this->connection->fetchOne('SELECT CURRENT_SCHEMA()')
+            $this->connection->fetchOne('SELECT CURRENT_SCHEMA()'),
         );
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
             sprintf(
                 'Cannot access object or it does not exist. Executing query "USE SCHEMA %s"',
-                SnowflakeQuote::quoteSingleIdentifier('Other schema')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('Other schema'),
+            ),
         );
         $connection->executeQuery(sprintf('USE SCHEMA %s', SnowflakeQuote::quoteSingleIdentifier('Other schema')));
     }

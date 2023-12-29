@@ -34,7 +34,7 @@ class S3SlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
         $path = RelativePath::createFromRootAndPath(
             new S3Provider(),
             'tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q',
-            'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gz'
+            'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gz',
         );
 
         $generator = new S3SlicedManifestFromUnloadQueryResultGenerator($s3ClientMock);

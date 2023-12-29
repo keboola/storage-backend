@@ -22,7 +22,7 @@ class SnowflakeSchemaQueryBuilder
         return sprintf(
             'DROP SCHEMA %s %s',
             SnowflakeQuote::quoteSingleIdentifier($schemaName),
-            $cascade ? 'CASCADE' : 'RESTRICT'
+            $cascade ? 'CASCADE' : 'RESTRICT',
         );
     }
 }

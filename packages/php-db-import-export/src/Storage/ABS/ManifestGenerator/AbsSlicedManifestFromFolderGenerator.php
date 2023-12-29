@@ -25,7 +25,7 @@ class AbsSlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInt
 
     public function __construct(
         BlobRestProxy $absClient,
-        bool $usingPolyBaseExport = self::GENERATE_MANIFEST_DEFAULT
+        bool $usingPolyBaseExport = self::GENERATE_MANIFEST_DEFAULT,
     ) {
         $this->absClient = $absClient;
         $this->usingPolyBaseExport = $usingPolyBaseExport;
@@ -65,7 +65,7 @@ class AbsSlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInt
         $this->absClient->createBlockBlob(
             $path->getRoot(),
             $path->getPathnameWithoutRoot() . 'manifest',
-            $encodedManifest
+            $encodedManifest,
         );
     }
 }

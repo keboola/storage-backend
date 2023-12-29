@@ -11,7 +11,7 @@ interface BackendExportAdapterInterface
 {
     public static function isSupported(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination
+        Storage\DestinationInterface $destination,
     ): bool;
 
     /**
@@ -20,6 +20,6 @@ interface BackendExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array;
 }

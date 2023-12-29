@@ -42,8 +42,8 @@ final class ExasolTableReflection implements TableReflectionInterface
             sprintf(
                 'DESCRIBE %s.%s',
                 ExasolQuote::quoteSingleIdentifier($this->schemaName),
-                ExasolQuote::quoteSingleIdentifier($this->tableName)
-            )
+                ExasolQuote::quoteSingleIdentifier($this->tableName),
+            ),
         );
 
         return array_map(static fn($column) => $column['COLUMN_NAME'], $columns);
@@ -81,8 +81,8 @@ WHERE "COLUMN_SCHEMA" = %s
 ORDER BY "COLUMN_ORDINAL_POSITION"
   ',
                 ExasolQuote::quote($this->schemaName),
-                ExasolQuote::quote($this->tableName)
-            )
+                ExasolQuote::quote($this->tableName),
+            ),
         );
 
         $columns = array_map(static fn($col) => ExasolColumn::createFromDB($col), $columns);
@@ -96,7 +96,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
         $result = $this->connection->fetchOne(sprintf(
             'SELECT COUNT(*) AS NumberOfRows FROM %s.%s',
             ExasolQuote::quoteSingleIdentifier($this->schemaName),
-            ExasolQuote::quoteSingleIdentifier($this->tableName)
+            ExasolQuote::quoteSingleIdentifier($this->tableName),
         ));
         return (int) $result;
     }
@@ -119,7 +119,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
             ',
             ExasolQuote::quote($this->schemaName),
             ExasolQuote::quote($this->tableName),
-            ExasolQuote::quote('PRIMARY KEY')
+            ExasolQuote::quote('PRIMARY KEY'),
         );
         /** @var array<array{COLUMN_NAME:string}> $data */
         $data = $this->connection->fetchAllAssociative($sql);
@@ -137,7 +137,7 @@ ORDER BY "COLUMN_ORDINAL_POSITION"
             ',
             ExasolQuote::quote($this->tableName),
             ExasolQuote::quote($this->schemaName),
-            ExasolQuote::quote('SCHEMA')
+            ExasolQuote::quote('SCHEMA'),
         );
         /** @var int|string $result */
         $result = $this->connection->fetchOne($sql);
@@ -167,7 +167,7 @@ SELECT
 FROM "SYS"."EXA_ALL_DEPENDENCIES"  
 WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
             ExasolQuote::quote($this->schemaName),
-            ExasolQuote::quote($this->tableName)
+            ExasolQuote::quote($this->tableName),
         );
 
         return $this->connection->fetchAllAssociative($sql);
@@ -181,7 +181,7 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
             $this->tableName,
             $this->isTemporary(),
             $this->getColumnsDefinitions(),
-            $this->getPrimaryKeysNames()
+            $this->getPrimaryKeysNames(),
         );
     }
 
@@ -193,7 +193,7 @@ SELECT *
 FROM "SYS"."EXA_ALL_TABLES"  
 WHERE "TABLE_SCHEMA" = %s AND "TABLE_NAME" = %s',
             ExasolQuote::quote($this->schemaName),
-            ExasolQuote::quote($this->tableName)
+            ExasolQuote::quote($this->tableName),
         );
 
         return count($this->connection->fetchAllAssociative($sql)) === 1;

@@ -49,13 +49,13 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
                     $this->assertSame(
                         //phpcs:ignore
                         '{"entries":[{"url":"gs:\\/\\/bucket1\\/prefix\\/xxx\\/obj1_000000.csv","mandatory":true},{"url":"gs:\\/\\/bucket1\\/prefix\\/xxx\\/obj2_000000.csv","mandatory":true}]}',
-                        $content
+                        $content,
                     );
                     return true;
                 }),
                 [
                     'name' => 'prefix/xxxmanifest',
-                ]
+                ],
             );
         $clientMock = $this->createMock(StorageClient::class);
         $clientMock

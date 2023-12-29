@@ -56,14 +56,14 @@ class FullImportTest extends TeradataBaseTestCase
             ],
             false,
             false,
-            []
+            [],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new TeradataTableReflection(
             $this->connection,
             $this->getDestinationDbName(),
-            self::TABLE_TRANSLATIONS
+            self::TABLE_TRANSLATIONS,
         );
         /** @var TeradataTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
@@ -75,19 +75,19 @@ class FullImportTest extends TeradataBaseTestCase
         ]);
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(3, $destinationRef->getRowsCount());
@@ -110,14 +110,14 @@ class FullImportTest extends TeradataBaseTestCase
             ],
             false,
             false,
-            ['VisitID']
+            ['VisitID'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new TeradataTableReflection(
             $this->connection,
             $this->getDestinationDbName(),
-            self::TABLE_SINGLE_PK
+            self::TABLE_SINGLE_PK,
         );
         /** @var TeradataTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
@@ -130,19 +130,19 @@ class FullImportTest extends TeradataBaseTestCase
         ]);
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(4, $destinationRef->getRowsCount());
@@ -165,14 +165,14 @@ class FullImportTest extends TeradataBaseTestCase
             ],
             false,
             false,
-            ['VisitID', 'Something']
+            ['VisitID', 'Something'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new TeradataTableReflection(
             $this->connection,
             $this->getDestinationDbName(),
-            self::TABLE_MULTI_PK
+            self::TABLE_MULTI_PK,
         );
         /** @var TeradataTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
@@ -185,12 +185,12 @@ class FullImportTest extends TeradataBaseTestCase
         ]);
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
 
         // now 6 lines. Add one with same VisitId and Something as an existing line has
@@ -199,15 +199,15 @@ class FullImportTest extends TeradataBaseTestCase
             sprintf(
                 "INSERT INTO %s.%s VALUES ('134', 'xx', 'yy', 'abc', 'def');",
                 TeradataQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                TeradataQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
+                TeradataQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(6, $destinationRef->getRowsCount());
@@ -261,7 +261,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $escapingHeader,
                 true,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
@@ -276,7 +276,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $escapingHeader,
                 true,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
@@ -291,7 +291,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $lemmaHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_LEMMA],
             $this->getSimpleImportOptions(),
@@ -306,7 +306,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
@@ -321,7 +321,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
@@ -337,7 +337,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSimpleImportOptions(),
@@ -352,7 +352,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $accountChangedColumnsOrderHeader,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [
                 $this->getDestinationDbName(),
@@ -370,7 +370,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $accountsHeader,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(),
@@ -386,7 +386,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $accountsHeader,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(),
@@ -402,7 +402,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $accountsHeader,
                 true,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
@@ -417,7 +417,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $accountsHeader,
                 true,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
@@ -433,7 +433,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $accountsHeader,
                 true,
                 true,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
             $this->getSimpleImportOptions(ImportOptionsInterface::SKIP_NO_LINE),
@@ -449,7 +449,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ['column', 'table'],
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationDbName(), self::TABLE_TABLE],
             $this->getSimpleImportOptions(),
@@ -468,7 +468,7 @@ class FullImportTest extends TeradataBaseTestCase
                 ],
                 false,
                 false,
-                []
+                [],
             ),
             [
                 $this->getDestinationDbName(),
@@ -489,7 +489,7 @@ class FullImportTest extends TeradataBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [
                 $this->getDestinationDbName(),
@@ -499,7 +499,7 @@ class FullImportTest extends TeradataBaseTestCase
                 [],
                 false,
                 false, // don't use timestamp
-                ImportOptionsInterface::SKIP_FIRST_LINE
+                ImportOptionsInterface::SKIP_FIRST_LINE,
             ),
             $expectedEscaping,
             7,
@@ -523,7 +523,7 @@ class FullImportTest extends TeradataBaseTestCase
                     'numCol',
                     'floatCol',
                     'boolCol',
-                ]
+                ],
             ),
             [
                 $this->getDestinationDbName(),
@@ -548,7 +548,7 @@ class FullImportTest extends TeradataBaseTestCase
         TeradataImportOptions $options,
         array $expected,
         int $expectedImportedRowCount,
-        string $tablesToInit
+        string $tablesToInit,
     ): void {
         if (getenv('STORAGE_TYPE') === StorageType::STORAGE_ABS && $this->dataName() === 'large manifest') {
             $this->markTestIncomplete('large manifest end with timeout');
@@ -561,18 +561,18 @@ class FullImportTest extends TeradataBaseTestCase
         $destination = (new TeradataTableReflection(
             $this->connection,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         // TPT
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
 
         $qb = new TeradataTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $toStageImporter = new ToStageImporter($this->connection);
         $toFinalTableImporter = new FullImporter($this->connection);
@@ -580,13 +580,13 @@ class FullImportTest extends TeradataBaseTestCase
             $importState = $toStageImporter->importToStagingTable(
                 $source,
                 $stagingTable,
-                $options
+                $options,
             );
             $result = $toFinalTableImporter->importToTable(
                 $stagingTable,
                 $destination,
                 $options,
-                $importState
+                $importState,
             );
         } finally {
             $this->dropTableIfExists($stagingTable->getSchemaName(), $stagingTable->getTableName());
@@ -599,7 +599,7 @@ class FullImportTest extends TeradataBaseTestCase
             $destination,
             $options,
             $expected,
-            0
+            0,
         );
     }
 }

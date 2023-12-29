@@ -35,7 +35,7 @@ class Exporter implements ExporterInterface
     public function exportTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $options
+        ExportOptionsInterface $options,
     ): array {
         return $this->getAdapter($source, $destination)
             ->runCopyCommand($source, $destination, $options);
@@ -43,7 +43,7 @@ class Exporter implements ExporterInterface
 
     private function getAdapter(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination
+        Storage\DestinationInterface $destination,
     ): BackendExportAdapterInterface {
         $adapterForUse = null;
         /** @var class-string<BackendExportAdapterInterface> $adapter */
@@ -55,8 +55,8 @@ class Exporter implements ExporterInterface
                             'More than one suitable adapter found for Bigquery exporter with source: '
                             . '"%s", destination "%s".',
                             get_class($source),
-                            get_class($destination)
-                        )
+                            get_class($destination),
+                        ),
                     );
                 }
                 $adapterForUse = new $adapter($this->bqClient);
@@ -67,8 +67,8 @@ class Exporter implements ExporterInterface
                 sprintf(
                     'No suitable adapter found for Bigquery exporter with source: "%s", destination "%s".',
                     get_class($source),
-                    get_class($destination)
-                )
+                    get_class($destination),
+                ),
             );
         }
 

@@ -25,12 +25,12 @@ final class Assert extends BaseAssert
 {
     public static function assertColumns(
         SourceInterface $source,
-        DestinationTableOptions $destinationTableOptions
+        DestinationTableOptions $destinationTableOptions,
     ): void {
         if (count($source->getColumnsNames()) === 0) {
             throw new Exception(
                 'No columns found in CSV file.',
-                Exception::NO_COLUMNS
+                Exception::NO_COLUMNS,
             );
         }
 
@@ -38,7 +38,7 @@ final class Assert extends BaseAssert
         if (!empty($moreColumns)) {
             throw new Exception(
                 'Columns doest not match. Non existing columns: ' . implode(', ', $moreColumns),
-                Exception::COLUMNS_COUNT_NOT_MATCH
+                Exception::COLUMNS_COUNT_NOT_MATCH,
             );
         }
     }
@@ -49,7 +49,7 @@ final class Assert extends BaseAssert
             throw new InternalException(sprintf(
                 'Only "%s" is supported as destination "%s" provided.',
                 Table::class,
-                get_class($destination)
+                get_class($destination),
             ));
         }
     }
@@ -60,7 +60,7 @@ final class Assert extends BaseAssert
             throw new InternalException(sprintf(
                 'Synapse importer expect $options to be instance of "%s", "%s" given.',
                 SynapseImportOptions::class,
-                get_class($options)
+                get_class($options),
             ));
         }
     }
@@ -71,7 +71,7 @@ final class Assert extends BaseAssert
             && $source->getCsvOptions()->getEnclosure() === ''
         ) {
             throw new InternalException(
-                'CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.'
+                'CSV property FIELDQUOTE|ECLOSURE must be set when using Synapse analytics.',
             );
         }
     }
@@ -81,7 +81,7 @@ final class Assert extends BaseAssert
      */
     public static function assertValidHashDistribution(
         string $tableDistributionName,
-        array $hashDistributionColumnsNames
+        array $hashDistributionColumnsNames,
     ): void {
         if ($tableDistributionName === TableDistribution::TABLE_DISTRIBUTION_HASH
             && count($hashDistributionColumnsNames) !== 1
@@ -99,7 +99,7 @@ final class Assert extends BaseAssert
         ], true)) {
             throw new LogicException(sprintf(
                 'Unknown table distribution "%s" specified.',
-                $tableDistributionName
+                $tableDistributionName,
             ));
         }
     }
@@ -109,14 +109,14 @@ final class Assert extends BaseAssert
         if ($tableName[0] !== '#') {
             throw new Exception(sprintf(
                 'Staging table must start with "#" table name "%s" supplied.',
-                $tableName
+                $tableName,
             ));
         }
     }
 
     public static function assertSameColumns(
         ColumnCollection $source,
-        ColumnCollection $destination
+        ColumnCollection $destination,
     ): void {
         $it0 = $source->getIterator();
         $it1 = $destination->getIterator();

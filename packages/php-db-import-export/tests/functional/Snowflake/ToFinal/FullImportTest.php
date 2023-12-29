@@ -56,7 +56,7 @@ class FullImportTest extends SnowflakeBaseTestCase
               "GEOMETRY" GEOMETRY,
               "_timestamp" TIMESTAMP
             );',
-            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName())
+            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
         ));
 
         // skipping header
@@ -67,13 +67,13 @@ class FullImportTest extends SnowflakeBaseTestCase
             1,
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
-            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+            [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
         );
 
         $destinationRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            'types'
+            'types',
         );
         /** @var SnowflakeTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
@@ -88,12 +88,12 @@ class FullImportTest extends SnowflakeBaseTestCase
                 'ARRAY',
                 'GEOGRAPHY',
                 'GEOMETRY',
-            ]
+            ],
         );
 
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
@@ -108,7 +108,7 @@ select 1,
        \'POINT(1820.12 890.56)\'
 ;',
             $stagingTable->getSchemaName(),
-            $stagingTable->getTableName()
+            $stagingTable->getTableName(),
         ));
         $toFinalTableImporter = new FullImporter($this->connection);
 
@@ -116,7 +116,7 @@ select 1,
             $stagingTable,
             $destination,
             $options,
-            new ImportState($stagingTable->getTableName())
+            new ImportState($stagingTable->getTableName()),
         );
 
         self::assertEquals(1, $destinationRef->getRowsCount());
@@ -139,14 +139,14 @@ select 1,
             ],
             false,
             false,
-            ['VisitID']
+            ['VisitID'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_SINGLE_PK
+            self::TABLE_SINGLE_PK,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -158,12 +158,12 @@ select 1,
         ]);
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
 
@@ -171,7 +171,7 @@ select 1,
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(5, $destinationRef->getRowsCount());
@@ -191,14 +191,14 @@ select 1,
             ],
             false,
             false,
-            []
+            [],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_COLUMN_NAME_ROW_NUMBER
+            self::TABLE_COLUMN_NAME_ROW_NUMBER,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -207,19 +207,19 @@ select 1,
         ]);
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(2, $destinationRef->getRowsCount());
@@ -242,14 +242,14 @@ select 1,
             ],
             false,
             false,
-            ['VisitID']
+            ['VisitID'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_SINGLE_PK
+            self::TABLE_SINGLE_PK,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -261,19 +261,19 @@ select 1,
         ]);
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(4, $destinationRef->getRowsCount());
@@ -296,14 +296,14 @@ select 1,
             ],
             false,
             false,
-            ['VisitID', 'Something']
+            ['VisitID', 'Something'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new SnowflakeTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_MULTI_PK
+            self::TABLE_MULTI_PK,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -315,12 +315,12 @@ select 1,
         ]);
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
 
         // now 6 lines. Add one with same VisitId and Something as an existing line has
@@ -329,15 +329,15 @@ select 1,
             sprintf(
                 "INSERT INTO %s.%s VALUES ('134', 'xx', 'yy', 'abc', 'def');",
                 SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
+                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(6, $destinationRef->getRowsCount());
@@ -365,7 +365,7 @@ select 1,
                 $escapingStub->getColumns(),
                 true,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -380,7 +380,7 @@ select 1,
                 $escapingStub->getColumns(),
                 true,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -395,7 +395,7 @@ select 1,
                 $lemmaStub->getColumns(),
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_LEMMA],
             $this->getSnowflakeImportOptions(),
@@ -410,7 +410,7 @@ select 1,
                 $escapingStub->getColumns(),
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(),
@@ -425,7 +425,7 @@ select 1,
                 $escapingStub->getColumns(),
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(),
@@ -441,7 +441,7 @@ select 1,
                 $escapingStub->getColumns(),
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getSnowflakeImportOptions(),
@@ -456,7 +456,7 @@ select 1,
                 $accountsChangedColumnsOrderStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -473,7 +473,7 @@ select 1,
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(),
@@ -489,7 +489,7 @@ select 1,
                 $accountsStub->getColumns(),
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(),
@@ -505,7 +505,7 @@ select 1,
                 $accountsStub->getColumns(),
                 true,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -520,7 +520,7 @@ select 1,
                 $accountsStub->getColumns(),
                 true,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -536,7 +536,7 @@ select 1,
                 $accountsStub->getColumns(),
                 true,
                 true,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -552,7 +552,7 @@ select 1,
                 ['column', 'table'],
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_TABLE],
             new SnowflakeImportOptions(
@@ -563,7 +563,7 @@ select 1,
                 ignoreColumns: [
                     ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
                     'lemmaIndex',
-                ]
+                ],
             ),
             [['table', 'column', null]],
             1,
@@ -580,7 +580,7 @@ select 1,
                 ],
                 false,
                 false,
-                []
+                [],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -601,7 +601,7 @@ select 1,
                 $escapingStub->getColumns(),
                 false,
                 false,
-                []
+                [],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -636,7 +636,7 @@ select 1,
                     'numCol',
                     'floatCol',
                     'boolCol',
-                ]
+                ],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -660,7 +660,7 @@ select 1,
         SnowflakeImportOptions $options,
         array $expected,
         int $expectedImportedRowCount,
-        string $tablesToInit
+        string $tablesToInit,
     ): void {
         $this->initTable($tablesToInit);
 
@@ -669,16 +669,16 @@ select 1,
         $destination = (new SnowflakeTableReflection(
             $this->connection,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $toStageImporter = new ToStageImporter($this->connection);
         $toFinalTableImporter = new FullImporter($this->connection);
@@ -686,20 +686,20 @@ select 1,
             $importState = $toStageImporter->importToStagingTable(
                 $source,
                 $stagingTable,
-                $options
+                $options,
             );
             $result = $toFinalTableImporter->importToTable(
                 $stagingTable,
                 $destination,
                 $options,
-                $importState
+                $importState,
             );
         } finally {
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $stagingTable->getSchemaName(),
-                    $stagingTable->getTableName()
-                )
+                    $stagingTable->getTableName(),
+                ),
             );
         }
 
@@ -710,7 +710,7 @@ select 1,
             $destination,
             $options,
             $expected,
-            0
+            0,
         );
     }
 }

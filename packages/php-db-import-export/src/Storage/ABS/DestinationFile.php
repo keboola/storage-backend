@@ -21,7 +21,7 @@ class DestinationFile extends BaseFile implements DestinationFileInterface
         string $filePath,
         string $sasToken,
         string $accountName,
-        ?string $blobMasterKey = null
+        ?string $blobMasterKey = null,
     ) {
         parent::__construct($container, $filePath, $sasToken, $accountName);
         $this->blobMasterKey = $blobMasterKey;
@@ -49,11 +49,11 @@ class DestinationFile extends BaseFile implements DestinationFileInterface
             $this->accountName,
             Resources::BLOB_BASE_DNS_NAME,
             Resources::SAS_TOKEN_NAME,
-            $this->sasToken
+            $this->sasToken,
         );
 
         return ClientFactory::createClientFromConnectionString(
-            $SASConnectionString
+            $SASConnectionString,
         );
     }
 }

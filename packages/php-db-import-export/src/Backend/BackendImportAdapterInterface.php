@@ -14,7 +14,7 @@ interface BackendImportAdapterInterface
 {
     public static function isSupported(
         Storage\SourceInterface $source,
-        Storage\DestinationInterface $destination
+        Storage\DestinationInterface $destination,
     ): bool;
 
     /**
@@ -24,6 +24,6 @@ interface BackendImportAdapterInterface
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
         ImportOptionsInterface $importOptions,
-        string $stagingTableName
+        string $stagingTableName,
     ): int;
 }

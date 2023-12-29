@@ -36,7 +36,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         try {
             $files = $source->getManifestEntries();
@@ -46,8 +46,8 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
                         $source,
                         $destination,
                         $importOptions,
-                        $files
-                    )
+                        $files,
+                    ),
                 );
             }
         } catch (Throwable $e) {
@@ -57,7 +57,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();
@@ -70,7 +70,7 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
         Storage\S3\SourceFile $source,
         SnowflakeTableDefinition $destination,
         SnowflakeImportOptions $importOptions,
-        array $files
+        array $files,
     ): string {
         $s3Prefix = $source->getS3Prefix();
         $csvOptions = $source->getCsvOptions();
@@ -104,9 +104,9 @@ class FromS3CopyIntoAdapter implements CopyAdapterInterface
                     function ($file) use ($s3Prefix) {
                         return SnowflakeQuote::quote(str_replace($s3Prefix . '/', '', $file));
                     },
-                    $files
-                )
-            )
+                    $files,
+                ),
+            ),
         );
     }
 }

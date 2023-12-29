@@ -32,7 +32,7 @@ final class ToStageImporter implements ToStageImporterInterface
     public function importToStagingTable(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destinationDefinition,
-        ImportOptionsInterface $options
+        ImportOptionsInterface $options,
     ): ImportState {
         assert($destinationDefinition instanceof BigqueryTableDefinition);
         assert($options instanceof ImportOptions);
@@ -46,8 +46,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 $adapter->runCopyCommand(
                     $source,
                     $destinationDefinition,
-                    $options
-                )
+                    $options,
+                ),
             );
         } catch (JobException|ServiceException $e) {
             throw BigqueryException::covertException($e);
@@ -58,7 +58,7 @@ final class ToStageImporter implements ToStageImporterInterface
     }
 
     private function getAdapter(
-        Storage\SourceInterface $source
+        Storage\SourceInterface $source,
     ): CopyAdapterInterface {
         switch (true) {
             case $source instanceof Storage\GCS\SourceFile:
@@ -69,8 +69,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 throw new LogicException(
                     sprintf(
                         'No suitable adapter found for source: "%s".',
-                        get_class($source)
-                    )
+                        get_class($source),
+                    ),
                 );
         }
     }

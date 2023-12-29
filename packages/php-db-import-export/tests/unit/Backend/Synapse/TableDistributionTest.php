@@ -21,7 +21,7 @@ class TableDistributionTest extends TestCase
     {
         $options = new TableDistribution(
             TableDistribution::TABLE_DISTRIBUTION_HASH,
-            ['pk1']
+            ['pk1'],
         );
         self::assertEquals(['pk1'], $options->getDistributionColumnsNames());
         self::assertEquals('HASH', $options->getDistributionName());

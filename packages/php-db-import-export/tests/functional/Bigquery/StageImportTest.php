@@ -33,8 +33,8 @@ class StageImportTest extends BigqueryBaseTestCase
     `last_name` STRING(100)
 );',
                 BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
         $this->bqClient->runQuery($query);
 
@@ -42,7 +42,7 @@ class StageImportTest extends BigqueryBaseTestCase
         $ref = new BigqueryTableReflection(
             $this->bqClient,
             self::TEST_DATABASE,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
 
         $state = $importer->importToStagingTable(
@@ -52,8 +52,8 @@ class StageImportTest extends BigqueryBaseTestCase
                 [],
                 false,
                 false,
-                1
-            )
+                1,
+            ),
         );
 
         self::assertEquals(1, $state->getResult()->getImportedRowsCount());
@@ -100,8 +100,8 @@ class StageImportTest extends BigqueryBaseTestCase
         `CREDITS_USED_CLOUD_SERVICES` STRING(4000),
 );',
                 BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
         $this->bqClient->runQuery($query);
 
@@ -109,7 +109,7 @@ class StageImportTest extends BigqueryBaseTestCase
         $ref = new BigqueryTableReflection(
             $this->bqClient,
             self::TEST_DATABASE,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
 
         $state = $importer->importToStagingTable(
@@ -119,8 +119,8 @@ class StageImportTest extends BigqueryBaseTestCase
                 [],
                 false,
                 false,
-                1
-            )
+                1,
+            ),
         );
 
         self::assertEquals(3, $state->getResult()->getImportedRowsCount());
@@ -137,8 +137,8 @@ class StageImportTest extends BigqueryBaseTestCase
       `first_name` STRING(1)
      );',
                 BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
         $this->bqClient->runQuery($query);
 
@@ -146,7 +146,7 @@ class StageImportTest extends BigqueryBaseTestCase
         $ref = new BigqueryTableReflection(
             $this->bqClient,
             self::TEST_DATABASE,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
 
         try {
@@ -157,8 +157,8 @@ class StageImportTest extends BigqueryBaseTestCase
                     [],
                     false,
                     false,
-                    1
-                )
+                    1,
+                ),
             );
             self::fail('should fail');
         } catch (BigqueryException $e) {
@@ -181,8 +181,8 @@ class StageImportTest extends BigqueryBaseTestCase
       `price` STRING(100)
      );',
                 BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
-            )
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
         );
         $this->bqClient->runQuery($query);
 
@@ -190,7 +190,7 @@ class StageImportTest extends BigqueryBaseTestCase
         $ref = new BigqueryTableReflection(
             $this->bqClient,
             self::TEST_DATABASE,
-            self::TABLE_GENERIC
+            self::TABLE_GENERIC,
         );
 
         try {
@@ -201,8 +201,8 @@ class StageImportTest extends BigqueryBaseTestCase
                     [],
                     false,
                     false,
-                    1
-                )
+                    1,
+                ),
             );
             self::fail('should fail');
         } catch (Throwable $e) {
@@ -233,8 +233,8 @@ class StageImportTest extends BigqueryBaseTestCase
       `name` STRING(100) NOT NULL,
       `price` STRING(100)
      );',
-                ...$destinationPath
-            )
+                ...$destinationPath,
+            ),
         );
         $this->bqClient->runQuery($query);
 
@@ -248,8 +248,8 @@ class StageImportTest extends BigqueryBaseTestCase
       `name` STRING(100),
       `price` STRING(100)
      );',
-                ...$sourcePath
-            )
+                ...$sourcePath,
+            ),
         );
         $this->bqClient->runQuery($query);
 
@@ -257,8 +257,8 @@ class StageImportTest extends BigqueryBaseTestCase
         $query = $this->bqClient->query(
             sprintf(
                 'INSERT INTO %s.%s VALUES (1, NULL, \'1000\');',
-                ...$sourcePath
-            )
+                ...$sourcePath,
+            ),
         );
         $this->bqClient->runQuery($query);
 
@@ -266,7 +266,7 @@ class StageImportTest extends BigqueryBaseTestCase
         $ref = new BigqueryTableReflection(
             $this->bqClient,
             self::TEST_DATABASE,
-            $destinationTable
+            $destinationTable,
         );
 
         try {
@@ -283,8 +283,8 @@ class StageImportTest extends BigqueryBaseTestCase
                     [],
                     false,
                     false,
-                    1
-                )
+                    1,
+                ),
             );
             self::fail('should fail');
         } catch (Throwable $e) {

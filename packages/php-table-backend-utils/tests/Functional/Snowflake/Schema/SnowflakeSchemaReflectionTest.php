@@ -33,8 +33,8 @@ class SnowflakeSchemaReflectionTest extends SnowflakeBaseCase
     "last_name" VARCHAR(100)
 );',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier('transient_table')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('transient_table'),
+            ),
         );
 
         // create temporary table
@@ -46,8 +46,8 @@ class SnowflakeSchemaReflectionTest extends SnowflakeBaseCase
     "last_name" VARCHAR(100)
 );',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier('temporary_table')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('temporary_table'),
+            ),
         );
 
         $tables = $this->schemaRef->getTablesNames();
@@ -73,7 +73,7 @@ CREATE VIEW %s.%s AS
             SnowflakeQuote::quoteSingleIdentifier($schemaName),
             SnowflakeQuote::quoteSingleIdentifier($viewName),
             SnowflakeQuote::quoteSingleIdentifier($schemaName),
-            SnowflakeQuote::quoteSingleIdentifier($tableName)
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
         );
         $this->connection->executeQuery($sql);
         self::assertSame([$viewName], $this->schemaRef->getViewsNames());

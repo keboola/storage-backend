@@ -25,13 +25,13 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $where = sprintf(
                 ' WHERE [name] LIKE N%s AND [issqluser] = 1',
-                SynapseQuote::quote($like)
+                SynapseQuote::quote($like),
             );
         }
         /** @var array<array{name:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers]%s',
-            $where
+            $where,
         ));
 
         return array_map(static fn($record) => $record['name'], $users);
@@ -46,14 +46,14 @@ final class SynapseDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $where = sprintf(
                 ' WHERE [name] LIKE N%s AND [issqlrole] = 1',
-                SynapseQuote::quote($like)
+                SynapseQuote::quote($like),
             );
         }
 
         /** @var array<array{name:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers]%s',
-            $where
+            $where,
         ));
 
         return array_map(static fn($record) => $record['name'], $roles);

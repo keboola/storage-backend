@@ -13,7 +13,7 @@ trait DropTableTrait
         if ($this->tableExists($dbName, $tableName)
         ) {
             $this->connection->executeStatement(
-                (new SqlBuilder())->getDropTableUnsafe($dbName, $tableName)
+                (new SqlBuilder())->getDropTableUnsafe($dbName, $tableName),
             );
         }
     }

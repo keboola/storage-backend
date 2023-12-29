@@ -10,7 +10,7 @@ final class NameGeneratorFactory
 {
     public static function getGeneratorForBackendAndPrefix(
         string $backend,
-        string $stackPrefix
+        string $stackPrefix,
     ): BackendNameGeneratorInterface {
         switch ($backend) {
             case BackendSupportsInterface::BACKEND_SYNAPSE:

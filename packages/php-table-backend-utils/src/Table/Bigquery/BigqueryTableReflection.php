@@ -30,7 +30,7 @@ class BigqueryTableReflection implements TableReflectionInterface
     public function __construct(
         private readonly BigQueryClient $bqClient,
         private readonly string $datasetName,
-        private readonly string $tableName
+        private readonly string $tableName,
     ) {
         $this->table = $bqClient->dataset($this->datasetName)->table($this->tableName);
     }
@@ -113,7 +113,7 @@ class BigqueryTableReflection implements TableReflectionInterface
             $this->tableName,
             $this->isTemporary(),
             $this->getColumnsDefinitions(),
-            $this->getPrimaryKeysNames()
+            $this->getPrimaryKeysNames(),
         );
     }
 
@@ -137,7 +137,7 @@ class BigqueryTableReflection implements TableReflectionInterface
             $timePartitioning = new TimePartitioningConfig(
                 $data['type'],
                 $data['expirationMs'] ?? null,
-                $data['field'] ?? null
+                $data['field'] ?? null,
             );
         }
         $rangePartitioning = null;
@@ -147,7 +147,7 @@ class BigqueryTableReflection implements TableReflectionInterface
                 $data['field'],
                 $data['range']['start'],
                 $data['range']['end'],
-                $data['range']['interval']
+                $data['range']['interval'],
             );
         }
 
@@ -159,7 +159,7 @@ class BigqueryTableReflection implements TableReflectionInterface
         return new PartitioningConfig(
             $timePartitioning,
             $rangePartitioning,
-            $requirePartitionFilter
+            $requirePartitionFilter,
         );
     }
 
@@ -182,7 +182,7 @@ class BigqueryTableReflection implements TableReflectionInterface
         $query = $this->bqClient->query(sprintf(
             'SELECT * FROM %s.INFORMATION_SCHEMA.PARTITIONS WHERE table_name = %s',
             BigqueryQuote::quoteSingleIdentifier($this->datasetName),
-            BigqueryQuote::quote($this->tableName)
+            BigqueryQuote::quote($this->tableName),
         ));
 
         $result = $this->bqClient->runQuery($query);

@@ -18,7 +18,7 @@ final class AzCli
     public function __construct(
         string $azureServicePrincipalTenant,
         string $azureServicePrincipal,
-        string $azureServicePrincipalPassword
+        string $azureServicePrincipalPassword,
     ) {
         $this->azureServicePrincipalTenant = $azureServicePrincipalTenant;
         $this->azureServicePrincipal = $azureServicePrincipal;
@@ -28,7 +28,7 @@ final class AzCli
     public function runAuthorizedSingleLineOutputCmd(string $cmd): string
     {
         $out = $this->runAuthorizedCmd(
-            $cmd
+            $cmd,
         );
         return explode(PHP_EOL, $out)[0];
     }

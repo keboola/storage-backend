@@ -247,7 +247,7 @@ class BigqueryColumnTest extends TestCase
         array $dataToExtend,
         string $expectedSqlDefinition,
         string $expectedType,
-        string $expectedLength
+        string $expectedLength,
     ): void {
         $data = [
             'name' => 'age',

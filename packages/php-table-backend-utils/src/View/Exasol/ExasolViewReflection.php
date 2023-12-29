@@ -42,7 +42,7 @@ SELECT
 FROM "SYS"."EXA_ALL_DEPENDENCIES"  
 WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
             ExasolQuote::quote($this->schemaName),
-            ExasolQuote::quote($this->viewName)
+            ExasolQuote::quote($this->viewName),
         );
 
         return $this->connection->fetchAllAssociative($sql);
@@ -53,7 +53,7 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
         $sql = sprintf(
             'SELECT "VIEW_TEXT" FROM "SYS"."EXA_ALL_VIEWS"  WHERE "VIEW_SCHEMA" = %s AND "VIEW_NAME" = %s',
             ExasolQuote::quote($this->schemaName),
-            ExasolQuote::quote($this->viewName)
+            ExasolQuote::quote($this->viewName),
         );
 
         /** @var false|string $definition */
@@ -61,7 +61,7 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
         if ($definition === false) {
             throw InvalidViewDefinitionException::createForNotExistingView(
                 $this->schemaName,
-                $this->viewName
+                $this->viewName,
             );
         }
         return $definition;
@@ -74,7 +74,7 @@ WHERE "REFERENCED_OBJECT_SCHEMA" = %s AND "REFERENCED_OBJECT_NAME" = %s',
         $objectNameWithSchema = sprintf(
             '%s.%s',
             ExasolQuote::quoteSingleIdentifier($this->schemaName),
-            ExasolQuote::quoteSingleIdentifier($this->viewName)
+            ExasolQuote::quoteSingleIdentifier($this->viewName),
         );
 
         $this->connection->executeQuery(sprintf('DROP VIEW %s', $objectNameWithSchema));

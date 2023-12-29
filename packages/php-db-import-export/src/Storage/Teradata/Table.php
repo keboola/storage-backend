@@ -29,7 +29,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         string $schema,
         string $tableName,
         array $columns = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
     ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
@@ -62,7 +62,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($this->getSchema()),
-            TeradataQuote::quoteSingleIdentifier($this->getTableName())
+            TeradataQuote::quoteSingleIdentifier($this->getTableName()),
         );
     }
 

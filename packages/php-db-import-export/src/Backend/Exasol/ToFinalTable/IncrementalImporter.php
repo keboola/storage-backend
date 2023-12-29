@@ -31,7 +31,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
     private SqlBuilder $sqlBuilder;
 
     public function __construct(
-        Connection $connection
+        Connection $connection,
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlBuilder();
@@ -41,7 +41,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         TableDefinitionInterface $stagingTableDefinition,
         TableDefinitionInterface $destinationTableDefinition,
         ImportOptionsInterface $options,
-        ImportState $state
+        ImportState $state,
     ): Result {
         assert($stagingTableDefinition instanceof ExasolTableDefinition);
         assert($destinationTableDefinition instanceof ExasolTableDefinition);
@@ -59,7 +59,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 // 0. Create table for deduplication
                 $deduplicationTableDefinition = StageTableDefinitionFactory::createDedupTableDefinition(
                     $stagingTableDefinition,
-                    $destinationTableDefinition->getPrimaryKeysNames()
+                    $destinationTableDefinition->getPrimaryKeysNames(),
                 );
                 $tableToCopyFrom = $deduplicationTableDefinition;
                 $qb = new ExasolTableQueryBuilder();
@@ -75,8 +75,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                         $stagingTableDefinition,
                         $destinationTableDefinition,
                         $options,
-                        $timestampValue
-                    )
+                        $timestampValue,
+                    ),
                 );
                 $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
 
@@ -85,8 +85,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getDeleteOldItemsCommand(
                         $stagingTableDefinition,
-                        $destinationTableDefinition
-                    )
+                        $destinationTableDefinition,
+                    ),
                 );
                 $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
 
@@ -96,14 +96,14 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $this->sqlBuilder->getDedupCommand(
                         $stagingTableDefinition,
                         $deduplicationTableDefinition,
-                        $destinationTableDefinition->getPrimaryKeysNames()
-                    )
+                        $destinationTableDefinition->getPrimaryKeysNames(),
+                    ),
                 );
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getTruncateTableWithDeleteCommand(
                         $stagingTableDefinition->getSchemaName(),
-                        $stagingTableDefinition->getTableName()
-                    )
+                        $stagingTableDefinition->getTableName(),
+                    ),
                 );
                 $state->stopTimer(self::TIMER_DEDUP_STAGING);
             }
@@ -115,13 +115,13 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $tableToCopyFrom,
                     $destinationTableDefinition,
                     $options,
-                    $timestampValue
-                )
+                    $timestampValue,
+                ),
             );
             $state->stopTimer(self::TIMER_INSERT_INTO_TARGET);
 
             $this->connection->executeStatement(
-                $this->sqlBuilder->getCommitTransaction()
+                $this->sqlBuilder->getCommitTransaction(),
             );
 
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
@@ -133,8 +133,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getDropTableIfExistsCommand(
                         $deduplicationTableDefinition->getSchemaName(),
-                        $deduplicationTableDefinition->getTableName()
-                    )
+                        $deduplicationTableDefinition->getTableName(),
+                    ),
                 );
             }
         }

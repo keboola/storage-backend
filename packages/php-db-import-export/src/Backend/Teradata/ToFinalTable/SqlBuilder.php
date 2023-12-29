@@ -35,7 +35,7 @@ class SqlBuilder
         return sprintf(
             'DROP TABLE %s.%s',
             TeradataQuote::quoteSingleIdentifier($dbName),
-            TeradataQuote::quoteSingleIdentifier($tableName)
+            TeradataQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -44,7 +44,7 @@ class SqlBuilder
         return sprintf(
             'SELECT COUNT(*) FROM DBC.TablesVX WHERE DatabaseName = %s AND TableName = %s;',
             TeradataQuote::quote($dbName),
-            TeradataQuote::quote($tableName)
+            TeradataQuote::quote($tableName),
         );
     }
 
@@ -52,12 +52,12 @@ class SqlBuilder
         TeradataTableDefinition $sourceTableDefinition,
         TeradataTableDefinition $destinationTableDefinition,
         TeradataImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $destinationTable = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         $columnsToInsert = $sourceTableDefinition->getColumnsNames();
@@ -67,7 +67,7 @@ class SqlBuilder
         if ($useTimestamp) {
             $columnsToInsert = array_merge(
                 $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             );
         }
 
@@ -89,9 +89,9 @@ class SqlBuilder
                     sprintf(
                         'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
                         $columnDefinition->getColumnName(),
-                        implode(', ', $destinationTableDefinition->getColumnsNames())
+                        implode(', ', $destinationTableDefinition->getColumnsNames()),
                     ),
-                    Exception::UNKNOWN_ERROR
+                    Exception::UNKNOWN_ERROR,
                 );
             }
             if ($importOptions->usingUserDefinedTypes()) {
@@ -99,14 +99,14 @@ class SqlBuilder
             } elseif (in_array(
                 $columnDefinition->getColumnName(),
                 $importOptions->getConvertEmptyValuesToNull(),
-                true
+                true,
             )
             ) {
                 // use nullif only for string base type -> OM
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
                         'NULLIF(%s, \'\')',
-                        TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                        TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 } else {
                     $columnsSetSql[] = TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
@@ -116,7 +116,7 @@ class SqlBuilder
                     'CAST(COALESCE(%s, \'\') as %s) AS %s',
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $destinationColumn->getColumnDefinition()->buildTypeWithLength(),
-                    TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             } else {
                 // on columns other than string dont use COALESCE, use direct cast
@@ -125,7 +125,7 @@ class SqlBuilder
                     'CAST(%s as %s) AS %s',
                     TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $destinationColumn->getColumnDefinition()->buildTypeWithLength(),
-                    TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    TeradataQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             }
         }
@@ -141,7 +141,7 @@ class SqlBuilder
             implode(',', $columnsSetSql),
             TeradataQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
             TeradataQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
-            TeradataQuote::quoteSingleIdentifier(self::SRC_ALIAS)
+            TeradataQuote::quoteSingleIdentifier(self::SRC_ALIAS),
         );
     }
 
@@ -151,7 +151,7 @@ class SqlBuilder
     public function getDedupCommand(
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $deduplicationTableDefinition,
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         if (empty($primaryKeys)) {
             return '';
@@ -160,14 +160,14 @@ class SqlBuilder
         $deduplication = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName()),
         );
 
         return sprintf(
             'INSERT INTO %s (%s) %s',
             $deduplication,
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
-            $this->getDedupSql($stagingTableDefinition, $deduplicationTableDefinition, $primaryKeys)
+            $this->getDedupSql($stagingTableDefinition, $deduplicationTableDefinition, $primaryKeys),
         );
     }
 
@@ -177,17 +177,17 @@ class SqlBuilder
     public function getDedupSql(
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $deduplicationTableDefinition,
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         $pkSql = $this->getColumnsString(
             $primaryKeys,
-            ','
+            ',',
         );
 
         $stage = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
          return sprintf(
@@ -200,19 +200,19 @@ class SqlBuilder
              $this->getColumnsString($deduplicationTableDefinition->getColumnsNames(), ', '),
              $pkSql,
              $pkSql,
-             $stage
+             $stage,
          );
     }
 
     public function getTruncateTableWithDeleteCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         // TD has no TRUNCATE command - DELETE ALL has to be used
         return sprintf(
             'DELETE %s.%s ALL',
             TeradataQuote::quoteSingleIdentifier($schema),
-            TeradataQuote::quoteSingleIdentifier($tableName)
+            TeradataQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -222,10 +222,10 @@ class SqlBuilder
     public function getColumnsString(
         array $columns,
         string $delimiter = ', ',
-        ?string $tableAlias = null
+        ?string $tableAlias = null,
     ): string {
         return implode($delimiter, array_map(static function ($columns) use (
-            $tableAlias
+            $tableAlias,
         ) {
             $alias = $tableAlias === null ? '' : $tableAlias . '.';
             return $alias . TeradataQuote::quoteSingleIdentifier($columns);
@@ -235,18 +235,18 @@ class SqlBuilder
     public function getDeleteOldItemsCommand(
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $destinationTableDefinition,
-        TeradataImportOptions $importOptions
+        TeradataImportOptions $importOptions,
     ): string {
         $stagingTable = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $destinationTable = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         return sprintf(
@@ -257,8 +257,8 @@ class SqlBuilder
                 $destinationTableDefinition->getPrimaryKeysNames(),
                 $importOptions,
                 $stagingTable,
-                TeradataQuote::quoteSingleIdentifier('joined')
-            )
+                TeradataQuote::quoteSingleIdentifier('joined'),
+            ),
         );
     }
 
@@ -266,13 +266,13 @@ class SqlBuilder
         TeradataTableDefinition $stagingTableDefinition,
         TeradataTableDefinition $destinationDefinition,
         TeradataImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $columnsSet = [];
         $dest = sprintf(
             '%s.%s',
             TeradataQuote::quoteSingleIdentifier($destinationDefinition->getSchemaName()),
-            TeradataQuote::quoteSingleIdentifier($destinationDefinition->getTableName())
+            TeradataQuote::quoteSingleIdentifier($destinationDefinition->getTableName()),
         );
 
         foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
@@ -290,13 +290,13 @@ class SqlBuilder
                     '%s = CASE WHEN "src".%s = \'\' THEN NULL ELSE "src".%s END',
                     TeradataQuote::quoteSingleIdentifier($columnName),
                     TeradataQuote::quoteSingleIdentifier($columnName),
-                    TeradataQuote::quoteSingleIdentifier($columnName)
+                    TeradataQuote::quoteSingleIdentifier($columnName),
                 );
             } else {
                 $columnsSet[] = sprintf(
                     '%s = COALESCE("src".%s, \'\')',
                     TeradataQuote::quoteSingleIdentifier($columnName),
-                    TeradataQuote::quoteSingleIdentifier($columnName)
+                    TeradataQuote::quoteSingleIdentifier($columnName),
                 );
             }
         }
@@ -305,7 +305,7 @@ class SqlBuilder
             $columnsSet[] = sprintf(
                 '%s = %s',
                 TeradataQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-                TeradataQuote::quote($timestamp)
+                TeradataQuote::quote($timestamp),
             );
         }
 
@@ -315,15 +315,15 @@ class SqlBuilder
             $this->getDedupSql(
                 $stagingTableDefinition,
                 $stagingTableDefinition,
-                $destinationDefinition->getPrimaryKeysNames()
+                $destinationDefinition->getPrimaryKeysNames(),
             ),
             implode(', ', $columnsSet),
             $this->getPrimayKeyWhereConditions(
                 $destinationDefinition->getPrimaryKeysNames(),
                 $importOptions,
                 TeradataQuote::quoteSingleIdentifier('src'),
-                $dest
-            )
+                $dest,
+            ),
         );
     }
 
@@ -334,7 +334,7 @@ class SqlBuilder
         array $primaryKeys,
         TeradataImportOptions $importOptions,
         string $coalescedTable,
-        string $leftTable
+        string $leftTable,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions, $coalescedTable, $leftTable) {
             if ($importOptions->usingUserDefinedTypes()) {
@@ -347,7 +347,7 @@ class SqlBuilder
                 $leftTable,
                 TeradataQuote::quoteSingleIdentifier($col),
                 $coalescedTable,
-                TeradataQuote::quoteSingleIdentifier($col)
+                TeradataQuote::quoteSingleIdentifier($col),
             );
         }, $primaryKeys);
 

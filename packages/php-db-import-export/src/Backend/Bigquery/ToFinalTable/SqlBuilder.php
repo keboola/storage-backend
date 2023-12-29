@@ -19,7 +19,7 @@ class SqlBuilder
 
     private function assertColumnExist(
         BigqueryTableDefinition $tableDefinition,
-        BigqueryColumn $columnDefinition
+        BigqueryColumn $columnDefinition,
     ): BigqueryColumn {
         $destinationColumn = null;
         // case sensitive search
@@ -35,9 +35,9 @@ class SqlBuilder
                 sprintf(
                     'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
                     $columnDefinition->getColumnName(),
-                    implode(', ', $tableDefinition->getColumnsNames())
+                    implode(', ', $tableDefinition->getColumnsNames()),
                 ),
-                Exception::UNKNOWN_ERROR
+                Exception::UNKNOWN_ERROR,
             );
         }
 
@@ -68,18 +68,18 @@ class SqlBuilder
         return sprintf(
             'DROP TABLE %s.%s',
             BigqueryQuote::quoteSingleIdentifier($dbName),
-            BigqueryQuote::quoteSingleIdentifier($tableName)
+            BigqueryQuote::quoteSingleIdentifier($tableName),
         );
     }
 
     public function getDropTableIfExistsCommand(
         string $schema,
-        string $tableName
+        string $tableName,
     ): string {
         return sprintf(
             'DROP TABLE IF EXISTS %s.%s',
             BigqueryQuote::quoteSingleIdentifier($schema),
-            BigqueryQuote::quoteSingleIdentifier($tableName)
+            BigqueryQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -89,7 +89,7 @@ class SqlBuilder
     private function getColumnSetSqlPartForStringTable(
         BigqueryTableDefinition $sourceTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
-        BigqueryImportOptions $importOptions
+        BigqueryImportOptions $importOptions,
     ): array {
         $columnsSetSql = [];
         /** @var BigqueryColumn $columnDefinition */
@@ -100,7 +100,7 @@ class SqlBuilder
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
                         'NULLIF(%s, \'\')',
-                        BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                        BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 } else {
                     $columnsSetSql[] = BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
@@ -110,7 +110,7 @@ class SqlBuilder
                     'CAST(COALESCE(%s, \'\') as %s) AS %s',
                     BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $destinationColumn->getColumnDefinition()->getType(),
-                    BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             } else {
                 // on columns other than string dont use COALESCE, use direct cast
@@ -119,7 +119,7 @@ class SqlBuilder
                     'CAST(%s as %s) AS %s',
                     BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $destinationColumn->getColumnDefinition()->getType(),
-                    BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             }
         }
@@ -133,7 +133,7 @@ class SqlBuilder
 SELECT COUNT(*) AS count FROM %s.INFORMATION_SCHEMA.TABLES WHERE `table_type` != 'VIEW' AND table_name = %s;
 SQL,
             BigqueryQuote::quoteSingleIdentifier($dbName),
-            BigqueryQuote::quote($tableName)
+            BigqueryQuote::quote($tableName),
         );
     }
 
@@ -141,12 +141,12 @@ SQL,
         BigqueryTableDefinition $sourceTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
         BigqueryImportOptions $importOptions,
-        string $timestamp
+        string $timestamp,
     ): string {
         $destinationTable = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         $columnsToInsert = $sourceTableDefinition->getColumnsNames();
@@ -156,7 +156,7 @@ SQL,
         if ($useTimestamp) {
             $columnsToInsert = array_merge(
                 $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME]
+                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             );
         }
 
@@ -171,7 +171,7 @@ SQL,
             $columnsSetSql = $this->getColumnSetSqlPartForStringTable(
                 $sourceTableDefinition,
                 $destinationTableDefinition,
-                $importOptions
+                $importOptions,
             );
         }
 
@@ -186,7 +186,7 @@ SQL,
             implode(',', $columnsSetSql),
             BigqueryQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
-            BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS)
+            BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
         );
     }
 
@@ -195,7 +195,7 @@ SQL,
         return sprintf(
             'TRUNCATE TABLE %s.%s',
             BigqueryQuote::quoteSingleIdentifier($schema),
-            BigqueryQuote::quoteSingleIdentifier($tableName)
+            BigqueryQuote::quoteSingleIdentifier($tableName),
         );
     }
 
@@ -205,10 +205,10 @@ SQL,
     public function getColumnsString(
         array $columns,
         string $delimiter = ', ',
-        ?string $tableAlias = null
+        ?string $tableAlias = null,
     ): string {
         return implode($delimiter, array_map(static function ($columns) use (
-            $tableAlias
+            $tableAlias,
         ) {
             $alias = $tableAlias === null ? '' : $tableAlias . '.';
             return $alias . BigqueryQuote::quoteSingleIdentifier($columns);
@@ -218,18 +218,18 @@ SQL,
     public function getDeleteOldItemsCommand(
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
-        BigqueryImportOptions $importOptions
+        BigqueryImportOptions $importOptions,
     ): string {
         $stagingTable = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         $destinationTable = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         return sprintf(
@@ -238,8 +238,8 @@ SQL,
             $destinationTable,
             $this->getPrimaryKeyWhereConditions(
                 $destinationTableDefinition->getPrimaryKeysNames(),
-                $importOptions
-            )
+                $importOptions,
+            ),
         );
     }
 
@@ -249,7 +249,7 @@ SQL,
     public function getCreateDedupTable(
         BigqueryTableDefinition $stagingTableDefinition,
         string $dedupTableName,
-        array $primaryKeys
+        array $primaryKeys,
     ): string {
         return sprintf(
             <<< SQL
@@ -261,7 +261,7 @@ SQL,
             $this->getDedupSelect(
                 $stagingTableDefinition,
                 $stagingTableDefinition->getColumnsNames(),
-                $primaryKeys
+                $primaryKeys,
             ),
         );
     }
@@ -270,7 +270,7 @@ SQL,
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
         BigqueryImportOptions $importOptions,
-        string $timestampValue
+        string $timestampValue,
     ): string {
         $columnsSet = [];
 
@@ -289,13 +289,13 @@ SQL,
                     '%s = IF(`src`.%s = \'\', NULL, `src`.%s)',
                     BigqueryQuote::quoteSingleIdentifier($columnName),
                     BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName)
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
                 );
             } else {
                 $columnsSet[] = sprintf(
                     '%s = COALESCE(`src`.%s, \'\')',
                     BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName)
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
                 );
             }
         }
@@ -304,14 +304,14 @@ SQL,
             $columnsSet[] = sprintf(
                 '%s = \'%s\'',
                 BigqueryQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-                $timestampValue
+                $timestampValue,
             );
         }
 
         $dest = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
         return sprintf(
             'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s',
@@ -328,7 +328,7 @@ SQL,
      */
     private function getPrimaryKeyWhereConditions(
         array $primaryKeys,
-        BigqueryImportOptions $importOptions
+        BigqueryImportOptions $importOptions,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions) {
             $str = '`dest`.%s = COALESCE(`src`.%s, \'\')';
@@ -338,7 +338,7 @@ SQL,
             return sprintf(
                 $str,
                 BigqueryQuote::quoteSingleIdentifier($col),
-                BigqueryQuote::quoteSingleIdentifier($col)
+                BigqueryQuote::quoteSingleIdentifier($col),
             );
         }, $primaryKeys);
 
@@ -351,7 +351,7 @@ SQL,
     public function getDedupCommand(
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $deduplicationTableDefinition,
-        array $primaryKeysNames
+        array $primaryKeysNames,
     ): string {
         if (empty($primaryKeysNames)) {
             return '';
@@ -360,20 +360,20 @@ SQL,
         $depudeSql = $this->getDedupSelect(
             $stagingTableDefinition,
             $deduplicationTableDefinition->getColumnsNames(),
-            $primaryKeysNames
+            $primaryKeysNames,
         );
 
         $deduplication = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($deduplicationTableDefinition->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($deduplicationTableDefinition->getTableName()),
         );
 
         return sprintf(
             'INSERT INTO %s (%s) %s',
             $deduplication,
             $this->getColumnsString($deduplicationTableDefinition->getColumnsNames()),
-            $depudeSql
+            $depudeSql,
         );
     }
 
@@ -384,17 +384,17 @@ SQL,
     private function getDedupSelect(
         BigqueryTableDefinition $stagingTableDefinition,
         array $columns,
-        array $primaryKeysNames
+        array $primaryKeysNames,
     ): string {
         $pkSql = $this->getColumnsString(
             $primaryKeysNames,
-            ','
+            ',',
         );
 
         $stage = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
         return sprintf(
@@ -407,7 +407,7 @@ SQL,
             $this->getColumnsString($columns, ', '),
             $pkSql,
             $pkSql,
-            $stage
+            $stage,
         );
     }
 }

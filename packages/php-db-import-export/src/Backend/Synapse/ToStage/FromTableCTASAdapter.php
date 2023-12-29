@@ -33,7 +33,7 @@ class FromTableCTASAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         assert($source instanceof SelectSource || $source instanceof Table);
         assert($destination instanceof SynapseTableDefinition);
@@ -45,9 +45,9 @@ class FromTableCTASAdapter implements CopyAdapterInterface
                 (new SynapseTableReflection(
                     $this->connection,
                     $source->getSchema(),
-                    $source->getTableName()
+                    $source->getTableName(),
                 ))->getColumnsDefinitions(),
-                $destination->getColumnsDefinitions()
+                $destination->getColumnsDefinitions(),
             );
         }
 
@@ -57,14 +57,14 @@ class FromTableCTASAdapter implements CopyAdapterInterface
             (new SynapseTableReflection(
                 $this->connection,
                 $destination->getSchemaName(),
-                $tempTableName
+                $tempTableName,
             ))->getObjectId();
             // rename table to tmp
             $this->connection->executeQuery(
                 (new SynapseTableQueryBuilder())->getDropTableCommand(
                     $destination->getSchemaName(),
-                    $tempTableName
-                )
+                    $tempTableName,
+                ),
             );
         } catch (TableNotExistsReflectionException $e) {
             // ignore if table not exists
@@ -76,7 +76,7 @@ class FromTableCTASAdapter implements CopyAdapterInterface
             $ref = (new SynapseTableReflection(
                 $this->connection,
                 $destination->getSchemaName(),
-                $destination->getTableName()
+                $destination->getTableName(),
             ));
             $ref->getObjectId();
             $isMainTableTemporary = $ref->isTemporary();
@@ -85,8 +85,8 @@ class FromTableCTASAdapter implements CopyAdapterInterface
                 $this->connection->executeQuery(
                     (new SynapseTableQueryBuilder())->getDropTableCommand(
                         $destination->getSchemaName(),
-                        $destination->getTableName()
-                    )
+                        $destination->getTableName(),
+                    ),
                 );
             } else {
                 // rename table to temp
@@ -94,8 +94,8 @@ class FromTableCTASAdapter implements CopyAdapterInterface
                     (new SynapseTableQueryBuilder())->getRenameTableCommand(
                         $destination->getSchemaName(),
                         $destination->getTableName(),
-                        $tempTableName
-                    )
+                        $tempTableName,
+                    ),
                 );
             }
         } catch (TableNotExistsReflectionException $e) {
@@ -118,8 +118,8 @@ class FromTableCTASAdapter implements CopyAdapterInterface
                     (new SynapseTableQueryBuilder())->getRenameTableCommand(
                         $destination->getSchemaName(),
                         $tempTableName,
-                        $destination->getTableName()
-                    )
+                        $destination->getTableName(),
+                    ),
                 );
             }
         }
@@ -128,15 +128,15 @@ class FromTableCTASAdapter implements CopyAdapterInterface
             $this->connection->executeQuery(
                 (new SynapseTableQueryBuilder())->getDropTableCommand(
                     $destination->getSchemaName(),
-                    $tempTableName
-                )
+                    $tempTableName,
+                ),
             );
         }
 
         $ref = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();

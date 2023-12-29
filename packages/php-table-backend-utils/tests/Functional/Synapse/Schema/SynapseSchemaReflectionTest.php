@@ -43,23 +43,23 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',
-            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')]),
         ));
         $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table2',
-            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')]),
         ));
         // init tables in testing schema 2
         $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA_2,
             'table1',
-            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')]),
         ));
         $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA_2,
             'table2',
-            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')]),
         ));
 
         $tables = $ref->getTablesNames();
@@ -80,31 +80,31 @@ class SynapseSchemaReflectionTest extends SynapseBaseCase
         $this->connection->executeStatement($qb->getCreateTableCommand(
             self::TEST_SCHEMA,
             'table1',
-            new ColumnCollection([SynapseColumn::createGenericColumn('col1')])
+            new ColumnCollection([SynapseColumn::createGenericColumn('col1')]),
         ));
 
         // init view in testing schema
         $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view1] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA,
-            self::TEST_SCHEMA
+            self::TEST_SCHEMA,
         ));
         $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view2] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA,
-            self::TEST_SCHEMA
+            self::TEST_SCHEMA,
         ));
 
         // init view in testing schema 2
         $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view1] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA_2,
-            self::TEST_SCHEMA
+            self::TEST_SCHEMA,
         ));
         $this->connection->executeStatement(sprintf(
             'CREATE VIEW [%s].[view2] AS SELECT [col1] FROM [%s].[table1]',
             self::TEST_SCHEMA_2,
-            self::TEST_SCHEMA
+            self::TEST_SCHEMA,
         ));
 
         $tables = $ref->getViewsNames();

@@ -44,7 +44,7 @@ class TeradataViewReflectionTest extends TeradataBaseCase
 
     private function initView(
         string $viewName = self::VIEW_GENERIC,
-        string $parentName = self::TABLE_GENERIC
+        string $parentName = self::TABLE_GENERIC,
     ): void {
         $this->connection->executeQuery(
             sprintf(
@@ -53,7 +53,7 @@ class TeradataViewReflectionTest extends TeradataBaseCase
                 TeradataQuote::quoteSingleIdentifier($viewName),
                 TeradataQuote::quoteSingleIdentifier($this->getDatabaseName()),
                 TeradataQuote::quoteSingleIdentifier($parentName),
-            )
+            ),
         );
     }
 }

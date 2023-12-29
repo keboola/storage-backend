@@ -52,8 +52,8 @@ class ExasolViewReflectionTest extends ExasolBaseCase
                 ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
                 ExasolQuote::quoteSingleIdentifier($viewName),
                 ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                ExasolQuote::quoteSingleIdentifier($parentName)
-            )
+                ExasolQuote::quoteSingleIdentifier($parentName),
+            ),
         );
     }
 
@@ -69,7 +69,7 @@ CREATE VIEW "utilsTest_refTableSchema"."utilsTest_refView" AS SELECT * FROM "uti
 EOT
             // phpcs:enable
             ,
-            $viewRef->getViewDefinition()
+            $viewRef->getViewDefinition(),
         );
     }
 
@@ -89,7 +89,7 @@ EOT
         $this->connection->executeQuery(sprintf(
             'ALTER TABLE %s.%s ADD "xxx" VARCHAR(300) NULL;',
             ExasolQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC)
+            ExasolQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
         ));
         $tableRef = new ExasolTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
         // the view is updated as soon as it gets compiled again

@@ -21,7 +21,7 @@ final class StageTableDefinitionFactory
     public static function createStagingTableDefinition(
         SynapseTableDefinition $destination,
         array $sourceColumnsNames,
-        ?TableIndexDefinition $indexDefinition = null
+        ?TableIndexDefinition $indexDefinition = null,
     ): SynapseTableDefinition {
         $clusteredIndexColumns = self::getClusteredIndexColumns($indexDefinition);
 
@@ -45,8 +45,8 @@ final class StageTableDefinitionFactory
                                 // set all columns to be nullable except in clustered index
                                 'nullable' => $isNullable,
                                 'default' => $definition->getColumnDefinition()->getDefault(),
-                            ]
-                        )
+                            ],
+                        ),
                     );
                     continue 2;
                 }
@@ -62,7 +62,7 @@ final class StageTableDefinitionFactory
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames(),
             self::resolveDistribution($destination->getTableDistribution()),
-            $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
     }
 
@@ -72,7 +72,7 @@ final class StageTableDefinitionFactory
     public static function createDedupStagingTableDefinition(
         SynapseTableDefinition $destination,
         array $sourceColumnsNames,
-        ?TableIndexDefinition $indexDefinition = null
+        ?TableIndexDefinition $indexDefinition = null,
     ): SynapseTableDefinition {
         $newDefinitions = [];
         // create staging table for source columns in order
@@ -91,8 +91,8 @@ final class StageTableDefinitionFactory
                                 'length' => $definition->getColumnDefinition()->getLength(),
                                 'nullable' => true,
                                 'default' => $definition->getColumnDefinition()->getDefault(),
-                            ]
-                        )
+                            ],
+                        ),
                     );
                     continue 2;
                 }
@@ -113,7 +113,7 @@ final class StageTableDefinitionFactory
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames(),
             self::resolveDistribution($destination->getTableDistribution()),
-            $tableIndex
+            $tableIndex,
         );
     }
 
@@ -132,8 +132,8 @@ final class StageTableDefinitionFactory
                     'length' => (string) Synapse::MAX_LENGTH_NVARCHAR,
                     // set all columns to be nullable except in clustered index
                     'nullable' => $isNullable,
-                ]
-            )
+                ],
+            ),
         );
     }
 
@@ -143,7 +143,7 @@ final class StageTableDefinitionFactory
     public static function createStagingTableDefinitionWithText(
         SynapseTableDefinition $destination,
         array $sourceColumnsNames,
-        ?TableIndexDefinition $indexDefinition = null
+        ?TableIndexDefinition $indexDefinition = null,
     ): SynapseTableDefinition {
         $clusteredIndexColumns = self::getClusteredIndexColumns($indexDefinition);
 
@@ -159,7 +159,7 @@ final class StageTableDefinitionFactory
             new ColumnCollection($newDefinitions),
             $destination->getPrimaryKeysNames(),
             self::resolveDistribution($destination->getTableDistribution()),
-            $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
+            $indexDefinition ?? new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
         );
     }
 
@@ -177,7 +177,7 @@ final class StageTableDefinitionFactory
     }
 
     private static function resolveDistribution(
-        TableDistributionDefinition $distribution
+        TableDistributionDefinition $distribution,
     ): TableDistributionDefinition {
         //phpcs:ignore
         $isReplicateTable = $distribution->getDistributionName() === TableDistributionDefinition::TABLE_DISTRIBUTION_REPLICATE;

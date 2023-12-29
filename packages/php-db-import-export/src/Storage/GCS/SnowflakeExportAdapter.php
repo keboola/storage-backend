@@ -42,7 +42,7 @@ class SnowflakeExportAdapter implements SnowflakeExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         $sql = sprintf(
             'COPY INTO \'%s/%s\'
@@ -61,14 +61,14 @@ DETAILED_OUTPUT = TRUE',
             $destination->getFilePath(),
             $source->getFromStatement(),
             $destination->getStorageIntegrationName(),
-            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'"
+            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
         );
 
         $unloadedFiles = $this->connection->fetchAll($sql, $source->getQueryBindings());
 
         if ($exportOptions->generateManifest()) {
             (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromUnloadQueryResultGenerator(
-                $destination->getClient()
+                $destination->getClient(),
             ))
                 ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
         }

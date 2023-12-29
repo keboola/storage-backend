@@ -28,12 +28,12 @@ final class TeradataColumn implements ColumnInterface
                 'length' => '32000', // max value is 32k for UNICODE,GRAPHIC,KANJISJIS, 64k for LATIN
                 'nullable' => false,
                 'default' => '\'\'',
-            ]
+            ],
         );
 
         return new self(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -65,7 +65,7 @@ final class TeradataColumn implements ColumnInterface
             $columnName,
             new Teradata(
                 Teradata::TYPE_TIMESTAMP,
-            )
+            ),
         );
     }
 }

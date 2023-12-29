@@ -57,7 +57,7 @@ MAX_FILE_SIZE=50000000
 DETAILED_OUTPUT = TRUE
 EOT
             ,
-            []
+            [],
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
@@ -69,8 +69,8 @@ EOT
             $adapter->runCopyCommand(
                 $source,
                 $destination,
-                $options
-            )
+                $options,
+            ),
         );
     }
 
@@ -118,7 +118,7 @@ MAX_FILE_SIZE=50000000
 DETAILED_OUTPUT = TRUE
 EOT
             ,
-            []
+            [],
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
@@ -130,8 +130,8 @@ EOT
             $adapter->runCopyCommand(
                 $source,
                 $destination,
-                $options
-            )
+                $options,
+            ),
         );
     }
 
@@ -179,7 +179,7 @@ MAX_FILE_SIZE=50000000
 DETAILED_OUTPUT = TRUE
 EOT
             ,
-            []
+            [],
         )->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
@@ -191,8 +191,8 @@ EOT
             $adapter->runCopyCommand(
                 $source,
                 $destination,
-                $options
-            )
+                $options,
+            ),
         );
     }
 }

@@ -36,7 +36,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         assert($source instanceof Storage\SqlSourceInterface);
         assert($destination instanceof DestinationFile);
@@ -95,7 +95,7 @@ class TeradataExportTPTAdapter implements BackendExportAdapterInterface
     private function generateTPTExportScript(
         SqlSourceInterface $source,
         DestinationFile $destination,
-        TeradataExportOptions $exportOptions
+        TeradataExportOptions $exportOptions,
     ): array {
         $temp = new Temp();
         $folder = $temp->getTmpFolder();
@@ -145,7 +145,7 @@ EOD,
             $path->getPathWithoutRoot() ? ($path->getPathWithoutRoot() . '/') : '',
             $path->getFileName() . ($exportOptions->isCompressed() ? '.gz' : ''),
             $exportOptions->generateABSSizeOptions(),
-            $source->getFromStatement()
+            $source->getFromStatement(),
         );
 
         $jobVariableFile = sprintf(

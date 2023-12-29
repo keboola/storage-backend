@@ -29,9 +29,9 @@ class SnowflakeExceptionConverter implements ExceptionConverter
                     'Incorrect username or password was specified.',
                     null,
                     $exception->getCode(),
-                    $exception
+                    $exception,
                 ),
-                $query
+                $query,
             );
         }
 
@@ -45,13 +45,13 @@ class SnowflakeExceptionConverter implements ExceptionConverter
                 new SnowflakeDriverException(
                     vsprintf(
                         "String '%s' cannot be inserted because it's bigger than column size",
-                        $matches
+                        $matches,
                     ),
                     null,
                     $exception->getCode(),
-                    $exception
+                    $exception,
                 ),
-                $query
+                $query,
             );
         }
 
@@ -63,13 +63,13 @@ class SnowflakeExceptionConverter implements ExceptionConverter
                 new SnowflakeDriverException(
                     vsprintf(
                         'Query reached its timeout %d second(s)',
-                        $matches
+                        $matches,
                     ),
                     null,
                     $exception->getCode(),
-                    $exception
+                    $exception,
                 ),
-                $query
+                $query,
             );
         }
 
@@ -79,9 +79,9 @@ class SnowflakeExceptionConverter implements ExceptionConverter
                     sprintf('Cannot access object or it does not exist. Executing query "%s"', $query->getSQL()),
                     null,
                     $exception->getCode(),
-                    $exception
+                    $exception,
                 ),
-                $query
+                $query,
             );
         }
 

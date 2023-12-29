@@ -14,7 +14,7 @@ trait ABSSourceTrait
 {
     protected function createDummyABSSourceInstance(
         string $file,
-        bool $isSliced = false
+        bool $isSliced = false,
     ): Storage\ABS\SourceFile {
         return new Storage\ABS\SourceFile(
             'absContainer',
@@ -23,19 +23,19 @@ trait ABSSourceTrait
             'absAccount',
             new CsvOptions(),
             $isSliced,
-            []
+            [],
         );
     }
 
     protected function createABSSourceDestinationInstance(
-        string $filePath
+        string $filePath,
     ): Storage\ABS\DestinationFile {
         return new Storage\ABS\DestinationFile(
             (string) getenv('ABS_CONTAINER_NAME'),
             $filePath,
             $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME'), 'rwla'),
             (string) getenv('ABS_ACCOUNT_NAME'),
-            (string) getenv('ABS_ACCOUNT_KEY')
+            (string) getenv('ABS_ACCOUNT_KEY'),
         );
     }
 
@@ -48,7 +48,7 @@ trait ABSSourceTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ): Storage\ABS\SourceFile {
         return $this->createABSSourceInstanceFromCsv(
             $filePath,
@@ -56,7 +56,7 @@ trait ABSSourceTrait
             $columns,
             $isSliced,
             $isDirectory,
-            $primaryKeys
+            $primaryKeys,
         );
     }
 
@@ -70,7 +70,7 @@ trait ABSSourceTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ): Storage\ABS\SourceFile {
         if ($isDirectory) {
             $class = Storage\ABS\SourceDirectory::class;
@@ -92,11 +92,11 @@ trait ABSSourceTrait
 
     protected function getCredentialsForAzureContainer(
         string $container,
-        string $permissions = 'rwl'
+        string $permissions = 'rwl',
     ): string {
         $sasHelper = new BlobSharedAccessSignatureHelper(
             (string) getenv('ABS_ACCOUNT_NAME'),
-            (string) getenv('ABS_ACCOUNT_KEY')
+            (string) getenv('ABS_ACCOUNT_KEY'),
         );
         $expirationDate = (new DateTime())->modify('+1hour');
         return $sasHelper->generateBlobServiceSharedAccessSignatureToken(
@@ -104,7 +104,7 @@ trait ABSSourceTrait
             $container,
             $permissions,
             $expirationDate,
-            (new DateTime())
+            (new DateTime()),
         );
     }
 }

@@ -35,14 +35,14 @@ class SourceFile extends BaseFile implements SourceInterface
         CsvOptions $csvOptions,
         bool $isSliced,
         array $columnsNames = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
     ) {
         parent::__construct(
             $key,
             $secret,
             $region,
             $bucket,
-            $filePath
+            $filePath,
         );
         $this->isSliced = $isSliced;
         $this->csvOptions = $csvOptions;

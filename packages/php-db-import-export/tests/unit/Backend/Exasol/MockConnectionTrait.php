@@ -19,7 +19,7 @@ trait MockConnectionTrait
         /** @var Connection|MockObject $mock */
         $mock = $this->createMock(Connection::class);
         $mock->expects(self::any())->method('getDatabasePlatform')->willReturn(
-            new OraclePlatform()
+            new OraclePlatform(),
         );
         $mock->expects(self::any())->method('quote')->willReturnCallback(static function ($input) {
             return QuoteHelper::quote($input);

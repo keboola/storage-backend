@@ -44,7 +44,7 @@ class AbsSlicedManifestFromFolderGeneratorTest extends TestCase
             ->with(
                 'container',
                 'prefix/xxxmanifest',
-                '{"entries":[{"url":"azure:\/\/1","mandatory":true},{"url":"azure:\/\/2","mandatory":true}]}'
+                '{"entries":[{"url":"azure:\/\/1","mandatory":true},{"url":"azure:\/\/2","mandatory":true}]}',
             );
 
         $path = RelativePath::createFromRootAndPath(new AbsProvider(), 'container', 'prefix/xxx');

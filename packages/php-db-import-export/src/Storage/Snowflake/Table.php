@@ -29,7 +29,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         string $schema,
         string $tableName,
         array $columnsNames = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
     ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
@@ -52,7 +52,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             'SELECT %s FROM %s.%s',
             $select,
             QuoteHelper::quoteIdentifier($this->getSchema()),
-            QuoteHelper::quoteIdentifier($this->getTableName())
+            QuoteHelper::quoteIdentifier($this->getTableName()),
         );
     }
 
@@ -91,7 +91,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return sprintf(
             '%s.%s',
             QuoteHelper::quoteIdentifier($this->schema),
-            QuoteHelper::quoteIdentifier($this->tableName)
+            QuoteHelper::quoteIdentifier($this->tableName),
         );
     }
 

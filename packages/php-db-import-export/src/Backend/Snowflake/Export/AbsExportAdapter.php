@@ -37,7 +37,7 @@ class AbsExportAdapter implements BackendExportAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ExportOptionsInterface $exportOptions
+        ExportOptionsInterface $exportOptions,
     ): array {
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
@@ -57,7 +57,7 @@ DETAILED_OUTPUT = TRUE',
             $destination->getFilePath(),
             $source->getFromStatement(),
             $destination->getSasToken(),
-            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'"
+            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
         );
 
         /** @var array<array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string}> $unloadedFiles */

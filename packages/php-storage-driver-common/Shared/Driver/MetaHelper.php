@@ -25,7 +25,7 @@ final class MetaHelper
             throw new Exception(sprintf(
                 'Unexpected meta instance "%s" expected "%s"',
                 get_class($meta),
-                $expectedMetaInstance
+                $expectedMetaInstance,
             ));
         }
 

@@ -29,7 +29,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         string $schema,
         string $tableName,
         array $columnsNames = [],
-        ?array $primaryKeysNames = null
+        ?array $primaryKeysNames = null,
     ) {
         $this->schema = $schema;
         $this->tableName = $tableName;
@@ -52,7 +52,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             'SELECT %s FROM %s.%s',
             $select,
             BigqueryQuote::quoteSingleIdentifier($this->getSchema()),
-            BigqueryQuote::quoteSingleIdentifier($this->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($this->getTableName()),
         );
     }
 
@@ -91,7 +91,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($this->schema),
-            BigqueryQuote::quoteSingleIdentifier($this->tableName)
+            BigqueryQuote::quoteSingleIdentifier($this->tableName),
         );
     }
 
@@ -110,7 +110,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             'SELECT %s FROM %s.%s',
             $select,
             BigqueryQuote::quoteSingleIdentifier($this->getSchema()),
-            BigqueryQuote::quoteSingleIdentifier($this->getTableName())
+            BigqueryQuote::quoteSingleIdentifier($this->getTableName()),
         );
     }
 }

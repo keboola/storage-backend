@@ -10,7 +10,7 @@ class TestConnectionTest extends ExasolBaseTestCase
     {
         self::assertEquals(
             1,
-            $this->connection->fetchOne('SELECT 1')
+            $this->connection->fetchOne('SELECT 1'),
         );
     }
 }

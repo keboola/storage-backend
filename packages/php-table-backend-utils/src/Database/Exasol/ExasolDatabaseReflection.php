@@ -31,14 +31,14 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         // build escaped list of system users
         $where = sprintf(
             '"U"."USER_NAME" NOT IN (%s)',
-            implode(', ', array_map(static fn($item) => ExasolQuote::quote($item), self::$excludedUsers))
+            implode(', ', array_map(static fn($item) => ExasolQuote::quote($item), self::$excludedUsers)),
         );
 
         // add LIKE
         if ($like !== null) {
             $where .= sprintf(
                 ' AND "U"."USER_NAME" LIKE %s',
-                ExasolQuote::quote("%$like%")
+                ExasolQuote::quote("%$like%"),
             );
         }
 
@@ -46,7 +46,7 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         /** @var array<array{USER_NAME:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT "U"."USER_NAME" FROM "SYS"."EXA_ALL_USERS" "U" WHERE %s',
-            $where
+            $where,
         ));
 
         // extract data to primitive array
@@ -63,7 +63,7 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $where = sprintf(
                 ' WHERE "ROLE_NAME" LIKE %s',
-                ExasolQuote::quote("%$like%")
+                ExasolQuote::quote("%$like%"),
             );
         }
 
@@ -71,7 +71,7 @@ final class ExasolDatabaseReflection implements DatabaseReflectionInterface
         /** @var array<array{ROLE_NAME:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT "ROLE_NAME" FROM "SYS"."EXA_ALL_ROLES" %s',
-            $where
+            $where,
         ));
 
         return array_map(static fn($record) => $record['ROLE_NAME'], $roles);

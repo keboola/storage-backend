@@ -36,7 +36,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
     public function runCopyCommand(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destination,
-        ImportOptionsInterface $importOptions
+        ImportOptionsInterface $importOptions,
     ): int {
         try {
             $files = $source->getManifestEntries();
@@ -45,10 +45,10 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
                     $source,
                     $destination,
                     $importOptions,
-                    $files
+                    $files,
                 );
                 $this->connection->executeStatement(
-                    $cmd
+                    $cmd,
                 );
             }
         } catch (Throwable $e) {
@@ -58,7 +58,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         $ref = new SnowflakeTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         return $ref->getRowsCount();
@@ -71,7 +71,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         Storage\GCS\SourceFile $source,
         SnowflakeTableDefinition $destination,
         SnowflakeImportOptions $importOptions,
-        array $files
+        array $files,
     ): string {
         $gcsPrefix = $source->getGcsPrefix();
         $csvOptions = $source->getCsvOptions();
@@ -102,9 +102,9 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
                     function ($file) use ($gcsPrefix) {
                         return SnowflakeQuote::quote(str_replace($gcsPrefix . '/', '', $file));
                     },
-                    $files
-                )
-            )
+                    $files,
+                ),
+            ),
         );
     }
 }

@@ -67,7 +67,7 @@ class SnowflakeExceptionConverterTest extends TestCase
         string $expectedExceptionMessage,
         string $inputExceptionMessage,
         int $inputExceptionCode = 0,
-        ?string $inputSQL = null
+        ?string $inputSQL = null,
     ): void {
         $exceptionThrown = new DriverException(
             $inputExceptionMessage,

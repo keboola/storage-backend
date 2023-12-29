@@ -33,7 +33,7 @@ final class BlobIterator implements Iterator
     public function __construct(
         BlobRestProxy $blobRestProxy,
         string $container,
-        ?ListBlobsOptions $options = null
+        ?ListBlobsOptions $options = null,
     ) {
         $this->client = $blobRestProxy;
         if ($options === null) {

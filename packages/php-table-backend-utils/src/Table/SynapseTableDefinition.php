@@ -36,7 +36,7 @@ final class SynapseTableDefinition implements TableDefinitionInterface
         ColumnCollection $columns,
         array $primaryKeysNames,
         TableDistributionDefinition $tableDistribution,
-        TableIndexDefinition $tableIndex
+        TableIndexDefinition $tableIndex,
     ) {
         $this->schemaName = $schemaName;
         $this->tableName = $tableName;

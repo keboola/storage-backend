@@ -30,7 +30,7 @@ final class ExasolTableDefinition implements TableDefinitionInterface
         string $tableName,
         bool $isTemporary,
         ColumnCollection $columns,
-        array $primaryKeysNames
+        array $primaryKeysNames,
     ) {
         $this->schemaName = $schemaName;
         $this->tableName = $tableName;

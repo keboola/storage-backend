@@ -57,7 +57,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $this->getSourceInstance(
                 'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
                 $escapingHeader,
-                true
+                true,
             ),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -101,7 +101,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $this->getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
-                $escapingHeader
+                $escapingHeader,
             ),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
             $this->getSimpleImportOptions(),
@@ -121,7 +121,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $this->getSourceInstance('tw_accounts.changedColumnsOrder.csv', $accountChangedColumnsOrderHeader),
             new Storage\Snowflake\Table(
                 $this->getDestinationSchemaName(),
-                'accounts-3'
+                'accounts-3',
             ),
             $this->getSimpleImportOptions(),
             $expectedAccounts,
@@ -147,7 +147,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $this->getSourceInstance(
                 'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
                 $accountsHeader,
-                true
+                true,
             ),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -161,7 +161,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                 'sliced_accounts_no_manifest/',
                 $accountsHeader,
                 true,
-                true
+                true,
             ),
             new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
             $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -186,11 +186,11 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                     'col2',
                     '_timestamp',
                 ],
-                false
+                false,
             ),
             new Storage\Snowflake\Table(
                 $this->getDestinationSchemaName(),
-                'out.csv_2Cols'
+                'out.csv_2Cols',
             ),
             $this->getSimpleImportOptions(),
             [
@@ -207,7 +207,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                 [],
                 false,
                 false, // don't use timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             $expectedEscaping,
             7,
@@ -229,7 +229,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             ]),
             new Storage\Snowflake\Table(
                 $this->getDestinationSchemaName(),
-                'types'
+                'types',
             ),
             $this->getSimpleImportOptions(),
             [['a', '10.5', '0.3', 'true']],
@@ -249,12 +249,12 @@ class FullImportTest extends SnowflakeImportExportBaseTest
         Storage\DestinationInterface $destination,
         ImportOptions $options,
         array $expected,
-        int $expectedImportedRowCount
+        int $expectedImportedRowCount,
     ): void {
         $result = (new Importer($this->connection))->importTable(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
@@ -263,7 +263,7 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $destination,
             $options,
             $expected,
-            0
+            0,
         );
     }
 }

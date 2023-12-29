@@ -19,7 +19,7 @@ interface ImporterInterface
     public function importTable(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,
-        ImportOptionsInterface $options
+        ImportOptionsInterface $options,
     ): Result;
 
     /**

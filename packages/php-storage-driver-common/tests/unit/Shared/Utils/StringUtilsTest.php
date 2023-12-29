@@ -21,7 +21,7 @@ class StringUtilsTest extends TestCase
 
         $this->assertEquals(
             $randomString1,
-            $randomString2
+            $randomString2,
         );
     }
 }

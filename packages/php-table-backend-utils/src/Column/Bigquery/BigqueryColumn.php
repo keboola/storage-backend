@@ -42,12 +42,12 @@ class BigqueryColumn implements ColumnInterface
             [
                 'nullable' => false,
                 'default' => '\'\'',
-            ]
+            ],
         );
 
         return new self(
             $columnName,
-            $definition
+            $definition,
         );
     }
 
@@ -57,7 +57,7 @@ class BigqueryColumn implements ColumnInterface
             $columnName,
             new Bigquery(
                 Bigquery::TYPE_TIMESTAMP,
-            )
+            ),
         );
     }
 
@@ -68,7 +68,7 @@ class BigqueryColumn implements ColumnInterface
     {
         return new self(
             $dbResponse['name'],
-            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat($dbResponse)
+            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat($dbResponse),
         );
     }
 }

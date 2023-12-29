@@ -46,7 +46,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
         $sql = $this->qb->getRenameTableCommand(self::TEST_SCHEMA, self::TABLE_GENERIC, $testTableNew);
         self::assertEquals(
             "ALTER TABLE \"{$testDb}\".\"{$testTable}\" RENAME TO \"{$testDb}\".\"{$testTableNew}\"",
-            $sql
+            $sql,
         );
         $this->connection->executeQuery($sql);
 
@@ -116,7 +116,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
         array $primaryKeys,
         array $expectedColumnNames,
         array $expectedPKs,
-        string $expectedSql
+        string $expectedSql,
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);
@@ -124,7 +124,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            $primaryKeys
+            $primaryKeys,
         );
         self::assertSame($expectedSql, $sql);
         $this->connection->executeQuery($sql);
@@ -147,7 +147,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
             new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ])
+            ]),
         );
         self::assertSame(
             'CREATE TEMPORARY TABLE "' . self::TEST_SCHEMA . '"."' . $tableName . '"
@@ -155,7 +155,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
 "col1" VARCHAR NOT NULL DEFAULT \'\',
 "col2" VARCHAR NOT NULL DEFAULT \'\'
 );',
-            $sql
+            $sql,
         );
         $this->connection->executeQuery($sql);
 
@@ -234,7 +234,7 @@ EOT
                     [
                         'nullable' => true,
                         'default' => '\'\'',
-                    ]
+                    ],
                 )),
                 SnowflakeColumn::createGenericColumn('col2'),
             ],
@@ -274,9 +274,9 @@ EOT
                     [
                         SnowflakeColumn::createGenericColumn('col1'),
                         SnowflakeColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                []
+                [],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -297,9 +297,9 @@ EOT
                     [
                         SnowflakeColumn::createGenericColumn('col1'),
                         SnowflakeColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1']
+                ['col1'],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -321,9 +321,9 @@ EOT
                     [
                         SnowflakeColumn::createGenericColumn('col1'),
                         SnowflakeColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1', 'col2']
+                ['col1', 'col2'],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -346,9 +346,9 @@ EOT
                     [
                         SnowflakeColumn::createGenericColumn('col1'),
                         SnowflakeColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1', 'col2']
+                ['col1', 'col2'],
             ),
             'query' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
@@ -369,9 +369,9 @@ EOT
                     [
                         SnowflakeColumn::createGenericColumn('col1'),
                         SnowflakeColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                []
+                [],
             ),
             'query' => <<<EOT
 CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
@@ -392,9 +392,9 @@ EOT
                     [
                         SnowflakeColumn::createGenericColumn('col1'),
                         SnowflakeColumn::createGenericColumn('col2'),
-                    ]
+                    ],
                 ),
-                ['col1', 'col2']
+                ['col1', 'col2'],
             ),
             'query' => <<<EOT
 CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
@@ -414,7 +414,7 @@ EOT
     public function testGetCreateTableCommandFromDefinition(
         SnowflakeTableDefinition $definition,
         string $expectedSql,
-        bool $createPrimaryKeys
+        bool $createPrimaryKeys,
     ): void {
         $this->cleanSchema(self::TEST_SCHEMA);
         $this->createSchema(self::TEST_SCHEMA);
@@ -426,7 +426,7 @@ EOT
         $tableReflection = new SnowflakeTableReflection(
             $this->connection,
             self::TEST_SCHEMA,
-            $definition->getTableName()
+            $definition->getTableName(),
         );
 
         self::assertSame($definition->getColumnsNames(), $tableReflection->getColumnsNames());

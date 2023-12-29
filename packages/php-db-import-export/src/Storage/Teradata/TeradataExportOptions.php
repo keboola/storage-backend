@@ -40,11 +40,11 @@ class TeradataExportOptions extends ExportOptions
         string $maxObjectSize = self::DEFAULT_MAX_OBJECT_SIZE,
         bool $dontSplitRows = self::DEFAULT_SPLIT_ROWS,
         bool $singlePartFile = self::DEFAULT_SINGLE_PART_FILE,
-        bool $generateManifest = self::MANIFEST_SKIP
+        bool $generateManifest = self::MANIFEST_SKIP,
     ) {
         parent::__construct(
             $isCompressed,
-            $generateManifest
+            $generateManifest,
         );
         $this->teradataHost = $teradataHost;
         $this->teradataUser = $teradataUser;
@@ -109,7 +109,7 @@ class TeradataExportOptions extends ExportOptions
             $this->dontSplitRows ? 'True' : 'False',
             $this->singlePartFile ? 'True' : 'False',
             $this->singlePartFile ? '' : (sprintf('S3MaxObjectSize=%s', $this->getMaxObjectSize())),
-            $this->bufferSize
+            $this->bufferSize,
         );
         // !Error! Setting S3MaxObjectSize when S3SinglePartFile=True is unsupported
     }
@@ -124,7 +124,7 @@ class TeradataExportOptions extends ExportOptions
             $this->dontSplitRows ? 'True' : 'False',
             $this->singlePartFile ? 'True' : 'False',
             $this->singlePartFile ? '' : (sprintf('-MaxObjectSize %s', $this->getMaxObjectSize())),
-            $this->bufferSize
+            $this->bufferSize,
         );
         // !Error! Setting S3MaxObjectSize when S3SinglePartFile=True is unsupported
     }

@@ -22,7 +22,7 @@ class SnowflakeExceptionTest extends TestCase
         string $expectedException,
         string $expectedMessage,
         int $expectedCode,
-        bool $hasPrevious
+        bool $hasPrevious,
     ): void {
         $inputException = new RuntimeException($inputMessage);
         $convertedException = SnowflakeException::covertException($inputException);

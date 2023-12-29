@@ -52,12 +52,12 @@ class BaseAuthTestCase extends SynapseBaseCase
         /** @var array<array{name:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers] WHERE [name] LIKE N%s AND [issqlrole] = 1',
-            SynapseQuote::quote($prefix . '%')
+            SynapseQuote::quote($prefix . '%'),
         ));
         foreach ($roles as $role) {
             $this->connection->executeStatement(sprintf(
                 'DROP ROLE %s',
-                SynapseQuote::quoteSingleIdentifier($role['name'])
+                SynapseQuote::quoteSingleIdentifier($role['name']),
             ));
         }
     }
@@ -70,12 +70,12 @@ class BaseAuthTestCase extends SynapseBaseCase
         /** @var array<array{name:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sysusers] WHERE [name] LIKE N%s AND [issqluser] = 1',
-            SynapseQuote::quote($loginPrefix . '%')
+            SynapseQuote::quote($loginPrefix . '%'),
         ));
         foreach ($users as $user) {
             $this->connection->executeStatement(sprintf(
                 'DROP USER %s',
-                SynapseQuote::quoteSingleIdentifier($user['name'])
+                SynapseQuote::quoteSingleIdentifier($user['name']),
             ));
         }
 
@@ -83,12 +83,12 @@ class BaseAuthTestCase extends SynapseBaseCase
         /** @var array<array{name:string}> $logins */
         $logins = $masterDb->fetchAllAssociative(sprintf(
             'SELECT [name] FROM [sys].[sql_logins] WHERE [name] LIKE N%s',
-            SynapseQuote::quote($loginPrefix . '%')
+            SynapseQuote::quote($loginPrefix . '%'),
         ));
         foreach ($logins as $login) {
             $masterDb->executeStatement(sprintf(
                 'DROP LOGIN %s',
-                SynapseQuote::quoteSingleIdentifier($login['name'])
+                SynapseQuote::quoteSingleIdentifier($login['name']),
             ));
         }
 
@@ -100,7 +100,7 @@ class BaseAuthTestCase extends SynapseBaseCase
         $masterDb->executeStatement(sprintf(
             'CREATE LOGIN %s WITH PASSWORD = %s',
             $loginQuoted,
-            SynapseQuote::quote(self::LOGIN_PASSWORD)
+            SynapseQuote::quote(self::LOGIN_PASSWORD),
         ));
         $masterDb->close();
 
@@ -108,7 +108,7 @@ class BaseAuthTestCase extends SynapseBaseCase
         $this->connection->executeStatement(sprintf(
             'CREATE USER %s FOR LOGIN %s',
             $loginQuoted,
-            $loginQuoted
+            $loginQuoted,
         ));
     }
 }

@@ -24,13 +24,13 @@ class IncrementalImportTest extends ExasolBaseTestCase
     use S3SourceTrait;
 
     protected function getExasolIncrementalImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): ExasolImportOptions {
         return new ExasolImportOptions(
             [],
             true,
             true,
-            $skipLines
+            $skipLines,
         );
     }
 
@@ -73,7 +73,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getExasolImportOptions(),
             $this->createS3SourceInstance(
@@ -81,7 +81,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             $this->getExasolIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'accounts-3'],
@@ -95,26 +95,26 @@ class IncrementalImportTest extends ExasolBaseTestCase
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new ExasolImportOptions(
                 [],
                 false,
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             $this->createS3SourceInstance(
                 'tw_accounts.increment.csv',
                 $accountColumns,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             new ExasolImportOptions(
                 [],
                 true, // incremental
                 false, // disable timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $expectedAccountsRows,
@@ -127,7 +127,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getExasolImportOptions(),
             $this->createS3SourceInstance(
@@ -135,7 +135,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
                 $multiPkColumns,
                 false,
                 false,
-                ['VisitID', 'Value', 'MenuItem']
+                ['VisitID', 'Value', 'MenuItem'],
             ),
             $this->getExasolIncrementalImportOptions(),
             [$this->getDestinationSchemaName(), 'multi-pk_ts'],
@@ -159,7 +159,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
         array $table,
         array $expected,
         int $expectedImportedRowCount,
-        string $tablesToInit
+        string $tablesToInit,
     ): void {
         $this->initTable($tablesToInit);
 
@@ -167,7 +167,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
         $destination = (new ExasolTableReflection(
             $this->connection,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         $toStageImporter = new ToStageImporter($this->connection);
@@ -176,59 +176,59 @@ class IncrementalImportTest extends ExasolBaseTestCase
 
         $fullLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $fullLoadSource->getColumnsNames()
+            $fullLoadSource->getColumnsNames(),
         );
         $incrementalLoadStagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $incrementalSource->getColumnsNames()
+            $incrementalSource->getColumnsNames(),
         );
 
         try {
             // full load
             $qb = new ExasolTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable),
             );
 
             $importState = $toStageImporter->importToStagingTable(
                 $fullLoadSource,
                 $fullLoadStagingTable,
-                $fullLoadOptions
+                $fullLoadOptions,
             );
             $fullImporter->importToTable(
                 $fullLoadStagingTable,
                 $destination,
                 $fullLoadOptions,
-                $importState
+                $importState,
             );
             // incremental load
             $qb = new ExasolTableQueryBuilder();
             $this->connection->executeStatement(
-                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable)
+                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable),
             );
             $importState = $toStageImporter->importToStagingTable(
                 $incrementalSource,
                 $incrementalLoadStagingTable,
-                $incrementalOptions
+                $incrementalOptions,
             );
             $result = $incrementalImporter->importToTable(
                 $incrementalLoadStagingTable,
                 $destination,
                 $incrementalOptions,
-                $importState
+                $importState,
             );
         } finally {
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $fullLoadStagingTable->getSchemaName(),
-                    $fullLoadStagingTable->getTableName()
-                )
+                    $fullLoadStagingTable->getTableName(),
+                ),
             );
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $incrementalLoadStagingTable->getSchemaName(),
-                    $incrementalLoadStagingTable->getTableName()
-                )
+                    $incrementalLoadStagingTable->getTableName(),
+                ),
             );
         }
 
@@ -240,7 +240,7 @@ class IncrementalImportTest extends ExasolBaseTestCase
             $destination,
             $incrementalOptions,
             $expected,
-            0
+            0,
         );
     }
 }

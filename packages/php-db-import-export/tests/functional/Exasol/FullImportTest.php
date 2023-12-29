@@ -52,14 +52,14 @@ class FullImportTest extends ExasolBaseTestCase
             ],
             false,
             false,
-            ['VisitID']
+            ['VisitID'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_SINGLE_PK
+            self::TABLE_SINGLE_PK,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -71,12 +71,12 @@ class FullImportTest extends ExasolBaseTestCase
         ]);
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
 
@@ -86,7 +86,7 @@ class FullImportTest extends ExasolBaseTestCase
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
     }
 
@@ -104,14 +104,14 @@ class FullImportTest extends ExasolBaseTestCase
             ],
             false,
             false,
-            []
+            [],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_COLUMN_NAME_ROW_NUMBER
+            self::TABLE_COLUMN_NAME_ROW_NUMBER,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -120,19 +120,19 @@ class FullImportTest extends ExasolBaseTestCase
         ]);
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(2, $destinationRef->getRowsCount());
@@ -155,14 +155,14 @@ class FullImportTest extends ExasolBaseTestCase
             ],
             false,
             false,
-            ['VisitID']
+            ['VisitID'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_SINGLE_PK
+            self::TABLE_SINGLE_PK,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -174,19 +174,19 @@ class FullImportTest extends ExasolBaseTestCase
         ]);
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(4, $destinationRef->getRowsCount());
@@ -209,14 +209,14 @@ class FullImportTest extends ExasolBaseTestCase
             ],
             false,
             false,
-            ['VisitID', 'Something']
+            ['VisitID', 'Something'],
         );
 
         $importer = new ToStageImporter($this->connection);
         $destinationRef = new ExasolTableReflection(
             $this->connection,
             $this->getDestinationSchemaName(),
-            self::TABLE_MULTI_PK
+            self::TABLE_MULTI_PK,
         );
         $destination = $destinationRef->getTableDefinition();
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
@@ -228,12 +228,12 @@ class FullImportTest extends ExasolBaseTestCase
         ]);
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
-            $options
+            $options,
         );
 
         // now 6 lines. Add one with same VisitId and Something as an existing line has
@@ -242,15 +242,15 @@ class FullImportTest extends ExasolBaseTestCase
             sprintf(
                 "INSERT INTO %s.%s VALUES ('134', 'xx', 'yy', 'abc', 'def');",
                 ExasolQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName())
-            )
+                ExasolQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
         );
         $toFinalTableImporter = new FullImporter($this->connection);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
             $options,
-            $importState
+            $importState,
         );
 
         self::assertEquals(6, $destinationRef->getRowsCount());
@@ -300,7 +300,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $escapingHeader,
                 true,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getExasolImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -315,7 +315,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $escapingHeader,
                 true,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getExasolImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -330,7 +330,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $lemmaHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_LEMMA],
             $this->getExasolImportOptions(),
@@ -345,7 +345,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getExasolImportOptions(),
@@ -360,7 +360,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getExasolImportOptions(),
@@ -376,7 +376,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             $this->getExasolImportOptions(),
@@ -391,7 +391,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $accountChangedColumnsOrderHeader,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -408,7 +408,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $accountsHeader,
                 false,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getExasolImportOptions(),
@@ -440,7 +440,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $accountsHeader,
                 true,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getExasolImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -455,7 +455,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $accountsHeader,
                 true,
                 false,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getExasolImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -471,7 +471,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $accountsHeader,
                 true,
                 true,
-                ['id']
+                ['id'],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
             $this->getExasolImportOptions(ImportOptions::SKIP_NO_LINE),
@@ -487,7 +487,7 @@ class FullImportTest extends ExasolBaseTestCase
                 ['column', 'table'],
                 false,
                 false,
-                []
+                [],
             ),
             [$this->getDestinationSchemaName(), self::TABLE_TABLE],
             $this->getExasolImportOptions(),
@@ -506,7 +506,7 @@ class FullImportTest extends ExasolBaseTestCase
                 ],
                 false,
                 false,
-                []
+                [],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -527,7 +527,7 @@ class FullImportTest extends ExasolBaseTestCase
                 $escapingHeader,
                 false,
                 false,
-                []
+                [],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -537,7 +537,7 @@ class FullImportTest extends ExasolBaseTestCase
                 [],
                 false,
                 false, // don't use timestamp
-                ImportOptions::SKIP_FIRST_LINE
+                ImportOptions::SKIP_FIRST_LINE,
             ),
             $expectedEscaping,
             7,
@@ -561,7 +561,7 @@ class FullImportTest extends ExasolBaseTestCase
                     'numCol',
                     'floatCol',
                     'boolCol',
-                ]
+                ],
             ),
             [
                 $this->getDestinationSchemaName(),
@@ -585,7 +585,7 @@ class FullImportTest extends ExasolBaseTestCase
         ExasolImportOptions $options,
         array $expected,
         int $expectedImportedRowCount,
-        string $tablesToInit
+        string $tablesToInit,
     ): void {
         $this->initTable($tablesToInit);
 
@@ -594,16 +594,16 @@ class FullImportTest extends ExasolBaseTestCase
         $destination = (new ExasolTableReflection(
             $this->connection,
             $schemaName,
-            $tableName
+            $tableName,
         ))->getTableDefinition();
 
         $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
             $destination,
-            $source->getColumnsNames()
+            $source->getColumnsNames(),
         );
         $qb = new ExasolTableQueryBuilder();
         $this->connection->executeStatement(
-            $qb->getCreateTableCommandFromDefinition($stagingTable)
+            $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
         $toStageImporter = new ToStageImporter($this->connection);
         $toFinalTableImporter = new FullImporter($this->connection);
@@ -611,20 +611,20 @@ class FullImportTest extends ExasolBaseTestCase
             $importState = $toStageImporter->importToStagingTable(
                 $source,
                 $stagingTable,
-                $options
+                $options,
             );
             $result = $toFinalTableImporter->importToTable(
                 $stagingTable,
                 $destination,
                 $options,
-                $importState
+                $importState,
             );
         } finally {
             $this->connection->executeStatement(
                 (new SqlBuilder())->getDropTableIfExistsCommand(
                     $stagingTable->getSchemaName(),
-                    $stagingTable->getTableName()
-                )
+                    $stagingTable->getTableName(),
+                ),
             );
         }
 
@@ -635,7 +635,7 @@ class FullImportTest extends ExasolBaseTestCase
             $destination,
             $options,
             $expected,
-            0
+            0,
         );
     }
 }

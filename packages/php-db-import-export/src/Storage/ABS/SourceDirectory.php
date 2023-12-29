@@ -31,7 +31,7 @@ class SourceDirectory extends SourceFile
         $file = RelativePath::createFromRootAndPath(
             new AbsProvider(),
             $this->container,
-            $this->getBlobPath($blob->getUrl())
+            $this->getBlobPath($blob->getUrl()),
         );
 
         try {
@@ -57,7 +57,7 @@ class SourceDirectory extends SourceFile
      * @return string[]
      */
     public function getManifestEntries(
-        string $protocol = self::PROTOCOL_AZURE
+        string $protocol = self::PROTOCOL_AZURE,
     ): array {
         $blobClient = $this->getBlobClient();
 

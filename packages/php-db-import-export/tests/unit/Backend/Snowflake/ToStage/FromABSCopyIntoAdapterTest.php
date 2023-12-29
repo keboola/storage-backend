@@ -55,14 +55,14 @@ EOT
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions();
         $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(10, $count);
@@ -106,14 +106,14 @@ EOT
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions([], false, false, 3);
         $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(7, $count);
@@ -168,14 +168,14 @@ EOT;
             'stagingTable',
             true,
             new ColumnCollection([]),
-            []
+            [],
         );
         $options = new SnowflakeImportOptions();
         $adapter = new FromABSCopyIntoAdapter($conn);
         $count = $adapter->runCopyCommand(
             $source,
             $destination,
-            $options
+            $options,
         );
 
         self::assertEquals(7, $count);

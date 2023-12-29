@@ -45,7 +45,7 @@ class DestinationFile extends BaseFile implements DestinationFileInterface
         string $bucket,
         string $filePath,
         string $storageIntegrationName,
-        array $credentials
+        array $credentials,
     ) {
         parent::__construct($bucket, $filePath, $storageIntegrationName);
         $this->credentials = $credentials;

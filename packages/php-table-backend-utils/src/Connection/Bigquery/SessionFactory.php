@@ -26,8 +26,8 @@ class SessionFactory
                             'createSession' => true,
                         ],
                     ],
-                ]
-            )
+                ],
+            ),
         ));
     }
 }

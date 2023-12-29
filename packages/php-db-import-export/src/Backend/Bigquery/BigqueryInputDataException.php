@@ -10,5 +10,3 @@ namespace Keboola\Db\ImportExport\Backend\Bigquery;
 class BigqueryInputDataException extends BigqueryException
 {
 }
-
-

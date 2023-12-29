@@ -48,7 +48,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         string $expectedType,
         ?string $expectedDefault,
         ?string $expectedLength,
-        bool $expectedNullable
+        bool $expectedNullable,
     ): void {
         $this->cleanDataset(self::TEST_SCHEMA);
         $this->createDataset(self::TEST_SCHEMA);
@@ -60,7 +60,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
 );',
             BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-            $sqlDef
+            $sqlDef,
         );
 
         $query = $this->bqClient->query($sql);
@@ -84,11 +84,11 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
                 $this->bqClient
                     ->dataset(self::TEST_SCHEMA)
                     ->table(self::TABLE_GENERIC)
-                    ->info()['schema']['fields'][1]
+                    ->info()['schema']['fields'][1],
             ),
             RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
-                SQLtoRestDatatypeConverter::convertColumnToRestFormat($column)
-            )
+                SQLtoRestDatatypeConverter::convertColumnToRestFormat($column),
+            ),
         );
     }
 
@@ -437,7 +437,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
                     ],
                 ],
                 'requirePartitionFilter' => false,
-            ]
+            ],
         );
 
         $rows = [];
@@ -451,7 +451,7 @@ INSERT %s.%s (`id`,`test`) VALUES %s;
 SQL,
             BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             BigqueryQuote::quoteSingleIdentifier('test-partitions'),
-            implode(',', $rows)
+            implode(',', $rows),
         )));
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
         $this->assertCount(1, $ref->getPartitionsList());
@@ -478,7 +478,7 @@ SQL,
                         ],
                     ],
                 ],
-            ]
+            ],
         );
 
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -486,7 +486,7 @@ SQL,
 INSERT %s.%s (`id`,`test`) VALUES (1,'test');
 SQL,
             BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-            BigqueryQuote::quoteSingleIdentifier('test-partitions')
+            BigqueryQuote::quoteSingleIdentifier('test-partitions'),
         )));
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
         // expect none partition returned by reflection class
@@ -506,10 +506,10 @@ SQL,
                 new TimePartitioningConfig(
                     'DAY',
                     null,
-                    null
+                    null,
                 ),
                 null,
-                false
+                false,
             ),
             'expectedClustering' => null,
         ];
@@ -527,10 +527,10 @@ SQL,
                 new TimePartitioningConfig(
                     'DAY',
                     '100000',
-                    'timestamp'
+                    'timestamp',
                 ),
                 null,
-                true
+                true,
             ),
             'expectedClustering' => null,
         ];
@@ -553,9 +553,9 @@ SQL,
                     'id',
                     '1',
                     '100',
-                    '10'
+                    '10',
                 ),
-                true
+                true,
             ),
             'expectedClustering' => null,
         ];
@@ -586,9 +586,9 @@ SQL,
                     'id',
                     '1',
                     '100',
-                    '10'
+                    '10',
                 ),
-                true
+                true,
             ),
             'expectedClustering' => new ClusteringConfig(['id', 'timestamp']),
         ];
@@ -601,7 +601,7 @@ SQL,
     public function testTableWithPartitioningConfig(
         array $config,
         ?PartitioningConfig $expectedPartitioning,
-        ?ClusteringConfig $expectedClustering
+        ?ClusteringConfig $expectedClustering,
     ): void {
         $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
         $options = [
@@ -628,7 +628,7 @@ SQL,
         ];
         $dataset->createTable(
             'test-partitions',
-            array_merge($options, $config)
+            array_merge($options, $config),
         );
 
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');

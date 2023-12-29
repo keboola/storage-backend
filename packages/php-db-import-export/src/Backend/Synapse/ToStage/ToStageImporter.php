@@ -28,7 +28,7 @@ final class ToStageImporter implements ToStageImporterInterface
 
     public function __construct(
         Connection $connection,
-        ?CopyAdapterInterface $adapter = null
+        ?CopyAdapterInterface $adapter = null,
     ) {
         $this->connection = $connection;
         $this->adapter = $adapter;
@@ -37,7 +37,7 @@ final class ToStageImporter implements ToStageImporterInterface
     public function importToStagingTable(
         Storage\SourceInterface $source,
         TableDefinitionInterface $destinationDefinition,
-        ImportOptionsInterface $options
+        ImportOptionsInterface $options,
     ): ImportState {
         assert($options instanceof SynapseImportOptions);
         assert($destinationDefinition instanceof SynapseTableDefinition);
@@ -53,8 +53,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 $adapter->runCopyCommand(
                     $source,
                     $destinationDefinition,
-                    $options
-                )
+                    $options,
+                ),
             );
         } catch (Exception $e) {
             throw SynapseException::covertException($e);
@@ -66,7 +66,7 @@ final class ToStageImporter implements ToStageImporterInterface
 
     private function getAdapter(
         Storage\SourceInterface $source,
-        SynapseImportOptions $importOptions
+        SynapseImportOptions $importOptions,
     ): CopyAdapterInterface {
         if ($this->adapter !== null) {
             return $this->adapter;
@@ -83,8 +83,8 @@ final class ToStageImporter implements ToStageImporterInterface
                 throw new LogicException(
                     sprintf(
                         'No suitable adapter found for source: "%s".',
-                        get_class($source)
-                    )
+                        get_class($source),
+                    ),
                 );
         }
         return $adapter;
@@ -102,8 +102,8 @@ final class ToStageImporter implements ToStageImporterInterface
         throw new LogicException(
             sprintf(
                 'No suitable table to table adapter "%s".',
-                $importOptions->getTableToTableAdapter()
-            )
+                $importOptions->getTableToTableAdapter(),
+            ),
         );
     }
 }

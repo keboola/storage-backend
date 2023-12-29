@@ -47,12 +47,12 @@ SELECT name
 FROM sys.tables
 WHERE schema_name(schema_id) = '$schema'
 order by name;
-EOT
+EOT,
         );
 
         foreach ($tables as $table) {
             $this->connection->exec(
-                $this->qb->getDropCommand($schema, $table['name'])
+                $this->qb->getDropCommand($schema, $table['name']),
             );
         }
 
@@ -60,16 +60,16 @@ EOT
         $schemas = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT name FROM sys.schemas WHERE name = \'%s\'',
-                $schema
-            )
+                $schema,
+            ),
         );
 
         foreach ($schemas as $item) {
             $this->connection->exec(
                 sprintf(
                     'DROP SCHEMA %s',
-                    SynapseQuote::quoteSingleIdentifier($item['name'])
-                )
+                    SynapseQuote::quoteSingleIdentifier($item['name']),
+                ),
             );
         }
     }
@@ -103,7 +103,7 @@ EOT
           [lemmaIndex] nvarchar(4000) NOT NULL DEFAULT \'\',
           [_timestamp] datetime2
         );',
-                    $this->getDestinationSchemaName()
+                    $this->getDestinationSchemaName(),
                 ));
                 break;
             case self::TABLE_OUT_CSV_2COLS:
@@ -117,7 +117,7 @@ EOT
                     'INSERT INTO [%s].[out.csv_2Cols] VALUES
                   (\'x\', \'y\', \'%s\');',
                     $this->getDestinationSchemaName(),
-                    $now
+                    $now,
                 ));
 
                 $this->connection->exec(sprintf('CREATE TABLE [%s].[out.csv_2Cols] (
@@ -151,7 +151,7 @@ EOT
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             ) WITH (DISTRIBUTION=%s)',
                     $this->getDestinationSchemaName(),
-                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
+                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution,
                 ));
                 break;
             case self::TABLE_ACCOUNTS_WITHOUT_TS:
@@ -172,7 +172,7 @@ EOT
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
             ) WITH (DISTRIBUTION=%s)',
                     $this->getDestinationSchemaName(),
-                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
+                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution,
                 ));
                 break;
             case self::TABLE_TABLE:
@@ -182,7 +182,7 @@ EOT
               [table] nvarchar(4000) NOT NULL DEFAULT \'\',
               [_timestamp] datetime2
             );',
-                    $this->getDestinationSchemaName()
+                    $this->getDestinationSchemaName(),
                 ));
                 break;
             case self::TABLE_TYPES:
@@ -194,7 +194,7 @@ EOT
               [boolCol] nvarchar(4000) NOT NULL,
               [_timestamp] datetime2
             );',
-                    $this->getDestinationSchemaName()
+                    $this->getDestinationSchemaName(),
                 ));
 
                 $this->connection->exec(sprintf(
@@ -204,13 +204,13 @@ EOT
               [floatCol] float NOT NULL,
               [boolCol] tinyint NOT NULL
             );',
-                    $this->getSourceSchemaName()
+                    $this->getSourceSchemaName(),
                 ));
                 $this->connection->exec(sprintf(
                     'INSERT INTO [%s].[types] VALUES
               (\'a\', \'10.5\', \'0.3\', 1)
            ;',
-                    $this->getSourceSchemaName()
+                    $this->getSourceSchemaName(),
                 ));
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
@@ -219,7 +219,7 @@ EOT
               [col1] nvarchar(4000) NOT NULL DEFAULT \'\',
               [col2] nvarchar(4000) NOT NULL DEFAULT \'\'
             );',
-                    $this->getDestinationSchemaName()
+                    $this->getDestinationSchemaName(),
                 ));
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
@@ -231,7 +231,7 @@ EOT
                 PRIMARY KEY NONCLUSTERED("id") NOT ENFORCED
            ) WITH (DISTRIBUTION=%s)',
                     $this->getDestinationSchemaName(),
-                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution
+                    $tableDistribution === 'HASH' ? 'HASH([id])' : $tableDistribution,
                 ));
                 break;
             case self::TABLE_MULTI_PK:
@@ -245,7 +245,7 @@ EOT
             [_timestamp] datetime2,
             PRIMARY KEY NONCLUSTERED("VisitID","Value","MenuItem") NOT ENFORCED
             );',
-                    $this->getDestinationSchemaName()
+                    $this->getDestinationSchemaName(),
                 ));
                 break;
         }
@@ -291,12 +291,12 @@ EOT
         SynapseImportOptions $options,
         array $expected,
         $sortKey,
-        string $message = 'Imported tables are not the same as expected'
+        string $message = 'Imported tables are not the same as expected',
     ): void {
         $tableColumns = (new SynapseTableReflection(
             $this->connection,
             $table->getSchema(),
-            $table->getTableName()
+            $table->getTableName(),
         ))->getColumnsNames();
 
         if ($options->useTimestamp()) {
@@ -318,7 +318,7 @@ EOT
         $sql = sprintf(
             'SELECT %s FROM %s',
             implode(', ', $tableColumns),
-            $table->getQuotedTableWithScheme()
+            $table->getQuotedTableWithScheme(),
         );
 
         $queryResult = array_map(function ($row) {
@@ -331,7 +331,7 @@ EOT
             $expected,
             $queryResult,
             $sortKey,
-            $message
+            $message,
         );
     }
 
@@ -344,7 +344,7 @@ EOT
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
         ?string $castValueTypes = null,
         ?bool $requireSameTables = null,
-        ?string $tableToTableAdapter = null
+        ?string $tableToTableAdapter = null,
     ): SynapseImportOptions {
         return new SynapseImportOptions(
             [],
@@ -355,12 +355,12 @@ EOT
             getenv('CREDENTIALS_IMPORT_TYPE'),
             $castValueTypes ?? SynapseImportOptions::TABLE_TYPES_PRESERVE,
             $requireSameTables ?? SynapseImportOptions::SAME_TABLES_NOT_REQUIRED,
-            $tableToTableAdapter ?? SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO
+            $tableToTableAdapter ?? SynapseImportOptions::TABLE_TO_TABLE_ADAPTER_INSERT_INTO,
         );
     }
 
     protected function getSynapseIncrementalImportOptions(
-        int $skipLines = ImportOptions::SKIP_FIRST_LINE
+        int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): SynapseImportOptions {
         return new SynapseImportOptions(
             [],
@@ -368,7 +368,7 @@ EOT
             true,
             $skipLines,
             // @phpstan-ignore-next-line
-            getenv('CREDENTIALS_IMPORT_TYPE')
+            getenv('CREDENTIALS_IMPORT_TYPE'),
         );
     }
 
@@ -384,12 +384,12 @@ EOT
         SynapseImportOptions $options,
         array $expected,
         $sortKey,
-        string $message = 'Imported tables are not the same as expected'
+        string $message = 'Imported tables are not the same as expected',
     ): void {
         $tableColumns = (new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         ))->getColumnsNames();
 
         if ($options->useTimestamp()) {
@@ -412,7 +412,7 @@ EOT
             'SELECT %s FROM [%s].[%s]',
             implode(', ', $tableColumns),
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
 
         $queryResult = array_map(function ($row) {
@@ -425,7 +425,7 @@ EOT
             $expected,
             $queryResult,
             $sortKey,
-            $message
+            $message,
         );
     }
 
@@ -433,12 +433,12 @@ EOT
         SynapseTableDefinition $destination,
         SynapseImportOptions $options,
         int $expectedCount,
-        string $message = 'Imported tables don\'t have expected number of rows'
+        string $message = 'Imported tables don\'t have expected number of rows',
     ): void {
         $destRef = new SynapseTableReflection(
             $this->connection,
             $destination->getSchemaName(),
-            $destination->getTableName()
+            $destination->getTableName(),
         );
         $tableColumns = $destRef->getColumnsNames();
 

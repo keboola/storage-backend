@@ -27,7 +27,7 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $likeSql .= sprintf(
                 ' LIKE %s',
-                SnowflakeQuote::quote('%' . $like . '%')
+                SnowflakeQuote::quote('%' . $like . '%'),
             );
         }
 
@@ -35,7 +35,7 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         /** @var array<array{name:string}> $users */
         $users = $this->connection->fetchAllAssociative(sprintf(
             'SHOW USERS%s',
-            $likeSql
+            $likeSql,
         ));
 
         // extract data to primitive array
@@ -51,7 +51,7 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         if ($like !== null) {
             $likeSql .= sprintf(
                 ' LIKE %s',
-                SnowflakeQuote::quote('%' . $like . '%')
+                SnowflakeQuote::quote('%' . $like . '%'),
             );
         }
 
@@ -59,7 +59,7 @@ final class SnowflakeDatabaseReflection implements DatabaseReflectionInterface
         /** @var array<array{name:string}> $roles */
         $roles = $this->connection->fetchAllAssociative(sprintf(
             'SHOW ROLES%s',
-            $likeSql
+            $likeSql,
         ));
 
         // extract data to primitive array

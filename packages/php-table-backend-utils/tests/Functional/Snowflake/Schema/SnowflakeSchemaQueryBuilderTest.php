@@ -44,7 +44,7 @@ class SnowflakeSchemaQueryBuilderTest extends SnowflakeBaseCase
     {
         /** @var array<array{name:string}> $schemas */
         $schemas = $this->connection->fetchAllAssociative(
-            'SHOW SCHEMAS'
+            'SHOW SCHEMAS',
         );
 
         return array_map(static fn(array $schema) => trim($schema['name']), $schemas);
@@ -96,8 +96,8 @@ class SnowflakeSchemaQueryBuilderTest extends SnowflakeBaseCase
                 '
                 ALTER TABLE  %s.%s ADD PRIMARY KEY ("id");',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier('users')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('users'),
+            ),
         );
         $this->connection->executeQuery(
             sprintf(
@@ -109,8 +109,8 @@ CREATE OR REPLACE TABLE %s.%s (
     CONSTRAINT "fkey_1" FOREIGN KEY ("id_user") REFERENCES "users" ("id")
 );',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier('roles')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('roles'),
+            ),
         );
 
         try {
@@ -127,8 +127,8 @@ CREATE OR REPLACE TABLE %s.%s (
                 '
                 ALTER TABLE  %s.%s DROP FOREIGN KEY ("id_user");',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier('roles')
-            )
+                SnowflakeQuote::quoteSingleIdentifier('roles'),
+            ),
         );
 
         $this->connection->executeQuery($qb->getDropSchemaCommand(self::TEST_SCHEMA, false));

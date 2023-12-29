@@ -54,7 +54,7 @@ trait StorageTrait
     }
 
     protected function getDestinationInstance(
-        string $filePath
+        string $filePath,
     ): DestinationInterface {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
@@ -63,7 +63,7 @@ trait StorageTrait
                     (string) getenv('AWS_SECRET_ACCESS_KEY'),
                     (string) getenv('AWS_REGION'),
                     (string) getenv('AWS_S3_BUCKET'),
-                    $filePath
+                    $filePath,
                 );
             case StorageType::STORAGE_ABS:
                 return new Storage\ABS\DestinationFile(
@@ -71,14 +71,14 @@ trait StorageTrait
                     $filePath,
                     $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME'), 'rwla'),
                     (string) getenv('ABS_ACCOUNT_NAME'),
-                    (string) getenv('ABS_ACCOUNT_KEY')
+                    (string) getenv('ABS_ACCOUNT_KEY'),
                 );
             case StorageType::STORAGE_GCS:
                 return new Storage\GCS\DestinationFile(
                     (string) getenv($this->getGCSBucketEnvName()),
                     $filePath,
                     (string) getenv('GCS_INTEGRATION_NAME'),
-                    $this->getGCSCredentials()
+                    $this->getGCSCredentials(),
                 );
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
@@ -95,7 +95,7 @@ trait StorageTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ) {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
@@ -123,7 +123,7 @@ trait StorageTrait
             $columns,
             $isSliced,
             $isDirectory,
-            $primaryKeys
+            $primaryKeys,
         );
     }
 
@@ -138,7 +138,7 @@ trait StorageTrait
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
-        ?array $primaryKeys = null
+        ?array $primaryKeys = null,
     ) {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
@@ -164,7 +164,7 @@ trait StorageTrait
             $columns,
             $isSliced,
             $isDirectory,
-            $primaryKeys
+            $primaryKeys,
         );
     }
 
@@ -176,7 +176,7 @@ trait StorageTrait
                 $client = $this->createClient();
                 $client->deleteMatchingObjects(
                     (string) getenv('AWS_S3_BUCKET'),
-                    $dirToClear
+                    $dirToClear,
                 );
                 return;
             case StorageType::STORAGE_ABS:
@@ -224,10 +224,10 @@ trait StorageTrait
                 $connectionString = sprintf(
                     'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=core.windows.net',
                     (string) getenv('ABS_ACCOUNT_NAME'),
-                    (string) getenv('ABS_ACCOUNT_KEY')
+                    (string) getenv('ABS_ACCOUNT_KEY'),
                 );
                 return ClientFactory::createClientFromConnectionString(
-                    $connectionString
+                    $connectionString,
                 );
             case StorageType::STORAGE_GCS:
                 return new StorageClient([
@@ -319,7 +319,7 @@ trait StorageTrait
      */
     public function getCsvFileFromStorage(
         array $files,
-        string $tmpName = 'tmp.csv'
+        string $tmpName = 'tmp.csv',
     ): CsvFile {
         $tmp = new Temp();
         $tmpFolder = $tmp->getTmpFolder();
@@ -384,7 +384,7 @@ trait StorageTrait
     }
 
     private function getAbsBlobContent(
-        string $blob
+        string $blob,
     ): string {
         $client = $this->createClient();
         assert($client instanceof BlobRestProxy);

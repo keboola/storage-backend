@@ -14,7 +14,7 @@ interface TableQueryBuilderInterface
     public function getCreateTempTableCommand(
         string $schemaName,
         string $tableName,
-        ColumnCollection $columns
+        ColumnCollection $columns,
     ): string;
 
     public function getDropTableCommand(string $schemaName, string $tableName): string;
@@ -30,11 +30,11 @@ interface TableQueryBuilderInterface
         string $schemaName,
         string $tableName,
         ColumnCollection $columns,
-        array $primaryKeys = []
+        array $primaryKeys = [],
     ): string;
 
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
-        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS
+        bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS,
     ): string;
 }

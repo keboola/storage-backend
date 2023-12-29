@@ -21,14 +21,14 @@ class BigqueryImportOptions extends ImportOptions
         bool $useTimestamp = false,
         int $numberOfIgnoredLines = self::SKIP_NO_LINE,
         string $usingTypes = self::USING_TYPES_STRING,
-        ?Session $session = null
+        ?Session $session = null,
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
             $isIncremental,
             $useTimestamp,
             $numberOfIgnoredLines,
-            $usingTypes
+            $usingTypes,
         );
         $this->session = $session;
     }

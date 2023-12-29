@@ -315,6 +315,8 @@ class Teradata extends Common
         self::TYPE_NUMBER => '-128,-128',
     ];
 
+    public const METADATA_BACKEND = 'teradata';
+
     private bool $isLatin = false;
 
     // depends on Char Type column in HELP TABLE column
@@ -592,7 +594,7 @@ class Teradata extends Common
                         'K' => $isLatin ? 2_047_937 : 1_023_968,
                         'M' => $isLatin ? 1999 : 999,
                         'G' => $isLatin ? 1 : 0,
-                    ]
+                    ],
                 );
                 break;
             case self::TYPE_BLOB:
@@ -604,7 +606,7 @@ class Teradata extends Common
                         'K' => 2_047_937,
                         'M' => 1999,
                         'G' => 1,
-                    ]
+                    ],
                 );
                 break;
         }

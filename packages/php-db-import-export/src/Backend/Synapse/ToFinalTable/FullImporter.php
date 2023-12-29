@@ -29,7 +29,7 @@ final class FullImporter implements ToFinalTableImporterInterface
     private SqlBuilder $sqlBuilder;
 
     public function __construct(
-        Connection $connection
+        Connection $connection,
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlBuilder();
@@ -39,7 +39,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         TableDefinitionInterface $stagingTableDefinition,
         TableDefinitionInterface $destinationTableDefinition,
         ImportOptionsInterface $options,
-        ImportState $state
+        ImportState $state,
     ): Result {
         assert($stagingTableDefinition instanceof SynapseTableDefinition);
         assert($destinationTableDefinition instanceof SynapseTableDefinition);
@@ -54,7 +54,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $destinationTableDefinition,
                     $options,
                     $state,
-                    $random
+                    $random,
                 );
             } else {
                 $this->doLoadFullWithoutDedup(
@@ -62,7 +62,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     $destinationTableDefinition,
                     $options,
                     $state,
-                    $random
+                    $random,
                 );
             }
         } finally {
@@ -70,15 +70,15 @@ final class FullImporter implements ToFinalTableImporterInterface
             $this->connection->executeStatement(
                 $this->sqlBuilder->getDropTableIfExistsCommand(
                     $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX
-                )
+                    $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_TMP_TABLE_SUFFIX,
+                ),
             );
             // drop optimized load rename table if exists
             $this->connection->executeStatement(
                 $this->sqlBuilder->getDropTableIfExistsCommand(
                     $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX
-                )
+                    $destinationTableDefinition->getTableName() . $random . self::OPTIMIZED_LOAD_RENAME_TABLE_SUFFIX,
+                ),
             );
         }
 
@@ -92,7 +92,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         SynapseTableDefinition $destinationTableDefinition,
         SynapseImportOptions $options,
         ImportState $state,
-        string $random
+        string $random,
     ): void {
         $tmpDestination = new SynapseTableDefinition(
             $destinationTableDefinition->getSchemaName(),
@@ -101,7 +101,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             $destinationTableDefinition->getColumnsDefinitions(),
             $destinationTableDefinition->getPrimaryKeysNames(),
             $destinationTableDefinition->getTableDistribution(),
-            $destinationTableDefinition->getTableIndex()
+            $destinationTableDefinition->getTableIndex(),
         );
 
         $state->startTimer(self::TIMER_DEDUP_CTAS);
@@ -110,8 +110,8 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $stagingTableDefinition,
                 $tmpDestination,
                 $options,
-                DateTimeHelper::getNowFormatted()
-            )
+                DateTimeHelper::getNowFormatted(),
+            ),
         );
         $state->stopTimer(self::TIMER_DEDUP_CTAS);
 
@@ -123,28 +123,28 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getRenameTableCommand(
                     $destinationTableDefinition->getSchemaName(),
                     $destinationTableDefinition->getTableName(),
-                    $tmpDestinationToRemove
-                )
+                    $tmpDestinationToRemove,
+                ),
             );
             $this->connection->executeStatement(
                 $this->sqlBuilder->getRenameTableCommand(
                     $tmpDestination->getSchemaName(),
                     $tmpDestination->getTableName(),
-                    $destinationTableDefinition->getTableName()
-                )
+                    $destinationTableDefinition->getTableName(),
+                ),
             );
         } catch (Throwable $e) {
             if (!$this->isTableInSchema(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName()
+                $destinationTableDefinition->getTableName(),
             )) {
                 // in case of error ensure original table is renamed back
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getRenameTableCommand(
                         $destinationTableDefinition->getSchemaName(),
                         $tmpDestinationToRemove,
-                        $destinationTableDefinition->getTableName()
-                    )
+                        $destinationTableDefinition->getTableName(),
+                    ),
                 );
             }
             throw $e;
@@ -153,8 +153,8 @@ final class FullImporter implements ToFinalTableImporterInterface
         $this->connection->executeStatement(
             $this->sqlBuilder->getDropCommand(
                 $destinationTableDefinition->getSchemaName(),
-                $tmpDestinationToRemove
-            )
+                $tmpDestinationToRemove,
+            ),
         );
     }
 
@@ -163,7 +163,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         SynapseTableDefinition $destinationTableDefinition,
         SynapseImportOptions $options,
         ImportState $state,
-        string $random
+        string $random,
     ): void {
         $tmpDestination = new SynapseTableDefinition(
             $destinationTableDefinition->getSchemaName(),
@@ -172,7 +172,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             $destinationTableDefinition->getColumnsDefinitions(),
             $destinationTableDefinition->getPrimaryKeysNames(),
             $destinationTableDefinition->getTableDistribution(),
-            $destinationTableDefinition->getTableIndex()
+            $destinationTableDefinition->getTableIndex(),
         );
 
         $state->startTimer(self::TIMER_COPY_TO_TARGET);
@@ -181,8 +181,8 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $stagingTableDefinition,
                 $tmpDestination,
                 $options,
-                DateTimeHelper::getNowFormatted()
-            )
+                DateTimeHelper::getNowFormatted(),
+            ),
         );
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
 
@@ -194,28 +194,28 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->sqlBuilder->getRenameTableCommand(
                     $destinationTableDefinition->getSchemaName(),
                     $destinationTableDefinition->getTableName(),
-                    $tmpDestinationToRemove
-                )
+                    $tmpDestinationToRemove,
+                ),
             );
             $this->connection->executeStatement(
                 $this->sqlBuilder->getRenameTableCommand(
                     $tmpDestination->getSchemaName(),
                     $tmpDestination->getTableName(),
-                    $destinationTableDefinition->getTableName()
-                )
+                    $destinationTableDefinition->getTableName(),
+                ),
             );
         } catch (Throwable $e) {
             if (!$this->isTableInSchema(
                 $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName()
+                $destinationTableDefinition->getTableName(),
             )) {
                 // in case of error ensure original table is renamed back
                 $this->connection->executeStatement(
                     $this->sqlBuilder->getRenameTableCommand(
                         $destinationTableDefinition->getSchemaName(),
                         $tmpDestinationToRemove,
-                        $destinationTableDefinition->getTableName()
-                    )
+                        $destinationTableDefinition->getTableName(),
+                    ),
                 );
             }
             throw $e;
@@ -224,8 +224,8 @@ final class FullImporter implements ToFinalTableImporterInterface
         $this->connection->executeStatement(
             $this->sqlBuilder->getDropCommand(
                 $destinationTableDefinition->getSchemaName(),
-                $tmpDestinationToRemove
-            )
+                $tmpDestinationToRemove,
+            ),
         );
     }
 
@@ -234,7 +234,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         return in_array(
             $tableName,
             (new SynapseSchemaReflection($this->connection, $schemaName))->getTablesNames(),
-            true
+            true,
         );
     }
 }

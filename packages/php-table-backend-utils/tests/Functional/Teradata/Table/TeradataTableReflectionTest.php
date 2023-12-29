@@ -43,8 +43,8 @@ class TeradataTableReflectionTest extends TeradataBaseCase
             sprintf(
                 'ALTER TABLE %s.%s ADD PRIMARY KEY (id)',
                 $this->getDatabaseName(),
-                self::TABLE_GENERIC
-            )
+                self::TABLE_GENERIC,
+            ),
         );
         $ref = new TeradataTableReflection($this->connection, $this->getDatabaseName(), self::TABLE_GENERIC);
         self::assertEquals(['id'], $ref->getPrimaryKeysNames());
@@ -76,7 +76,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
         string $expectedType,
         $expectedDefault,
         $expectedLength,
-        bool $expectedNullable
+        bool $expectedNullable,
     ): void {
         $sql = sprintf(
             'CREATE MULTISET TABLE %s.%s ,
@@ -90,7 +90,7 @@ class TeradataTableReflectionTest extends TeradataBaseCase
      );',
             $this->getDatabaseName(),
             self::TABLE_GENERIC,
-            $sqlDef
+            $sqlDef,
         );
 
         $this->connection->executeQuery($sql);

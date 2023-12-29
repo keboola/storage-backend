@@ -17,9 +17,9 @@ class TableNotExistsReflectionException extends ReflectionException
                 ',',
                 array_map(
                     fn(string $item) => sprintf('"%s"', $item),
-                    $path
-                )
-            )
+                    $path,
+                ),
+            ),
         ));
     }
 }

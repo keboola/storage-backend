@@ -11,30 +11,30 @@ class ColumnsMismatchException extends ImportExportException
 {
     public static function createColumnsNamesMismatch(
         ColumnInterface $sourceDef,
-        ColumnInterface $destDef
+        ColumnInterface $destDef,
     ): ColumnsMismatchException {
         return new self(sprintf(
             'Source destination columns name mismatch. "%s"->"%s"',
             $sourceDef->getColumnName(),
-            $destDef->getColumnName()
+            $destDef->getColumnName(),
         ));
     }
 
     public static function createColumnsMismatch(
         ColumnInterface $sourceDef,
-        ColumnInterface $destDef
+        ColumnInterface $destDef,
     ): ColumnsMismatchException {
         return new self(sprintf(
             'Source destination columns mismatch. "%s %s"->"%s %s"',
             $sourceDef->getColumnName(),
             $sourceDef->getColumnDefinition()->getSQLDefinition(),
             $destDef->getColumnName(),
-            $destDef->getColumnDefinition()->getSQLDefinition()
+            $destDef->getColumnDefinition()->getSQLDefinition(),
         ));
     }
 
     public static function createColumnByNameMissing(
-        ColumnInterface $sourceDef
+        ColumnInterface $sourceDef,
     ): ColumnsMismatchException {
         return new self(sprintf(
             'Source column "%s" not found in destination table',
@@ -44,22 +44,22 @@ class ColumnsMismatchException extends ImportExportException
 
     public static function createColumnsCountMismatch(
         ColumnCollection $source,
-        ColumnCollection $destination
+        ColumnCollection $destination,
     ): ColumnsMismatchException {
         $columnsSource = array_map(
             static fn(ColumnInterface $col) => $col->getColumnName(),
-            iterator_to_array($source->getIterator())
+            iterator_to_array($source->getIterator()),
         );
         $columnsDestination = array_map(
             static fn(ColumnInterface $col) => $col->getColumnName(),
-            iterator_to_array($destination->getIterator())
+            iterator_to_array($destination->getIterator()),
         );
         return new self(
             sprintf(
                 'Tables don\'t have same number of columns. Source columns: "%s", Destination columns: "%s"',
                 implode(',', $columnsSource),
-                implode(',', $columnsDestination)
-            )
+                implode(',', $columnsDestination),
+            ),
         );
     }
 }

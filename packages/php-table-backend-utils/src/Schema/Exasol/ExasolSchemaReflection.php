@@ -30,8 +30,8 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT "TABLE_NAME" FROM "SYS"."EXA_ALL_TABLES" WHERE "TABLE_SCHEMA" = %s',
-                ExasolQuote::quote($this->schemaName)
-            )
+                ExasolQuote::quote($this->schemaName),
+            ),
         );
 
         return array_map(static fn($table) => $table['TABLE_NAME'], $tables);
@@ -46,8 +46,8 @@ final class ExasolSchemaReflection implements SchemaReflectionInterface
         $tables = $this->connection->fetchAllAssociative(
             sprintf(
                 'SELECT "VIEW_NAME" FROM "SYS"."EXA_ALL_VIEWS" WHERE "VIEW_SCHEMA" = %s',
-                ExasolQuote::quote($this->schemaName)
-            )
+                ExasolQuote::quote($this->schemaName),
+            ),
         );
 
         return array_map(static fn($table) => $table['VIEW_NAME'], $tables);

@@ -52,8 +52,8 @@ class AssertTest extends TestCase
                 ]),
                 [],
                 new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
-            )
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
+            ),
         );
     }
 
@@ -84,8 +84,8 @@ class AssertTest extends TestCase
                 ]),
                 [],
                 new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
-            )
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
+            ),
         );
     }
 
@@ -116,8 +116,8 @@ class AssertTest extends TestCase
                 ]),
                 [],
                 new TableDistributionDefinition(TableDistributionDefinition::TABLE_DISTRIBUTION_ROUND_ROBIN),
-                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP)
-            )
+                new TableIndexDefinition(TableIndexDefinition::TABLE_INDEX_TYPE_HEAP),
+            ),
         );
     }
 
@@ -142,9 +142,9 @@ class AssertTest extends TestCase
                 [],
                 new TableDistribution(
                     'ROUND_ROBIN',
-                    []
-                )
-            )
+                    [],
+                ),
+            ),
         );
     }
 
@@ -170,9 +170,9 @@ class AssertTest extends TestCase
                 [],
                 new TableDistribution(
                     'ROUND_ROBIN',
-                    []
-                )
-            )
+                    [],
+                ),
+            ),
         );
     }
 
@@ -199,9 +199,9 @@ class AssertTest extends TestCase
                 [],
                 new TableDistribution(
                     'ROUND_ROBIN',
-                    []
-                )
-            )
+                    [],
+                ),
+            ),
         );
     }
 
@@ -246,11 +246,11 @@ class AssertTest extends TestCase
             '',
             '',
             new CsvOptions(),
-            false
+            false,
         ));
         Assert::assertValidSource(new Table(
             '',
-            ''
+            '',
         ));
     }
 
@@ -268,9 +268,9 @@ class AssertTest extends TestCase
             '',
             new CsvOptions(
                 CsvOptions::DEFAULT_DELIMITER,
-                ''
+                '',
             ),
-            false
+            false,
         ));
     }
 
@@ -278,7 +278,7 @@ class AssertTest extends TestCase
     {
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
-            'HASH table distribution must have one distribution key specified.'
+            'HASH table distribution must have one distribution key specified.',
         );
         Assert::assertValidHashDistribution('HASH', []);
     }
@@ -287,7 +287,7 @@ class AssertTest extends TestCase
     {
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
-            'HASH table distribution must have one distribution key specified.'
+            'HASH table distribution must have one distribution key specified.',
         );
         Assert::assertValidHashDistribution('HASH', ['id', 'name']);
     }
@@ -302,7 +302,7 @@ class AssertTest extends TestCase
     {
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
-            'Unknown table distribution "UNKNOWN" specified.'
+            'Unknown table distribution "UNKNOWN" specified.',
         );
         Assert::assertTableDistribution('UNKNOWN');
     }
@@ -319,7 +319,7 @@ class AssertTest extends TestCase
     {
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage(
-            'Staging table must start with "#" table name "normalNotTempTable" supplied.'
+            'Staging table must start with "#" table name "normalNotTempTable" supplied.',
         );
         Assert::assertStagingTable('normalNotTempTable');
     }
@@ -342,8 +342,8 @@ class AssertTest extends TestCase
                     Synapse::TYPE_TIME,
                     [
                         'length' => '3',
-                    ]
-                )
+                    ],
+                ),
             ),
         ];
         $destCols = [
@@ -355,14 +355,14 @@ class AssertTest extends TestCase
                     Synapse::TYPE_TIME,
                     [
                         'length' => '3',
-                    ]
-                )
+                    ],
+                ),
             ),
         ];
 
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols)
+            new ColumnCollection($destCols),
         );
     }
 
@@ -382,7 +382,7 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('Tables don\'t have same number of columns.');
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols)
+            new ColumnCollection($destCols),
         );
     }
 
@@ -402,7 +402,7 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('Tables don\'t have same number of columns.');
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols)
+            new ColumnCollection($destCols),
         );
     }
 
@@ -421,7 +421,7 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('Source destination columns name mismatch. "test1x"->"test1"');
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols)
+            new ColumnCollection($destCols),
         );
     }
 
@@ -436,8 +436,8 @@ class AssertTest extends TestCase
                     Synapse::TYPE_TIME,
                     [
                         'length' => '3',
-                    ]
-                )
+                    ],
+                ),
             ),
         ];
         $destCols = [
@@ -449,8 +449,8 @@ class AssertTest extends TestCase
                     Synapse::TYPE_DATETIME2,
                     [
                         'length' => '3',
-                    ]
-                )
+                    ],
+                ),
             ),
         ];
 
@@ -458,7 +458,7 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME(3)"->"test2 DATETIME2(3)"');
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols)
+            new ColumnCollection($destCols),
         );
     }
 
@@ -473,8 +473,8 @@ class AssertTest extends TestCase
                     Synapse::TYPE_TIME,
                     [
                         'length' => '3',
-                    ]
-                )
+                    ],
+                ),
             ),
         ];
         $destCols = [
@@ -486,8 +486,8 @@ class AssertTest extends TestCase
                     Synapse::TYPE_TIME,
                     [
                         'length' => '4',
-                    ]
-                )
+                    ],
+                ),
             ),
         ];
 
@@ -495,7 +495,7 @@ class AssertTest extends TestCase
         $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME(3)"->"test2 TIME(4)"');
         Assert::assertSameColumns(
             new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols)
+            new ColumnCollection($destCols),
         );
     }
 }
