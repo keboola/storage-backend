@@ -58,7 +58,7 @@ message LinkBucketCommand {
   google.protobuf.Any meta = 6;
 
   message LinkBucketBigqueryMeta {
-    string region = 1;
+    string region = 1; // region where linked bucket is created
   }
 }
 
@@ -81,7 +81,7 @@ message ShareBucketCommand {
   }
 
   message ShareBucketBigqueryCommandMeta {
-    string region = 1;
+    string region = 1; // region where listing is created
   }
 }
 
@@ -115,7 +115,7 @@ message GrantBucketAccessToReadOnlyRoleCommand {
   repeated string path = 7;
 
   message GrantBucketAccessToReadOnlyRoleBigqueryMeta {
-    string region = 1;
+    string region = 1; // region where destination dataset is created
   }
 }
 

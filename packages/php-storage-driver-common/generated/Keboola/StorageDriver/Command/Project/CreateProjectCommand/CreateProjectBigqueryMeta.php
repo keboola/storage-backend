@@ -23,6 +23,8 @@ class CreateProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
      */
     protected $gcsFileBucketName = '';
     /**
+     * region where exchanger for sharing is created
+     *
      * Generated from protobuf field <code>string region = 2;</code>
      */
     protected $region = '';
@@ -36,6 +38,7 @@ class CreateProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
      *     @type string $gcsFileBucketName
      *           file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
      *     @type string $region
+     *           region where exchanger for sharing is created
      * }
      */
     public function __construct($data = NULL) {
@@ -70,6 +73,8 @@ class CreateProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * region where exchanger for sharing is created
+     *
      * Generated from protobuf field <code>string region = 2;</code>
      * @return string
      */
@@ -79,6 +84,8 @@ class CreateProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * region where exchanger for sharing is created
+     *
      * Generated from protobuf field <code>string region = 2;</code>
      * @param string $var
      * @return $this

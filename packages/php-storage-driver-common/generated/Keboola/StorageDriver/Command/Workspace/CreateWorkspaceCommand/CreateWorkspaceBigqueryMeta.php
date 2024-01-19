@@ -14,6 +14,8 @@ use Google\Protobuf\Internal\GPBUtil;
 class CreateWorkspaceBigqueryMeta extends \Google\Protobuf\Internal\Message
 {
     /**
+     * region where dataset for workspace is created
+     *
      * Generated from protobuf field <code>string region = 1;</code>
      */
     protected $region = '';
@@ -25,6 +27,7 @@ class CreateWorkspaceBigqueryMeta extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $region
+     *           region where dataset for workspace is created
      * }
      */
     public function __construct($data = NULL) {
@@ -33,6 +36,8 @@ class CreateWorkspaceBigqueryMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * region where dataset for workspace is created
+     *
      * Generated from protobuf field <code>string region = 1;</code>
      * @return string
      */
@@ -42,6 +47,8 @@ class CreateWorkspaceBigqueryMeta extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * region where dataset for workspace is created
+     *
      * Generated from protobuf field <code>string region = 1;</code>
      * @param string $var
      * @return $this
