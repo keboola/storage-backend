@@ -23,6 +23,10 @@ message CreateBucketCommand {
     string permSpace = 1; // size of perm space allocated with bucket, example `1e9`
     string spoolSpace = 2; // size of spool space allocated with bucket, example `1e9`
   }
+
+  message CreateBucketBigqueryMeta {
+    string region = 1; // region where bucket is created
+  }
 }
 
 /**
@@ -52,6 +56,10 @@ message LinkBucketCommand {
   string sourceShareRoleName = 4;
   string targetProjectReadOnlyRoleName = 5;
   google.protobuf.Any meta = 6;
+
+  message LinkBucketBigqueryMeta {
+    string region = 1;
+  }
 }
 
 /**
@@ -70,6 +78,10 @@ message ShareBucketCommand {
   google.protobuf.Any meta = 6;
   message ShareBucketSnowflakeCommandMeta {
     string databaseName = 1;
+  }
+
+  message ShareBucketBigqueryCommandMeta {
+    string region = 1;
   }
 }
 
@@ -101,6 +113,10 @@ message GrantBucketAccessToReadOnlyRoleCommand {
   string stackPrefix = 5;
   string destinationObjectName = 6;
   repeated string path = 7;
+
+  message GrantBucketAccessToReadOnlyRoleBigqueryMeta {
+    string region = 1;
+  }
 }
 
 /**

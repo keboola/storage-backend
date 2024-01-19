@@ -22,6 +22,10 @@ class CreateProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string gcsFileBucketName = 1;</code>
      */
     protected $gcsFileBucketName = '';
+    /**
+     * Generated from protobuf field <code>string region = 2;</code>
+     */
+    protected $region = '';
 
     /**
      * Constructor.
@@ -31,6 +35,7 @@ class CreateProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
      *
      *     @type string $gcsFileBucketName
      *           file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
+     *     @type string $region
      * }
      */
     public function __construct($data = NULL) {
@@ -60,6 +65,28 @@ class CreateProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->gcsFileBucketName = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>string region = 2;</code>
+     * @return string
+     */
+    public function getRegion()
+    {
+        return $this->region;
+    }
+
+    /**
+     * Generated from protobuf field <code>string region = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setRegion($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->region = $var;
 
         return $this;
     }

@@ -25,6 +25,7 @@ message CreateProjectCommand {
   */
   message CreateProjectBigqueryMeta {
     string gcsFileBucketName = 1; // file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
+    string region = 2;
   }
 }
 
@@ -54,5 +55,6 @@ message DropProjectCommand {
   */
   message DropProjectBigqueryMeta {
     string gcsFileBucketName = 1; // file storage bucket in GCS
+    string region = 2;
   }
 }

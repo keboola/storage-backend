@@ -17,9 +17,9 @@ class Workspace
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-­
+Ü
 
-proto/workspace.proto\'keboola.storageDriver.command.workspace"’
+proto/workspace.proto\'keboola.storageDriver.command.workspace"Á
 CreateWorkspaceCommand
 stackPrefix (	
 	projectId (	
@@ -31,7 +31,9 @@ class Workspace
 CreateWorkspaceTeradataMeta
 	permSpace (	
 
-spoolSpace (	"‡
+spoolSpace (	-
+CreateWorkspaceBigqueryMeta
+region (	"‡
 CreateWorkspaceResponse
 workspaceUserName (	
 workspaceRoleName (	
