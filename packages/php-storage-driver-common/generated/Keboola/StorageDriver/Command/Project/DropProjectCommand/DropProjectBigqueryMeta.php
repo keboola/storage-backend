@@ -22,6 +22,12 @@ class DropProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string gcsFileBucketName = 1;</code>
      */
     protected $gcsFileBucketName = '';
+    /**
+     * region where exchanger is created during project creation
+     *
+     * Generated from protobuf field <code>string region = 2;</code>
+     */
+    protected $region = '';
 
     /**
      * Constructor.
@@ -31,6 +37,8 @@ class DropProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
      *
      *     @type string $gcsFileBucketName
      *           file storage bucket in GCS
+     *     @type string $region
+     *           region where exchanger is created during project creation
      * }
      */
     public function __construct($data = NULL) {
@@ -60,6 +68,32 @@ class DropProjectBigqueryMeta extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->gcsFileBucketName = $var;
+
+        return $this;
+    }
+
+    /**
+     * region where exchanger is created during project creation
+     *
+     * Generated from protobuf field <code>string region = 2;</code>
+     * @return string
+     */
+    public function getRegion()
+    {
+        return $this->region;
+    }
+
+    /**
+     * region where exchanger is created during project creation
+     *
+     * Generated from protobuf field <code>string region = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setRegion($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->region = $var;
 
         return $this;
     }

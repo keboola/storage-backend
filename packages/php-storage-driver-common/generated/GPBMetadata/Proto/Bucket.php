@@ -17,8 +17,8 @@ class Bucket
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-·
-proto/bucket.proto$keboola.storageDriver.command.bucket"‚
+þ
+proto/bucket.proto$keboola.storageDriver.command.bucket"®
 CreateBucketCommand
 stackPrefix (	
 	projectId (	
@@ -30,7 +30,9 @@ class Bucket
 CreateBucketTeradataMeta
 	permSpace (	
 
-spoolSpace (	"D
+spoolSpace (	*
+CreateBucketBigqueryMeta
+region (	"D
 CreateBucketResponse
 path (	
 createBucketObjectName (	"›
@@ -39,16 +41,18 @@ spoolSpace (	"D
 ignoreErrors (
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any
-	isCascade ("Á
+	isCascade ("ë
 LinkBucketCommand
 stackPrefix (	
 targetProjectId (	
 targetBucketId (	
 sourceShareRoleName (	%
 targetProjectReadOnlyRoleName (	"
-meta (2.google.protobuf.Any"6
+meta (2.google.protobuf.Any(
+LinkBucketBigqueryMeta
+region (	"6
 LinkedBucketResponse
-linkedBucketObjectName (	"þ
+linkedBucketObjectName (	"°
 ShareBucketCommand
 stackPrefix (	
 sourceBucketObjectName (	%
@@ -57,7 +61,9 @@ spoolSpace (	"D
 sourceBucketId (	"
 meta (2.google.protobuf.Any7
 ShareBucketSnowflakeCommandMeta
-databaseName (	"2
+databaseName (	0
+ShareBucketBigqueryCommandMeta
+region (	"2
 ShareBucketResponse
 bucketShareRoleName (	"‘
 UnlinkBucketCommand
@@ -69,14 +75,16 @@ spoolSpace (	"D
 bucketObjectName (	
 bucketShareRoleName (	
 projectReadOnlyRoleName (	"
-meta (2.google.protobuf.Any"Á
+meta (2.google.protobuf.Any"€
 &GrantBucketAccessToReadOnlyRoleCommand
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any
 branchId (	
 stackPrefix (	
 destinationObjectName (	
-path (	"I
+path (	=
++GrantBucketAccessToReadOnlyRoleBigqueryMeta
+region (	"I
 \'GrantBucketAccessToReadOnlyRoleResponse
 createBucketObjectName (	" 
 )RevokeBucketAccessFromReadOnlyRoleCommand

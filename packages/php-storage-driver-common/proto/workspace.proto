@@ -28,6 +28,10 @@ message CreateWorkspaceCommand {
     string permSpace = 1; // size of perm space allocated with workspace, example `1e9`
     string spoolSpace = 2; // size of spool space allocated with workspace, example `1e9`
   }
+
+  message CreateWorkspaceBigqueryMeta {
+    string region = 1; // region where dataset for workspace is created
+  }
 }
 /**
  * Response contain all resources names created by create workspace command
