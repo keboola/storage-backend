@@ -191,7 +191,7 @@ final class SQLtoRestDatatypeConverter
             // others
             $schema = [
                 'name' => $column->getColumnName(),
-                'type' => $definition->getType(),
+                'type' => self::getRestTypeForType($definition->getType()),
             ];
             $schema = self::updateSchemaLength($definition->getLength(), $schema);
             if ($definition->isNullable() === false) {
@@ -203,5 +203,13 @@ final class SQLtoRestDatatypeConverter
         }
         /** @phpstan-var BigqueryTableFieldSchema */
         return $schema;
+    }
+
+    private static function getRestTypeForType(string $type): string
+    {
+        if (array_key_exists($type, Bigquery::REST_API_TYPES_MAP)) {
+            return Bigquery::REST_API_TYPES_MAP[$type];
+        }
+        return $type;
     }
 }

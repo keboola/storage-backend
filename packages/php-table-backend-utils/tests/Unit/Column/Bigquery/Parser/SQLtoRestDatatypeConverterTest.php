@@ -388,6 +388,77 @@ class SQLtoRestDatatypeConverterTest extends TestCase
                 ],
             ],
         ];
+        // aliases
+        yield 'INT' => [
+            'type' => Bigquery::TYPE_INT,
+            'length' => null,
+            'default' => null,
+            'nullable' => true,
+            'expected' => [
+                'name' => 'myCol',
+                'type' => 'INT64',
+            ],
+        ];
+        yield 'SMALLINT' => [
+            'type' => Bigquery::TYPE_SMALLINT,
+            'length' => null,
+            'default' => null,
+            'nullable' => true,
+            'expected' => [
+                'name' => 'myCol',
+                'type' => 'INT64',
+            ],
+        ];
+        yield 'BIGINT' => [
+            'type' => Bigquery::TYPE_BIGINT,
+            'length' => null,
+            'default' => null,
+            'nullable' => true,
+            'expected' => [
+                'name' => 'myCol',
+                'type' => 'INT64',
+            ],
+        ];
+        yield 'TINYINT' => [
+            'type' => Bigquery::TYPE_TINYINT,
+            'length' => null,
+            'default' => null,
+            'nullable' => true,
+            'expected' => [
+                'name' => 'myCol',
+                'type' => 'INT64',
+            ],
+        ];
+        yield 'BYTEINT' => [
+            'type' => Bigquery::TYPE_BYTEINT,
+            'length' => null,
+            'default' => null,
+            'nullable' => true,
+            'expected' => [
+                'name' => 'myCol',
+                'type' => 'INT64',
+            ],
+        ];
+        yield 'DECIMAL' => [
+            'type' => Bigquery::TYPE_DECIMAL,
+            'length' => null,
+            'default' => null,
+            'nullable' => true,
+            'expected' => [
+                'name' => 'myCol',
+                'type' => 'NUMERIC',
+            ],
+        ];
+        yield 'BIGDECIMAL' => [
+            'type' => Bigquery::TYPE_BIGDECIMAL,
+            'length' => null,
+            'default' => null,
+            'nullable' => true,
+            'expected' => [
+                'name' => 'myCol',
+                'type' => 'BIGNUMERIC',
+            ],
+        ];
     }
 
     /**
