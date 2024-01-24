@@ -76,7 +76,17 @@ class Bigquery extends Common
     public const TYPE_STRING = 'STRING'; // STRING(L) L is a positive INT64 value
 
     public const TYPE_STRUCT = 'STRUCT';
-
+    // Map of types available in SQL api but not supported by REST API
+    // Most of them are aliases for other types
+    public const REST_API_TYPES_MAP = [
+        self::TYPE_INT => self::TYPE_INT64,
+        self::TYPE_SMALLINT => self::TYPE_INT64,
+        self::TYPE_BIGINT => self::TYPE_INT64,
+        self::TYPE_TINYINT => self::TYPE_INT64,
+        self::TYPE_BYTEINT => self::TYPE_INT64,
+        self::TYPE_DECIMAL => self::TYPE_NUMERIC,
+        self::TYPE_BIGDECIMAL => self::TYPE_BIGNUMERIC,
+    ];
     public const TYPES = [
         self::TYPE_ARRAY,
         self::TYPE_BOOL,
