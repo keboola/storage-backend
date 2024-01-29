@@ -17,8 +17,8 @@ class Credentials
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-–
-proto/credentials.proto!keboola.storageDriver.credentials"Ï
+¦
+proto/credentials.proto!keboola.storageDriver.credentials"ß
 GenericBackendCredentials
 host (	
 	principal (	
@@ -36,9 +36,10 @@ class Credentials
 tracingLevel (F
 SynapseCredentialsMeta
 database (	
-useManagedIdentity (,
+useManagedIdentity (<
 BigQueryCredentialsMeta
-	folder_id (	bproto3'
+	folder_id (	
+region (	bproto3'
         , true);
 
         static::$is_initialized = true;
