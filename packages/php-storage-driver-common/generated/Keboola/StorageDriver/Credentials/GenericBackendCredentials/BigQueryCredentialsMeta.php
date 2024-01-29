@@ -19,6 +19,12 @@ class BigQueryCredentialsMeta extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string folder_id = 1;</code>
      */
     protected $folder_id = '';
+    /**
+     * region where resource is or will be located
+     *
+     * Generated from protobuf field <code>string region = 2;</code>
+     */
+    protected $region = '';
 
     /**
      * Constructor.
@@ -28,6 +34,8 @@ class BigQueryCredentialsMeta extends \Google\Protobuf\Internal\Message
      *
      *     @type string $folder_id
      *           Id of folder where main service acc is created
+     *     @type string $region
+     *           region where resource is or will be located
      * }
      */
     public function __construct($data = NULL) {
@@ -57,6 +65,32 @@ class BigQueryCredentialsMeta extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->folder_id = $var;
+
+        return $this;
+    }
+
+    /**
+     * region where resource is or will be located
+     *
+     * Generated from protobuf field <code>string region = 2;</code>
+     * @return string
+     */
+    public function getRegion()
+    {
+        return $this->region;
+    }
+
+    /**
+     * region where resource is or will be located
+     *
+     * Generated from protobuf field <code>string region = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setRegion($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->region = $var;
 
         return $this;
     }
