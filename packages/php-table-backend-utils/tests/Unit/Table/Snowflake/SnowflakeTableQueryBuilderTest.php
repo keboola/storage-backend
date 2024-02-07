@@ -93,4 +93,36 @@ class SnowflakeTableQueryBuilderTest extends TestCase
         $dropTableCommand = $this->qb->getTruncateTableCommand('testDb', 'testTable');
         self::assertEquals('TRUNCATE TABLE "testDb"."testTable"', $dropTableCommand);
     }
+
+    /**
+     * @dataProvider provideGetColumnDefinitionUpdate
+     */
+    public function testGetColumnDefinitionUpdate(
+        Snowflake $existingColumn,
+        Snowflake $desiredColumn,
+        string $expectedQuery,
+    ): void {
+        $existingColumnDefinition = $existingColumn;
+        $desiredColumnDefinition = $desiredColumn;
+        $sql = $this->qb->getUpdateColumnFromDefinitionQuery(
+            $existingColumnDefinition,
+            $desiredColumnDefinition,
+            'testDb',
+            'testTable',
+            'testColumn',
+        );
+        self::assertEquals(
+            $expectedQuery,
+            $sql,
+        );
+    }
+
+    public function provideGetColumnDefinitionUpdate()
+    {
+        yield 'change length' => [
+            new Snowflake('VARCHAR', ['length' =>12, 'nullable' => true, 'default' => '']),
+            new Snowflake('VARCHAR', ['length' =>38, 'nullable' => true, 'default' => '']),
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE VARCHAR(38)',
+        ];
+    }
 }
