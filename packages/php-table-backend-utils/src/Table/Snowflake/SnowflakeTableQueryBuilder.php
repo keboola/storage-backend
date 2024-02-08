@@ -239,19 +239,21 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         // drop default
         if ($existingColumnDefinition->getDefault() !== null
             && $desiredColumnDefinition->getDefault() === null) {
-            $sqlParts[] = ' DROP DEFAULT';
+            $sqlParts[] = 'DROP DEFAULT';
         } elseif ($existingColumnDefinition->getDefault() !== $desiredColumnDefinition->getDefault()) {
             throw new QueryBuilderException(
                 sprintf(
-                    'Cannot change default value of column "%s"',
+                    'Cannot change default value of column "%s" from "%s" to "%s"',
                     $columnName,
+                    $existingColumnDefinition->getDefault(),
+                    $desiredColumnDefinition->getDefault(),
                 ),
                 self::CANNOT_CHANGE_DEFAULT_VALUE,
             );
         }
 
         if ($existingColumnDefinition->isNullable() !== $desiredColumnDefinition->isNullable()) {
-            $sqlParts[] = $desiredColumnDefinition->isNullable() ? ' DROP NOT NULL' : ' SET NOT NULL';
+            $sqlParts[] = $desiredColumnDefinition->isNullable() ? 'DROP NOT NULL' : 'SET NOT NULL';
         }
 
         $notSameLength = $existingColumnDefinition->getLength() !== $desiredColumnDefinition->getLength();
@@ -300,8 +302,10 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             } else {
                 throw new QueryBuilderException(
                     sprintf(
-                        'Cannot decrease precision of column "%s"',
+                        'Cannot decrease precision of column "%s" from "%s" to "%s"',
                         $columnName,
+                        $existingPrecision,
+                        $desiredPrecision,
                     )
                     , self::CANNOT_DECREASE_PRECISION);
             }
@@ -324,11 +328,13 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                 $desiredColumnDefinition->getType(),
                 $desiredColumnDefinition->getLength(),
             );
-        } else {
+        } elseif ($notSameLength) {
             throw new QueryBuilderException(
                 sprintf(
-                    'Cannot decrease length of column "%s"',
+                    'Cannot decrease length of column "%s" from "%s" to "%s"',
                     $columnName,
+                    $existingColumnDefinition->getLength(),
+                    $desiredColumnDefinition->getLength(),
                 ),
                 self::CANNOT_DECREASE_LENGTH);
         }
