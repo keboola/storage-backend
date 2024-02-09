@@ -43,7 +43,7 @@ message CreateBucketResponse {
  */
 message DropBucketCommand {
   string bucketObjectName = 1; // object name in backend which will be removed
-  bool ignoreErrors = 2; // if true all backend errors should be ignored and command will always pass
+  bool ignoreErrors = 2 [deprecated = true]; // if true all backend errors should be ignored and command will always pass
   string projectReadOnlyRoleName = 3; // backend read only role associated with project
   google.protobuf.Any meta = 4; // metadata specific for each backend
   bool isCascade = 5; // drop all object bucket contains
@@ -129,6 +129,6 @@ message GrantBucketAccessToReadOnlyRoleResponse {
 message RevokeBucketAccessFromReadOnlyRoleCommand {
   string bucketObjectName = 1; // object name in backend
   string projectReadOnlyRoleName = 2; // backend read only role associated with project
-  bool ignoreErrors = 3; // if true all backend errors should be ignored and command will always pass
+  bool ignoreErrors = 3 [deprecated = true]; // if true all backend errors should be ignored and command will always pass
   google.protobuf.Any meta = 4; // metadata specific for each backend
 }
