@@ -226,7 +226,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         Snowflake $desiredColumnDefinition,
         string $schemaName,
         string $tableName,
-        string $columnName
+        string $columnName,
     ): string {
         $sql = sprintf(
             'ALTER TABLE %s.%s MODIFY ',
@@ -343,7 +343,7 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
             return sprintf(
                 'COLUMN %s %s',
                 SnowflakeQuote::quoteSingleIdentifier($columnName),
-                $part
+                $part,
             );
         }, $sqlParts);
         return $sql . implode(', ', $partsWithColumnPrefix);
