@@ -384,7 +384,7 @@ class SnowflakeDatatypeTest extends TestCase
     }
 
     /**
-     * @param array $expectedArray
+     * @param array<string, mixed> $expectedArray
      * @dataProvider arrayFromLengthProvider
      */
     public function testArrayFromLength(string $type, ?string $length, array $expectedArray): void
@@ -398,22 +398,22 @@ class SnowflakeDatatypeTest extends TestCase
         yield 'simple' => [
             'VARCHAR',
             '10',
-            ['character_maximum' => '10']
+            ['character_maximum' => '10'],
         ];
         yield 'decimal' => [
             'NUMERIC',
             '38,2',
-            ['numeric_precision' => 38, 'numeric_scale' => 2]
+            ['numeric_precision' => 38, 'numeric_scale' => 2],
         ];
         yield 'with zero scale' => [
             'NUMERIC',
             '38,0',
-            ['numeric_precision' => 38, 'numeric_scale' => 0]
+            ['numeric_precision' => 38, 'numeric_scale' => 0],
         ];
         yield 'with null length' => [
             'NUMERIC',
             null,
-            []
+            [],
         ];
     }
 }
