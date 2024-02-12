@@ -26,7 +26,8 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     /**
      * if true all backend errors should be ignored and command will always pass
      *
-     * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
+     * Generated from protobuf field <code>bool ignoreErrors = 2 [deprecated = true];</code>
+     * @deprecated
      */
     protected $ignoreErrors = false;
     /**
@@ -100,23 +101,27 @@ class DropBucketCommand extends \Google\Protobuf\Internal\Message
     /**
      * if true all backend errors should be ignored and command will always pass
      *
-     * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
+     * Generated from protobuf field <code>bool ignoreErrors = 2 [deprecated = true];</code>
      * @return bool
+     * @deprecated
      */
     public function getIgnoreErrors()
     {
+        @trigger_error('ignoreErrors is deprecated.', E_USER_DEPRECATED);
         return $this->ignoreErrors;
     }
 
     /**
      * if true all backend errors should be ignored and command will always pass
      *
-     * Generated from protobuf field <code>bool ignoreErrors = 2;</code>
+     * Generated from protobuf field <code>bool ignoreErrors = 2 [deprecated = true];</code>
      * @param bool $var
      * @return $this
+     * @deprecated
      */
     public function setIgnoreErrors($var)
     {
+        @trigger_error('ignoreErrors is deprecated.', E_USER_DEPRECATED);
         GPBUtil::checkBool($var);
         $this->ignoreErrors = $var;
 

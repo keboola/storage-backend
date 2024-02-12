@@ -55,7 +55,7 @@ message CreateTableCommand {
 message DropTableCommand {
   repeated string path = 1;
   string tableName = 2;
-  bool ignoreErrors = 3;
+  bool ignoreErrors = 3 [deprecated = true];
 }
 
 message AddColumnCommand {

@@ -17,7 +17,7 @@ class Bucket
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-þ
+†
 proto/bucket.proto$keboola.storageDriver.command.bucket"®
 CreateBucketCommand
 stackPrefix (	
@@ -35,10 +35,10 @@ spoolSpace (	*
 region (	"D
 CreateBucketResponse
 path (	
-createBucketObjectName (	"›
+createBucketObjectName (	"Ÿ
 DropBucketCommand
-bucketObjectName (	
-ignoreErrors (
+bucketObjectName (	
+ignoreErrors (B
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any
 	isCascade ("ë
@@ -86,11 +86,11 @@ spoolSpace (	*
 +GrantBucketAccessToReadOnlyRoleBigqueryMeta
 region (	"I
 \'GrantBucketAccessToReadOnlyRoleResponse
-createBucketObjectName (	" 
+createBucketObjectName (	"¤
 )RevokeBucketAccessFromReadOnlyRoleCommand
 bucketObjectName (	
-projectReadOnlyRoleName (	
-ignoreErrors ("
+projectReadOnlyRoleName (	
+ignoreErrors (B"
 meta (2.google.protobuf.Anybproto3'
         , true);
 
