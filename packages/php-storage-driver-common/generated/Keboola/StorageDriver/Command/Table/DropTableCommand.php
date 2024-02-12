@@ -22,7 +22,8 @@ class DropTableCommand extends \Google\Protobuf\Internal\Message
      */
     protected $tableName = '';
     /**
-     * Generated from protobuf field <code>bool ignoreErrors = 3;</code>
+     * Generated from protobuf field <code>bool ignoreErrors = 3 [deprecated = true];</code>
+     * @deprecated
      */
     protected $ignoreErrors = false;
 
@@ -87,21 +88,25 @@ class DropTableCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>bool ignoreErrors = 3;</code>
+     * Generated from protobuf field <code>bool ignoreErrors = 3 [deprecated = true];</code>
      * @return bool
+     * @deprecated
      */
     public function getIgnoreErrors()
     {
+        @trigger_error('ignoreErrors is deprecated.', E_USER_DEPRECATED);
         return $this->ignoreErrors;
     }
 
     /**
-     * Generated from protobuf field <code>bool ignoreErrors = 3;</code>
+     * Generated from protobuf field <code>bool ignoreErrors = 3 [deprecated = true];</code>
      * @param bool $var
      * @return $this
+     * @deprecated
      */
     public function setIgnoreErrors($var)
     {
+        @trigger_error('ignoreErrors is deprecated.', E_USER_DEPRECATED);
         GPBUtil::checkBool($var);
         $this->ignoreErrors = $var;
 
