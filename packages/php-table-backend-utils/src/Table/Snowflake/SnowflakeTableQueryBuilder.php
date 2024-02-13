@@ -289,7 +289,8 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                         $existingScale,
                         $desiredScale,
                     ),
-                    self::CANNOT_CHANGE_SCALE,);
+                    self::CANNOT_CHANGE_SCALE,
+                );
             }
 
             if ($existingPrecision < $desiredPrecision) {
@@ -306,8 +307,9 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                         $columnName,
                         $existingPrecision,
                         $desiredPrecision,
-                    )
-                    , self::CANNOT_DECREASE_PRECISION);
+                    ),
+                    self::CANNOT_DECREASE_PRECISION,
+                );
             }
         } elseif ($notSameLength && $isNewLengthBigger) {
             if ($desiredColumnDefinition->isTypeWithComplexLength()) {
@@ -317,8 +319,8 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                         $columnName,
                         $existingColumnDefinition->getLength(),
                         $desiredColumnDefinition->getLength(),
-                    )
-                    ,
+                    ),
+
                     self::CANNOT_INTRODUCE_COMPLEX_LENGTH,
                 );
             }

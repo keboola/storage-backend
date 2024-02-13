@@ -17,6 +17,12 @@ abstract class Common implements DefinitionInterface
     public const KBC_METADATA_KEY_COMPRESSION = 'KBC.datatype.compression';
     public const KBC_METADATA_KEY_FORMAT = 'KBC.datatype.format';
 
+    public const KBC_METADATA_KEYS_FOR_COLUMNS_SYNC = [
+        self::KBC_METADATA_KEY_NULLABLE,
+        self::KBC_METADATA_KEY_LENGTH,
+        self::KBC_METADATA_KEY_DEFAULT,
+    ];
+
     protected string $type;
 
     protected ?string $length = null;
