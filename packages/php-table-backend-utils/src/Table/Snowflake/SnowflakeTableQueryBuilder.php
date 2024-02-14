@@ -320,7 +320,6 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                         $existingColumnDefinition->getLength(),
                         $desiredColumnDefinition->getLength(),
                     ),
-
                     self::CANNOT_INTRODUCE_COMPLEX_LENGTH,
                 );
             }
@@ -338,7 +337,8 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
                     $existingColumnDefinition->getLength(),
                     $desiredColumnDefinition->getLength(),
                 ),
-                self::CANNOT_DECREASE_LENGTH);
+                self::CANNOT_DECREASE_LENGTH,
+            );
         }
 
         $partsWithColumnPrefix = array_map(function (string $part) use ($columnName) {
