@@ -215,6 +215,15 @@ class Snowflake extends Common
         return ['character_maximum' => $this->getLength()];
     }
 
+    /**
+     * @phpstan-assert-if-true array{
+     *      numeric_precision:string,
+     *      numeric_scale:string
+     * } $this->getArrayFromLength()
+     * @phpstan-assert-if-false array{
+     *      character_maximum:string
+     * } $this->getArrayFromLength()
+     */
     public function isTypeWithComplexLength(): bool
     {
         return in_array($this->getType(), self::TYPES_WITH_COMPLEX_LENGTH, true);
