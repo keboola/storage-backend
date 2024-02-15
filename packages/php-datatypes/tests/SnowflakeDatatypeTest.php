@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DatatypeTest;
 
+use Generator;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
@@ -380,5 +381,44 @@ class SnowflakeDatatypeTest extends TestCase
         $this->expectException(InvalidTypeException::class);
         $this->expectExceptionMessage('Base type "FOO" is not valid.');
         Snowflake::getTypeByBasetype('foo');
+    }
+
+    /**
+     * @param array<string, mixed> $expectedArray
+     * @dataProvider arrayFromLengthProvider
+     */
+    public function testArrayFromLength(string $type, ?string $length, array $expectedArray): void
+    {
+        $definition = new Snowflake($type, ['length' => $length]);
+        $this->assertSame($expectedArray, $definition->getArrayFromLength());
+    }
+
+    public function arrayFromLengthProvider(): Generator
+    {
+        yield 'simple' => [
+            'VARCHAR',
+            '10',
+            ['character_maximum' => '10'],
+        ];
+        yield 'decimal' => [
+            'NUMERIC',
+            '38,2',
+            ['numeric_precision' => 38, 'numeric_scale' => 2],
+        ];
+        yield 'with zero scale' => [
+            'NUMERIC',
+            '38,0',
+            ['numeric_precision' => 38, 'numeric_scale' => 0],
+        ];
+        yield 'with null length' => [
+            'NUMERIC',
+            null,
+            ['numeric_precision' => 38, 'numeric_scale' => 0],
+        ];
+        yield 'numeric with int length' => [
+            'NUMERIC',
+            '10',
+            ['numeric_precision' => 10, 'numeric_scale' => 0],
+        ];
     }
 }

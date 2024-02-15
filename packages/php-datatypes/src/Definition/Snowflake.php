@@ -11,6 +11,7 @@ use LogicException;
 
 class Snowflake extends Common
 {
+    public const TYPES_WITH_COMPLEX_LENGTH = [self::TYPE_NUMBER, self::TYPE_DECIMAL, self::TYPE_NUMERIC];
     public const METADATA_BACKEND = 'snowflake';
     public const TYPE_NUMBER = 'NUMBER';
     public const TYPE_DECIMAL = 'DECIMAL';
@@ -193,6 +194,41 @@ class Snowflake extends Common
             return $numericPrecision . ',' . $numericScale;
         }
         return $numericPrecision === null ? null : (string) $numericPrecision;
+    }
+
+    /**
+     * @return array{
+     *     character_maximum?:string|int|null,
+     *     numeric_precision?:string|int|null,
+     *     numeric_scale?:string|int|null
+     * }
+     */
+    public function getArrayFromLength(): array
+    {
+        if ($this->isTypeWithComplexLength()) {
+            if ($this->getLength() === null || $this->getLength() === '') {
+                $parsed = [];
+            } else {
+                $parsed = array_map(intval(...), explode(',', (string) $this->getLength()));
+            }
+            $parsed = $parsed + [38, 0];
+            return ['numeric_precision' => $parsed[0], 'numeric_scale' => $parsed[1]];
+        }
+        return ['character_maximum' => $this->getLength()];
+    }
+
+    /**
+     * @phpstan-assert-if-true array{
+     *      numeric_precision:string,
+     *      numeric_scale:string
+     * } $this->getArrayFromLength()
+     * @phpstan-assert-if-false array{
+     *      character_maximum:string
+     * } $this->getArrayFromLength()
+     */
+    public function isTypeWithComplexLength(): bool
+    {
+        return in_array($this->getType(), self::TYPES_WITH_COMPLEX_LENGTH, true);
     }
 
     /**

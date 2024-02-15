@@ -14,6 +14,12 @@ use Keboola\TableBackendUtils\Table\TableQueryBuilderInterface;
 
 class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
 {
+    private const CANNOT_CHANGE_DEFAULT_VALUE = 'cannotChangeDefaultValue';
+    private const CANNOT_CHANGE_SCALE = 'cannotChangeScale';
+    private const CANNOT_DECREASE_LENGTH = 'cannotDecreaseLength';
+    private const CANNOT_DECREASE_PRECISION = 'cannotDecreasePrecision';
+    private const CANNOT_INTRODUCE_COMPLEX_LENGTH = 'cannotIntroduceComplexLength';
+    private const CANNOT_REDUCE_COMPLEX_LENGTH = 'cannotReduceComplexLength';
     private const INVALID_PKS_FOR_TABLE = 'invalidPKs';
     private const INVALID_TABLE_NAME = 'invalidTableName';
     public const TEMP_TABLE_PREFIX = '__temp_';
@@ -213,5 +219,135 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
     public static function buildTempTableName(string $realTableName): string
     {
         return self::TEMP_TABLE_PREFIX . $realTableName;
+    }
+
+    public function getUpdateColumnFromDefinitionQuery(
+        Snowflake $existingColumnDefinition,
+        Snowflake $desiredColumnDefinition,
+        string $schemaName,
+        string $tableName,
+        string $columnName,
+    ): string {
+        $sql = sprintf(
+            'ALTER TABLE %s.%s MODIFY ',
+            SnowflakeQuote::quoteSingleIdentifier($schemaName),
+            SnowflakeQuote::quoteSingleIdentifier($tableName),
+        );
+        $sqlParts = [];
+        // allowed from https://docs.snowflake.com/en/sql-reference/sql/alter-table-column
+
+        // drop default
+        if ($existingColumnDefinition->getDefault() !== null
+            && $desiredColumnDefinition->getDefault() === null) {
+            $sqlParts[] = 'DROP DEFAULT';
+        } elseif ($existingColumnDefinition->getDefault() !== $desiredColumnDefinition->getDefault()) {
+            throw new QueryBuilderException(
+                sprintf(
+                    'Cannot change default value of column "%s" from "%s" to "%s"',
+                    $columnName,
+                    $existingColumnDefinition->getDefault(),
+                    $desiredColumnDefinition->getDefault(),
+                ),
+                self::CANNOT_CHANGE_DEFAULT_VALUE,
+            );
+        }
+
+        if ($existingColumnDefinition->isNullable() !== $desiredColumnDefinition->isNullable()) {
+            $sqlParts[] = $desiredColumnDefinition->isNullable() ? 'DROP NOT NULL' : 'SET NOT NULL';
+        }
+
+        $notSameLength = $existingColumnDefinition->getLength() !== $desiredColumnDefinition->getLength();
+        $isNewLengthBigger = $existingColumnDefinition->getLength() < $desiredColumnDefinition->getLength();
+
+        // increase precision
+        if ($existingColumnDefinition->isTypeWithComplexLength() && $notSameLength) {
+            if (!$desiredColumnDefinition->isTypeWithComplexLength()) {
+                throw new QueryBuilderException(
+                    sprintf(
+                        'Cannot reduce column "%s" with complex length "%s" to simple length "%s"',
+                        $columnName,
+                        $existingColumnDefinition->getLength(),
+                        $desiredColumnDefinition->getLength(),
+                    ),
+                    self::CANNOT_REDUCE_COMPLEX_LENGTH,
+                );
+            }
+            [
+                'numeric_precision' => $existingPrecision,
+                'numeric_scale' => $existingScale,
+            ] = $existingColumnDefinition->getArrayFromLength();
+            [
+                'numeric_precision' => $desiredPrecision,
+                'numeric_scale' => $desiredScale,
+            ] = $desiredColumnDefinition->getArrayFromLength();
+
+            if ($existingScale !== $desiredScale) {
+                throw new QueryBuilderException(
+                    sprintf(
+                        'Cannot change scale of a column "%s" from "%s" to "%s"',
+                        $columnName,
+                        $existingScale,
+                        $desiredScale,
+                    ),
+                    self::CANNOT_CHANGE_SCALE,
+                );
+            }
+
+            if ($existingPrecision < $desiredPrecision) {
+                $sqlParts[] = sprintf(
+                    'SET DATA TYPE %s(%s, %s)',
+                    $desiredColumnDefinition->getType(),
+                    $desiredPrecision,
+                    $desiredScale,
+                );
+            } else {
+                throw new QueryBuilderException(
+                    sprintf(
+                        'Cannot decrease precision of column "%s" from "%s" to "%s"',
+                        $columnName,
+                        $existingPrecision,
+                        $desiredPrecision,
+                    ),
+                    self::CANNOT_DECREASE_PRECISION,
+                );
+            }
+        } elseif ($notSameLength && $isNewLengthBigger) {
+            if ($desiredColumnDefinition->isTypeWithComplexLength()) {
+                throw new QueryBuilderException(
+                    sprintf(
+                        'Cannot convert column "%s" from simple length "%s" to complex length "%s"',
+                        $columnName,
+                        $existingColumnDefinition->getLength(),
+                        $desiredColumnDefinition->getLength(),
+                    ),
+                    self::CANNOT_INTRODUCE_COMPLEX_LENGTH,
+                );
+            }
+            // increase length
+            $sqlParts[] = sprintf(
+                'SET DATA TYPE %s(%s)',
+                $desiredColumnDefinition->getType(),
+                $desiredColumnDefinition->getLength(),
+            );
+        } elseif ($notSameLength) {
+            throw new QueryBuilderException(
+                sprintf(
+                    'Cannot decrease length of column "%s" from "%s" to "%s"',
+                    $columnName,
+                    $existingColumnDefinition->getLength(),
+                    $desiredColumnDefinition->getLength(),
+                ),
+                self::CANNOT_DECREASE_LENGTH,
+            );
+        }
+
+        $partsWithColumnPrefix = array_map(function (string $part) use ($columnName) {
+            return sprintf(
+                'COLUMN %s %s',
+                SnowflakeQuote::quoteSingleIdentifier($columnName),
+                $part,
+            );
+        }, $sqlParts);
+        return $sql . implode(', ', $partsWithColumnPrefix);
     }
 }

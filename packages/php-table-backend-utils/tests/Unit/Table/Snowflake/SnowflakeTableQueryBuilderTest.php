@@ -93,4 +93,120 @@ class SnowflakeTableQueryBuilderTest extends TestCase
         $dropTableCommand = $this->qb->getTruncateTableCommand('testDb', 'testTable');
         self::assertEquals('TRUNCATE TABLE "testDb"."testTable"', $dropTableCommand);
     }
+
+    /**
+     * @dataProvider provideGetColumnDefinitionUpdate
+     */
+    public function testGetColumnDefinitionUpdate(
+        Snowflake $existingColumn,
+        Snowflake $desiredColumn,
+        string $expectedQuery,
+    ): void {
+        $existingColumnDefinition = $existingColumn;
+        $desiredColumnDefinition = $desiredColumn;
+        $sql = $this->qb->getUpdateColumnFromDefinitionQuery(
+            $existingColumnDefinition,
+            $desiredColumnDefinition,
+            'testDb',
+            'testTable',
+            'testColumn',
+        );
+        self::assertEquals(
+            $expectedQuery,
+            $sql,
+        );
+    }
+
+    /**
+     * @dataProvider provideInvalidGetColumnDefinitionUpdate
+     */
+    public function testInvalidGetColumnDefinitionUpdate(
+        Snowflake $existingColumn,
+        Snowflake $desiredColumn,
+        string $expectedExceptionMessage,
+    ): void {
+        $existingColumnDefinition = $existingColumn;
+        $desiredColumnDefinition = $desiredColumn;
+        $this->expectExceptionMessage($expectedExceptionMessage);
+        $this->qb->getUpdateColumnFromDefinitionQuery(
+            $existingColumnDefinition,
+            $desiredColumnDefinition,
+            'testDb',
+            'testTable',
+            'testColumn',
+        );
+    }
+
+    /**
+     * @return \Generator<string, array{Snowflake,Snowflake,string}>
+     */
+    public function provideGetColumnDefinitionUpdate(): Generator
+    {
+        yield 'drop default' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '10']),
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => null]),
+            /** @lang Snowflake */
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP DEFAULT',
+        ];
+        yield 'add nullable' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => false, 'default' => '']),
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
+            /** @lang Snowflake */
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP NOT NULL',
+        ];
+        yield 'drop nullable' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => false, 'default' => '']),
+            /** @lang Snowflake */
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET NOT NULL',
+        ];
+        yield 'increase length of text column' => [
+            new Snowflake('VARCHAR', ['length' => '12', 'nullable' => true, 'default' => '']),
+            new Snowflake('VARCHAR', ['length' => '38', 'nullable' => true, 'default' => '']),
+            /** @lang Snowflake */
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE VARCHAR(38)',
+        ];
+        yield 'increase precision of numeric column' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
+            new Snowflake('NUMERIC', ['length' => '14,8', 'nullable' => true, 'default' => '']),
+            /** @lang Snowflake */
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
+        ];
+        yield 'full set of changes (increase precision, drop nullable, drop default)' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => 'grunbread']),
+            new Snowflake('NUMERIC', ['length' => '14,8', 'nullable' => false, 'default' => '']),
+            /** @lang Snowflake */
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP DEFAULT, '
+            . 'COLUMN "testColumn" SET NOT NULL, COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
+        ];
+    }
+
+    public function provideInvalidGetColumnDefinitionUpdate(): Generator
+    {
+        yield 'add default' => [
+            new Snowflake('VARCHAR', ['length' => '10', 'nullable' => true, 'default' => '']),
+            new Snowflake('VARCHAR', ['length' => '10', 'nullable' => true, 'default' => 'Bedight']),
+            'Cannot change default value of column "testColumn" from "" to "Bedight"',
+        ];
+        yield 'change default' => [
+            new Snowflake('VARCHAR', ['length' => '10', 'nullable' => true, 'default' => 'Bedight']),
+            new Snowflake('VARCHAR', ['length' => '10', 'nullable' => true, 'default' => 'Brabble']),
+            'Cannot change default value of column "testColumn" from "Bedight" to "Brabble"',
+        ];
+        yield 'descrease length of string' => [
+            new Snowflake('VARCHAR', ['length' => '10', 'nullable' => true, 'default' => 'Bedight']),
+            new Snowflake('VARCHAR', ['length' => '8', 'nullable' => true, 'default' => 'Bedight']),
+            'Cannot decrease length of column "testColumn" from "10" to "8"',
+        ];
+        yield 'descrease precision of number' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
+            new Snowflake('NUMERIC', ['length' => '10,8', 'nullable' => true, 'default' => '']),
+            'Cannot decrease precision of column "testColumn" from "12" to "10"',
+        ];
+        yield 'change scale of number' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
+            new Snowflake('NUMERIC', ['length' => '12,10', 'nullable' => true, 'default' => '']),
+            'Cannot change scale of a column "testColumn" from "8" to "10"',
+        ];
+    }
 }
