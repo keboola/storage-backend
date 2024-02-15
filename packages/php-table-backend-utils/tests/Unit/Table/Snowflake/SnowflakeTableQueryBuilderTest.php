@@ -172,6 +172,13 @@ class SnowflakeTableQueryBuilderTest extends TestCase
             /** @lang Snowflake */
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
         ];
+        yield 'full set of changes (increase precision, drop nullable, drop default)' => [
+            new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => 'grunbread']),
+            new Snowflake('NUMERIC', ['length' => '14,8', 'nullable' => false, 'default' => '']),
+            /** @lang Snowflake */
+            'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP DEFAULT, '
+            . 'COLUMN "testColumn" SET NOT NULL, COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
+        ];
     }
 
     public function provideInvalidGetColumnDefinitionUpdate(): Generator
