@@ -413,7 +413,12 @@ class SnowflakeDatatypeTest extends TestCase
         yield 'with null length' => [
             'NUMERIC',
             null,
-            [],
+            ['numeric_precision' => 38, 'numeric_scale' => 0],
+        ];
+        yield 'numeric with int length' => [
+            'NUMERIC',
+            '10',
+            ['numeric_precision' => 10, 'numeric_scale' => 0],
         ];
     }
 }

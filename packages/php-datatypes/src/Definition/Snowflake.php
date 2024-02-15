@@ -205,11 +205,13 @@ class Snowflake extends Common
      */
     public function getArrayFromLength(): array
     {
-        if ($this->getLength() === null || $this->getLength() === '') {
-            return [];
-        }
         if ($this->isTypeWithComplexLength()) {
-            $parsed = array_map(intval(...), explode(',', $this->getLength()));
+            if ($this->getLength() === null || $this->getLength() === '') {
+                $parsed = [];
+            } else {
+                $parsed = array_map(intval(...), explode(',', (string) $this->getLength()));
+            }
+            $parsed = $parsed + [38, 0];
             return ['numeric_precision' => $parsed[0], 'numeric_scale' => $parsed[1]];
         }
         return ['character_maximum' => $this->getLength()];
