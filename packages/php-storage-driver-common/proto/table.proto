@@ -64,6 +64,13 @@ message AddColumnCommand {
   TableColumnShared columnDefinition = 3; // table column definition
 }
 
+message AlterColumnCommand {
+  repeated string path = 1; // path where table is located
+  string tableName = 2; // table name
+  TableColumnShared desiredDefiniton = 3; // desired definition of column
+  repeated string attributesToUpdate = 4; // attributes to update on column
+}
+
 message DropColumnCommand {
   repeated string path = 1; // path where table is located
   string tableName = 2; // table name
