@@ -31,6 +31,8 @@ class Snowflake extends Common
     public const TYPE_VARCHAR = 'VARCHAR';
     public const TYPE_CHAR = 'CHAR';
     public const TYPE_CHARACTER = 'CHARACTER';
+    public const TYPE_CHAR_VARYING = 'CHAR VARYING';
+    public const TYPE_CHARACTER_VARYING = 'CHARACTER VARYING';
     public const TYPE_STRING = 'STRING';
     public const TYPE_TEXT = 'TEXT';
     public const TYPE_BOOLEAN = 'BOOLEAN';
@@ -68,6 +70,8 @@ class Snowflake extends Common
         self::TYPE_VARCHAR,
         self::TYPE_CHAR,
         self::TYPE_CHARACTER,
+        self::TYPE_CHAR_VARYING,
+        self::TYPE_CHARACTER_VARYING,
         self::TYPE_STRING,
         self::TYPE_TEXT,
         self::TYPE_BOOLEAN,
@@ -281,6 +285,8 @@ class Snowflake extends Common
             case self::TYPE_VARCHAR:
             case self::TYPE_CHAR:
             case self::TYPE_CHARACTER:
+            case self::TYPE_CHAR_VARYING:
+            case self::TYPE_CHARACTER_VARYING:
             case self::TYPE_STRING:
             case self::TYPE_TEXT:
                 if (is_null($length) || $length === '') {
