@@ -195,6 +195,7 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     }
 
     /**
+     * @phpstan-impure
      * @return array<int, array<string, mixed>>
      * array{
      *  schema_name: string,
@@ -256,6 +257,7 @@ WHERE REFERENCED_OBJECT_TYPE = %s
     }
 
     /**
+     * @phpstan-impure
      * @return array<int, array<string, mixed>>
      * array{
      *  schema_name: string,
