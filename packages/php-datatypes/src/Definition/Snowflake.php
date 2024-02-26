@@ -11,9 +11,10 @@ use LogicException;
 
 class Snowflake extends Common
 {
-    public const TYPES_WITH_COMPLEX_LENGTH = [self::TYPE_NUMBER, self::TYPE_DECIMAL, self::TYPE_NUMERIC];
+    public const TYPES_WITH_COMPLEX_LENGTH = [self::TYPE_NUMBER, self::TYPE_DECIMAL, self::TYPE_DEC, self::TYPE_NUMERIC];
     public const METADATA_BACKEND = 'snowflake';
     public const TYPE_NUMBER = 'NUMBER';
+    public const TYPE_DEC = 'DEC';
     public const TYPE_DECIMAL = 'DECIMAL';
     public const TYPE_NUMERIC = 'NUMERIC';
     public const TYPE_INT = 'INT';
@@ -33,6 +34,10 @@ class Snowflake extends Common
     public const TYPE_CHARACTER = 'CHARACTER';
     public const TYPE_CHAR_VARYING = 'CHAR VARYING';
     public const TYPE_CHARACTER_VARYING = 'CHARACTER VARYING';
+    public const TYPE_NCHAR_VARYING = 'NCHAR VARYING';
+    public const TYPE_NCHAR = 'NCHAR';
+    public const TYPE_NVARCHAR = 'NVARCHAR';
+    public const TYPE_NVARCHAR2 = 'NVARCHAR2';
     public const TYPE_STRING = 'STRING';
     public const TYPE_TEXT = 'TEXT';
     public const TYPE_BOOLEAN = 'BOOLEAN';
@@ -53,6 +58,7 @@ class Snowflake extends Common
 
     public const TYPES = [
         self::TYPE_NUMBER,
+        self::TYPE_DEC,
         self::TYPE_DECIMAL,
         self::TYPE_NUMERIC,
         self::TYPE_INT,
@@ -74,6 +80,10 @@ class Snowflake extends Common
         self::TYPE_CHARACTER_VARYING,
         self::TYPE_STRING,
         self::TYPE_TEXT,
+        self::TYPE_NCHAR_VARYING,
+        self::TYPE_NCHAR,
+        self::TYPE_NVARCHAR,
+        self::TYPE_NVARCHAR2,
         self::TYPE_BOOLEAN,
         self::TYPE_DATE,
         self::TYPE_DATETIME,
@@ -255,6 +265,7 @@ class Snowflake extends Common
         $valid = true;
         switch (strtoupper($type)) {
             case self::TYPE_NUMBER:
+            case self::TYPE_DEC:
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
                 if (is_null($length) || $length === '') {
@@ -289,6 +300,10 @@ class Snowflake extends Common
             case self::TYPE_CHARACTER_VARYING:
             case self::TYPE_STRING:
             case self::TYPE_TEXT:
+            case self::TYPE_NCHAR_VARYING:
+            case self::TYPE_NCHAR:
+            case self::TYPE_NVARCHAR:
+            case self::TYPE_NVARCHAR2:
                 if (is_null($length) || $length === '') {
                     break;
                 }
