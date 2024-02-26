@@ -136,10 +136,10 @@ class SnowflakeDatatypeTest extends TestCase
         $this->assertSame($definition->getSQLDefinition(), 'VARCHAR (10) DEFAULT \'\'');
 
         $definition = new Snowflake('NVARCHAR', ['length' => '10', 'nullable' => true, 'default' => '\'\'']);
-        $this->assertSame($definition->getSQLDefinition(), 'VARCHAR (10) DEFAULT \'\'');
+        $this->assertSame($definition->getSQLDefinition(), 'NVARCHAR (10) DEFAULT \'\'');
 
         $definition = new Snowflake('NVARCHAR2', ['length' => '10', 'nullable' => true, 'default' => '\'\'']);
-        $this->assertSame($definition->getSQLDefinition(), 'VARCHAR (10) DEFAULT \'\'');
+        $this->assertSame($definition->getSQLDefinition(), 'NVARCHAR2 (10) DEFAULT \'\'');
 
         $definition = new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
         $this->assertSame($definition->getSQLDefinition(), 'TIMESTAMP_TZ (0)');

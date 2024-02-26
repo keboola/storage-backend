@@ -375,6 +375,7 @@ class Snowflake extends Common
                 break;
             case self::TYPE_NUMBER:
             case self::TYPE_DECIMAL:
+            case self::TYPE_DEC:
             case self::TYPE_NUMERIC:
                 $basetype = BaseType::NUMERIC;
                 break;
