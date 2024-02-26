@@ -11,7 +11,12 @@ use LogicException;
 
 class Snowflake extends Common
 {
-    public const TYPES_WITH_COMPLEX_LENGTH = [self::TYPE_NUMBER, self::TYPE_DECIMAL, self::TYPE_DEC, self::TYPE_NUMERIC];
+    public const TYPES_WITH_COMPLEX_LENGTH = [
+        self::TYPE_NUMBER,
+        self::TYPE_DECIMAL,
+        self::TYPE_DEC,
+        self::TYPE_NUMERIC,
+    ];
     public const METADATA_BACKEND = 'snowflake';
     public const TYPE_NUMBER = 'NUMBER';
     public const TYPE_DEC = 'DEC';
@@ -55,7 +60,6 @@ class Snowflake extends Common
     public const TYPE_ARRAY = 'ARRAY';
     public const TYPE_GEOGRAPHY = 'GEOGRAPHY';
     public const TYPE_GEOMETRY = 'GEOMETRY';
-
     public const TYPES = [
         self::TYPE_NUMBER,
         self::TYPE_DEC,
@@ -100,7 +104,6 @@ class Snowflake extends Common
         self::TYPE_GEOGRAPHY,
         self::TYPE_GEOMETRY,
     ];
-
     public const MAX_VARCHAR_LENGTH = 16777216;
     public const MAX_VARBINARY_LENGTH = 8388608;
 
@@ -130,7 +133,6 @@ class Snowflake extends Common
         }
         parent::__construct($type, $options);
     }
-
 
     public function getTypeOnlySQLDefinition(): string
     {
