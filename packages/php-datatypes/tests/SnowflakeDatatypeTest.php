@@ -152,7 +152,6 @@ class SnowflakeDatatypeTest extends TestCase
 
         $definition = new Snowflake('TIMESTAMP_TZ');
         $this->assertSame('TIMESTAMP_TZ', $definition->getSQLDefinition());
-
     }
 
     public function testTypeOnlySqlDefinition(): void
