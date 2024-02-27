@@ -116,6 +116,12 @@ class Bigquery extends Common
         self::TYPE_BIGDECIMAL,
     ];
 
+    /* @see https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#TableFieldSchema */
+    public const TYPES_UNSUPPORTED_IN_REST = [
+        self::TYPE_ARRAY,
+        self::TYPE_INTERVAL,
+    ];
+
     public const MAX_LENGTH = 9223372036854775807;
 
     public const METADATA_BACKEND = 'bigquery';
