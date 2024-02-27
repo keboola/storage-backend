@@ -27,6 +27,7 @@ final class SnowflakeViewReflection implements ViewReflectionInterface
     }
 
     /**
+     * @phpstan-impure
      * @return array<int, array<string, mixed>>
      * array{
      *  schema_name: string,

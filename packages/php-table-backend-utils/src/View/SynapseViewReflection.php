@@ -24,6 +24,7 @@ final class SynapseViewReflection implements ViewReflectionInterface
     }
 
     /**
+     * @phpstan-impure
      * @return array<mixed, array{schema_name: string, name: string}>
      */
     public function getDependentViews(): array

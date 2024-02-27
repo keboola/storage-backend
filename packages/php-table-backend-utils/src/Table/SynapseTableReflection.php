@@ -215,6 +215,7 @@ EOT,
     }
 
     /**
+     * @phpstan-impure
      * @return array{
      *  schema_name: string,
      *  name: string

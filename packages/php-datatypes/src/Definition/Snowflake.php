@@ -11,9 +11,15 @@ use LogicException;
 
 class Snowflake extends Common
 {
-    public const TYPES_WITH_COMPLEX_LENGTH = [self::TYPE_NUMBER, self::TYPE_DECIMAL, self::TYPE_NUMERIC];
+    public const TYPES_WITH_COMPLEX_LENGTH = [
+        self::TYPE_NUMBER,
+        self::TYPE_DECIMAL,
+        self::TYPE_DEC,
+        self::TYPE_NUMERIC,
+    ];
     public const METADATA_BACKEND = 'snowflake';
     public const TYPE_NUMBER = 'NUMBER';
+    public const TYPE_DEC = 'DEC';
     public const TYPE_DECIMAL = 'DECIMAL';
     public const TYPE_NUMERIC = 'NUMERIC';
     public const TYPE_INT = 'INT';
@@ -31,6 +37,12 @@ class Snowflake extends Common
     public const TYPE_VARCHAR = 'VARCHAR';
     public const TYPE_CHAR = 'CHAR';
     public const TYPE_CHARACTER = 'CHARACTER';
+    public const TYPE_CHAR_VARYING = 'CHAR VARYING';
+    public const TYPE_CHARACTER_VARYING = 'CHARACTER VARYING';
+    public const TYPE_NCHAR_VARYING = 'NCHAR VARYING';
+    public const TYPE_NCHAR = 'NCHAR';
+    public const TYPE_NVARCHAR = 'NVARCHAR';
+    public const TYPE_NVARCHAR2 = 'NVARCHAR2';
     public const TYPE_STRING = 'STRING';
     public const TYPE_TEXT = 'TEXT';
     public const TYPE_BOOLEAN = 'BOOLEAN';
@@ -48,9 +60,9 @@ class Snowflake extends Common
     public const TYPE_ARRAY = 'ARRAY';
     public const TYPE_GEOGRAPHY = 'GEOGRAPHY';
     public const TYPE_GEOMETRY = 'GEOMETRY';
-
     public const TYPES = [
         self::TYPE_NUMBER,
+        self::TYPE_DEC,
         self::TYPE_DECIMAL,
         self::TYPE_NUMERIC,
         self::TYPE_INT,
@@ -68,8 +80,14 @@ class Snowflake extends Common
         self::TYPE_VARCHAR,
         self::TYPE_CHAR,
         self::TYPE_CHARACTER,
+        self::TYPE_CHAR_VARYING,
+        self::TYPE_CHARACTER_VARYING,
         self::TYPE_STRING,
         self::TYPE_TEXT,
+        self::TYPE_NCHAR_VARYING,
+        self::TYPE_NCHAR,
+        self::TYPE_NVARCHAR,
+        self::TYPE_NVARCHAR2,
         self::TYPE_BOOLEAN,
         self::TYPE_DATE,
         self::TYPE_DATETIME,
@@ -86,7 +104,6 @@ class Snowflake extends Common
         self::TYPE_GEOGRAPHY,
         self::TYPE_GEOMETRY,
     ];
-
     public const MAX_VARCHAR_LENGTH = 16777216;
     public const MAX_VARBINARY_LENGTH = 8388608;
 
@@ -116,7 +133,6 @@ class Snowflake extends Common
         }
         parent::__construct($type, $options);
     }
-
 
     public function getTypeOnlySQLDefinition(): string
     {
@@ -251,6 +267,7 @@ class Snowflake extends Common
         $valid = true;
         switch (strtoupper($type)) {
             case self::TYPE_NUMBER:
+            case self::TYPE_DEC:
             case self::TYPE_DECIMAL:
             case self::TYPE_NUMERIC:
                 if (is_null($length) || $length === '') {
@@ -281,8 +298,14 @@ class Snowflake extends Common
             case self::TYPE_VARCHAR:
             case self::TYPE_CHAR:
             case self::TYPE_CHARACTER:
+            case self::TYPE_CHAR_VARYING:
+            case self::TYPE_CHARACTER_VARYING:
             case self::TYPE_STRING:
             case self::TYPE_TEXT:
+            case self::TYPE_NCHAR_VARYING:
+            case self::TYPE_NCHAR:
+            case self::TYPE_NVARCHAR:
+            case self::TYPE_NVARCHAR2:
                 if (is_null($length) || $length === '') {
                     break;
                 }
@@ -352,6 +375,7 @@ class Snowflake extends Common
                 break;
             case self::TYPE_NUMBER:
             case self::TYPE_DECIMAL:
+            case self::TYPE_DEC:
             case self::TYPE_NUMERIC:
                 $basetype = BaseType::NUMERIC;
                 break;
