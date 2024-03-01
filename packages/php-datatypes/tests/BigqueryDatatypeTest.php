@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Keboola\DatatypeTest;
 
+use Generator;
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
-use PHPUnit\Framework\TestCase;
 use Throwable;
 
-class BigqueryDatatypeTest extends TestCase
+class BigqueryDatatypeTest extends BaseDatatypeTestCase
 {
     /**
      * @return array<int, mixed[]>
@@ -144,20 +144,6 @@ class BigqueryDatatypeTest extends TestCase
     {
         $this->expectException(InvalidTypeException::class);
         new Bigquery('UNKNOWN');
-    }
-
-    public function testGetTypeByBasetype(): void
-    {
-        $this->assertSame('BOOL', Bigquery::getTypeByBasetype('BOOLEAN'));
-
-        $this->assertSame('STRING', Bigquery::getTypeByBasetype('STRING'));
-
-        // not only upper case
-        $this->assertSame('BOOL', Bigquery::getTypeByBasetype('Boolean'));
-
-        $this->expectException(InvalidTypeException::class);
-        $this->expectExceptionMessage('Base type "FOO" is not valid.');
-        Bigquery::getTypeByBasetype('foo');
     }
 
     /**
@@ -396,5 +382,98 @@ class BigqueryDatatypeTest extends TestCase
             'name' => 'test',
             'type' => 'STRING',
         ], $def->getFieldAsArray());
+    }
+
+    public static function getTestedClass(): string
+    {
+        return Bigquery::class;
+    }
+
+    public static function provideTestGetTypeByBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedType' => 'BOOL',
+        ];
+
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedType' => 'DATE',
+        ];
+
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedType' => 'FLOAT64',
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedType' => 'INT64',
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedType' => 'NUMERIC',
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedType' => 'STRING',
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedType' => 'TIMESTAMP',
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedType' => null,
+            'expectToFail' => true,
+        ];
+    }
+
+    public static function provideTestGetDefinitionForBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedColumnDefinition' => new Bigquery('BOOL'),
+        ];
+
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedColumnDefinition' => new Bigquery('DATE'),
+        ];
+
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedColumnDefinition' => new Bigquery('FLOAT64'),
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedColumnDefinition' => new Bigquery('INT64'),
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedColumnDefinition' => new Bigquery('NUMERIC'),
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedColumnDefinition' => new Bigquery('STRING'),
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedColumnDefinition' => new Bigquery('TIMESTAMP'),
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedColumnDefinition' => null,
+            'expectToFail' => true,
+        ];
     }
 }

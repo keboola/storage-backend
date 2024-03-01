@@ -10,10 +10,9 @@ use Keboola\Datatype\Definition\Exasol;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
-use PHPUnit\Framework\TestCase;
 use Throwable;
 
-class ExasolDatatypeTest extends TestCase
+class ExasolDatatypeTest extends BaseDatatypeTestCase
 {
     /**
      * @dataProvider typesProvider
@@ -128,6 +127,7 @@ class ExasolDatatypeTest extends TestCase
         $definition = new Exasol($type, $options);
         self::assertEquals($expectedDefinition, $definition->getTypeOnlySQLDefinition());
     }
+
     /**
      * @dataProvider expectedSqlDefinitions
      * @param mixed[] $options
@@ -354,17 +354,96 @@ class ExasolDatatypeTest extends TestCase
         return $out;
     }
 
-    public function testGetTypeByBasetype(): void
+    public static function getTestedClass(): string
     {
-        $this->assertSame('BOOLEAN', Exasol::getTypeByBasetype('BOOLEAN'));
+        return Exasol::class;
+    }
 
-        $this->assertSame('VARCHAR', Exasol::getTypeByBasetype('STRING'));
+    public static function provideTestGetTypeByBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedType' => 'BOOLEAN',
+        ];
 
-        // not only upper case
-        $this->assertSame('BOOLEAN', Exasol::getTypeByBasetype('Boolean'));
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedType' => 'DATE',
+        ];
 
-        $this->expectException(InvalidTypeException::class);
-        $this->expectExceptionMessage('Base type "FOO" is not valid.');
-        Exasol::getTypeByBasetype('foo');
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedType' => 'DOUBLE PRECISION',
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedType' => 'INTEGER',
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedType' => 'DECIMAL',
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedType' => 'VARCHAR',
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedType' => 'TIMESTAMP',
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedType' => null,
+            'expectToFail' => true,
+        ];
+    }
+
+    public static function provideTestGetDefinitionForBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedColumnDefinition' => new Exasol('BOOLEAN'),
+        ];
+
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedColumnDefinition' => new Exasol('DATE'),
+        ];
+
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedColumnDefinition' => new Exasol('DOUBLE PRECISION'),
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedColumnDefinition' => new Exasol('INTEGER'),
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedColumnDefinition' => new Exasol('DECIMAL'),
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedColumnDefinition' => new Exasol('VARCHAR'),
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedColumnDefinition' => new Exasol('TIMESTAMP'),
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedColumnDefinition' => null,
+            'expectToFail' => true,
+        ];
     }
 }

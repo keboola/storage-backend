@@ -7,6 +7,7 @@ namespace Keboola\Datatype\Definition;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use LogicException;
 
 /**
  * Class Oracle
@@ -127,6 +128,12 @@ class Oracle extends Common
                 sprintf('No Oracle type mapped for base type "%s"', $basetype),
             ),
         };
+    }
+
+    public static function getDefinitionForBasetype(string $basetype): DefinitionInterface
+    {
+        $type = self::getTypeByBasetype($basetype);
+        return new self($type);
     }
 
     /**

@@ -137,4 +137,9 @@ class GenericStorage extends Common
     {
         throw new LogicException('Method is not implemented yet.');
     }
+
+    public static function getDefinitionForBasetype(string $basetype): self
+    {
+        throw new LogicException('Method is not implemented yet.');
+    }
 }

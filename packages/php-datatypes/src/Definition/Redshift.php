@@ -384,6 +384,11 @@ class Redshift extends Common
         throw new LogicException('Method is not implemented yet.');
     }
 
+    public static function getDefinitionForBasetype(string $basetype): DefinitionInterface
+    {
+        throw new LogicException('Method is not implemented yet.');
+    }
+
     /**
      * @return array<int, array{key:string,value:mixed}>
      */

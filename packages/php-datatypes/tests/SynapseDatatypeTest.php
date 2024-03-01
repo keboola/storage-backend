@@ -10,10 +10,9 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Synapse;
-use PHPUnit\Framework\TestCase;
 use Throwable;
 
-class SynapseDatatypeTest extends TestCase
+class SynapseDatatypeTest extends BaseDatatypeTestCase
 {
     /**
      * @return array<int, array<class-string<\datetime>|string>>
@@ -467,17 +466,96 @@ class SynapseDatatypeTest extends TestCase
         $this->assertSame($expectedLength, $def->getDefaultLength());
     }
 
-    public function testGetTypeByBasetype(): void
+    public static function getTestedClass(): string
     {
-        $this->assertSame('BIT', Synapse::getTypeByBasetype('BOOLEAN'));
+        return Synapse::class;
+    }
 
-        $this->assertSame('NVARCHAR', Synapse::getTypeByBasetype('STRING'));
+    public static function provideTestGetTypeByBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedType' => 'BIT',
+        ];
 
-        // not only upper case
-        $this->assertSame('BIT', Synapse::getTypeByBasetype('Boolean'));
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedType' => 'DATE',
+        ];
 
-        $this->expectException(InvalidTypeException::class);
-        $this->expectExceptionMessage('Base type "FOO" is not valid.');
-        Synapse::getTypeByBasetype('foo');
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedType' => 'FLOAT',
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedType' => 'INT',
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedType' => 'NUMERIC',
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedType' => 'NVARCHAR',
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedType' => 'DATETIME2',
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedType' => null,
+            'expectToFail' => true,
+        ];
+    }
+
+    public static function provideTestGetDefinitionForBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedColumnDefinition' => new Synapse('BIT'),
+        ];
+
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedColumnDefinition' => new Synapse('DATE'),
+        ];
+
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedColumnDefinition' => new Synapse('FLOAT'),
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedColumnDefinition' => new Synapse('INT'),
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedColumnDefinition' => new Synapse('NUMERIC'),
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedColumnDefinition' => new Synapse('NVARCHAR'),
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedColumnDefinition' => new Synapse('DATETIME2'),
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedColumnDefinition' => null,
+            'expectToFail' => true,
+        ];
     }
 }

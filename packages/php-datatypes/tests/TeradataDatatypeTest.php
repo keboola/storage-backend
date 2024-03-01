@@ -10,10 +10,9 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Teradata;
-use PHPUnit\Framework\TestCase;
 use Throwable;
 
-class TeradataDatatypeTest extends TestCase
+class TeradataDatatypeTest extends BaseDatatypeTestCase
 {
     /**
      * @dataProvider typesProvider
@@ -121,7 +120,6 @@ class TeradataDatatypeTest extends TestCase
         $definition = new Teradata($type, $options);
         self::assertEquals($expectedDefinition, $definition->buildTypeWithLength());
     }
-
 
     public function testSqlDefinitionWhenLatin(): void
     {
@@ -348,17 +346,97 @@ class TeradataDatatypeTest extends TestCase
         ];
     }
 
-    public function testGetTypeByBasetype(): void
+    public static function getTestedClass(): string
     {
-        $this->assertSame('DATE', Teradata::getTypeByBasetype('DATE'));
+        return Teradata::class;
+    }
 
-        $this->assertSame('VARCHAR', Teradata::getTypeByBasetype('STRING'));
 
-        // not only upper case
-        $this->assertSame('DATE', Teradata::getTypeByBasetype('Date'));
+    public static function provideTestGetTypeByBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedType' => 'BYTEINT',
+        ];
 
-        $this->expectException(InvalidTypeException::class);
-        $this->expectExceptionMessage('Base type "FOO" is not valid.');
-        Teradata::getTypeByBasetype('foo');
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedType' => 'DATE',
+        ];
+
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedType' => 'FLOAT',
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedType' => 'INTEGER',
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedType' => 'NUMBER',
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedType' => 'VARCHAR',
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedType' => 'TIMESTAMP',
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedType' => null,
+            'expectToFail' => true,
+        ];
+    }
+
+    public static function provideTestGetDefinitionForBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedColumnDefinition' => new Teradata('BYTEINT'),
+        ];
+
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedColumnDefinition' => new Teradata('DATE'),
+        ];
+
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedColumnDefinition' => new Teradata('FLOAT'),
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedColumnDefinition' => new Teradata('INTEGER'),
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedColumnDefinition' => new Teradata('NUMBER'),
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedColumnDefinition' => new Teradata('VARCHAR'),
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedColumnDefinition' => new Teradata('TIMESTAMP'),
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedColumnDefinition' => null,
+            'expectToFail' => true,
+        ];
     }
 }
