@@ -7,7 +7,6 @@ namespace Keboola\Datatype\Definition;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
-use LogicException;
 
 /**
  * Class Oracle
