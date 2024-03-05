@@ -24,4 +24,6 @@ interface DefinitionInterface
     public function getDefault(): ?string;
 
     public static function getTypeByBasetype(string $basetype): string;
+
+    public static function getDefinitionForBasetype(string $basetype): DefinitionInterface;
 }

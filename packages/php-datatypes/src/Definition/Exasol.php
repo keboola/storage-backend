@@ -437,4 +437,10 @@ class Exasol extends Common
 
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
+
+    public static function getDefinitionForBasetype(string $basetype): self
+    {
+        $type = self::getTypeByBasetype($basetype);
+        return new self($type);
+    }
 }

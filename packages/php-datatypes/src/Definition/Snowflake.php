@@ -434,4 +434,24 @@ class Snowflake extends Common
 
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
+
+    public static function getDefinitionForBasetype(string $basetype): self
+    {
+        $basetype = strtoupper($basetype);
+
+        if (!BaseType::isValid($basetype)) {
+            throw new InvalidTypeException(sprintf('Base type "%s" is not valid.', $basetype));
+        }
+
+        return match ($basetype) {
+            BaseType::BOOLEAN => new self(self::TYPE_BOOLEAN),
+            BaseType::DATE => new self(self::TYPE_DATE),
+            BaseType::FLOAT => new self(self::TYPE_FLOAT),
+            BaseType::INTEGER => new self(self::TYPE_INTEGER),
+            BaseType::NUMERIC => new self(self::TYPE_NUMERIC, ['length' => '38,9']),
+            BaseType::STRING => new self(self::TYPE_VARCHAR),
+            BaseType::TIMESTAMP => new self(self::TYPE_TIMESTAMP),
+            default => throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype))
+        };
+    }
 }

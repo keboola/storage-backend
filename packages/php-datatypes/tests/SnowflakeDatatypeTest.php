@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Keboola\DatatypeTest;
 
 use Generator;
+use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
-use PHPUnit\Framework\TestCase;
 use Throwable;
 
-class SnowflakeDatatypeTest extends TestCase
+class SnowflakeDatatypeTest extends BaseDatatypeTestCase
 {
     public function testValid(): void
     {
@@ -376,18 +376,97 @@ class SnowflakeDatatypeTest extends TestCase
         ];
     }
 
-    public function testGetTypeByBasetype(): void
+    public static function getTestedClass(): string
     {
-        $this->assertSame('BOOLEAN', Snowflake::getTypeByBasetype('BOOLEAN'));
+        return Snowflake::class;
+    }
 
-        $this->assertSame('VARCHAR', Snowflake::getTypeByBasetype('STRING'));
+    public static function provideTestGetTypeByBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedType' => 'BOOLEAN',
+        ];
 
-        // not only upper case
-        $this->assertSame('BOOLEAN', Snowflake::getTypeByBasetype('Boolean'));
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedType' => 'DATE',
+        ];
 
-        $this->expectException(InvalidTypeException::class);
-        $this->expectExceptionMessage('Base type "FOO" is not valid.');
-        Snowflake::getTypeByBasetype('foo');
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedType' => 'FLOAT',
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedType' => 'INTEGER',
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedType' => 'NUMBER',
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedType' => 'VARCHAR',
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedType' => 'TIMESTAMP',
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedType' => null,
+            'expectToFail' => true,
+        ];
+    }
+
+    public static function provideTestGetDefinitionForBasetype(): Generator
+    {
+        yield BaseType::BOOLEAN => [
+            'basetype' => BaseType::BOOLEAN,
+            'expectedColumnDefinition' => new Snowflake('BOOLEAN'),
+        ];
+
+        yield BaseType::DATE => [
+            'basetype' => BaseType::DATE,
+            'expectedColumnDefinition' => new Snowflake('DATE'),
+        ];
+
+        yield BaseType::FLOAT => [
+            'basetype' => BaseType::FLOAT,
+            'expectedColumnDefinition' => new Snowflake('FLOAT'),
+        ];
+
+        yield BaseType::INTEGER => [
+            'basetype' => BaseType::INTEGER,
+            'expectedColumnDefinition' => new Snowflake('INTEGER'),
+        ];
+
+        yield BaseType::NUMERIC => [
+            'basetype' => BaseType::NUMERIC,
+            'expectedColumnDefinition' => new Snowflake('NUMERIC', ['length' => '38,9']),
+        ];
+
+        yield BaseType::STRING => [
+            'basetype' => BaseType::STRING,
+            'expectedColumnDefinition' => new Snowflake('VARCHAR'),
+        ];
+
+        yield BaseType::TIMESTAMP => [
+            'basetype' => BaseType::TIMESTAMP,
+            'expectedColumnDefinition' => new Snowflake('TIMESTAMP'),
+        ];
+
+        yield 'invalidBaseType' => [
+            'basetype' => 'invalidBaseType',
+            'expectedColumnDefinition' => null,
+            'expectToFail' => true,
+        ];
     }
 
     /**

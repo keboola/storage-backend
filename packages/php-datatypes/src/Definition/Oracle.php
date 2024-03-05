@@ -129,6 +129,12 @@ class Oracle extends Common
         };
     }
 
+    public static function getDefinitionForBasetype(string $basetype): DefinitionInterface
+    {
+        $type = self::getTypeByBasetype($basetype);
+        return new self($type);
+    }
+
     /**
      * @throws InvalidTypeException
      */
