@@ -1,4 +1,4 @@
-ARG PHP_VERSION=8.1
+ARG PHP_VERSION=8.1.27
 
 FROM quay.io/keboola/aws-cli as td
 ARG AWS_SECRET_ACCESS_KEY
@@ -7,7 +7,7 @@ RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x8
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
-FROM php:${PHP_VERSION:-8.1}-cli-buster
+FROM php:${PHP_VERSION:-8.1}-cli-bullseye
 MAINTAINER Keboola <devel@keboola.com>
 
 ARG GITHUB_OAUTH_TOKEN
@@ -38,7 +38,7 @@ RUN apt-get update -q \
         unixodbc-dev
 RUN apt-get install gnupg -y --no-install-recommends \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list  \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add -  \
     && apt-get update -q \

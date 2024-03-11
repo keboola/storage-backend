@@ -4,7 +4,7 @@ ARG AWS_ACCESS_KEY_ID
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
-FROM php:8.1-cli-buster
+FROM php:8.1.27-cli-bullseye
 MAINTAINER Keboola <devel@keboola.com>
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
@@ -24,7 +24,7 @@ COPY docker/composer-install.sh /tmp/composer-install.sh
 RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update -q \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends\
         git \
