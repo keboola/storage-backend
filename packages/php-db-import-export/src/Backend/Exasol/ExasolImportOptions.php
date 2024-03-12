@@ -26,10 +26,11 @@ class ExasolImportOptions extends ImportOptions
         string $castValueTypes = self::TABLE_TYPES_PRESERVE,
     ) {
         parent::__construct(
-            $convertEmptyValuesToNull,
-            $isIncremental,
-            $useTimestamp,
-            $numberOfIgnoredLines,
+            convertEmptyValuesToNull: $convertEmptyValuesToNull,
+            isIncremental: $isIncremental,
+            useTimestamp: $useTimestamp,
+            numberOfIgnoredLines: $numberOfIgnoredLines,
+            importAsNull: [], // Exasol does not support importAsNull now
         );
         $this->castValueTypes = $castValueTypes;
     }

@@ -512,7 +512,7 @@ class SqlBuilder
             static fn(SynapseColumn $columnDefinition): bool => !StringCaseSensitivity::isInArrayCaseInsensitive(
                 $columnDefinition->getColumnName(),
                 $destinationDefinition->getPrimaryKeysNames(),
-            )
+            ),
         );
 
         // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation

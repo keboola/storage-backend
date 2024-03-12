@@ -49,11 +49,14 @@ class SynapseImportOptions extends ImportOptions
         string $tableToTableAdapter = self::TABLE_TO_TABLE_ADAPTER_INSERT_INTO,
     ) {
         parent::__construct(
-            $convertEmptyValuesToNull,
-            $isIncremental,
-            $useTimestamp,
-            $numberOfIgnoredLines,
-            $requireSameTables === self::SAME_TABLES_REQUIRED ? self::USING_TYPES_USER : self::USING_TYPES_STRING,
+            convertEmptyValuesToNull: $convertEmptyValuesToNull,
+            isIncremental: $isIncremental,
+            useTimestamp: $useTimestamp,
+            numberOfIgnoredLines: $numberOfIgnoredLines,
+            usingTypes: $requireSameTables === self::SAME_TABLES_REQUIRED
+                ? self::USING_TYPES_USER
+                : self::USING_TYPES_STRING,
+            importAsNull: [], // Synapse does not support importAsNull now
         );
         $this->importCredentialsType = $importCredentialsType;
         $this->castValueTypes = $castValueTypes;

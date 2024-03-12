@@ -278,7 +278,7 @@ trait StorageTrait
                 if ($excludeManifest) {
                     $blobs = array_filter(
                         $blobs,
-                        static fn(array $blob) => !strpos($blob['Key'], 'manifest')
+                        static fn(array $blob) => !strpos($blob['Key'], 'manifest'),
                     );
                 }
                 return $blobs;
@@ -291,7 +291,7 @@ trait StorageTrait
                 if ($excludeManifest) {
                     $blobs = array_filter(
                         $blobs,
-                        static fn(Blob $blob) => !strpos($blob->getName(), 'manifest')
+                        static fn(Blob $blob) => !strpos($blob->getName(), 'manifest'),
                     );
                 }
                 return $blobs;
@@ -304,7 +304,7 @@ trait StorageTrait
                 if ($excludeManifest) {
                     $objects = array_filter(
                         $objects,
-                        static fn(StorageObject $blob) => !strpos($blob->name(), 'manifest')
+                        static fn(StorageObject $blob) => !strpos($blob->name(), 'manifest'),
                     );
                 }
                 return $objects;

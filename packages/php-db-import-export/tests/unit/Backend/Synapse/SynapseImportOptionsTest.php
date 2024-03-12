@@ -19,6 +19,7 @@ class SynapseImportOptionsTest extends TestCase
         self::assertEquals(0, $options->getNumberOfIgnoredLines());
         self::assertEquals('SAS', $options->getImportCredentialsType());
         self::assertFalse($options->getCastValueTypes());
+        self::assertEmpty($options->importAsNull());
     }
 
     public function testValues(): void
