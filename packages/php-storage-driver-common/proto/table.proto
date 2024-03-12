@@ -208,6 +208,8 @@ message ImportExportShared {
       REPLACE = 1; // import will replace destination table if exists unless importType is INCREMENTAL
     }
     CreateMode createMode = 8;
+
+    repeated string importAsNull = 9; // list of values which should be imported as null, default should be always empty string
   }
   /**
    * Common export options

@@ -62,6 +62,12 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.CreateMode createMode = 8;</code>
      */
     protected $createMode = 0;
+    /**
+     * list of values which should be imported as null, default should be always empty string
+     *
+     * Generated from protobuf field <code>repeated string importAsNull = 9;</code>
+     */
+    private $importAsNull;
 
     /**
      * Constructor.
@@ -85,6 +91,8 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *          *
      *           Import strategy type decide internal handling and type casting
      *     @type int $createMode
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $importAsNull
+     *           list of values which should be imported as null, default should be always empty string
      * }
      */
     public function __construct($data = NULL) {
@@ -292,6 +300,32 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\CreateMode::class);
         $this->createMode = $var;
+
+        return $this;
+    }
+
+    /**
+     * list of values which should be imported as null, default should be always empty string
+     *
+     * Generated from protobuf field <code>repeated string importAsNull = 9;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getImportAsNull()
+    {
+        return $this->importAsNull;
+    }
+
+    /**
+     * list of values which should be imported as null, default should be always empty string
+     *
+     * Generated from protobuf field <code>repeated string importAsNull = 9;</code>
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setImportAsNull($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $this->importAsNull = $arr;
 
         return $this;
     }
