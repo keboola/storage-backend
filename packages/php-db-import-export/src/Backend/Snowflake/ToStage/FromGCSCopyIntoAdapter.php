@@ -78,7 +78,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         return sprintf(
             'COPY INTO %s.%s FROM %s
                 STORAGE_INTEGRATION = %s, 
-                FILE_FORMAT = (TYPE=CSV %s, NULL_IF=(\'\'))
+                FILE_FORMAT = (TYPE=CSV %s%s)
                 FILES = (%s)',
             SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
@@ -96,6 +96,7 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
                 $csvOptions->getEnclosure() ? SnowflakeQuote::quote($csvOptions->getEnclosure()) : 'NONE',
                 $csvOptions->getEscapedBy() ? SnowflakeQuote::quote($csvOptions->getEscapedBy()) : 'NONE',
             ),
+            $importOptions->getNullIfSql(),
             implode(
                 ', ',
                 array_map(

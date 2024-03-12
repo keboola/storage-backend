@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport;
 
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+
 class ImportOptions implements ImportOptionsInterface
 {
     /** @var string[] */

@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
@@ -69,6 +70,14 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
             ->skipLeadingRows($importOptions->getNumberOfIgnoredLines())
             ->quote($source->getCsvOptions()->getEnclosure())
             ->allowQuotedNewlines(true);
+
+        if ($importOptions->importAsNull() !== []) {
+            // BigQuery allows only one null marker
+            // we implicitly use the first one and ignore others if any
+            $loadConfig->nullMarker(
+                $importOptions->importAsNull()[0],
+            );
+        }
 
         $job = $this->bqClient->runJob($loadConfig);
 
