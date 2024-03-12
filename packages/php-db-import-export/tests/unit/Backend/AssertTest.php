@@ -470,6 +470,11 @@ class AssertTest extends TestCase
                     {
                         throw new NativeException('Not implemented');
                     }
+
+                    public static function getDefinitionForBasetype(string $basetype): DefinitionInterface
+                    {
+                        throw new NativeException('Not implemented');
+                    }
                 };
             }
 
