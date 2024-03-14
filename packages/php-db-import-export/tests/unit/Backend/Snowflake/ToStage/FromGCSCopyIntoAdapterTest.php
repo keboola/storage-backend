@@ -68,6 +68,110 @@ EOT,
         self::assertEquals(10, $count);
     }
 
+    public function testGetCopyCommandsNullIfMultiple(): void
+    {
+        /** @var Storage\GCS\SourceFile|MockObject $source */
+        $source = $this->createMock(Storage\GCS\SourceFile::class);
+        $source->expects(self::any())->method('getCsvOptions')->willReturn(new CsvOptions());
+        $source->expects(self::once())->method('getManifestEntries')->willReturn(['https://url']);
+        $source->expects(self::once())->method('getStorageIntegrationName')->willReturn('STORAGE_INTEGRATION');
+
+        $conn = $this->mockConnection();
+        $conn->expects(self::once())->method('executeStatement')->with(
+            <<<EOT
+COPY INTO "schema"."stagingTable" FROM ''
+                STORAGE_INTEGRATION = "STORAGE_INTEGRATION", 
+                FILE_FORMAT = (TYPE=CSV 
+        FIELD_DELIMITER = ',',
+        SKIP_HEADER = 0,
+        FIELD_OPTIONALLY_ENCLOSED_BY = '\"',
+        ESCAPE_UNENCLOSED_FIELD = NONE
+        , NULL_IF=('','NULL'))
+                FILES = ('https:url')
+EOT,
+        );
+
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            // phpcs:ignore
+            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
+            ->willReturn([
+                [
+                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                ],
+            ]);
+
+        $destination = new SnowflakeTableDefinition(
+            'schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([]),
+            [],
+        );
+        $options = new SnowflakeImportOptions(
+            importAsNull: ['', 'NULL'],
+        );
+        $adapter = new FromGCSCopyIntoAdapter($conn);
+        $count = $adapter->runCopyCommand(
+            $source,
+            $destination,
+            $options,
+        );
+
+        self::assertEquals(10, $count);
+    }
+
+    public function testGetCopyCommandsNullIfEmpty(): void
+    {
+        /** @var Storage\GCS\SourceFile|MockObject $source */
+        $source = $this->createMock(Storage\GCS\SourceFile::class);
+        $source->expects(self::any())->method('getCsvOptions')->willReturn(new CsvOptions());
+        $source->expects(self::once())->method('getManifestEntries')->willReturn(['https://url']);
+        $source->expects(self::once())->method('getStorageIntegrationName')->willReturn('STORAGE_INTEGRATION');
+
+        $conn = $this->mockConnection();
+        $conn->expects(self::once())->method('executeStatement')->with(
+            <<<EOT
+COPY INTO "schema"."stagingTable" FROM ''
+                STORAGE_INTEGRATION = "STORAGE_INTEGRATION", 
+                FILE_FORMAT = (TYPE=CSV 
+        FIELD_DELIMITER = ',',
+        SKIP_HEADER = 0,
+        FIELD_OPTIONALLY_ENCLOSED_BY = '\"',
+        ESCAPE_UNENCLOSED_FIELD = NONE
+        , NULL_IF=())
+                FILES = ('https:url')
+EOT,
+        );
+
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            // phpcs:ignore
+            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
+            ->willReturn([
+                [
+                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                ],
+            ]);
+
+        $destination = new SnowflakeTableDefinition(
+            'schema',
+            'stagingTable',
+            true,
+            new ColumnCollection([]),
+            [],
+        );
+        $options = new SnowflakeImportOptions(
+            importAsNull: [],
+        );
+        $adapter = new FromGCSCopyIntoAdapter($conn);
+        $count = $adapter->runCopyCommand(
+            $source,
+            $destination,
+            $options,
+        );
+
+        self::assertEquals(10, $count);
+    }
+
     public function testGetCopyCommandsRowSkip(): void
     {
         /** @var Storage\GCS\SourceFile|MockObject $source */
