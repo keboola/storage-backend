@@ -380,7 +380,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
                 isIncremental: false,
                 useTimestamp: false,
                 numberOfIgnoredLines: 1,
-                importAsNull: ['3', '2'], // two values are passed second is ignored
+                importAsNull: ['3', '2'], // two values are passed, both of them applied
             ),
         );
 
