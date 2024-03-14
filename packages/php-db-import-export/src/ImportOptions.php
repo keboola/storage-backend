@@ -9,6 +9,9 @@ class ImportOptions implements ImportOptionsInterface
     /** @var string[] */
     private array $ignoreColumns;
 
+    /** @var string[] */
+    private array $importAsNull;
+
     private bool $useTimestamp;
 
     /** @var string[] */
@@ -30,6 +33,7 @@ class ImportOptions implements ImportOptionsInterface
      * @param string[] $convertEmptyValuesToNull
      * @param self::USING_TYPES_* $usingTypes
      * @param string[] $ignoreColumns
+     * @param string[] $importAsNull
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -38,6 +42,7 @@ class ImportOptions implements ImportOptionsInterface
         int $numberOfIgnoredLines = self::SKIP_NO_LINE,
         string $usingTypes = self::USING_TYPES_STRING,
         array $ignoreColumns = [],
+        array $importAsNull = self::DEFAULT_IMPORT_AS_NULL,
     ) {
         $this->useTimestamp = $useTimestamp;
         $this->convertEmptyValuesToNull = $convertEmptyValuesToNull;
@@ -45,6 +50,7 @@ class ImportOptions implements ImportOptionsInterface
         $this->numberOfIgnoredLines = $numberOfIgnoredLines;
         $this->usingTypes = $usingTypes;
         $this->ignoreColumns = $ignoreColumns;
+        $this->importAsNull = $importAsNull;
     }
 
     /**
@@ -78,5 +84,13 @@ class ImportOptions implements ImportOptionsInterface
     public function ignoreColumns(): array
     {
         return $this->ignoreColumns;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function importAsNull(): array
+    {
+        return $this->importAsNull;
     }
 }

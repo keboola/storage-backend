@@ -31,11 +31,12 @@ class TeradataImportOptions extends ImportOptions
         string $usingTypes = self::USING_TYPES_STRING,
     ) {
         parent::__construct(
-            $convertEmptyValuesToNull,
-            $isIncremental,
-            $useTimestamp,
-            $numberOfIgnoredLines,
-            $usingTypes,
+            convertEmptyValuesToNull: $convertEmptyValuesToNull,
+            isIncremental: $isIncremental,
+            useTimestamp: $useTimestamp,
+            numberOfIgnoredLines: $numberOfIgnoredLines,
+            usingTypes: $usingTypes,
+            importAsNull: [], // Teradata does not support importAsNull now
         );
         $this->teradataHost = $teradataHost;
         $this->teradataUser = $teradataUser;

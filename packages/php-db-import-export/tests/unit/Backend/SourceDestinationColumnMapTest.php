@@ -102,6 +102,11 @@ final class SourceDestinationColumnMapTest extends TestCase
                     {
                         throw new Exception('Not implemented');
                     }
+
+                    public static function getDefinitionForBasetype(string $basetype): DefinitionInterface
+                    {
+                        throw new Exception('Not implemented');
+                    }
                 };
             }
 

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use Generator;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception as LegacyImportException;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
@@ -342,5 +343,60 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $stagingTable,
             $this->getSnowflakeImportOptions(),
         );
+    }
+
+    public function testStageImportNullBehavior(): void
+    {
+        $this->initSingleTable(
+            $this->getDestinationSchemaName(),
+            'targetTable',
+            'CREATE OR REPLACE TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(99)
+);',
+        );
+
+        $importer = new ToStageImporter($this->connection);
+        $targetTableRef = new SnowflakeTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            'targetTable',
+        );
+
+        $state = $importer->importToStagingTable(
+            $this->getSourceInstanceFromCsv(
+                'csv/simple/a_b_c-1row.csv',
+                new CsvOptions(),
+                [
+                    'id',
+                    'first_name',
+                    'last_name',
+                ],
+            ),
+            $targetTableRef->getTableDefinition(),
+            new SnowflakeImportOptions(
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 1,
+                importAsNull: ['3', '2'], // two values are passed, both of them applied
+            ),
+        );
+
+        self::assertEquals(1, $state->getResult()->getImportedRowsCount());
+        $this->assertSame([
+            [
+                'id' => '1',
+                'first_name' => null,
+                'last_name' => null,
+            ],
+        ], $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier('targetTable'),
+            ),
+        ));
     }
 }

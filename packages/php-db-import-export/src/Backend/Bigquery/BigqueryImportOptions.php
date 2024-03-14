@@ -14,6 +14,7 @@ class BigqueryImportOptions extends ImportOptions
     /**
      * @param string[] $convertEmptyValuesToNull
      * @param self::USING_TYPES_* $usingTypes
+     * @param string[] $importAsNull
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -22,13 +23,15 @@ class BigqueryImportOptions extends ImportOptions
         int $numberOfIgnoredLines = self::SKIP_NO_LINE,
         string $usingTypes = self::USING_TYPES_STRING,
         ?Session $session = null,
+        array $importAsNull = self::DEFAULT_IMPORT_AS_NULL,
     ) {
         parent::__construct(
-            $convertEmptyValuesToNull,
-            $isIncremental,
-            $useTimestamp,
-            $numberOfIgnoredLines,
-            $usingTypes,
+            convertEmptyValuesToNull: $convertEmptyValuesToNull,
+            isIncremental: $isIncremental,
+            useTimestamp: $useTimestamp,
+            numberOfIgnoredLines: $numberOfIgnoredLines,
+            usingTypes: $usingTypes,
+            importAsNull: $importAsNull,
         );
         $this->session = $session;
     }

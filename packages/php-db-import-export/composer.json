@@ -17,10 +17,10 @@
         "google/cloud-storage": "^1.27",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^6",
-        "keboola/php-datatypes": "^6.3|^7",
+        "keboola/php-datatypes": "^7.6",
         "keboola/php-file-storage-utils": "^0.2.2",
         "keboola/php-temp": "^2.0",
-        "keboola/table-backend-utils": ">=1.15|^2",
+        "keboola/table-backend-utils": "^2",
         "microsoft/azure-storage-blob": "^1.4",
         "symfony/process": "^4.4|^5.0|^6.0"
     },
