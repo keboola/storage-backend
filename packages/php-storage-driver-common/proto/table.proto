@@ -103,6 +103,8 @@ message PreviewTableCommand {
    * Filters of preview records
    */
   ImportExportShared.ExportFilters filters = 5;
+
+  keboola.storageDriver.command.info.TableInfo tableInfo = 6;
 }
 
 message PreviewTableResponse {
@@ -448,6 +450,8 @@ message TableExportToFileCommand {
       TPT = 0;
     }
   }
+
+  keboola.storageDriver.command.info.TableInfo tableInfo = 8;
 }
 
 message TableExportToFileResponse {

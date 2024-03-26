@@ -42,6 +42,10 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ExportFilters filters = 5;</code>
      */
     protected $filters = null;
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 6;</code>
+     */
+    protected $tableInfo = null;
 
     /**
      * Constructor.
@@ -60,6 +64,7 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
      *     @type \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters $filters
      *          *
      *           Filters of preview records
+     *     @type \Keboola\StorageDriver\Command\Info\TableInfo $tableInfo
      * }
      */
     public function __construct($data = NULL) {
@@ -201,6 +206,38 @@ class PreviewTableCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ExportFilters::class);
         $this->filters = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 6;</code>
+     * @return \Keboola\StorageDriver\Command\Info\TableInfo|null
+     */
+    public function getTableInfo()
+    {
+        return $this->tableInfo;
+    }
+
+    public function hasTableInfo()
+    {
+        return isset($this->tableInfo);
+    }
+
+    public function clearTableInfo()
+    {
+        unset($this->tableInfo);
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 6;</code>
+     * @param \Keboola\StorageDriver\Command\Info\TableInfo $var
+     * @return $this
+     */
+    public function setTableInfo($var)
+    {
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\TableInfo::class);
+        $this->tableInfo = $var;
 
         return $this;
     }

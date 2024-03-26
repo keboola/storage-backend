@@ -64,6 +64,10 @@ class TableExportToFileCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
      */
     protected $meta = null;
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 8;</code>
+     */
+    protected $tableInfo = null;
 
     /**
      * Constructor.
@@ -90,6 +94,7 @@ class TableExportToFileCommand extends \Google\Protobuf\Internal\Message
      *           https://github.com/keboola/php-db-import-export/blob/master/src/ExportOptions.php
      *     @type \Google\Protobuf\Any $meta
      *           additional export data specific for backend
+     *     @type \Keboola\StorageDriver\Command\Info\TableInfo $tableInfo
      * }
      */
     public function __construct($data = NULL) {
@@ -335,6 +340,38 @@ class TableExportToFileCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
         $this->meta = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 8;</code>
+     * @return \Keboola\StorageDriver\Command\Info\TableInfo|null
+     */
+    public function getTableInfo()
+    {
+        return $this->tableInfo;
+    }
+
+    public function hasTableInfo()
+    {
+        return isset($this->tableInfo);
+    }
+
+    public function clearTableInfo()
+    {
+        unset($this->tableInfo);
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableInfo tableInfo = 8;</code>
+     * @param \Keboola\StorageDriver\Command\Info\TableInfo $var
+     * @return $this
+     */
+    public function setTableInfo($var)
+    {
+        GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\Info\TableInfo::class);
+        $this->tableInfo = $var;
 
         return $this;
     }
