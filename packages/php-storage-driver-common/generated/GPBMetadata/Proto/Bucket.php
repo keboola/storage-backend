@@ -17,8 +17,8 @@ class Bucket
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-†
-proto/bucket.proto$keboola.storageDriver.command.bucket"®
+–
+proto/bucket.proto$keboola.storageDriver.command.bucket"²
 CreateBucketCommand
 stackPrefix (	
 	projectId (	
@@ -30,9 +30,9 @@ class Bucket
 CreateBucketTeradataMeta
 	permSpace (	
 
-spoolSpace (	*
-CreateBucketBigqueryMeta
-region (	"D
+spoolSpace (	.
+CreateBucketBigqueryMeta
+region (	B"D
 CreateBucketResponse
 path (	
 createBucketObjectName (	"Ÿ
@@ -41,18 +41,18 @@ spoolSpace (	*
 ignoreErrors (B
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any
-	isCascade ("ë
+	isCascade ("ï
 LinkBucketCommand
 stackPrefix (	
 targetProjectId (	
 targetBucketId (	
 sourceShareRoleName (	%
 targetProjectReadOnlyRoleName (	"
-meta (2.google.protobuf.Any(
-LinkBucketBigqueryMeta
-region (	"6
+meta (2.google.protobuf.Any,
+LinkBucketBigqueryMeta
+region (	B"6
 LinkedBucketResponse
-linkedBucketObjectName (	"°
+linkedBucketObjectName (	"´
 ShareBucketCommand
 stackPrefix (	
 sourceBucketObjectName (	%
@@ -61,9 +61,9 @@ spoolSpace (	*
 sourceBucketId (	"
 meta (2.google.protobuf.Any7
 ShareBucketSnowflakeCommandMeta
-databaseName (	0
-ShareBucketBigqueryCommandMeta
-region (	"2
+databaseName (	4
+ShareBucketBigqueryCommandMeta
+region (	B"2
 ShareBucketResponse
 bucketShareRoleName (	"‘
 UnlinkBucketCommand
@@ -75,16 +75,16 @@ spoolSpace (	*
 bucketObjectName (	
 bucketShareRoleName (	
 projectReadOnlyRoleName (	"
-meta (2.google.protobuf.Any"€
+meta (2.google.protobuf.Any"„
 &GrantBucketAccessToReadOnlyRoleCommand
 projectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any
 branchId (	
 stackPrefix (	
 destinationObjectName (	
-path (	=
-+GrantBucketAccessToReadOnlyRoleBigqueryMeta
-region (	"I
+path (	A
++GrantBucketAccessToReadOnlyRoleBigqueryMeta
+region (	B"I
 \'GrantBucketAccessToReadOnlyRoleResponse
 createBucketObjectName (	"¤
 )RevokeBucketAccessFromReadOnlyRoleCommand

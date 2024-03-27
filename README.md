@@ -30,6 +30,9 @@ as in [main.yml](.github/workflows/main.yml) on line 32, or add the new role to 
 ## How to use monorepo and packages
 We maintaining the monorepo with the [symplify/monorepo-builder](https://github.com/symplify/monorepo-builder).
 
+To download drivers stored on S3 use AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY (Export them or use --build-arg option in docker-compose build command) from the AWS account "Dev - Main Legacy" -> create user namesurname-kbc-drivers-download and add policy "DriversDownload"). 
+
+
 The base docker service is `dev`
 To install dependencies use: 
 
