@@ -25,6 +25,7 @@ message CreateBucketCommand {
   }
 
   message CreateBucketBigqueryMeta {
+    option deprecated = true;
     string region = 1; // region where bucket is created
   }
 }
@@ -58,6 +59,7 @@ message LinkBucketCommand {
   google.protobuf.Any meta = 6;
 
   message LinkBucketBigqueryMeta {
+    option deprecated = true;
     string region = 1; // region where linked bucket is created
   }
 }
@@ -81,6 +83,7 @@ message ShareBucketCommand {
   }
 
   message ShareBucketBigqueryCommandMeta {
+    option deprecated = true;
     string region = 1; // region where listing is created
   }
 }
@@ -115,6 +118,7 @@ message GrantBucketAccessToReadOnlyRoleCommand {
   repeated string path = 7;
 
   message GrantBucketAccessToReadOnlyRoleBigqueryMeta {
+    option deprecated = true;
     string region = 1; // region where destination dataset is created
   }
 }

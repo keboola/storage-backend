@@ -30,6 +30,7 @@ message CreateWorkspaceCommand {
   }
 
   message CreateWorkspaceBigqueryMeta {
+    option deprecated = true;
     string region = 1; // region where dataset for workspace is created
   }
 }

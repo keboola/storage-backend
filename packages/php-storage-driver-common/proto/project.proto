@@ -25,7 +25,7 @@ message CreateProjectCommand {
   */
   message CreateProjectBigqueryMeta {
     string gcsFileBucketName = 1; // file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
-    string region = 2; // region where exchanger for sharing is created
+    string region = 2 [deprecated = true]; // region where exchanger for sharing is created
   }
 }
 
@@ -55,6 +55,6 @@ message DropProjectCommand {
   */
   message DropProjectBigqueryMeta {
     string gcsFileBucketName = 1; // file storage bucket in GCS
-    string region = 2; // region where exchanger is created during project creation
+    string region = 2 [deprecated = true]; // region where exchanger is created during project creation
   }
 }

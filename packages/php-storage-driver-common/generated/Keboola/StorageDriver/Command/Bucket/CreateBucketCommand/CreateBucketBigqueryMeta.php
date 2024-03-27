@@ -9,6 +9,7 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ * @deprecated
  * Generated from protobuf message <code>keboola.storageDriver.command.bucket.CreateBucketCommand.CreateBucketBigqueryMeta</code>
  */
 class CreateBucketBigqueryMeta extends \Google\Protobuf\Internal\Message
