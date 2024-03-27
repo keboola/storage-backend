@@ -9,7 +9,6 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * @deprecated
  * Generated from protobuf message <code>keboola.storageDriver.command.bucket.ShareBucketCommand.ShareBucketBigqueryCommandMeta</code>
  */
 class ShareBucketBigqueryCommandMeta extends \Google\Protobuf\Internal\Message
@@ -17,7 +16,8 @@ class ShareBucketBigqueryCommandMeta extends \Google\Protobuf\Internal\Message
     /**
      * region where listing is created
      *
-     * Generated from protobuf field <code>string region = 1;</code>
+     * Generated from protobuf field <code>string region = 1 [deprecated = true];</code>
+     * @deprecated
      */
     protected $region = '';
 
@@ -39,23 +39,27 @@ class ShareBucketBigqueryCommandMeta extends \Google\Protobuf\Internal\Message
     /**
      * region where listing is created
      *
-     * Generated from protobuf field <code>string region = 1;</code>
+     * Generated from protobuf field <code>string region = 1 [deprecated = true];</code>
      * @return string
+     * @deprecated
      */
     public function getRegion()
     {
+        @trigger_error('region is deprecated.', E_USER_DEPRECATED);
         return $this->region;
     }
 
     /**
      * region where listing is created
      *
-     * Generated from protobuf field <code>string region = 1;</code>
+     * Generated from protobuf field <code>string region = 1 [deprecated = true];</code>
      * @param string $var
      * @return $this
+     * @deprecated
      */
     public function setRegion($var)
     {
+        @trigger_error('region is deprecated.', E_USER_DEPRECATED);
         GPBUtil::checkString($var, True);
         $this->region = $var;
 

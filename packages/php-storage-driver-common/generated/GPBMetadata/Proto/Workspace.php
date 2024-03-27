@@ -32,8 +32,8 @@ class Workspace
 	permSpace (	
 
 spoolSpace (	1
-CreateWorkspaceBigqueryMeta
-region (	:"‡
+CreateWorkspaceBigqueryMeta
+region (	B"‡
 CreateWorkspaceResponse
 workspaceUserName (	
 workspaceRoleName (	

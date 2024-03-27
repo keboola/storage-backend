@@ -30,8 +30,7 @@ message CreateWorkspaceCommand {
   }
 
   message CreateWorkspaceBigqueryMeta {
-    option deprecated = true;
-    string region = 1; // region where dataset for workspace is created
+    string region = 1 [deprecated = true]; // region where dataset for workspace is created
   }
 }
 /**

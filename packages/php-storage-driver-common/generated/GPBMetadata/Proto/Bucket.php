@@ -31,8 +31,8 @@ class Bucket
 	permSpace (	
 
 spoolSpace (	.
-CreateBucketBigqueryMeta
-region (	:"D
+CreateBucketBigqueryMeta
+region (	B"D
 CreateBucketResponse
 path (	
 createBucketObjectName (	"Ÿ
@@ -49,8 +49,8 @@ spoolSpace (	.
 sourceShareRoleName (	%
 targetProjectReadOnlyRoleName (	"
 meta (2.google.protobuf.Any,
-LinkBucketBigqueryMeta
-region (	:"6
+LinkBucketBigqueryMeta
+region (	B"6
 LinkedBucketResponse
 linkedBucketObjectName (	"´
 ShareBucketCommand
@@ -62,8 +62,8 @@ spoolSpace (	.
 meta (2.google.protobuf.Any7
 ShareBucketSnowflakeCommandMeta
 databaseName (	4
-ShareBucketBigqueryCommandMeta
-region (	:"2
+ShareBucketBigqueryCommandMeta
+region (	B"2
 ShareBucketResponse
 bucketShareRoleName (	"‘
 UnlinkBucketCommand
@@ -83,8 +83,8 @@ spoolSpace (	.
 stackPrefix (	
 destinationObjectName (	
 path (	A
-+GrantBucketAccessToReadOnlyRoleBigqueryMeta
-region (	:"I
++GrantBucketAccessToReadOnlyRoleBigqueryMeta
+region (	B"I
 \'GrantBucketAccessToReadOnlyRoleResponse
 createBucketObjectName (	"¤
 )RevokeBucketAccessFromReadOnlyRoleCommand
