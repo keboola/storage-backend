@@ -18,21 +18,21 @@ Any type class that extends `Keboola\Datatype\Definition\Common` should provide 
 ```
 git clone https://github.com/keboola/php-datatypes
 cd php-datatypes
-docker-compose build
-docker-compose run --rm dev composer install
+docker compose build
+docker compose run --rm dev composer install
 ```
 
 ## Tests Execution
 Run tests with following command.
 
 ```
-docker-compose run --rm dev ./vendor/bin/phpunit
+docker compose run --rm dev ./vendor/bin/phpunit
 ```
 
 ## Coding Style
 
 ```
-docker-compose run --rm dev ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
+docker compose run --rm dev ./vendor/bin/phpcs --standard=psr2 --ignore=vendor -n .
 ```
 
 ## License

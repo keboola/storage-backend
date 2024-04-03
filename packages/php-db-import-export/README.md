@@ -29,9 +29,9 @@ If you don't have access to `keboola-drivers` you have to change Dockerfile.
   - Driver: https://downloads.teradata.com/download/connectivity/odbc-driver/linux
   - Change `COPY --from=td` commands in Dockerfile with copy of you local Teradata packages
 
-Then run `docker-compose build`
+Then run `docker compose build`
 
-The AWS credentials have to also have access to bucket specified in `AWS_S3_BUCKET`. This bucket has to contain testing data. Run `docker-compose run --rm dev  composer loadS3` to load them up.
+The AWS credentials have to also have access to bucket specified in `AWS_S3_BUCKET`. This bucket has to contain testing data. Run `docker compose run --rm dev  composer loadS3` to load them up.
 
 
 ### Preparation
@@ -46,7 +46,7 @@ ABS_ACCOUNT_NAME=storageAccount
 ABS_ACCOUNT_KEY=accountKey
 ABS_CONTAINER_NAME=containerName
 ```
-- Upload test fixtures to ABS `docker-compose run --rm dev composer loadAbs`
+- Upload test fixtures to ABS `docker compose run --rm dev composer loadAbs`
 
 #### Google cloud storage
 
@@ -118,7 +118,7 @@ You can run Exasol locally in Docker or you can use SaaS.
 
 Run Exasol on your local machine in docker (for this case .env is preconfigured)
 ```
-docker-compose up -d exasol
+docker compose up -d exasol
 ```
 
 Run Exasol server somewhere else and set up env variables:
@@ -209,36 +209,36 @@ Run tests with following command.
 *note: azure credentials must be provided and fixtures uploaded*
 
 ```
-docker-compose run --rm dev composer tests
+docker compose run --rm dev composer tests
 ```
 
 Unit and functional test can be run sepparetly
 ```
 #unit test
-docker-compose run --rm dev composer tests-unit
+docker compose run --rm dev composer tests-unit
 
 #functional test
-docker-compose run --rm dev composer tests-functional
+docker compose run --rm dev composer tests-functional
 ```
 
 ### Code quality check
 
 ```
 #phplint
-docker-compose run --rm dev composer phplint
+docker compose run --rm dev composer phplint
 
 #phpcs
-docker-compose run --rm dev composer phpcs
+docker compose run --rm dev composer phpcs
 
 #phpstan
-docker-compose run --rm dev composer phpstan
+docker compose run --rm dev composer phpstan
 ```
 
 ### Full CI workflow
 
 This command will run all checks load fixtures and run tests
 ```
-docker-compose run --rm dev composer ci
+docker compose run --rm dev composer ci
 ```
 
 
