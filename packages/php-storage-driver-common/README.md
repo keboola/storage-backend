@@ -15,7 +15,7 @@ AWS_REGION=eu-central-1
 ## Build docker images
 
 ```bash
-docker-compose build
+docker compose build
 ```
 
 ## Xdebug
@@ -25,7 +25,7 @@ To run with xdebug use `dev-xdebug` container instead of `dev`
 ## Generate protobuf code
 
 ```bash
-docker-compose run --rm dev composer protobuf
+docker compose run --rm dev composer protobuf
 ```
 
 ### Generate protobuf documentation
@@ -43,12 +43,12 @@ docker run --rm \
 Run tests with following command.
 
 ```bash
-docker-compose run --rm dev composer tests
+docker compose run --rm dev composer tests
 ```
 
 To run separate tests first generate testing protobuf classes
 ```bash
-docker-compose run --rm dev composer protobufTests
+docker compose run --rm dev composer protobufTests
 ```
 
 To disable retry copy `phpunit-retry.xml.dist`
@@ -64,26 +64,26 @@ To debug queries executed during test set DEBUG=1 env variable
 
 ```bash
 #run all bellow but not tests
-docker-compose run --rm dev composer check
+docker compose run --rm dev composer check
 
 #phplint
-docker-compose run --rm dev composer phplint
+docker compose run --rm dev composer phplint
 
 #phpcs
-docker-compose run --rm dev composer phpcs
+docker compose run --rm dev composer phpcs
 
 #phpcbf
-docker-compose run --rm dev composer phpcbf
+docker compose run --rm dev composer phpcbf
 
 #phpstan
-docker-compose run --rm dev composer phpstan
+docker compose run --rm dev composer phpstan
 ```
 
 ## Full CI workflow
 
 This command will run all checks and run tests
 ```bash
-docker-compose run --rm dev composer ci
+docker compose run --rm dev composer ci
 ```
 
 ## License

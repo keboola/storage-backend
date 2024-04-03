@@ -195,7 +195,7 @@ AWS_SECRET_ACCESS_KEY=
 
 Run Exasol on your local machine in docker (for this case .env is preconfigured)
 ```
-docker-compose up -d exasol
+docker compose up -d exasol
 ```
 
 Run Exasol server somewhere else and set up env variables:
@@ -207,7 +207,7 @@ EXASOL_PASSWORD=
 
 _issues:_
 
-- on slower machines Exasol can take a lot of resources. Run `docker-compose -f docker-compose.yml -f docker-compose.limits.yml up exasol` to limit memory and cpu 
+- on slower machines Exasol can take a lot of resources. Run `docker compose -f docker compose.yml -f docker compose.limits.yml up exasol` to limit memory and cpu 
 
 - If you are getting error `exadt::ERROR: the private interface with address '<ip>/16' either does not exist or is down.` https://github.com/exasol/docker-db/issues/45
 Exasol saves you (container) current ip address and docker daemon is changing default bridge range. There are two ways to fix this:
@@ -279,39 +279,39 @@ BQ_KEY_FILE=<the content of the downloaded json key file>
 Run tests with following command.
 
 ```bash
-docker-compose run --rm dev composer tests
+docker compose run --rm dev composer tests
 ```
 
 Unit and functional test can be run sepparetly
 ```bash
 #unit test
-docker-compose run --rm dev composer tests-unit
+docker compose run --rm dev composer tests-unit
 
 #functional test
-docker-compose run --rm dev composer tests-functional
+docker compose run --rm dev composer tests-functional
 ```
 
 ### Code quality check
 
 ```bash
 #phplint
-docker-compose run --rm dev composer phplint
+docker compose run --rm dev composer phplint
 
 #phpcs
-docker-compose run --rm dev composer phpcs
+docker compose run --rm dev composer phpcs
 
 #phpcbf
-docker-compose run --rm dev composer phpcbf
+docker compose run --rm dev composer phpcbf
 
 #phpstan
-docker-compose run --rm dev composer phpstan
+docker compose run --rm dev composer phpstan
 ```
 
 ### Full CI workflow
 
 This command will run all checks load fixtures and run tests
 ```bash
-docker-compose run --rm dev composer ci
+docker compose run --rm dev composer ci
 ```
 
 
