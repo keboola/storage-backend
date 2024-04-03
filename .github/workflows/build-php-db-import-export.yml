@@ -145,8 +145,8 @@ jobs:
 
       - name: Monorepo Localize Composer Paths
         run: |
-          docker-compose run ci-monorepo composer install
-          docker-compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-db-import-export/composer.json --ansi
+          docker compose run ci-monorepo composer install
+          docker compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-db-import-export/composer.json --ansi
       -
         name: Build docker image
         if: ${{ matrix.php-version != env.PHP_VERSION_E2E }}
@@ -154,7 +154,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} $LOCAL_IMAGE
+          docker compose build --build-arg PHP_VERSION=${{ matrix.php-version }} $LOCAL_IMAGE
       -
         name: Push docker image
         if: ${{ matrix.php-version == env.PHP_VERSION_E2E }}
@@ -165,15 +165,15 @@ jobs:
           IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
         run: |
-          docker-compose build --build-arg PHP_VERSION=${{ matrix.php-version }} $LOCAL_IMAGE
+          docker compose build --build-arg PHP_VERSION=${{ matrix.php-version }} $LOCAL_IMAGE
           docker tag $LOCAL_IMAGE:latest $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Check
         if: ${{ matrix.php-version != env.PHP_VERSION_E2E }}
         run: |
-          docker-compose run ci-php-db-import-export php -v
-          docker-compose run ci-php-db-import-export composer ci
+          docker compose run ci-php-db-import-export php -v
+          docker compose run ci-php-db-import-export composer ci
 
   # Load stubs to S3/ABS
   load-s3:
@@ -215,7 +215,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: |
-          docker-compose run ci-php-db-import-export composer loadS3
+          docker compose run ci-php-db-import-export composer loadS3
   load-abs:
     runs-on: ubuntu-latest
     permissions:
@@ -252,7 +252,7 @@ jobs:
       -
         name: Load data to ${{ matrix.storage }}
         run: |
-          docker-compose run ci-php-db-import-export composer loadAbs
+          docker compose run ci-php-db-import-export composer loadAbs
   load-gcs:
     runs-on: ubuntu-latest
     permissions:
@@ -293,7 +293,7 @@ jobs:
       -
         name: Load data to ${{ matrix.storage }}
         run: |
-          docker-compose run ci-php-db-import-export composer loadGcs-${{ matrix.suite }}
+          docker compose run ci-php-db-import-export composer loadGcs-${{ matrix.suite }}
 
   # Test matrix
   testsABS:
@@ -341,7 +341,7 @@ jobs:
           SUITE: ${{ matrix.suite }}
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsS3:
     runs-on: ubuntu-latest
     permissions:
@@ -388,7 +388,7 @@ jobs:
           SUITE: ${{ matrix.suite }}
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsGCS:
     runs-on: ubuntu-latest
     permissions:
@@ -434,7 +434,7 @@ jobs:
           SUITE: ${{ matrix.suite }}
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   testsAll:
     runs-on: ubuntu-latest
     permissions:
@@ -480,7 +480,7 @@ jobs:
           SUITE: ${{ matrix.suite }}
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
 
   pre-synapse-tests:
     runs-on: ubuntu-latest
@@ -543,7 +543,7 @@ jobs:
           SUITE: ${{ matrix.suite }}
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
   post-synapse-tests:
     runs-on: ubuntu-latest
     needs: synapse-tests
@@ -620,7 +620,7 @@ jobs:
           SUITE: ${{ matrix.suite }}
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-        run: docker-compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
 
   post-exasol-tests:
     runs-on: ubuntu-latest

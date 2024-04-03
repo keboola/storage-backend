@@ -53,12 +53,12 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_AWS_SECRET_ACCESS_KEY }}
         run: |
-          docker-compose build production
+          docker compose build production
           docker save -o /tmp/image.tar table-utils:latest
       -
         name: Check
         run: |
-          docker-compose run production composer check
+          docker compose run production composer check
       -
         name: Upload docker image
         uses: actions/upload-artifact@v2
@@ -100,7 +100,7 @@ jobs:
         name: Exasol start
         if: ${{ matrix.suite == 'exasol' }}
         run: |
-          docker-compose up -d exasol
+          docker compose up -d exasol
           sleep 60
 #
 # TESTS
@@ -109,13 +109,13 @@ jobs:
         name: Tests ${{ matrix.suite }}
         env:
           SUITE: ${{ matrix.suite }}
-        run: docker-compose run production composer tests-${{ matrix.suite }}
+        run: docker compose run production composer tests-${{ matrix.suite }}
 #
 # After tests, stop services
       -
         name: Exasol stop
         if: ${{ always() && matrix.suite == 'exasol' }}
-        run: docker-compose stop exasol
+        run: docker compose stop exasol
       -
         name: Synapse stop
         if: ${{ always() && matrix.suite == 'synapse' }}

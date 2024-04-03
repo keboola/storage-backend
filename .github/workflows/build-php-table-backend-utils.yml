@@ -93,8 +93,8 @@ jobs:
       -
         name: Monorepo Localize Composer Paths
         run: |
-          docker-compose run ci-monorepo composer install
-          docker-compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
+          docker compose run ci-monorepo composer install
+          docker compose run ci-monorepo vendor/bin/monorepo-builder localize-composer-paths packages/php-table-backend-utils/composer.json --ansi
       -
         name: Check
         env:
@@ -102,8 +102,8 @@ jobs:
           LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
 
         run: |
-          docker-compose build $LOCAL_IMAGE
-          docker-compose run $LOCAL_IMAGE composer check
+          docker compose build $LOCAL_IMAGE
+          docker compose run $LOCAL_IMAGE composer check
       -
         name: Push docker image
         env:
@@ -166,7 +166,7 @@ jobs:
         name: Exasol start
         if: ${{ matrix.suite == 'exasol' }}
         run: |
-          docker-compose up -d exasol
+          docker compose up -d exasol
           sleep 60
       #
       # TESTS
@@ -177,13 +177,13 @@ jobs:
           SUITE: ${{ matrix.suite }}
           DOCKER_BUILDKIT: 1
         run: |
-          docker-compose run ci-php-table-backend-utils composer tests-${{ matrix.suite }}
+          docker compose run ci-php-table-backend-utils composer tests-${{ matrix.suite }}
       #
       # After tests, stop services
       -
         name: Exasol stop
         if: ${{ always() && matrix.suite == 'exasol' }}
-        run: docker-compose stop exasol
+        run: docker compose stop exasol
       -
         name: Synapse stop
         if: ${{ always() && matrix.suite == 'synapse' }}

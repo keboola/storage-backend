@@ -79,9 +79,9 @@ jobs:
           ECR_REPOSITORY: storage-backend-build
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker-compose build ci-monorepo
-          docker-compose run ci-monorepo composer install
-          docker-compose run ci-monorepo vendor/bin/monorepo-builder validate
+          docker compose build ci-monorepo
+          docker compose run ci-monorepo composer install
+          docker compose run ci-monorepo vendor/bin/monorepo-builder validate
           docker tag ci-monorepo:latest $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
