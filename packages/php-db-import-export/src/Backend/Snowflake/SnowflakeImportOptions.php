@@ -21,6 +21,7 @@ class SnowflakeImportOptions extends ImportOptions
      * @param self::NULL_MANIPULATION_* $nullManipulation
      * @param string[] $ignoreColumns
      * @param string[] $importAsNull
+     * @param string[] $features
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -31,6 +32,7 @@ class SnowflakeImportOptions extends ImportOptions
         bool $nullManipulation = self::NULL_MANIPULATION_ENABLED,
         array $ignoreColumns = [],
         array $importAsNull = self::DEFAULT_IMPORT_AS_NULL,
+        array $features = [],
     ) {
         parent::__construct(
             $convertEmptyValuesToNull,
@@ -40,6 +42,7 @@ class SnowflakeImportOptions extends ImportOptions
             $requireSameTables === self::SAME_TABLES_REQUIRED ? self::USING_TYPES_USER : self::USING_TYPES_STRING,
             $ignoreColumns,
             $importAsNull,
+            $features,
         );
         $this->requireSameTables = $requireSameTables;
         $this->nullManipulation = $nullManipulation;
