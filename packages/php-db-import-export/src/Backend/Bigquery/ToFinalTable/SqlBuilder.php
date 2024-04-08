@@ -308,18 +308,126 @@ SQL,
             );
         }
 
+        $whereAndOverride = null;
+        $columnsComparisonSql = [];
+        switch (true) {
+            case in_array('import:row-change:IS_NULL', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    function (string $column) {
+                        return sprintf(
+                        // phpcs:ignore
+                            '(`dest`.%s != `src`.%s OR (`dest`.%s IS NULL OR `src`.%s IS NULL AND (`dest`.%s IS NULL AND `src`.%s IS NULL)))',
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case in_array('import:row-change:HASH', $importOptions->features()):
+                $columnsDest = array_map(
+                    function (string $column) {
+                        return sprintf(
+                            'TO_JSON_STRING(`dest`.%s)',
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                $columnsSrc = array_map(
+                    function (string $column) {
+                        return sprintf(
+                            'TO_JSON_STRING(`src`.%s)',
+                            BigqueryQuote::quoteSingleIdentifier($column),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                $whereAndOverride = sprintf(
+                    'FARM_FINGERPRINT(CONCAT(%s)) != FARM_FINGERPRINT(CONCAT(%s))',
+                    implode(', ', $columnsDest),
+                    implode(', ', $columnsSrc),
+                );
+                break;
+            case in_array('import:row-change:sub:COALESCE', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            'COALESCE(`dest`.%s, \'KBC_$#\') != COALESCE(`src`.%s, \'KBC_$#\')',
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case in_array('import:row-change:DISTINCT', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            '`dest`.%s IS DISTINCT FROM `src`.%s',
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case in_array('import:row-change:sub:IFNULL', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            'IFNULL(`dest`.%s, \'KBC_$#\') != IFNULL(`src`.%s, \'KBC_$#\')',
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+        }
+
         $dest = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
+
+        if ($columnsComparisonSql === [] && $whereAndOverride === null) {
+            return sprintf(
+                'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s',
+                $dest,
+                implode(', ', $columnsSet),
+                BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+                BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+                $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions),
+            );
+        }
+
+        if ($whereAndOverride !== null) {
+            return sprintf(
+                'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s AND %s',
+                $dest,
+                implode(', ', $columnsSet),
+                BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+                BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+                $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions),
+                $whereAndOverride,
+            );
+        }
+
         return sprintf(
-            'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s',
+            'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s AND (%s)',
             $dest,
             implode(', ', $columnsSet),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
             $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions),
+            implode(' OR ', $columnsComparisonSql),
         );
     }
 
