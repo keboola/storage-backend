@@ -14,6 +14,10 @@ class ImportOptionsTest extends TestCase
         $options = new ImportOptions();
 
         self::assertSame([], $options->getConvertEmptyValuesToNull());
+        self::assertSame([], $options->features());
+        self::assertSame([], $options->ignoreColumns());
+        self::assertSame([''], $options->importAsNull());
+        self::assertFalse($options->usingUserDefinedTypes());
         self::assertFalse($options->isIncremental());
         self::assertFalse($options->useTimestamp());
         self::assertEquals(0, $options->getNumberOfIgnoredLines());

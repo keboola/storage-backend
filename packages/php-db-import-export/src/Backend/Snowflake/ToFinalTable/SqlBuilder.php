@@ -149,7 +149,6 @@ class SqlBuilder
         return implode(' AND ', $pkWhereSql) . ' ';
     }
 
-
     public function getDropTableIfExistsCommand(
         string $schema,
         string $tableName,
@@ -352,19 +351,114 @@ class SqlBuilder
             );
         }
 
+        $whereAndOverride = null;
         $columnsComparisonSql = [];
-        if ($importOptions->isNullManipulationEnabled()) {
-            // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-            $columnsComparisonSql = array_map(
-                static function ($columnName) {
-                    return sprintf(
-                        'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
-                        SnowflakeQuote::quoteSingleIdentifier($columnName),
-                        SnowflakeQuote::quoteSingleIdentifier($columnName),
+        switch (true) {
+            case in_array('import:row-change:EQUAL_NULL', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    function (string $column) {
+                        return sprintf(
+                        // phpcs:ignore
+                            'not(EQUAL_NULL("dest".%s, "src".%s))',
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case in_array('import:row-change:IS_NULL', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    function (string $column) {
+                        return sprintf(
+                        // phpcs:ignore
+                            '("dest".%s != "src".%s OR ("dest".%s IS NULL OR "src".%s IS NULL AND ("dest".%s IS NULL AND "src".%s IS NULL)))',
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case in_array('import:row-change:HASH', $importOptions->features()):
+                $columnsDest = array_map(
+                    function (string $column) {
+                        return sprintf(
+                            '"dest".%s',
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                $columnsSrc = array_map(
+                    function (string $column) {
+                        return sprintf(
+                            '"src".%s',
+                            SnowflakeQuote::quoteSingleIdentifier($column),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                $whereAndOverride = sprintf(
+                    'HASH(%s) != HASH(%s)',
+                    implode(', ', $columnsDest),
+                    implode(', ', $columnsSrc),
+                );
+                break;
+            case in_array('import:row-change:sub:COALESCE', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            'COALESCE("dest".%s, \'KBC_$#\') != COALESCE("src".%s, \'KBC_$#\')',
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case in_array('import:row-change:DISTINCT', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            '"dest".%s IS DISTINCT FROM "src".%s',
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case in_array('import:row-change:sub:IFNULL', $importOptions->features()):
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            'IFNULL("dest".%s, \'KBC_$#\') != IFNULL("src".%s, \'KBC_$#\')',
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            default:
+                if ($importOptions->isNullManipulationEnabled()) {
+                    // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
+                    $columnsComparisonSql = array_map(
+                        static function ($columnName) {
+                            return sprintf(
+                                'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
+                                SnowflakeQuote::quoteSingleIdentifier($columnName),
+                                SnowflakeQuote::quoteSingleIdentifier($columnName),
+                            );
+                        },
+                        $stagingTableDefinition->getColumnsNames(),
                     );
-                },
-                $stagingTableDefinition->getColumnsNames(),
-            );
+                }
         }
 
         $dest = sprintf(
@@ -373,7 +467,7 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($destinationDefinition->getTableName()),
         );
 
-        if (empty($columnsComparisonSql)) {
+        if ($columnsComparisonSql === [] && $whereAndOverride === null) {
             return sprintf(
                 'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s',
                 $dest,
@@ -381,6 +475,18 @@ class SqlBuilder
                 QuoteHelper::quoteIdentifier($stagingTableDefinition->getSchemaName()),
                 QuoteHelper::quoteIdentifier($stagingTableDefinition->getTableName()),
                 $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions),
+            );
+        }
+
+        if ($whereAndOverride !== null) {
+            return sprintf(
+                'UPDATE %s AS "dest" SET %s FROM %s.%s AS "src" WHERE %s AND (%s)',
+                $dest,
+                implode(', ', $columnsSet),
+                QuoteHelper::quoteIdentifier($stagingTableDefinition->getSchemaName()),
+                QuoteHelper::quoteIdentifier($stagingTableDefinition->getTableName()),
+                $this->getPrimayKeyWhereConditions($destinationDefinition->getPrimaryKeysNames(), $importOptions),
+                $whereAndOverride,
             );
         }
 

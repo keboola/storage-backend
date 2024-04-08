@@ -34,6 +34,7 @@ class ImportOptions implements ImportOptionsInterface
      * @param self::USING_TYPES_* $usingTypes
      * @param string[] $ignoreColumns
      * @param string[] $importAsNull
+     * @param string[] $features
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -43,6 +44,7 @@ class ImportOptions implements ImportOptionsInterface
         string $usingTypes = self::USING_TYPES_STRING,
         array $ignoreColumns = [],
         array $importAsNull = self::DEFAULT_IMPORT_AS_NULL,
+        private readonly array $features = [],
     ) {
         $this->useTimestamp = $useTimestamp;
         $this->convertEmptyValuesToNull = $convertEmptyValuesToNull;
@@ -92,5 +94,10 @@ class ImportOptions implements ImportOptionsInterface
     public function importAsNull(): array
     {
         return $this->importAsNull;
+    }
+
+    public function features(): array
+    {
+        return $this->features;
     }
 }
