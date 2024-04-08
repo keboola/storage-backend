@@ -811,6 +811,148 @@ class SqlBuildTest extends BigqueryBaseTestCase
         }
     }
 
+    public function nullManipulationWithTimestampFeatures(): Generator
+    {
+        yield 'import:row-change:IS_NULL' => [
+            'import:row-change:IS_NULL',
+            // phpcs:ignore
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND ((`dest`.`col1` != `src`.`col1` OR (`dest`.`col1` IS NULL OR `src`.`col1` IS NULL AND (`dest`.`col1` IS NULL AND `src`.`col1` IS NULL))) OR (`dest`.`col2` != `src`.`col2` OR (`dest`.`col2` IS NULL OR `src`.`col2` IS NULL AND (`dest`.`col2` IS NULL AND `src`.`col2` IS NULL))))',
+        ];
+        yield 'import:row-change:HASH' => [
+            'import:row-change:HASH',
+            // phpcs:ignore
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND FARM_FINGERPRINT(CONCAT(TO_JSON_STRING(`dest`.`col1`), TO_JSON_STRING(`dest`.`col2`))) != FARM_FINGERPRINT(CONCAT(TO_JSON_STRING(`src`.`col1`), TO_JSON_STRING(`src`.`col2`)))',
+        ];
+        yield 'import:row-change:sub:COALESCE' => [
+            'import:row-change:sub:COALESCE',
+            // phpcs:ignore
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND (COALESCE(`dest`.`col1`, \'KBC_$#\') != COALESCE(`src`.`col1`, \'KBC_$#\') OR COALESCE(`dest`.`col2`, \'KBC_$#\') != COALESCE(`src`.`col2`, \'KBC_$#\'))',
+        ];
+        yield 'import:row-change:DISTINCT' => [
+            'import:row-change:DISTINCT',
+            // phpcs:ignore
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND (`dest`.`col1` IS DISTINCT FROM `src`.`col1` OR `dest`.`col2` IS DISTINCT FROM `src`.`col2`)',
+        ];
+        yield 'import:row-change:sub:IFNULL' => [
+            'import:row-change:sub:IFNULL',
+            // phpcs:ignore
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND (IFNULL(`dest`.`col1`, \'KBC_$#\') != IFNULL(`src`.`col1`, \'KBC_$#\') OR IFNULL(`dest`.`col2`, \'KBC_$#\') != IFNULL(`src`.`col2`, \'KBC_$#\'))',
+        ];
+    }
+
+    /**
+     * @dataProvider nullManipulationWithTimestampFeatures
+     */
+    public function testGetUpdateWithPkCommandNullManipulationWithTimestampFeatures(
+        string $feature,
+        string $expectedSQL,
+    ): void {
+        $timestampInit = new DateTime('2020-01-01 00:00:01');
+        $timestampSet = new DateTime('2020-01-01 01:01:01');
+        $this->createTestDb();
+        $this->createTestTableWithColumns(true);
+        $this->createStagingTableWithData(true);
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'3\',\'3\',\'\',NULL)',
+                self::TEST_DB_QUOTED,
+                self::TEST_STAGING_TABLE_QUOTED,
+            ),
+        ));
+
+        // create fake destination and say that there is pk on col1
+        $fakeDestination = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1'],
+        );
+        // create fake stage and say that there is less columns
+        $fakeStage = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+        );
+
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'1\',\'1\',\'1\',\'%s\')',
+                self::TEST_DB_QUOTED,
+                self::TEST_TABLE_QUOTED,
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
+        ));
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'3\',\'3\',NULL,\'%s\')',
+                self::TEST_DB_QUOTED,
+                self::TEST_TABLE_QUOTED,
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
+        ));
+
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'col1' => '1',
+                'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+            [
+                'id' => '3',
+                'col1' => '3',
+                'col2' => null,
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+        ], $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED));
+
+        // use timestamp
+        $options = new BigQueryImportOptions(
+            convertEmptyValuesToNull: [],
+            isIncremental: false,
+            useTimestamp: true,
+            numberOfIgnoredLines: 0,
+            usingTypes: BigQueryImportOptions::USING_TYPES_USER,
+            importAsNull: BigQueryImportOptions::DEFAULT_IMPORT_AS_NULL,
+            features: [$feature],
+        );
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            $options,
+            $timestampSet->format(DateTimeHelper::FORMAT),
+        );
+
+        self::assertEquals($expectedSQL, $sql);
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+        $result = $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED);
+
+        // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'col1' => '1',
+                'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ], // timestamp is not update when row has same value
+            [
+                'id' => '3',
+                'col1' => '3',
+                'col2' => null,
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],  // timestamp is not update when row has same value and there is null
+        ], $result);
+    }
+
 
     /**
      * @return Generator<string, array{
