@@ -15,6 +15,7 @@ use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableStatsInterface;
+use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use LogicException;
 
@@ -212,5 +213,10 @@ class BigqueryTableReflection implements TableReflectionInterface
         }
 
         return $partitions;
+    }
+
+    public function getTableType(): TableType
+    {
+        return ($this->table->info()['type'] === 'EXTERNAL') ? TableType::BIGQUERY_EXTERNAL : TableType::TABLE;
     }
 }
