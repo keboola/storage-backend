@@ -16,6 +16,14 @@ enum ObjectType {
   VIEW = 3;
 }
 
+/**
+ * List of types of table
+ */
+enum TableType {
+  NORMAL = 0;
+  EXTERNAL = 1;
+}
+
 message ObjectInfoCommand {
   repeated string path = 1;
   ObjectType expectedObjectType = 2;
@@ -85,8 +93,9 @@ message TableInfo {
   repeated string primaryKeysNames = 4; // primary key columns names
   int64 rowsCount = 5;
   int64 sizeBytes = 6;
-  google.protobuf.Any meta = 7; // metadata specific for each backend
+  TableType tableType = 7;
 
+  google.protobuf.Any meta = 8; // metadata specific for each backend
 
   /**
    * Additional metadata retrieved from Bigquery table
