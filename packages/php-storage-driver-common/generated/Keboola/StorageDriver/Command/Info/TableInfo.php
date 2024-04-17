@@ -50,9 +50,13 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      */
     protected $sizeBytes = 0;
     /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableType tableType = 7;</code>
+     */
+    protected $tableType = 0;
+    /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 8;</code>
      */
     protected $meta = null;
 
@@ -72,6 +76,7 @@ class TableInfo extends \Google\Protobuf\Internal\Message
      *           primary key columns names
      *     @type int|string $rowsCount
      *     @type int|string $sizeBytes
+     *     @type int $tableType
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -230,9 +235,31 @@ class TableInfo extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableType tableType = 7;</code>
+     * @return int
+     */
+    public function getTableType()
+    {
+        return $this->tableType;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.TableType tableType = 7;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setTableType($var)
+    {
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Info\TableType::class);
+        $this->tableType = $var;
+
+        return $this;
+    }
+
+    /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 8;</code>
      * @return \Google\Protobuf\Any|null
      */
     public function getMeta()
@@ -253,7 +280,7 @@ class TableInfo extends \Google\Protobuf\Internal\Message
     /**
      * metadata specific for each backend
      *
-     * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 8;</code>
      * @param \Google\Protobuf\Any $var
      * @return $this
      */
