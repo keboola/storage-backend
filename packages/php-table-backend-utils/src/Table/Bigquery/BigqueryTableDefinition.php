@@ -31,6 +31,7 @@ final class BigqueryTableDefinition implements TableDefinitionInterface
         bool $isTemporary,
         ColumnCollection $columns,
         array $primaryKeysNames,
+        private readonly TableType $tableType = TableType::TABLE,
     ) {
         $this->schemaName = $schemaName;
         $this->tableName = $tableName;
@@ -84,6 +85,6 @@ final class BigqueryTableDefinition implements TableDefinitionInterface
 
     public function getTableType(): TableType
     {
-        return TableType::TABLE;
+        return $this->tableType;
     }
 }
