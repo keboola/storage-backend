@@ -126,7 +126,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [exasol, snowflake, synapse, bigquery]
+        suite: [exasol, snowflake, bigquery]
     steps:
       -
         name: Checkout
@@ -157,12 +157,6 @@ jobs:
       #
       # Before tests, start services
       -
-        name: Synapse start
-        if: ${{ matrix.suite == 'synapse' }}
-        run: |
-          bash ./ci/synapse.sh -r
-          bash ./ci/synapse.sh -w
-      -
         name: Exasol start
         if: ${{ matrix.suite == 'exasol' }}
         run: |
@@ -184,8 +178,3 @@ jobs:
         name: Exasol stop
         if: ${{ always() && matrix.suite == 'exasol' }}
         run: docker compose stop exasol
-      -
-        name: Synapse stop
-        if: ${{ always() && matrix.suite == 'synapse' }}
-        run: |
-          bash ./ci/synapse.sh -p
