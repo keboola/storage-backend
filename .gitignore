@@ -3,3 +3,7 @@
 /vendor/
 packages/php-table-backend-utils/.phpunit.result.cache
 /.phpunit.result.cache
+packages/php-table-backend-utils/.terraform
+packages/php-table-backend-utils/big_query_key.json
+packages/php-table-backend-utils/terraform.tfstate
+packages/php-table-backend-utils/terraform.tfstate.backup
