@@ -13,6 +13,7 @@ use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 use Keboola\Db\ImportExport\Storage\Bigquery\SelectSource;
 use Keboola\Db\ImportExport\Storage\Bigquery\Table;
+use Keboola\TableBackendUtils\Connection\Bigquery\QueryExecutor;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
@@ -69,11 +70,11 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         );
 
         if ($source instanceof SelectSource) {
-            $this->bqClient->runQuery($this->bqClient->query($sql)->parameters(
+            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query($sql)->parameters(
                 $source->getQueryBindings(),
             ));
         } else {
-            $this->bqClient->runQuery($this->bqClient->query($sql));
+            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query($sql));
         }
 
         $ref = new BigqueryTableReflection(

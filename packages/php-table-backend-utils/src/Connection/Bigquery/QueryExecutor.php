@@ -19,7 +19,7 @@ class QueryExecutor
 
     public function __construct(
         private readonly BigQueryClient $client,
-        private readonly string $runId,
+        private readonly string $runId = '',
         BackOffPolicyInterface|null $backOffPolicy = null,
     ) {
         if ($backOffPolicy === null) {

@@ -15,8 +15,8 @@ use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\TableBackendUtils\Connection\Bigquery\QueryExecutor;
 use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
-use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
@@ -63,7 +63,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $deduplicationTableName = BackendHelper::generateTempDedupTableName();
                 // 0. Create table deduplication table and dedup
                 $state->startTimer(self::TIMER_DEDUP_STAGING);
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getCreateDedupTable(
                         $stagingTableDefinition,
                         $deduplicationTableName,
@@ -81,7 +81,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $tableToCopyFrom = $deduplicationTableDefinition;
                 $state->stopTimer(self::TIMER_DEDUP_STAGING);
 
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getBeginTransaction(),
                     $session->getAsQueryOptions(),
                 ));
@@ -89,7 +89,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
                 // 1. Run UPDATE command to update rows in final table with updated data based on PKs
                 $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getUpdateWithPkCommand(
                         $deduplicationTableDefinition,
                         $destinationTableDefinition,
@@ -102,7 +102,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
                 // 2. delete updated rows from staging table
                 $state->startTimer(self::TIMER_DELETE_UPDATED_ROWS);
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getDeleteOldItemsCommand(
                         $deduplicationTableDefinition,
                         $destinationTableDefinition,
@@ -112,7 +112,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 ));
                 $state->stopTimer(self::TIMER_DELETE_UPDATED_ROWS);
             } else {
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getBeginTransaction(),
                     $session->getAsQueryOptions(),
                 ));
@@ -121,7 +121,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
             // insert into destination table
             $state->startTimer(self::TIMER_INSERT_INTO_TARGET);
-            $this->bqClient->runQuery($this->bqClient->query(
+            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
                     $tableToCopyFrom,
                     $destinationTableDefinition,
@@ -132,7 +132,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             ));
             $state->stopTimer(self::TIMER_INSERT_INTO_TARGET);
 
-            $this->bqClient->runQuery($this->bqClient->query(
+            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getCommitTransaction(),
                 $session->getAsQueryOptions(),
             ));
@@ -140,7 +140,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
         } catch (JobException|ServiceException $e) {
             if ($transactionStarted) {
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getRollbackTransaction(),
                     $session->getAsQueryOptions(),
                 ));
@@ -148,7 +148,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             throw BigqueryException::covertException($e);
         } catch (Throwable $e) {
             if ($transactionStarted) {
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getRollbackTransaction(),
                     $session->getAsQueryOptions(),
                 ));
@@ -157,7 +157,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // drop dedup table
-                $this->bqClient->runQuery($this->bqClient->query(
+                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getDropTableIfExistsCommand(
                         $deduplicationTableDefinition->getSchemaName(),
                         $deduplicationTableDefinition->getTableName(),
