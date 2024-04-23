@@ -74,10 +74,11 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         if ($importOptions->importAsNull() !== []) {
             // BigQuery allows only one null marker
             // we implicitly use the first one and ignore others if any
-            $loadConfig->nullMarker(
-                $importOptions->importAsNull()[0],
-            );
+            $nullMarker = $importOptions->importAsNull()[0];
+        } else {
+            $nullMarker = $this->getDefaultAsNullString();
         }
+        $loadConfig->nullMarker($nullMarker);
 
         $job = $this->bqClient->runJob($loadConfig);
         // check if the job has errors
@@ -92,5 +93,10 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         );
 
         return $ref->getRowsCount();
+    }
+
+    private function getDefaultAsNullString(): string
+    {
+        return '__KEBOOLA_IMPORT_AS_NULL__' . uniqid('', true);
     }
 }
