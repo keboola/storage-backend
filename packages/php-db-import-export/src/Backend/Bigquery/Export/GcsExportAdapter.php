@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Connection\Bigquery\QueryExecutor;
 
 class GcsExportAdapter implements BackendExportAdapterInterface
 {
@@ -60,7 +61,7 @@ OPTIONS (
             $exportOptions->isCompressed() ? ',compression=\'GZIP\'' : '',
             $source->getFromStatement(),
         );
-        $this->bqClient->runQuery(
+        (new QueryExecutor($this->bqClient))->runQuery(
             $this->bqClient->query($sql)
                 ->parameters($source->getQueryBindings()),
         );

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Schema\Bigquery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Keboola\TableBackendUtils\Connection\Bigquery\QueryExecutor;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
@@ -38,7 +39,7 @@ class BigquerySchemaReflection implements SchemaReflectionInterface
                 BigqueryQuote::quoteSingleIdentifier($this->datasetName),
             ),
         );
-        $queryResults = $this->bqClient->runQuery($query);
+        $queryResults = (new QueryExecutor($this->bqClient))->runQuery($query);
 
         $tables = [];
         /**
@@ -81,7 +82,7 @@ class BigquerySchemaReflection implements SchemaReflectionInterface
                 BigqueryQuote::quoteSingleIdentifier($this->datasetName),
             ),
         );
-        $queryResults = $this->bqClient->runQuery($query);
+        $queryResults = (new QueryExecutor($this->bqClient))->runQuery($query);
 
         $tables = [];
         /**
