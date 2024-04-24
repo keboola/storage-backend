@@ -5,23 +5,26 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Connection\Bigquery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
-use Google\Cloud\BigQuery\Job;
 use Google\Cloud\BigQuery\JobConfigurationInterface;
-use Google\Cloud\BigQuery\QueryJobConfiguration;
 use Google\Cloud\BigQuery\QueryResults;
 use Retry\BackOff\BackOffPolicyInterface;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\BackOff\ExponentialRandomBackOffPolicy;
 
-class QueryExecutor
+class BigQueryClientWrapper extends BigQueryClient
 {
     private BackOffPolicyInterface $backOffPolicy;
 
+    /**
+     * @inheritdoc
+     * @param array<mixed> $config
+     */
     public function __construct(
-        private readonly BigQueryClient $client,
-        private readonly string $runId = '',
+        array $config = [],
+        readonly string $runId = '',
         BackOffPolicyInterface|null $backOffPolicy = null,
     ) {
+        parent::__construct($config);
         if ($backOffPolicy === null) {
             $this->backOffPolicy = new ExponentialRandomBackOffPolicy(
                 ExponentialBackOffPolicy::DEFAULT_INITIAL_INTERVAL,
@@ -34,18 +37,14 @@ class QueryExecutor
     }
 
     /**
-     * Replacement for BigQueryClient::runQuery with better pooling
-     * With support for setting runId
-     *
      * @param array<mixed> $options
      */
-    public function runQuery(QueryJobConfiguration $query, array $options = []): QueryResults
+    public function runQuery(JobConfigurationInterface $query, array $options = []): QueryResults
     {
-        if ($this->runId !== '') {
+        if ($this->runId !== '' && method_exists($query, 'labels')) {
             $query = $query->labels(['run_id' => $this->runId]);
-            assert($query instanceof QueryJobConfiguration);
         }
-        $job = $this->client->startQuery($query, $options);
+        $job = $this->runJob($query, $options);
 
         $context = $this->backOffPolicy->start();
         do {
@@ -54,18 +53,5 @@ class QueryExecutor
         } while (!$job->isComplete());
 
         return $job->queryResults();
-    }
-
-    /**
-     * Replacement for BigQueryClient::runJob with runId support
-     *
-     * @param array<mixed> $options
-     */
-    public function runJob(JobConfigurationInterface $config, array $options = []): Job
-    {
-        if ($this->runId !== '' && method_exists($config, 'labels')) {
-            $config = $config->labels(['run_id' => $this->runId]);
-        }
-        return $this->client->runJob($config, $options);
     }
 }

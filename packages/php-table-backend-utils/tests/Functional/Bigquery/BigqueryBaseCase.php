@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Bigquery;
 use Google\Cloud\BigQuery\BigQueryClient;
 use GuzzleHttp\Client;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientHandler;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use LogicException;
 use PHPUnit\Framework\TestCase;
@@ -89,10 +90,13 @@ class BigqueryBaseCase extends TestCase
 
     private function getBigqueryClient(): BigQueryClient
     {
-        return new BigQueryClient([
-            'keyFile' => $this->getCredentials(),
-            'httpHandler' => new BigQueryClientHandler(new Client()),
-        ]);
+        return new BigQueryClientWrapper(
+            [
+                'keyFile' => $this->getCredentials(),
+                'httpHandler' => new BigQueryClientHandler(new Client()),
+            ],
+            ''
+        );
     }
 
     public function getDatasetName(): string
