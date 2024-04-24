@@ -10,7 +10,6 @@ use Google\Cloud\BigQuery\Timestamp;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Connection\Bigquery\QueryExecutor;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableReflectionInterface;
@@ -187,7 +186,7 @@ class BigqueryTableReflection implements TableReflectionInterface
             BigqueryQuote::quote($this->tableName),
         ));
 
-        $result = (new QueryExecutor($this->bqClient))->runQuery($query);
+        $result = $this->bqClient->runQuery($query);
 
         $partitions = [];
         /**

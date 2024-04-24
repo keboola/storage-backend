@@ -15,7 +15,6 @@ use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
-use Keboola\TableBackendUtils\Connection\Bigquery\QueryExecutor;
 use Keboola\TableBackendUtils\Connection\Bigquery\Session;
 use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
@@ -46,7 +45,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         Session $session,
     ): void {
         // truncate destination table
-        (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+        $this->bqClient->runQuery($this->bqClient->query(
             $this->sqlBuilder->getTruncateTable(
                 $destinationTableDefinition->getSchemaName(),
                 $destinationTableDefinition->getTableName(),
@@ -62,7 +61,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             $options,
             DateTimeHelper::getNowFormatted(),
         );
-        (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+        $this->bqClient->runQuery($this->bqClient->query(
             $sql,
             $session->getAsQueryOptions(),
         ));
@@ -129,7 +128,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         try {
             $transactionStarted = false;
             // 2 transfer data from source to dedup table with dedup process
-            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+            $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getCreateDedupTable(
                     $stagingTableDefinition,
                     $deduplicationTableName,
@@ -145,7 +144,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             ))->getTableDefinition();
 
             // 3 truncate destination table
-            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+            $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getTruncateTable(
                     $destinationTableDefinition->getSchemaName(),
                     $destinationTableDefinition->getTableName(),
@@ -153,14 +152,14 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $session->getAsQueryOptions(),
             ));
 
-            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+            $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getBeginTransaction(),
                 $session->getAsQueryOptions(),
             ));
             $transactionStarted = true;
 
             // 4 move data with INSERT INTO
-            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+            $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
                     $deduplicationTableDefinition,
                     $destinationTableDefinition,
@@ -171,13 +170,13 @@ final class FullImporter implements ToFinalTableImporterInterface
             ));
             $state->stopTimer(self::TIMER_DEDUP);
 
-            (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+            $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getCommitTransaction(),
                 $session->getAsQueryOptions(),
             ));
         } catch (Throwable $e) {
             if ($transactionStarted) {
-                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+                $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getRollbackTransaction(),
                     $session->getAsQueryOptions(),
                 ));
@@ -186,7 +185,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // 5 drop dedup table
-                (new QueryExecutor($this->bqClient))->runQuery($this->bqClient->query(
+                $this->bqClient->runQuery($this->bqClient->query(
                     $this->sqlBuilder->getDropTableIfExistsCommand(
                         $deduplicationTableDefinition->getSchemaName(),
                         $deduplicationTableDefinition->getTableName(),
