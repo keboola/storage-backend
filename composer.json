@@ -70,10 +70,10 @@
         }
     },
     "replace": {
-        "keboola/db-import-export": "self.version",
-        "keboola/php-datatypes": "self.version",
-        "keboola/storage-driver-common": "self.version",
-        "keboola/table-backend-utils": "self.version"
+        "keboola/db-import-export": "*",
+        "keboola/php-datatypes": "*",
+        "keboola/storage-driver-common": "*",
+        "keboola/table-backend-utils": "*"
     },
     "config": {
         "allow-plugins": {
