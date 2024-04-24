@@ -35,9 +35,7 @@ class GcsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
             ->setMethods(['upload', 'getStreamableUploader'])
             ->getMock();
         $bucketMock->expects($this->once())->method('getStreamableUploader')
-            ->willReturn(
-                $streamableUploaderMock
-            );
+            ->willReturn($streamableUploaderMock);
 
         /** @var MockObject|StorageClient $gcsClientMock */
         $gcsClientMock = $this->getMockBuilder(StorageClient::class)

@@ -49,9 +49,7 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
             ->willReturn('bucket1');
 
         $bucket->expects($this->once())->method('getStreamableUploader')
-            ->willReturn(
-                $streamableUploaderMock
-            );
+            ->willReturn($streamableUploaderMock);
 
         $clientMock = $this->createMock(StorageClient::class);
         $clientMock
