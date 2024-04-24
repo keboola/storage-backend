@@ -211,8 +211,8 @@ class BigqueryExceptionTest extends TestCase
             function (Throwable $e) {
                 // phpcs:ignore Generic.Files.LineLength
                 $this->assertStringStartsWith(
-                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp.'
-                    . 'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]];'
+                    'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
+                    . 'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
                     . 'line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 '
                     . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:',
                     $e->getMessage(),
@@ -733,7 +733,7 @@ class BigqueryExceptionTest extends TestCase
             ],
             function (Throwable $e) {
                 $this->assertStringContainsString(
-                    'Error while reading data, error message: CSV processing encountered too many errors,'
+                    'Error while reading data, error message: CSV processing encountered too many errors, '
                     . 'giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                     $e->getMessage(),
                 );
