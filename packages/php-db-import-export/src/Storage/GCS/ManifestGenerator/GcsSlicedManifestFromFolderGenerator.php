@@ -54,8 +54,10 @@ class GcsSlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInt
         ]);
         $writeStream->setUploader($uploader);
         $stream = fopen('data://text/plain;base64,' . base64_encode($encodedManifest), 'rb');
-        while (($line = stream_get_line($stream, self::CHUNK_SIZE_256_KB)) !== false) {
-            $writeStream->write($line);
+        if ($stream !== false) {
+            while (($line = stream_get_line($stream, self::CHUNK_SIZE_256_KB)) !== false) {
+                $writeStream->write($line);
+            }
         }
         $writeStream->close();
     }

@@ -6,11 +6,15 @@ namespace Tests\Keboola\Db\ImportExportFunctional;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;
+use Stringable;
 
 class DebugLogger extends AbstractLogger
 {
     /**
-     * @inheritDoc
+     * @param mixed $level
+     * @param string|Stringable $message
+     * @param array<mixed> $context
+     * @return void
      */
     public function log($level, $message, array $context = []): void
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Backend\Bigquery;
 
+use Generator;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryInputDataException;
 use PHPUnit\Framework\TestCase;
@@ -15,15 +16,15 @@ class BigqueryExceptionTest extends TestCase
     /**
      * @dataProvider provideJobAndExpectedError
      * @param mixed[] $job
-     * @param callable(string $message): void $expectedMessagesAssertion
+     * @param callable(Throwable $throwable): void $expectedThrowableAssertion
      */
-    public function testCreateExceptionFromJobResult(array $job, callable $expectedMessagesAssertion): void
+    public function testCreateExceptionFromJobResult(array $job, callable $expectedThrowableAssertion): void
     {
         $e = BigqueryException::createExceptionFromJobResult($job);
-        $expectedMessagesAssertion($e);
+        $expectedThrowableAssertion($e);
     }
 
-    public function provideJobAndExpectedError()
+    public function provideJobAndExpectedError(): Generator
     {
         yield 'single error' => [
             [
