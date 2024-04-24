@@ -134,7 +134,7 @@ class StageImportTest extends BigqueryBaseTestCase
                 isIncremental: false,
                 useTimestamp: false,
                 numberOfIgnoredLines: 1,
-//                importAsNull: [], // empty means use default string instead of null
+                importAsNull: [],
             ),
         );
 
