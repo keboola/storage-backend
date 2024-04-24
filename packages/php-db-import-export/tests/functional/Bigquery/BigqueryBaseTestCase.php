@@ -11,6 +11,7 @@ use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
@@ -50,9 +51,9 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
 
     private function getBigqueryConnection(): BigQueryClient
     {
-        return new BigQueryClient([
+        return new BigQueryClientWrapper([
             'keyFile' => $this->getBqCredentials(),
-        ]);
+        ], 'e2e-ie-lib');
     }
 
     protected function datasetExists(string $datasetName): bool

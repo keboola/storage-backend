@@ -95,7 +95,7 @@ class BigqueryBaseCase extends TestCase
                 'keyFile' => $this->getCredentials(),
                 'httpHandler' => new BigQueryClientHandler(new Client()),
             ],
-            ''
+            'e2e-utils-lib',
         );
     }
 

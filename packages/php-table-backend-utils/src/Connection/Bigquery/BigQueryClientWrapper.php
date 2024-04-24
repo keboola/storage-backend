@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Connection\Bigquery;
 
 use Google\Cloud\BigQuery\BigQueryClient;
+use Google\Cloud\BigQuery\Job;
 use Google\Cloud\BigQuery\JobConfigurationInterface;
 use Google\Cloud\BigQuery\QueryResults;
 use Retry\BackOff\BackOffPolicyInterface;
@@ -44,14 +45,19 @@ class BigQueryClientWrapper extends BigQueryClient
         if ($this->runId !== '' && method_exists($query, 'labels')) {
             $query = $query->labels(['run_id' => $this->runId]);
         }
-        $job = $this->runJob($query, $options);
+        return $this->runJob($query, $options)
+            ->queryResults();
+    }
 
+    public function runJob(JobConfigurationInterface $config, array $options = []): Job
+    {
+        $job = $this->startJob($config, $options);
         $context = $this->backOffPolicy->start();
         do {
             $this->backOffPolicy->backOff($context);
             $job->reload();
         } while (!$job->isComplete());
 
-        return $job->queryResults();
+        return $job;
     }
 }
