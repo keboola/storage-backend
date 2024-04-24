@@ -49,6 +49,9 @@ class BigQueryClientWrapper extends BigQueryClient
             ->queryResults();
     }
 
+    /**
+     * @param array<mixed> $options
+     */
     public function runJob(JobConfigurationInterface $config, array $options = []): Job
     {
         $job = $this->startJob($config, $options);
