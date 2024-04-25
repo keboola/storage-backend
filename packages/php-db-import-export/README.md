@@ -57,6 +57,8 @@ ABS_CONTAINER_NAME=containerName
 - Convert key to string `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
 - Set content on last line of .env as variable `GCS_CREDENTIALS`
 
+- Upload test fixtures to GCS `docker compose run --rm dev composer loadGcs-bigquery` or `docker compose run --rm dev composer loadGcs-snowflake` (depending on backend)
+
 #### SNOWFLAKE
 
 Role, user, database and warehouse are required for tests. You can create them:
@@ -183,24 +185,22 @@ You must have the `resourcemanager.folders.create` permission for the organizati
 ```bash
 # you can copy it to a folder somewhere and make an init
 terraform init
+```
 
-terraform apply -var organization_id=[organization_id]
-# and enter name for your backend prefix for example your name, all resources will create with this prefix
+Run `terraform apply` with following variables:
+ - folder_id: Go to [GCP Resource Manager](https://console.cloud.google.com/cloud-resource-manager) and select your team dev folder ID (e.g. find 'KBC Team Dev' and copy ID)
+ - backend_prefix: your_name, all resources will create with this prefix
+ - billing_account_id: Go to [Billing](https://console.cloud.google.com/billing/) and copy your Billing account ID
+
+```bash
+terraform apply -var folder_id=<folder_id> -var backend_prefix=<your_prefix> -var billing_account_id=<billing_account_id>
 ```
 
 For missing pieces see [Connection repository](https://github.com/keboola/connection/blob/master/DOCKER.md#bigquery).
 After terraform apply ends go to the service project in folder created by terraform.
-
-1. go to the newly created service project, the project id are listed at the end of the terraform call. (service_project_id)
-2. click on IAM & Admin
-3. on left panel choose Service Accounts
-4. click on email of service account(there is only one)
-5. on to the top choose Keys and Add Key => Create new key
-6. select Key type JSON
-7. click on the Create button and the file will automatically download
-8. convert key to string and save to `.env` file: `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
-9. set content on the last line of `.env` as variable `BQ_KEY_FILE`
-10. set env variable `BQ_BUCKET_NAME` generated from TF template `file_storage_bucket_id`
+1. convert key to string and save to `.env` file: `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
+2. set content on the last line of `.env` as variable `BQ_KEY_FILE`
+3. set env variable `BQ_BUCKET_NAME` generated from TF template `file_storage_bucket_id`
 
 ### Tests
 

@@ -3,3 +3,9 @@
 /data
 composer.lock
 .env
+
+.phpunit.result.cache
+big_query_key.json
+terraform.tfstate
+terraform.tfstate.backup
+.terraform
