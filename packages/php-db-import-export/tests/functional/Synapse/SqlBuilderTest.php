@@ -1291,8 +1291,9 @@ EOT,);
             $destination->getSchemaName(),
             $destination->getTableName(),
         );
-        /** @var SynapseColumn[] $timestampColumns */
-        $timestampColumns = array_filter(iterator_to_array($ref->getColumnsDefinitions()), function (
+        /** @var SynapseColumn[] $columnsDefinitions */
+        $columnsDefinitions = iterator_to_array($ref->getColumnsDefinitions());
+        $timestampColumns = array_filter($columnsDefinitions, function (
             SynapseColumn $column,
         ) {
             return $column->getColumnName() === '_timestamp';

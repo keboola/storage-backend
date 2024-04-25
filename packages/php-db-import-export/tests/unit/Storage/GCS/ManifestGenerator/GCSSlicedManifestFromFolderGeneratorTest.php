@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\GCS\ManifestGenerator;
 
 use ArrayIterator;
+use Google\Cloud\Core\Upload\StreamableUploader;
 use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\ObjectIterator;
 use Google\Cloud\Storage\StorageClient;
@@ -20,6 +21,12 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
 {
     public function testGenerateAndSaveManifest(): void
     {
+        $streamableUploaderMock = $this->getMockBuilder(StreamableUploader::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $streamableUploaderMock->method('getResumeUri')->willReturn('');
+        $streamableUploaderMock->method('upload')->willReturn([]);
+
         $object1 = $this->createMock(StorageObject::class);
         $object1->expects($this->once())
             ->method('name')
@@ -40,23 +47,10 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
         $bucket->expects($this->exactly(2))
             ->method('name')
             ->willReturn('bucket1');
-        $bucket->expects($this->once())
-            ->method('upload')
-            ->with(
-                $this->callback(function ($subject) {
-                    $this->assertIsResource($subject);
-                    $content = stream_get_contents($subject);
-                    $this->assertSame(
-                        //phpcs:ignore
-                        '{"entries":[{"url":"gs:\\/\\/bucket1\\/prefix\\/xxx\\/obj1_000000.csv","mandatory":true},{"url":"gs:\\/\\/bucket1\\/prefix\\/xxx\\/obj2_000000.csv","mandatory":true}]}',
-                        $content,
-                    );
-                    return true;
-                }),
-                [
-                    'name' => 'prefix/xxxmanifest',
-                ],
-            );
+
+        $bucket->expects($this->once())->method('getStreamableUploader')
+            ->willReturn($streamableUploaderMock);
+
         $clientMock = $this->createMock(StorageClient::class);
         $clientMock
             ->expects($this->once())

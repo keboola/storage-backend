@@ -70,8 +70,11 @@ class BigqueryException extends Exception
     }
 
     // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint
-    private static function getErrorMessageForErrorList(array $parsingErrors, bool $areExtraErrors, string $jobId)
-    {
+    private static function getErrorMessageForErrorList(
+        array $parsingErrors,
+        bool $areExtraErrors,
+        string $jobId,
+    ): string {
         $count = count($parsingErrors);
         if ($count > self::MAX_MESSAGES_IN_ERROR_MESSAGE) {
             return sprintf(

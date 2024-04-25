@@ -506,9 +506,10 @@ class SqlBuilder
         }
 
         // remove primary keys for columns used in where condition
-        /** @var SynapseColumn[] $columnsForComparison */
+        /** @var SynapseColumn[] $columnsDefinitions */
+        $columnsDefinitions = iterator_to_array($stagingTableDefinition->getColumnsDefinitions());
         $columnsForComparison = array_filter(
-            iterator_to_array($stagingTableDefinition->getColumnsDefinitions()),
+            $columnsDefinitions,
             static fn(SynapseColumn $columnDefinition): bool => !StringCaseSensitivity::isInArrayCaseInsensitive(
                 $columnDefinition->getColumnName(),
                 $destinationDefinition->getPrimaryKeysNames(),

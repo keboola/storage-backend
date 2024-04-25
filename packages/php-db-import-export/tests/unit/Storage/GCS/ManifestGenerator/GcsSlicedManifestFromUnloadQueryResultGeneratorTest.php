@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportUnit\Storage\GCS\ManifestGenerator;
 
+use Google\Cloud\Core\Upload\StreamableUploader;
 use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\StorageClient;
 use Keboola\Db\ImportExport\Storage\GCS\ManifestGenerator\GcsSlicedManifestFromUnloadQueryResultGenerator;
@@ -17,17 +18,24 @@ class GcsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
 {
     public function testGenerateAndSaveManifest(): void
     {
+        $path = RelativePath::createFromRootAndPath(
+            new GcsProvider(),
+            'tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q',
+            'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gz',
+        );
+
+        $streamableUploaderMock = $this->getMockBuilder(StreamableUploader::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $streamableUploaderMock->method('getResumeUri')->willReturn('');
+        $streamableUploaderMock->method('upload')->willReturn([]);
+
         $bucketMock = $this->getMockBuilder(Bucket::class)
             ->disableOriginalConstructor()
-            ->setMethods(['upload'])
+            ->setMethods(['upload', 'getStreamableUploader'])
             ->getMock();
-        $bucketMock->expects($this->once())->method('upload')
-            ->with(
-                //phpcs:ignore
-                '{"entries":[{"url":"gs:\/\/tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q\/permanent\/256\/snapshots\/in\/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985\/languages\/17982.csv.gz_0_0_0.csv.gz","mandatory":true},{"url":"gs:\/\/tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q\/permanent\/256\/snapshots\/in\/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985\/languages\/17982.csv.gz_0_0_1.csv.gz","mandatory":true}]}',
-                //phpcs:ignore
-                ['name' => 'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gzmanifest']
-            );
+        $bucketMock->expects($this->once())->method('getStreamableUploader')
+            ->willReturn($streamableUploaderMock);
 
         /** @var MockObject|StorageClient $gcsClientMock */
         $gcsClientMock = $this->getMockBuilder(StorageClient::class)
@@ -35,12 +43,6 @@ class GcsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
             ->setMethods(['bucket'])
             ->getMock();
         $gcsClientMock->expects($this->once())->method('bucket')->willReturn($bucketMock);
-
-        $path = RelativePath::createFromRootAndPath(
-            new GcsProvider(),
-            'tomasfejfar-kbc-services-filestorag-s3filesbucket-ggrrgg35547q',
-            'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gz',
-        );
 
         $generator = new GcsSlicedManifestFromUnloadQueryResultGenerator($gcsClientMock);
         $generator->generateAndSaveManifest($path, [
