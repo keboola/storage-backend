@@ -69,6 +69,7 @@ DETAILED_OUTPUT = TRUE',
         if ($exportOptions->generateManifest()) {
             (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromUnloadQueryResultGenerator(
                 $destination->getClient(),
+                new Storage\GCS\ManifestGenerator\WriteStreamFactory(),
             ))
                 ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
         }
