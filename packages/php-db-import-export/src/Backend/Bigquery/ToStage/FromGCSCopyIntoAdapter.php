@@ -11,7 +11,7 @@ use Keboola\Db\ImportExport\Backend\CopyAdapterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
+use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
@@ -80,10 +80,6 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
         }
 
         $job = $this->bqClient->runJob($loadConfig);
-
-        if (!$job->isComplete()) {
-            throw new Exception('Job has not yet completed');
-        }
         // check if the job has errors
         if (isset($job->info()['status']['errorResult'])) {
             throw BigqueryException::createExceptionFromJobResult($job->info());
