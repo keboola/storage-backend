@@ -104,6 +104,50 @@ class StageImportTest extends BigqueryBaseTestCase
         ], $this->fetchTable(self::TEST_DATABASE, self::TABLE_GENERIC));
     }
 
+    public function testStageImportNullDefaultNullMarker(): void
+    {
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s (
+            `id` INTEGER,
+    `first_name` STRING(100),
+    `last_name` STRING(100)
+);',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        );
+        $this->bqClient->runQuery($query);
+
+        $importer = new ToStageImporter($this->bqClient);
+        $ref = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_DATABASE,
+            self::TABLE_GENERIC,
+        );
+
+        $state = $importer->importToStagingTable(
+            $this->createGcsSourceInstanceFromCsv('csv/edge-cases/1row_empty_column.csv', new CsvOptions()),
+            $ref->getTableDefinition(),
+            new BigqueryImportOptions(
+                convertEmptyValuesToNull: [],
+                isIncremental: false,
+                useTimestamp: false,
+                numberOfIgnoredLines: 1,
+                importAsNull: [],
+            ),
+        );
+
+        self::assertEquals(1, $state->getResult()->getImportedRowsCount());
+        $this->assertSame([
+            [
+                'id' => 1,
+                'first_name' => '',
+                'last_name' => '3',
+            ],
+        ], $this->fetchTable(self::TEST_DATABASE, self::TABLE_GENERIC));
+    }
+
     public function testAsciiZeroImport(): void
     {
         $query = $this->bqClient->query(
