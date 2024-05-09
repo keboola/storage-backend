@@ -81,7 +81,15 @@ class BigqueryTableReflection implements TableReflectionInterface
     /** @return  array<string> */
     public function getPrimaryKeysNames(): array
     {
-        return [];
+        $this->throwIfNotExists();
+        $info = $this->table->info();
+        if (!array_key_exists('tableConstraints', $info)) {
+            return [];
+        }
+        if (!array_key_exists('primaryKey', $info['tableConstraints'])) {
+            return [];
+        }
+        return $info['tableConstraints']['primaryKey']['columns'];
     }
 
     public function getTableStats(): TableStatsInterface
