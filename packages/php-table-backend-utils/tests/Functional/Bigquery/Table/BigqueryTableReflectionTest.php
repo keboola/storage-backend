@@ -635,4 +635,64 @@ SQL,
         $this->assertEquals($expectedClustering, $ref->getClusteringConfiguration());
         $this->assertEquals($expectedPartitioning, $ref->getPartitioningConfiguration());
     }
+
+    public function testGetPrimaryKey(): void
+    {
+        $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
+        $dataset->createTable(
+            'test-pk',
+            [
+                'schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'INTEGER',
+                            'mode' => 'NULLABLE',
+                        ],
+                        [
+                            'name' => 'timestamp',
+                            'type' => 'TIMESTAMP',
+                            'mode' => 'REQUIRED',
+                        ],
+                    ],
+                ],
+                'tableConstraints' => [
+                    'primaryKey' => [
+                        'columns' => ['id'],
+                    ],
+                ],
+            ],
+        );
+
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-pk');
+        $this->assertEquals(['id'], $ref->getPrimaryKeysNames());
+    }
+
+
+    public function testGetPrimaryKeyNonSet(): void
+    {
+        $dataset = $this->bqClient->createDataset(self::TEST_SCHEMA);
+        $dataset->createTable(
+            'test-pk',
+            [
+                'schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'INTEGER',
+                            'mode' => 'NULLABLE',
+                        ],
+                        [
+                            'name' => 'timestamp',
+                            'type' => 'TIMESTAMP',
+                            'mode' => 'REQUIRED',
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-pk');
+        $this->assertEquals([], $ref->getPrimaryKeysNames());
+    }
 }
