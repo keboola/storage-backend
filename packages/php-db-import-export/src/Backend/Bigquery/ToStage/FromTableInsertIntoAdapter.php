@@ -45,12 +45,13 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
 
         if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
             Assert::assertSameColumns(
-                (new BigqueryTableReflection(
+                source: (new BigqueryTableReflection(
                     $this->bqClient,
                     $source->getSchema(),
                     $source->getTableName(),
                 ))->getColumnsDefinitions(),
-                $destination->getColumnsDefinitions(),
+                destination: $destination->getColumnsDefinitions(),
+                assertOptions: Assert::ASSERT_MINIMAL,
             );
         }
 

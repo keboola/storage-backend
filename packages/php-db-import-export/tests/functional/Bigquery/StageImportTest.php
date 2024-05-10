@@ -380,4 +380,176 @@ class StageImportTest extends BigqueryBaseTestCase
             $this->assertInstanceOf(BigqueryInputDataException::class, $e);
         }
     }
+
+    public function testTableToTableImportFromTableCreatedByCTAS(): void
+    {
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s (
+            `id` INTEGER,
+    `first_name` STRING(100),
+    `last_name` STRING(100)
+);',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        );
+        $this->bqClient->runQuery($query);
+
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s AS SELECT * FROM %s.%s;',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC.'_CTAS'),
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        );
+        $this->bqClient->runQuery($query);
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC.'_CTAS'),
+            ),
+        ));
+
+        $importer = new ToStageImporter($this->bqClient);
+        $ref = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_DATABASE,
+            self::TABLE_GENERIC,
+        );
+
+        $state = $importer->importToStagingTable(
+            new Table(
+                self::TEST_DATABASE,
+                self::TABLE_GENERIC.'_CTAS',
+                [],
+                [],
+            ),
+            $ref->getTableDefinition(),
+            new BigqueryImportOptions(
+                usingTypes: BigqueryImportOptions::USING_TYPES_USER,
+            ),
+        );
+
+        self::assertEquals(1, $state->getResult()->getImportedRowsCount());
+    }
+
+    public function testTableToTableImportFromTableLengthOverflow(): void
+    {
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s (
+            `id` INTEGER,
+    `first_name` STRING(100),
+    `last_name` STRING(100)
+);',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        );
+        $this->bqClient->runQuery($query);
+
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s (
+            `id` INTEGER,
+    `first_name` STRING(3),
+    `last_name` STRING(3)
+);',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC.'_DEST'),
+            ),
+        );
+        $this->bqClient->runQuery($query);
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        ));
+
+        $importer = new ToStageImporter($this->bqClient);
+        $ref = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_DATABASE,
+            self::TABLE_GENERIC.'_DEST',
+        );
+
+        $this->expectException(BigqueryException::class);
+        $this->expectExceptionMessage('Field first_name: STRING(3) has maximum length 3 but got a value with length 4');
+        $importer->importToStagingTable(
+            new Table(
+                self::TEST_DATABASE,
+                self::TABLE_GENERIC,
+                [],
+                [],
+            ),
+            $ref->getTableDefinition(),
+            new BigqueryImportOptions(
+                usingTypes: BigqueryImportOptions::USING_TYPES_USER,
+            ),
+        );
+    }
+
+    public function testTableToTableImportFromTableLengthFitInLowerLength(): void
+    {
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s (
+            `id` INTEGER,
+    `first_name` STRING(100),
+    `last_name` STRING(100)
+);',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        );
+        $this->bqClient->runQuery($query);
+
+        $query = $this->bqClient->query(
+            sprintf(
+                'CREATE TABLE %s.%s (
+            `id` INTEGER,
+    `first_name` STRING(5),
+    `last_name` STRING(5)
+);',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC.'_DEST'),
+            ),
+        );
+        $this->bqClient->runQuery($query);
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
+                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        ));
+
+        $importer = new ToStageImporter($this->bqClient);
+        $ref = new BigqueryTableReflection(
+            $this->bqClient,
+            self::TEST_DATABASE,
+            self::TABLE_GENERIC.'_DEST',
+        );
+
+        $state = $importer->importToStagingTable(
+            new Table(
+                self::TEST_DATABASE,
+                self::TABLE_GENERIC,
+                [],
+                [],
+            ),
+            $ref->getTableDefinition(),
+            new BigqueryImportOptions(
+                usingTypes: BigqueryImportOptions::USING_TYPES_USER,
+            ),
+        );
+
+        self::assertEquals(1, $state->getResult()->getImportedRowsCount());
+    }
 }

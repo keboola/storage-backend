@@ -12,6 +12,13 @@ use Keboola\TableBackendUtils\Column\ColumnInterface;
 class Assert
 {
     /**
+     * Ignore other assert options
+     * this would be better as default but it would be BC break
+     */
+    public const ASSERT_MINIMAL = 0;
+    public const ASSERT_LENGTH = 1;
+
+    /**
      * @param string[] $ignoreSourceColumns
      * @param string[] $simpleLengthTypes - list of types where length is represented by single number
      * @param string[] $complexLengthTypes
@@ -24,6 +31,7 @@ class Assert
         array $ignoreSourceColumns = [],
         array $simpleLengthTypes = [],
         array $complexLengthTypes = [],
+        int $assertOptions = self::ASSERT_LENGTH,
     ): void {
         $it0 = $source->getIterator();
         $it1 = $destination->getIterator();
@@ -51,12 +59,14 @@ class Assert
                     throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
                 }
 
-                self::assertLengthMismatch(
-                    $sourceCol,
-                    $destCol,
-                    $simpleLengthTypes,
-                    $complexLengthTypes,
-                );
+                if ($assertOptions & self::ASSERT_LENGTH) {
+                    self::assertLengthMismatch(
+                        $sourceCol,
+                        $destCol,
+                        $simpleLengthTypes,
+                        $complexLengthTypes,
+                    );
+                }
             } else {
                 throw ColumnsMismatchException::createColumnsCountMismatch($source, $destination);
             }
