@@ -498,4 +498,38 @@ class AssertTest extends TestCase
             }
         };
     }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertSameColumnsInvalidLengthIgnore(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                'test2',
+                new Snowflake(Snowflake::TYPE_TIME),
+            ),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                'test2',
+                new Snowflake(
+                    Snowflake::TYPE_TIME,
+                    [
+                        'length' => '4',
+                    ],
+                ),
+            ),
+        ];
+
+        Assert::assertSameColumns(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            assertOptions: Assert::ASSERT_MINIMAL,
+        );
+    }
 }
