@@ -41,4 +41,6 @@ interface ImportOptionsInterface
      * @return string[]
      */
     public function features(): array;
+
+    public function nativeTypesFeatureAllowed(): bool;
 }

@@ -1471,35 +1471,23 @@ EOD,
 
     public function nullManipulationWithTimestampFeatures(): Generator
     {
-        yield 'import:row-change:EQUAL_NULL' => [
-            'import:row-change:EQUAL_NULL',
+        yield 'default' => [
+            'default',
             // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND (not(EQUAL_NULL("dest"."col1", "src"."col1")) OR not(EQUAL_NULL("dest"."col2", "src"."col2")))',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1" ',
+            true,
         ];
-        yield 'import:row-change:IS_NULL' => [
-            'import:row-change:IS_NULL',
+        yield 'new-native-types' => [
+            'new-native-types',
             // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND (("dest"."col1" != "src"."col1" OR ("dest"."col1" IS NULL OR "src"."col1" IS NULL AND ("dest"."col1" IS NULL AND "src"."col1" IS NULL))) OR ("dest"."col2" != "src"."col2" OR ("dest"."col2" IS NULL OR "src"."col2" IS NULL AND ("dest"."col2" IS NULL AND "src"."col2" IS NULL))))',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" IS NOT DISTINCT FROM "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
+            false,
         ];
-        yield 'import:row-change:HASH' => [
-            'import:row-change:HASH',
+        yield 'native-types_timestamp-bc' => [
+            'native-types_timestamp-bc',
             // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND (HASH("dest"."col1", "dest"."col2") != HASH("src"."col1", "src"."col2"))',
-        ];
-        yield 'import:row-change:sub:COALESCE' => [
-            'import:row-change:sub:COALESCE',
-            // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND (COALESCE("dest"."col1", \'KBC_$#\') != COALESCE("src"."col1", \'KBC_$#\') OR COALESCE("dest"."col2", \'KBC_$#\') != COALESCE("src"."col2", \'KBC_$#\'))',
-        ];
-        yield 'import:row-change:DISTINCT' => [
-            'import:row-change:DISTINCT',
-            // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
-        ];
-        yield 'import:row-change:sub:IFNULL' => [
-            'import:row-change:sub:IFNULL',
-            // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND (IFNULL("dest"."col1", \'KBC_$#\') != IFNULL("src"."col1", \'KBC_$#\') OR IFNULL("dest"."col2", \'KBC_$#\') != IFNULL("src"."col2", \'KBC_$#\'))',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" IS NOT DISTINCT FROM "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
+            false,
         ];
     }
 
@@ -1509,6 +1497,7 @@ EOD,
     public function testGetUpdateWithPkCommandNullManipulationWithTimestampFeatures(
         string $feature,
         string $expectedSQL,
+        bool $expectedTimestampChange,
     ): void {
         $timestampInit = new DateTime('2020-01-01 00:00:01');
         $timestampSet = new DateTime('2020-01-01 01:01:01');
@@ -1610,13 +1599,18 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
+        $assertTimestamp = $timestampInit;
+        if ($expectedTimestampChange) {
+            $assertTimestamp = $timestampSet;
+        }
+
         // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
         self::assertEqualsCanonicalizing([
             [
                 'id' => '1',
                 'col1' => '1',
                 'col2' => '1',
-                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+                '_timestamp' => $assertTimestamp->format(DateTimeHelper::FORMAT),
             ], // timestamp is not update when row has same value
             [
                 'id' => '3',

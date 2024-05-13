@@ -100,4 +100,15 @@ class ImportOptions implements ImportOptionsInterface
     {
         return $this->features;
     }
+
+    public function nativeTypesFeatureAllowed(): bool
+    {
+        if (in_array('new-native-types', $this->features)
+            ||
+            in_array('native-types_timestamp-bc', $this->features)
+        ) {
+            return true;
+        }
+        return false;
+    }
 }
