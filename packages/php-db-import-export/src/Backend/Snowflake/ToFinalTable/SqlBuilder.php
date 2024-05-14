@@ -135,11 +135,12 @@ class SqlBuilder
         SnowflakeImportOptions $importOptions,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions) {
-            $str = '"dest".%s = COALESCE("src".%s, \'\')';
-            if ($importOptions->nativeTypesFeatureAllowed()) {
-                $str = '"dest".%s IS NOT DISTINCT FROM "src".%s';
-            } elseif (!$importOptions->isNullManipulationEnabled()) {
+            if (!$importOptions->isNullManipulationEnabled()) {
                 $str = '"dest".%s = "src".%s';
+            } elseif ($importOptions->nativeTypesFeatureAllowed()) {
+                $str = '"dest".%s IS NOT DISTINCT FROM "src".%s';
+            } else {
+                $str = '"dest".%s = COALESCE("src".%s, \'\')';
             }
             return sprintf(
                 $str,

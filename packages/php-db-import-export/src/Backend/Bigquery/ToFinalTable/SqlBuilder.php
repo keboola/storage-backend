@@ -358,11 +358,12 @@ SQL,
         BigqueryImportOptions $importOptions,
     ): string {
         $pkWhereSql = array_map(function (string $col) use ($importOptions) {
-            $str = '`dest`.%s = COALESCE(`src`.%s, \'\')';
-            if ($importOptions->nativeTypesFeatureAllowed()) {
-                $str = '`dest`.%s IS NOT DISTINCT FROM `src`.%s';
-            } elseif ($importOptions->usingUserDefinedTypes()) {
+            if ($importOptions->usingUserDefinedTypes()) {
                 $str = '`dest`.%s = `src`.%s';
+            } elseif ($importOptions->nativeTypesFeatureAllowed()) {
+                $str = '`dest`.%s IS NOT DISTINCT FROM `src`.%s';
+            } else {
+                $str = '`dest`.%s = COALESCE(`src`.%s, \'\')';
             }
             return sprintf(
                 $str,
