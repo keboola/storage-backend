@@ -42,5 +42,8 @@ interface ImportOptionsInterface
      */
     public function features(): array;
 
-    public function nativeTypesFeatureAllowed(): bool;
+    /**
+     * Allowed for specific features
+     */
+    public function compareAllColumnsInNativeTable(): bool;
 }

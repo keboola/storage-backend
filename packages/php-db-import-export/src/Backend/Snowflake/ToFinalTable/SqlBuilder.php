@@ -137,7 +137,7 @@ class SqlBuilder
         $pkWhereSql = array_map(function (string $col) use ($importOptions) {
             if (!$importOptions->isNullManipulationEnabled()) {
                 $str = '"dest".%s = "src".%s';
-            } elseif ($importOptions->nativeTypesFeatureAllowed()) {
+            } elseif ($importOptions->compareAllColumnsInNativeTable()) {
                 $str = '"dest".%s IS NOT DISTINCT FROM "src".%s';
             } else {
                 $str = '"dest".%s = COALESCE("src".%s, \'\')';
@@ -355,7 +355,7 @@ class SqlBuilder
         }
 
         $columnsComparisonSql = [];
-        if ($importOptions->nativeTypesFeatureAllowed()) {
+        if ($importOptions->compareAllColumnsInNativeTable()) {
             $columnsComparisonSql = array_map(
                 static function ($columnName) {
                     return sprintf(

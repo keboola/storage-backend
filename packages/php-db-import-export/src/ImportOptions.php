@@ -101,7 +101,7 @@ class ImportOptions implements ImportOptionsInterface
         return $this->features;
     }
 
-    public function nativeTypesFeatureAllowed(): bool
+    public function compareAllColumnsInNativeTable(): bool
     {
         if (in_array('new-native-types', $this->features)
             ||
