@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Bigquery;
 
 use Exception;
 use Google\Cloud\BigQuery\BigQueryClient;
+use Google\Cloud\BigQuery\Numeric;
 use Google\Cloud\BigQuery\Timestamp;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
@@ -493,6 +494,9 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             foreach ($row as &$item) {
                 if ($item instanceof Timestamp) {
                     $item = $item->get()->format(DateTimeHelper::FORMAT);
+                }
+                if ($item instanceof Numeric) {
+                    $item = (string) $item->get();
                 }
             }
         }
