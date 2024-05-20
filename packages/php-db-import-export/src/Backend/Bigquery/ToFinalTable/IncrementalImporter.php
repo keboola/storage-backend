@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable;
 
+use DateTimeInterface;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Exception\JobException;
 use Google\Cloud\Core\Exception\ServiceException;
@@ -16,7 +17,6 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\TableBackendUtils\Connection\Bigquery\SessionFactory;
-use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
@@ -33,10 +33,19 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
     private SqlBuilder $sqlBuilder;
 
-    public function __construct(BigQueryClient $bqClient)
-    {
+    private string $timestamp;
+
+    public function __construct(
+        BigQueryClient $bqClient,
+        ?DateTimeInterface $timestamp = null,
+    ) {
         $this->bqClient = $bqClient;
         $this->sqlBuilder = new SqlBuilder();
+        if ($timestamp === null) {
+            $this->timestamp = DateTimeHelper::getNowFormatted();
+        } else {
+            $this->timestamp = DateTimeHelper::getTimestampFormated($timestamp);
+        }
     }
 
     public function importToTable(
@@ -55,7 +64,6 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         // table used in getInsertAllIntoTargetTableCommand if PK's are specified, dedup table is used
         $tableToCopyFrom = $stagingTableDefinition;
 
-        $timestampValue = DateTimeHelper::getNowFormatted();
         try {
             $transactionStarted = false;
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
@@ -94,7 +102,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                         $deduplicationTableDefinition,
                         $destinationTableDefinition,
                         $options,
-                        $timestampValue,
+                        $this->timestamp,
                     ),
                     $session->getAsQueryOptions(),
                 ));
@@ -126,7 +134,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $tableToCopyFrom,
                     $destinationTableDefinition,
                     $options,
-                    $timestampValue,
+                    $this->timestamp,
                 ),
                 $session->getAsQueryOptions(),
             ));
