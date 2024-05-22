@@ -11,4 +11,9 @@ interface ExportOptionsInterface
     public function isCompressed(): bool;
 
     public function generateManifest(): bool;
+
+    /**
+     * @return string[]
+     */
+    public function features(): array;
 }
