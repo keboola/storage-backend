@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Snowflake;
@@ -381,5 +383,197 @@ SELECT 2,
             $expected,
             0,
         );
+    }
+
+
+    public function incrementalImportTimestampBehavior(): Generator
+    {
+        yield 'import typed table, timestamp update always `no feature`' => [
+            'features' => [],
+            'expectedContent' => [
+                [
+                    'id'=> 1,
+                    'name'=> 'change',
+                    'price'=> 100,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2022-02-02 00:00:00',
+                ],
+                [
+                    'id'=> 2,
+                    'name'=> 'test2',
+                    'price'=> 200,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2021-01-01 00:00:00',
+                ],
+                [
+                    'id'=> 3,
+                    'name'=> 'test3',
+                    'price'=> 300,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2022-02-02 00:00:00', // no change timestamp updated
+                ],
+                [
+                    'id'=> 4,
+                    'name'=> 'test4',
+                    'price'=> 400,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2022-02-02 00:00:00',
+                ],
+            ],
+        ];
+
+        yield 'import typed table, timestamp update onchange feature: `new-native-types`' => [
+            'features' => ['new-native-types'],
+            'expectedContent' => [
+                [
+                    'id'=> 1,
+                    'name'=> 'change',
+                    'price'=> 100,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2022-02-02 00:00:00',
+                ],
+                [
+                    'id'=> 2,
+                    'name'=> 'test2',
+                    'price'=> 200,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2021-01-01 00:00:00',
+                ],
+                [
+                    'id'=> 3,
+                    'name'=> 'test3',
+                    'price'=> 300,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2021-01-01 00:00:00', // no change no timestamp update
+                ],
+                [
+                    'id'=> 4,
+                    'name'=> 'test4',
+                    'price'=> 400,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2022-02-02 00:00:00',
+                ],
+            ],
+        ];
+
+        yield 'import typed table, timestamp update onchange feature: `native-types_timestamp-bc`' => [
+            'features' => ['native-types_timestamp-bc'],
+            'expectedContent' => [
+                [
+                    'id'=> 1,
+                    'name'=> 'change',
+                    'price'=> 100,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2022-02-02 00:00:00',
+                ],
+                [
+                    'id'=> 2,
+                    'name'=> 'test2',
+                    'price'=> 200,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2021-01-01 00:00:00',
+                ],
+                [
+                    'id'=> 3,
+                    'name'=> 'test3',
+                    'price'=> 300,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2021-01-01 00:00:00', // no change no timestamp update
+                ],
+                [
+                    'id'=> 4,
+                    'name'=> 'test4',
+                    'price'=> 400,
+                    'isDeleted'=> 0,
+                    '_timestamp'=> '2022-02-02 00:00:00',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider incrementalImportTimestampBehavior
+     * @param string[] $features
+     * @param array<mixed> $expectedContent
+     */
+    public function testImportTimestampBehavior(array $features, array $expectedContent): void
+    {
+        $this->connection->executeQuery(sprintf(
+            'CREATE TABLE %s.%s (
+    "id" INT CONSTRAINT "table_pk" PRIMARY KEY,
+    "name" STRING,
+    "price" INT,
+    "isDeleted" INT,
+    "_timestamp" TIMESTAMP
+            );',
+            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
+        ));
+
+        $this->connection->executeQuery(sprintf(
+            'CREATE TABLE %s.%s (
+    "id" INT,
+    "name" STRING,
+    "price" INT,
+    "isDeleted" INT
+            );',
+            SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
+        ));
+
+        $this->connection->executeStatement(sprintf(
+            'INSERT INTO "%s"."%s" VALUES
+                (1, \'change\', 100, 0), (3, \'test3\', 300, 0), (4, \'test4\', 400, 0);
+        ',
+            $this->getSourceSchemaName(),
+            self::TABLE_TRANSLATIONS,
+        ));
+
+        $this->connection->executeStatement(sprintf(
+            'INSERT INTO "%s"."%s" VALUES
+(1, \'test\', 100, 0, \'2021-01-01 00:00:00\'),
+(2, \'test2\', 200, 0, \'2021-01-01 00:00:00\'),
+(3, \'test3\', 300, 0, \'2021-01-01 00:00:00\')
+        ',
+            $this->getDestinationSchemaName(),
+            self::TABLE_TRANSLATIONS,
+        ));
+
+        $source = (new SnowflakeTableReflection(
+            $this->connection,
+            $this->getSourceSchemaName(),
+            self::TABLE_TRANSLATIONS,
+        ))->getTableDefinition();
+        $destination = (new SnowflakeTableReflection(
+            $this->connection,
+            $this->getDestinationSchemaName(),
+            self::TABLE_TRANSLATIONS,
+        ))->getTableDefinition();
+
+        $state = new ImportState(self::TABLE_TRANSLATIONS);
+        (new IncrementalImporter(
+            $this->connection,
+            new DateTimeImmutable('2022-02-02 00:00:00', new DateTimeZone('UTC')),
+        )
+        )->importToTable(
+            $source,
+            $destination,
+            new SnowflakeImportOptions(
+                isIncremental: true,
+                useTimestamp: true,
+                nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+                features: $features,
+            ),
+            $state,
+        );
+
+        $destinationContent = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
+            ),
+        );
+        $this->assertEqualsCanonicalizing($expectedContent, $destinationContent);
     }
 }

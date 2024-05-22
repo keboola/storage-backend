@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable;
 
+use DateTimeInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Result;
@@ -30,11 +31,19 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
     private SqlBuilder $sqlBuilder;
 
+    private string $timestamp;
+
     public function __construct(
         Connection $connection,
+        ?DateTimeInterface $timestamp = null,
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlBuilder();
+        if ($timestamp === null) {
+            $this->timestamp = DateTimeHelper::getNowFormatted();
+        } else {
+            $this->timestamp = DateTimeHelper::getTimestampFormated($timestamp);
+        }
     }
 
     public function importToTable(
@@ -50,7 +59,6 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         // table used in getInsertAllIntoTargetTableCommand if PK's are specified, dedup table is used
         $tableToCopyFrom = $stagingTableDefinition;
 
-        $timestampValue = DateTimeHelper::getNowFormatted();
         try {
             $this->connection->executeStatement(
                 $this->sqlBuilder->getBeginTransaction(),
@@ -79,7 +87,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                         $stagingTableDefinition,
                         $destinationTableDefinition,
                         $options,
-                        $timestampValue,
+                        $this->timestamp,
                     ),
                 );
                 $state->stopTimer(self::TIMER_UPDATE_TARGET_TABLE);
@@ -120,7 +128,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                     $tableToCopyFrom,
                     $destinationTableDefinition,
                     $options,
-                    $timestampValue,
+                    $this->timestamp,
                 ),
             );
             $state->stopTimer(self::TIMER_INSERT_INTO_TARGET);
