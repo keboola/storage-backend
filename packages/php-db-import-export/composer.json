@@ -20,7 +20,7 @@
         "keboola/php-datatypes": "^7.6",
         "keboola/php-file-storage-utils": "^0.2.2",
         "keboola/php-temp": "^2.0",
-        "keboola/table-backend-utils": "^2",
+        "keboola/table-backend-utils": ">=2.7",
         "microsoft/azure-storage-blob": "^1.4",
         "symfony/process": "^4.4|^5.0|^6.0"
     },
@@ -49,7 +49,7 @@
     "scripts": {
         "tests-unit": "phpunit --colors=always --testsuite unit",
         "tests-storage": "phpunit --colors=always --testsuite storage",
-        "tests-snowflake-abs": "SUITE=tests-snowflake STORAGE_TYPE=ABS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake",
+        "tests-snowflake-abs": "SUITE=tests-snowflake STORAGE_TYPE=ABS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-abs",
         "tests-snowflake-s3": "SUITE=tests-snowflake-s3  STORAGE_TYPE=S3 BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-s3",
         "tests-snowflake-gcs": "SUITE=tests-snowflake-gcs  STORAGE_TYPE=GCS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-gcs",
         "tests-synapse": "SUITE=tests-synapse-sas STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TABLE_DISTRIBUTION=HASH phpunit --colors=always --testsuite tests-synapse",

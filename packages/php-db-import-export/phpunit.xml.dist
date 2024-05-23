@@ -35,6 +35,18 @@
             <exclude>tests/functional/Snowflake/IncrementalImportTest.php</exclude>
         </testsuite>
 
+        <testsuite name="snowflake-abs">
+            <!-- Azure blob storage is slow in CI-->
+            <!-- run only essentials test which do import or export -->
+            <!-- abs is slow on CI SNFLK -->
+            <directory>tests/functional/Snowflake/Exporter</directory>
+            <directory>tests/functional/Snowflake/ToStage</directory>
+            <file>tests/functional/Snowflake/ExportLegacyTest.php</file>
+            <file>tests/functional/Snowflake/OtherImportTest.php</file>
+            <file>tests/functional/Snowflake/FullImportTest.php</file>
+            <file>tests/functional/Snowflake/IncrementalImportTest.php</file>
+        </testsuite>
+
         <testsuite name="tests-synapse">
             <directory>tests/functional/Synapse</directory>
         </testsuite>
