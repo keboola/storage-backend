@@ -41,6 +41,10 @@ class S3ExportAdapter implements BackendExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions,
     ): array {
+        $timestampFormat = 'YYYY-MM-DD HH24:MI:SS';
+        if (in_array(Exporter::FEATURE_FRACTIONAL_SECONDS, $exportOptions->features(), true)) {
+            $timestampFormat = 'YYYY-MM-DD HH24:MI:SS.FF9';
+        }
         $sql = sprintf(
             <<<EOT
 COPY INTO '%s/%s'
@@ -54,7 +58,7 @@ FILE_FORMAT = (
     TYPE = 'CSV' FIELD_DELIMITER = ','
     FIELD_OPTIONALLY_ENCLOSED_BY = '\"'
     %s
-    TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS',
+    TIMESTAMP_FORMAT = '%s',
     NULL_IF = ()
 )
 ENCRYPTION = (
@@ -71,6 +75,7 @@ EOT,
             $destination->getSecret(),
             $destination->getRegion(),
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
+            $timestampFormat,
         );
 
         /** @var array<array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string}> $unloadedFiles */

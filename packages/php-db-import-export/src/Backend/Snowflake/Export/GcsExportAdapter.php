@@ -41,6 +41,10 @@ class GcsExportAdapter implements BackendExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions,
     ): array {
+        $timestampFormat = 'YYYY-MM-DD HH24:MI:SS';
+        if (in_array(Exporter::FEATURE_FRACTIONAL_SECONDS, $exportOptions->features(), true)) {
+            $timestampFormat = 'YYYY-MM-DD HH24:MI:SS.FF9';
+        }
         $sql = sprintf(
             'COPY INTO \'%s/%s\'
 FROM (%s)
@@ -50,7 +54,7 @@ FILE_FORMAT = (
     FIELD_DELIMITER = \',\'
     FIELD_OPTIONALLY_ENCLOSED_BY = \'\"\'
     %s
-    TIMESTAMP_FORMAT = \'YYYY-MM-DD HH24:MI:SS\',
+    TIMESTAMP_FORMAT = \'%s\',
     NULL_IF = ()
 )
 MAX_FILE_SIZE=50000000
@@ -60,6 +64,7 @@ DETAILED_OUTPUT = TRUE',
             $source->getFromStatement(),
             $destination->getStorageIntegrationName(),
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
+            $timestampFormat,
         );
 
         /** @var array<array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string}> $unloadedFiles */
