@@ -39,9 +39,15 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 
     public function getFromStatement(): string
     {
-        $quotedColumns = array_map(static function ($column) {
-            return BigqueryQuote::quoteSingleIdentifier($column);
-        }, $this->getColumnsNames());
+        $quotedTable = BigqueryQuote::quoteSingleIdentifier($this->getTableName());
+        $quotedColumns = array_map(
+            static fn($column) => sprintf(
+                '%s.%s',
+                $quotedTable,
+                BigqueryQuote::quoteSingleIdentifier($column)
+            ),
+            $this->getColumnsNames(),
+        );
 
         $select = '*';
         if (count($quotedColumns) > 0) {
@@ -52,7 +58,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             'SELECT %s FROM %s.%s',
             $select,
             BigqueryQuote::quoteSingleIdentifier($this->getSchema()),
-            BigqueryQuote::quoteSingleIdentifier($this->getTableName()),
+            $quotedTable,
         );
     }
 

@@ -164,12 +164,12 @@ class SqlBuildTest extends BigqueryBaseTestCase
         yield 'typed' => [
             BigqueryImportOptions::USING_TYPES_USER,
             // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT `col1`,`col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT `src`.`col1`,`src`.`col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
         ];
         yield 'string' => [
             BigqueryImportOptions::USING_TYPES_STRING,
             // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT CAST(COALESCE(`col1`, \'\') as STRING) AS `col1`,CAST(COALESCE(`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT CAST(COALESCE(`src`.`col1`, \'\') as STRING) AS `col1`,CAST(COALESCE(`src`.`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
         ];
     }
 
@@ -315,12 +315,12 @@ class SqlBuildTest extends BigqueryBaseTestCase
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
             // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT `col1`,`col2` FROM `import_export_test_schema`.`stagingTable` AS `src`'
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT `src`.`col1`,`src`.`col2` FROM `import_export_test_schema`.`stagingTable` AS `src`'
         ];
         yield 'string' => [
             BigqueryImportOptions::USING_TYPES_STRING,
             // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT NULLIF(`col1`, \'\'),CAST(COALESCE(`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT NULLIF(`src`.`col1`, \'\'),CAST(COALESCE(`src`.`col2`, \'\') as STRING) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
         ];
     }
 
@@ -407,12 +407,12 @@ class SqlBuildTest extends BigqueryBaseTestCase
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
             // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`, `_timestamp`) SELECT `col1`,`col2`,CAST(\'2020-01-01 00:00:00\' as TIMESTAMP) FROM `import_export_test_schema`.`stagingTable` AS `src`'
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`, `_timestamp`) SELECT `src`.`col1`,`src`.`col2`,CAST(\'2020-01-01 00:00:00\' as TIMESTAMP) FROM `import_export_test_schema`.`stagingTable` AS `src`'
         ];
         yield 'string' => [
             BigqueryImportOptions::USING_TYPES_STRING,
             // phpcs:ignore
-            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`, `_timestamp`) SELECT NULLIF(`col1`, \'\'),CAST(COALESCE(`col2`, \'\') as STRING) AS `col2`,CAST(\'2020-01-01 00:00:00\' as TIMESTAMP) FROM `import_export_test_schema`.`stagingTable` AS `src`',
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`, `_timestamp`) SELECT NULLIF(`src`.`col1`, \'\'),CAST(COALESCE(`src`.`col2`, \'\') as STRING) AS `col2`,CAST(\'2020-01-01 00:00:00\' as TIMESTAMP) FROM `import_export_test_schema`.`stagingTable` AS `src`',
         ];
     }
 

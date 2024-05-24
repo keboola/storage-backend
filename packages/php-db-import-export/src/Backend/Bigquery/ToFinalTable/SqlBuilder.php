@@ -99,7 +99,8 @@ class SqlBuilder
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                     $columnsSetSql[] = sprintf(
-                        'NULLIF(%s, \'\')',
+                        'NULLIF(%s.%s, \'\')',
+                        BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
                         BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
                 } else {
@@ -107,7 +108,8 @@ class SqlBuilder
                 }
             } elseif ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
                 $columnsSetSql[] = sprintf(
-                    'CAST(COALESCE(%s, \'\') as %s) AS %s',
+                    'CAST(COALESCE(%s.%s, \'\') as %s) AS %s',
+                    BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
                     BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $destinationColumn->getColumnDefinition()->getType(),
                     BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
@@ -116,7 +118,8 @@ class SqlBuilder
                 // on columns other than string dont use COALESCE, use direct cast
                 // this will fail if the column is not null, but this is expected
                 $columnsSetSql[] = sprintf(
-                    'CAST(%s as %s) AS %s',
+                    'CAST(%s.%s as %s) AS %s',
+                    BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
                     BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     $destinationColumn->getColumnDefinition()->getType(),
                     BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
@@ -165,7 +168,11 @@ SQL,
             /** @var BigqueryColumn $columnDefinition */
             foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
                 $this->assertColumnExist($destinationTableDefinition, $columnDefinition);
-                $columnsSetSql[] = BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
+                $columnsSetSql[] = sprintf(
+                    '%s.%s',
+                    BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
+                    BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                );
             }
         } else {
             $columnsSetSql = $this->getColumnSetSqlPartForStringTable(
@@ -176,7 +183,11 @@ SQL,
         }
 
         if ($useTimestamp) {
-            $columnsSetSql[] = sprintf('CAST(%s as %s)', BigqueryQuote::quote($timestamp), Bigquery::TYPE_TIMESTAMP);
+            $columnsSetSql[] = sprintf(
+                'CAST(%s as %s)',
+                BigqueryQuote::quote($timestamp),
+                Bigquery::TYPE_TIMESTAMP
+            );
         }
 
         return sprintf(
@@ -416,6 +427,7 @@ SQL,
         $pkSql = $this->getColumnsString(
             $primaryKeysNames,
             ',',
+            self::SRC_ALIAS
         );
 
         $stage = sprintf(
@@ -424,17 +436,19 @@ SQL,
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
-        return sprintf(
-            'SELECT %s FROM ('
-            . 'SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS `_row_number_` '
-            . 'FROM %s'
-            . ') AS a '
-            . 'WHERE a.`_row_number_` = 1',
+        return sprintf(<<<SQL
+SELECT %s FROM (
+    SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS `_row_number_`
+    FROM %s as %s
+) AS a
+    WHERE a.`_row_number_` = 1
+SQL,
             $this->getColumnsString($columns, ',', 'a'),
-            $this->getColumnsString($columns, ', '),
+            $this->getColumnsString($columns, ', ', self::SRC_ALIAS),
             $pkSql,
             $pkSql,
             $stage,
+            self::SRC_ALIAS,
         );
     }
 }
