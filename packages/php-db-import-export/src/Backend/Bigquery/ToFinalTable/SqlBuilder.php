@@ -171,7 +171,7 @@ SQL,
                 $columnsSetSql[] = sprintf(
                     '%s.%s',
                     BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
-                    BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName())
+                    BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                 );
             }
         } else {
@@ -186,7 +186,7 @@ SQL,
             $columnsSetSql[] = sprintf(
                 'CAST(%s as %s)',
                 BigqueryQuote::quote($timestamp),
-                Bigquery::TYPE_TIMESTAMP
+                Bigquery::TYPE_TIMESTAMP,
             );
         }
 
@@ -427,7 +427,7 @@ SQL,
         $pkSql = $this->getColumnsString(
             $primaryKeysNames,
             ',',
-            self::SRC_ALIAS
+            self::SRC_ALIAS,
         );
 
         $stage = sprintf(
@@ -436,7 +436,8 @@ SQL,
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
 
-        return sprintf(<<<SQL
+        return sprintf(
+            <<<SQL
 SELECT %s FROM (
     SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS `_row_number_`
     FROM %s as %s

@@ -44,7 +44,7 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
             static fn($column) => sprintf(
                 '%s.%s',
                 $quotedTable,
-                BigqueryQuote::quoteSingleIdentifier($column)
+                BigqueryQuote::quoteSingleIdentifier($column),
             ),
             $this->getColumnsNames(),
         );
