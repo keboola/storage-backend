@@ -42,7 +42,7 @@ class S3ExportAdapter implements BackendExportAdapterInterface
         ExportOptionsInterface $exportOptions,
     ): array {
         $timestampFormat = 'YYYY-MM-DD HH24:MI:SS';
-        if (in_array('snowflake-export-fractional-seconds', $exportOptions->features(), true)) {
+        if (in_array(Exporter::FEATURE_FRACTIONAL_SECONDS, $exportOptions->features(), true)) {
             $timestampFormat = 'YYYY-MM-DD HH24:MI:SS.FF9';
         }
         $sql = sprintf(
