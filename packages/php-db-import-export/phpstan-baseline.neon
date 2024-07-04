@@ -1,6 +1,16 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Bigquery\\\\BigqueryException\\:\\:createExceptionFromJobResult\\(\\) has parameter \\$jobInfo with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Backend/Bigquery/BigqueryException.php
+
+		-
+			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Bigquery\\\\BigqueryException\\:\\:getErrorMessageForErrorList\\(\\) has parameter \\$parsingErrors with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Backend/Bigquery/BigqueryException.php
+
+		-
 			message: "#^Cannot access offset 'durationSeconds' on mixed\\.$#"
 			count: 1
 			path: src/Backend/ImportState.php
@@ -24,6 +34,11 @@ parameters:
 			message: "#^Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 1
 			path: src/Backend/Snowflake/Importer.php
+
+		-
+			message: "#^Dead catch \\- Error is never thrown in the try block\\.$#"
+			count: 1
+			path: src/Backend/SourceDestinationColumnMap.php
 
 		-
 			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\Exporter\\:\\:getAdapter\\(\\) should return Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Synapse\\\\SynapseExportAdapterInterface but returns object\\.$#"
@@ -319,23 +334,3 @@ parameters:
 			message: "#^Variable \\$destination in PHPDoc tag @var does not match assigned variable \\$options\\.$#"
 			count: 1
 			path: tests/unit/Storage/ABS/SynapseExportAdapterTest.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Bigquery\\\\BigqueryException::createExceptionFromJobResult\\(\\) has parameter \\$jobInfo with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Bigquery/BigqueryException.php
-
-		-
-			message: "#^Method Keboola\\\\Db\\\\ImportExport\\\\Backend\\\\Bigquery\\\\BigqueryException::getErrorMessageForErrorList\\(\\) has parameter \\$parsingErrors with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Backend/Bigquery/BigqueryException.php
-
-		-
-			message: "#^Dead catch - Error is never thrown in the try block\\.$#"
-			count: 1
-			path: src/Backend/SourceDestinationColumnMap.php
-
-		-
-			message: "#^Result of callable callable\\(T\\): void \\(void\\) is used\\.$#"
-			count: 1
-			path: tests/Common/StubLoader/GCSLoader.php
