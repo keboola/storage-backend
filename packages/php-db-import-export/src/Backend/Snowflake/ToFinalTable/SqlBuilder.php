@@ -377,6 +377,7 @@ class SqlBuilder
                     },
                     $stagingTableDefinition->getColumnsNames(),
                 );
+                break;
         }
 
         $dest = sprintf(
