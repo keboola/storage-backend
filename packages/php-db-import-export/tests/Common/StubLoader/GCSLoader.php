@@ -131,7 +131,7 @@ class GCSLoader extends BaseStubLoader
                     'name' => $blobName,
                 ],
             );
-            return $resolve([$blobName, $res]);
+            $resolve([$blobName, $res]);
         });
 
         parallel($promises)->then(function (): void {
