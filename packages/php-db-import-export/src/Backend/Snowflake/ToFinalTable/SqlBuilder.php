@@ -352,29 +352,31 @@ class SqlBuilder
         }
 
         $columnsComparisonSql = [];
-        if ($importOptions->compareAllColumnsInNativeTable()) {
-            $columnsComparisonSql = array_map(
-                static function ($columnName) {
-                    return sprintf(
-                        '"dest".%s IS DISTINCT FROM "src".%s',
-                        SnowflakeQuote::quoteSingleIdentifier($columnName),
-                        SnowflakeQuote::quoteSingleIdentifier($columnName),
-                    );
-                },
-                $stagingTableDefinition->getColumnsNames(),
-            );
-        } elseif ($importOptions->isNullManipulationEnabled()) {
-            // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
-            $columnsComparisonSql = array_map(
-                static function ($columnName) {
-                    return sprintf(
-                        'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
-                        SnowflakeQuote::quoteSingleIdentifier($columnName),
-                        SnowflakeQuote::quoteSingleIdentifier($columnName),
-                    );
-                },
-                $stagingTableDefinition->getColumnsNames(),
-            );
+        switch (true) {
+            case $importOptions->isNullManipulationEnabled():
+                // update only changed rows - mysql TIMESTAMP ON UPDATE behaviour simulation
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            'COALESCE(TO_VARCHAR("dest".%s), \'\') != COALESCE("src".%s, \'\')',
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
+                break;
+            case $importOptions->compareAllColumnsInNativeTable():
+                $columnsComparisonSql = array_map(
+                    static function ($columnName) {
+                        return sprintf(
+                            '"dest".%s IS DISTINCT FROM "src".%s',
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                            SnowflakeQuote::quoteSingleIdentifier($columnName),
+                        );
+                    },
+                    $stagingTableDefinition->getColumnsNames(),
+                );
         }
 
         $dest = sprintf(
