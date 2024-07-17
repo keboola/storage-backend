@@ -479,6 +479,15 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         $this->assertSame($expectedArray, $definition->getArrayFromLength());
     }
 
+    /**
+     * @dataProvider provideTestGetTypeFromAlias
+     */
+    public function testBackendBasetypeFromAlias(string $type, string $expectedType): void
+    {
+        $definition = new Snowflake($type);
+        $this->assertSame($expectedType, $definition->getBackendBasetype());
+    }
+
     public function arrayFromLengthProvider(): Generator
     {
         yield 'simple' => [
@@ -506,5 +515,61 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
             '10',
             ['numeric_precision' => 10, 'numeric_scale' => 0],
         ];
+    }
+
+    public function provideTestGetTypeFromAlias(): Generator
+    {
+        foreach (Snowflake::TYPES as $type) {
+            switch ($type) {
+                case Snowflake::TYPE_NVARCHAR:
+                case Snowflake::TYPE_NVARCHAR2:
+                case Snowflake::TYPE_CHAR:
+                case Snowflake::TYPE_CHARACTER:
+                case Snowflake::TYPE_CHAR_VARYING:
+                case Snowflake::TYPE_CHARACTER_VARYING:
+                case Snowflake::TYPE_NCHAR_VARYING:
+                case Snowflake::TYPE_NCHAR:
+                case Snowflake::TYPE_STRING:
+                case Snowflake::TYPE_TEXT:
+                    $expectedType = Snowflake::TYPE_VARCHAR;
+                    break;
+                case Snowflake::TYPE_DEC:
+                case Snowflake::TYPE_DECIMAL:
+                case Snowflake::TYPE_NUMERIC:
+                case Snowflake::TYPE_INT:
+                case Snowflake::TYPE_INTEGER:
+                case Snowflake::TYPE_BIGINT:
+                case Snowflake::TYPE_SMALLINT:
+                case Snowflake::TYPE_TINYINT:
+                case Snowflake::TYPE_BYTEINT:
+                    $expectedType = Snowflake::TYPE_NUMBER;
+                    break;
+                case Snowflake::TYPE_FLOAT:
+                case Snowflake::TYPE_FLOAT4:
+                case Snowflake::TYPE_FLOAT8:
+                case Snowflake::TYPE_DOUBLE:
+                case Snowflake::TYPE_DOUBLE_PRECISION:
+                case Snowflake::TYPE_REAL:
+                    $expectedType = Snowflake::TYPE_FLOAT;
+                    break;
+                case Snowflake::TYPE_VARBINARY:
+                    $expectedType = Snowflake::TYPE_BINARY;
+                    break;
+                case Snowflake::TYPE_DATETIME:
+                    $expectedType = Snowflake::TYPE_TIMESTAMP_NTZ;
+                    break;
+                case Snowflake::TYPE_TIMESTAMP:
+                    $expectedType = Snowflake::TYPE_TIMESTAMP_LTZ;
+                    break;
+                default:
+                    $expectedType = $type;
+                    break;
+            }
+
+            yield $type => [
+                'type' => $type,
+                'expectedType' => $expectedType,
+            ];
+        }
     }
 }
