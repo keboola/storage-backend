@@ -435,6 +435,46 @@ class Snowflake extends Common
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
 
+    public function getBackendBasetype(): string
+    {
+        return match (strtoupper($this->type)) {
+            self::TYPE_NVARCHAR => self::TYPE_VARCHAR,
+            self::TYPE_NVARCHAR2 => self::TYPE_VARCHAR,
+            self::TYPE_CHAR => self::TYPE_VARCHAR,
+            self::TYPE_CHARACTER => self::TYPE_VARCHAR,
+            self::TYPE_CHAR_VARYING => self::TYPE_VARCHAR,
+            self::TYPE_CHARACTER_VARYING => self::TYPE_VARCHAR,
+            self::TYPE_NCHAR_VARYING => self::TYPE_VARCHAR,
+            self::TYPE_NCHAR => self::TYPE_VARCHAR,
+            self::TYPE_STRING => self::TYPE_VARCHAR,
+            self::TYPE_TEXT => self::TYPE_VARCHAR,
+
+            self::TYPE_VARBINARY => self::TYPE_BINARY,
+
+            self::TYPE_DEC => self::TYPE_NUMBER,
+            self::TYPE_DECIMAL => self::TYPE_NUMBER,
+            self::TYPE_NUMERIC => self::TYPE_NUMBER,
+            self::TYPE_INT => self::TYPE_NUMBER,
+            self::TYPE_INTEGER => self::TYPE_NUMBER,
+            self::TYPE_BIGINT => self::TYPE_NUMBER,
+            self::TYPE_SMALLINT => self::TYPE_NUMBER,
+            self::TYPE_TINYINT => self::TYPE_NUMBER,
+            self::TYPE_BYTEINT => self::TYPE_NUMBER,
+
+            self::TYPE_FLOAT => self::TYPE_FLOAT,
+            self::TYPE_FLOAT4 => self::TYPE_FLOAT,
+            self::TYPE_FLOAT8 => self::TYPE_FLOAT,
+            self::TYPE_DOUBLE => self::TYPE_FLOAT,
+            self::TYPE_DOUBLE_PRECISION => self::TYPE_FLOAT,
+            self::TYPE_REAL => self::TYPE_FLOAT,
+
+            self::TYPE_DATETIME => self::TYPE_TIMESTAMP_NTZ,
+
+            self::TYPE_TIMESTAMP => self::TYPE_TIMESTAMP_LTZ,
+            default => $this->type
+        };
+    }
+
     public static function getDefinitionForBasetype(string $basetype): self
     {
         $basetype = strtoupper($basetype);
