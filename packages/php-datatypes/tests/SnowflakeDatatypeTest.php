@@ -558,9 +558,6 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
                 case Snowflake::TYPE_DATETIME:
                     $expectedType = Snowflake::TYPE_TIMESTAMP_NTZ;
                     break;
-                case Snowflake::TYPE_TIMESTAMP:
-                    $expectedType = Snowflake::TYPE_TIMESTAMP_LTZ;
-                    break;
                 default:
                     $expectedType = $type;
                     break;

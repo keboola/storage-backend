@@ -469,8 +469,6 @@ class Snowflake extends Common
             self::TYPE_REAL => self::TYPE_FLOAT,
 
             self::TYPE_DATETIME => self::TYPE_TIMESTAMP_NTZ,
-
-            self::TYPE_TIMESTAMP => self::TYPE_TIMESTAMP_LTZ,
             default => $this->type
         };
     }
