@@ -384,6 +384,15 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
         ], $def->getFieldAsArray());
     }
 
+    /**
+     * @dataProvider provideTestGetTypeFromAlias
+     */
+    public function testBackendBasetypeFromAlias(string $type, string $expectedType): void
+    {
+        $definition = new Bigquery($type);
+        $this->assertSame($expectedType, $definition->getBackendBasetype());
+    }
+
     public static function getTestedClass(): string
     {
         return Bigquery::class;
@@ -475,5 +484,35 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
             'expectedColumnDefinition' => null,
             'expectToFail' => true,
         ];
+    }
+
+    public function provideTestGetTypeFromAlias(): Generator
+    {
+        foreach (Bigquery::TYPES as $type) {
+            switch ($type) {
+                case Bigquery::TYPE_INT:
+                case Bigquery::TYPE_SMALLINT:
+                case Bigquery::TYPE_INTEGER:
+                case Bigquery::TYPE_BIGINT:
+                case Bigquery::TYPE_TINYINT:
+                case Bigquery::TYPE_BYTEINT:
+                    $expectedType = Bigquery::TYPE_INT64;
+                    break;
+                case Bigquery::TYPE_DECIMAL:
+                    $expectedType = Bigquery::TYPE_NUMERIC;
+                    break;
+                case Bigquery::TYPE_BIGDECIMAL:
+                    $expectedType = Bigquery::TYPE_BIGNUMERIC;
+                    break;
+                default:
+                    $expectedType = $type;
+                    break;
+            }
+
+            yield $type => [
+                'type' => $type,
+                'expectedType' => $expectedType,
+            ];
+        }
     }
 }

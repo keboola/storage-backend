@@ -284,6 +284,21 @@ class Bigquery extends Common
         throw new LogicException(sprintf('Definition for base type "%s" is missing.', $basetype));
     }
 
+    public function getBackendBasetype(): string
+    {
+        return match (strtoupper($this->type)) {
+            self::TYPE_INT => self::TYPE_INT64,
+            self::TYPE_SMALLINT => self::TYPE_INT64,
+            self::TYPE_INTEGER => self::TYPE_INT64,
+            self::TYPE_BIGINT => self::TYPE_INT64,
+            self::TYPE_TINYINT => self::TYPE_INT64,
+            self::TYPE_BYTEINT => self::TYPE_INT64,
+            self::TYPE_DECIMAL => self::TYPE_NUMERIC,
+            self::TYPE_BIGDECIMAL => self::TYPE_BIGNUMERIC,
+            default => $this->type
+        };
+    }
+
     public static function getDefinitionForBasetype(string $basetype): self
     {
         $type = self::getTypeByBasetype($basetype);
