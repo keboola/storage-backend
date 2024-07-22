@@ -369,11 +369,22 @@ class SqlBuilder
             case $importOptions->compareAllColumnsInNativeTable():
                 foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
                     $destinationColumn = $columnMap->getDestination($sourceColumn);
-                    $columnsComparisonSql[] = sprintf(
-                        '"dest".%s IS DISTINCT FROM "src".%s',
-                        SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
-                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                    );
+                    if (in_array($destinationColumn->getColumnDefinition()->getType(), [
+                        Snowflake::TYPE_GEOGRAPHY,
+                        Snowflake::TYPE_GEOMETRY,
+                    ], true)) {
+                        $columnsComparisonSql[] = sprintf(
+                            'ST_ASEWKT("dest".%s) IS DISTINCT FROM ST_ASEWKT("src".%s)',
+                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                            SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                        );
+                    } else {
+                        $columnsComparisonSql[] = sprintf(
+                            '"dest".%s IS DISTINCT FROM "src".%s',
+                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                            SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                        );
+                    }
                 }
                 break;
         }
