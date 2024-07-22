@@ -367,16 +367,15 @@ class SqlBuilder
                 );
                 break;
             case $importOptions->compareAllColumnsInNativeTable():
-                $columnsComparisonSql = array_map(
-                    static function ($columnName) {
-                        return sprintf(
-                            '"dest".%s IS DISTINCT FROM "src".%s',
-                            SnowflakeQuote::quoteSingleIdentifier($columnName),
-                            SnowflakeQuote::quoteSingleIdentifier($columnName),
-                        );
-                    },
-                    $stagingTableDefinition->getColumnsNames(),
-                );
+                foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+                    $destinationColumn = $columnMap->getDestination($sourceColumn);
+                    $columnsComparisonSql[] = sprintf(
+                        '"dest".%s IS DISTINCT FROM "src".%s',
+                        SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                    );
+                }
+                break;
         }
 
         $dest = sprintf(
