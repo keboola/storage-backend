@@ -10,6 +10,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
+use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -1618,6 +1619,358 @@ EOD,
                 'col2' => null,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],  // timestamp is not update when row has same value and there is null
+        ], $result);
+    }
+
+    public function testGetUpdateWithPkCommandNullManipulationSpecialDatatypes(): void
+    {
+        $timestampInit = new DateTime('2020-01-01 00:00:01');
+        $timestampSet = new DateTime('2020-01-01 01:01:01');
+        $this->createTestSchema();
+        $tableDefinition = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                new SnowflakeColumn(
+                    'id',
+                    new Snowflake(
+                        Snowflake::TYPE_INT,
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'array',
+                    new Snowflake(
+                        Snowflake::TYPE_ARRAY,
+                        ['nullable' => true],
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'geometry',
+                    new Snowflake(
+                        Snowflake::TYPE_GEOMETRY,
+                        ['nullable' => true],
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'geography',
+                    new Snowflake(
+                        Snowflake::TYPE_GEOGRAPHY,
+                        ['nullable' => true],
+                    ),
+                ),
+                new SnowflakeColumn(
+                    '_timestamp',
+                    new Snowflake(Snowflake::TYPE_TIMESTAMP),
+                ),
+            ]),
+            ['id'],
+        );
+        $stageDefinition = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            false,
+            new ColumnCollection([
+                new SnowflakeColumn(
+                    'id',
+                    new Snowflake(
+                        Snowflake::TYPE_INT,
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'array',
+                    new Snowflake(
+                        Snowflake::TYPE_ARRAY,
+                        ['nullable' => true],
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'geometry',
+                    new Snowflake(
+                        Snowflake::TYPE_GEOMETRY,
+                        ['nullable' => true],
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'geography',
+                    new Snowflake(
+                        Snowflake::TYPE_GEOGRAPHY,
+                        ['nullable' => true],
+                    ),
+                ),
+            ]),
+            [],
+        );
+        $this->connection->executeStatement(
+            (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition),
+        );
+        $this->connection->executeStatement(
+            (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition(
+                $stageDefinition,
+            ),
+        );
+
+        $this->connection->executeStatement(
+            sprintf(
+            // phpcs:ignore
+                'INSERT INTO %s.%s("id","array","geometry","geography") SELECT 1,ARRAY_CONSTRUCT(2,\'arr\'),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-111.35 37.55)\'',
+                SnowflakeQuote::quoteSingleIdentifier($stageDefinition->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($stageDefinition->getTableName()),
+            ),
+        );
+
+        $this->connection->executeStatement(
+            sprintf(
+            // phpcs:ignore
+                'INSERT INTO %s.%s("id","array","geometry","geography","_timestamp") SELECT 1,ARRAY_CONSTRUCT(1,\'arr\'),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-122.35 37.55)\',\'%s\'',
+                SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
+        );
+        $this->connection->executeStatement(
+            sprintf(
+            // phpcs:ignore
+                'INSERT INTO %s.%s("id","array","geometry","geography","_timestamp") SELECT 2,ARRAY_CONSTRUCT(1,\'arr\'),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-122.35 37.55)\',\'%s\'',
+                SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
+        );
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s.%s',
+            SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
+        ));
+
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'array' => <<<EOD
+[
+  1,
+  "arr"
+]
+EOD,
+                'geometry'=><<<EOD
+{
+  "coordinates": [
+    -122.35,
+    37.55
+  ],
+  "type": "Point"
+}
+EOD,
+                'geography'=><<<EOD
+{
+  "coordinates": [
+    [
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ]
+    ]
+  ],
+  "type": "Polygon"
+}
+EOD,
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+            [
+                'id' => '2',
+                'array' => <<<EOD
+[
+  1,
+  "arr"
+]
+EOD,
+                'geometry'=><<<EOD
+{
+  "coordinates": [
+    -122.35,
+    37.55
+  ],
+  "type": "Point"
+}
+EOD,
+                'geography'=><<<EOD
+{
+  "coordinates": [
+    [
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ]
+    ]
+  ],
+  "type": "Polygon"
+}
+EOD,
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+        ], $result);
+
+        // use timestamp
+        $options = new SnowflakeImportOptions(
+            convertEmptyValuesToNull: [],
+            isIncremental: false,
+            useTimestamp: true,
+            numberOfIgnoredLines: 0,
+            requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
+            nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
+            ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
+            features: ['native-types_timestamp-bc',],
+        );
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $stageDefinition,
+            $tableDefinition,
+            $options,
+            $timestampSet->format(DateTimeHelper::FORMAT),
+        );
+
+        self::assertEquals(
+            // phpcs:ignore
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "id" = "src"."id", "array" = "src"."array", "geometry" = "src"."geometry", "geography" = "src"."geography", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."id" = "src"."id"  AND ("dest"."id" IS DISTINCT FROM "src"."id" OR "dest"."array" IS DISTINCT FROM "src"."array" OR ST_ASEWKT("dest"."geometry") IS DISTINCT FROM ST_ASEWKT("src"."geometry") OR ST_ASEWKT("dest"."geography") IS DISTINCT FROM ST_ASEWKT("src"."geography"))',
+            $sql,
+        );
+        $this->connection->executeStatement($sql);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA,
+        ));
+
+        // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
+        self::assertEqualsCanonicalizing([
+            [
+                'id' => '1',
+                'array' => <<<EOD
+[
+  2,
+  "arr"
+]
+EOD,
+                'geometry'=><<<EOD
+{
+  "coordinates": [
+    -111.35,
+    37.55
+  ],
+  "type": "Point"
+}
+EOD,
+                'geography'=><<<EOD
+{
+  "coordinates": [
+    [
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ]
+    ]
+  ],
+  "type": "Polygon"
+}
+EOD,
+                '_timestamp' => $timestampSet->format(DateTimeHelper::FORMAT),
+            ],
+            [
+                'id' => '2',
+                'array' => <<<EOD
+[
+  1,
+  "arr"
+]
+EOD,
+                'geometry'=><<<EOD
+{
+  "coordinates": [
+    -122.35,
+    37.55
+  ],
+  "type": "Point"
+}
+EOD,
+                'geography'=><<<EOD
+{
+  "coordinates": [
+    [
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        0.000000000000000e+00
+      ],
+      [
+        1.000000000000000e+01,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        1.000000000000000e+01
+      ],
+      [
+        0.000000000000000e+00,
+        0.000000000000000e+00
+      ]
+    ]
+  ],
+  "type": "Polygon"
+}
+EOD,
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
         ], $result);
     }
 
