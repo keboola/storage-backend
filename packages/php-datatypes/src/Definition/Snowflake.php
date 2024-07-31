@@ -363,8 +363,7 @@ class Snowflake extends Common
                  * any white space zero or infinite times
                  * any digit with 0 to 4 places
                  */
-                if (preg_match('/^(?<TYPE>INT|FLOAT),[^\S\r\n]*(?<DIM>[\d]{1,4})$/i', $length, $matches))
-                {
+                if (preg_match('/^(?<TYPE>INT|FLOAT),[^\S\r\n]*(?<DIM>[\d]{1,4})$/i', $length, $matches)) {
                     $dimension = (int) $matches['DIM'];
                     if ($dimension > 0 && $dimension <= 4096) {
                         $valid = true;
