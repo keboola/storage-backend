@@ -21,7 +21,9 @@
 
 ### Docker
 
-Prepare `.env` (copy of `.env.dist`) and set up AWS keys which has access to `keboola-drivers` bucket in order to build this image.
+Prepare `.env` (copy of `.env.dist`) and set up AWS keys which has access to `keboola-drivers` bucket in order to build this image. Also add this user to group `ci-php-import-export-lib` witch will allow you to work with newly created bucket for tests.
+
+User can be created in `Dev - Main legacy`, where are also groups for `keboola-drivers` and `ci-php-import-export-lib`.
 
 If you don't have access to `keboola-drivers` you have to change Dockerfile.
 - Comment out first stage which downloads Teradata driver and tools and supply own downloaded from Teradata site:
@@ -54,7 +56,7 @@ ABS_CONTAINER_NAME=containerName
 - Create service account in [IAM](https://console.cloud.google.com/iam-admin/serviceaccounts)
 - In bucket permissions grant service account admin access to bucket
 - Create new service account key
-- Convert key to string `awk -v RS= '{$1=$1}1' <key_file>.json >> .env`
+- Convert key to string `awk -v RS= '{$1=$1}1' <key_file>.json >> .env` (or `cat file.json | jq -c | jq -R`)
 - Set content on last line of .env as variable `GCS_CREDENTIALS`
 
 - Upload test fixtures to GCS `docker compose run --rm dev composer loadGcs-bigquery` or `docker compose run --rm dev composer loadGcs-snowflake` (depending on backend)
@@ -84,7 +86,7 @@ CREATE STORAGE INTEGRATION "KEBOOLA_DB_IMPORT_EXPORT"
   STORAGE_ALLOWED_LOCATIONS = ('gcs://<your gcs bucket>/');
 -- set integration name to env GCS_INTEGRATION_NAME in .env file
 -- get service account id `STORAGE_GCP_SERVICE_ACCOUNT`
-DESC STORAGE INTEGRATION "CI_PHP_IE_LIB";
+DESC STORAGE INTEGRATION "KEBOOLA_DB_IMPORT_EXPORT";
 -- continue according manual ^ in snflk documentation assign roles for Data loading and unloading
 ```
 
