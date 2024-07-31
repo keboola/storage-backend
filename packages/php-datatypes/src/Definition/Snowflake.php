@@ -60,6 +60,7 @@ class Snowflake extends Common
     public const TYPE_ARRAY = 'ARRAY';
     public const TYPE_GEOGRAPHY = 'GEOGRAPHY';
     public const TYPE_GEOMETRY = 'GEOMETRY';
+    public const TYPE_VECTOR = 'VECTOR';
     public const TYPES = [
         self::TYPE_NUMBER,
         self::TYPE_DEC,
@@ -103,6 +104,7 @@ class Snowflake extends Common
         self::TYPE_ARRAY,
         self::TYPE_GEOGRAPHY,
         self::TYPE_GEOMETRY,
+        self::TYPE_VECTOR,
     ];
     public const MAX_VARCHAR_LENGTH = 16777216;
     public const MAX_VARBINARY_LENGTH = 8388608;
@@ -348,6 +350,25 @@ class Snowflake extends Common
                 if ((int) $length < 1 || (int) $length > self::MAX_VARBINARY_LENGTH) {
                     $valid = false;
                     break;
+                }
+                break;
+            case self::TYPE_VECTOR:
+                $valid = false;
+                if ($length === null) {
+                    break;
+                }
+                /** matches:
+                 * TYPE - INT|FLOAT - case insensitive
+                 * ,
+                 * any white space zero or infinite times
+                 * any digit with 0 to 4 places
+                 */
+                if (preg_match('/^(?<TYPE>INT|FLOAT),[^\S\r\n]*(?<DIM>[\d]{1,4})$/i', $length, $matches))
+                {
+                    $dimension = (int) $matches['DIM'];
+                    if ($dimension > 0 && $dimension <= 4096) {
+                        $valid = true;
+                    }
                 }
                 break;
             default:
