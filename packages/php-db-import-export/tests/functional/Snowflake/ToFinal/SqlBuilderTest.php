@@ -433,7 +433,7 @@ EOT,);
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => null,
                 'col1' => '1',
@@ -496,6 +496,15 @@ EOT,);
                         Snowflake::TYPE_ARRAY,
                     ),
                 ),
+                new SnowflakeColumn(
+                    'VECTOR',
+                    new Snowflake(
+                        Snowflake::TYPE_VECTOR,
+                        [
+                            'length' => 'INT,3',
+                        ]
+                    ),
+                ),
             ]),
             ['pk1'],
         );
@@ -510,6 +519,7 @@ EOT,);
                 $this->createNullableGenericColumn('VARBINARY'),
                 $this->createNullableGenericColumn('OBJECT'),
                 $this->createNullableGenericColumn('ARRAY'),
+                $this->createNullableGenericColumn('VECTOR'),
             ]),
             [],
         );
@@ -522,13 +532,14 @@ EOT,);
 
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARIANT(\'4.14\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
        OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  24::VARIANT),
-       ARRAY_CONSTRUCT(1, 2, 3, NULL)
+       ARRAY_CONSTRUCT(1, 2, 3, NULL),
+       ARRAY_CONSTRUCT(1,2,3)::VECTOR(INT,3)
 ;',
             self::TEST_SCHEMA,
             self::TEST_TABLE,
@@ -536,13 +547,14 @@ SELECT \'1\',
 
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARCHAR(TO_VARIANT(\'3.14\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       TO_VARCHAR(TO_ARRAY([1,2,3]::VECTOR(INT,3)))
 ;',
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
@@ -566,36 +578,23 @@ SELECT \'1\',
 
         self::assertEquals(
         // phpcs:ignore
-            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY") (SELECT "pk1",CAST("VARIANT" AS VARIANT) AS "VARIANT","BINARY","VARBINARY",CAST(TO_VARIANT("OBJECT") AS OBJECT) AS "OBJECT",CAST("ARRAY" AS ARRAY) AS "ARRAY" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY", "VECTOR") (SELECT "pk1",CAST("VARIANT" AS VARIANT) AS "VARIANT","BINARY","VARBINARY",CAST(TO_VARIANT("OBJECT") AS OBJECT) AS "OBJECT",CAST(PARSE_JSON("ARRAY") AS ARRAY) AS "ARRAY",CAST(PARSE_JSON("VECTOR") AS ARRAY)::VECTOR (INT,3) AS "VECTOR" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
             $sql,
         );
 
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(1, $out);
 
+        // now Snowflake return `vector = null` when you use `select * from …`, we need to cast vector explicitly here
+        // this hack can be removed, when Snowflake start to select vectors correctly
+        // Snowflake web console works properly, so this is probably bug in ODBC driver
+        // We try driver version 3.4.0 and behaviour was the same
         $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
+            'SELECT "pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY", cast("VECTOR" AS ARRAY) AS "VECTOR" FROM %s',
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
-            [
-                'pk1' => '1',
-                'VARIANT' => '"3.14"',
-                'BINARY' => '1',
-                'VARBINARY' => '1',
-                'OBJECT' => <<<EOD
-{
-  "age": 42,
-  "name": "Jones"
-}
-EOD,
-                'ARRAY' => <<<EOD
-[
-  "[1,2,3,undefined]"
-]
-EOD,
-            ],
+        self::assertEquals([
             [
                 'pk1' => '1',
                 'VARIANT' => '"4.14"',
@@ -615,6 +614,41 @@ EOD,
   undefined
 ]
 EOD,
+                'VECTOR' => <<<EOD
+[
+  1,
+  2,
+  3
+]
+EOD,
+            ],
+            [
+                'pk1' => '1',
+                'VARIANT' => '"3.14"',
+                'BINARY' => '1',
+                'VARBINARY' => '1',
+                'OBJECT' => <<<EOD
+{
+  "age": 42,
+  "name": "Jones"
+}
+EOD,
+                'ARRAY' => <<<EOD
+[
+  1,
+  2,
+  3,
+  undefined
+]
+EOD,
+                'VECTOR' => <<<EOD
+[
+  1,
+  2,
+  3
+]
+EOD,
+
             ],
         ], $result);
     }
@@ -669,7 +703,7 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => null,
                 'col1' => '1',
@@ -789,7 +823,7 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => null,
                 'col1' => '1',
@@ -900,7 +934,7 @@ EOD,
             ]),
             ['col1'],
         );
-        // create fake stage and say that there is less columns
+        // create fake stage and say that there is fewer columns
         $fakeStage = new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
@@ -1083,6 +1117,15 @@ EOD,
                         Snowflake::TYPE_ARRAY,
                     ),
                 ),
+                new SnowflakeColumn(
+                    'VECTOR',
+                    new Snowflake(
+                        Snowflake::TYPE_VECTOR,
+                        [
+                            'length' => 'INT,3'
+                        ]
+                    ),
+                ),
             ]),
             ['pk1'],
         );
@@ -1097,6 +1140,7 @@ EOD,
                 $this->createNullableGenericColumn('VARBINARY'),
                 $this->createNullableGenericColumn('OBJECT'),
                 $this->createNullableGenericColumn('ARRAY'),
+                $this->createNullableGenericColumn('VECTOR'),
             ]),
             [],
         );
@@ -1109,13 +1153,14 @@ EOD,
 
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARIANT(\'4.14\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
        OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
-       ARRAY_CONSTRUCT(1, 2, 3, NULL)
+       ARRAY_CONSTRUCT(1, 2, 3, NULL),
+       [1,2,3]::VECTOR(INT,3)
 ;',
             self::TEST_SCHEMA,
             self::TEST_TABLE,
@@ -1123,13 +1168,14 @@ SELECT \'1\',
 
         $this->connection->executeQuery(sprintf(
         /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY") 
+            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARCHAR(TO_VARIANT(\'3.14\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
        TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL))
+       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       TO_VARCHAR(TO_ARRAY([1,2,3]::VECTOR(INT,3)))
 ;',
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
@@ -1152,13 +1198,17 @@ SELECT \'1\',
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST("src"."ARRAY" AS ARRAY) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST(PARSE_JSON("src"."ARRAY") AS ARRAY), "VECTOR" = CAST(PARSE_JSON("src"."VECTOR") AS ARRAY)::VECTOR (INT,3) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
             $sql,
         );
         $this->connection->executeStatement($sql);
 
+        // now Snowflake return `vector = null` when you use `select * from …`, we need to cast vector explicitly here
+        // this hack can be removed, when Snowflake start to select vectors correctly
+        // Snowflake web console works properly, so this is probably bug in ODBC driver
+        // We try driver version 3.4.0 and behaviour was the same
         $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
+            'SELECT "pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY", cast("VECTOR" AS ARRAY) AS "VECTOR" FROM %s',
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
@@ -1176,9 +1226,20 @@ SELECT \'1\',
 EOD,
                 'ARRAY' => <<<EOD
 [
-  "[1,2,3,undefined]"
+  1,
+  2,
+  3,
+  undefined
 ]
 EOD,
+                'VECTOR' => <<<EOD
+[
+  1,
+  2,
+  3
+]
+EOD,
+
             ],
         ], $result);
     }
@@ -1229,7 +1290,7 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '',
@@ -1263,7 +1324,7 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => null,
@@ -1328,7 +1389,7 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '',
@@ -1421,7 +1482,7 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1460,7 +1521,7 @@ EOD,
         ));
 
         // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1556,7 +1617,7 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1606,7 +1667,7 @@ EOD,
         }
 
         // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1643,6 +1704,16 @@ EOD,
                     new Snowflake(
                         Snowflake::TYPE_ARRAY,
                         ['nullable' => true],
+                    ),
+                ),
+                new SnowflakeColumn(
+                    'vector',
+                    new Snowflake(
+                        Snowflake::TYPE_VECTOR,
+                        [
+                            'length' => 'INT,3',
+                            'nullable' => true,
+                        ],
                     ),
                 ),
                 new SnowflakeColumn(
@@ -1685,6 +1756,16 @@ EOD,
                     ),
                 ),
                 new SnowflakeColumn(
+                    'vector',
+                    new Snowflake(
+                        Snowflake::TYPE_VECTOR,
+                        [
+                            'length' => 'INT,3',
+                            'nullable' => true
+                        ],
+                    ),
+                ),
+                new SnowflakeColumn(
                     'geometry',
                     new Snowflake(
                         Snowflake::TYPE_GEOMETRY,
@@ -1713,7 +1794,7 @@ EOD,
         $this->connection->executeStatement(
             sprintf(
             // phpcs:ignore
-                'INSERT INTO %s.%s("id","array","geometry","geography") SELECT 1,ARRAY_CONSTRUCT(2,\'arr\'),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-111.35 37.55)\'',
+                'INSERT INTO %s.%s("id","array","vector","geometry","geography") SELECT 1,ARRAY_CONSTRUCT(2,\'arr\'),[1,2,3]::VECTOR(INT,3),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-111.35 37.55)\'',
                 SnowflakeQuote::quoteSingleIdentifier($stageDefinition->getSchemaName()),
                 SnowflakeQuote::quoteSingleIdentifier($stageDefinition->getTableName()),
             ),
@@ -1722,7 +1803,7 @@ EOD,
         $this->connection->executeStatement(
             sprintf(
             // phpcs:ignore
-                'INSERT INTO %s.%s("id","array","geometry","geography","_timestamp") SELECT 1,ARRAY_CONSTRUCT(1,\'arr\'),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-122.35 37.55)\',\'%s\'',
+                'INSERT INTO %s.%s("id","array","vector","geometry","geography","_timestamp") SELECT 1,ARRAY_CONSTRUCT(1,\'arr\'),[1,2,3]::VECTOR(INT,3),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-122.35 37.55)\',\'%s\'',
                 SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
                 SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
                 $timestampInit->format(DateTimeHelper::FORMAT),
@@ -1731,20 +1812,24 @@ EOD,
         $this->connection->executeStatement(
             sprintf(
             // phpcs:ignore
-                'INSERT INTO %s.%s("id","array","geometry","geography","_timestamp") SELECT 2,ARRAY_CONSTRUCT(1,\'arr\'),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-122.35 37.55)\',\'%s\'',
+                'INSERT INTO %s.%s("id","array","vector","geometry","geography","_timestamp") SELECT 2,ARRAY_CONSTRUCT(1,\'arr\'),[1,2,3]::VECTOR(INT,3),\'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))\',\'POINT(-122.35 37.55)\',\'%s\'',
                 SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
                 SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
                 $timestampInit->format(DateTimeHelper::FORMAT),
             ),
         );
 
+        // now Snowflake return `vector = null` when you use `select * from …`, we need to cast vector explicitly here
+        // this hack can be removed, when Snowflake start to select vectors correctly
+        // Snowflake web console works properly, so this is probably bug in ODBC driver
+        // We try driver version 3.4.0 and behaviour was the same
         $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.%s',
+            'SELECT "id","array",CAST("vector" AS ARRAY) AS "vector" ,"geometry","geography","_timestamp" FROM %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
         ));
 
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'array' => <<<EOD
@@ -1753,16 +1838,14 @@ EOD,
   "arr"
 ]
 EOD,
-                'geometry'=><<<EOD
-{
-  "coordinates": [
-    -122.35,
-    37.55
-  ],
-  "type": "Point"
-}
+                'vector' => <<<EOD
+[
+  1,
+  2,
+  3
+]
 EOD,
-                'geography'=><<<EOD
+                'geometry' => <<<EOD
 {
   "coordinates": [
     [
@@ -1789,6 +1872,15 @@ EOD,
     ]
   ],
   "type": "Polygon"
+}
+EOD,
+                'geography' => <<<EOD
+{
+  "coordinates": [
+    -122.35,
+    37.55
+  ],
+  "type": "Point"
 }
 EOD,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
@@ -1801,16 +1893,14 @@ EOD,
   "arr"
 ]
 EOD,
-                'geometry'=><<<EOD
-{
-  "coordinates": [
-    -122.35,
-    37.55
-  ],
-  "type": "Point"
-}
+                'vector' => <<<EOD
+[
+  1,
+  2,
+  3
+]
 EOD,
-                'geography'=><<<EOD
+                'geometry' => <<<EOD
 {
   "coordinates": [
     [
@@ -1837,6 +1927,15 @@ EOD,
     ]
   ],
   "type": "Polygon"
+}
+EOD,
+                'geography' => <<<EOD
+{
+  "coordinates": [
+    -122.35,
+    37.55
+  ],
+  "type": "Point"
 }
 EOD,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
@@ -1863,18 +1962,22 @@ EOD,
 
         self::assertEquals(
             // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "id" = "src"."id", "array" = "src"."array", "geometry" = "src"."geometry", "geography" = "src"."geography", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."id" = "src"."id"  AND ("dest"."id" IS DISTINCT FROM "src"."id" OR "dest"."array" IS DISTINCT FROM "src"."array" OR ST_ASEWKT("dest"."geometry") IS DISTINCT FROM ST_ASEWKT("src"."geometry") OR ST_ASEWKT("dest"."geography") IS DISTINCT FROM ST_ASEWKT("src"."geography"))',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "id" = "src"."id", "array" = "src"."array", "vector" = "src"."vector", "geometry" = "src"."geometry", "geography" = "src"."geography", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."id" = "src"."id"  AND ("dest"."id" IS DISTINCT FROM "src"."id" OR "dest"."array" IS DISTINCT FROM "src"."array" OR "dest"."vector" IS DISTINCT FROM "src"."vector" OR ST_ASEWKT("dest"."geometry") IS DISTINCT FROM ST_ASEWKT("src"."geometry") OR ST_ASEWKT("dest"."geography") IS DISTINCT FROM ST_ASEWKT("src"."geography"))',
             $sql,
         );
         $this->connection->executeStatement($sql);
 
+        // now Snowflake return `vector = null` when you use `select * from …`, we need to cast vector explicitly here
+        // this hack can be removed, when Snowflake start to select vectors correctly
+        // Snowflake web console works properly, so this is probably bug in ODBC driver
+        // We try driver version 3.4.0 and behaviour was the same
         $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
+            'SELECT "id","array",CAST("vector" AS ARRAY) AS "vector" ,"geometry","geography","_timestamp" FROM %s',
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
         // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
-        self::assertEqualsCanonicalizing([
+        self::assertEquals([
             [
                 'id' => '1',
                 'array' => <<<EOD
@@ -1883,7 +1986,14 @@ EOD,
   "arr"
 ]
 EOD,
-                'geometry'=><<<EOD
+                'vector' => <<<EOD
+[
+  1,
+  2,
+  3
+]
+EOD,
+                'geography' => <<<EOD
 {
   "coordinates": [
     -111.35,
@@ -1892,7 +2002,7 @@ EOD,
   "type": "Point"
 }
 EOD,
-                'geography'=><<<EOD
+                'geometry' => <<<EOD
 {
   "coordinates": [
     [
@@ -1931,7 +2041,14 @@ EOD,
   "arr"
 ]
 EOD,
-                'geometry'=><<<EOD
+                'vector' => <<<EOD
+[
+  1,
+  2,
+  3
+]
+EOD,
+                'geography' => <<<EOD
 {
   "coordinates": [
     -122.35,
@@ -1940,7 +2057,7 @@ EOD,
   "type": "Point"
 }
 EOD,
-                'geography'=><<<EOD
+                'geometry' => <<<EOD
 {
   "coordinates": [
     [
