@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Keboola\Provisioning;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'app:delete:synapse',
+)]
 final class Delete extends BaseCmd
 {
     private const OPTION_AZURE_RESOURCE_GROUP = 'resourceGroup';
@@ -16,8 +20,6 @@ final class Delete extends BaseCmd
     private const OPTION_SYNAPSE_DW_SERVER_NAME = 'synapseDwServerName';
     private const OPTION_SYNAPSE_SERVICE_PRINCIPAL_OBJECT_ID = 'synapseServicePrincipalObjectId';
     private const OPTION_SYNAPSE_SQL_SERVER_NAME = 'synapseSqlServerName';
-
-    protected static string $defaultName = 'app:delete:synapse';
 
     protected function configure(): void
     {

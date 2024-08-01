@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Keboola\Provisioning;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'app:deploy:synapse',
+)]
 final class Deploy extends BaseCmd
 {
     private const OPTION_AZURE_RESOURCE_GROUP = 'resourceGroup';
     private const OPTION_SERVER_NAME = 'serverName';
-
-    protected static string $defaultName = 'app:deploy:synapse';
 
     protected function configure(): void
     {
