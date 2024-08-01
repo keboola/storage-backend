@@ -502,7 +502,7 @@ EOT,);
                         Snowflake::TYPE_VECTOR,
                         [
                             'length' => 'INT,3',
-                        ]
+                        ],
                     ),
                 ),
             ]),
@@ -590,6 +590,7 @@ SELECT \'1\',
         // Snowflake web console works properly, so this is probably bug in ODBC driver
         // We try driver version 3.4.0 and behaviour was the same
         $result = $this->connection->fetchAllAssociative(sprintf(
+        // phpcs:ignore
             'SELECT "pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY", cast("VECTOR" AS ARRAY) AS "VECTOR" FROM %s',
             self::TEST_TABLE_IN_SCHEMA,
         ));
@@ -1122,8 +1123,8 @@ EOD,
                     new Snowflake(
                         Snowflake::TYPE_VECTOR,
                         [
-                            'length' => 'INT,3'
-                        ]
+                            'length' => 'INT,3',
+                        ],
                     ),
                 ),
             ]),
@@ -1208,6 +1209,7 @@ SELECT \'1\',
         // Snowflake web console works properly, so this is probably bug in ODBC driver
         // We try driver version 3.4.0 and behaviour was the same
         $result = $this->connection->fetchAllAssociative(sprintf(
+        // phpcs:ignore
             'SELECT "pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY", cast("VECTOR" AS ARRAY) AS "VECTOR" FROM %s',
             self::TEST_TABLE_IN_SCHEMA,
         ));
@@ -1761,7 +1763,7 @@ EOD,
                         Snowflake::TYPE_VECTOR,
                         [
                             'length' => 'INT,3',
-                            'nullable' => true
+                            'nullable' => true,
                         ],
                     ),
                 ),
