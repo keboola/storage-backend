@@ -354,7 +354,7 @@ class Snowflake extends Common
                 break;
             case self::TYPE_VECTOR:
                 $valid = false;
-                if ($length === null) {
+                if ($length === null || !is_string($length)) {
                     break;
                 }
                 /** matches:

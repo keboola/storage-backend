@@ -328,7 +328,7 @@ class Exasol extends Common
                 }
 
                 if (preg_match('/(?<val>[1-9]+\d*)\s*(?<unit>BYTE|BIT)/i', (string) $length, $matched)) {
-                    $val = $matched['val'];
+                    $val = (int) $matched['val'];
                     $unit = strtoupper($matched['unit']);
 
                     $limits = [
