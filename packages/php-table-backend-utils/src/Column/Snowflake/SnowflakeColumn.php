@@ -63,10 +63,10 @@ final class SnowflakeColumn implements ColumnInterface
         $default = $dbResponse['default'];
         $length = null;
 
-        $matches = [];
-        if (preg_match('/^(?<type>\w+)\((?<length>[a-zA-Z0-9, ]+)\)$/ui', $dbResponse['type'], $matches)) {
-            $type = $matches['type'];
-            $length = $matches['length'];
+        $info = self::extractTypeAndLengthFromDB($dbResponse['type']);
+        if ($info !== null) {
+            $type = $info['type'];
+            $length = $info['length'];
         }
 
         return new self($dbResponse['name'], new Snowflake(
@@ -77,6 +77,22 @@ final class SnowflakeColumn implements ColumnInterface
                 'default' => $default,
             ],
         ));
+    }
+
+    /**
+     * @return array{type: string, length: string}|null
+     */
+    public static function extractTypeAndLengthFromDB(string $dbType): ?array
+    {
+        $matches = [];
+        if (preg_match('/^(?<type>\w+)\((?<length>[a-zA-Z0-9, ]+)\).*$/ui', $dbType, $matches)) {
+            $type = $matches['type'];
+            $length = $matches['length'];
+
+            return ['type' => $type, 'length' => $length];
+        }
+
+        return null;
     }
 
     public static function createTimestampColumn(string $columnName = self::TIMESTAMP_COLUMN_NAME): SnowflakeColumn
