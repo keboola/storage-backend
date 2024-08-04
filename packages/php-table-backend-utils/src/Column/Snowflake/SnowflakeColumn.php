@@ -64,9 +64,9 @@ final class SnowflakeColumn implements ColumnInterface
         $length = null;
 
         $matches = [];
-        if (preg_match('/^(\w+)\(([0-9\,]+)\).*$/ui', $dbResponse['type'], $matches)) {
-            $type = $matches[1];
-            $length = $matches[2];
+        if (preg_match('/^(?<type>\w+)\((?<length>[a-zA-Z0-9, ]+)\)$/ui', $dbResponse['type'], $matches)) {
+            $type = $matches['type'];
+            $length = $matches['length'];
         }
 
         return new self($dbResponse['name'], new Snowflake(
