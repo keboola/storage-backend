@@ -6,8 +6,8 @@ namespace Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable;
 
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Bigquery;
-use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
+use Keboola\Db\ImportExport\Backend\SourceDestinationColumnMap;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
@@ -16,33 +16,6 @@ use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 class SqlBuilder
 {
     private const SRC_ALIAS = 'src';
-
-    private function assertColumnExist(
-        BigqueryTableDefinition $tableDefinition,
-        BigqueryColumn $columnDefinition,
-    ): BigqueryColumn {
-        $destinationColumn = null;
-        // case sensitive search
-        /** @var BigqueryColumn $col */
-        foreach ($tableDefinition->getColumnsDefinitions() as $col) {
-            if ($col->getColumnName() === $columnDefinition->getColumnName()) {
-                $destinationColumn = $col;
-                break;
-            }
-        }
-        if ($destinationColumn === null) {
-            throw new Exception(
-                sprintf(
-                    'Columns "%s" can be imported as it was not found between columns "%s" of destination table.',
-                    $columnDefinition->getColumnName(),
-                    implode(', ', $tableDefinition->getColumnsNames()),
-                ),
-                Exception::UNKNOWN_ERROR,
-            );
-        }
-
-        return $destinationColumn;
-    }
 
     public function getBeginTransaction(): string
     {
@@ -88,13 +61,13 @@ class SqlBuilder
      */
     private function getColumnSetSqlPartForStringTable(
         BigqueryTableDefinition $sourceTableDefinition,
-        BigqueryTableDefinition $destinationTableDefinition,
+        SourceDestinationColumnMap $columnMap,
         BigqueryImportOptions $importOptions,
     ): array {
         $columnsSetSql = [];
         /** @var BigqueryColumn $columnDefinition */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
-            $destinationColumn = $this->assertColumnExist($destinationTableDefinition, $columnDefinition);
+            $destinationColumn = $columnMap->getDestination($columnDefinition);
             if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
@@ -146,6 +119,13 @@ SQL,
         BigqueryImportOptions $importOptions,
         string $timestamp,
     ): string {
+        $columnMap = SourceDestinationColumnMap::createForTables(
+            $sourceTableDefinition,
+            $destinationTableDefinition,
+            $importOptions->ignoreColumns(),
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
+        );
+
         $destinationTable = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
@@ -167,7 +147,7 @@ SQL,
             $columnsSetSql = [];
             /** @var BigqueryColumn $columnDefinition */
             foreach ($sourceTableDefinition->getColumnsDefinitions() as $columnDefinition) {
-                $this->assertColumnExist($destinationTableDefinition, $columnDefinition);
+                $columnMap->getDestination($columnDefinition);
                 $columnsSetSql[] = sprintf(
                     '%s.%s',
                     BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
@@ -177,7 +157,7 @@ SQL,
         } else {
             $columnsSetSql = $this->getColumnSetSqlPartForStringTable(
                 $sourceTableDefinition,
-                $destinationTableDefinition,
+                $columnMap,
                 $importOptions,
             );
         }
@@ -285,28 +265,37 @@ SQL,
     ): string {
         $columnsSet = [];
 
-        foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
+        $columnMap = SourceDestinationColumnMap::createForTables(
+            $stagingTableDefinition,
+            $destinationTableDefinition,
+            $importOptions->ignoreColumns(),
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
+        );
+
+        foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+            $destinationColumn = $columnMap->getDestination($sourceColumn);
+
             if ($importOptions->usingUserDefinedTypes()) {
                 $columnsSet[] = sprintf(
                     '%s = `src`.%s',
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                    BigqueryQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                 );
                 continue;
             }
             // if string table convert nulls<=>''
-            if (in_array($columnName, $importOptions->getConvertEmptyValuesToNull(), true)) {
+            if (in_array($sourceColumn->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
                 $columnsSet[] = sprintf(
                     '%s = IF(`src`.%s = \'\', NULL, `src`.%s)',
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                    BigqueryQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                    BigqueryQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                 );
             } else {
                 $columnsSet[] = sprintf(
                     '%s = COALESCE(`src`.%s, \'\')',
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                    BigqueryQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                 );
             }
         }
@@ -321,16 +310,14 @@ SQL,
 
         $columnsComparisonSql = [];
         if ($importOptions->compareAllColumnsInNativeTable()) {
-            $columnsComparisonSql = array_map(
-                static function ($columnName) {
-                    return sprintf(
-                        '`dest`.%s IS DISTINCT FROM `src`.%s',
-                        BigqueryQuote::quoteSingleIdentifier($columnName),
-                        BigqueryQuote::quoteSingleIdentifier($columnName),
-                    );
-                },
-                $stagingTableDefinition->getColumnsNames(),
-            );
+            foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+                $destinationColumn = $columnMap->getDestination($sourceColumn);
+                $columnsComparisonSql[] = sprintf(
+                    '`dest`.%s IS DISTINCT FROM `src`.%s',
+                    BigqueryQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                    BigqueryQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                );
+            }
         }
 
         $dest = sprintf(

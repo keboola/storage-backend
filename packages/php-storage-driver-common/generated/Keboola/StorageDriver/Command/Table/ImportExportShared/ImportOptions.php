@@ -68,6 +68,12 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string importAsNull = 9;</code>
      */
     private $importAsNull;
+    /**
+     * columns that are ignored during import, used to ignore _timestamp column from check when importing table from workspace
+     *
+     * Generated from protobuf field <code>repeated string ignoreColumnsNames = 10;</code>
+     */
+    private $ignoreColumnsNames;
 
     /**
      * Constructor.
@@ -93,6 +99,8 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *     @type int $createMode
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $importAsNull
      *           list of values which should be imported as null, default should be always empty string
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $ignoreColumnsNames
+     *           columns that are ignored during import, used to ignore _timestamp column from check when importing table from workspace
      * }
      */
     public function __construct($data = NULL) {
@@ -326,6 +334,32 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->importAsNull = $arr;
+
+        return $this;
+    }
+
+    /**
+     * columns that are ignored during import, used to ignore _timestamp column from check when importing table from workspace
+     *
+     * Generated from protobuf field <code>repeated string ignoreColumnsNames = 10;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getIgnoreColumnsNames()
+    {
+        return $this->ignoreColumnsNames;
+    }
+
+    /**
+     * columns that are ignored during import, used to ignore _timestamp column from check when importing table from workspace
+     *
+     * Generated from protobuf field <code>repeated string ignoreColumnsNames = 10;</code>
+     * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setIgnoreColumnsNames($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $this->ignoreColumnsNames = $arr;
 
         return $this;
     }

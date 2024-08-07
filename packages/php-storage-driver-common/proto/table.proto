@@ -210,6 +210,8 @@ message ImportExportShared {
     CreateMode createMode = 8;
 
     repeated string importAsNull = 9; // list of values which should be imported as null, default should be always empty string
+
+    repeated string ignoreColumnsNames = 10; // columns that are ignored during import, used to ignore _timestamp column from check when importing table from workspace
   }
   /**
    * Common export options

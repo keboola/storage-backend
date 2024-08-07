@@ -51,6 +51,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                     $source->getTableName(),
                 ))->getColumnsDefinitions(),
                 destination: $destination->getColumnsDefinitions(),
+                ignoreSourceColumns: $importOptions->ignoreColumns(),
                 assertOptions: Assert::ASSERT_MINIMAL,
             );
         }
