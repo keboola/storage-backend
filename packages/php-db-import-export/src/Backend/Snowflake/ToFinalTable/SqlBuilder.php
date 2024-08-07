@@ -20,6 +20,7 @@ class SqlBuilder
         Snowflake::TYPE_VARIANT,
         Snowflake::TYPE_OBJECT,
         Snowflake::TYPE_ARRAY,
+        Snowflake::TYPE_VECTOR,
     ];
     public const SRC_ALIAS = 'src';
 
@@ -210,6 +211,24 @@ class SqlBuilder
                         );
                         continue;
                     }
+                    if ($type === Snowflake::TYPE_ARRAY) {
+                        $columnsSetSql[] = sprintf(
+                            'CAST(PARSE_JSON(%s) AS %s) AS %s',
+                            SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                            $destinationColumn->getColumnDefinition()->getSQLDefinition(),
+                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                        );
+                        continue;
+                    }
+                    if ($type === Snowflake::TYPE_VECTOR) {
+                        $columnsSetSql[] = sprintf(
+                            'CAST(PARSE_JSON(%s) AS ARRAY)::%s AS %s',
+                            SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                            $destinationColumn->getColumnDefinition()->getSQLDefinition(),
+                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                        );
+                        continue;
+                    }
                     $columnsSetSql[] = sprintf(
                         'CAST(%s AS %s) AS %s',
                         SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
@@ -305,6 +324,24 @@ class SqlBuilder
                         // object can't be casted from string but can be casted from variant
                         $columnsSet[] = sprintf(
                             '%s = CAST(TO_VARIANT("src".%s) AS %s)',
+                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                            SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                            $destinationColumn->getColumnDefinition()->getSQLDefinition(),
+                        );
+                        continue;
+                    }
+                    if ($type === Snowflake::TYPE_ARRAY) {
+                        $columnsSet[] = sprintf(
+                            '%s = CAST(PARSE_JSON("src".%s) AS %s)',
+                            SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                            SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                            $destinationColumn->getColumnDefinition()->getSQLDefinition(),
+                        );
+                        continue;
+                    }
+                    if ($type === Snowflake::TYPE_VECTOR) {
+                        $columnsSet[] = sprintf(
+                            '%s = CAST(PARSE_JSON("src".%s) AS ARRAY)::%s',
                             SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
                             SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
                             $destinationColumn->getColumnDefinition()->getSQLDefinition(),

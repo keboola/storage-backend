@@ -268,7 +268,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
     public function testBasetypes(): void
     {
         foreach (Snowflake::TYPES as $type) {
-            $basetype = (new Snowflake($type))->getBasetype();
+            $basetype = (new Snowflake($type, $this->getTypeDefaultOptions($type)))->getBasetype();
             switch ($type) {
                 case 'INT':
                 case 'INTEGER':
@@ -484,7 +484,8 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
      */
     public function testBackendBasetypeFromAlias(string $type, string $expectedType): void
     {
-        $definition = new Snowflake($type);
+
+        $definition = new Snowflake($type, $this->getTypeDefaultOptions($type));
         $this->assertSame($expectedType, $definition->getBackendBasetype());
     }
 
@@ -568,5 +569,25 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
                 'expectedType' => $expectedType,
             ];
         }
+    }
+
+    /**
+     * @return array{
+     *      length?:string|null|array,
+     *      nullable?:bool,
+     *      default?:string|null
+     *  }
+     */
+    private function getTypeDefaultOptions(string $type): array
+    {
+        $options = [];
+        if ($type === Snowflake::TYPE_VECTOR) {
+            // VECTOR don't have any meaningfully default option
+            $options = [
+                'length' => 'INT,3',
+            ];
+        }
+
+        return $options;
     }
 }
