@@ -83,3 +83,9 @@ For example for lib `php-table-backend-utils` as seen in the picture.
 2. Click on + and select PHPUnit by Remote Interpreter ![PHPUnit by Remote Interpreter](add-phpunit-local.png?raw=true "PHPUnit by Remote Interpreter")
 3. And in path to script select the path to `keboola/storage-backend/vendor/autoload.php` ![Path to autoload](path-to-autload.png?raw=true "Path to autoload")
 4. Click ok
+
+# Release
+
+If you want to release a new version of a package, you need to
+- merge the PR to `main`
+- on **main** branch create and push tag `<package>/<newVersion>`. So e.g. `php-datatypes/7.7.0` if you want to release `php-datatypes` in version `7.7.0`
