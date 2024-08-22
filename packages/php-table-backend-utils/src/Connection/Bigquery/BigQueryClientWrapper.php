@@ -11,6 +11,8 @@ use Google\Cloud\BigQuery\QueryResults;
 use Retry\BackOff\BackOffPolicyInterface;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\BackOff\ExponentialRandomBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 
 class BigQueryClientWrapper extends BigQueryClient
 {
@@ -54,7 +56,13 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function runJob(JobConfigurationInterface $config, array $options = []): Job
     {
-        $job = $this->startJob($config, $options);
+        $retryPolicy = new SimpleRetryPolicy(5);
+        $backOffPolicy = new ExponentialRandomBackOffPolicy(10, 1.8, 300);
+        $proxy = new RetryProxy($retryPolicy, $backOffPolicy);
+        $job = $proxy->call(function () use ($config, $options): Job {
+            return $this->startJob($config, $options);
+        });
+        assert($job instanceof Job);
         $context = $this->backOffPolicy->start();
         do {
             $this->backOffPolicy->backOff($context);
