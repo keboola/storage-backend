@@ -16,6 +16,7 @@ class BigqueryImportOptions extends ImportOptions
      * @param self::USING_TYPES_* $usingTypes
      * @param string[] $importAsNull
      * @param string[] $features
+     * @param string[] $ignoreColumns
      */
     public function __construct(
         array $convertEmptyValuesToNull = [],
@@ -26,6 +27,7 @@ class BigqueryImportOptions extends ImportOptions
         ?Session $session = null,
         array $importAsNull = self::DEFAULT_IMPORT_AS_NULL,
         array $features = [],
+        array $ignoreColumns = [],
     ) {
         parent::__construct(
             convertEmptyValuesToNull: $convertEmptyValuesToNull,
@@ -33,6 +35,7 @@ class BigqueryImportOptions extends ImportOptions
             useTimestamp: $useTimestamp,
             numberOfIgnoredLines: $numberOfIgnoredLines,
             usingTypes: $usingTypes,
+            ignoreColumns: $ignoreColumns,
             importAsNull: $importAsNull,
             features: $features,
         );
