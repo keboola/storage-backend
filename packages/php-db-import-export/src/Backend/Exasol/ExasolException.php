@@ -24,7 +24,7 @@ class ExasolException extends Exception
             // strip query from message, there are things like SAS tokens and internal table names
             preg_match('/^(An exception occurred.*?)(Following error.*)=?.\(Session.*/ms', $e->getMessage(), $matches);
 
-            return FileNotFoundException::createFromDbalException($e, $matches[2]);
+            return FileNotFoundException::createFromDbalException($e, $matches[2] ?? '');
         }
 
         if (strpos($e->getMessage(), self::INVALID_CSV_DATA) !== false) {
@@ -37,7 +37,7 @@ class ExasolException extends Exception
                 $matches,
             );
 
-            return InvalidSourceDataException::createFromDbalException($e, $matches[2]);
+            return InvalidSourceDataException::createFromDbalException($e, $matches[2] ?? '');
         }
 
         if (strpos($e->getMessage(), self::CONSTRAINT_VIOLATION_NOT_NULL) !== false) {
@@ -49,7 +49,7 @@ class ExasolException extends Exception
             );
 
             return new Exception(
-                'Load error: ' . ucfirst($matches[2]) . ').',
+                'Load error: ' . ucfirst(($matches[2] ?? '')) . ').',
                 Exception::UNKNOWN_ERROR,
             );
         }
