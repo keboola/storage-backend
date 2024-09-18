@@ -1,4 +1,4 @@
-ARG PHP_VERSION=8.1.27
+ARG PHP_VERSION=8.2.20
 
 FROM quay.io/keboola/aws-cli as td
 ARG AWS_SECRET_ACCESS_KEY
