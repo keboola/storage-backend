@@ -57,14 +57,6 @@
             <exclude>tests/functional/Synapse/FromTableCTASAdapterSqlBuilderTest.php</exclude>
         </testsuite>
 
-        <testsuite name="tests-teradata-s3">
-            <directory>tests/functional/Teradata</directory>
-        </testsuite>
-
-        <testsuite name="tests-teradata-abs">
-            <directory>tests/functional/Teradata</directory>
-        </testsuite>
-
         <testsuite name="tests-bigquery">
             <directory>tests/functional/Bigquery</directory>
         </testsuite>
