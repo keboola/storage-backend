@@ -42,13 +42,11 @@
         "tests-exasol": "phpunit --colors=always --testsuite Exasol",
         "tests-snowflake": "phpunit --colors=always --testsuite Snowflake",
         "tests-synapse": "phpunit --colors=always --testsuite Synapse",
-        "tests-teradata": "phpunit --colors=always --testsuite Teradata",
         "tests-bigquery": "phpunit --colors=always --testsuite Bigquery",
         "tests-functional": [
             "@tests-exasol",
             "@tests-snowflake",
             "@tests-synapse",
-            "@tests-teradata",
             "@tests-bigquery"
         ],
         "tests": [
