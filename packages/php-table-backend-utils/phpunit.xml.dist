@@ -19,9 +19,6 @@
         <testsuite name="Synapse">
             <directory>tests/Functional/Synapse</directory>
         </testsuite>
-        <testsuite name="Teradata">
-            <directory>tests/Functional/Teradata</directory>
-        </testsuite>
         <testsuite name="Bigquery">
             <directory>tests/Functional/Bigquery</directory>
         </testsuite>

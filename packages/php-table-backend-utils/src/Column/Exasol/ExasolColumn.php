@@ -94,12 +94,12 @@ final class ExasolColumn implements ColumnInterface
         $colType = $colData['COLUMN_TYPE'];
         if ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_DAY_TO_SECOND) {
             preg_match('/INTERVAL DAY\((?P<valDays>\d)\) TO SECOND\((?P<valSeconds>\d)\)/', $colType, $output_array);
-            return $output_array['valDays'] . ',' . $output_array['valSeconds'];
+            return ($output_array['valDays'] ?? '') . ',' . ($output_array['valSeconds'] ?? '');
         }
 
         if ($colData['TYPE_NAME'] === Exasol::TYPE_INTERVAL_YEAR_TO_MONTH) {
             preg_match('/INTERVAL YEAR\((?P<val>\d)\) TO MONTH/', $colType, $output_array);
-            return $output_array['val'];
+            return $output_array['val'] ?? '';
         }
 
         $precision = $colData['COLUMN_NUM_PREC'];

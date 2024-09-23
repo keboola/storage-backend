@@ -1,10 +1,8 @@
-ARG PHP_VERSION=8.1.27
+ARG PHP_VERSION=8.2.20
 
 FROM quay.io/keboola/aws-cli as td
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_ACCESS_KEY_ID
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
 
 FROM php:${PHP_VERSION:-8.1}-cli-bullseye
@@ -17,7 +15,7 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 7200
 
 ARG SQLSRV_VERSION=5.10.1
-ARG SNOWFLAKE_ODBC_VERSION=2.25.12
+ARG SNOWFLAKE_ODBC_VERSION=3.4.1
 ARG SNOWFLAKE_GPG_KEY=630D9F3CAB551AF3
 ARG GOOGLE_CLOUD_CLI_VERSION=393.0.0
 
@@ -106,30 +104,6 @@ RUN set -ex; \
     echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
     rm -rf /tmp/exasol;
 
-# Teradata ODBC
-COPY --from=td /tmp/teradata/tdodbc.deb /tmp/teradata/tdodbc.deb
-COPY docker/teradata/odbc.ini /tmp/teradata/odbc_td.ini
-COPY docker/teradata/odbcinst.ini /tmp/teradata/odbcinst_td.ini
-
-RUN dpkg -i /tmp/teradata/tdodbc.deb \
-    && cat /tmp/teradata/odbc_td.ini >> /etc/odbc.ini \
-    && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
-    && rm -r /tmp/teradata \
-    && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
-    && docker-php-ext-install pdo_odbc
-
-ENV ODBCHOME = /opt/teradata/client/ODBC_64/
-ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
-ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
-ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
-
-# Teradata Utils
-COPY --from=td /tmp/teradata/tdutils.tar.gz /tmp/teradata/tdutils.tar.gz
-RUN cd /tmp/teradata \
-    && tar -xvaf tdutils.tar.gz \
-    && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase s3axsmod azureaxsmod \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/teradata
 
 #php odbc
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
