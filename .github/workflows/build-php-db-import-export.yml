@@ -120,7 +120,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -184,7 +184,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -224,7 +224,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -266,7 +266,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -311,7 +311,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -357,7 +357,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -404,7 +404,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -449,7 +449,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -488,7 +488,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Exasol start
         run: |
@@ -509,7 +509,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -552,7 +552,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Exasol stop
         if: ${{ always() }}
@@ -592,7 +592,7 @@ jobs:
         || (needs.testsAll.result != 'skipped')
       )
     steps:
-      - uses: 'actions/checkout@v3'
+      - uses: 'actions/checkout@v4'
       -
         name: 'Login GCS'
         uses: 'google-github-actions/auth@v0'
@@ -614,7 +614,7 @@ jobs:
         || (needs.testsAll.result != 'skipped')
       )
     steps:
-      - uses: 'actions/checkout@v3'
+      - uses: 'actions/checkout@v4'
       - name: 'Login GCS'
         uses: 'google-github-actions/auth@v0'
         with:
