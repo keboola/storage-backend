@@ -49,7 +49,7 @@ jobs:
           role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
 
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: changes
         with:
           filters: |
