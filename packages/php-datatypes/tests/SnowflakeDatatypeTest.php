@@ -265,51 +265,152 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         }
     }
 
-    public function testBasetypes(): void
+    public function basetypeProvider(): Generator
     {
+        yield Snowflake::TYPE_INT => [
+            new Snowflake(Snowflake::TYPE_INT, $this->getTypeDefaultOptions(Snowflake::TYPE_INT)),
+            'INTEGER',
+        ];
+        yield Snowflake::TYPE_INTEGER => [
+            new Snowflake(Snowflake::TYPE_INTEGER, $this->getTypeDefaultOptions(Snowflake::TYPE_INTEGER)),
+            'INTEGER',
+        ];
+        yield Snowflake::TYPE_BIGINT => [
+            new Snowflake(Snowflake::TYPE_BIGINT, $this->getTypeDefaultOptions(Snowflake::TYPE_BIGINT)),
+            'INTEGER',
+        ];
+        yield Snowflake::TYPE_SMALLINT => [
+            new Snowflake(Snowflake::TYPE_SMALLINT, $this->getTypeDefaultOptions(Snowflake::TYPE_SMALLINT)),
+            'INTEGER',
+        ];
+        yield Snowflake::TYPE_TINYINT => [
+            new Snowflake(Snowflake::TYPE_TINYINT, $this->getTypeDefaultOptions(Snowflake::TYPE_TINYINT)),
+            'INTEGER',
+        ];
+        yield Snowflake::TYPE_BYTEINT => [
+            new Snowflake(Snowflake::TYPE_BYTEINT, $this->getTypeDefaultOptions(Snowflake::TYPE_BYTEINT)),
+            'INTEGER',
+        ];
+        yield Snowflake::TYPE_NUMBER => [
+            new Snowflake(Snowflake::TYPE_NUMBER, $this->getTypeDefaultOptions(Snowflake::TYPE_NUMBER)),
+            'NUMERIC',
+        ];
+        yield Snowflake::TYPE_DECIMAL => [
+            new Snowflake(Snowflake::TYPE_DECIMAL, $this->getTypeDefaultOptions(Snowflake::TYPE_DECIMAL)),
+            'NUMERIC',
+        ];
+        yield Snowflake::TYPE_DEC => [
+            new Snowflake(Snowflake::TYPE_DEC, $this->getTypeDefaultOptions(Snowflake::TYPE_DEC)),
+            'NUMERIC',
+        ];
+        yield Snowflake::TYPE_NUMERIC => [
+            new Snowflake(Snowflake::TYPE_NUMERIC, $this->getTypeDefaultOptions(Snowflake::TYPE_NUMERIC)),
+            'NUMERIC',
+        ];
+        yield Snowflake::TYPE_FLOAT => [
+            new Snowflake(Snowflake::TYPE_FLOAT, $this->getTypeDefaultOptions(Snowflake::TYPE_FLOAT)),
+            'FLOAT',
+        ];
+        yield Snowflake::TYPE_FLOAT4 => [
+            new Snowflake(Snowflake::TYPE_FLOAT4, $this->getTypeDefaultOptions(Snowflake::TYPE_FLOAT4)),
+            'FLOAT',
+        ];
+        yield Snowflake::TYPE_FLOAT8 => [
+            new Snowflake(Snowflake::TYPE_FLOAT8, $this->getTypeDefaultOptions(Snowflake::TYPE_FLOAT8)),
+            'FLOAT',
+        ];
+        yield Snowflake::TYPE_DOUBLE => [
+            new Snowflake(Snowflake::TYPE_DOUBLE, $this->getTypeDefaultOptions(Snowflake::TYPE_DOUBLE)),
+            'FLOAT',
+        ];
+        yield Snowflake::TYPE_DOUBLE_PRECISION => [
+            new Snowflake(
+                Snowflake::TYPE_DOUBLE_PRECISION,
+                $this->getTypeDefaultOptions(Snowflake::TYPE_DOUBLE_PRECISION),
+            ),
+            'FLOAT',
+        ];
+        yield Snowflake::TYPE_REAL => [
+            new Snowflake(Snowflake::TYPE_REAL, $this->getTypeDefaultOptions(Snowflake::TYPE_REAL)),
+            'FLOAT',
+        ];
+        yield Snowflake::TYPE_BOOLEAN => [
+            new Snowflake(Snowflake::TYPE_BOOLEAN, $this->getTypeDefaultOptions(Snowflake::TYPE_BOOLEAN)),
+            'BOOLEAN',
+        ];
+        yield Snowflake::TYPE_DATE => [
+            new Snowflake(Snowflake::TYPE_DATE, $this->getTypeDefaultOptions(Snowflake::TYPE_DATE)),
+            'DATE',
+        ];
+        yield Snowflake::TYPE_DATETIME => [
+            new Snowflake(Snowflake::TYPE_DATETIME, $this->getTypeDefaultOptions(Snowflake::TYPE_DATETIME)),
+            'TIMESTAMP',
+        ];
+        yield Snowflake::TYPE_TIMESTAMP => [
+            new Snowflake(Snowflake::TYPE_TIMESTAMP, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP)),
+            'TIMESTAMP',
+        ];
+        yield Snowflake::TYPE_TIMESTAMP_NTZ => [
+            new Snowflake(Snowflake::TYPE_TIMESTAMP_NTZ, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_NTZ)),
+            'TIMESTAMP',
+        ];
+        yield Snowflake::TYPE_TIMESTAMP_LTZ => [
+            new Snowflake(Snowflake::TYPE_TIMESTAMP_LTZ, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_LTZ)),
+            'TIMESTAMP',
+        ];
+        yield Snowflake::TYPE_TIMESTAMP_TZ => [
+            new Snowflake(Snowflake::TYPE_TIMESTAMP_TZ, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_TZ)),
+            'TIMESTAMP',
+        ];
+
+        $testedTypes = [
+            Snowflake::TYPE_INT,
+            Snowflake::TYPE_INTEGER,
+            Snowflake::TYPE_BIGINT,
+            Snowflake::TYPE_SMALLINT,
+            Snowflake::TYPE_TINYINT,
+            Snowflake::TYPE_BYTEINT,
+            Snowflake::TYPE_NUMBER,
+            Snowflake::TYPE_DECIMAL,
+            Snowflake::TYPE_DEC,
+            Snowflake::TYPE_NUMERIC,
+            Snowflake::TYPE_FLOAT,
+            Snowflake::TYPE_FLOAT4,
+            Snowflake::TYPE_FLOAT8,
+            Snowflake::TYPE_DOUBLE,
+            Snowflake::TYPE_DOUBLE_PRECISION,
+            Snowflake::TYPE_REAL,
+            Snowflake::TYPE_BOOLEAN,
+            Snowflake::TYPE_DATE,
+            Snowflake::TYPE_DATETIME,
+            Snowflake::TYPE_TIMESTAMP,
+            Snowflake::TYPE_TIMESTAMP_NTZ,
+            Snowflake::TYPE_TIMESTAMP_LTZ,
+            Snowflake::TYPE_TIMESTAMP_TZ,
+        ];
         foreach (Snowflake::TYPES as $type) {
-            $basetype = (new Snowflake($type, $this->getTypeDefaultOptions($type)))->getBasetype();
-            switch ($type) {
-                case 'INT':
-                case 'INTEGER':
-                case 'BIGINT':
-                case 'SMALLINT':
-                case 'TINYINT':
-                case 'BYTEINT':
-                    $this->assertEquals('INTEGER', $basetype);
-                    break;
-                case 'NUMBER':
-                case 'DECIMAL':
-                case 'DEC':
-                case 'NUMERIC':
-                    $this->assertEquals('NUMERIC', $basetype);
-                    break;
-                case 'FLOAT':
-                case 'FLOAT4':
-                case 'FLOAT8':
-                case 'DOUBLE':
-                case 'DOUBLE PRECISION':
-                case 'REAL':
-                    $this->assertEquals('FLOAT', $basetype);
-                    break;
-                case 'BOOLEAN':
-                    $this->assertEquals('BOOLEAN', $basetype);
-                    break;
-                case 'DATE':
-                    $this->assertEquals('DATE', $basetype);
-                    break;
-                case 'DATETIME':
-                case 'TIMESTAMP':
-                case 'TIMESTAMP_NTZ':
-                case 'TIMESTAMP_LTZ':
-                case 'TIMESTAMP_TZ':
-                    $this->assertEquals('TIMESTAMP', $basetype);
-                    break;
-                default:
-                    $this->assertEquals('STRING', $basetype);
-                    break;
+            if (!in_array($type, $testedTypes, true)) {
+                yield $type => [
+                    new Snowflake($type, $this->getTypeDefaultOptions($type)),
+                    'STRING',
+                ];
             }
         }
+
+        yield Snowflake::TYPE_NUMBER.' with 38,0 length' => [
+            new Snowflake(Snowflake::TYPE_NUMBER, ['length' => '38,0']),
+            'INTEGER',
+        ];
+    }
+
+    /**
+     * @dataProvider basetypeProvider
+     */
+    public function testBasetypes(
+        Snowflake $type,
+        string $expectedBasetype,
+    ): void {
+        $this->assertEquals($expectedBasetype, $type->getBasetype());
     }
 
     public function testVariant(): void

@@ -637,6 +637,7 @@ class Teradata extends Common
             // with unit
             return $out[1] <= $maxTab[$out[2]] && $out[1] >= 1;
         }
+        //@phpstan-ignore-next-line
         return false;
     }
 

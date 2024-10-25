@@ -384,47 +384,43 @@ class Snowflake extends Common
 
     public function getBasetype(): string
     {
-        switch (strtoupper($this->type)) {
+        $type = strtoupper($this->type);
+        if ($type === self::TYPE_NUMBER && $this->length === '38,0') {
+            return BaseType::INTEGER;
+        }
+        switch ($type) {
             case self::TYPE_INT:
             case self::TYPE_INTEGER:
             case self::TYPE_BIGINT:
             case self::TYPE_SMALLINT:
             case self::TYPE_TINYINT:
             case self::TYPE_BYTEINT:
-                $basetype = BaseType::INTEGER;
-                break;
+                return BaseType::INTEGER;
             case self::TYPE_NUMBER:
             case self::TYPE_DECIMAL:
             case self::TYPE_DEC:
             case self::TYPE_NUMERIC:
-                $basetype = BaseType::NUMERIC;
-                break;
+                return BaseType::NUMERIC;
             case self::TYPE_FLOAT:
             case self::TYPE_FLOAT4:
             case self::TYPE_FLOAT8:
             case self::TYPE_DOUBLE:
             case self::TYPE_DOUBLE_PRECISION:
             case self::TYPE_REAL:
-                $basetype = BaseType::FLOAT;
-                break;
+                return BaseType::FLOAT;
             case self::TYPE_BOOLEAN:
-                $basetype = BaseType::BOOLEAN;
-                break;
+                return BaseType::BOOLEAN;
             case self::TYPE_DATE:
-                $basetype = BaseType::DATE;
-                break;
+                return BaseType::DATE;
             case self::TYPE_DATETIME:
             case self::TYPE_TIMESTAMP:
             case self::TYPE_TIMESTAMP_NTZ:
             case self::TYPE_TIMESTAMP_LTZ:
             case self::TYPE_TIMESTAMP_TZ:
-                $basetype = BaseType::TIMESTAMP;
-                break;
+                return BaseType::TIMESTAMP;
             default:
-                $basetype = BaseType::STRING;
-                break;
+                return BaseType::STRING;
         }
-        return $basetype;
     }
 
     public static function getTypeByBasetype(string $basetype): string
