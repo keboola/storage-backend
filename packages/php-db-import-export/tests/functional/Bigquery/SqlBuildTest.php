@@ -813,14 +813,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     public function nullManipulationWithTimestampFeatures(): Generator
     {
-        yield 'new-native-types' => [
-            'new-native-types',
-            // phpcs:ignore
-            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND (`dest`.`col1` IS DISTINCT FROM `src`.`col1` OR `dest`.`col2` IS DISTINCT FROM `src`.`col2`)',
-            false,
-        ];
-        yield 'native-types_timestamp-bc' => [
-            'native-types_timestamp-bc',
+        yield 'default' => [
+            'default',
             // phpcs:ignore
             'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND (`dest`.`col1` IS DISTINCT FROM `src`.`col1` OR `dest`.`col2` IS DISTINCT FROM `src`.`col2`)',
             false,
