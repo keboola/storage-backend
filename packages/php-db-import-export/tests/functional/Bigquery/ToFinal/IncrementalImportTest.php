@@ -286,75 +286,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                     'name'=> 'test3',
                     'price'=> 300,
                     'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00', // no change timestamp updated
-                ],
-                [
-                    'id'=> 4,
-                    'name'=> 'test4',
-                    'price'=> 400,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
-                ],
-            ],
-        ];
-
-        yield 'import typed table, timestamp update onchange feature: `new-native-types`' => [
-            'features' => ['new-native-types'],
-            'expectedContent' => [
-                [
-                    'id'=> 1,
-                    'name'=> 'change',
-                    'price'=> 100,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
-                ],
-                [
-                    'id'=> 2,
-                    'name'=> 'test2',
-                    'price'=> 200,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00',
-                ],
-                [
-                    'id'=> 3,
-                    'name'=> 'test3',
-                    'price'=> 300,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00', // no change no timestamp update
-                ],
-                [
-                    'id'=> 4,
-                    'name'=> 'test4',
-                    'price'=> 400,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
-                ],
-            ],
-        ];
-
-        yield 'import typed table, timestamp update onchange feature: `native-types_timestamp-bc`' => [
-            'features' => ['native-types_timestamp-bc'],
-            'expectedContent' => [
-                [
-                    'id'=> 1,
-                    'name'=> 'change',
-                    'price'=> 100,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
-                ],
-                [
-                    'id'=> 2,
-                    'name'=> 'test2',
-                    'price'=> 200,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00',
-                ],
-                [
-                    'id'=> 3,
-                    'name'=> 'test3',
-                    'price'=> 300,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00', // no change no timestamp update
+                    '_timestamp'=> '2021-01-01 00:00:00', // no change, no timestamp update
                 ],
                 [
                     'id'=> 4,
@@ -381,20 +313,13 @@ class IncrementalImportTest extends BigqueryBaseTestCase
               `name` STRING(50),
               `price` DECIMAL,
               `isDeleted` INT64,
-              `_timestamp` TIMESTAMP
+              `_timestamp` TIMESTAMP,
+               PRIMARY KEY(id) NOT ENFORCED
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
             BigqueryQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
         )));
-        $this->bqClient->dataset($this->getDestinationDbName())->table(self::TABLE_TRANSLATIONS)->update(
-            [
-                'tableConstraints' => [
-                    'primaryKey' => [
-                        'columns' => 'id',
-                    ],
-                ],
-            ],
-        );
+
         $this->initTable(self::TABLE_TRANSLATIONS, $this->getSourceDbName());
         $destination = (new BigqueryTableReflection(
             $this->bqClient,
