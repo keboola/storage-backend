@@ -703,12 +703,12 @@ class SqlBuildTest extends BigqueryBaseTestCase
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
             // phpcs:ignore
-            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1` ',
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = `src`.`col1`, `col2` = `src`.`col2`, `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = `src`.`col1`  AND (`dest`.`col1` IS DISTINCT FROM `src`.`col1` OR `dest`.`col2` IS DISTINCT FROM `src`.`col2`)',
         ];
         yield 'string' => [
             BigqueryImportOptions::USING_TYPES_STRING,
             // phpcs:ignore
-            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = IF(`src`.`col1` = \'\', NULL, `src`.`col1`), `col2` = COALESCE(`src`.`col2`, \'\'), `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = COALESCE(`src`.`col1`, \'\') ',
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = IF(`src`.`col1` = \'\', NULL, `src`.`col1`), `col2` = COALESCE(`src`.`col2`, \'\'), `_timestamp` = \'2020-01-01 01:01:01\' FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE `dest`.`col1` = COALESCE(`src`.`col1`, \'\')  AND (`dest`.`col1` IS DISTINCT FROM `src`.`col1` OR `dest`.`col2` IS DISTINCT FROM `src`.`col2`)',
         ];
     }
 
