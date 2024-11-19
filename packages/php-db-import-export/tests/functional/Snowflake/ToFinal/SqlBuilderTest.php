@@ -1533,10 +1533,9 @@ EOD,
     public function nullManipulationWithTimestampFeatures(): Generator
     {
         yield 'default' => [
-            'default',
             // phpcs:ignore
             'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
-            true,
+            false,
         ];
     }
 
@@ -1544,7 +1543,6 @@ EOD,
      * @dataProvider nullManipulationWithTimestampFeatures
      */
     public function testGetUpdateWithPkCommandNullManipulationWithTimestampFeatures(
-        string $feature,
         string $expectedSQL,
         bool $expectedTimestampChange,
     ): void {
@@ -1628,7 +1626,7 @@ EOD,
             requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
             nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            features: [$feature],
+            features: [],
         );
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,
