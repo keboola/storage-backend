@@ -1455,6 +1455,13 @@ EOD,
                 $timestampInit->format(DateTimeHelper::FORMAT),
             ),
         );
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2","_timestamp") VALUES (2,\'2\',\'3\',\'%s\')',
+                self::TEST_TABLE_IN_SCHEMA,
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
+        );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
@@ -1466,6 +1473,12 @@ EOD,
                 'id' => '1',
                 'col1' => '1',
                 'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+            [
+                'id' => '2',
+                'col1' => '2',
+                'col2' => '3',
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
         ], $result);
@@ -1489,7 +1502,7 @@ EOD,
 
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
             $sql,
         );
         $this->connection->executeStatement($sql);
@@ -1499,12 +1512,19 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
         self::assertEquals([
+            // no changes on all columns - no update of timestamp
             [
                 'id' => '1',
                 'col1' => '1',
                 'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+            // here was an update, so timestamp was updated
+            [
+                'id' => '2',
+                'col1' => '2',
+                'col2' => '2',
                 '_timestamp' => $timestampSet->format(DateTimeHelper::FORMAT),
             ],
         ], $result);
