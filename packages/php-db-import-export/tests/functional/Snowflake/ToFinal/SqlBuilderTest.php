@@ -1082,67 +1082,60 @@ EOD,
     public function testGetUpdateWithPkCommandCasting(): void
     {
         $this->createTestSchema();
+        $columnCollection = new ColumnCollection([
+            $this->createNullableGenericColumn('pk1'),
+            new SnowflakeColumn(
+                'VARIANT',
+                new Snowflake(
+                    Snowflake::TYPE_VARIANT,
+                ),
+            ),
+            new SnowflakeColumn(
+                'BINARY',
+                new Snowflake(
+                    Snowflake::TYPE_BINARY,
+                ),
+            ),
+            new SnowflakeColumn(
+                'VARBINARY',
+                new Snowflake(
+                    Snowflake::TYPE_VARBINARY,
+                ),
+            ),
+            new SnowflakeColumn(
+                'OBJECT',
+                new Snowflake(
+                    Snowflake::TYPE_OBJECT,
+                ),
+            ),
+            new SnowflakeColumn(
+                'ARRAY',
+                new Snowflake(
+                    Snowflake::TYPE_ARRAY,
+                ),
+            ),
+            new SnowflakeColumn(
+                'VECTOR',
+                new Snowflake(
+                    Snowflake::TYPE_VECTOR,
+                    [
+                        'length' => 'INT,3',
+                    ],
+                ),
+            ),
+        ]);
         $destination = new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_TABLE,
             false,
-            new ColumnCollection([
-                $this->createNullableGenericColumn('pk1'),
-                new SnowflakeColumn(
-                    'VARIANT',
-                    new Snowflake(
-                        Snowflake::TYPE_VARIANT,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'BINARY',
-                    new Snowflake(
-                        Snowflake::TYPE_BINARY,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'VARBINARY',
-                    new Snowflake(
-                        Snowflake::TYPE_VARBINARY,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'OBJECT',
-                    new Snowflake(
-                        Snowflake::TYPE_OBJECT,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'ARRAY',
-                    new Snowflake(
-                        Snowflake::TYPE_ARRAY,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'VECTOR',
-                    new Snowflake(
-                        Snowflake::TYPE_VECTOR,
-                        [
-                            'length' => 'INT,3',
-                        ],
-                    ),
-                ),
-            ]),
+            $columnCollection,
             ['pk1'],
         );
         $stage = new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
             true,
-            new ColumnCollection([
-                $this->createNullableGenericColumn('pk1'),
-                $this->createNullableGenericColumn('VARIANT'),
-                $this->createNullableGenericColumn('BINARY'),
-                $this->createNullableGenericColumn('VARBINARY'),
-                $this->createNullableGenericColumn('OBJECT'),
-                $this->createNullableGenericColumn('ARRAY'),
-                $this->createNullableGenericColumn('VECTOR'),
-            ]),
+            $columnCollection,
             [],
         );
         $this->connection->executeStatement(
@@ -1171,12 +1164,12 @@ SELECT \'1\',
         /** @lang Snowflake */
             'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
-       TO_VARCHAR(TO_VARIANT(\'3.14\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
-       TO_VARCHAR(TO_ARRAY([1,2,3]::VECTOR(INT,3)))
+       TO_VARIANT(\'3.14\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
+       ARRAY_CONSTRUCT(1, 2, 3, NULL),
+       [1,2,3]::VECTOR(INT,3)
 ;',
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
@@ -1199,7 +1192,7 @@ SELECT \'1\',
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST(PARSE_JSON("src"."ARRAY") AS ARRAY), "VECTOR" = CAST(PARSE_JSON("src"."VECTOR") AS ARRAY)::VECTOR (INT,3) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = "src"."VARIANT", "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = "src"."OBJECT", "ARRAY" = "src"."ARRAY", "VECTOR" = "src"."VECTOR" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1"  AND ("dest"."pk1" IS DISTINCT FROM "src"."pk1" OR "dest"."VARIANT" IS DISTINCT FROM "src"."VARIANT" OR "dest"."BINARY" IS DISTINCT FROM "src"."BINARY" OR "dest"."VARBINARY" IS DISTINCT FROM "src"."VARBINARY" OR "dest"."OBJECT" IS DISTINCT FROM "src"."OBJECT" OR "dest"."ARRAY" IS DISTINCT FROM "src"."ARRAY" OR "dest"."VECTOR" IS DISTINCT FROM "src"."VECTOR")',
             $sql,
         );
         $this->connection->executeStatement($sql);
