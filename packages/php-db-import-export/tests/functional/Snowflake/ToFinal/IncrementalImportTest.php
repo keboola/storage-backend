@@ -436,8 +436,7 @@ SELECT 2,
 
     public function incrementalImportTimestampBehavior(): Generator
     {
-        yield 'import typed table, timestamp update always `no feature`' => [
-            'features' => [],
+        yield 'import typed table, timestamp update onchange`' => [
             'expectedContent' => [
                 [
                     'id' => 1,
@@ -458,75 +457,7 @@ SELECT 2,
                     'name' => 'test3',
                     'price' => 300,
                     'isDeleted' => 0,
-                    '_timestamp' => '2022-02-02 00:00:00', // no change timestamp updated
-                ],
-                [
-                    'id' => 4,
-                    'name' => 'test4',
-                    'price' => 400,
-                    'isDeleted' => 0,
-                    '_timestamp' => '2022-02-02 00:00:00',
-                ],
-            ],
-        ];
-
-        yield 'import typed table, timestamp update onchange feature: `new-native-types`' => [
-            'features' => ['new-native-types'],
-            'expectedContent' => [
-                [
-                    'id' => 1,
-                    'name' => 'change',
-                    'price' => 100,
-                    'isDeleted' => 0,
-                    '_timestamp' => '2022-02-02 00:00:00',
-                ],
-                [
-                    'id' => 2,
-                    'name' => 'test2',
-                    'price' => 200,
-                    'isDeleted' => 0,
                     '_timestamp' => '2021-01-01 00:00:00',
-                ],
-                [
-                    'id' => 3,
-                    'name' => 'test3',
-                    'price' => 300,
-                    'isDeleted' => 0,
-                    '_timestamp' => '2021-01-01 00:00:00', // no change no timestamp update
-                ],
-                [
-                    'id' => 4,
-                    'name' => 'test4',
-                    'price' => 400,
-                    'isDeleted' => 0,
-                    '_timestamp' => '2022-02-02 00:00:00',
-                ],
-            ],
-        ];
-
-        yield 'import typed table, timestamp update onchange feature: `native-types_timestamp-bc`' => [
-            'features' => ['native-types_timestamp-bc'],
-            'expectedContent' => [
-                [
-                    'id' => 1,
-                    'name' => 'change',
-                    'price' => 100,
-                    'isDeleted' => 0,
-                    '_timestamp' => '2022-02-02 00:00:00',
-                ],
-                [
-                    'id' => 2,
-                    'name' => 'test2',
-                    'price' => 200,
-                    'isDeleted' => 0,
-                    '_timestamp' => '2021-01-01 00:00:00',
-                ],
-                [
-                    'id' => 3,
-                    'name' => 'test3',
-                    'price' => 300,
-                    'isDeleted' => 0,
-                    '_timestamp' => '2021-01-01 00:00:00', // no change no timestamp update
                 ],
                 [
                     'id' => 4,
@@ -541,10 +472,9 @@ SELECT 2,
 
     /**
      * @dataProvider incrementalImportTimestampBehavior
-     * @param string[] $features
      * @param array<mixed> $expectedContent
      */
-    public function testImportTimestampBehavior(array $features, array $expectedContent): void
+    public function testImportTimestampBehavior(array $expectedContent): void
     {
         $this->connection->executeQuery(sprintf(
             'CREATE TABLE %s.%s (
@@ -610,7 +540,6 @@ SELECT 2,
                 isIncremental: true,
                 useTimestamp: true,
                 nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
-                features: $features,
             ),
             $state,
         );
