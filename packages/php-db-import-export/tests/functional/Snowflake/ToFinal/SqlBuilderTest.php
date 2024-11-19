@@ -767,22 +767,6 @@ EOD,
         return $tableDefinition;
     }
 
-    private function createNullableGenericColumn(string $columnName): SnowflakeColumn
-    {
-        $definition = new Snowflake(
-            Snowflake::TYPE_VARCHAR,
-            [
-                'length' => '4000', // should be changed to max in future
-                'nullable' => true,
-            ],
-        );
-
-        return new SnowflakeColumn(
-            $columnName,
-            $definition,
-        );
-    }
-
     public function testGetInsertAllIntoTargetTableCommandConvertToNull(): void
     {
         $this->createTestSchema();

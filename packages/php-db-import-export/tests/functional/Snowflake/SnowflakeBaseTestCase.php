@@ -8,10 +8,12 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Logging\Middleware;
 use Exception;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
@@ -479,6 +481,22 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             useTimestamp: true,
             numberOfIgnoredLines: $skipLines,
             ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
+        );
+    }
+
+    protected function createNullableGenericColumn(string $columnName): SnowflakeColumn
+    {
+        $definition = new Snowflake(
+            Snowflake::TYPE_VARCHAR,
+            [
+                'length' => '4000', // should be changed to max in future
+                'nullable' => true,
+            ],
+        );
+
+        return new SnowflakeColumn(
+            $columnName,
+            $definition,
         );
     }
 }

@@ -9,6 +9,7 @@ use DateTimeZone;
 use Generator;
 use Keboola\Csv\CsvFile;
 use Keboola\Datatype\Definition\Snowflake;
+use Keboola\Db\ImportExport\Backend\Helper\BackendHelper;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
@@ -19,6 +20,8 @@ use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
@@ -106,19 +109,65 @@ SELECT 1,
         );
         /** @var SnowflakeTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createVarcharStagingTableDefinition(
-            $destination->getSchemaName(),
-            [
+        $columnCollection = new ColumnCollection([
+            new SnowflakeColumn(
                 'id',
+                new Snowflake(
+                    Snowflake::TYPE_INT,
+                ),
+            ),
+            new SnowflakeColumn(
                 'VARIANT',
+                new Snowflake(
+                    Snowflake::TYPE_VARIANT,
+                ),
+            ),
+            new SnowflakeColumn(
                 'BINARY',
+                new Snowflake(
+                    Snowflake::TYPE_BINARY,
+                ),
+            ),
+            new SnowflakeColumn(
                 'VARBINARY',
+                new Snowflake(
+                    Snowflake::TYPE_VARBINARY,
+                ),
+            ),
+            new SnowflakeColumn(
                 'OBJECT',
+                new Snowflake(
+                    Snowflake::TYPE_OBJECT,
+                ),
+            ),
+            new SnowflakeColumn(
                 'ARRAY',
+                new Snowflake(
+                    Snowflake::TYPE_ARRAY,
+                ),
+            ),
+            new SnowflakeColumn(
                 'GEOGRAPHY',
+                new Snowflake(
+                    Snowflake::TYPE_GEOGRAPHY,
+                ),
+            ),
+            new SnowflakeColumn(
                 'GEOMETRY',
-            ],
-        );
+                new Snowflake(
+                    Snowflake::TYPE_GEOMETRY,
+                ),
+            ),
+        ]);
+
+        $stagingTable =
+            new SnowflakeTableDefinition(
+                $destination->getSchemaName(),
+                BackendHelper::generateStagingTableName(),
+                true,
+                $columnCollection,
+                [],
+            );
 
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
@@ -128,11 +177,11 @@ SELECT 1,
         /** @lang Snowflake */
             'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 1, 
-       TO_VARCHAR(TO_VARIANT(\'3.14\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       TO_VARIANT(\'3.14\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
+       ARRAY_CONSTRUCT(1, 2, 3, NULL),
        \'POINT(-122.35 37.55)\',
        \'POINT(1820.12 890.56)\'
 ;',
@@ -143,11 +192,11 @@ SELECT 1,
         /** @lang Snowflake */
             'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 2, 
-       TO_VARCHAR(TO_VARIANT(\'3.14\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
+       TO_VARIANT(\'3.14\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
+       ARRAY_CONSTRUCT(1, 2, 3, NULL),
        \'POINT(-122.35 37.55)\',
        \'POINT(1820.12 890.56)\'
 ;',
@@ -385,39 +434,38 @@ SELECT 2,
         );
     }
 
-
     public function incrementalImportTimestampBehavior(): Generator
     {
         yield 'import typed table, timestamp update always `no feature`' => [
             'features' => [],
             'expectedContent' => [
                 [
-                    'id'=> 1,
-                    'name'=> 'change',
-                    'price'=> 100,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
+                    'id' => 1,
+                    'name' => 'change',
+                    'price' => 100,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2022-02-02 00:00:00',
                 ],
                 [
-                    'id'=> 2,
-                    'name'=> 'test2',
-                    'price'=> 200,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00',
+                    'id' => 2,
+                    'name' => 'test2',
+                    'price' => 200,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2021-01-01 00:00:00',
                 ],
                 [
-                    'id'=> 3,
-                    'name'=> 'test3',
-                    'price'=> 300,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00', // no change timestamp updated
+                    'id' => 3,
+                    'name' => 'test3',
+                    'price' => 300,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2022-02-02 00:00:00', // no change timestamp updated
                 ],
                 [
-                    'id'=> 4,
-                    'name'=> 'test4',
-                    'price'=> 400,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
+                    'id' => 4,
+                    'name' => 'test4',
+                    'price' => 400,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2022-02-02 00:00:00',
                 ],
             ],
         ];
@@ -426,32 +474,32 @@ SELECT 2,
             'features' => ['new-native-types'],
             'expectedContent' => [
                 [
-                    'id'=> 1,
-                    'name'=> 'change',
-                    'price'=> 100,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
+                    'id' => 1,
+                    'name' => 'change',
+                    'price' => 100,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2022-02-02 00:00:00',
                 ],
                 [
-                    'id'=> 2,
-                    'name'=> 'test2',
-                    'price'=> 200,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00',
+                    'id' => 2,
+                    'name' => 'test2',
+                    'price' => 200,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2021-01-01 00:00:00',
                 ],
                 [
-                    'id'=> 3,
-                    'name'=> 'test3',
-                    'price'=> 300,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00', // no change no timestamp update
+                    'id' => 3,
+                    'name' => 'test3',
+                    'price' => 300,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2021-01-01 00:00:00', // no change no timestamp update
                 ],
                 [
-                    'id'=> 4,
-                    'name'=> 'test4',
-                    'price'=> 400,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
+                    'id' => 4,
+                    'name' => 'test4',
+                    'price' => 400,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2022-02-02 00:00:00',
                 ],
             ],
         ];
@@ -460,32 +508,32 @@ SELECT 2,
             'features' => ['native-types_timestamp-bc'],
             'expectedContent' => [
                 [
-                    'id'=> 1,
-                    'name'=> 'change',
-                    'price'=> 100,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
+                    'id' => 1,
+                    'name' => 'change',
+                    'price' => 100,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2022-02-02 00:00:00',
                 ],
                 [
-                    'id'=> 2,
-                    'name'=> 'test2',
-                    'price'=> 200,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00',
+                    'id' => 2,
+                    'name' => 'test2',
+                    'price' => 200,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2021-01-01 00:00:00',
                 ],
                 [
-                    'id'=> 3,
-                    'name'=> 'test3',
-                    'price'=> 300,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2021-01-01 00:00:00', // no change no timestamp update
+                    'id' => 3,
+                    'name' => 'test3',
+                    'price' => 300,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2021-01-01 00:00:00', // no change no timestamp update
                 ],
                 [
-                    'id'=> 4,
-                    'name'=> 'test4',
-                    'price'=> 400,
-                    'isDeleted'=> 0,
-                    '_timestamp'=> '2022-02-02 00:00:00',
+                    'id' => 4,
+                    'name' => 'test4',
+                    'price' => 400,
+                    'isDeleted' => 0,
+                    '_timestamp' => '2022-02-02 00:00:00',
                 ],
             ],
         ];
