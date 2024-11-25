@@ -313,13 +313,20 @@ class IncrementalImportTest extends BigqueryBaseTestCase
               `name` STRING(50),
               `price` DECIMAL,
               `isDeleted` INT64,
-              `_timestamp` TIMESTAMP,
-               PRIMARY KEY(id) NOT ENFORCED
+              `_timestamp` TIMESTAMP
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
             BigqueryQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
         )));
-
+        $this->bqClient->dataset($this->getDestinationDbName())->table(self::TABLE_TRANSLATIONS)->update(
+            [
+                'tableConstraints' => [
+                    'primaryKey' => [
+                        'columns' => 'id',
+                    ],
+                ],
+            ],
+        );
         $this->initTable(self::TABLE_TRANSLATIONS, $this->getSourceDbName());
         $destination = (new BigqueryTableReflection(
             $this->bqClient,
