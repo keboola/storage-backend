@@ -319,16 +319,29 @@ SQL,
             );
         }
 
-        $columnsComparisonSql = array_map(
-            static function ($columnName) {
-                return sprintf(
-                    '`dest`.%s IS DISTINCT FROM `src`.%s',
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                );
-            },
-            $stagingTableDefinition->getColumnsNames(),
-        );
+        if ($importOptions->usingUserDefinedTypes()) {
+            $columnsComparisonSql = array_map(
+                static function ($columnName) {
+                    return sprintf(
+                        '`dest`.%s IS DISTINCT FROM `src`.%s',
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                    );
+                },
+                $stagingTableDefinition->getColumnsNames(),
+            );
+        } else {
+            $columnsComparisonSql = array_map(
+                static function ($columnName) {
+                    return sprintf(
+                        '`dest`.%s != COALESCE(`src`.%s, \'\')',
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                    );
+                },
+                $stagingTableDefinition->getColumnsNames(),
+            );
+        }
 
         $dest = sprintf(
             '%s.%s',
