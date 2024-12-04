@@ -767,22 +767,6 @@ EOD,
         return $tableDefinition;
     }
 
-    private function createNullableGenericColumn(string $columnName): SnowflakeColumn
-    {
-        $definition = new Snowflake(
-            Snowflake::TYPE_VARCHAR,
-            [
-                'length' => '4000', // should be changed to max in future
-                'nullable' => true,
-            ],
-        );
-
-        return new SnowflakeColumn(
-            $columnName,
-            $definition,
-        );
-    }
-
     public function testGetInsertAllIntoTargetTableCommandConvertToNull(): void
     {
         $this->createTestSchema();
@@ -1060,7 +1044,7 @@ EOD,
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
             $sql,
         );
         $this->connection->executeStatement($sql);
@@ -1082,67 +1066,60 @@ EOD,
     public function testGetUpdateWithPkCommandCasting(): void
     {
         $this->createTestSchema();
+        $columnCollection = new ColumnCollection([
+            $this->createNullableGenericColumn('pk1'),
+            new SnowflakeColumn(
+                'VARIANT',
+                new Snowflake(
+                    Snowflake::TYPE_VARIANT,
+                ),
+            ),
+            new SnowflakeColumn(
+                'BINARY',
+                new Snowflake(
+                    Snowflake::TYPE_BINARY,
+                ),
+            ),
+            new SnowflakeColumn(
+                'VARBINARY',
+                new Snowflake(
+                    Snowflake::TYPE_VARBINARY,
+                ),
+            ),
+            new SnowflakeColumn(
+                'OBJECT',
+                new Snowflake(
+                    Snowflake::TYPE_OBJECT,
+                ),
+            ),
+            new SnowflakeColumn(
+                'ARRAY',
+                new Snowflake(
+                    Snowflake::TYPE_ARRAY,
+                ),
+            ),
+            new SnowflakeColumn(
+                'VECTOR',
+                new Snowflake(
+                    Snowflake::TYPE_VECTOR,
+                    [
+                        'length' => 'INT,3',
+                    ],
+                ),
+            ),
+        ]);
         $destination = new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_TABLE,
             false,
-            new ColumnCollection([
-                $this->createNullableGenericColumn('pk1'),
-                new SnowflakeColumn(
-                    'VARIANT',
-                    new Snowflake(
-                        Snowflake::TYPE_VARIANT,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'BINARY',
-                    new Snowflake(
-                        Snowflake::TYPE_BINARY,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'VARBINARY',
-                    new Snowflake(
-                        Snowflake::TYPE_VARBINARY,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'OBJECT',
-                    new Snowflake(
-                        Snowflake::TYPE_OBJECT,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'ARRAY',
-                    new Snowflake(
-                        Snowflake::TYPE_ARRAY,
-                    ),
-                ),
-                new SnowflakeColumn(
-                    'VECTOR',
-                    new Snowflake(
-                        Snowflake::TYPE_VECTOR,
-                        [
-                            'length' => 'INT,3',
-                        ],
-                    ),
-                ),
-            ]),
+            $columnCollection,
             ['pk1'],
         );
         $stage = new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
             true,
-            new ColumnCollection([
-                $this->createNullableGenericColumn('pk1'),
-                $this->createNullableGenericColumn('VARIANT'),
-                $this->createNullableGenericColumn('BINARY'),
-                $this->createNullableGenericColumn('VARBINARY'),
-                $this->createNullableGenericColumn('OBJECT'),
-                $this->createNullableGenericColumn('ARRAY'),
-                $this->createNullableGenericColumn('VECTOR'),
-            ]),
+            $columnCollection,
             [],
         );
         $this->connection->executeStatement(
@@ -1171,12 +1148,12 @@ SELECT \'1\',
         /** @lang Snowflake */
             'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
-       TO_VARCHAR(TO_VARIANT(\'3.14\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
-       TO_VARCHAR(OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT)),
-       TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
-       TO_VARCHAR(TO_ARRAY([1,2,3]::VECTOR(INT,3)))
+       TO_VARIANT(\'3.14\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
+       OBJECT_CONSTRUCT(\'name\', \'Jones\'::VARIANT, \'age\',  42::VARIANT),
+       ARRAY_CONSTRUCT(1, 2, 3, NULL),
+       [1,2,3]::VECTOR(INT,3)
 ;',
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
@@ -1199,7 +1176,7 @@ SELECT \'1\',
         );
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = CAST("src"."VARIANT" AS VARIANT), "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = CAST(TO_VARIANT("src"."OBJECT") AS OBJECT), "ARRAY" = CAST(PARSE_JSON("src"."ARRAY") AS ARRAY), "VECTOR" = CAST(PARSE_JSON("src"."VECTOR") AS ARRAY)::VECTOR (INT,3) FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "pk1" = "src"."pk1", "VARIANT" = "src"."VARIANT", "BINARY" = "src"."BINARY", "VARBINARY" = "src"."VARBINARY", "OBJECT" = "src"."OBJECT", "ARRAY" = "src"."ARRAY", "VECTOR" = "src"."VECTOR" FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."pk1" = "src"."pk1"  AND ("dest"."pk1" IS DISTINCT FROM "src"."pk1" OR "dest"."VARIANT" IS DISTINCT FROM "src"."VARIANT" OR "dest"."BINARY" IS DISTINCT FROM "src"."BINARY" OR "dest"."VARBINARY" IS DISTINCT FROM "src"."VARBINARY" OR "dest"."OBJECT" IS DISTINCT FROM "src"."OBJECT" OR "dest"."ARRAY" IS DISTINCT FROM "src"."ARRAY" OR "dest"."VECTOR" IS DISTINCT FROM "src"."VECTOR")',
             $sql,
         );
         $this->connection->executeStatement($sql);
@@ -1478,6 +1455,13 @@ EOD,
                 $timestampInit->format(DateTimeHelper::FORMAT),
             ),
         );
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s("id","col1","col2","_timestamp") VALUES (2,\'2\',\'3\',\'%s\')',
+                self::TEST_TABLE_IN_SCHEMA,
+                $timestampInit->format(DateTimeHelper::FORMAT),
+            ),
+        );
 
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s',
@@ -1489,6 +1473,12 @@ EOD,
                 'id' => '1',
                 'col1' => '1',
                 'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+            [
+                'id' => '2',
+                'col1' => '2',
+                'col2' => '3',
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
         ], $result);
@@ -1512,7 +1502,7 @@ EOD,
 
         self::assertEquals(
         // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1" ',
+            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
             $sql,
         );
         $this->connection->executeStatement($sql);
@@ -1522,12 +1512,19 @@ EOD,
             self::TEST_TABLE_IN_SCHEMA,
         ));
 
-        // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
         self::assertEquals([
+            // no changes on all columns - no update of timestamp
             [
                 'id' => '1',
                 'col1' => '1',
                 'col2' => '1',
+                '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
+            ],
+            // here was an update, so timestamp was updated
+            [
+                'id' => '2',
+                'col1' => '2',
+                'col2' => '2',
                 '_timestamp' => $timestampSet->format(DateTimeHelper::FORMAT),
             ],
         ], $result);
@@ -1536,19 +1533,6 @@ EOD,
     public function nullManipulationWithTimestampFeatures(): Generator
     {
         yield 'default' => [
-            'default',
-            // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1" ',
-            true,
-        ];
-        yield 'new-native-types' => [
-            'new-native-types',
-            // phpcs:ignore
-            'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
-            false,
-        ];
-        yield 'native-types_timestamp-bc' => [
-            'native-types_timestamp-bc',
             // phpcs:ignore
             'UPDATE "import_export_test_schema"."import_export_test_test" AS "dest" SET "col1" = "src"."col1", "col2" = "src"."col2", "_timestamp" = \'2020-01-01 01:01:01\' FROM "import_export_test_schema"."__temp_stagingTable" AS "src" WHERE "dest"."col1" = "src"."col1"  AND ("dest"."col1" IS DISTINCT FROM "src"."col1" OR "dest"."col2" IS DISTINCT FROM "src"."col2")',
             false,
@@ -1559,7 +1543,6 @@ EOD,
      * @dataProvider nullManipulationWithTimestampFeatures
      */
     public function testGetUpdateWithPkCommandNullManipulationWithTimestampFeatures(
-        string $feature,
         string $expectedSQL,
         bool $expectedTimestampChange,
     ): void {
@@ -1643,7 +1626,7 @@ EOD,
             requireSameTables: SnowflakeImportOptions::SAME_TABLES_REQUIRED,
             nullManipulation: SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            features: [$feature],
+            features: [],
         );
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
             $fakeStage,

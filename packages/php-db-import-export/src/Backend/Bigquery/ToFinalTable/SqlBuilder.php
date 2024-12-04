@@ -319,12 +319,22 @@ SQL,
             );
         }
 
-        $columnsComparisonSql = [];
-        if ($importOptions->compareAllColumnsInNativeTable()) {
+        if ($importOptions->usingUserDefinedTypes()) {
             $columnsComparisonSql = array_map(
                 static function ($columnName) {
                     return sprintf(
                         '`dest`.%s IS DISTINCT FROM `src`.%s',
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                    );
+                },
+                $stagingTableDefinition->getColumnsNames(),
+            );
+        } else {
+            $columnsComparisonSql = array_map(
+                static function ($columnName) {
+                    return sprintf(
+                        '`dest`.%s != COALESCE(`src`.%s, \'\')',
                         BigqueryQuote::quoteSingleIdentifier($columnName),
                         BigqueryQuote::quoteSingleIdentifier($columnName),
                     );
@@ -338,17 +348,6 @@ SQL,
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
-
-        if ($columnsComparisonSql === []) {
-            return sprintf(
-                'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s',
-                $dest,
-                implode(', ', $columnsSet),
-                BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
-                BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
-                $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions),
-            );
-        }
 
         return sprintf(
             'UPDATE %s AS `dest` SET %s FROM %s.%s AS `src` WHERE %s AND (%s)',

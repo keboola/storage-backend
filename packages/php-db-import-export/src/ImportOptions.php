@@ -100,15 +100,4 @@ class ImportOptions implements ImportOptionsInterface
     {
         return $this->features;
     }
-
-    public function compareAllColumnsInNativeTable(): bool
-    {
-        if (in_array('new-native-types', $this->features, true)
-            ||
-            in_array('native-types_timestamp-bc', $this->features, true)
-        ) {
-            return true;
-        }
-        return false;
-    }
 }

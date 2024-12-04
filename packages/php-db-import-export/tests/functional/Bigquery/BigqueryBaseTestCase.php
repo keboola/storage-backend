@@ -83,7 +83,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     protected function getSourceDbName(): string
     {
         /** @var string $suitePrefixEnv */
-        $suitePrefixEnv = getenv('SUITE');
+        $suitePrefixEnv = getenv('SUITE') ?: '';
         return self::BIGQUERY_SOURCE_DATABASE_NAME
             . '_'
             . str_replace('-', '_', $suitePrefixEnv);
@@ -92,7 +92,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     protected function getDestinationDbName(): string
     {
         /** @var string $suitePrefixEnv */
-        $suitePrefixEnv = getenv('SUITE');
+        $suitePrefixEnv = getenv('SUITE') ?: '';
         return self::BIGQUERY_DESTINATION_DATABASE_NAME
             . '_'
             . str_replace('-', '_', $suitePrefixEnv);

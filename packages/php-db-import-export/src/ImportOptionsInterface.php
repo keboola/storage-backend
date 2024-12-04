@@ -41,9 +41,4 @@ interface ImportOptionsInterface
      * @return string[]
      */
     public function features(): array;
-
-    /**
-     * Allowed for specific features
-     */
-    public function compareAllColumnsInNativeTable(): bool;
 }
