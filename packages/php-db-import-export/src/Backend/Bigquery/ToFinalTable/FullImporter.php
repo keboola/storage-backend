@@ -44,27 +44,41 @@ final class FullImporter implements ToFinalTableImporterInterface
         ImportState $state,
         Session $session,
     ): void {
-        // truncate destination table
-        $this->bqClient->runQuery($this->bqClient->query(
-            $this->sqlBuilder->getTruncateTable(
-                $destinationTableDefinition->getSchemaName(),
-                $destinationTableDefinition->getTableName(),
-            ),
-            $session->getAsQueryOptions(),
-        ));
-        $state->startTimer(self::TIMER_COPY_TO_TARGET);
-
-        // move data with INSERT INTO
-        $sql = $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
-            $stagingTableDefinition,
-            $destinationTableDefinition,
-            $options,
-            DateTimeHelper::getNowFormatted(),
-        );
-        $this->bqClient->runQuery($this->bqClient->query(
-            $sql,
-            $session->getAsQueryOptions(),
-        ));
+        try {
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getBeginTransaction(),
+                $session->getAsQueryOptions(),
+            ));
+            // truncate destination table
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getTruncateTable(
+                    $destinationTableDefinition->getSchemaName(),
+                    $destinationTableDefinition->getTableName(),
+                ),
+                $session->getAsQueryOptions(),
+            ));
+            $state->startTimer(self::TIMER_COPY_TO_TARGET);// move data with INSERT INTO
+            $sql = $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                $stagingTableDefinition,
+                $destinationTableDefinition,
+                $options,
+                DateTimeHelper::getNowFormatted(),
+            );
+            $this->bqClient->runQuery($this->bqClient->query(
+                $sql,
+                $session->getAsQueryOptions(),
+            ));
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getCommitTransaction(),
+                $session->getAsQueryOptions(),
+            ));
+        } catch (Throwable $e) {
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getRollbackTransaction(),
+                $session->getAsQueryOptions(),
+            ));
+            throw $e;
+        }
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
     }
 
@@ -112,7 +126,6 @@ final class FullImporter implements ToFinalTableImporterInterface
         return $state->getResult();
     }
 
-
     private function doFullLoadWithDedup(
         BigqueryTableDefinition $stagingTableDefinition,
         BigqueryTableDefinition $destinationTableDefinition,
@@ -143,6 +156,12 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $deduplicationTableName,
             ))->getTableDefinition();
 
+            $this->bqClient->runQuery($this->bqClient->query(
+                $this->sqlBuilder->getBeginTransaction(),
+                $session->getAsQueryOptions(),
+            ));
+            $transactionStarted = true;
+
             // 3 truncate destination table
             $this->bqClient->runQuery($this->bqClient->query(
                 $this->sqlBuilder->getTruncateTable(
@@ -151,12 +170,6 @@ final class FullImporter implements ToFinalTableImporterInterface
                 ),
                 $session->getAsQueryOptions(),
             ));
-
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getBeginTransaction(),
-                $session->getAsQueryOptions(),
-            ));
-            $transactionStarted = true;
 
             // 4 move data with INSERT INTO
             $this->bqClient->runQuery($this->bqClient->query(
