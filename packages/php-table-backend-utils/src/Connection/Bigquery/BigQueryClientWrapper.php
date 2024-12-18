@@ -56,9 +56,14 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function runJob(JobConfigurationInterface $config, array $options = []): Job
     {
-        $retryPolicy = new SimpleRetryPolicy(5);
-        $backOffPolicy = new ExponentialRandomBackOffPolicy(10, 1.8, 300);
-        $proxy = new RetryProxy($retryPolicy, $backOffPolicy);
+        $options += [
+            'retryCount' => 5,
+            'backOffPolicy' => new ExponentialRandomBackOffPolicy(10, 1.8, 300),
+        ];
+        assert(is_int($options['retryCount']) && $options['retryCount'] > 0);
+        assert($options['backOffPolicy'] instanceof BackOffPolicyInterface);
+        $retryPolicy = new SimpleRetryPolicy($options['retryCount']);
+        $proxy = new RetryProxy($retryPolicy, $options['backOffPolicy']);
         $job = $proxy->call(function () use ($config, $options): Job {
             return $this->startJob($config, $options);
         });
