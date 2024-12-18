@@ -60,6 +60,8 @@ class BigQueryClientWrapper extends BigQueryClient
             'retryCount' => 5,
             'backOffPolicy' => new ExponentialRandomBackOffPolicy(10, 1.8, 300),
         ];
+        assert(is_int($options['retryCount']) && $options['retryCount'] > 0);
+        assert($options['backOffPolicy'] instanceof BackOffPolicyInterface);
         $retryPolicy = new SimpleRetryPolicy($options['retryCount']);
         $proxy = new RetryProxy($retryPolicy, $options['backOffPolicy']);
         $job = $proxy->call(function () use ($config, $options): Job {
