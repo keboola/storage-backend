@@ -51,6 +51,10 @@ env:
   TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
   TERADATA_PORT: 1025
   TERADATA_DATABASE: ci_table_utils
+  # Exasol
+  EXASOL_HOST: exasol:8563
+  EXASOL_USERNAME: sys
+  EXASOL_PASSWORD: exasol
   # Bigquery
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
 
@@ -122,7 +126,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [snowflake, bigquery]
+        suite: [exasol, snowflake, bigquery]
     steps:
       -
         name: Checkout
@@ -151,6 +155,14 @@ jobs:
           docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
       #
+      # Before tests, start services
+      -
+        name: Exasol start
+        if: ${{ matrix.suite == 'exasol' }}
+        run: |
+          docker compose up -d exasol
+          sleep 60
+      #
       # TESTS
       #
       -
@@ -160,3 +172,9 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: |
           docker compose run ci-php-table-backend-utils composer tests-${{ matrix.suite }}
+      #
+      # After tests, stop services
+      -
+        name: Exasol stop
+        if: ${{ always() && matrix.suite == 'exasol' }}
+        run: docker compose stop exasol
