@@ -58,7 +58,7 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
     }
 
     /**
-     * @return array<int, SnowflakeTableDefinition>
+     * @return array<string, SnowflakeTableDefinition>
      */
     public function getDefinitions(): array
     {
@@ -131,7 +131,7 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
 
         $definitions = [];
         foreach ($tables as $tableName => $table) {
-            $definitions[] = new SnowflakeTableDefinition(
+            $definitions[$tableName] = new SnowflakeTableDefinition(
                 $this->schemaName,
                 $tableName,
                 $table['PROPS']['TEMPORARY'],

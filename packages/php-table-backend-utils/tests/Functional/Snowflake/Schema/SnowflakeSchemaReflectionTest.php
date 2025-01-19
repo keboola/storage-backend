@@ -131,28 +131,28 @@ CREATE VIEW %s.%s AS
 
         self::assertCount(4, $definitions);
 
-        $temporaryTableIndex = 0;
-        self::assertEquals('temporary_table', $definitions[$temporaryTableIndex]->getTableName());
-        self::assertEquals(3, $definitions[$temporaryTableIndex]->getColumnsDefinitions()->count());
-        self::assertTrue($definitions[$temporaryTableIndex]->isTemporary());
-        self::assertEquals('table', $definitions[$temporaryTableIndex]->getTableType()->value);
+        $temporaryTableKey = 'temporary_table';
+        self::assertEquals('temporary_table', $definitions[$temporaryTableKey]->getTableName());
+        self::assertEquals(3, $definitions[$temporaryTableKey]->getColumnsDefinitions()->count());
+        self::assertTrue($definitions[$temporaryTableKey]->isTemporary());
+        self::assertEquals('table', $definitions[$temporaryTableKey]->getTableType()->value);
 
-        $transientTableIndex = 1;
-        self::assertEquals('transient_table', $definitions[$transientTableIndex]->getTableName());
-        self::assertEquals(3, $definitions[$transientTableIndex]->getColumnsDefinitions()->count());
-        self::assertFalse($definitions[$transientTableIndex]->isTemporary());
-        self::assertEquals('table', $definitions[$transientTableIndex]->getTableType()->value);
+        $transientTableKey = 'transient_table';
+        self::assertEquals('transient_table', $definitions[$transientTableKey]->getTableName());
+        self::assertEquals(3, $definitions[$transientTableKey]->getColumnsDefinitions()->count());
+        self::assertFalse($definitions[$transientTableKey]->isTemporary());
+        self::assertEquals('table', $definitions[$transientTableKey]->getTableType()->value);
 
-        $genericTableIndex = 2;
-        self::assertEquals(self::TABLE_GENERIC, $definitions[$genericTableIndex]->getTableName());
-        self::assertEquals(3, $definitions[$genericTableIndex]->getColumnsDefinitions()->count());
-        self::assertFalse($definitions[$genericTableIndex]->isTemporary());
-        self::assertEquals('table', $definitions[$genericTableIndex]->getTableType()->value);
+        $genericTableKey = self::TABLE_GENERIC;
+        self::assertEquals(self::TABLE_GENERIC, $definitions[$genericTableKey]->getTableName());
+        self::assertEquals(3, $definitions[$genericTableKey]->getColumnsDefinitions()->count());
+        self::assertFalse($definitions[$genericTableKey]->isTemporary());
+        self::assertEquals('table', $definitions[$genericTableKey]->getTableType()->value);
 
-        $genericViewIndex = 3;
-        self::assertEquals(self::VIEW_GENERIC, $definitions[$genericViewIndex]->getTableName());
-        self::assertEquals(2, $definitions[$genericViewIndex]->getColumnsDefinitions()->count());
-        self::assertFalse($definitions[$genericViewIndex]->isTemporary());
-        self::assertEquals('view', $definitions[$genericViewIndex]->getTableType()->value);
+        $genericViewKey = self::VIEW_GENERIC;
+        self::assertEquals(self::VIEW_GENERIC, $definitions[$genericViewKey]->getTableName());
+        self::assertEquals(2, $definitions[$genericViewKey]->getColumnsDefinitions()->count());
+        self::assertFalse($definitions[$genericViewKey]->isTemporary());
+        self::assertEquals('view', $definitions[$genericViewKey]->getTableType()->value);
     }
 }
