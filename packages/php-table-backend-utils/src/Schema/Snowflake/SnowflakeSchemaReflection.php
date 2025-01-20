@@ -83,7 +83,16 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         $informations = $this->connection->fetchAllAssociative($informationsQuery);
         /** @var array<int, array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}> $columns */
         $columns = $this->connection->fetchAllAssociative($columnsQuery);
-        /** @var array<int, array{TABLE_NAME: string, COLUMN_NAME: string}> $primaryKeys */
+        /** @var array<int, array{
+         *     created_on: string,
+         *     database_name: string,
+         *     schema_name: string,
+         *     table_name: string,
+         *     column_name: string,
+         *     key_sequence: int,
+         *     constraint_name: string,
+         *     rely: bool,
+         *     comment: ?string}> $primaryKeys */
         $primaryKeys = $this->connection->fetchAllAssociative($primaryKeyQuery);
 
         $tables = [];
@@ -126,7 +135,7 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         }
 
         foreach ($primaryKeys as $primaryKey) {
-            $tables[$primaryKey['TABLE_NAME']]['PRIMARY_KEYS'][] = $primaryKey['COLUMN_NAME'];
+            $tables[$primaryKey['table_name']]['PRIMARY_KEYS'][] = $primaryKey['column_name'];
         }
 
         $definitions = [];
