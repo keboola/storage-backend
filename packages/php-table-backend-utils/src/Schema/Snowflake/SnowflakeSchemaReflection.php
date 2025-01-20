@@ -64,15 +64,15 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
     {
         $informationsQuery = sprintf(
             'SELECT TABLE_NAME, TABLE_TYPE, BYTES, ROW_COUNT '.
-            'FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = \'%s\' ORDER BY TABLE_NAME;',
-            $this->schemaName,
+            'FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = %s ORDER BY TABLE_NAME;',
+            SnowflakeQuote::quote($this->schemaName),
         );
 
         $columnsQuery = sprintf(
             'SELECT TABLE_NAME, '.
             'COLUMN_NAME AS "name", DATA_TYPE AS "type", COLUMN_DEFAULT AS "default", IS_NULLABLE AS "null?" '.
-            'FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = \'%s\' ORDER BY TABLE_NAME;',
-            $this->schemaName,
+            'FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = %s ORDER BY TABLE_NAME;',
+            SnowflakeQuote::quote($this->schemaName),
         );
 
         $primaryKeyQuery = sprintf(
