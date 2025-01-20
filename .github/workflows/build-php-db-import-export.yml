@@ -25,6 +25,10 @@ on:
         required: true
       ABS_TERADATA_PASSWORD:
         required: true
+      EXASOL_PASSWORD:
+        required: true
+      EXA_SAAS_TOKEN:
+        required: true
       OAUTH_TOKEN_GITHUB:
         required: true
       GCS_CREDENTIALS:
@@ -74,6 +78,14 @@ env:
   ABS_TERADATA_PASSWORD: ${{ secrets.ABS_TERADATA_PASSWORD }}
   ABS_TERADATA_PORT: 1025
   ABS_TERADATA_DATABASE: ci_ielib_abs
+  # Exasol
+  EXASOL_HOST: mbgghigkizhshorgb53ivhkrsu.clusters.exasol.com:8563
+  EXASOL_USERNAME: devel
+  EXASOL_PASSWORD: ${{ secrets.EXASOL_PASSWORD }}
+  EXA_SAAS_DB_ID: 5ThvKt2NQEqTf-QVEBcNeg
+  EXA_SAAS_HOST: https://cloud.exasol.com
+  EXA_SAAS_USER_ID: org_W0xrKhY2DEnGwmSO
+  EXA_SAAS_TOKEN: ${{ secrets.EXA_SAAS_TOKEN }}
   # Bigquery
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
   BQ_BUCKET_NAME: ie-ci-files-bucket
@@ -469,6 +481,84 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
 
+  pre-exasol-tests:
+    runs-on: ubuntu-latest
+    needs: build
+    concurrency: exasol-tests
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Exasol start
+        run: |
+          bash ./provisioning/scripts/exasolRun.sh -w || exit 1
+
+  exasol-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    needs: [load-s3, pre-exasol-tests]
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - exasol
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
+      -
+        name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      -
+        name: Pull image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
+          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
+        run: |
+          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
+      #
+      # TESTS
+      #
+      -
+        name: Tests ${{ matrix.suite }}
+        env:
+          SUITE: ${{ matrix.suite }}
+          AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
+        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
+
+  post-exasol-tests:
+    runs-on: ubuntu-latest
+    needs: exasol-tests
+    if: |
+      always() && (needs.exasol-tests.result != 'skipped')
+    concurrency: exasol-tests
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Exasol stop
+        if: ${{ always() }}
+        run: |
+          bash ./provisioning/scripts/exasolRun.sh -p || exit 1
+
   #
   # Clean up uploaded data
   clean-s3:
@@ -476,12 +566,13 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    needs: [testsS3, testsAll]
+    needs: [testsS3, testsAll, exasol-tests]
     if: |
       always() 
       && (
         (needs.testsS3.result != 'skipped')
         || (needs.testsAll.result != 'skipped')
+        || (needs.exasol-tests.result != 'skipped')
       )
     steps:
       -
