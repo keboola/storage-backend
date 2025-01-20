@@ -79,10 +79,10 @@ env:
   ABS_TERADATA_PORT: 1025
   ABS_TERADATA_DATABASE: ci_ielib_abs
   # Exasol
-  EXASOL_HOST: mbgghigkizhshorgb53ivhkrsu.clusters.exasol.com:8563
-  EXASOL_USERNAME: devel
+  EXASOL_HOST: 6kdmpm4k3rczxomktqwtt4mz4e.clusters.exasol.com:8563
+  EXASOL_USERNAME: ci_storage_backend_ie
   EXASOL_PASSWORD: ${{ secrets.EXASOL_PASSWORD }}
-  EXA_SAAS_DB_ID: 5ThvKt2NQEqTf-QVEBcNeg
+  EXA_SAAS_DB_ID: O7N7G6VbS6acYhvQ1wYOgQ
   EXA_SAAS_HOST: https://cloud.exasol.com
   EXA_SAAS_USER_ID: org_W0xrKhY2DEnGwmSO
   EXA_SAAS_TOKEN: ${{ secrets.EXA_SAAS_TOKEN }}
