@@ -489,25 +489,17 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     public function provideTestGetTypeFromAlias(): Generator
     {
         foreach (Bigquery::TYPES as $type) {
-            switch ($type) {
-                case Bigquery::TYPE_INT:
-                case Bigquery::TYPE_SMALLINT:
-                case Bigquery::TYPE_INTEGER:
-                case Bigquery::TYPE_BIGINT:
-                case Bigquery::TYPE_TINYINT:
-                case Bigquery::TYPE_BYTEINT:
-                    $expectedType = Bigquery::TYPE_INT64;
-                    break;
-                case Bigquery::TYPE_DECIMAL:
-                    $expectedType = Bigquery::TYPE_NUMERIC;
-                    break;
-                case Bigquery::TYPE_BIGDECIMAL:
-                    $expectedType = Bigquery::TYPE_BIGNUMERIC;
-                    break;
-                default:
-                    $expectedType = $type;
-                    break;
-            }
+            $expectedType = match ($type) {
+                Bigquery::TYPE_INT64 => Bigquery::TYPE_INTEGER,
+                Bigquery::TYPE_INT,
+                Bigquery::TYPE_SMALLINT,
+                Bigquery::TYPE_BIGINT,
+                Bigquery::TYPE_TINYINT,
+                Bigquery::TYPE_BYTEINT => Bigquery::TYPE_INTEGER,
+                Bigquery::TYPE_DECIMAL => Bigquery::TYPE_NUMERIC,
+                Bigquery::TYPE_BIGDECIMAL => Bigquery::TYPE_BIGNUMERIC,
+                default => $type,
+            };
 
             yield $type => [
                 'type' => $type,

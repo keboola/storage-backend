@@ -192,7 +192,7 @@ class Bigquery extends Common
         $definition = $this->getTypeOnlySQLDefinition();
 
         if (strtoupper($this->getType()) === self::TYPE_ARRAY
-        || strtoupper($this->getType()) === self::TYPE_STRUCT
+            || strtoupper($this->getType()) === self::TYPE_STRUCT
         ) {
             return $definition;
         }
@@ -287,12 +287,12 @@ class Bigquery extends Common
     public function getBackendBasetype(): string
     {
         return match (strtoupper($this->type)) {
-            self::TYPE_INT => self::TYPE_INT64,
-            self::TYPE_SMALLINT => self::TYPE_INT64,
-            self::TYPE_INTEGER => self::TYPE_INT64,
-            self::TYPE_BIGINT => self::TYPE_INT64,
-            self::TYPE_TINYINT => self::TYPE_INT64,
-            self::TYPE_BYTEINT => self::TYPE_INT64,
+            self::TYPE_INT64 => self::TYPE_INTEGER,
+            self::TYPE_INT => self::TYPE_INTEGER,
+            self::TYPE_SMALLINT => self::TYPE_INTEGER,
+            self::TYPE_BIGINT => self::TYPE_INTEGER,
+            self::TYPE_TINYINT => self::TYPE_INTEGER,
+            self::TYPE_BYTEINT => self::TYPE_INTEGER,
             self::TYPE_DECIMAL => self::TYPE_NUMERIC,
             self::TYPE_BIGDECIMAL => self::TYPE_BIGNUMERIC,
             default => $this->type
