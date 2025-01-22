@@ -490,7 +490,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     {
         foreach (Bigquery::TYPES as $type) {
             $expectedType = match ($type) {
-                Bigquery::TYPE_INT64 => Bigquery::TYPE_INTEGER,
+                Bigquery::TYPE_INT64,
                 Bigquery::TYPE_INT,
                 Bigquery::TYPE_SMALLINT,
                 Bigquery::TYPE_BIGINT,
