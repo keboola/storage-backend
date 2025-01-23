@@ -69,9 +69,24 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         );
 
         $columnsQuery = sprintf(
-            'SELECT TABLE_NAME, '.
-            'COLUMN_NAME AS "name", DATA_TYPE AS "type", COLUMN_DEFAULT AS "default", IS_NULLABLE AS "null?" '.
-            'FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = %s ORDER BY TABLE_NAME;',
+            <<<SQL
+SELECT 
+    TABLE_NAME,
+    COLUMN_NAME AS "name",
+    CASE 
+        WHEN DATA_TYPE IN ('CHAR', 'VARCHAR', 'STRING', 'TEXT') THEN 
+            DATA_TYPE || '(' || CHARACTER_MAXIMUM_LENGTH || ')'
+        WHEN DATA_TYPE IN ('NUMBER', 'DECIMAL', 'NUMERIC') THEN 
+            DATA_TYPE || '(' || COALESCE(NUMERIC_PRECISION::STRING, '') || ',' || COALESCE(NUMERIC_SCALE::STRING, '0') || ')'
+        ELSE 
+            DATA_TYPE
+    END AS "type",
+    COLUMN_DEFAULT AS "default",
+    IS_NULLABLE AS "null?"
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_schema = %s
+ORDER BY TABLE_NAME, ORDINAL_POSITION;
+SQL,
             SnowflakeQuote::quote($this->schemaName),
         );
 
