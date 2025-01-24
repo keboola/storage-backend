@@ -170,16 +170,17 @@ SQL,
             $column['null?'] = ($column['null?'] === 'YES' ? 'Y' : 'N');
 
             // Snowflake have length for binary columns only in DESC TABLE or SHOW COLUMNS
-            if ($column['type'] === Snowflake::TYPE_BINARY) {
-                $info = $this->getBinaryColumnLength($column['TABLE_NAME'], $column['name']);
-                if ($info !== null) {
-                    $column['type'] = sprintf(
-                        '%s(%s)',
-                        Snowflake::TYPE_BINARY,
-                        $info['length'],
-                    );
-                }
-            }
+// disabled for now
+//            if ($column['type'] === Snowflake::TYPE_BINARY) {
+//                $info = $this->getBinaryColumnLength($column['TABLE_NAME'], $column['name']);
+//                if ($info !== null) {
+//                    $column['type'] = sprintf(
+//                        '%s(%s)',
+//                        Snowflake::TYPE_BINARY,
+//                        $info['length'],
+//                    );
+//                }
+//            }
             $tables[$column['TABLE_NAME']]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
         }
 
