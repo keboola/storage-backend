@@ -164,6 +164,13 @@ SQL,
         }
 
         foreach ($columns as $column) {
+            if (!array_key_exists($column['TABLE_NAME'], $tables)) {
+                throw new RuntimeException(sprintf(
+                    '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have columns.',
+                    $column['TABLE_NAME'],
+                    $this->schemaName,
+                ));
+            }
             // Offset 'null?' does not exist on
             // array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}.
             // @phpstan-ignore-next-line
@@ -172,6 +179,13 @@ SQL,
         }
 
         foreach ($primaryKeys as $primaryKey) {
+            if (!array_key_exists($primaryKey['table_name'], $tables)) {
+                throw new RuntimeException(sprintf(
+                    '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have primary keys.',
+                    $primaryKey['table_name'],
+                    $this->schemaName,
+                ));
+            }
             $tables[$primaryKey['table_name']]['PRIMARY_KEYS'][] = $primaryKey['column_name'];
         }
 
