@@ -168,19 +168,6 @@ SQL,
             // array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}.
             // @phpstan-ignore-next-line
             $column['null?'] = ($column['null?'] === 'YES' ? 'Y' : 'N');
-
-            // Snowflake have length for binary columns only in DESC TABLE or SHOW COLUMNS
-// disabled for now
-//            if ($column['type'] === Snowflake::TYPE_BINARY) {
-//                $info = $this->getBinaryColumnLength($column['TABLE_NAME'], $column['name']);
-//                if ($info !== null) {
-//                    $column['type'] = sprintf(
-//                        '%s(%s)',
-//                        Snowflake::TYPE_BINARY,
-//                        $info['length'],
-//                    );
-//                }
-//            }
             $tables[$column['TABLE_NAME']]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
         }
 
@@ -200,39 +187,5 @@ SQL,
             );
         }
         return $definitions;
-    }
-
-    /**
-     * @return array{type: string, length: string}|null
-     */
-    private function getBinaryColumnLength(string $tableName, string $columnName): ?array
-    {
-        $sql = sprintf('DESCRIBE TABLE %s', SnowflakeQuote::quote($tableName));
-        /** @var array<
-         *     int,
-         *      array{
-         *          name: string,
-         *          type: string,
-         *          kind: string,
-         *          null?: string,
-         *          default: ?string,
-         *          "primary key": string,
-         *          "unique key": string,
-         *          check: ?string,
-         *          expression: ?string,
-         *          comment: ?string,
-         *          "policy name": ?string,
-         *          "privacy domain": ?string
-         *      }
-         * > $columns
-         */
-        $columns = $this->connection->fetchAllAssociative($sql);
-        foreach ($columns as $column) {
-            if ($column['name'] === $columnName) {
-                return SnowflakeColumn::extractTypeAndLengthFromDB($column['type']);
-            }
-        }
-
-        return null;
     }
 }
