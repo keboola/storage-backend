@@ -135,25 +135,26 @@ SQL,
         $tables = [];
 
         foreach ($informations as $information) {
-            $tables[$information['TABLE_NAME']]['PROPS'] = $information;
+            $tableKey = md5($information['TABLE_NAME']);
+            $tables[$tableKey]['PROPS'] = $information;
 
             switch (strtoupper($information['TABLE_TYPE'])) {
                 case 'BASE TABLE':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = false;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = false;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
                     break;
                 case 'EXTERNAL TABLE':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = false;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::SNOWFLAKE_EXTERNAL;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = false;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::SNOWFLAKE_EXTERNAL;
                     break;
                 case 'LOCAL TEMPORARY':
                 case 'TEMPORARY TABLE':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = true;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = true;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
                     break;
                 case 'VIEW':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = false;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::VIEW;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = false;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::VIEW;
                     break;
                 default:
                     throw new RuntimeException(sprintf(
@@ -164,7 +165,8 @@ SQL,
         }
 
         foreach ($columns as $column) {
-            if (!array_key_exists($column['TABLE_NAME'], $tables)) {
+            $tableKey = md5($column['TABLE_NAME']);
+            if (!array_key_exists($tableKey, $tables)) {
                 throw new RuntimeException(sprintf(
                     '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have columns.',
                     $column['TABLE_NAME'],
@@ -175,22 +177,24 @@ SQL,
             // array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}.
             // @phpstan-ignore-next-line
             $column['null?'] = ($column['null?'] === 'YES' ? 'Y' : 'N');
-            $tables[$column['TABLE_NAME']]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
+            $tables[$tableKey]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
         }
 
         foreach ($primaryKeys as $primaryKey) {
-            if (!array_key_exists($primaryKey['table_name'], $tables)) {
+            $tableKey = md5($primaryKey['table_name']);
+            if (!array_key_exists($tableKey, $tables)) {
                 throw new RuntimeException(sprintf(
                     '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have primary keys.',
                     $primaryKey['table_name'],
                     $this->schemaName,
                 ));
             }
-            $tables[$primaryKey['table_name']]['PRIMARY_KEYS'][] = $primaryKey['column_name'];
+            $tables[$tableKey]['PRIMARY_KEYS'][] = $primaryKey['column_name'];
         }
 
         $definitions = [];
-        foreach ($tables as $tableName => $table) {
+        foreach ($tables as $table) {
+            $tableName = $table['PROPS']['TABLE_NAME'];
             $definitions[$tableName] = new SnowflakeTableDefinition(
                 $this->schemaName,
                 $tableName,
