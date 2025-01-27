@@ -155,4 +155,12 @@ CREATE VIEW %s.%s AS
         self::assertFalse($definitions[$genericViewKey]->isTemporary());
         self::assertEquals('view', $definitions[$genericViewKey]->getTableType()->value);
     }
+
+    public function testGetDefinitionsWithEmptySchema(): void
+    {
+        $this->createSchema(self::TEST_SCHEMA);
+        $definitions = $this->schemaRef->getDefinitions();
+
+        self::assertCount(0, $definitions);
+    }
 }

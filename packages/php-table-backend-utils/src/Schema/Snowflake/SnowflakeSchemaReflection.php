@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Keboola\TableBackendUtils\Schema\Snowflake;
 
 use Doctrine\DBAL\Connection;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\TableType;
@@ -68,10 +70,40 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
             SnowflakeQuote::quote($this->schemaName),
         );
 
+        // Snowflake maps in DESC TABLE few data-type aliases to their basic types
+        // but in INFORMATION_SCHEMA.COLUMNS table keep data-type aliases
+        // here is implemented same mapping as DESC TABLE uses
         $columnsQuery = sprintf(
-            'SELECT TABLE_NAME, '.
-            'COLUMN_NAME AS "name", DATA_TYPE AS "type", COLUMN_DEFAULT AS "default", IS_NULLABLE AS "null?" '.
-            'FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = %s ORDER BY TABLE_NAME;',
+            <<<SQL
+SELECT 
+    TABLE_NAME,
+    COLUMN_NAME AS "name",
+    CASE 
+        -- Map string types to VARCHAR
+        WHEN DATA_TYPE IN ('CHAR', 'VARCHAR', 'STRING', 'TEXT') THEN 
+            'VARCHAR(' || COALESCE(CHARACTER_MAXIMUM_LENGTH::STRING, '16777216') || ')'
+        
+        -- Map numeric types to NUMBER
+        WHEN DATA_TYPE IN ('NUMBER', 'DECIMAL', 'NUMERIC') THEN 
+            'NUMBER(' || COALESCE(NUMERIC_PRECISION::STRING, '') || ',' || COALESCE(NUMERIC_SCALE::STRING, '0') || ')'
+        
+        -- Map date and time types to their respective names - DATE is mapped directly to DATE
+        WHEN DATA_TYPE IN ('DATETIME', 'TIME', 'TIMESTAMP', 'TIMESTAMP_LTZ', 'TIMESTAMP_TZ', 'TIMESTAMP_NTZ') THEN 
+            DATA_TYPE || '(' || COALESCE(DATETIME_PRECISION::STRING, '') || ')'
+        
+        -- Map binary and varbinary - Snowflake don't have length for binary in INFORMATION_SCHEMA - handled in code
+        WHEN DATA_TYPE IN ('BINARY', 'VARBINARY') THEN
+            'BINARY' 
+ 
+        -- Default case for all other types as they are mapped by DESC TABLE direcly to themself
+        ELSE DATA_TYPE
+    END AS "type",
+    COLUMN_DEFAULT AS "default",
+    IS_NULLABLE AS "null?"
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_schema = %s
+ORDER BY TABLE_NAME, ORDINAL_POSITION;
+SQL,
             SnowflakeQuote::quote($this->schemaName),
         );
 
@@ -81,6 +113,12 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
 
         /** @var array<int, array{TABLE_NAME: string, TABLE_TYPE: string, BYTES: int, ROW_COUNT: int}> $informations */
         $informations = $this->connection->fetchAllAssociative($informationsQuery);
+
+        // short-circuit > no tables no need to continue
+        if (count($informations) === 0) {
+            return [];
+        }
+
         /** @var array<int, array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}> $columns */
         $columns = $this->connection->fetchAllAssociative($columnsQuery);
         /** @var array<int, array{
@@ -98,28 +136,29 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         $tables = [];
 
         foreach ($informations as $information) {
-            $tables[$information['TABLE_NAME']]['PROPS'] = $information;
+            $tableKey = md5($information['TABLE_NAME']);
+            $tables[$tableKey]['PROPS'] = $information;
 
             switch (strtoupper($information['TABLE_TYPE'])) {
                 case 'BASE TABLE':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = false;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = false;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
                     break;
                 case 'EXTERNAL TABLE':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = false;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::SNOWFLAKE_EXTERNAL;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = false;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::SNOWFLAKE_EXTERNAL;
                     break;
                 case 'LOCAL TEMPORARY':
                 case 'TEMPORARY TABLE':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = true;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = true;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::TABLE;
                     break;
                 case 'VIEW':
-                    $tables[$information['TABLE_NAME']]['PROPS']['TEMPORARY'] = false;
-                    $tables[$information['TABLE_NAME']]['PROPS']['TABLE_TYPE'] = TableType::VIEW;
+                    $tables[$tableKey]['PROPS']['TEMPORARY'] = false;
+                    $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::VIEW;
                     break;
                 default:
-                    throw new RuntimeException(sprintf(
+                    throw new ReflectionException(sprintf(
                         'Table type "%s" is not known.',
                         $information['TABLE_TYPE'],
                     ));
@@ -127,19 +166,35 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         }
 
         foreach ($columns as $column) {
+            $tableKey = md5($column['TABLE_NAME']);
+            if (!array_key_exists($tableKey, $tables)) {
+                // Should not happen, but Snowflake have bug in SHOW PRIMARY KEYS to show key for table without perms
+                // so skipping also here to be sure
+                continue;
+            }
             // Offset 'null?' does not exist on
             // array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}.
             // @phpstan-ignore-next-line
             $column['null?'] = ($column['null?'] === 'YES' ? 'Y' : 'N');
-            $tables[$column['TABLE_NAME']]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
+            $tables[$tableKey]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
         }
 
         foreach ($primaryKeys as $primaryKey) {
-            $tables[$primaryKey['table_name']]['PRIMARY_KEYS'][] = $primaryKey['column_name'];
+            $tableKey = md5($primaryKey['table_name']);
+            if (!array_key_exists($tableKey, $tables)) {
+                // Snowflake can show primary keys for table you don't have permissions for
+                // Skipping this table
+                continue;
+            }
+            $tables[$tableKey]['PRIMARY_KEYS'][] = $primaryKey['column_name'];
         }
 
         $definitions = [];
-        foreach ($tables as $tableName => $table) {
+        foreach ($tables as $table) {
+            if (!array_key_exists('PROPS', $table)) {
+                throw new ReflectionException(sprintf('Malformed table definition: %s', json_encode($table)));
+            }
+            $tableName = $table['PROPS']['TABLE_NAME'];
             $definitions[$tableName] = new SnowflakeTableDefinition(
                 $this->schemaName,
                 $tableName,
