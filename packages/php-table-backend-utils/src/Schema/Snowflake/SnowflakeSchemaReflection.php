@@ -168,11 +168,9 @@ SQL,
         foreach ($columns as $column) {
             $tableKey = md5($column['TABLE_NAME']);
             if (!array_key_exists($tableKey, $tables)) {
-                throw new ReflectionException(sprintf(
-                    '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have columns.',
-                    $column['TABLE_NAME'],
-                    $this->schemaName,
-                ));
+                // Should not happen, but Snowflake have bug in SHOW PRIMARY KEYS to show key for table without perms
+                // so skipping also here to be sure
+                continue;
             }
             // Offset 'null?' does not exist on
             // array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}.
@@ -184,11 +182,9 @@ SQL,
         foreach ($primaryKeys as $primaryKey) {
             $tableKey = md5($primaryKey['table_name']);
             if (!array_key_exists($tableKey, $tables)) {
-                throw new ReflectionException(sprintf(
-                    '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have primary keys.',
-                    $primaryKey['table_name'],
-                    $this->schemaName,
-                ));
+                // Snowflake can show primary keys for table you don't have permissions for
+                // Skipping this table
+                continue;
             }
             $tables[$tableKey]['PRIMARY_KEYS'][] = $primaryKey['column_name'];
         }
