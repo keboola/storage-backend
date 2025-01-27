@@ -192,7 +192,7 @@ SQL,
         $definitions = [];
         foreach ($tables as $table) {
             if (!array_key_exists('PROPS', $table)) {
-                throw new ReflectionException(sprintf("Malformed table definition: %s", json_encode($table)));
+                throw new ReflectionException(sprintf('Malformed table definition: %s', json_encode($table)));
             }
             $tableName = $table['PROPS']['TABLE_NAME'];
             $definitions[$tableName] = new SnowflakeTableDefinition(
