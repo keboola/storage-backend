@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\ReflectionException;
 use Keboola\TableBackendUtils\Schema\SchemaReflectionInterface;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\TableType;
@@ -157,7 +158,7 @@ SQL,
                     $tables[$tableKey]['PROPS']['TABLE_TYPE'] = TableType::VIEW;
                     break;
                 default:
-                    throw new RuntimeException(sprintf(
+                    throw new ReflectionException(sprintf(
                         'Table type "%s" is not known.',
                         $information['TABLE_TYPE'],
                     ));
@@ -167,7 +168,7 @@ SQL,
         foreach ($columns as $column) {
             $tableKey = md5($column['TABLE_NAME']);
             if (!array_key_exists($tableKey, $tables)) {
-                throw new RuntimeException(sprintf(
+                throw new ReflectionException(sprintf(
                     '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have columns.',
                     $column['TABLE_NAME'],
                     $this->schemaName,
@@ -183,7 +184,7 @@ SQL,
         foreach ($primaryKeys as $primaryKey) {
             $tableKey = md5($primaryKey['table_name']);
             if (!array_key_exists($tableKey, $tables)) {
-                throw new RuntimeException(sprintf(
+                throw new ReflectionException(sprintf(
                     '[TableBackendUtils] Table "%s" does not exist in schema "%s" but have primary keys.',
                     $primaryKey['table_name'],
                     $this->schemaName,
@@ -194,6 +195,9 @@ SQL,
 
         $definitions = [];
         foreach ($tables as $table) {
+            if (!array_key_exists('PROPS', $table)) {
+                throw new ReflectionException(sprintf("Malformed table definition: %s", json_encode($table)));
+            }
             $tableName = $table['PROPS']['TABLE_NAME'];
             $definitions[$tableName] = new SnowflakeTableDefinition(
                 $this->schemaName,
