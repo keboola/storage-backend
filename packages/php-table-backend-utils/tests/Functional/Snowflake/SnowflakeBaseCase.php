@@ -30,6 +30,7 @@ class SnowflakeBaseCase extends TestCase
             (string) getenv('SNOWFLAKE_HOST'),
             (string) getenv('SNOWFLAKE_USER'),
             (string) getenv('SNOWFLAKE_PASSWORD'),
+            (string) getenv('SNOWFLAKE_CERT'),
             [
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),

@@ -27,10 +27,12 @@ class SnowflakeConnectionFactory
     public static function getConnection(
         string $host,
         string $user,
-        string $password,
+        ?string $password,
+        ?string $privateKey,
         array $params,
         ?Configuration $config = null,
     ): Connection {
+
         /** @var array{
          *     'port'?:string,
          *     'warehouse'?:string,
@@ -45,7 +47,8 @@ class SnowflakeConnectionFactory
          *     'driverClass': class-string<Doctrine\DBAL\Driver>,
          *     'host': string,
          *     'user': string,
-         *     'password': string,
+         *     'password'?:string,
+         *     'privateKey'?:string,
          * } $params */
         $params = array_merge(
             $params,
@@ -54,6 +57,7 @@ class SnowflakeConnectionFactory
                 'host' => $host,
                 'user' => $user,
                 'password' => $password,
+                'privateKey' => $privateKey,
             ],
         );
         return DriverManager::getConnection(

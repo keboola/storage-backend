@@ -47,13 +47,13 @@ class SnowflakeDSNGenerator
         $requiredOptions = [
             'host',
             'user',
-            'password',
         ];
 
         $allowedOptions = [
             'host',
             'user',
             'password',
+            'privateKeyPath',
             'port',
             'tracing',
             'loginTimeout',
@@ -74,6 +74,10 @@ class SnowflakeDSNGenerator
             throw new DriverException('Missing options: ' . implode(', ', $missingOptions));
         }
 
+        if (empty($options['password']) && empty($options['privateKeyPath'])) {
+            throw new DriverException('Either "password" or "privateKeyPath" must be provided.');
+        }
+
         $unknownOptions = array_diff(array_keys($options), $allowedOptions);
         if (!empty($unknownOptions)) {
             throw new DriverException('Unknown options: ' . implode(', ', $unknownOptions));
@@ -85,6 +89,12 @@ class SnowflakeDSNGenerator
         $dsn = 'Driver=SnowflakeDSIIDriver;Server=' . $options['host'];
         $dsn .= ';Port=' . $port;
         $dsn .= ';Tracing=' . $tracing;
+
+        if (isset($options['privateKeyPath'])) {
+            $dsn .= ";AUTHENTICATOR=SNOWFLAKE_JWT";
+            $dsn .= ";PRIV_KEY_FILE=" . $options['privateKeyPath'];
+            $dsn .= ";UID=" . $options['user'];
+        }
 
         if (isset($options['loginTimeout'])) {
             $dsn .= ';Login_timeout=' . (int) $options['loginTimeout'];
