@@ -74,7 +74,7 @@ class SnowflakeDSNGenerator
             throw new DriverException('Missing options: ' . implode(', ', $missingOptions));
         }
 
-        if (empty($options['password']) && empty($options['privateKeyPath'])) {
+        if (isset($options['password']) && isset($options['privateKeyPath'])) {
             throw new DriverException('Either "password" or "privateKeyPath" must be provided.');
         }
 
@@ -91,9 +91,9 @@ class SnowflakeDSNGenerator
         $dsn .= ';Tracing=' . $tracing;
 
         if (isset($options['privateKeyPath'])) {
-            $dsn .= ";AUTHENTICATOR=SNOWFLAKE_JWT";
-            $dsn .= ";PRIV_KEY_FILE=" . $options['privateKeyPath'];
-            $dsn .= ";UID=" . $options['user'];
+            $dsn .= ';AUTHENTICATOR=SNOWFLAKE_JWT';
+            $dsn .= ';PRIV_KEY_FILE=' . $options['privateKeyPath'];
+            $dsn .= ';UID=' . $options['user'];
         }
 
         if (isset($options['loginTimeout'])) {

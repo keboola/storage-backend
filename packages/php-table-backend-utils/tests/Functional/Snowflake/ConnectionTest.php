@@ -222,7 +222,7 @@ class ConnectionTest extends SnowflakeBaseCase
             (string) getenv('SNOWFLAKE_HOST'),
             'invalid',
             'invalid',
-            'invalid',
+            null,
             [
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),

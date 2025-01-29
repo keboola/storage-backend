@@ -35,7 +35,7 @@ class SnowflakeDriver implements Driver
     public function connect(
         array $params,
     ): SnowflakeConnection {
-        if (isset($params['privateKey'])) {
+        if (isset($params['privateKey']) && $params['privateKey'] !== '') {
             $this->certFilePath = $this->prepareAndSavePrivateKey($params['privateKey']);
             unset($params['privateKey']);
             $params['password'] = '';
@@ -62,9 +62,9 @@ class SnowflakeDriver implements Driver
         return new SnowflakeExceptionConverter();
     }
 
-    private function prepareAndSavePrivateKey(string $privateKeyPem): string
+    private function prepareAndSavePrivateKey(string $privateKey): string
     {
-        $privateKeyResource = openssl_pkey_get_private($privateKeyPem);
+        $privateKeyResource = openssl_pkey_get_private($privateKey);
         if (!$privateKeyResource) {
             throw new PrivateKeyStringIsNotValid();
         }

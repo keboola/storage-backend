@@ -56,10 +56,27 @@ class SnowflakeConnectionFactory
                 'driverClass' => SnowflakeDriver::class,
                 'host' => $host,
                 'user' => $user,
-                'password' => $password,
-                'privateKey' => $privateKey,
             ],
         );
+
+        if ($password !== null && $password !== '') {
+            $params = array_merge(
+                $params,
+                [
+                    'password' => $password,
+                ],
+            );
+        }
+
+        if ($privateKey !== null && $privateKey !== '') {
+            $params = array_merge(
+                $params,
+                [
+                    'privateKey' => $privateKey,
+                ],
+            );
+        }
+
         return DriverManager::getConnection(
             $params,
             $config,
