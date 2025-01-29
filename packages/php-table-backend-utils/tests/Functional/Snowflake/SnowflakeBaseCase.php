@@ -18,6 +18,37 @@ class SnowflakeBaseCase extends TestCase
 
     protected Connection $connection;
 
+    public function connectionProvider()
+    {
+        yield 'password connection' => [
+            SnowflakeConnectionFactory::getConnection(
+                (string) getenv('SNOWFLAKE_HOST'),
+                (string) getenv('SNOWFLAKE_USER'),
+                (string) getenv('SNOWFLAKE_PASSWORD'),
+                [
+                    'port' => (string) getenv('SNOWFLAKE_PORT'),
+                    'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                    'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                    'runId' => 'runIdValue',
+                ],
+            ),
+        ];
+
+        yield 'cert connection' => [
+            SnowflakeConnectionFactory::getConnectionViaCert(
+                (string) getenv('SNOWFLAKE_HOST'),
+                (string) getenv('SNOWFLAKE_USER'),
+                $this->normalizePrivateKey((string) getenv('SNOWFLAKE_CERT')),
+                [
+                    'port' => (string) getenv('SNOWFLAKE_PORT'),
+                    'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                    'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                    'runId' => 'runIdValue',
+                ],
+            ),
+        ];
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -36,6 +67,15 @@ class SnowflakeBaseCase extends TestCase
                 'database' => (string) getenv('SNOWFLAKE_DATABASE'),
             ],
         );
+    }
+
+    private function normalizePrivateKey(string $privateKey): string
+    {
+        // normalize private key
+        $privateKey = str_replace(["\r", "\n"], "", $privateKey);
+        $privateKey = wordwrap($privateKey, 64, "\n", true);
+        return "-----BEGIN PRIVATE KEY-----\n" . $privateKey . "\n-----END PRIVATE KEY-----";
+
     }
 
     protected function initTable(
