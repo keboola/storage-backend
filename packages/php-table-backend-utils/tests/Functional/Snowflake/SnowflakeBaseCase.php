@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake;
 
 use Doctrine\DBAL\Connection;
+use Generator;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use PHPUnit\Framework\TestCase;
@@ -17,6 +18,37 @@ class SnowflakeBaseCase extends TestCase
     public const VIEW_GENERIC = self::TESTS_PREFIX . 'refView';
 
     protected Connection $connection;
+
+    public function connectionProvider(): Generator
+    {
+        yield 'password connection' => [
+            SnowflakeConnectionFactory::getConnection(
+                (string) getenv('SNOWFLAKE_HOST'),
+                (string) getenv('SNOWFLAKE_USER'),
+                (string) getenv('SNOWFLAKE_PASSWORD'),
+                [
+                    'port' => (string) getenv('SNOWFLAKE_PORT'),
+                    'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                    'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                    'runId' => 'runIdValue',
+                ],
+            ),
+        ];
+
+        yield 'cert connection' => [
+            SnowflakeConnectionFactory::getConnectionViaCert(
+                (string) getenv('SNOWFLAKE_HOST'),
+                (string) getenv('SNOWFLAKE_USER'),
+                $this->normalizePrivateKey((string) getenv('SNOWFLAKE_CERT')),
+                [
+                    'port' => (string) getenv('SNOWFLAKE_PORT'),
+                    'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                    'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                    'runId' => 'runIdValue',
+                ],
+            ),
+        ];
+    }
 
     protected function setUp(): void
     {
@@ -36,6 +68,14 @@ class SnowflakeBaseCase extends TestCase
                 'database' => (string) getenv('SNOWFLAKE_DATABASE'),
             ],
         );
+    }
+
+    private function normalizePrivateKey(string $privateKey): string
+    {
+        $privateKey = trim($privateKey);
+        $privateKey = str_replace(["\r", "\n"], '', $privateKey);
+        $privateKey = wordwrap($privateKey, 64, "\n", true);
+        return "-----BEGIN PRIVATE KEY-----\n" . $privateKey . "\n-----END PRIVATE KEY-----\n";
     }
 
     protected function initTable(
