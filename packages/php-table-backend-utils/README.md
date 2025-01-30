@@ -244,6 +244,20 @@ SNOWFLAKE_DATABASE=KEBOOLA_CI_TABLE_UTILS
 SNOWFLAKE_WAREHOUSE=
 ```
 
+##### Setup snowflake Key-pair authentication
+For the new key-pair authentication, which will be the only preferred method going forward, please follow these steps:
+1. Open a terminal window and generate a private key and a public key using the following command:
+```bash
+openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt
+openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+```
+2. Assign the public key to a Snowflake user using the following command:
+```sql
+ALTER USER "KEBOOLA_CI_TABLE_UTILS" SET RSA_PUBLIC_KEY='MIIBIjANBgkqh...';
+```
+3. For local tests and CI we need to edit the private key to one line and trim `-----BEGIN PRIVATE KEY----- -----END PRIVATE KEY-----` We can do this with `cat rsa_key.p8 | sed '1d;$d' | tr -d '\n'`
+4. Let's save the output of the command as environment variable `SNOWFLAKE_PRIVATE_KEY` in the `.env` file or in your PhpStorm.
+
 #### Bigquery
 
 To prepare the backend you can use [Terraform template](bq-backend-init.tf).
