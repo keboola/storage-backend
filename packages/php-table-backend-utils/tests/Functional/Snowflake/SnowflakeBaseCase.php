@@ -39,7 +39,7 @@ class SnowflakeBaseCase extends TestCase
             SnowflakeConnectionFactory::getConnectionViaCert(
                 (string) getenv('SNOWFLAKE_HOST'),
                 (string) getenv('SNOWFLAKE_USER'),
-                $this->normalizePrivateKey((string) getenv('SNOWFLAKE_CERT')),
+                $this->normalizePrivateKey((string) getenv('SNOWFLAKE_PRIVATE_KEY')),
                 [
                     'port' => (string) getenv('SNOWFLAKE_PORT'),
                     'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
