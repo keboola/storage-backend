@@ -36,7 +36,7 @@ class SnowflakeBaseCase extends TestCase
         ];
 
         yield 'cert connection' => [
-            SnowflakeConnectionFactory::getConnectionViaCert(
+            SnowflakeConnectionFactory::getConnectionWithCert(
                 (string) getenv('SNOWFLAKE_HOST'),
                 (string) getenv('SNOWFLAKE_USER'),
                 $this->normalizePrivateKey((string) getenv('SNOWFLAKE_PRIVATE_KEY')),

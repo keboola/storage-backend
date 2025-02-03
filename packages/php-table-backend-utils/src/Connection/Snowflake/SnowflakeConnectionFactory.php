@@ -76,7 +76,7 @@ class SnowflakeConnectionFactory
      *     'maxBackoffAttempts'?:int
      * } $params
      */
-    public static function getConnectionViaCert(
+    public static function getConnectionWithCert(
         string $host,
         string $user,
         string $privateKey,
