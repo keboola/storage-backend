@@ -255,8 +255,16 @@ openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
 ```sql
 ALTER USER "KEBOOLA_CI_TABLE_UTILS" SET RSA_PUBLIC_KEY='MIIBIjANBgkqh...';
 ```
+Alternatively, you can use a command that generates a query for you:
+```bash
+PUBLIC_KEY=$(sed '1d;$d' rsa_key.pub | tr -d '\n')
+echo "ALTER USER \"KEBOOLA_CI_TABLE_UTILS\" SET RSA_PUBLIC_KEY='${PUBLIC_KEY}';"
+```
 3. For local tests and CI we need to edit the private key to one line and trim `-----BEGIN PRIVATE KEY----- -----END PRIVATE KEY-----` We can do this with `cat rsa_key.p8 | sed '1d;$d' | tr -d '\n'`
 4. Let's save the output of the command as environment variable `SNOWFLAKE_PRIVATE_KEY` in the `.env` file or in your PhpStorm.
+```bash
+PRIVATE_KEY=$(sed '1d;$d' rsa_key.p8 | tr -d '\n'); if grep -q '^SNOWFLAKE_PRIVATE_KEY=' .env; then sed -i "s|^SNOWFLAKE_PRIVATE_KEY=.*|SNOWFLAKE_PRIVATE_KEY=\"$PRIVATE_KEY\"|" .env; else echo "SNOWFLAKE_PRIVATE_KEY=\"$PRIVATE_KEY\"" >> .env; fi
+```
 
 #### Bigquery
 
