@@ -61,4 +61,58 @@ class SnowflakeConnectionFactory
             $config,
         );
     }
+
+    /**
+     * @param array{
+     *     'port'?:string,
+     *     'warehouse'?:string,
+     *     'database'?:string,
+     *     'schema'?:string,
+     *     'tracing'?:int,
+     *     'loginTimeout'?:int,
+     *     'networkTimeout'?:int,
+     *     'queryTimeout'?: int,
+     *     'clientSessionKeepAlive'?: bool,
+     *     'maxBackoffAttempts'?:int
+     * } $params
+     */
+    public static function getConnectionWithCert(
+        string $host,
+        string $user,
+        string $privateKey,
+        array $params,
+        ?Configuration $config = null,
+    ): Connection {
+
+        /** @var array{
+         *     'port'?:string,
+         *     'warehouse'?:string,
+         *     'database'?:string,
+         *     'schema'?:string,
+         *     'tracing'?:int,
+         *     'loginTimeout'?:int,
+         *     'networkTimeout'?:int,
+         *     'queryTimeout'?: int,
+         *     'clientSessionKeepAlive'?: bool,
+         *     'maxBackoffAttempts'?:int,
+         *     'driverClass': class-string<Doctrine\DBAL\Driver>,
+         *     'host': string,
+         *     'user': string,
+         *     'privateKey':string,
+         * } $params */
+        $params = array_merge(
+            $params,
+            [
+                'driverClass' => SnowflakeDriver::class,
+                'host' => $host,
+                'user' => $user,
+                'privateKey' => $privateKey,
+            ],
+        );
+
+        return DriverManager::getConnection(
+            $params,
+            $config,
+        );
+    }
 }

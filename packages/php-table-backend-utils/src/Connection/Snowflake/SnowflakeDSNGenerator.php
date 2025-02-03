@@ -30,6 +30,10 @@ class SnowflakeDSNGenerator
      * to log in again after a period of inactivity in the session
      * @param array{
      *     'host':string,
+     *     'user':string,
+     *     'port'?:string,
+     *     'password'?:string,
+     *     'privateKeyPath'?:string,
      *     'port'?:string,
      *     'warehouse'?:string,
      *     'database'?:string,
@@ -47,13 +51,13 @@ class SnowflakeDSNGenerator
         $requiredOptions = [
             'host',
             'user',
-            'password',
         ];
 
         $allowedOptions = [
             'host',
             'user',
             'password',
+            'privateKeyPath',
             'port',
             'tracing',
             'loginTimeout',
@@ -74,6 +78,14 @@ class SnowflakeDSNGenerator
             throw new DriverException('Missing options: ' . implode(', ', $missingOptions));
         }
 
+        if (!isset($options['password']) && !isset($options['privateKeyPath'])) {
+            throw new DriverException('Either "password" or "privateKeyPath" must be provided.');
+        }
+
+        if (!empty($options['password']) && !empty($options['privateKeyPath'])) {
+            throw new DriverException('Both "password" and "privateKeyPath" cannot be set at the same time.');
+        }
+
         $unknownOptions = array_diff(array_keys($options), $allowedOptions);
         if (!empty($unknownOptions)) {
             throw new DriverException('Unknown options: ' . implode(', ', $unknownOptions));
@@ -85,6 +97,12 @@ class SnowflakeDSNGenerator
         $dsn = 'Driver=SnowflakeDSIIDriver;Server=' . $options['host'];
         $dsn .= ';Port=' . $port;
         $dsn .= ';Tracing=' . $tracing;
+
+        if (isset($options['privateKeyPath'])) {
+            $dsn .= ';AUTHENTICATOR=SNOWFLAKE_JWT';
+            $dsn .= ';PRIV_KEY_FILE=' . $options['privateKeyPath'];
+            $dsn .= ';UID=' . $options['user'];
+        }
 
         if (isset($options['loginTimeout'])) {
             $dsn .= ';Login_timeout=' . (int) $options['loginTimeout'];

@@ -7,3 +7,5 @@ packages/php-table-backend-utils/.terraform
 packages/php-table-backend-utils/big_query_key.json
 packages/php-table-backend-utils/terraform.tfstate
 packages/php-table-backend-utils/terraform.tfstate.backup
+rsa_key.p8
+rsa_key.pub

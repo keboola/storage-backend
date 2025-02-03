@@ -102,6 +102,7 @@ jobs:
       isRequiredRepoChanged: ${{ needs.build.outputs.table-utils-requirements== 'true' }}
     secrets:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
       SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
       SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
       TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
