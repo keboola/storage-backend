@@ -13,9 +13,11 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
+use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use Psr\Log\NullLogger;
 use Tests\Keboola\Db\ImportExportFunctional\ImportExportBaseTest;
 
 class BigqueryBaseTestCase extends ImportExportBaseTest
@@ -54,6 +56,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     {
         return new BigQueryClientWrapper([
             'keyFile' => $this->getBqCredentials(),
+            'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), true),
         ], 'e2e-ie-lib');
     }
 
