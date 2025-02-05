@@ -8,9 +8,11 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use GuzzleHttp\Client;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientHandler;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
+use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use LogicException;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 class BigqueryBaseCase extends TestCase
 {
@@ -94,6 +96,7 @@ class BigqueryBaseCase extends TestCase
             [
                 'keyFile' => $this->getCredentials(),
                 'httpHandler' => new BigQueryClientHandler(new Client()),
+                'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), true),
             ],
             'e2e-utils-lib',
         );
