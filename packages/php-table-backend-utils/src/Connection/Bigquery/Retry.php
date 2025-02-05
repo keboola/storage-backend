@@ -28,7 +28,7 @@ final class Retry
      */
     public static function getRestRetryFunction(LoggerInterface $logger, bool $includeUnauthorized = false): Closure
     {
-        return static function () use ($logger, $includeUnauthorized): Closure {
+        return static function () use ($logger, $includeUnauthorized): Closure|bool {
             // BigQuery client sometimes calls directly restRetryFunction with exception as first argument
             // But in other cases it expects to return callable which accepts exception as first argument
             $argsNum = func_num_args();
