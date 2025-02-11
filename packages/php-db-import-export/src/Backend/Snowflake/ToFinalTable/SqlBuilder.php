@@ -179,12 +179,16 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
-        $insColumns = $sourceTableDefinition->getColumnsNames();
-        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $insColumns, true)
-            && $importOptions->useTimestamp();
+        $sourceColumnNames = $sourceTableDefinition->getColumnsNames();
+        $isTimestampColumnPresentInSource = in_array(
+            ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            $sourceColumnNames,
+            true,
+        );
+        $useTimestamp = !$isTimestampColumnPresentInSource && $importOptions->useTimestamp();
 
         if ($useTimestamp) {
-            $insColumns = array_merge(
+            $sourceColumnNames = array_merge(
                 $sourceTableDefinition->getColumnsNames(),
                 [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             );
@@ -194,6 +198,17 @@ class SqlBuilder
 
         /** @var SnowflakeColumn $sourceColumn */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+            if (!$useTimestamp && $sourceColumn->getColumnName() === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME) {
+                // import _timestamp column from the source
+                $columnsSetSql[] = sprintf(
+                    'CAST(%s AS %s) AS %s',
+                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                    Snowflake::TYPE_TIMESTAMP_NTZ,
+                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
+                );
+                continue;
+            }
+
             // output mapping same tables are required do not convert nulls to empty strings
             if (!$importOptions->isNullManipulationEnabled()) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
@@ -274,13 +289,14 @@ class SqlBuilder
         }
 
         if ($useTimestamp) {
+            // set _timestamp column to current timestamp
             $columnsSetSql[] = SnowflakeQuote::quote($timestamp);
         }
 
         return sprintf(
             'INSERT INTO %s (%s) (SELECT %s FROM %s.%s AS %s)',
             $destinationTable,
-            $this->getColumnsString($insColumns),
+            $this->getColumnsString($sourceColumnNames),
             implode(',', $columnsSetSql),
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),

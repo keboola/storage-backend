@@ -95,40 +95,55 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
         self::assertCount(2, $result);
     }
 
-    private function createStagingTableWithData(bool $includeEmptyValues = false): SnowflakeTableDefinition
-    {
-        $def = $this->getStagingTableDefinition();
+    private function createStagingTableWithData(
+        bool $includeEmptyValues = false,
+        bool $includeTimestamp = false,
+    ): SnowflakeTableDefinition {
+        $def = $this->getStagingTableDefinition($includeTimestamp);
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($def));
 
+        $timestamp = $includeTimestamp ? ',\'2025-01-01 00:00:01\'' : '';
+        $columnsList = '"pk1","pk2","col1","col2"';
+        if ($includeTimestamp) {
+            $columnsList .= ',"_timestamp"';
+        }
         $this->connection->executeStatement(
             sprintf(
-                'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
+                'INSERT INTO %s.%s(%s) VALUES (1,1,\'1\',\'1\'%s)',
                 self::TEST_SCHEMA_QUOTED,
                 self::TEST_STAGING_TABLE_QUOTED,
+                $columnsList,
+                $timestamp,
             ),
         );
         $this->connection->executeStatement(
             sprintf(
-                'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (1,1,\'1\',\'1\')',
+                'INSERT INTO %s.%s(%s) VALUES (1,1,\'1\',\'1\'%s)',
                 self::TEST_SCHEMA_QUOTED,
                 self::TEST_STAGING_TABLE_QUOTED,
+                $columnsList,
+                $timestamp,
             ),
         );
         $this->connection->executeStatement(
             sprintf(
-                'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'2\',\'2\')',
+                'INSERT INTO %s.%s(%s) VALUES (2,2,\'2\',\'2\'%s)',
                 self::TEST_SCHEMA_QUOTED,
                 self::TEST_STAGING_TABLE_QUOTED,
+                $columnsList,
+                $timestamp,
             ),
         );
 
         if ($includeEmptyValues) {
             $this->connection->executeStatement(
                 sprintf(
-                    'INSERT INTO %s.%s("pk1","pk2","col1","col2") VALUES (2,2,\'\',NULL)',
+                    'INSERT INTO %s.%s(%s) VALUES (2,2,\'\',NULL%s)',
                     self::TEST_SCHEMA_QUOTED,
                     self::TEST_STAGING_TABLE_QUOTED,
+                    $columnsList,
+                    $timestamp,
                 ),
             );
         }
@@ -883,6 +898,70 @@ EOD,
             self::assertArrayHasKey('col1', $item);
             self::assertArrayHasKey('col2', $item);
             self::assertArrayHasKey('_timestamp', $item);
+        }
+    }
+
+    public function getInsertAllIntoTargetTableCommandCopyInternalTimestampProvider(): Generator
+    {
+        // this is just demonstration that useTimestamp settings not matter in this case
+        yield 'no useTimestamp' => [false];
+        yield 'with useTimestamp' => [true];
+    }
+
+    /**
+     * @dataProvider getInsertAllIntoTargetTableCommandCopyInternalTimestampProvider
+     */
+    public function testGetInsertAllIntoTargetTableCommandCopyInternalTimestamp(bool $useTimestamp): void
+    {
+        $this->createTestSchema();
+        $destination = $this->createTestTableWithColumns(true);
+        $this->createStagingTableWithData(true, true);
+
+        $fakeStage = new SnowflakeTableDefinition(
+            self::TEST_SCHEMA,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+                SnowflakeColumn::createTimestampColumn(),
+            ]),
+            [],
+        );
+
+        // use timestamp
+        $options = new SnowflakeImportOptions(
+            convertEmptyValuesToNull: ['col1'],
+            isIncremental: false,
+            useTimestamp: $useTimestamp,
+            ignoreColumns: [],
+        );
+        $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $destination,
+            $options,
+            'not-used',
+        );
+        self::assertEquals(
+        // phpcs:ignore
+            'INSERT INTO "import_export_test_schema"."import_export_test_test" ("col1", "col2", "_timestamp") (SELECT IFF("col1" = \'\', NULL, "col1"),COALESCE("col2", \'\') AS "col2",CAST("_timestamp" AS TIMESTAMP_NTZ) AS "_timestamp" FROM "import_export_test_schema"."__temp_stagingTable" AS "src")',
+            $sql,
+        );
+        $out = $this->connection->executeStatement($sql);
+        self::assertEquals(4, $out);
+
+        $result = $this->connection->fetchAllAssociative(sprintf(
+            'SELECT * FROM %s',
+            self::TEST_TABLE_IN_SCHEMA,
+        ));
+
+        foreach ($result as $item) {
+            self::assertArrayHasKey('id', $item);
+            self::assertArrayHasKey('col1', $item);
+            self::assertArrayHasKey('col2', $item);
+            self::assertArrayHasKey('_timestamp', $item);
+            // check that timestamp is not set and it's set statically
+            self::assertSame($item['_timestamp'], '2025-01-01 00:00:01');
         }
     }
 
@@ -2076,18 +2155,22 @@ EOD,
         ], $result);
     }
 
-    private function getStagingTableDefinition(): SnowflakeTableDefinition
+    private function getStagingTableDefinition(bool $includeTimestamp = false): SnowflakeTableDefinition
     {
+        $columns = [
+            $this->createNullableGenericColumn('pk1'),
+            $this->createNullableGenericColumn('pk2'),
+            $this->createNullableGenericColumn('col1'),
+            $this->createNullableGenericColumn('col2'),
+        ];
+        if ($includeTimestamp) {
+            $columns[] = SnowflakeColumn::createTimestampColumn();
+        }
         return new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_STAGING_TABLE,
             true,
-            new ColumnCollection([
-                $this->createNullableGenericColumn('pk1'),
-                $this->createNullableGenericColumn('pk2'),
-                $this->createNullableGenericColumn('col1'),
-                $this->createNullableGenericColumn('col2'),
-            ]),
+            new ColumnCollection($columns),
             [],
         );
     }
