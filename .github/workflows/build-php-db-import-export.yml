@@ -21,14 +21,6 @@ on:
         required: true
       AZURE_CLIENT_SECRET:
         required: true
-      TERADATA_PASSWORD:
-        required: true
-      ABS_TERADATA_PASSWORD:
-        required: true
-      EXASOL_PASSWORD:
-        required: true
-      EXA_SAAS_TOKEN:
-        required: true
       OAUTH_TOKEN_GITHUB:
         required: true
       GCS_CREDENTIALS:
@@ -66,26 +58,6 @@ env:
   SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
   AZURE_RESOURCE_GROUP: ci-import-export-lib
   SYNAPSE_RESOURCE_GROUP: ci-import-export-lib
-  # Teradata
-  TERADATA_HOST: 20.105.40.100
-  TERADATA_USERNAME: ci_ielib
-  TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
-  TERADATA_PORT: 1025
-  TERADATA_DATABASE: ci_ielib
-  # Teradata for ABS
-  ABS_TERADATA_HOST: 20.67.225.211
-  ABS_TERADATA_USERNAME: ci_ielib_abs
-  ABS_TERADATA_PASSWORD: ${{ secrets.ABS_TERADATA_PASSWORD }}
-  ABS_TERADATA_PORT: 1025
-  ABS_TERADATA_DATABASE: ci_ielib_abs
-  # Exasol
-  EXASOL_HOST: 6kdmpm4k3rczxomktqwtt4mz4e.clusters.exasol.com:8563
-  EXASOL_USERNAME: ci_storage_backend_ie
-  EXASOL_PASSWORD: ${{ secrets.EXASOL_PASSWORD }}
-  EXA_SAAS_DB_ID: O7N7G6VbS6acYhvQ1wYOgQ
-  EXA_SAAS_HOST: https://cloud.exasol.com
-  EXA_SAAS_USER_ID: org_W0xrKhY2DEnGwmSO
-  EXA_SAAS_TOKEN: ${{ secrets.EXA_SAAS_TOKEN }}
   # Bigquery
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
   BQ_BUCKET_NAME: ie-ci-files-bucket
