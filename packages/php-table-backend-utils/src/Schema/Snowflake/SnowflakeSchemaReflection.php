@@ -21,6 +21,27 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
 
     private string $schemaName;
 
+    private const TYPE_NEED_FALLBACK = [
+        Snowflake::TYPE_BINARY,
+        Snowflake::TYPE_VARBINARY,
+        Snowflake::TYPE_VECTOR,
+    ];
+    /**
+     * @var array<string, array<string, array{name: string,
+     *      type: string,
+     *      kind: string,
+     *      null?: string,
+     *      default: ?string,
+     *      "primary key": string,
+     *      "unique key": string,
+     *      check: ?string,
+     *      expression: ?string,
+     *      comment: ?string,
+     *      "policy name": ?string,
+     *      "privacy domain": ?string}>>
+     */
+    private array $fallbackTableCache = [];
+
     public function __construct(Connection $connection, string $schemaName)
     {
         $this->schemaName = $schemaName;
@@ -176,7 +197,12 @@ SQL,
             // array{TABLE_NAME: string, name: string, type: string, default: string, null?: string}.
             // @phpstan-ignore-next-line
             $column['null?'] = ($column['null?'] === 'YES' ? 'Y' : 'N');
-            $tables[$tableKey]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
+
+            if (in_array($column['type'], self::TYPE_NEED_FALLBACK, true)) {
+                $tables[$tableKey]['COLUMNS'][] = $this->fallbackColumnType($column['TABLE_NAME'], $column['name']);
+            } else {
+                $tables[$tableKey]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
+            }
         }
 
         foreach ($primaryKeys as $primaryKey) {
@@ -205,5 +231,43 @@ SQL,
             );
         }
         return $definitions;
+    }
+
+    /**
+     * Snowflake does not provide length information for the datatypes listed in
+     * self::TYPE_NEED_FALLBACK in INFORMATION_SCHEMA.COLUMNS (or anywhere else in INFORMATION_SCHEMA).
+     * As a result, we must run DESC TABLE on tables that contain columns of these types in order
+     * to retrieve all the necessary information to properly construct the SnowflakeColumn class.
+     */
+    private function fallbackColumnType(string $tableName, string $columnName): SnowflakeColumn
+    {
+        $tableKey = md5($tableName);
+        if (!array_key_exists($tableKey, $this->fallbackTableCache)) {
+            /**
+             * @var array<array{
+             *     name: string,
+             *     type: string,
+             *     kind: string,
+             *     "null?": string,
+             *     default: ?string,
+             *     "primary key": string,
+             *     "unique key": string,
+             *     check: ?string,
+             *     expression: ?string,
+             *     comment: ?string,
+             *     "policy name": ?string,
+             *     "privacy domain": ?string}> $tableDesc
+             */
+            $tableDesc = $this->connection->fetchAllAssociative(sprintf(
+                'DESC TABLE %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+                SnowflakeQuote::quoteSingleIdentifier($tableName),
+            ));
+            $this->fallbackTableCache[$tableKey] = array_column($tableDesc, null, 'name');
+        }
+
+        // Offset 'null?' does not exist on
+        // @phpstan-ignore-next-line
+        return SnowflakeColumn::createFromDB($this->fallbackTableCache[$tableKey][$columnName]);
     }
 }
