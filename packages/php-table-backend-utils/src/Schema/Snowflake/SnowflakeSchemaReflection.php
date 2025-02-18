@@ -233,6 +233,12 @@ SQL,
         return $definitions;
     }
 
+    /**
+     * Snowflake does not provide length information for the datatypes listed in
+     * self::TYPE_NEED_FALLBACK in INFORMATION_SCHEMA.COLUMNS (or anywhere else in INFORMATION_SCHEMA).
+     * As a result, we must run DESC TABLE on tables that contain columns of these types in order
+     * to retrieve all the necessary information to properly construct the SnowflakeColumn class.
+     */
     private function fallbackColumnType(string $tableName, string $columnName): SnowflakeColumn
     {
         $tableKey = md5($tableName);
