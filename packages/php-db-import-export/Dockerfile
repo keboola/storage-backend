@@ -1,10 +1,5 @@
 ARG PHP_VERSION=8.2.20
 
-FROM quay.io/keboola/aws-cli as td
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_ACCESS_KEY_ID
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
-
 FROM php:${PHP_VERSION:-8.1}-cli-bullseye
 MAINTAINER Keboola <devel@keboola.com>
 
@@ -94,16 +89,6 @@ RUN set -ex; \
     pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
     docker-php-ext-enable sqlsrv pdo_sqlsrv; \
     docker-php-source delete
-
-#Exasol
-COPY --from=0 /tmp/exasol/odbc.tar.gz /tmp/exasol/odbc.tar.gz
-RUN set -ex; \
-    mkdir -p /tmp/exasol/odbc /opt/exasol ;\
-    tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
-    cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
-    echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
-    rm -rf /tmp/exasol;
-
 
 #php odbc
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \

@@ -450,41 +450,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
         run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
-      -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
-        name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
-
-      -
-        name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      -
-        name: Pull image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ci-php-db-import-export-${{ github.sha }}
-          LOCAL_IMAGE: ${{ env.LOCAL_IMAGE }}
-        run: |
-          docker pull $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker tag $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $LOCAL_IMAGE:latest
-      #
-      # TESTS
-      #
-      -
-        name: Tests ${{ matrix.suite }}
-        env:
-          SUITE: ${{ matrix.suite }}
-          AWS_ACCESS_KEY_ID: ${{ env.S3_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.S3_AWS_SECRET_ACCESS_KEY }}
-        run: docker compose run ci-php-db-import-export composer tests-${{ matrix.suite }}
 
 
   #

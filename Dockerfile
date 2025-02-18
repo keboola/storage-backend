@@ -109,32 +109,6 @@ RUN mkdir -p ~/.gnupg \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
 
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/tdodbc1710-17.10.00.08-1.x86_64.deb /tmp/teradata/tdodbc.deb
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/teradata/utils/TeradataToolsAndUtilitiesBase__ubuntu_x8664.17.00.34.00.tar.gz  /tmp/teradata/tdutils.tar.gz
-
-## Teradata
-COPY docker/teradata/odbc.ini /tmp/teradata/odbc_td.ini
-COPY docker/teradata/odbcinst.ini /tmp/teradata/odbcinst_td.ini
-
-RUN dpkg -i /tmp/teradata/tdodbc.deb \
-    && cat /tmp/teradata/odbc_td.ini >> /etc/odbc.ini \
-    && cat /tmp/teradata/odbcinst_td.ini >> /etc/odbcinst.ini \
-    && docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
-    && docker-php-ext-install pdo_odbc \
-    && docker-php-source delete
-
-ENV ODBCHOME = /opt/teradata/client/ODBC_64/
-ENV ODBCINI = /opt/teradata/client/ODBC_64/odbc.ini
-ENV ODBCINST = /opt/teradata/client/ODBC_64/odbcinst.ini
-ENV LD_LIBRARY_PATH = /opt/teradata/client/ODBC_64/lib
-
-# Teradata Utils
-#COPY --from=td /tmp/teradata/tdutils.tar.gz /tmp/teradata/tdutils.tar.gz
-RUN cd /tmp/teradata \
-    && tar -xvaf tdutils.tar.gz \
-    && sh /tmp/teradata/TeradataToolsAndUtilitiesBase/.setup.sh tptbase s3axsmod azureaxsmod \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/teradata
 
 FROM base AS dev
 WORKDIR /code
