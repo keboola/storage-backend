@@ -1,8 +1,3 @@
-FROM quay.io/keboola/aws-cli
-ARG AWS_SECRET_ACCESS_KEY
-ARG AWS_ACCESS_KEY_ID
-RUN /usr/bin/aws s3 cp s3://keboola-drivers/exasol/EXASOL_ODBC-7.1.10.tar.gz /tmp/exasol/odbc.tar.gz
-
 FROM php:8.2.20-cli-bullseye
 MAINTAINER Keboola <devel@keboola.com>
 
@@ -87,14 +82,6 @@ RUN mkdir -p ~/.gnupg \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
 
-#Exasol
-COPY --from=0 /tmp/exasol/odbc.tar.gz /tmp/exasol/odbc.tar.gz
-RUN set -ex; \
-    mkdir -p /tmp/exasol/odbc /opt/exasol ;\
-    tar -xzf /tmp/exasol/odbc.tar.gz -C /tmp/exasol/odbc --strip-components 1; \
-    cp /tmp/exasol/odbc/lib/linux/x86_64/libexaodbc-uo2214lv2.so /opt/exasol/;\
-    echo "\n[exasol]\nDriver=/opt/exasol/libexaodbc-uo2214lv2.so\n" >> /etc/odbcinst.ini;\
-    rm -rf /tmp/exasol;
 
 ## Composer - deps always cached unless changed
 # First copy only composer files
