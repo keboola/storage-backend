@@ -460,6 +460,23 @@ message TableExportToFileResponse {
  * Command is used to remove specific rows from table based on supplied constraints
  */
 message DeleteTableRowsCommand {
+  message WhereRefTableFilter {
+    enum Operator {
+      IN = 0;
+      NOT_IN = 1;
+    }
+
+    string column = 1;
+
+    Operator operator = 3;
+
+    repeated string refPath = 4;
+
+    string refTable = 5;
+
+    string refColumn = 6;
+  }
+
   repeated string path = 1; // path where table is created
   string tableName = 2; // table name
   /**
@@ -474,6 +491,8 @@ message DeleteTableRowsCommand {
   string changeUntil = 4;
 
   repeated ImportExportShared.TableWhereFilter whereFilters = 5;
+
+  repeated WhereRefTableFilter whereRefTableFilters = 6;
 }
 
 /**
