@@ -48,6 +48,10 @@ class DeleteTableRowsCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 5;</code>
      */
     private $whereFilters;
+    /**
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.DeleteTableRowsCommand.WhereRefTableFilter whereRefTableFilters = 6;</code>
+     */
+    private $whereRefTableFilters;
 
     /**
      * Constructor.
@@ -68,6 +72,7 @@ class DeleteTableRowsCommand extends \Google\Protobuf\Internal\Message
      *           export only records changed until time
      *           filter records based on timestamp column
      *     @type array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $whereFilters
+     *     @type array<\Keboola\StorageDriver\Command\Table\DeleteTableRowsCommand\WhereRefTableFilter>|\Google\Protobuf\Internal\RepeatedField $whereRefTableFilters
      * }
      */
     public function __construct($data = NULL) {
@@ -205,6 +210,28 @@ class DeleteTableRowsCommand extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter::class);
         $this->whereFilters = $arr;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.DeleteTableRowsCommand.WhereRefTableFilter whereRefTableFilters = 6;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getWhereRefTableFilters()
+    {
+        return $this->whereRefTableFilters;
+    }
+
+    /**
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.DeleteTableRowsCommand.WhereRefTableFilter whereRefTableFilters = 6;</code>
+     * @param array<\Keboola\StorageDriver\Command\Table\DeleteTableRowsCommand\WhereRefTableFilter>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setWhereRefTableFilters($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\DeleteTableRowsCommand\WhereRefTableFilter::class);
+        $this->whereRefTableFilters = $arr;
 
         return $this;
     }
