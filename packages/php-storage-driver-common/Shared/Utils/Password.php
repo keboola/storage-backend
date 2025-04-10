@@ -46,6 +46,7 @@ final class Password
             // remove excluded characters
             $set = str_replace(str_split($excludeChars), '', $set);
             // pick one random character from each set
+            /* @phpstan-ignore-next-line */
             $password .= $set[random_int(0, count(str_split($set)) - 1)];
             $all .= $set;
         }
@@ -53,6 +54,7 @@ final class Password
         $all = str_split($all);
         while (strlen($password) < $length) {
             // randomize rest of password
+            /* @phpstan-ignore-next-line */
             $password .= $all[random_int(0, count($all) - 1)];
         }
 
