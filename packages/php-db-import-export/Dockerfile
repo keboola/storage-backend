@@ -1,6 +1,6 @@
-ARG PHP_VERSION=8.2.20
+ARG PHP_VERSION=8.3.19
 
-FROM php:${PHP_VERSION:-8.1}-cli-bullseye
+FROM php:${PHP_VERSION:-8.3.19}-cli-bullseye
 MAINTAINER Keboola <devel@keboola.com>
 
 ARG GITHUB_OAUTH_TOKEN

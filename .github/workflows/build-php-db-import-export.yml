@@ -34,7 +34,7 @@ concurrency: build-php-db-import-export
 
 env:
   BUILD_PREFIX: gh
-  PHP_VERSION_E2E: '8.1'
+  PHP_VERSION_E2E: '8.3'
   AWS_CREDENTIALS_REGION: us-east-1
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
   ECR_REPOSITORY: storage-backend-build
@@ -88,7 +88,7 @@ jobs:
       fail-fast: false
       matrix:
         php-version:
-          - '8.1'
+          - '8.3'
     steps:
       -
         name: Checkout
