@@ -46,16 +46,18 @@ final class Password
             // remove excluded characters
             $set = str_replace(str_split($excludeChars), '', $set);
             // pick one random character from each set
-            /* @phpstan-ignore-next-line */
-            $password .= $set[random_int(0, count(str_split($set)) - 1)];
+            $count = count(str_split($set));
+            assert($count >= 1);
+            $password .= $set[random_int(0, $count - 1)];
             $all .= $set;
         }
 
         $all = str_split($all);
         while (strlen($password) < $length) {
             // randomize rest of password
-            /* @phpstan-ignore-next-line */
-            $password .= $all[random_int(0, count($all) - 1)];
+            $count = count($all);
+            assert($count >= 1);
+            $password .= $all[random_int(0, $count - 1)];
         }
 
         // randomize crypto safe final password
