@@ -106,6 +106,7 @@ class Snowflake extends Common
         self::TYPE_GEOMETRY,
         self::TYPE_VECTOR,
     ];
+    public const DEFAULT_VARCHAR_LENGTH = 16777216;
     public const MAX_VARCHAR_LENGTH = 134217728;
     public const MAX_VARBINARY_LENGTH = 8388608;
 
