@@ -1,4 +1,4 @@
-FROM php:8.1.27-cli-bullseye
+FROM php:8.3.19-cli-bullseye
 MAINTAINER Keboola <devel@keboola.com>
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"

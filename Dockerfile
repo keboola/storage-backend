@@ -1,9 +1,8 @@
 # syntax=docker/dockerfile:1.4.0
 
-ARG PHP_VERSION=8.1.27
+ARG PHP_VERSION=8.3.19
 
 FROM php:${PHP_VERSION}-cli-bullseye AS base
-MAINTAINER Keboola <devel@keboola.com>
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -67,7 +66,7 @@ RUN set -ex; \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer
 
-RUN pecl install xdebug-3.1.6 \
+RUN pecl install xdebug \
  && docker-php-ext-enable xdebug
 
 COPY composer.json ./
