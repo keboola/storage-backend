@@ -216,10 +216,10 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('STRING');
         new Snowflake('STRING', ['length' => '']);
         new Snowflake('STRING', ['length' => '1']);
-        new Snowflake('STRING', ['length' => '16777216']);
+        new Snowflake('STRING', ['length' => '134217728']);
         new Snowflake('STRING', [
             'length' => [
-                'character_maximum' => '16777216',
+                'character_maximum' => '134217728',
             ],
         ]);
         new Snowflake('STRING', [
@@ -343,7 +343,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         return [
             ['a'],
             ['0'],
-            ['16777217'],
+            ['134217729'],
             ['-1'],
         ];
     }
