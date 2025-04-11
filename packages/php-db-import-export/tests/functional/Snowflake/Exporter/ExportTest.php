@@ -141,12 +141,8 @@ class ExportTest extends SnowflakeBaseTestCase
 
     public function exportSimpleDataProvider(): Generator
     {
-        yield 'no fractional seconds' => [
-            'features' => [],
-            'expectedFile' => 'with-ts.csv',
-        ];
         yield 'with fractional seconds' => [
-            'features' => ['snowflake-export-fractional-seconds'],
+            'features' => [],
             'expectedFile' => 'with-ts.expected.snflk.fractional.csv',
         ];
     }

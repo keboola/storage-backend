@@ -13,7 +13,6 @@ use Keboola\Db\ImportExport\Storage;
 
 class Exporter implements ExporterInterface
 {
-    public const FEATURE_FRACTIONAL_SECONDS = 'snowflake-export-fractional-seconds';
     public const DEFAULT_ADAPTERS = [
         S3ExportAdapter::class,
         AbsExportAdapter::class,
