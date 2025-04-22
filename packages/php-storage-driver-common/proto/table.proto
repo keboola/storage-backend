@@ -517,3 +517,54 @@ message CreateTableFromTimeTravelCommand {
 
   int64 timestamp = 3; // timestamp to which point we want to restore the table in time
 }
+
+message CreateProfileTableCommand {
+  repeated string path = 1;
+  string tableName = 2;
+}
+
+message CreateProfileTableResponse {
+  message Metric {
+    message Value {
+      enum Type {
+        TYPE_UNKNOWN = 0;
+        TYPE_STRING = 1;
+        TYPE_INTEGER = 2;
+        TYPE_FLOAT = 3;
+        TYPE_BOOLEAN = 4;
+//        TYPE_TIMESTAMP = 9;
+//        TYPE_DATE = 10;
+//        TYPE_TIME = 11;
+//        TYPE_DATETIME = 12;
+      }
+
+      message ArrayValue {
+        repeated string values = 1;
+      }
+
+      message ObjectValue {
+        map<string, string> values = 1;
+      }
+
+      Type type = 1;
+      oneof value {
+        string scalar = 2;
+        ArrayValue array = 3;
+        ObjectValue object = 4;
+      }
+    }
+
+    string name = 1;
+    Value value = 2;
+  }
+
+  message Column {
+    string name = 1;
+    repeated Metric metrics = 2;
+  }
+
+  repeated string path = 1;
+  string tableName = 2;
+  repeated Metric metrics = 3;
+  repeated Column columns = 4;
+}
