@@ -57,7 +57,7 @@ FILE_FORMAT = (
     TIMESTAMP_FORMAT = \'%s\',
     NULL_IF = ()
 )
-MAX_FILE_SIZE=50000000
+MAX_FILE_SIZE=%d
 DETAILED_OUTPUT = TRUE',
             $destination->getGcsPrefix(),
             $destination->getFilePath(),
@@ -65,6 +65,7 @@ DETAILED_OUTPUT = TRUE',
             $destination->getStorageIntegrationName(),
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
             $timestampFormat,
+            Exporter::DEFAULT_SLICE_SIZE,
         );
 
         /** @var array<array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string}> $unloadedFiles */
