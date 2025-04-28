@@ -75,7 +75,10 @@ EOT,
             $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
         );
 
-        $unloadedFiles = $this->connection->fetchAll($sql, $source->getQueryBindings());
+        $this->connection->query($sql, $source->getQueryBindings());
+
+        /** @var array<array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string}> $unloadedFiles */
+        $unloadedFiles = $this->connection->fetchAll('select * from table(result_scan(last_query_id()));');
 
         if ($exportOptions->generateManifest()) {
             (new Storage\S3\ManifestGenerator\S3SlicedManifestFromUnloadQueryResultGenerator($destination->getClient()))

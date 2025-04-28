@@ -66,8 +66,10 @@ DETAILED_OUTPUT = TRUE',
             Exporter::DEFAULT_SLICE_SIZE,
         );
 
+        $this->connection->executeQuery($sql, $source->getQueryBindings());
+
         /** @var array<array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string}> $unloadedFiles */
-        $unloadedFiles = $this->connection->fetchAllAssociative($sql, $source->getQueryBindings());
+        $unloadedFiles = $this->connection->fetchAllAssociative('select * from table(result_scan(last_query_id()));');
 
         if ($exportOptions->generateManifest()) {
             (new Storage\ABS\ManifestGenerator\AbsSlicedManifestFromUnloadQueryResultGenerator(
