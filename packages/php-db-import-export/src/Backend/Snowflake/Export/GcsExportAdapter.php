@@ -68,7 +68,6 @@ DETAILED_OUTPUT = TRUE',
             Exporter::DEFAULT_SLICE_SIZE,
         );
 
-
         $this->connection->executeQuery($sql, $source->getQueryBindings());
 
         /** @var array<array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string}> $unloadedFiles */

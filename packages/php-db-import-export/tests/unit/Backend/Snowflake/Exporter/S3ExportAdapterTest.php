@@ -60,7 +60,8 @@ EOT
             [],
         );
 
-        $conn->expects(self::once())->method('fetchAllAssociative')->with('select * from table(result_scan(last_query_id()));')
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            ->with('select * from table(result_scan(last_query_id()));')
             ->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
@@ -124,7 +125,8 @@ EOT
             [],
         );
 
-        $conn->expects(self::once())->method('fetchAllAssociative')->with('select * from table(result_scan(last_query_id()));')
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            ->with('select * from table(result_scan(last_query_id()));')
             ->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
@@ -188,7 +190,8 @@ EOT
             [],
         );
 
-        $conn->expects(self::once())->method('fetchAllAssociative')->with('select * from table(result_scan(last_query_id()));')
+        $conn->expects(self::once())->method('fetchAllAssociative')
+            ->with('select * from table(result_scan(last_query_id()));')
             ->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
