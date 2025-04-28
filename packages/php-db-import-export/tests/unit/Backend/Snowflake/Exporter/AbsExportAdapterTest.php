@@ -30,7 +30,7 @@ class AbsExportAdapterTest extends BaseTestCase
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
-        $conn->expects(self::once())->method('fetchAllAssociative')->with(
+        $conn->expects(self::once())->method('executeQuery')->with(
             <<<EOT
 COPY INTO 'containerUrl' 
 FROM (SELECT * FROM "schema"."table")
@@ -48,7 +48,10 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             [],
-        )->willReturn($expectedCopyResult);
+        );
+
+        $conn->expects(self::once())->method('fetchAllAssociative')->with('select * from table(result_scan(last_query_id()));')
+            ->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
@@ -81,7 +84,7 @@ EOT
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
-        $conn->expects(self::once())->method('fetchAllAssociative')->with(
+        $conn->expects(self::once())->method('executeQuery')->with(
             <<<EOT
 COPY INTO 'containerUrl' 
 FROM (SELECT * FROM "schema"."table")
@@ -99,7 +102,10 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             [],
-        )->willReturn($expectedCopyResult);
+        );
+
+        $conn->expects(self::once())->method('fetchAllAssociative')->with('select * from table(result_scan(last_query_id()));')
+            ->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions(true, ExportOptions::MANIFEST_SKIP);
@@ -132,7 +138,7 @@ EOT
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
-        $conn->expects(self::once())->method('fetchAllAssociative')->with(
+        $conn->expects(self::once())->method('executeQuery')->with(
             <<<EOT
 COPY INTO 'containerUrl' 
 FROM (SELECT * FROM "schema"."table")
@@ -150,7 +156,10 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             [],
-        )->willReturn($expectedCopyResult);
+        );
+
+        $conn->expects(self::once())->method('fetchAllAssociative')->with('select * from table(result_scan(last_query_id()));')
+            ->willReturn($expectedCopyResult);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."table"');
         $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);

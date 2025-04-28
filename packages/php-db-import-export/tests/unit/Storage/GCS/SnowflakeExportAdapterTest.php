@@ -22,7 +22,7 @@ class SnowflakeExportAdapterTest extends BaseTestCase
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
-        $conn->expects(self::once())->method('fetchAll')->with(
+        $conn->expects(self::once())->method('query')->with(
             <<<EOT
 COPY INTO 'bucket/xxx/path'
 FROM (SELECT * FROM "schema"."table")
@@ -39,7 +39,10 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             [],
-        )->willReturn([]);
+        );
+
+        $conn->expects(self::once())->method('fetchAll')->with('select * from table(result_scan(last_query_id()));')
+            ->willReturn([]);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
@@ -65,7 +68,7 @@ EOT
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
-        $conn->expects(self::once())->method('fetchAll')->with(
+        $conn->expects(self::once())->method('query')->with(
             <<<EOT
 COPY INTO 'bucket/test/file'
 FROM (SELECT * FROM "schema"."table")
@@ -82,7 +85,10 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             [],
-        )->willReturn([]);
+        );
+
+        $conn->expects(self::once())->method('fetchAll')->with('select * from table(result_scan(last_query_id()));')
+            ->willReturn([]);
 
         $source = new Storage\Snowflake\Table('schema', 'table');
         $options = new ExportOptions(true, ExportOptions::MANIFEST_SKIP);
@@ -108,7 +114,7 @@ EOT
 
         /** @var Connection|MockObject $conn */
         $conn = $this->createMock(Connection::class);
-        $conn->expects(self::once())->method('fetchAll')->with(
+        $conn->expects(self::once())->method('query')->with(
             <<<EOT
 COPY INTO 'bucket/test/file'
 FROM (SELECT * FROM "schema"."tableName")
@@ -125,7 +131,10 @@ DETAILED_OUTPUT = TRUE
 EOT
             ,
             [],
-        )->willReturn([]);
+        );
+
+        $conn->expects(self::once())->method('fetchAll')->with('select * from table(result_scan(last_query_id()));')
+            ->willReturn([]);
 
         $source = new Storage\Snowflake\SelectSource('SELECT * FROM "schema"."tableName"');
         $options = new ExportOptions(false, ExportOptions::MANIFEST_SKIP);
