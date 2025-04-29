@@ -10,7 +10,9 @@ use Google\Cloud\Storage\Bucket;
 use Google\Cloud\Storage\ObjectIterator;
 use Google\Cloud\Storage\StorageClient;
 use Google\Cloud\Storage\StorageObject;
+use Google\Cloud\Storage\WriteStream;
 use Keboola\Db\ImportExport\Storage\GCS\ManifestGenerator\GcsSlicedManifestFromFolderGenerator;
+use Keboola\Db\ImportExport\Storage\GCS\ManifestGenerator\WriteStreamFactory;
 use Keboola\Db\ImportExport\Storage\SlicedManifestGeneratorInterface;
 use Keboola\FileStorage\Gcs\GcsProvider;
 use Keboola\FileStorage\Path\RelativePath;
@@ -21,6 +23,9 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
 {
     public function testGenerateAndSaveManifest(): void
     {
+        $writeStreamMock = $this->createMock(WriteStream::class);
+        $writeStreamFactory = $this->createMock(WriteStreamFactory::class);
+        $writeStreamFactory->method('createWriteStream')->willReturn($writeStreamMock);
         $streamableUploaderMock = $this->getMockBuilder(StreamableUploader::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -47,10 +52,12 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
         $bucket->expects($this->exactly(2))
             ->method('name')
             ->willReturn('bucket1');
-
-        $bucket->expects($this->once())->method('getStreamableUploader')
-            ->willReturn($streamableUploaderMock);
-
+        $bucket->method('getStreamableUploader')->willReturnCallback(
+            function (WriteStream $w, array $o) use ($streamableUploaderMock) {
+                self::assertSame(['name' => 'prefix/xxxmanifest'], $o);
+                return $streamableUploaderMock;
+            },
+        );
         $clientMock = $this->createMock(StorageClient::class);
         $clientMock
             ->expects($this->once())
@@ -60,8 +67,20 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
 
         $path = RelativePath::createFromRootAndPath(new GcsProvider(), 'bucket1', 'prefix/xxx');
 
-        $generator = new GcsSlicedManifestFromFolderGenerator($clientMock);
+        $writtenData = '';
+        $writeStreamMock->method('write')->willReturnCallback(function (string $data) use (&$writtenData) {
+            $writtenData .= $data;
+            return 0;
+        });
+
+        $generator = new GcsSlicedManifestFromFolderGenerator($clientMock, $writeStreamFactory);
         $generator->generateAndSaveManifest($path);
+
+        $this->assertSame(
+        //phpcs:ignore
+            '{"entries":[{"url":"gs:\\/\\/bucket1\\/prefix\\/xxx\\/obj1_000000.csv","mandatory":true},{"url":"gs:\\/\\/bucket1\\/prefix\\/xxx\\/obj2_000000.csv","mandatory":true}]}',
+            $writtenData,
+        );
 
         $this->assertInstanceOf(SlicedManifestGeneratorInterface::class, $generator);
     }
