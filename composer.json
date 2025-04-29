@@ -15,7 +15,7 @@
         "ext-pdo": "*",
         "google/cloud-bigquery": "^1.23",
         "google/cloud-storage": "^1.27",
-        "google/protobuf": "^3.21",
+        "google/protobuf": "v4.31.0RC1",
         "keboola/common-exceptions": "^1",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^6",
@@ -80,5 +80,7 @@
             "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

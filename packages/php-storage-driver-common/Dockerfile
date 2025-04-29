@@ -31,7 +31,7 @@ ENV LC_ALL=en_US.UTF-8
 RUN mkdir -p /tmp/protoc && \
     curl -sSLf \
     -o /tmp/protoc/protoc.zip \
-    https://github.com/protocolbuffers/protobuf/releases/download/v23.4/protoc-23.4-linux-x86_64.zip && \
+    https://github.com/protocolbuffers/protobuf/releases/download/v31.0-rc1/protoc-31.0-rc-1-linux-x86_64.zip && \
     unzip /tmp/protoc/protoc.zip -d /tmp/protoc && \
     mv /tmp/protoc/bin/protoc /usr/local/bin && \
     mv /tmp/protoc/include/google /usr/local/include && \
