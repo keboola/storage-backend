@@ -146,7 +146,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         // Verify the SQL contains the CREATE OR REPLACE TABLE statement
         self::assertStringContainsString(
             'CREATE OR REPLACE TABLE',
-            $sql
+            $sql,
         );
 
         // Verify the SQL contains the source table
@@ -154,9 +154,9 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
             sprintf(
                 '%s.%s',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE)
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_STAGING_TABLE),
             ),
-            $sql
+            $sql,
         );
 
         // Verify the SQL contains the destination table
@@ -164,9 +164,9 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
             sprintf(
                 '%s.%s',
                 SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE)
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_TABLE),
             ),
-            $sql
+            $sql,
         );
 
         // Verify the SQL contains the timestamp column
@@ -179,7 +179,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationDef->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
         ));
 
         self::assertCount(4, $result);
@@ -196,7 +196,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $this->connection->executeStatement(sprintf(
             'INSERT INTO %s.%s VALUES (\'\', \'\')',
             SnowflakeQuote::quoteSingleIdentifier($stagingDef->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($stagingDef->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($stagingDef->getTableName()),
         ));
 
         // Test with convertEmptyValuesToNull option
@@ -211,7 +211,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $result = $this->connection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationDef->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
         ));
 
         self::assertCount(5, $result);

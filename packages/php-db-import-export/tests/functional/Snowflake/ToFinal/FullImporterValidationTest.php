@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
+use Keboola\Datatype\Definition\Exception\InvalidLengthException;
+use Keboola\Datatype\Definition\Exception\InvalidOptionException;
+use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
@@ -29,6 +32,14 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         $this->createSchema(self::TEST_SCHEMA);
     }
 
+    /**
+     * @param array<array{name: string, type?: string, length?: string, nullable?: bool}> $columns
+     * @param string[] $primaryKeys
+     * @return SnowflakeTableDefinition
+     * @throws InvalidLengthException
+     * @throws InvalidOptionException
+     * @throws InvalidTypeException
+     */
     private function createStagingTableDefinition(array $columns, array $primaryKeys = []): SnowflakeTableDefinition
     {
         $columnDefinitions = [];
@@ -40,8 +51,8 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                     [
                         'length' => $column['length'] ?? '50',
                         'nullable' => $column['nullable'] ?? true,
-                    ]
-                )
+                    ],
+                ),
             );
         }
 
@@ -50,10 +61,18 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             self::TEST_STAGING_TABLE,
             true,
             new ColumnCollection($columnDefinitions),
-            $primaryKeys
+            $primaryKeys,
         );
     }
 
+    /**
+     * @param array<array{name: string, type?: string, length?: string, nullable?: bool}> $columns
+     * @param string[] $primaryKeys
+     * @return SnowflakeTableDefinition
+     * @throws InvalidLengthException
+     * @throws InvalidOptionException
+     * @throws InvalidTypeException
+     */
     private function createDestinationTableDefinition(array $columns, array $primaryKeys = []): SnowflakeTableDefinition
     {
         $columnDefinitions = [];
@@ -65,8 +84,8 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                     [
                         'length' => $column['length'] ?? '50',
                         'nullable' => $column['nullable'] ?? true,
-                    ]
-                )
+                    ],
+                ),
             );
         }
 
@@ -75,7 +94,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             self::TEST_DESTINATION_TABLE,
             false,
             new ColumnCollection($columnDefinitions),
-            $primaryKeys
+            $primaryKeys,
         );
     }
 
@@ -93,7 +112,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($stagingDef);
 
@@ -103,7 +122,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($destinationDef);
 
@@ -117,17 +136,17 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'] // Enable CTAS feature
+            ['ctas-om'], // Enable CTAS feature
         );
-        
+
         // This should not throw an exception
         $result = $importer->importToTable(
             $stagingDef,
             $destinationDef,
             $options,
-            new ImportState()
+            new ImportState('testTable'),
         );
-        
+
         // Verify the import was successful
         self::assertNotNull($result);
     }
@@ -140,7 +159,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($stagingDef);
 
@@ -151,7 +170,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col2'],
                 ['name' => 'col3'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($destinationDef);
 
@@ -165,18 +184,18 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'] // Enable CTAS feature
+            ['ctas-om'], // Enable CTAS feature
         );
-        
+
         // This should throw an exception about column count mismatch
         $this->expectException(SnowflakeException::class);
         $this->expectExceptionMessage('Column count mismatch between staging (2) and destination (3) tables');
-        
+
         $importer->importToTable(
             $stagingDef,
             $destinationDef,
             $options,
-            new ImportState()
+            new ImportState('testTable'),
         );
     }
 
@@ -188,7 +207,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($stagingDef);
 
@@ -198,7 +217,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'different_col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($destinationDef);
 
@@ -212,18 +231,18 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'] // Enable CTAS feature
+            ['ctas-om'], // Enable CTAS feature
         );
-        
+
         // This should throw an exception about column names mismatch
         $this->expectException(SnowflakeException::class);
         $this->expectExceptionMessage('Column names do not match between staging and destination tables');
-        
+
         $importer->importToTable(
             $stagingDef,
             $destinationDef,
             $options,
-            new ImportState()
+            new ImportState('testTable'),
         );
     }
 
@@ -235,7 +254,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($stagingDef);
 
@@ -245,7 +264,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'col2'],
             ],
-            ['col1', 'col2']
+            ['col1', 'col2'],
         );
         $this->createTableFromDefinition($destinationDef);
 
@@ -259,18 +278,18 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'] // Enable CTAS feature
+            ['ctas-om'], // Enable CTAS feature
         );
-        
+
         // This should throw an exception about primary keys mismatch
         $this->expectException(SnowflakeException::class);
         $this->expectExceptionMessage('Primary keys do not match between staging and destination tables');
-        
+
         $importer->importToTable(
             $stagingDef,
             $destinationDef,
             $options,
-            new ImportState()
+            new ImportState('testTable'),
         );
     }
 
@@ -282,7 +301,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1', 'type' => Snowflake::TYPE_VARCHAR],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($stagingDef);
 
@@ -292,7 +311,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1', 'type' => Snowflake::TYPE_NUMBER],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($destinationDef);
 
@@ -306,18 +325,20 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'] // Enable CTAS feature
+            ['ctas-om'], // Enable CTAS feature
         );
-        
+
         // This should throw an exception about data type mismatch
         $this->expectException(SnowflakeException::class);
-        $this->expectExceptionMessage('Data type mismatch for column col1: staging has VARCHAR, destination has NUMBER');
-        
+        $this->expectExceptionMessage(
+            'Data type mismatch for column col1: staging has VARCHAR, destination has NUMBER',
+        );
+
         $importer->importToTable(
             $stagingDef,
             $destinationDef,
             $options,
-            new ImportState()
+            new ImportState('testTable'),
         );
     }
 
@@ -329,7 +350,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col1'],
                 ['name' => 'col2'],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($stagingDef);
 
@@ -340,7 +361,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 ['name' => 'col2'],
                 ['name' => '_timestamp', 'type' => Snowflake::TYPE_TIMESTAMP_NTZ],
             ],
-            ['col1']
+            ['col1'],
         );
         $this->createTableFromDefinition($destinationDef);
 
@@ -354,17 +375,17 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'] // Enable CTAS feature
+            ['ctas-om'], // Enable CTAS feature
         );
-        
+
         // This should not throw an exception because _timestamp is handled specially
         $result = $importer->importToTable(
             $stagingDef,
             $destinationDef,
             $options,
-            new ImportState()
+            new ImportState('testTable'),
         );
-        
+
         // Verify the import was successful
         self::assertNotNull($result);
     }

@@ -307,22 +307,29 @@ class SqlBuilder
         SnowflakeTableDefinition $sourceTableDefinition,
         SnowflakeTableDefinition $destinationTableDefinition,
     ): string {
-
+        $timestampColumn = '';
+        // todo check also timestamp data type
+        if (!in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $sourceTableDefinition->getColumnsNames())) {
+            $timestampColumn = sprintf(
+                'current_timestamp() AS %s',
+                SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+            );
+        }
         // Add the _timestamp column
-        $timestampColumn = sprintf('current_timestamp() AS %s', SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME));
+
 
         // Build the source table reference
         $sourceTable = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
         );
 
         // Build the destination table reference
         $destinationTable = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
+            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
         // Create the CTAS command
@@ -330,7 +337,7 @@ class SqlBuilder
             'CREATE OR REPLACE TABLE %s AS SELECT *,%s FROM %s',
             $destinationTable,
             $timestampColumn,
-            $sourceTable
+            $sourceTable,
         );
     }
 
