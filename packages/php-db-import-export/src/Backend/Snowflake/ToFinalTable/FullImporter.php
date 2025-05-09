@@ -40,8 +40,8 @@ final class FullImporter implements ToFinalTableImporterInterface
         SnowflakeTableDefinition $stagingTableDefinition,
         SnowflakeTableDefinition $destinationTableDefinition,
         SnowflakeImportOptions $options,
-        ImportState $state
-    ) {
+        ImportState $state,
+    ): void {
         // Check if staging and destination definitions match in terms of columns, datatypes, and primary keys
         $this->validateTableDefinitionsMatch($stagingTableDefinition, $destinationTableDefinition);
 
@@ -63,14 +63,14 @@ final class FullImporter implements ToFinalTableImporterInterface
      */
     private function validateTableDefinitionsMatch(
         SnowflakeTableDefinition $stagingTableDefinition,
-        SnowflakeTableDefinition $destinationTableDefinition
+        SnowflakeTableDefinition $destinationTableDefinition,
     ): void {
         // Compare column names
         $stagingColumns = $stagingTableDefinition->getColumnsNames();
         $destinationColumns = $destinationTableDefinition->getColumnsNames();
 
         // Filter out the _timestamp column if it exists in the destination
-        $destinationColumnsFiltered = array_filter($destinationColumns, function($column) {
+        $destinationColumnsFiltered = array_filter($destinationColumns, function ($column) {
             return $column !== ToStageImporterInterface::TIMESTAMP_COLUMN_NAME;
         });
 
@@ -79,7 +79,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             throw new SnowflakeException(sprintf(
                 'Column count mismatch between staging (%d) and destination (%d) tables',
                 count($stagingColumns),
-                count($destinationColumnsFiltered)
+                count($destinationColumnsFiltered),
             ));
         }
 
@@ -119,7 +119,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             if ($destinationColumn === null) {
                 throw new SnowflakeException(sprintf(
                     'Column %s exists in staging but not in destination',
-                    $stagingColumnName
+                    $stagingColumnName,
                 ));
             }
 
@@ -130,7 +130,7 @@ final class FullImporter implements ToFinalTableImporterInterface
                     'Data type mismatch for column %s: staging has %s, destination has %s',
                     $stagingColumnName,
                     $stagingColumnType,
-                    $destinationColumnType
+                    $destinationColumnType,
                 ));
             }
         }
@@ -148,15 +148,14 @@ final class FullImporter implements ToFinalTableImporterInterface
         /** @var SnowflakeTableDefinition $destinationTableDefinition */
         try {
             //import files to staging table
-            if(in_array('ctas-om', $options->features())) {
+            if (in_array('ctas-om', $options->features())) {
                 $this->doFullLoadWithCTAS(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
                     $options,
                     $state,
                 );
-            }
-            else if (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
+            } elseif (!empty($destinationTableDefinition->getPrimaryKeysNames())) {
                 $this->doFullLoadWithDedup(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
