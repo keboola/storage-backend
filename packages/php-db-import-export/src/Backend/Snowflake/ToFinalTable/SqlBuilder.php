@@ -315,9 +315,6 @@ class SqlBuilder
                 SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
             );
         }
-        // Add the _timestamp column
-
-
         // Build the source table reference
         $sourceTable = sprintf(
             '%s.%s',
