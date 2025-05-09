@@ -82,7 +82,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 new Snowflake(
                     $column['type'] ?? Snowflake::TYPE_VARCHAR,
                     [
-                        'length' => $column['length'] ?? '50',
+                        'length' => $column['length'] ?? 30,
                         'nullable' => $column['nullable'] ?? true,
                     ],
                 ),
@@ -184,7 +184,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'], // Enable CTAS feature
+            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about column count mismatch
@@ -231,7 +231,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'], // Enable CTAS feature
+            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about column names mismatch
@@ -278,7 +278,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'], // Enable CTAS feature
+            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about primary keys mismatch
@@ -325,7 +325,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'], // Enable CTAS feature
+            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about data type mismatch
@@ -359,7 +359,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             [
                 ['name' => 'col1'],
                 ['name' => 'col2'],
-                ['name' => '_timestamp', 'type' => Snowflake::TYPE_TIMESTAMP_NTZ],
+                ['name' => '_timestamp', 'type' => Snowflake::TYPE_TIMESTAMP_NTZ, 'length' => '9'],
             ],
             ['col1'],
         );
@@ -375,7 +375,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'], // Enable CTAS feature
+            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should not throw an exception because _timestamp is handled specially
