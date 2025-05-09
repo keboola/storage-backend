@@ -82,7 +82,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
                 new Snowflake(
                     $column['type'] ?? Snowflake::TYPE_VARCHAR,
                     [
-                        'length' => $column['length'] ?? 30,
+                        'length' => $column['length'] ?? '30',
                         'nullable' => $column['nullable'] ?? true,
                     ],
                 ),
