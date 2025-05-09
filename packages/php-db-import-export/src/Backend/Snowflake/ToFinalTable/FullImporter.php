@@ -50,8 +50,6 @@ final class FullImporter implements ToFinalTableImporterInterface
             $this->sqlBuilder->getCTASInsertAllIntoTargetTableCommand(
                 $stagingTableDefinition,
                 $destinationTableDefinition,
-                $options,
-                DateTimeHelper::getNowFormatted(),
             ),
         );
         $state->stopTimer(self::TIMER_CTAS_LOAD);

@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
 use Keboola\Datatype\Definition\Snowflake;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
-use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -143,8 +141,6 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $stagingDef,
             $destinationDef,
-            new SnowflakeImportOptions(),
-            '2023-01-01 00:00:00'
         );
 
         // Verify the SQL contains the CREATE OR REPLACE TABLE statement
@@ -174,13 +170,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         );
 
         // Verify the SQL contains the timestamp column
-        self::assertStringContainsString(
-            sprintf(
-                '\'2023-01-01 00:00:00\' AS %s',
-                SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME)
-            ),
-            $sql
-        );
+        self::assertStringContainsString('current_timestamp() AS "_timestamp"', $sql);
 
         // Execute the SQL to verify it works
         $this->connection->executeStatement($sql);
@@ -194,7 +184,6 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
 
         self::assertCount(4, $result);
         self::assertArrayHasKey('_timestamp', $result[0]);
-        self::assertEquals('2023-01-01 00:00:00.000', $result[0]['_timestamp']);
     }
 
     public function testGetCTASInsertAllIntoTargetTableCommandWithConvertEmptyValuesToNull(): void
@@ -214,28 +203,19 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $stagingDef,
             $destinationDef,
-            new SnowflakeImportOptions(['col1', 'col2']),
-            '2023-01-01 00:00:00'
         );
-
-        // Verify the SQL contains the IFF function for converting empty values to NULL
-        self::assertStringContainsString(
-            'IFF("col1" = \'\', NULL, "col1")',
-            $sql
-        );
-
         // Execute the SQL to verify it works
         $this->connection->executeStatement($sql);
 
         // Verify the empty values were converted to NULL
         $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.%s WHERE "col1" IS NULL',
+            'SELECT * FROM %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationDef->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName())
         ));
 
-        self::assertCount(1, $result);
-        self::assertNull($result[0]['col1']);
-        self::assertNull($result[0]['col2']);
+        self::assertCount(5, $result);
+        self::assertEquals($result[4]['col1'], '');
+        self::assertEquals($result[4]['col2'], '');
     }
 }

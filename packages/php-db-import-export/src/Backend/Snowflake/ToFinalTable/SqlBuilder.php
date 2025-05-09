@@ -306,76 +306,32 @@ class SqlBuilder
     public function getCTASInsertAllIntoTargetTableCommand(
         SnowflakeTableDefinition $sourceTableDefinition,
         SnowflakeTableDefinition $destinationTableDefinition,
-        SnowflakeImportOptions $importOptions,
-        string $timestamp,
     ): string {
-        // Build the column list for the SELECT part of the CTAS
-        $columnsSetSql = [];
-        
-        /** @var SnowflakeColumn $sourceColumn */
-        foreach ($sourceTableDefinition->getColumnsDefinitions() as $sourceColumn) {
-            // Handle column transformations similar to getInsertAllIntoTargetTableCommand
-            if (!$importOptions->isNullManipulationEnabled()) {
-                $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
-                continue;
-            }
-            
-            // Input mapping convert empty values to null
-            if (in_array($sourceColumn->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
-                // Use nullif only for string base type
-                if ($sourceColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
-                    $columnsSetSql[] = sprintf(
-                        'IFF(%s = \'\', NULL, %s)',
-                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                        SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
-                    );
-                    continue;
-                }
-                // If tables is not typed column could be other than string in this case we skip conversion
-                $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
-                continue;
-            }
-            
-            // For string base type convert null values to empty string ''
-            if (!$importOptions->usingUserDefinedTypes() && $sourceColumn->getColumnDefinition()->getBasetype() === BaseType::STRING) {
-                $columnsSetSql[] = sprintf(
-                    'COALESCE(%s, \'\') AS %s',
-                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName()),
-                    SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName())
-                );
-                continue;
-            }
-            
-            // On columns other than string don't use COALESCE
-            $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
-        }
-        
+
         // Add the _timestamp column
-        $columnsSetSql[] = sprintf('\'%s\' AS %s', $timestamp, SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME));
-        
+        $timestampColumn = sprintf('current_timestamp() AS %s', SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME));
+
         // Build the source table reference
         $sourceTable = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName())
         );
-        
+
         // Build the destination table reference
         $destinationTable = sprintf(
             '%s.%s',
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName())
         );
-        
+
         // Create the CTAS command
-        $ctasSql = sprintf(
-            'CREATE OR REPLACE TABLE %s AS SELECT %s FROM %s',
+        return sprintf(
+            'CREATE OR REPLACE TABLE %s AS SELECT *,%s FROM %s',
             $destinationTable,
-            implode(', ', $columnsSetSql),
+            $timestampColumn,
             $sourceTable
         );
-        
-        return $ctasSql;
     }
 
     public function getUpdateWithPkCommand(
