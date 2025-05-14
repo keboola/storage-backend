@@ -13,7 +13,7 @@
         "ext-json": "*",
         "ext-odbc": "*",
         "ext-pdo": "*",
-        "doctrine/dbal": "^3.3",
+        "doctrine/dbal": "^3.3|^4.0",
         "google/cloud-bigquery": "^1.23",
         "keboola/common-exceptions": "^1",
         "keboola/php-datatypes": ">=8",
