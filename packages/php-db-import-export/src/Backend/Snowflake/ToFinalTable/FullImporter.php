@@ -77,7 +77,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         // Check if column counts match (excluding _timestamp)
         if (count($stagingColumns) !== count($destinationColumnsFiltered)) {
             throw new SnowflakeException(sprintf(
-                'Column count mismatch between staging (%d) and destination (%d) tables',
+                'Column count mismatch between staging ("%d") and destination ("%d") tables',
                 count($stagingColumns),
                 count($destinationColumnsFiltered),
             ));
@@ -87,7 +87,12 @@ final class FullImporter implements ToFinalTableImporterInterface
         sort($stagingColumns);
         sort($destinationColumnsFiltered);
         if ($stagingColumns !== $destinationColumnsFiltered) {
-            throw new SnowflakeException('Column names do not match between staging and destination tables');
+            throw new SnowflakeException(spritnf(
+                'Column names do not match between staging and destination tables. Staging: "%s", Destination: "%s"',
+                implode(',', $stagingColumns),
+                implode(',', $destinationColumnsFiltered),
+            ),
+            );
         }
 
         // Compare primary keys
@@ -96,7 +101,13 @@ final class FullImporter implements ToFinalTableImporterInterface
         sort($stagingPrimaryKeys);
         sort($destinationPrimaryKeys);
         if ($stagingPrimaryKeys !== $destinationPrimaryKeys) {
-            throw new SnowflakeException('Primary keys do not match between staging and destination tables');
+            throw new SnowflakeException(
+                sprintf(
+                    'Primary keys do not match between source and destination tables. Source: "%s", Destination: "%s"',
+                    implode(',', $stagingPrimaryKeys),
+                    implode(',', $destinationPrimaryKeys),
+                ),
+            );
         }
 
         // Compare column data types
@@ -118,7 +129,7 @@ final class FullImporter implements ToFinalTableImporterInterface
 
             if ($destinationColumn === null) {
                 throw new SnowflakeException(sprintf(
-                    'Column %s exists in staging but not in destination',
+                    'Column "%s" exists in staging but not in destination',
                     $stagingColumnName,
                 ));
             }
@@ -127,7 +138,7 @@ final class FullImporter implements ToFinalTableImporterInterface
             $destinationColumnType = $destinationColumn->getColumnDefinition()->getType();
             if ($stagingColumnType !== $destinationColumnType) {
                 throw new SnowflakeException(sprintf(
-                    'Data type mismatch for column %s: staging has %s, destination has %s',
+                    'Data type mismatch for column "%s": staging has "%s", destination has "%s"',
                     $stagingColumnName,
                     $stagingColumnType,
                     $destinationColumnType,
