@@ -517,3 +517,20 @@ message CreateTableFromTimeTravelCommand {
 
   int64 timestamp = 3; // timestamp to which point we want to restore the table in time
 }
+
+message CreateProfileTableCommand {
+  repeated string path = 1;
+  string tableName = 2;
+}
+
+message CreateProfileTableResponse {
+  message Column {
+    string name = 1;
+    string profile = 2;
+  }
+
+  repeated string path = 1;
+  string tableName = 2;
+  string profile = 3;
+  repeated Column columns = 4;
+}
