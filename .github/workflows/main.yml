@@ -186,7 +186,7 @@ jobs:
           - name: 'php-storage-driver-snowflake'
             path: 'packages/php-storage-driver-snowflake'
             repo: 'git@github.com:keboola/php-storage-driver-snowflake'
-            lastTag: ''
+            lastTag: 'v0.0.1'
             sshKey: 'PHP_STORAGE_DRIVER_SNOWFLAKE_SSH_PRIVATE_KEY'
     steps:
       - name: Checkout
