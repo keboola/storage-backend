@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package keboola.storageDriver.command.executeQuery;
+
+message ExecuteQueryCommand {
+  // will tell driver which path to use for query execution
+  // this must scope query execution to specific path, so driver can use correct credentials
+  repeated string pathRestriction = 1;
+  uint32 timeout = 2; // timeout in seconds for the query execution
+  string query = 3; // SQL query to be executed
+
+  // Snowflake specific restriction which will tell driver to call USE ROLE
+  message SnowflakeRole {
+    string roleName = 1; // name of the role to be used in Snowflake
+  }
+
+  // BigQuery specific restriction which will tell driver to use different service account
+  message BigQueryServiceAccount {
+    string serviceAccountEmail = 1; // email of the service account to be used in BigQuery
+    string projectId = 2; // project id where the service account is located
+  }
+
+  // Restriction for the query execution
+  oneof restriction {
+    SnowflakeRole snowflakeRole = 4;
+    BigQueryServiceAccount bigQueryServiceAccount = 5;
+  }
+}
+
+message ExecuteQueryResponse {
+  Status status = 1;
+  enum Status {
+    Success = 0;
+    Error = 1;
+  }
+  message Data {
+    repeated string columns = 1; // column names
+    message Row {
+      map<string, string> fields = 1;
+    }
+    repeated Row rows = 2; // rows of data
+  }
+
+  oneof result {
+    Data data = 2; // select statement result data
+    string message = 3; // message with additional information
+  }
+}
