@@ -41,8 +41,6 @@ message ExecuteQueryResponse {
     repeated Row rows = 2; // rows of data
   }
 
-  oneof result {
-    Data data = 2; // select statement result data
-    string message = 3; // message with additional information
-  }
+  Data data = 2; // select statement result data
+  string message = 3; // message with additional information
 }
