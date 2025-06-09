@@ -17,7 +17,18 @@ class ExecuteQueryResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.executeQuery.ExecuteQueryResponse.Status status = 1;</code>
      */
     protected $status = 0;
-    protected $result;
+    /**
+     * select statement result data
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.executeQuery.ExecuteQueryResponse.Data data = 2;</code>
+     */
+    protected $data = null;
+    /**
+     * message with additional information
+     *
+     * Generated from protobuf field <code>string message = 3;</code>
+     */
+    protected $message = '';
 
     /**
      * Constructor.
@@ -67,12 +78,17 @@ class ExecuteQueryResponse extends \Google\Protobuf\Internal\Message
      */
     public function getData()
     {
-        return $this->readOneof(2);
+        return $this->data;
     }
 
     public function hasData()
     {
-        return $this->hasOneof(2);
+        return isset($this->data);
+    }
+
+    public function clearData()
+    {
+        unset($this->data);
     }
 
     /**
@@ -85,7 +101,7 @@ class ExecuteQueryResponse extends \Google\Protobuf\Internal\Message
     public function setData($var)
     {
         GPBUtil::checkMessage($var, \Keboola\StorageDriver\Command\ExecuteQuery\ExecuteQueryResponse\Data::class);
-        $this->writeOneof(2, $var);
+        $this->data = $var;
 
         return $this;
     }
@@ -98,12 +114,7 @@ class ExecuteQueryResponse extends \Google\Protobuf\Internal\Message
      */
     public function getMessage()
     {
-        return $this->readOneof(3);
-    }
-
-    public function hasMessage()
-    {
-        return $this->hasOneof(3);
+        return $this->message;
     }
 
     /**
@@ -116,17 +127,9 @@ class ExecuteQueryResponse extends \Google\Protobuf\Internal\Message
     public function setMessage($var)
     {
         GPBUtil::checkString($var, True);
-        $this->writeOneof(3, $var);
+        $this->message = $var;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getResult()
-    {
-        return $this->whichOneof("result");
     }
 
 }
