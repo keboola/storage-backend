@@ -60,11 +60,14 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             $table->getQuotedTableWithScheme(),
         );
 
+        /** @var list<array<string>> $rows Because of BASE64_ENCODE() used in SELECT few lines higher.  */
+        $rows = $this->connection->fetchAll($sql);
+
         $queryResult = array_map(function ($row) {
             return array_map(function ($column) {
                 return base64_decode($column);
             }, array_values($row));
-        }, $this->connection->fetchAll($sql));
+        }, $rows);
 
         $this->assertArrayEqualsSorted(
             $expected,
@@ -72,58 +75,6 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
             $sortKey,
             $message,
         );
-    }
-
-    /**
-     * @param array<mixed> $files
-     */
-    protected function assertTableEqualsFiles(
-        string $tableName,
-        array $files,
-        string $sortKey,
-        string $message,
-    ): void {
-        $filesContent = [];
-        $filesHeader = [];
-
-        foreach ($files as $file) {
-            $csvFile = new CsvFile($file);
-            $csvFileRows = [];
-            foreach ($csvFile as $row) {
-                $csvFileRows[] = $row;
-            }
-
-            if (empty($filesHeader)) {
-                $filesHeader = array_shift($csvFileRows);
-            } else {
-                $this->assertSame(
-                    $filesHeader,
-                    array_shift($csvFileRows),
-                    'Provided files have incosistent headers',
-                );
-            }
-            foreach ($csvFileRows as $fileRow) {
-                $filesContent[] = array_combine($filesHeader, $fileRow);
-            }
-        }
-
-        $queryResult = $this->connection->fetchAll(
-            sprintf(
-                'SELECT * FROM %s',
-                $this->connection->quoteIdentifier($tableName),
-            ),
-        );
-
-        $this->assertArrayEqualsSorted(
-            $filesContent,
-            $queryResult,
-            $sortKey,
-            $message,
-        );
-
-        if (!empty($filesHeader)) {
-            $this->assertSame($filesHeader, array_keys(reset($queryResult)));
-        }
     }
 
     public function setUp(): void
