@@ -246,21 +246,6 @@ parameters:
 			path: tests/functional/Snowflake/IncrementalImportTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$fileName of class Keboola\\\\Csv\\\\CsvFile constructor expects string, mixed given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$keys of function array_combine expects array\\<int\\|string\\>, mixed given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$values of function array_combine expects array, mixed given\\.$#"
-			count: 1
-			path: tests/functional/Snowflake/SnowflakeImportExportBaseTest.php
-
-		-
 			message: "#^Offset 0 does not exist on array\\<string, string\\>\\.$#"
 			count: 1
 			path: tests/functional/Synapse/FullImportNoTypesTest.php
