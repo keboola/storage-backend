@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend;
 
 use Keboola\Datatype\Definition\Common;
+use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
 use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
 class Assert
 {
@@ -17,6 +19,8 @@ class Assert
      */
     public const ASSERT_MINIMAL = 0;
     public const ASSERT_LENGTH = 1;
+
+    public const ASSERT_STRICT_LENGTH = 2;
 
     /**
      * @param string[] $ignoreSourceColumns
@@ -67,12 +71,42 @@ class Assert
                         $complexLengthTypes,
                     );
                 }
+
+                if ($assertOptions & self::ASSERT_STRICT_LENGTH) {
+                    self::assertLengthMismatchStrict(
+                        $sourceCol,
+                        $destCol,
+                    );
+                }
+
+                if ($assertOptions & self::ASSERT_STRICT_LENGTH) {
+                    self::assertLengthMismatchStrict(
+                        $sourceCol,
+                        $destCol,
+                    );
+                }
             } else {
                 throw ColumnsMismatchException::createColumnsCountMismatch($source, $destination);
             }
 
             $it0->next();
             $it1->next();
+        }
+    }
+
+    public static function assertPrimaryKeys(
+        TableDefinitionInterface $source,
+        TableDefinitionInterface $destination,
+    ): void {
+        $sourcePrimaryKeys = $source->getPrimaryKeysNames();
+        $destinationPrimaryKeys = $destination->getPrimaryKeysNames();
+        sort($sourcePrimaryKeys);
+        sort($destinationPrimaryKeys);
+        if ($sourcePrimaryKeys !== $destinationPrimaryKeys) {
+            throw ColumnsMismatchException::createPrimaryKeysColumnsMismatch(
+                $sourcePrimaryKeys,
+                $destinationPrimaryKeys,
+            );
         }
     }
 
@@ -176,6 +210,20 @@ class Assert
         }
 
         if ($isLengthMismatch) {
+            throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
+        }
+    }
+
+    private static function assertLengthMismatchStrict(
+        ColumnInterface $sourceCol,
+        ColumnInterface $destCol,
+    ): void {
+        /** @var Common $sourceDef */
+        $sourceDef = $sourceCol->getColumnDefinition();
+        /** @var Common $destDef */
+        $destDef = $destCol->getColumnDefinition();
+
+        if ($sourceDef->getLength() !== $destDef->getLength()) {
             throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
         }
     }

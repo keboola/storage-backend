@@ -7,6 +7,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Keboola\Db\Import\Result;
+use Keboola\Db\ImportExport\Backend\Assert;
 use Keboola\Db\ImportExport\Backend\ImportState;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
@@ -39,11 +40,17 @@ final class FullImporter implements ToFinalTableImporterInterface
     private function doFullLoadWithCTAS(
         SnowflakeTableDefinition $stagingTableDefinition,
         SnowflakeTableDefinition $destinationTableDefinition,
-        SnowflakeImportOptions $options,
         ImportState $state,
     ): void {
-        // Check if staging and destination definitions match in terms of columns, datatypes, and primary keys
-        $this->validateTableDefinitionsMatch($stagingTableDefinition, $destinationTableDefinition);
+        Assert::assertSameColumns(
+            $stagingTableDefinition->getColumnsDefinitions(),
+            $destinationTableDefinition->getColumnsDefinitions(),
+            [],
+            [],
+            [],
+            Assert::ASSERT_STRICT_LENGTH,
+        );
+        Assert::assertPrimaryKeys($stagingTableDefinition, $destinationTableDefinition);
 
         $state->startTimer(self::TIMER_CTAS_LOAD);
         $this->connection->executeStatement(
@@ -53,98 +60,6 @@ final class FullImporter implements ToFinalTableImporterInterface
             ),
         );
         $state->stopTimer(self::TIMER_CTAS_LOAD);
-    }
-
-    /**
-     * Validates that the staging and destination table definitions match in terms of
-     * column names, datatypes, and primary keys.
-     *
-     * @throws SnowflakeException If the definitions don't match
-     */
-    private function validateTableDefinitionsMatch(
-        SnowflakeTableDefinition $stagingTableDefinition,
-        SnowflakeTableDefinition $destinationTableDefinition,
-    ): void {
-        // Compare column names
-        $stagingColumns = $stagingTableDefinition->getColumnsNames();
-        $destinationColumns = $destinationTableDefinition->getColumnsNames();
-
-        // Filter out the _timestamp column if it exists in the destination
-        $destinationColumnsFiltered = array_filter($destinationColumns, function ($column) {
-            return $column !== ToStageImporterInterface::TIMESTAMP_COLUMN_NAME;
-        });
-
-        // Check if column counts match (excluding _timestamp)
-        if (count($stagingColumns) !== count($destinationColumnsFiltered)) {
-            throw new SnowflakeException(sprintf(
-                'Column count mismatch between staging ("%d") and destination ("%d") tables',
-                count($stagingColumns),
-                count($destinationColumnsFiltered),
-            ));
-        }
-
-        // Check if column names match
-        sort($stagingColumns);
-        sort($destinationColumnsFiltered);
-        if ($stagingColumns !== $destinationColumnsFiltered) {
-            throw new SnowflakeException(spritnf(
-                'Column names do not match between staging and destination tables. Staging: "%s", Destination: "%s"',
-                implode(',', $stagingColumns),
-                implode(',', $destinationColumnsFiltered),
-            ),
-            );
-        }
-
-        // Compare primary keys
-        $stagingPrimaryKeys = $stagingTableDefinition->getPrimaryKeysNames();
-        $destinationPrimaryKeys = $destinationTableDefinition->getPrimaryKeysNames();
-        sort($stagingPrimaryKeys);
-        sort($destinationPrimaryKeys);
-        if ($stagingPrimaryKeys !== $destinationPrimaryKeys) {
-            throw new SnowflakeException(
-                sprintf(
-                    'Primary keys do not match between source and destination tables. Source: "%s", Destination: "%s"',
-                    implode(',', $stagingPrimaryKeys),
-                    implode(',', $destinationPrimaryKeys),
-                ),
-            );
-        }
-
-        // Compare column data types
-        $stagingColumnDefs = $stagingTableDefinition->getColumnsDefinitions();
-        $destinationColumnDefs = $destinationTableDefinition->getColumnsDefinitions();
-
-        foreach ($stagingColumnDefs as $stagingColumn) {
-            $stagingColumnName = $stagingColumn->getColumnName();
-            $stagingColumnType = $stagingColumn->getColumnDefinition()->getType();
-
-            // Find matching column in destination
-            $destinationColumn = null;
-            foreach ($destinationColumnDefs as $column) {
-                if ($column->getColumnName() === $stagingColumnName) {
-                    $destinationColumn = $column;
-                    break;
-                }
-            }
-
-            if ($destinationColumn === null) {
-                throw new SnowflakeException(sprintf(
-                    'Column "%s" exists in staging but not in destination',
-                    $stagingColumnName,
-                ));
-            }
-
-            // Compare data types
-            $destinationColumnType = $destinationColumn->getColumnDefinition()->getType();
-            if ($stagingColumnType !== $destinationColumnType) {
-                throw new SnowflakeException(sprintf(
-                    'Data type mismatch for column "%s": staging has "%s", destination has "%s"',
-                    $stagingColumnName,
-                    $stagingColumnType,
-                    $destinationColumnType,
-                ));
-            }
-        }
     }
 
     public function importToTable(
@@ -163,7 +78,6 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $this->doFullLoadWithCTAS(
                     $stagingTableDefinition,
                     $destinationTableDefinition,
-                    $options,
                     $state,
                 );
             } elseif (!empty($destinationTableDefinition->getPrimaryKeysNames())) {

@@ -65,7 +65,9 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             );
 
             /** @var SnowflakeTableDefinition $destinationTableDefinition */
-            if (!empty($destinationTableDefinition->getPrimaryKeysNames()) && !in_array('ctas-om', $options->features())) {
+            if (!empty($destinationTableDefinition->getPrimaryKeysNames())
+                && !in_array('ctas-om', $options->features())
+            ) {
                 // has PKs for dedup
 
                 // 0. Create table for deduplication
