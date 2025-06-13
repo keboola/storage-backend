@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
 use Keboola\Datatype\Definition\Snowflake;
+use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
@@ -141,8 +142,10 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $stagingDef,
             $destinationDef,
+            DateTimeHelper::getTimestampFormated(new \DateTimeImmutable('2023-10-01 12:00:00')),
         );
 
+        $this->assertSame('CREATE OR REPLACE TABLE "import_export_test_schema"."import_export_test_test" AS SELECT "col1","col2",\'2023-10-01 12:00:00\' AS "_timestamp" FROM "import_export_test_schema"."__temp_stagingTable"', $sql);
         // Verify the SQL contains the CREATE OR REPLACE TABLE statement
         self::assertStringContainsString(
             'CREATE OR REPLACE TABLE',
@@ -169,9 +172,6 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
             $sql,
         );
 
-        // Verify the SQL contains the timestamp column
-        self::assertStringContainsString('current_timestamp() AS "_timestamp"', $sql);
-
         // Execute the SQL to verify it works
         $this->connection->executeStatement($sql);
 
@@ -182,8 +182,28 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
             SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
         ));
 
-        self::assertCount(4, $result);
-        self::assertArrayHasKey('_timestamp', $result[0]);
+        self::assertSame([
+            [
+                'col1' => '1',
+                'col2' => '1',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+            [
+                'col1' => '1',
+                'col2' => '2',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '1',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '2',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+        ],$result);
     }
 
     public function testGetCTASInsertAllIntoTargetTableCommandWithConvertEmptyValuesToNull(): void
@@ -203,7 +223,9 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $stagingDef,
             $destinationDef,
+            DateTimeHelper::getTimestampFormated(new \DateTimeImmutable('2023-10-01 12:00:00')),
         );
+        $this->assertSame('CREATE OR REPLACE TABLE "import_export_test_schema"."import_export_test_test" AS SELECT "col1","col2",\'2023-10-01 12:00:00\' AS "_timestamp" FROM "import_export_test_schema"."__temp_stagingTable"', $sql);
         // Execute the SQL to verify it works
         $this->connection->executeStatement($sql);
 
@@ -214,8 +236,33 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
             SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
         ));
 
+        self::assertSame([
+            [
+                'col1' => '1',
+                'col2' => '1',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+            [
+                'col1' => '1',
+                'col2' => '2',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '1',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+            [
+                'col1' => '2',
+                'col2' => '2',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+            [
+                'col1' => '',
+                'col2' => '',
+                '_timestamp' => '2023-10-01 12:00:00',
+            ],
+        ],$result);
         self::assertCount(5, $result);
-        self::assertEquals($result[4]['col1'], '');
-        self::assertEquals($result[4]['col2'], '');
     }
 }
