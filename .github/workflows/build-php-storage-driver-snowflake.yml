@@ -1,0 +1,27 @@
+on:
+  workflow_call:
+    inputs:
+      hasCodeChanged:
+        required: true
+        type: boolean
+      isTag:
+        required: true
+        type: boolean
+
+concurrency: build-php-storage-driver-snowflake
+
+jobs:
+  build:
+    if: ${{ inputs.hasCodeChanged || inputs.isTag }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build image
+        env:
+          DOCKER_BUILDKIT: 1
+        run: docker compose build ci-php-storage-driver-snowflake

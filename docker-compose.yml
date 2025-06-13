@@ -265,5 +265,21 @@ services:
       - AWS_REGION
       - BUILD_PREFIX
 
+  dev-php-storage-driver-snowflake:
+    platform: linux/amd64
+    build:
+      context: .
+      target: php-storage-driver-snowflake
+    working_dir: /code/packages/php-storage-driver-snowflake
+    volumes:
+      - .:/code
+
+  ci-php-storage-driver-snowflake:
+    platform: linux/amd64
+    image: ci-php-storage-driver-snowflake
+    build:
+      context: .
+      target: php-storage-driver-snowflake
+
 volumes:
   exa-volume:

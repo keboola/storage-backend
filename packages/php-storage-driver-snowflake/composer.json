@@ -1,0 +1,25 @@
+{
+    "name": "keboola/storage-driver-snowflake",
+    "description": "Keboola Snowflake driver",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Keboola",
+            "email": "devel@keboola.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Keboola\\StorageDriver\\Snowflake\\": "src/"
+        }
+    },
+    "config": {
+        "lock": false,
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

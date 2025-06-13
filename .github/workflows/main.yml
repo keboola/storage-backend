@@ -14,7 +14,6 @@ env:
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
   MAIN_BRANCH: main
 jobs:
-
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -25,6 +24,7 @@ jobs:
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
       changed-php-db-import-export: ${{ steps.changes.outputs.php-db-import-export }}
       changed-php-storage-driver-common: ${{ steps.changes.outputs.php-storage-driver-common }}
+      changed-php-storage-driver-snowflake: ${{ steps.changes.outputs.php-storage-driver-snowflake }}
       table-utils-requirements: ${{ steps.changes.outputs.table-utils-requirements }}
       db-import-export-requirements: ${{ steps.changes.outputs.db-import-export-requirements }}
       isReleaseTag: ${{ steps.checkReleaseTag.outputs.isReleaseTag }}
@@ -61,6 +61,8 @@ jobs:
               - 'packages/php-db-import-export/**'
             php-storage-driver-common:
               - 'packages/php-storage-driver-common/**'
+            php-storage-driver-snowflake:
+              - 'packages/php-storage-driver-snowflake/**'
             table-utils-requirements:
               - 'packages/php-datatypes/**'
             db-import-export-requirements:
@@ -138,12 +140,21 @@ jobs:
       S3_AWS_REGION: ${{ secrets.S3_AWS_REGION }}
     needs: build
 
+  build_php_storage_driver_snowflake:
+    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
+    uses: ./.github/workflows/build-php-storage-driver-snowflake.yml
+    with:
+      hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-snowflake == 'true' }}
+      isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs: build
+
   test_results:
     needs:
         - build_datatypes
         - build_php_table_backend_utils
         - build_php_db_import_export
         - build_php_storage_driver_common
+        - build_php_storage_driver_snowflake
     runs-on: ubuntu-latest
     if: |
       always()
@@ -151,6 +162,7 @@ jobs:
         && contains(fromJson('["success", "skipped"]'), needs.build_php_table_backend_utils.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_db_import_export.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_storage_driver_common.result)
+        && contains(fromJson('["success", "skipped"]'), needs.build_php_storage_driver_snowflake.result)
     steps:
       - name: Tests passed
         run: echo "Tests passed"

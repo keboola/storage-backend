@@ -162,3 +162,16 @@ RUN curl -sSLf \
         -o /usr/local/bin/install-php-extensions \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
     chmod +x /usr/local/bin/install-php-extensions
+
+# php-storage-driver-snowflake
+FROM base AS php-storage-driver-snowflake
+
+ENV LIB_NAME=php-storage-driver-snowflake
+ENV LIB_HOME=/code/packages/${LIB_NAME}
+
+COPY packages ./packages
+WORKDIR ${LIB_HOME}
+COPY packages/${LIB_NAME}/composer.json ${LIB_HOME}/
+RUN --mount=type=bind,target=/packages,source=packages \
+    --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
+    composer install $COMPOSER_FLAGS
