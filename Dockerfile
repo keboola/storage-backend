@@ -148,7 +148,7 @@ RUN --mount=type=bind,target=/packages,source=packages \
     --mount=type=cache,id=composer,target=${COMPOSER_HOME} \
     composer install $COMPOSER_FLAGS
 
-RUN mkdir -p /tmp/protoc && \
+RUN mkdir -p /tmp/protoc  && \
     curl -sSLf \
     -o /tmp/protoc/protoc.zip \
     https://github.com/protocolbuffers/protobuf/releases/download/v23.4/protoc-23.4-linux-x86_64.zip && \
