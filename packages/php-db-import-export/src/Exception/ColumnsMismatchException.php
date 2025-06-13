@@ -9,6 +9,20 @@ use Keboola\TableBackendUtils\Column\ColumnInterface;
 
 class ColumnsMismatchException extends ImportExportException
 {
+    /**
+     * @param string[] $sourcePrimaryKeys
+     * @param string[] $destinationPrimaryKeys
+     */
+    public static function createPrimaryKeysColumnsMismatch(
+        array $sourcePrimaryKeys,
+        array $destinationPrimaryKeys,
+    ): ColumnsMismatchException {
+        return new self(sprintf(
+            'Primary keys do not match between source and destination tables. Source: "%s", Destination: "%s"',
+            implode(',', $sourcePrimaryKeys),
+            implode(',', $destinationPrimaryKeys),
+        ));
+    }
     public static function createColumnsNamesMismatch(
         ColumnInterface $sourceDef,
         ColumnInterface $destDef,
