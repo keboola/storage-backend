@@ -306,12 +306,13 @@ class SqlBuilder
     public function getCTASInsertAllIntoTargetTableCommand(
         SnowflakeTableDefinition $sourceTableDefinition,
         SnowflakeTableDefinition $destinationTableDefinition,
+        string $timestamp,
     ): string {
         $timestampColumn = '';
-        // todo check also timestamp data type
         if (!in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $sourceTableDefinition->getColumnsNames())) {
             $timestampColumn = sprintf(
-                'current_timestamp() AS %s',
+                '\'%s\' AS %s',
+                $timestamp,
                 SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
             );
         }
@@ -329,11 +330,16 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
+        $columns = array_map(
+            static fn($col) => SnowflakeQuote::quoteSingleIdentifier($col),
+            $sourceTableDefinition->getColumnsNames(),
+        );
+
         // Create the CTAS command
         return sprintf(
-            'CREATE OR REPLACE TABLE %s AS SELECT *,%s FROM %s',
+            'CREATE OR REPLACE TABLE %s AS SELECT %s FROM %s',
             $destinationTable,
-            $timestampColumn,
+            implode(',', [...$columns, $timestampColumn]),
             $sourceTable,
         );
     }
