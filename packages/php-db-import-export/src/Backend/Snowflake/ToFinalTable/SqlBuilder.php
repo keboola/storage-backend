@@ -299,6 +299,51 @@ class SqlBuilder
         );
     }
 
+    /**
+     * Generates a CREATE TABLE AS SELECT (CTAS) command to create the destination table from the staging table.
+     * Adds a _timestamp column with the current timestamp value.
+     */
+    public function getCTASInsertAllIntoTargetTableCommand(
+        SnowflakeTableDefinition $sourceTableDefinition,
+        SnowflakeTableDefinition $destinationTableDefinition,
+        string $timestamp,
+    ): string {
+        $timestampColumn = '';
+        if (!in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $sourceTableDefinition->getColumnsNames())) {
+            $timestampColumn = sprintf(
+                '\'%s\' AS %s',
+                $timestamp,
+                SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+            );
+        }
+        // Build the source table reference
+        $sourceTable = sprintf(
+            '%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($sourceTableDefinition->getTableName()),
+        );
+
+        // Build the destination table reference
+        $destinationTable = sprintf(
+            '%s.%s',
+            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getSchemaName()),
+            SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
+        );
+
+        $columns = array_map(
+            static fn($col) => SnowflakeQuote::quoteSingleIdentifier($col),
+            $sourceTableDefinition->getColumnsNames(),
+        );
+
+        // Create the CTAS command
+        return sprintf(
+            'CREATE OR REPLACE TABLE %s AS SELECT %s FROM %s',
+            $destinationTable,
+            implode(',', [...$columns, $timestampColumn]),
+            $sourceTable,
+        );
+    }
+
     public function getUpdateWithPkCommand(
         SnowflakeTableDefinition $stagingTableDefinition,
         SnowflakeTableDefinition $destinationDefinition,

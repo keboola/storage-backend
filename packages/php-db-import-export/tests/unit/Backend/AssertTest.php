@@ -11,9 +11,12 @@ use Keboola\Datatype\Definition\DefinitionInterface;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Assert;
+use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
+use Keboola\TableBackendUtils\Table\TableType;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -531,5 +534,144 @@ class AssertTest extends TestCase
             destination: new ColumnCollection($destCols),
             assertOptions: Assert::ASSERT_MINIMAL,
         );
+    }
+
+    public function testAssertSameColumnsStrictLengthPasses(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            new SnowflakeColumn(
+                'test1',
+                new Snowflake(
+                    Snowflake::TYPE_VARCHAR,
+                    [
+                        'length' => '10',
+                    ],
+                ),
+            ),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            new SnowflakeColumn(
+                'test1',
+                new Snowflake(
+                    Snowflake::TYPE_VARCHAR,
+                    [
+                        'length' => '10',
+                    ],
+                ),
+            ),
+        ];
+        $this->expectNotToPerformAssertions();
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols),
+            [],
+            [],
+            [],
+            Assert::ASSERT_STRICT_LENGTH,
+        );
+    }
+
+    public function testAssertSameColumnsStrictLengthFails(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            new SnowflakeColumn(
+                'test1',
+                new Snowflake(
+                    Snowflake::TYPE_VARCHAR,
+                    [
+                        'length' => '10',
+                    ],
+                ),
+            ),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            new SnowflakeColumn(
+                'test1',
+                new Snowflake(
+                    Snowflake::TYPE_VARCHAR,
+                    [
+                        'length' => '20',
+                    ],
+                ),
+            ),
+        ];
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            'Source destination columns mismatch. "test1 VARCHAR (10)"->"test1 VARCHAR (20)"',
+        );
+        Assert::assertSameColumns(
+            new ColumnCollection($sourceCols),
+            new ColumnCollection($destCols),
+            [],
+            [],
+            [],
+            Assert::ASSERT_STRICT_LENGTH,
+        );
+    }
+
+    public function testAssertPrimaryKeysPasses(): void
+    {
+        $tableDef1 = $this->createTableDefinitionWithPrimaryKeys(['id', 'name']);
+        $tableDef2 = $this->createTableDefinitionWithPrimaryKeys(['name', 'id']); // order should not matter
+        $this->expectNotToPerformAssertions();
+        Assert::assertPrimaryKeys($tableDef1, $tableDef2);
+    }
+
+    public function testAssertPrimaryKeysFails(): void
+    {
+        $tableDef1 = $this->createTableDefinitionWithPrimaryKeys(['id', 'name']);
+        $tableDef2 = $this->createTableDefinitionWithPrimaryKeys(['id', 'other']);
+        $this->expectException(ColumnsMismatchException::class);
+        Assert::assertPrimaryKeys($tableDef1, $tableDef2);
+    }
+
+    /**
+     * @param string[] $primaryKeys
+     */
+    private function createTableDefinitionWithPrimaryKeys(array $primaryKeys): TableDefinitionInterface
+    {
+        return new class($primaryKeys) implements TableDefinitionInterface {
+            /**
+             * @param string[] $primaryKeys
+             */
+            public function __construct(private readonly array $primaryKeys)
+            {
+            }
+
+            public function getPrimaryKeysNames(): array
+            {
+                return $this->primaryKeys;
+            }
+
+            // ...other methods not needed for this test...
+            public function getColumnsDefinitions(): ColumnCollection
+            {
+                return new ColumnCollection([]);
+            }
+
+            public function getTableName(): string
+            {
+                return 'dummy';
+            }
+
+            public function getColumnsNames(): array
+            {
+                return [];
+            }
+
+            public function isTemporary(): bool
+            {
+                return false;
+            }
+
+            public function getTableType(): TableType
+            {
+                return TableType::TABLE;
+            }
+        };
     }
 }
