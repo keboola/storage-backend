@@ -12,10 +12,31 @@
     "require": {
         "php": "^8.2"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    },
     "autoload": {
         "psr-4": {
             "Keboola\\StorageDriver\\Snowflake\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Keboola\\StorageDriver\\Snowflake\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "tests-functional": "phpunit --testsuite functional",
+        "tests": [
+            "@tests-functional"
+        ],
+        "check": [
+            "@composer validate --no-check-all --strict"
+        ],
+        "ci": [
+            "@check",
+            "@tests"
+        ]
     },
     "config": {
         "lock": false,

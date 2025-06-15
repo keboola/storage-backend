@@ -25,3 +25,6 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: docker compose build ci-php-storage-driver-snowflake
+
+      - name: Run tests
+        run: docker compose run --rm ci-php-storage-driver-snowflake composer ci
