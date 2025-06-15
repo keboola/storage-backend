@@ -73,6 +73,7 @@
         "keboola/db-import-export": "*",
         "keboola/php-datatypes": "*",
         "keboola/storage-driver-common": "*",
+        "keboola/storage-driver-snowflake": "*",
         "keboola/table-backend-utils": "*"
     },
     "config": {
