@@ -7,8 +7,22 @@ on:
       isTag:
         required: true
         type: boolean
+    secrets:
+      SNOWFLAKE_PASSWORD:
+        required: true
+      SNOWFLAKE_PRIVATE_KEY:
+        required: true
 
 concurrency: build-php-storage-driver-snowflake
+
+env:
+  SNOWFLAKE_HOST: keboolaconnectiondev.us-east-1.snowflakecomputing.com
+  SNOWFLAKE_PORT: 443
+  SNOWFLAKE_USER: KEBOOLA_CI_PHP_STORAGE_DRIVER_SNOWFLAKE
+  SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+  SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+  SNOWFLAKE_DATABASE: KEBOOLA_CI_PHP_STORAGE_DRIVER_SNOWFLAKE
+  SNOWFLAKE_WAREHOUSE: DEV
 
 jobs:
   build:

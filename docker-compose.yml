@@ -270,6 +270,7 @@ services:
     build:
       context: .
       target: php-storage-driver-snowflake
+    env_file: "packages/php-storage-driver-snowflake/.env"
     working_dir: /code/packages/php-storage-driver-snowflake
     volumes:
       - .:/code
@@ -280,6 +281,14 @@ services:
     build:
       context: .
       target: php-storage-driver-snowflake
+    environment:
+      - SNOWFLAKE_HOST
+      - SNOWFLAKE_PORT
+      - SNOWFLAKE_USER
+      - SNOWFLAKE_PASSWORD
+      - SNOWFLAKE_PRIVATE_KEY
+      - SNOWFLAKE_DATABASE
+      - SNOWFLAKE_WAREHOUSE
 
 volumes:
   exa-volume:
