@@ -29,10 +29,10 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIME,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
                         'length' => '3',
                     ],
                 ),
@@ -42,10 +42,10 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIME,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
                         'length' => '3',
                     ],
                 ),
@@ -53,8 +53,8 @@ class AssertTest extends TestCase
         ];
 
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
         );
     }
 
@@ -65,44 +65,44 @@ class AssertTest extends TestCase
     {
         // first in cols
         Assert::assertSameColumns(
-            new ColumnCollection([
+            source: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test2'),
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
             ]),
-            new ColumnCollection([
+            destination: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
             ]),
-            ['test2'],
+            ignoreSourceColumns: ['test2'],
         );
 
         // middle
         Assert::assertSameColumns(
-            new ColumnCollection([
+            source: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test2'),
                 SnowflakeColumn::createGenericColumn('test1'),
             ]),
-            new ColumnCollection([
+            destination: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
             ]),
-            ['test2'],
+            ignoreSourceColumns: ['test2'],
         );
 
         // end
         Assert::assertSameColumns(
-            new ColumnCollection([
+            source: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
                 SnowflakeColumn::createGenericColumn('test2'),
             ]),
-            new ColumnCollection([
+            destination: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
             ]),
-            ['test2'],
+            ignoreSourceColumns: ['test2'],
         );
     }
 
@@ -121,8 +121,8 @@ class AssertTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Tables don\'t have same number of columns.');
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
         );
     }
 
@@ -141,8 +141,8 @@ class AssertTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Tables don\'t have same number of columns.');
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
         );
     }
 
@@ -160,8 +160,8 @@ class AssertTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Source destination columns name mismatch. "test1x"->"test1"');
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
         );
     }
 
@@ -171,10 +171,10 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIME,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
                         'length' => '3',
                     ],
                 ),
@@ -184,10 +184,10 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIMESTAMP_NTZ,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIMESTAMP_NTZ,
+                    options: [
                         'length' => '3',
                     ],
                 ),
@@ -199,8 +199,8 @@ class AssertTest extends TestCase
             'Source destination columns mismatch. "test2 TIME (3)"->"test2 TIMESTAMP_NTZ (3)"',
         );
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
         );
     }
 
@@ -210,10 +210,10 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIME,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
                         'length' => '3',
                     ],
                 ),
@@ -223,10 +223,10 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIME,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
                         'length' => '4',
                     ],
                 ),
@@ -236,8 +236,8 @@ class AssertTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME (3)"->"test2 TIME (4)"');
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
         );
     }
 
@@ -247,18 +247,18 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(Snowflake::TYPE_TIME),
+                columnName: 'test2',
+                columnDefinition: new Snowflake(Snowflake::TYPE_TIME),
             ),
         ];
         $destCols = [
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIME,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
                         'length' => '4',
                     ],
                 ),
@@ -268,8 +268,8 @@ class AssertTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME"->"test2 TIME (4)"');
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
         );
     }
 
@@ -415,12 +415,12 @@ class AssertTest extends TestCase
         $sourceCols = [
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
-            $this->getColumn($sourceType, $sourceLength),
+            $this->getColumn(type: $sourceType, length: $sourceLength),
         ];
         $destCols = [
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
-            $this->getColumn($destType, $destLength),
+            $this->getColumn(type: $destType, length: $destLength),
         ];
 
         if ($expectedException !== null) {
@@ -431,11 +431,10 @@ class AssertTest extends TestCase
             $this->expectNotToPerformAssertions();
         }
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
-            [],
-            ['SIMPLETYPE'],
-            ['COMPLEXTYPE'],
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            complexLengthTypes: ['COMPLEXTYPE'],
+            simpleLengthTypes: ['SIMPLETYPE'],
         );
     }
 
@@ -511,18 +510,18 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(Snowflake::TYPE_TIME),
+                columnName: 'test2',
+                columnDefinition: new Snowflake(Snowflake::TYPE_TIME),
             ),
         ];
         $destCols = [
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
             new SnowflakeColumn(
-                'test2',
-                new Snowflake(
-                    Snowflake::TYPE_TIME,
-                    [
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
                         'length' => '4',
                     ],
                 ),
@@ -541,10 +540,10 @@ class AssertTest extends TestCase
         $sourceCols = [
             SnowflakeColumn::createGenericColumn('test'),
             new SnowflakeColumn(
-                'test1',
-                new Snowflake(
-                    Snowflake::TYPE_VARCHAR,
-                    [
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
                         'length' => '10',
                     ],
                 ),
@@ -553,10 +552,10 @@ class AssertTest extends TestCase
         $destCols = [
             SnowflakeColumn::createGenericColumn('test'),
             new SnowflakeColumn(
-                'test1',
-                new Snowflake(
-                    Snowflake::TYPE_VARCHAR,
-                    [
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
                         'length' => '10',
                     ],
                 ),
@@ -564,12 +563,9 @@ class AssertTest extends TestCase
         ];
         $this->expectNotToPerformAssertions();
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
-            [],
-            [],
-            [],
-            Assert::ASSERT_STRICT_LENGTH,
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            assertOptions: Assert::ASSERT_STRICT_LENGTH,
         );
     }
 
@@ -578,10 +574,10 @@ class AssertTest extends TestCase
         $sourceCols = [
             SnowflakeColumn::createGenericColumn('test'),
             new SnowflakeColumn(
-                'test1',
-                new Snowflake(
-                    Snowflake::TYPE_VARCHAR,
-                    [
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
                         'length' => '10',
                     ],
                 ),
@@ -590,10 +586,10 @@ class AssertTest extends TestCase
         $destCols = [
             SnowflakeColumn::createGenericColumn('test'),
             new SnowflakeColumn(
-                'test1',
-                new Snowflake(
-                    Snowflake::TYPE_VARCHAR,
-                    [
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
                         'length' => '20',
                     ],
                 ),
@@ -604,12 +600,9 @@ class AssertTest extends TestCase
             'Source destination columns mismatch. "test1 VARCHAR (10)"->"test1 VARCHAR (20)"',
         );
         Assert::assertSameColumns(
-            new ColumnCollection($sourceCols),
-            new ColumnCollection($destCols),
-            [],
-            [],
-            [],
-            Assert::ASSERT_STRICT_LENGTH,
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            assertOptions: Assert::ASSERT_STRICT_LENGTH,
         );
     }
 
@@ -618,7 +611,7 @@ class AssertTest extends TestCase
         $tableDef1 = $this->createTableDefinitionWithPrimaryKeys(['id', 'name']);
         $tableDef2 = $this->createTableDefinitionWithPrimaryKeys(['name', 'id']); // order should not matter
         $this->expectNotToPerformAssertions();
-        Assert::assertPrimaryKeys($tableDef1, $tableDef2);
+        Assert::assertPrimaryKeys(source: $tableDef1, destination: $tableDef2);
     }
 
     public function testAssertPrimaryKeysFails(): void
@@ -626,7 +619,7 @@ class AssertTest extends TestCase
         $tableDef1 = $this->createTableDefinitionWithPrimaryKeys(['id', 'name']);
         $tableDef2 = $this->createTableDefinitionWithPrimaryKeys(['id', 'other']);
         $this->expectException(ColumnsMismatchException::class);
-        Assert::assertPrimaryKeys($tableDef1, $tableDef2);
+        Assert::assertPrimaryKeys(source: $tableDef1, destination: $tableDef2);
     }
 
     /**

@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Backend;
 
 use Keboola\Datatype\Definition\Common;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
 use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
+/**
+ * @internal
+ */
 class Assert
 {
     /**
@@ -23,9 +25,10 @@ class Assert
     public const ASSERT_STRICT_LENGTH = 2;
 
     /**
-     * @param string[] $ignoreSourceColumns
-     * @param string[] $simpleLengthTypes - list of types where length is represented by single number
      * @param string[] $complexLengthTypes
+     * @param string[] $simpleLengthTypes - list of types where length is represented by single number
+     * @param string[] $ignoreSourceColumns
+     * @param string[] $ignoreDestinationColumns
      * - list of numeric types where length is presented by <scale:int>,<precision:int>
      * @throws ColumnsMismatchException
      */
@@ -33,15 +36,22 @@ class Assert
         ColumnCollection $source,
         ColumnCollection $destination,
         array $ignoreSourceColumns = [],
-        array $simpleLengthTypes = [],
+        array $ignoreDestinationColumns = [],
         array $complexLengthTypes = [],
         int $assertOptions = self::ASSERT_LENGTH,
+        array $simpleLengthTypes = [],
     ): void {
         $it0 = $source->getIterator();
         $it1 = $destination->getIterator();
         while ($it0->valid() || $it1->valid()) {
             if ($it0->valid() && in_array($it0->current()->getColumnName(), $ignoreSourceColumns, true)) {
                 $it0->next();
+                if (!$it0->valid() && !$it1->valid()) {
+                    break;
+                }
+            }
+            if ($it1->valid() && in_array($it1->current()->getColumnName(), $ignoreDestinationColumns, true)) {
+                $it1->next();
                 if (!$it0->valid() && !$it1->valid()) {
                     break;
                 }
@@ -69,13 +79,6 @@ class Assert
                         $destCol,
                         $simpleLengthTypes,
                         $complexLengthTypes,
-                    );
-                }
-
-                if ($assertOptions & self::ASSERT_STRICT_LENGTH) {
-                    self::assertLengthMismatchStrict(
-                        $sourceCol,
-                        $destCol,
                     );
                 }
 
