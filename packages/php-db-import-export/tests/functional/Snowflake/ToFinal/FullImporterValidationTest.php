@@ -9,9 +9,9 @@ use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\ImportState;
-use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\FullImporter;
+use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
@@ -166,8 +166,8 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         // Create destination table with an extra column
         $destinationDef = $this->createDestinationTableDefinition(
             [
-                ['name' => 'col1'],
-                ['name' => 'col2'],
+                ['name' => 'col1', 'length' => '50'],
+                ['name' => 'col2', 'length' => '50'],
                 ['name' => 'col3'],
             ],
             ['col1'],
@@ -188,8 +188,9 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         );
 
         // This should throw an exception about column count mismatch
-        $this->expectException(SnowflakeException::class);
-        $this->expectExceptionMessage('Column count mismatch between staging (2) and destination (3) tables');
+        $this->expectException(ColumnsMismatchException::class);
+        // phpcs:ignore
+        $this->expectExceptionMessage('Tables don\'t have same number of columns. Source columns: "col1,col2", Destination columns: "col1,col2,col3"');
 
         $importer->importToTable(
             $stagingDef,
@@ -214,7 +215,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         // Create destination table with different column names
         $destinationDef = $this->createDestinationTableDefinition(
             [
-                ['name' => 'col1'],
+                ['name' => 'col1', 'length' => '50'],
                 ['name' => 'different_col2'],
             ],
             ['col1'],
@@ -235,8 +236,8 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         );
 
         // This should throw an exception about column names mismatch
-        $this->expectException(SnowflakeException::class);
-        $this->expectExceptionMessage('Column names do not match between staging and destination tables');
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage('Source destination columns name mismatch. "col2"->"different_col2"');
 
         $importer->importToTable(
             $stagingDef,
@@ -261,8 +262,8 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         // Create destination table with different primary keys
         $destinationDef = $this->createDestinationTableDefinition(
             [
-                ['name' => 'col1'],
-                ['name' => 'col2'],
+                ['name' => 'col1', 'length' => '50'],
+                ['name' => 'col2', 'length' => '50'],
             ],
             ['col1', 'col2'],
         );
@@ -282,8 +283,9 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         );
 
         // This should throw an exception about primary keys mismatch
-        $this->expectException(SnowflakeException::class);
-        $this->expectExceptionMessage('Primary keys do not match between staging and destination tables');
+        $this->expectException(ColumnsMismatchException::class);
+        // phpcs:ignore
+        $this->expectExceptionMessage('Primary keys do not match between source and destination tables. Source: "col1", Destination: "col1,col2"');
 
         $importer->importToTable(
             $stagingDef,
@@ -329,9 +331,9 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         );
 
         // This should throw an exception about data type mismatch
-        $this->expectException(SnowflakeException::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage(
-            'Data type mismatch for column col1: staging has VARCHAR, destination has NUMBER',
+            'Source destination columns mismatch. "col1 VARCHAR (50)"->"col1 NUMBER (30)"',
         );
 
         $importer->importToTable(
@@ -357,8 +359,8 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         // Create destination table with the same columns plus _timestamp
         $destinationDef = $this->createDestinationTableDefinition(
             [
-                ['name' => 'col1'],
-                ['name' => 'col2'],
+                ['name' => 'col1', 'length' => '50'],
+                ['name' => 'col2', 'length' => '50'],
                 ['name' => '_timestamp', 'type' => Snowflake::TYPE_TIMESTAMP_NTZ, 'length' => '9'],
             ],
             ['col1'],

@@ -43,12 +43,12 @@ final class FullImporter implements ToFinalTableImporterInterface
         ImportState $state,
     ): void {
         Assert::assertSameColumns(
-            $stagingTableDefinition->getColumnsDefinitions(),
-            $destinationTableDefinition->getColumnsDefinitions(),
-            [],
-            [],
-            [],
-            Assert::ASSERT_STRICT_LENGTH,
+            source: $stagingTableDefinition->getColumnsDefinitions(),
+            destination: $destinationTableDefinition->getColumnsDefinitions(),
+            ignoreDestinationColumns: [
+                ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            ],
+            assertOptions: Assert::ASSERT_STRICT_LENGTH,
         );
         Assert::assertPrimaryKeys($stagingTableDefinition, $destinationTableDefinition);
 

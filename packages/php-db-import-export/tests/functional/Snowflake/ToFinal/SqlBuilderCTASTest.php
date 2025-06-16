@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\ToFinal;
 
+use DateTimeImmutable;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\Db\ImportExport\Backend\Snowflake\Helper\DateTimeHelper;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToFinalTable\SqlBuilder;
@@ -142,9 +143,9 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $stagingDef,
             $destinationDef,
-            DateTimeHelper::getTimestampFormated(new \DateTimeImmutable('2023-10-01 12:00:00')),
+            DateTimeHelper::getTimestampFormated(new DateTimeImmutable('2023-10-01 12:00:00')),
         );
-
+        // phpcs:ignore
         $this->assertSame('CREATE OR REPLACE TABLE "import_export_test_schema"."import_export_test_test" AS SELECT "col1","col2",\'2023-10-01 12:00:00\' AS "_timestamp" FROM "import_export_test_schema"."__temp_stagingTable"', $sql);
         // Verify the SQL contains the CREATE OR REPLACE TABLE statement
         self::assertStringContainsString(
@@ -203,7 +204,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
                 'col2' => '2',
                 '_timestamp' => '2023-10-01 12:00:00',
             ],
-        ],$result);
+        ], $result);
     }
 
     public function testGetCTASInsertAllIntoTargetTableCommandWithConvertEmptyValuesToNull(): void
@@ -223,8 +224,9 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
             $stagingDef,
             $destinationDef,
-            DateTimeHelper::getTimestampFormated(new \DateTimeImmutable('2023-10-01 12:00:00')),
+            DateTimeHelper::getTimestampFormated(new DateTimeImmutable('2023-10-01 12:00:00')),
         );
+        // phpcs:ignore
         $this->assertSame('CREATE OR REPLACE TABLE "import_export_test_schema"."import_export_test_test" AS SELECT "col1","col2",\'2023-10-01 12:00:00\' AS "_timestamp" FROM "import_export_test_schema"."__temp_stagingTable"', $sql);
         // Execute the SQL to verify it works
         $this->connection->executeStatement($sql);
@@ -262,7 +264,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
                 'col2' => '',
                 '_timestamp' => '2023-10-01 12:00:00',
             ],
-        ],$result);
+        ], $result);
         self::assertCount(5, $result);
     }
 }
