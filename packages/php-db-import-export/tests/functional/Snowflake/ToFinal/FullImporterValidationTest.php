@@ -128,6 +128,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
 
         // Create the importer and call doFullLoadWithCTAS through the importToTable method
         $importer = new FullImporter($this->connection);
+        $importer->tmpForceUseCtas();
         $options = new SnowflakeImportOptions(
             [],
             false,
@@ -136,7 +137,6 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            ['ctas-om'], // Enable CTAS feature
         );
 
         // This should not throw an exception
@@ -176,6 +176,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
 
         // Create the importer
         $importer = new FullImporter($this->connection);
+        $importer->tmpForceUseCtas();
         $options = new SnowflakeImportOptions(
             [],
             false,
@@ -184,7 +185,6 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about column count mismatch
@@ -224,6 +224,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
 
         // Create the importer
         $importer = new FullImporter($this->connection);
+        $importer->tmpForceUseCtas();
         $options = new SnowflakeImportOptions(
             [],
             false,
@@ -232,7 +233,6 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about column names mismatch
@@ -271,6 +271,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
 
         // Create the importer
         $importer = new FullImporter($this->connection);
+        $importer->tmpForceUseCtas();
         $options = new SnowflakeImportOptions(
             [],
             false,
@@ -279,7 +280,6 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about primary keys mismatch
@@ -319,6 +319,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
 
         // Create the importer
         $importer = new FullImporter($this->connection);
+        $importer->tmpForceUseCtas();
         $options = new SnowflakeImportOptions(
             [],
             false,
@@ -327,7 +328,6 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should throw an exception about data type mismatch
@@ -369,6 +369,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
 
         // Create the importer
         $importer = new FullImporter($this->connection);
+        $importer->tmpForceUseCtas();
         $options = new SnowflakeImportOptions(
             [],
             false,
@@ -377,7 +378,6 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
             SnowflakeImportOptions::SAME_TABLES_NOT_REQUIRED,
             SnowflakeImportOptions::NULL_MANIPULATION_SKIP,
             [],
-            features: ['ctas-om'], // Enable CTAS feature
         );
 
         // This should not throw an exception because _timestamp is handled specially

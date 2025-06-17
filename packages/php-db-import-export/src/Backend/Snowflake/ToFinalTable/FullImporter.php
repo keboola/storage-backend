@@ -28,6 +28,8 @@ final class FullImporter implements ToFinalTableImporterInterface
 
     private Connection $connection;
 
+    private bool $forceUseCtas = false;
+
     private SqlBuilder $sqlBuilder;
 
     public function __construct(
@@ -35,6 +37,15 @@ final class FullImporter implements ToFinalTableImporterInterface
     ) {
         $this->connection = $connection;
         $this->sqlBuilder = new SqlBuilder();
+    }
+
+    /**
+     * This is used for testing purposes only.
+     * method will be removed in the future.
+     */
+    public function tmpForceUseCtas(): void
+    {
+        $this->forceUseCtas = true;
     }
 
     private function doFullLoadWithCTAS(
@@ -75,7 +86,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         /** @var SnowflakeTableDefinition $destinationTableDefinition */
         try {
             //import files to staging table
-            if (in_array('ctas-om', $options->features())) {
+            if ($this->forceUseCtas) {
                 $this->doFullLoadWithCTAS(
                     $stagingTableDefinition,
                     $destinationTableDefinition,

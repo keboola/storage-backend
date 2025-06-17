@@ -29,6 +29,8 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
     private Connection $connection;
 
+    private bool $forceUseCtas = false;
+
     private SqlBuilder $sqlBuilder;
 
     private string $timestamp;
@@ -44,6 +46,15 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
         } else {
             $this->timestamp = DateTimeHelper::getTimestampFormated($timestamp);
         }
+    }
+
+    /**
+     * This is used for testing purposes only.
+     * method will be removed in the future.
+     */
+    public function tmpForceUseCtas(): void
+    {
+        $this->forceUseCtas = true;
     }
 
     public function importToTable(
@@ -66,7 +77,7 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
 
             /** @var SnowflakeTableDefinition $destinationTableDefinition */
             if (!empty($destinationTableDefinition->getPrimaryKeysNames())
-                && !in_array('ctas-om', $options->features())
+                && !$this->forceUseCtas
             ) {
                 // has PKs for dedup
 

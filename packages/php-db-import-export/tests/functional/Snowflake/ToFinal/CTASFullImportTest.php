@@ -20,7 +20,7 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 /**
- * This test is limited copy of @FullImportTest with `ctas-om` feature enabled.
+ * This test is limited copy of @FullImportTest with with force ctas.
  */
 class CTASFullImportTest extends SnowflakeBaseTestCase
 {
@@ -44,7 +44,6 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             useTimestamp: true,
             numberOfIgnoredLines: 1,
             ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            features: ['ctas-om'], // Enable CTAS feature
         );
         $source = $this->getSourceInstance(
             'column-name-row-number.csv',
@@ -78,6 +77,7 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
+        $toFinalTableImporter->tmpForceUseCtas();
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
@@ -99,7 +99,6 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             useTimestamp: false,
             numberOfIgnoredLines: 1,
             ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            features: ['ctas-om'], // Enable CTAS feature
         );
         $source = $this->getSourceInstance(
             'multi-pk.csv',
@@ -139,6 +138,7 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             $options,
         );
         $toFinalTableImporter = new FullImporter($this->connection);
+        $toFinalTableImporter->tmpForceUseCtas();
         $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
@@ -160,7 +160,6 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             useTimestamp: false,
             numberOfIgnoredLines: 1,
             ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            features: ['ctas-om'], // Enable CTAS feature
         );
         $source = $this->getSourceInstance(
             'multi-pk.csv',
@@ -210,6 +209,7 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             ),
         );
         $toFinalTableImporter = new FullImporter($this->connection);
+        $toFinalTableImporter->tmpForceUseCtas();
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
             $destination,
@@ -237,7 +237,6 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
                 useTimestamp: true,
                 numberOfIgnoredLines: 1,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-                features: ['ctas-om'], // Enable CTAS feature
             ),
             [['a', 'b'], ['c', 'd']],
             2,
@@ -264,7 +263,6 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
                 useTimestamp: true,
                 numberOfIgnoredLines: 1,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-                features: ['ctas-om'], // Enable CTAS feature
             ),
             [['a', '10.5', '0.3', '1']],
             1,
@@ -305,6 +303,7 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
         );
         $toStageImporter = new ToStageImporter($this->connection);
         $toFinalTableImporter = new FullImporter($this->connection);
+        $toFinalTableImporter->tmpForceUseCtas();
         try {
             $importState = $toStageImporter->importToStagingTable(
                 $source,
