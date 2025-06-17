@@ -119,8 +119,8 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         // Create destination table with the same columns and primary keys
         $destinationDef = $this->createDestinationTableDefinition(
             [
-                ['name' => 'col1'],
-                ['name' => 'col2'],
+                ['name' => 'col1', 'length' => '50'],
+                ['name' => 'col2', 'length' => '50'],
             ],
             ['col1'],
         );
