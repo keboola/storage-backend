@@ -18,7 +18,7 @@ use Keboola\StorageDriver\Snowflake\Profile\ColumnMetricInterface;
 use Keboola\StorageDriver\Snowflake\Profile\Table\ColumnCountTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Table\RowCountTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\TableMetricInterface;
-use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 
 final class ProfileTableHandler extends BaseHandler
 {
@@ -43,10 +43,11 @@ final class ProfileTableHandler extends BaseHandler
 
         $connection = ConnectionFactory::createFromCredentials($credentials);
         $schemaName = $command->getPath()[0];
+        $tableName = $command->getTableName();
 
         $response = (new CreateProfileTableResponse())
             ->setPath($command->getPath())
-            ->setTableName($command->getTableName());
+            ->setTableName($tableName);
 
         /** @var TableMetricInterface[] $tableMetrics */
         $tableMetrics = [
@@ -59,7 +60,7 @@ final class ProfileTableHandler extends BaseHandler
         foreach ($tableMetrics as $metric) {
             $tableProfile[$metric->name()] = $metric->collect(
                 $schemaName,
-                $command->getTableName(),
+                $tableName,
                 $connection,
             );
         }
@@ -74,28 +75,22 @@ final class ProfileTableHandler extends BaseHandler
         ];
         $columnProfiles = [];
 
-        $columns = $connection->fetchAllAssociative(sprintf(
-            <<<'SQL'
-                SHOW COLUMNS IN TABLE %s.%s;
-                SQL,
-            SnowflakeQuote::quoteSingleIdentifier($schemaName),
-            SnowflakeQuote::quoteSingleIdentifier($command->getTableName()),
-        ));
+        $tableReflection = new SnowflakeTableReflection($connection, $schemaName, $tableName);
 
-        foreach ($columns as $column) {
+        foreach ($tableReflection->getColumnsNames() as $column) {
             $columnProfile = [];
 
             foreach ($columnMetrics as $metric) {
                 $columnProfile[$metric->name()] = $metric->collect(
                     $schemaName,
-                    $command->getTableName(),
-                    $column['column_name'],
+                    $tableName,
+                    $column,
                     $connection,
                 );
             }
 
             $columnProfiles[] = (new Column())
-                ->setName($column['column_name'])
+                ->setName($column)
                 ->setProfile(json_encode($columnProfile, JSON_THROW_ON_ERROR));
         }
 
