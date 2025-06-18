@@ -49,12 +49,12 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
 
         if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
             Assert::assertSameColumns(
-                (new TeradataTableReflection(
+                source: (new TeradataTableReflection(
                     $this->connection,
                     $source->getSchema(),
                     $source->getTableName(),
                 ))->getColumnsDefinitions(),
-                $destination->getColumnsDefinitions(),
+                destination: $destination->getColumnsDefinitions(),
             );
         }
 

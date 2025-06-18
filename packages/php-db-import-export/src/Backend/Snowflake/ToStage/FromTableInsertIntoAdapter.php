@@ -56,14 +56,19 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
 
         if ($source instanceof Table && $importOptions->isRequireSameTables()) {
             Assert::assertSameColumns(
-                (new SnowflakeTableReflection(
+                source: (new SnowflakeTableReflection(
                     $this->connection,
                     $source->getSchema(),
                     $source->getTableName(),
                 ))->getColumnsDefinitions(),
-                $destination->getColumnsDefinitions(),
-                $importOptions->ignoreColumns(),
-                [
+                destination: $destination->getColumnsDefinitions(),
+                ignoreSourceColumns: $importOptions->ignoreColumns(),
+                complexLengthTypes: [
+                    Snowflake::TYPE_NUMBER,
+                    Snowflake::TYPE_DECIMAL,
+                    Snowflake::TYPE_NUMERIC,
+                ],
+                simpleLengthTypes: [
                     Snowflake::TYPE_VARCHAR,
                     Snowflake::TYPE_CHAR,
                     Snowflake::TYPE_CHARACTER,
@@ -85,11 +90,6 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
                     Snowflake::TYPE_BINARY,
                     Snowflake::TYPE_VARBINARY,
 
-                ],
-                [
-                    Snowflake::TYPE_NUMBER,
-                    Snowflake::TYPE_DECIMAL,
-                    Snowflake::TYPE_NUMERIC,
                 ],
             );
         }

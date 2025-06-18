@@ -8,7 +8,11 @@ use Keboola\Datatype\Definition\Common;
 use Keboola\Db\ImportExport\Exception\ColumnsMismatchException;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
+use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 
+/**
+ * @internal
+ */
 class Assert
 {
     /**
@@ -18,10 +22,13 @@ class Assert
     public const ASSERT_MINIMAL = 0;
     public const ASSERT_LENGTH = 1;
 
+    public const ASSERT_STRICT_LENGTH = 2;
+
     /**
-     * @param string[] $ignoreSourceColumns
-     * @param string[] $simpleLengthTypes - list of types where length is represented by single number
      * @param string[] $complexLengthTypes
+     * @param string[] $simpleLengthTypes - list of types where length is represented by single number
+     * @param string[] $ignoreSourceColumns
+     * @param string[] $ignoreDestinationColumns
      * - list of numeric types where length is presented by <scale:int>,<precision:int>
      * @throws ColumnsMismatchException
      */
@@ -29,15 +36,22 @@ class Assert
         ColumnCollection $source,
         ColumnCollection $destination,
         array $ignoreSourceColumns = [],
-        array $simpleLengthTypes = [],
+        array $ignoreDestinationColumns = [],
         array $complexLengthTypes = [],
         int $assertOptions = self::ASSERT_LENGTH,
+        array $simpleLengthTypes = [],
     ): void {
         $it0 = $source->getIterator();
         $it1 = $destination->getIterator();
         while ($it0->valid() || $it1->valid()) {
             if ($it0->valid() && in_array($it0->current()->getColumnName(), $ignoreSourceColumns, true)) {
                 $it0->next();
+                if (!$it0->valid() && !$it1->valid()) {
+                    break;
+                }
+            }
+            if ($it1->valid() && in_array($it1->current()->getColumnName(), $ignoreDestinationColumns, true)) {
+                $it1->next();
                 if (!$it0->valid() && !$it1->valid()) {
                     break;
                 }
@@ -67,12 +81,35 @@ class Assert
                         $complexLengthTypes,
                     );
                 }
+
+                if ($assertOptions & self::ASSERT_STRICT_LENGTH) {
+                    self::assertLengthMismatchStrict(
+                        $sourceCol,
+                        $destCol,
+                    );
+                }
             } else {
                 throw ColumnsMismatchException::createColumnsCountMismatch($source, $destination);
             }
 
             $it0->next();
             $it1->next();
+        }
+    }
+
+    public static function assertPrimaryKeys(
+        TableDefinitionInterface $source,
+        TableDefinitionInterface $destination,
+    ): void {
+        $sourcePrimaryKeys = $source->getPrimaryKeysNames();
+        $destinationPrimaryKeys = $destination->getPrimaryKeysNames();
+        sort($sourcePrimaryKeys);
+        sort($destinationPrimaryKeys);
+        if ($sourcePrimaryKeys !== $destinationPrimaryKeys) {
+            throw ColumnsMismatchException::createPrimaryKeysColumnsMismatch(
+                $sourcePrimaryKeys,
+                $destinationPrimaryKeys,
+            );
         }
     }
 
@@ -176,6 +213,20 @@ class Assert
         }
 
         if ($isLengthMismatch) {
+            throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
+        }
+    }
+
+    private static function assertLengthMismatchStrict(
+        ColumnInterface $sourceCol,
+        ColumnInterface $destCol,
+    ): void {
+        /** @var Common $sourceDef */
+        $sourceDef = $sourceCol->getColumnDefinition();
+        /** @var Common $destDef */
+        $destDef = $destCol->getColumnDefinition();
+
+        if ($sourceDef->getLength() !== $destDef->getLength()) {
             throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $destCol);
         }
     }
