@@ -52,7 +52,7 @@ class AssertTest extends TestCase
             ),
         ];
 
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
         );
@@ -64,7 +64,7 @@ class AssertTest extends TestCase
     public function testAssertSameColumnsIgnore(): void
     {
         // first in cols
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test2'),
                 SnowflakeColumn::createGenericColumn('test'),
@@ -78,7 +78,7 @@ class AssertTest extends TestCase
         );
 
         // middle
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test2'),
@@ -92,7 +92,7 @@ class AssertTest extends TestCase
         );
 
         // end
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
@@ -118,9 +118,9 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test1'),
         ];
 
-        $this->expectException(Exception::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage('Tables don\'t have same number of columns.');
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
         );
@@ -138,9 +138,9 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test2'),
         ];
 
-        $this->expectException(Exception::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage('Tables don\'t have same number of columns.');
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
         );
@@ -157,9 +157,9 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test1'),
         ];
 
-        $this->expectException(Exception::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage('Source destination columns name mismatch. "test1x"->"test1"');
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
         );
@@ -194,11 +194,11 @@ class AssertTest extends TestCase
             ),
         ];
 
-        $this->expectException(Exception::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage(
             'Source destination columns mismatch. "test2 TIME (3)"->"test2 TIMESTAMP_NTZ (3)"',
         );
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
         );
@@ -233,9 +233,9 @@ class AssertTest extends TestCase
             ),
         ];
 
-        $this->expectException(Exception::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME (3)"->"test2 TIME (4)"');
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
         );
@@ -265,9 +265,9 @@ class AssertTest extends TestCase
             ),
         ];
 
-        $this->expectException(Exception::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME"->"test2 TIME (4)"');
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
         );
@@ -293,7 +293,7 @@ class AssertTest extends TestCase
             'destType' => 'simpleType',
             'destLength' => '1',
             'expectedException' => [
-                Exception::class,
+                ColumnsMismatchException::class,
                 'Source destination columns mismatch. "test2 simpleType(2)"->"test2 simpleType(1)"',
             ],
         ];
@@ -315,7 +315,7 @@ class AssertTest extends TestCase
             'destType' => 'complexType',
             'destLength' => '1',
             'expectedException' => [
-                Exception::class,
+                ColumnsMismatchException::class,
                 'Source destination columns mismatch. "test2 complexType(2)"->"test2 complexType(1)"',
             ],
         ];
@@ -349,7 +349,7 @@ class AssertTest extends TestCase
             'destType' => 'complexType',
             'destLength' => '1,1',
             'expectedException' => [
-                Exception::class,
+                ColumnsMismatchException::class,
                 'Source destination columns mismatch. "test2 complexType(2,2)"->"test2 complexType(1,1)"',
             ],
         ];
@@ -359,7 +359,7 @@ class AssertTest extends TestCase
             'destType' => 'complexType',
             'destLength' => '1,2',
             'expectedException' => [
-                Exception::class,
+                ColumnsMismatchException::class,
                 'Source destination columns mismatch. "test2 complexType(2,2)"->"test2 complexType(1,2)"',
             ],
         ];
@@ -369,7 +369,7 @@ class AssertTest extends TestCase
             'destType' => 'complexType',
             'destLength' => '2,1',
             'expectedException' => [
-                Exception::class,
+                ColumnsMismatchException::class,
                 'Source destination columns mismatch. "test2 complexType(2,2)"->"test2 complexType(2,1)"',
             ],
         ];
@@ -385,7 +385,7 @@ class AssertTest extends TestCase
             'destType' => 'otherType',
             'destLength' => '1',
             'expectedException' => [
-                Exception::class,
+                ColumnsMismatchException::class,
                 'Source destination columns mismatch. "test2 otherType(2)"->"test2 otherType(1)"',
             ],
         ];
@@ -395,7 +395,7 @@ class AssertTest extends TestCase
             'destType' => 'otherType',
             'destLength' => '3',
             'expectedException' => [
-                Exception::class,
+                ColumnsMismatchException::class,
                 'Source destination columns mismatch. "test2 otherType(2)"->"test2 otherType(3)"',
             ],
         ];
@@ -430,7 +430,7 @@ class AssertTest extends TestCase
         } else {
             $this->expectNotToPerformAssertions();
         }
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
             complexLengthTypes: ['COMPLEXTYPE'],
@@ -527,8 +527,7 @@ class AssertTest extends TestCase
                 ),
             ),
         ];
-
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
             assertOptions: Assert::ASSERT_MINIMAL,
@@ -562,7 +561,7 @@ class AssertTest extends TestCase
             ),
         ];
         $this->expectNotToPerformAssertions();
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
             assertOptions: Assert::ASSERT_STRICT_LENGTH,
@@ -595,11 +594,11 @@ class AssertTest extends TestCase
                 ),
             ),
         ];
-        $this->expectException(Exception::class);
+        $this->expectException(ColumnsMismatchException::class);
         $this->expectExceptionMessage(
             'Source destination columns mismatch. "test1 VARCHAR (10)"->"test1 VARCHAR (20)"',
         );
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
             assertOptions: Assert::ASSERT_STRICT_LENGTH,
@@ -666,5 +665,375 @@ class AssertTest extends TestCase
                 return TableType::TABLE;
             }
         };
+    }
+
+    public function testAssertSameColumnsUnordered(): void
+    {
+        // identical columns, order doesn't matter
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
+                        'length' => '3',
+                    ],
+                ),
+            ),
+        ];
+        $destCols = [
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
+                        'length' => '3',
+                    ],
+                ),
+            ),
+            SnowflakeColumn::createGenericColumn('test1'),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        $this->expectNotToPerformAssertions();
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+        );
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertSameColumnsUnorderedIgnore(): void
+    {
+        // ignore source column
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test2'),
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            destination: new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            ignoreSourceColumns: ['test2'],
+        );
+        // ignore destination column
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            destination: new ColumnCollection([
+                SnowflakeColumn::createGenericColumn('test2'),
+                SnowflakeColumn::createGenericColumn('test'),
+                SnowflakeColumn::createGenericColumn('test1'),
+            ]),
+            ignoreDestinationColumns: ['test2'],
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedInvalidCountExtraSource(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            SnowflakeColumn::createGenericColumn('test2'),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+        ];
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage("Tables don't have same number of columns.");
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedInvalidCountExtraDestination(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            SnowflakeColumn::createGenericColumn('test2'),
+        ];
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage("Tables don't have same number of columns.");
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedInvalidColumnName(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1x'),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+        ];
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage('Source column "test1x" not found in destination table');
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedInvalidType(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
+                        'length' => '3',
+                    ],
+                ),
+            ),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIMESTAMP_NTZ,
+                    options: [
+                        'length' => '3',
+                    ],
+                ),
+            ),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage(
+            'Source destination columns mismatch. "test2 TIME (3)"->"test2 TIMESTAMP_NTZ (3)"',
+        );
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedInvalidLength(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
+                        'length' => '3',
+                    ],
+                ),
+            ),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
+                        'length' => '4',
+                    ],
+                ),
+            ),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME (3)"->"test2 TIME (4)"');
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedInvalidLength2(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(Snowflake::TYPE_TIME),
+            ),
+        ];
+        $destCols = [
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
+                        'length' => '4',
+                    ],
+                ),
+            ),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage('Source destination columns mismatch. "test2 TIME"->"test2 TIME (4)"');
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+        );
+    }
+
+    /**
+     * @dataProvider dataProviderAssertTypesLength
+     * @param array{class-string<Throwable>, string}|null $expectedException
+     */
+    public function testAssertSameColumnsUnorderedWithSpecificLengths(
+        string $sourceType,
+        string $sourceLength,
+        string $destType,
+        string $destLength,
+        array|null $expectedException = null,
+    ): void {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            $this->getColumn(type: $sourceType, length: $sourceLength),
+        ];
+        $destCols = [
+            $this->getColumn(type: $destType, length: $destLength),
+            SnowflakeColumn::createGenericColumn('test1'),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        if ($expectedException !== null) {
+            [$exceptionClass, $exceptionMessage] = $expectedException;
+            $this->expectException($exceptionClass);
+            $this->expectExceptionMessage($exceptionMessage);
+        } else {
+            $this->expectNotToPerformAssertions();
+        }
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            complexLengthTypes: ['COMPLEXTYPE'],
+            simpleLengthTypes: ['SIMPLETYPE'],
+        );
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testAssertSameColumnsUnorderedInvalidLengthIgnore(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            SnowflakeColumn::createGenericColumn('test1'),
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(Snowflake::TYPE_TIME),
+            ),
+        ];
+        $destCols = [
+            new SnowflakeColumn(
+                columnName: 'test2',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_TIME,
+                    options: [
+                        'length' => '4',
+                    ],
+                ),
+            ),
+            SnowflakeColumn::createGenericColumn('test1'),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            assertOptions: Assert::ASSERT_MINIMAL,
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedStrictLengthPasses(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            new SnowflakeColumn(
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
+                        'length' => '10',
+                    ],
+                ),
+            ),
+        ];
+        $destCols = [
+            new SnowflakeColumn(
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
+                        'length' => '10',
+                    ],
+                ),
+            ),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        $this->expectNotToPerformAssertions();
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            assertOptions: Assert::ASSERT_STRICT_LENGTH,
+        );
+    }
+
+    public function testAssertSameColumnsUnorderedStrictLengthFails(): void
+    {
+        $sourceCols = [
+            SnowflakeColumn::createGenericColumn('test'),
+            new SnowflakeColumn(
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
+                        'length' => '10',
+                    ],
+                ),
+            ),
+        ];
+        $destCols = [
+            new SnowflakeColumn(
+                columnName: 'test1',
+                columnDefinition: new Snowflake(
+                    type: Snowflake::TYPE_VARCHAR,
+                    options: [
+                        'length' => '20',
+                    ],
+                ),
+            ),
+            SnowflakeColumn::createGenericColumn('test'),
+        ];
+        $this->expectException(ColumnsMismatchException::class);
+        $this->expectExceptionMessage(
+            'Source destination columns mismatch. "test1 VARCHAR (10)"->"test1 VARCHAR (20)"',
+        );
+        Assert::assertSameColumnsUnordered(
+            source: new ColumnCollection($sourceCols),
+            destination: new ColumnCollection($destCols),
+            assertOptions: Assert::ASSERT_STRICT_LENGTH,
+        );
     }
 }

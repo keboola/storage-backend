@@ -237,7 +237,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
 
         // This should throw an exception about column names mismatch
         $this->expectException(ColumnsMismatchException::class);
-        $this->expectExceptionMessage('Source destination columns name mismatch. "col2"->"different_col2"');
+        $this->expectExceptionMessage('Source column "col2" not found in destination table');
 
         $importer->importToTable(
             $stagingDef,

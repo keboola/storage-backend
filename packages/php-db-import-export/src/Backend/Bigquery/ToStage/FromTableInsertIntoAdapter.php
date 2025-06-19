@@ -44,7 +44,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         }, $destination->getColumnsNames());
 
         if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
-            Assert::assertSameColumns(
+            Assert::assertSameColumnsOrdered(
                 source: (new BigqueryTableReflection(
                     $this->bqClient,
                     $source->getSchema(),

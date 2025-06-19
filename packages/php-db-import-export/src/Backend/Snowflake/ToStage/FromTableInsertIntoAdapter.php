@@ -55,7 +55,7 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         );
 
         if ($source instanceof Table && $importOptions->isRequireSameTables()) {
-            Assert::assertSameColumns(
+            Assert::assertSameColumnsOrdered(
                 source: (new SnowflakeTableReflection(
                     $this->connection,
                     $source->getSchema(),
