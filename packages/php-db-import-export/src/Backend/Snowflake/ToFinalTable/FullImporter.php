@@ -53,7 +53,7 @@ final class FullImporter implements ToFinalTableImporterInterface
         SnowflakeTableDefinition $destinationTableDefinition,
         ImportState $state,
     ): void {
-        Assert::assertSameColumns(
+        Assert::assertSameColumnsUnordered(
             source: $stagingTableDefinition->getColumnsDefinitions(),
             destination: $destinationTableDefinition->getColumnsDefinitions(),
             ignoreDestinationColumns: [

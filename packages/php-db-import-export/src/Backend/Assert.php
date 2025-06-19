@@ -21,7 +21,6 @@ class Assert
      */
     public const ASSERT_MINIMAL = 0;
     public const ASSERT_LENGTH = 1;
-
     public const ASSERT_STRICT_LENGTH = 2;
 
     /**
@@ -32,7 +31,7 @@ class Assert
      * - list of numeric types where length is presented by <scale:int>,<precision:int>
      * @throws ColumnsMismatchException
      */
-    public static function assertSameColumns(
+    public static function assertSameColumnsOrdered(
         ColumnCollection $source,
         ColumnCollection $destination,
         array $ignoreSourceColumns = [],
@@ -94,6 +93,87 @@ class Assert
 
             $it0->next();
             $it1->next();
+        }
+    }
+
+    /**
+     * @param string[] $complexLengthTypes
+     * @param string[] $simpleLengthTypes - list of types where length is represented by single number
+     * @param string[] $ignoreSourceColumns
+     * @param string[] $ignoreDestinationColumns
+     * - list of numeric types where length is presented by <scale:int>,<precision:int>
+     * @throws ColumnsMismatchException
+     */
+    public static function assertSameColumnsUnordered(
+        ColumnCollection $source,
+        ColumnCollection $destination,
+        array $ignoreSourceColumns = [],
+        array $ignoreDestinationColumns = [],
+        array $complexLengthTypes = [],
+        int $assertOptions = self::ASSERT_LENGTH,
+        array $simpleLengthTypes = [],
+    ): void {
+        if (count($source) !== count($destination)) {
+            $filteredSource = array_filter(
+                iterator_to_array($source),
+                static fn(ColumnInterface $col) => !in_array($col->getColumnName(), $ignoreSourceColumns, true),
+            );
+            $filteredDestination = array_filter(
+                iterator_to_array($destination),
+                static fn(ColumnInterface $col) => !in_array($col->getColumnName(), $ignoreDestinationColumns, true),
+            );
+
+            if (count($filteredSource) !== count($filteredDestination)) {
+                throw ColumnsMismatchException::createColumnsCountMismatch($source, $destination);
+            }
+        }
+
+        foreach ($source as $sourceCol) {
+            $matchedDestCol = null;
+            foreach ($destination as $destCol) {
+                if ($sourceCol->getColumnName() === $destCol->getColumnName()) {
+                    $matchedDestCol = $destCol;
+                    break;
+                }
+            }
+            // do not compare ignored columns
+            if (in_array($sourceCol->getColumnName(), $ignoreSourceColumns, true)) {
+                continue;
+            }
+
+            if ($matchedDestCol === null) {
+                throw ColumnsMismatchException::createColumnByNameMissing($sourceCol);
+            }
+
+            // do not compare if destination column is ignored
+            if (in_array($matchedDestCol->getColumnName(), $ignoreDestinationColumns, true)) {
+                continue;
+            }
+
+            /** @var Common $sourceDef */
+            $sourceDef = $sourceCol->getColumnDefinition();
+            /** @var Common $destDef */
+            $destDef = $matchedDestCol->getColumnDefinition();
+
+            if ($sourceDef->getType() !== $destDef->getType()) {
+                throw ColumnsMismatchException::createColumnsMismatch($sourceCol, $matchedDestCol);
+            }
+
+            if ($assertOptions & self::ASSERT_LENGTH) {
+                self::assertLengthMismatch(
+                    $sourceCol,
+                    $matchedDestCol,
+                    $simpleLengthTypes,
+                    $complexLengthTypes,
+                );
+            }
+
+            if ($assertOptions & self::ASSERT_STRICT_LENGTH) {
+                self::assertLengthMismatchStrict(
+                    $sourceCol,
+                    $matchedDestCol,
+                );
+            }
         }
     }
 
