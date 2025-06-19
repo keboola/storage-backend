@@ -69,7 +69,12 @@ final class ProfileTableHandlerTest extends BaseCase
     protected function setUp(): void
     {
         parent::setUp();
-
+        $this->connection->executeQuery(
+            sprintf('DROP TABLE IF EXISTS %s.%s;',
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
+            ),
+        );
         $this->connection->executeQuery(
             (new SnowflakeTableQueryBuilder())->getCreateTableCommand(
                 self::SCHEMA_NAME,
