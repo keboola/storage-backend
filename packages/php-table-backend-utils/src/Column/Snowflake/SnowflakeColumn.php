@@ -54,7 +54,7 @@ final class SnowflakeColumn implements ColumnInterface
      *     name: string,
      *     type: string,
      *     default: string,
-     *     'null?': string
+     *     "null?": string,
      * } $dbResponse
      */
     public static function createFromDB(array $dbResponse): SnowflakeColumn
