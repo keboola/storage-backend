@@ -40,7 +40,6 @@ final class ProfileTableHandler extends BaseHandler
         assert($command->getPath()->count() === 1, 'CreateProfileTableCommand.path is required and size must equal 1');
         assert($command->getTableName() !== '', 'CreateProfileTableCommand.tableName is required');
 
-
         $connection = ConnectionFactory::createFromCredentials($credentials);
         $schemaName = $command->getPath()[0];
         $tableName = $command->getTableName();

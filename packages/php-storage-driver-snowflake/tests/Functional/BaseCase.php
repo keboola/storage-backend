@@ -36,7 +36,7 @@ abstract class BaseCase extends TestCase
         $this->getSnowflakeConnection();
 
         $this->connection->executeQuery(
-            (new SnowflakeSchemaQueryBuilder())->getCreateSchemaCommand(self::SCHEMA_NAME)
+            (new SnowflakeSchemaQueryBuilder())->getCreateSchemaCommand(self::SCHEMA_NAME),
         );
     }
 

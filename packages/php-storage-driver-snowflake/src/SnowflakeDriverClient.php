@@ -12,6 +12,9 @@ use Keboola\StorageDriver\Snowflake\Handler\HandlerFactory;
 
 final class SnowflakeDriverClient implements ClientInterface
 {
+    /**
+     * @param string[] $features
+     */
     public function runCommand(
         Message $credentials,
         Message $command,
