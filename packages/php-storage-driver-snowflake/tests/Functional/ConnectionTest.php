@@ -12,6 +12,6 @@ class ConnectionTest extends BaseCase
     public function testQuery(): void
     {
         $connection = $this->getSnowflakeConnection();
-        $connection->executeQuery("SELECT 1");
+        $connection->executeQuery('SELECT 1');
     }
 }

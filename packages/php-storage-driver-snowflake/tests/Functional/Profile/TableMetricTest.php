@@ -61,7 +61,6 @@ final class TableMetricTest extends BaseCase
                     new SnowflakeColumn('isActive', new Snowflake(Snowflake::TYPE_BOOLEAN)),
                     new SnowflakeColumn('score', new Snowflake(Snowflake::TYPE_FLOAT)),
                 ]),
-
             ),
         );
 
