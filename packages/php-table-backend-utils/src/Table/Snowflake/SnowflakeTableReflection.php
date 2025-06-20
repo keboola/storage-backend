@@ -118,13 +118,16 @@ final class SnowflakeTableReflection implements TableReflectionInterface
     public function getColumnsDefinitions(): ColumnCollection
     {
         $this->cacheTableProps();
-        /** @var array<array{
+
+        /**
+         * @var array<array{
          *     name: string,
          *     kind: string,
          *     type: string,
          *     default: string,
-         *     'null?': string
-         * }> $columnsMeta */
+         *     "null?": string,
+         * }> $columnsMeta
+         */
         $columnsMeta = $this->connection->fetchAllAssociative(
             sprintf(
                 'DESC TABLE %s',
