@@ -16,6 +16,8 @@
     },
     "require-dev": {
         "keboola/coding-standard": "^15",
+        "phpstan/phpstan": "^1.4",
+        "phpstan/phpstan-phpunit": "^1",
         "phpunit/phpunit": "^9"
     },
     "autoload": {
@@ -34,9 +36,11 @@
             "@tests-functional"
         ],
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "check": [
             "@composer validate --no-check-all --strict",
-            "@phpcs"
+            "@phpcs",
+            "@phpstan"
         ],
         "ci": [
             "@check",
