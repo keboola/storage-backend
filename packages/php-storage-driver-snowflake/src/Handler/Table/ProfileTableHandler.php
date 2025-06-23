@@ -9,6 +9,7 @@ use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse\Column;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
+use Keboola\StorageDriver\Shared\Utils\ProtobufHelper;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 use Keboola\StorageDriver\Snowflake\Handler\BaseHandler;
 use Keboola\StorageDriver\Snowflake\Profile\Column\DistinctCountColumnMetric;
@@ -41,7 +42,7 @@ final class ProfileTableHandler extends BaseHandler
         assert($command->getTableName() !== '', 'CreateProfileTableCommand.tableName is required');
 
         $connection = ConnectionFactory::createFromCredentials($credentials);
-        $schemaName = $command->getPath()[0];
+        $schemaName = ProtobufHelper::repeatedStringToArray($command->getPath())[0];
         $tableName = $command->getTableName();
 
         $response = (new CreateProfileTableResponse())

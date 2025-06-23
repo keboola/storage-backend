@@ -137,7 +137,7 @@ final class ProfileTableHandlerTest extends BaseCase
         $host = (string) getenv('SNOWFLAKE_HOST');
         $user = (string) getenv('SNOWFLAKE_USER');
         $password = (string) getenv('SNOWFLAKE_PASSWORD');
-        $port = (string) getenv('SNOWFLAKE_PORT');
+        $port = (int) getenv('SNOWFLAKE_PORT');
         $warehouse = (string) getenv('SNOWFLAKE_WAREHOUSE');
         $database = (string) getenv('SNOWFLAKE_DATABASE');
 

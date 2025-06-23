@@ -35,6 +35,7 @@ final class NullCountColumnMetric implements ColumnMetricInterface
             SnowflakeQuote::quoteSingleIdentifier($column),
         );
 
+        /** @var string $result */
         $result = $connection->fetchOne($sql);
 
         return (int) $result;

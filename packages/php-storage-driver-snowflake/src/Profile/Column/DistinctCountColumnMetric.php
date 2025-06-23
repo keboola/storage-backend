@@ -35,6 +35,7 @@ final class DistinctCountColumnMetric implements ColumnMetricInterface
             SnowflakeQuote::quoteSingleIdentifier($table),
         );
 
+        /** @var string $result */
         $result = $connection->fetchOne($sql);
 
         return (int) $result;

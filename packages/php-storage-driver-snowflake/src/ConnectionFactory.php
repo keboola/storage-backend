@@ -27,7 +27,7 @@ final class ConnectionFactory
             $credentials->getPrincipal(),
             $credentials->getSecret(),
             [
-                'port' => $credentials->getPort(),
+                'port' => (string) $credentials->getPort(),
                 'warehouse' => $meta->getWarehouse(),
                 'database' => $meta->getDatabase(),
             ],
