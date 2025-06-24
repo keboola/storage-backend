@@ -14,7 +14,7 @@ final class HandlerFactory
 {
     public static function create(Message $command): DriverCommandHandlerInterface
     {
-        return match($command::class) {
+        return match ($command::class) {
             CreateProfileTableCommand::class => new ProfileTableHandler(),
             default => throw new CommandNotSupportedException($command::class),
         };

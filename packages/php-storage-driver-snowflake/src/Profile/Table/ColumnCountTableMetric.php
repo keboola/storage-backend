@@ -35,6 +35,7 @@ final class ColumnCountTableMetric implements TableMetricInterface
             SnowflakeQuote::quote($table),
         );
 
+        /** @var string $result */
         $result = $connection->fetchOne($sql);
 
         return (int) $result;

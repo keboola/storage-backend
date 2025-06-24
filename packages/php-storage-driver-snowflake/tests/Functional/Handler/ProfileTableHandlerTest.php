@@ -70,7 +70,8 @@ final class ProfileTableHandlerTest extends BaseCase
     {
         parent::setUp();
         $this->connection->executeQuery(
-            sprintf('DROP TABLE IF EXISTS %s.%s;',
+            sprintf(
+                'DROP TABLE IF EXISTS %s.%s;',
                 SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
                 SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
             ),
@@ -113,6 +114,7 @@ final class ProfileTableHandlerTest extends BaseCase
         );
 
         $this->connection->executeQuery(sprintf(
+            // phpcs:disable
             <<<'SQL'
                 INSERT INTO %s.%s ("id", "col_varchar", "col_bool", "col_number", "col_decimal", "col_float", "col_date") VALUES
                 (1, 'Bluetooth Headphones', TRUE, 120, 29.99, 4.5, DATE '2023-03-01'),
@@ -124,18 +126,18 @@ final class ProfileTableHandlerTest extends BaseCase
                 (7, 'USB-C Hub', TRUE, 30, 22.49, NULL, DATE '2023-12-12'),
                 (8, 'Ultrabook', FALSE, 60, 75.00, 2.4, DATE '2021-05-25')
                 SQL,
+            // phpcs:enable
             SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
         ));
     }
-
 
     private function createCredentials(): GenericBackendCredentials
     {
         $host = (string) getenv('SNOWFLAKE_HOST');
         $user = (string) getenv('SNOWFLAKE_USER');
         $password = (string) getenv('SNOWFLAKE_PASSWORD');
-        $port = (string) getenv('SNOWFLAKE_PORT');
+        $port = (int) getenv('SNOWFLAKE_PORT');
         $warehouse = (string) getenv('SNOWFLAKE_WAREHOUSE');
         $database = (string) getenv('SNOWFLAKE_DATABASE');
 

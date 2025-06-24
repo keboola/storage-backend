@@ -15,6 +15,9 @@
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
+        "keboola/coding-standard": "^15",
+        "phpstan/phpstan": "^1.4",
+        "phpstan/phpstan-phpunit": "^1",
         "phpunit/phpunit": "^9"
     },
     "autoload": {
@@ -32,8 +35,12 @@
         "tests": [
             "@tests-functional"
         ],
+        "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "check": [
-            "@composer validate --no-check-all --strict"
+            "@composer validate --no-check-all --strict",
+            "@phpcs",
+            "@phpstan"
         ],
         "ci": [
             "@check",
@@ -43,6 +50,9 @@
     "config": {
         "lock": false,
         "optimize-autoloader": true,
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

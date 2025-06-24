@@ -39,6 +39,7 @@ final class DuplicateCountColumnMetric implements ColumnMetricInterface
             $columnQuoted,
         );
 
+        /** @var string $result */
         $result = $connection->fetchOne($sql);
 
         return (int) $result;
