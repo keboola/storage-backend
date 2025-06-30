@@ -62,13 +62,13 @@ final class ConnectionFactory
                 $credentials->getSecret(),
                 $connectionParams,
             );
-        } else {
-            return SnowflakeConnectionFactory::getConnection(
-                $credentials->getHost(),
-                $credentials->getPrincipal(),
-                $credentials->getSecret(),
-                $connectionParams,
-            );
         }
+
+        return SnowflakeConnectionFactory::getConnection(
+            $credentials->getHost(),
+            $credentials->getPrincipal(),
+            $credentials->getSecret(),
+            $connectionParams,
+        );
     }
 }
