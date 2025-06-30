@@ -53,6 +53,7 @@
             "Keboola\\StorageDriver\\": "packages/php-storage-driver-common/generated/Keboola/StorageDriver",
             "Keboola\\StorageDriver\\Contract\\": "packages/php-storage-driver-common/contract/",
             "Keboola\\StorageDriver\\Shared\\": "packages/php-storage-driver-common/Shared/",
+            "Keboola\\StorageDriver\\Snowflake\\": "packages/php-storage-driver-snowflake/src/",
             "Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/src/"
         }
     },
@@ -66,7 +67,8 @@
             "Tests\\Keboola\\Db\\ImportExportCommon\\": "packages/php-db-import-export/tests/Common",
             "Tests\\Keboola\\Db\\ImportExportFunctional\\": "packages/php-db-import-export/tests/functional/",
             "Tests\\Keboola\\Db\\ImportExportUnit\\": "packages/php-db-import-export/tests/unit",
-            "Tests\\Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/tests"
+            "Tests\\Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/tests",
+            "Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\": "packages/php-storage-driver-snowflake/tests/Functional"
         }
     },
     "replace": {
