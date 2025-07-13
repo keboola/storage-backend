@@ -7,7 +7,6 @@ namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\Exporter;
 use Keboola\Db\ImportExport\Backend\Snowflake\Export\S3ParquetExportAdapter;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Storage\S3\S3DestinationInterface;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class ParquetExportTest extends SnowflakeBaseTestCase
