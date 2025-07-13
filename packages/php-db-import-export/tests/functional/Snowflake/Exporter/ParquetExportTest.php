@@ -90,14 +90,14 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         [$data, $newTableName] = $this->loadDataFromStageToSnowflakeTable($tableName, $stageName, $slice['FILE_NAME']);
 
         $this->assertCount(2, $data);
-        
+
         // Check first row
         $this->assertEquals(1, (int) $data[0]['ID']);
         $this->assertEquals('test string', $data[0]['STRING_COL']);
         $this->assertEquals('123.45', $data[0]['NUMBER_COL']);
         $this->assertEquals('2024-01-01', $data[0]['DATE_COL']);
         $this->assertEquals('1', $data[0]['BOOL_COL']); // Snowflake returns booleans as '1'/'0'
-        
+
         // Check second row
         $this->assertEquals(2, (int) $data[1]['ID']);
         $this->assertEquals('another string', $data[1]['STRING_COL']);
@@ -108,11 +108,11 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         // Clean up
         $this->connection->executeQuery(sprintf(
             'DROP STAGE IF EXISTS %s',
-            $this->connection->quoteIdentifier($stageName)
+            $this->connection->quoteIdentifier($stageName),
         ));
         $this->connection->executeQuery(sprintf(
             'DROP TABLE IF EXISTS %s',
-            $this->connection->quoteIdentifier($newTableName)
+            $this->connection->quoteIdentifier($newTableName),
         ));
     }
 
@@ -125,7 +125,6 @@ class ParquetExportTest extends SnowflakeBaseTestCase
             'SELECT * FROM %s',
             $this->connection->quoteIdentifier($tableName),
         ));
-
 
         $options = new ExportOptions(
             isCompressed: true,
@@ -176,11 +175,11 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         // Clean up
         $this->connection->executeQuery(sprintf(
             'DROP STAGE IF EXISTS %s',
-            $this->connection->quoteIdentifier($stageName)
+            $this->connection->quoteIdentifier($stageName),
         ));
         $this->connection->executeQuery(sprintf(
             'DROP TABLE IF EXISTS %s',
-            $this->connection->quoteIdentifier($newTableName)
+            $this->connection->quoteIdentifier($newTableName),
         ));
     }
 
@@ -222,7 +221,6 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $files = $this->getFileNames($this->getExportDir(), false);
         $this->assertContains($this->getExportDir() . '/parquet_query_testmanifest', array_values($files));
 
-
         $stageName = $this->prepareStage($destination);
         [$data, $newTableName] = $this->loadDataFromStageToSnowflakeTable($tableName, $stageName, $slice['FILE_NAME']);
 
@@ -245,11 +243,11 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         // Clean up
         $this->connection->executeQuery(sprintf(
             'DROP STAGE IF EXISTS %s',
-            $this->connection->quoteIdentifier($stageName)
+            $this->connection->quoteIdentifier($stageName),
         ));
         $this->connection->executeQuery(sprintf(
             'DROP TABLE IF EXISTS %s',
-            $this->connection->quoteIdentifier($newTableName)
+            $this->connection->quoteIdentifier($newTableName),
         ));
     }
 
@@ -265,13 +263,13 @@ class ParquetExportTest extends SnowflakeBaseTestCase
             $this->connection->quoteIdentifier($stageName),
             $this->connection->quote($destination->getS3Prefix() . '/' . $this->getExportDir()),
             $this->connection->quote($destination->getKey()),
-            $this->connection->quote($destination->getSecret())
+            $this->connection->quote($destination->getSecret()),
         ));
 
         return $stageName;
     }
 
-    private function loadDataFromStageToSnowflakeTable(string $tableName, string $stageName, $FILE_NAME): array
+    private function loadDataFromStageToSnowflakeTable(string $tableName, string $stageName, string $fileName): array
     {
         // Create a new table directly from the stage, letting Snowflake infer the schema
         $newTableName = sprintf('%s_from_parquet', $tableName);
@@ -280,7 +278,7 @@ class ParquetExportTest extends SnowflakeBaseTestCase
             SELECT * FROM @%s/%s',
             $this->connection->quoteIdentifier($newTableName),
             $this->connection->quoteIdentifier($stageName),
-            basename($FILE_NAME)
+            basename($fileName),
         ));
 
         // Verify the data structure and values
@@ -292,8 +290,8 @@ class ParquetExportTest extends SnowflakeBaseTestCase
                 PARSE_JSON($1):"DATE_COL"::DATE as "DATE_COL",
                 PARSE_JSON($1):"BOOL_COL"::BOOLEAN as "BOOL_COL"
             FROM %s ORDER BY PARSE_JSON($1):"ID"::INTEGER',
-            $this->connection->quoteIdentifier($newTableName)
+            $this->connection->quoteIdentifier($newTableName),
         ));
         return [$data, $newTableName];
     }
-} 
+}
