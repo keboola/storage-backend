@@ -56,10 +56,10 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $tableName = $this->getTestTableName();
         $this->createTestTable($tableName);
 
-        $source = new Storage\Snowflake\SelectSource(sprintf(
-            'SELECT * FROM %s',
-            $this->connection->quoteIdentifier($tableName),
-        ));
+        $source = new Storage\Snowflake\Table(
+            $this->getDestinationSchemaName(),
+            $tableName,
+        );
 
         $options = new ExportOptions(
             isCompressed: false,
