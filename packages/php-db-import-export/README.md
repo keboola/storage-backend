@@ -38,6 +38,11 @@ The AWS credentials have to also have access to bucket specified in `AWS_S3_BUCK
 
 ### Preparation
 
+#### AWS
+
+Run terraform to create resources for tests. See [Terraform.md](./docs/Terraform.md) for details.
+
+
 #### Azure
 
 - Create [storage account](https://portal.azure.com/#create/Microsoft.StorageAccount-ARM) template can be found in provisioning ABS [create template](https://portal.azure.com/#create/Microsoft.Template)

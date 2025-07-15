@@ -9,3 +9,4 @@ packages/php-table-backend-utils/terraform.tfstate
 packages/php-table-backend-utils/terraform.tfstate.backup
 rsa_key.p8
 rsa_key.pub
+/packages/table-backend-utils/.env
