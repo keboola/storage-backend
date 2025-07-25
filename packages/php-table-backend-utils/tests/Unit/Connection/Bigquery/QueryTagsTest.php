@@ -11,14 +11,14 @@ use PHPUnit\Framework\TestCase;
 
 class QueryTagsTest extends TestCase
 {
-    public function testEmptyLabels(): void
+    public function testEmptyQueryTags(): void
     {
         $queryTags = new QueryTags();
         $this->assertTrue($queryTags->isEmpty());
         $this->assertEmpty($queryTags->toArray());
     }
 
-    public function testValidLabelInConstructor(): void
+    public function testValidQueryTagsInConstructor(): void
     {
         $queryTags = new QueryTags([
             QueryTagKey::BRANCH_ID->value => 'test-branch',
@@ -31,10 +31,10 @@ class QueryTagsTest extends TestCase
         );
     }
 
-    public function testValidLabelAddition(): void
+    public function testValidQueryTagsAddition(): void
     {
         $queryTags = new QueryTags();
-        $queryTags->addLabel(QueryTagKey::BRANCH_ID->value, 'test-branch');
+        $queryTags->addTag(QueryTagKey::BRANCH_ID->value, 'test-branch');
 
         $this->assertFalse($queryTags->isEmpty());
         $this->assertEquals(
@@ -43,31 +43,31 @@ class QueryTagsTest extends TestCase
         );
     }
 
-    public function testInvalidLabelInConstructor(): void
+    public function testInvalidQueryTagsInConstructor(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid label key "invalid_key". Valid keys are: branch_id');
+        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id');
 
         new QueryTags([
             'invalid_key' => 'some-value',
         ]);
     }
 
-    public function testInvalidLabelAddition(): void
+    public function testInvalidQueryTagsAddition(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid label key "invalid_key". Valid keys are: branch_id');
+        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id');
 
         $queryTags = new QueryTags();
-        $queryTags->addLabel('invalid_key', 'some-value');
+        $queryTags->addTag('invalid_key', 'some-value');
     }
 
-    public function testChainedLabelAddition(): void
+    public function testChainedQueryTagsAddition(): void
     {
         $queryTags = new QueryTags();
         $queryTags
-            ->addLabel(QueryTagKey::BRANCH_ID->value, 'test-branch-1')
-            ->addLabel(QueryTagKey::BRANCH_ID->value, 'test-branch-2'); // Override previous value
+            ->addTag(QueryTagKey::BRANCH_ID->value, 'test-branch-1')
+            ->addTag(QueryTagKey::BRANCH_ID->value, 'test-branch-2'); // Override previous value
 
         $this->assertEquals(
             ['branch_id' => 'test-branch-2'],
@@ -76,19 +76,19 @@ class QueryTagsTest extends TestCase
     }
 
     /**
-     * @dataProvider validLabelValuesProvider
+     * @dataProvider validQueryTagsValuesProvider
      */
-    public function testValidLabelValues(string $value): void
+    public function testValidQueryTagsValues(string $value): void
     {
         $queryTags = new QueryTags();
-        $queryTags->addLabel(QueryTagKey::BRANCH_ID->value, $value);
+        $queryTags->addTag(QueryTagKey::BRANCH_ID->value, $value);
         $this->assertEquals($value, $queryTags->toArray()[QueryTagKey::BRANCH_ID->value]);
     }
 
     /**
      * @return array<string, array{string}>
      */
-    public function validLabelValuesProvider(): array
+    public function validQueryTagsValuesProvider(): array
     {
         return [
             'empty value' => [''],
@@ -108,46 +108,46 @@ class QueryTagsTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidLabelValuesProvider
+     * @dataProvider invalidQueryTagsValuesProvider
      */
-    public function testInvalidLabelValues(string $value, string $expectedMessage): void
+    public function testInvalidQueryTagsValues(string $value, string $expectedMessage): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($expectedMessage);
 
         $queryTags = new QueryTags();
-        $queryTags->addLabel(QueryTagKey::BRANCH_ID->value, $value);
+        $queryTags->addTag(QueryTagKey::BRANCH_ID->value, $value);
     }
 
     /**
      * @return array<string, array{string, string}>
      */
-    public function invalidLabelValuesProvider(): array
+    public function invalidQueryTagsValuesProvider(): array
     {
         return [
             'uppercase letters' => [
                 'Test-Branch',
-                'Invalid label value "Test-Branch" for key "branch_id". Values can only contain lowercase letters'
+                'Invalid query tag value "Test-Branch" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
             'special characters' => [
                 'test@branch',
-                'Invalid label value "test@branch" for key "branch_id". Values can only contain lowercase letters'
+                'Invalid query tag value "test@branch" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
             'too long' => [
                 str_repeat('a', 64),
-                'Label value "' . str_repeat('a', 64)
+                'Query tag value "' . str_repeat('a', 64)
                 . '" for key "branch_id" is too long. Maximum length is 63 characters.',
             ],
             'uppercase international' => [
                 'ÜBER-test',
-                'Invalid label value "ÜBER-test" for key "branch_id". Values can only contain lowercase letters'
+                'Invalid query tag value "ÜBER-test" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
             'special international' => [
                 'test-€-symbol',
-                'Invalid label value "test-€-symbol" for key "branch_id". Values can only contain lowercase letters'
+                'Invalid query tag value "test-€-symbol" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
         ];

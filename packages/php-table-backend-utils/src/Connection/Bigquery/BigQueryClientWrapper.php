@@ -51,17 +51,17 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function runQuery(JobConfigurationInterface $query, array $options = []): QueryResults
     {
-        $labels = [];
+        $queryTags = [];
         if ($this->runId !== '') {
-            $labels['run_id'] = $this->runId;
+            $queryTags['run_id'] = $this->runId;
         }
 
         if ($this->queryTags->isEmpty() === false) {
-            $labels = array_merge($labels, $this->queryTags->toArray());
+            $queryTags = array_merge($queryTags, $this->queryTags->toArray());
         }
 
-        if (count($labels) !== 0 && method_exists($query, 'labels')) {
-            $query = $query->labels($labels);
+        if (count($queryTags) !== 0 && method_exists($query, 'labels')) {
+            $query = $query->labels($queryTags);
         }
 
         return $this->runJob($query, $options)
