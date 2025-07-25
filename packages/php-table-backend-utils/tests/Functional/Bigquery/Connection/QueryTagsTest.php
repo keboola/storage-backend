@@ -32,7 +32,7 @@ class QueryTagsTest extends BigqueryBaseCase
             ],
         );
 
-        $query = $this->bqClient->query('SELECT 1');
+        $query = $bqClient->query('SELECT 1');
         $queryResults = $bqClient->runQuery($query);
 
         // Get job info and verify the run_id and branch_id label
