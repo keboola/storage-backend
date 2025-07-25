@@ -19,6 +19,7 @@ message DriverRequest {
  */
 message RuntimeOptions {
   string runId = 1; // runId
+  map<string, string> queryTags = 3; // these key-value pairs are used as labels for query (e.g. branchId)
   google.protobuf.Any meta = 2; // metadata specific for each backend
 }
 
