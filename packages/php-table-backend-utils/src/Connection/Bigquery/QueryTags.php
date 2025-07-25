@@ -35,7 +35,7 @@ class QueryTags
         QueryTagKey::validateKey($key);
 
         // Validate the value format
-        $this->validateLabelValue($value);
+        $this->validateLabelValue($key, $value);
 
         $this->labels[$key] = $value;
         return $this;
@@ -49,21 +49,23 @@ class QueryTags
      *
      * @throws InvalidArgumentException if the value is invalid
      */
-    private function validateLabelValue(string $value): void
+    private function validateLabelValue(string $key, string $value): void
     {
         if (strlen($value) > self::MAX_LENGTH) {
             throw new InvalidArgumentException(sprintf(
-                'Label value "%s" is too long. Maximum length is %d characters.',
+                'Label value "%s" for key "%s" is too long. Maximum length is %d characters.',
                 $value,
+                $key,
                 self::MAX_LENGTH,
             ));
         }
 
         if ($value !== '' && !preg_match(self::VALUE_PATTERN, $value)) {
             throw new InvalidArgumentException(sprintf(
-                'Invalid label value "%s". Values can only contain' .
+                'Invalid label value "%s" for key "%s". Values can only contain' .
                 ' lowercase letters (including international characters), numbers, underscores and dashes.',
                 $value,
+                $key,
             ));
         }
     }

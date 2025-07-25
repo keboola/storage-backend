@@ -127,26 +127,27 @@ class QueryTagsTest extends TestCase
         return [
             'uppercase letters' => [
                 'Test-Branch',
-                'Invalid label value "Test-Branch". Values can only contain lowercase letters'
+                'Invalid label value "Test-Branch" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
             'special characters' => [
                 'test@branch',
-                'Invalid label value "test@branch". Values can only contain lowercase letters'
+                'Invalid label value "test@branch" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
             'too long' => [
                 str_repeat('a', 64),
-                'Label value "' . str_repeat('a', 64) . '" is too long. Maximum length is 63 characters.',
+                'Label value "' . str_repeat('a', 64)
+                . '" for key "branch_id" is too long. Maximum length is 63 characters.',
             ],
             'uppercase international' => [
                 'ÜBER-test',
-                'Invalid label value "ÜBER-test". Values can only contain lowercase letters'
+                'Invalid label value "ÜBER-test" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
             'special international' => [
                 'test-€-symbol',
-                'Invalid label value "test-€-symbol". Values can only contain lowercase letters'
+                'Invalid label value "test-€-symbol" for key "branch_id". Values can only contain lowercase letters'
                 .' (including international characters), numbers, underscores and dashes.',
             ],
         ];
