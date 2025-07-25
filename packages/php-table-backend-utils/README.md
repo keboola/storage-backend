@@ -276,7 +276,7 @@ You must have the `resourcemanager.folders.create` permission for the organizati
 terraform init
 
 terraform apply -var folder_id=<your-org-id> -var backend_prefix=<your_backend_prefix> -var billing_account_id=<billing_account_id>
-# and enter name for your backend prefix for example your name, all resources will create with this prefx
+# and enter name for your backend prefix for example your name, all resources will create with this prefix
 ```
 
 After terraform apply ends go to the service project in folder created by terraform.
