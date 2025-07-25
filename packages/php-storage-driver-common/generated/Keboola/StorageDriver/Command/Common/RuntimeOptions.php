@@ -23,6 +23,12 @@ class RuntimeOptions extends \Google\Protobuf\Internal\Message
      */
     protected $runId = '';
     /**
+     * these key-value pairs are used as labels for query (e.g. branchId)
+     *
+     * Generated from protobuf field <code>map<string, string> queryTags = 3;</code>
+     */
+    private $queryTags;
+    /**
      * metadata specific for each backend
      *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 2;</code>
@@ -37,6 +43,8 @@ class RuntimeOptions extends \Google\Protobuf\Internal\Message
      *
      *     @type string $runId
      *           runId
+     *     @type array|\Google\Protobuf\Internal\MapField $queryTags
+     *           these key-value pairs are used as labels for query (e.g. branchId)
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -68,6 +76,32 @@ class RuntimeOptions extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->runId = $var;
+
+        return $this;
+    }
+
+    /**
+     * these key-value pairs are used as labels for query (e.g. branchId)
+     *
+     * Generated from protobuf field <code>map<string, string> queryTags = 3;</code>
+     * @return \Google\Protobuf\Internal\MapField
+     */
+    public function getQueryTags()
+    {
+        return $this->queryTags;
+    }
+
+    /**
+     * these key-value pairs are used as labels for query (e.g. branchId)
+     *
+     * Generated from protobuf field <code>map<string, string> queryTags = 3;</code>
+     * @param array|\Google\Protobuf\Internal\MapField $var
+     * @return $this
+     */
+    public function setQueryTags($var)
+    {
+        $arr = GPBUtil::checkMapField($var, \Google\Protobuf\Internal\GPBType::STRING, \Google\Protobuf\Internal\GPBType::STRING);
+        $this->queryTags = $arr;
 
         return $this;
     }
