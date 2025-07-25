@@ -27,7 +27,7 @@ class QueryTagsTest extends TestCase
         $this->assertFalse($queryTags->isEmpty());
         $this->assertEquals(
             ['branch_id' => 'test-branch'],
-            $queryTags->toArray()
+            $queryTags->toArray(),
         );
     }
 
@@ -39,7 +39,7 @@ class QueryTagsTest extends TestCase
         $this->assertFalse($queryTags->isEmpty());
         $this->assertEquals(
             ['branch_id' => 'test-branch'],
-            $queryTags->toArray()
+            $queryTags->toArray(),
         );
     }
 
@@ -71,7 +71,7 @@ class QueryTagsTest extends TestCase
 
         $this->assertEquals(
             ['branch_id' => 'test-branch-2'],
-            $queryTags->toArray()
+            $queryTags->toArray(),
         );
     }
 
@@ -127,11 +127,13 @@ class QueryTagsTest extends TestCase
         return [
             'uppercase letters' => [
                 'Test-Branch',
-                'Invalid label value "Test-Branch". Values can only contain lowercase letters (including international characters), numbers, underscores and dashes.',
+                'Invalid label value "Test-Branch". Values can only contain lowercase letters'
+                .' (including international characters), numbers, underscores and dashes.',
             ],
             'special characters' => [
                 'test@branch',
-                'Invalid label value "test@branch". Values can only contain lowercase letters (including international characters), numbers, underscores and dashes.',
+                'Invalid label value "test@branch". Values can only contain lowercase letters'
+                .' (including international characters), numbers, underscores and dashes.',
             ],
             'too long' => [
                 str_repeat('a', 64),
@@ -139,12 +141,14 @@ class QueryTagsTest extends TestCase
             ],
             'uppercase international' => [
                 'ÜBER-test',
-                'Invalid label value "ÜBER-test". Values can only contain lowercase letters (including international characters), numbers, underscores and dashes.',
+                'Invalid label value "ÜBER-test". Values can only contain lowercase letters'
+                .' (including international characters), numbers, underscores and dashes.',
             ],
             'special international' => [
                 'test-€-symbol',
-                'Invalid label value "test-€-symbol". Values can only contain lowercase letters (including international characters), numbers, underscores and dashes.',
+                'Invalid label value "test-€-symbol". Values can only contain lowercase letters'
+                .' (including international characters), numbers, underscores and dashes.',
             ],
         ];
     }
-} 
+}

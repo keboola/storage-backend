@@ -21,7 +21,7 @@ enum QueryTagKey: string
             throw new InvalidArgumentException(sprintf(
                 'Invalid label key "%s". Valid keys are: %s',
                 $key,
-                implode(', ', $validKeys)
+                implode(', ', $validKeys),
             ));
         }
     }

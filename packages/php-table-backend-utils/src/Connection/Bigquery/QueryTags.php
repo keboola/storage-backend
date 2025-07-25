@@ -33,7 +33,7 @@ class QueryTags
     {
         // Validate the key using LabelKey enum
         QueryTagKey::validateKey($key);
-        
+
         // Validate the value format
         $this->validateLabelValue($value);
 
@@ -46,7 +46,7 @@ class QueryTags
      * - Can be no longer than 63 characters
      * - Can only contain lowercase letters (including international), numeric characters, underscores and dashes
      * - Empty values are allowed
-     * 
+     *
      * @throws InvalidArgumentException if the value is invalid
      */
     private function validateLabelValue(string $value): void
@@ -55,15 +55,15 @@ class QueryTags
             throw new InvalidArgumentException(sprintf(
                 'Label value "%s" is too long. Maximum length is %d characters.',
                 $value,
-                self::MAX_LENGTH
+                self::MAX_LENGTH,
             ));
         }
 
         if ($value !== '' && !preg_match(self::VALUE_PATTERN, $value)) {
             throw new InvalidArgumentException(sprintf(
-                'Invalid label value "%s". Values can only contain lowercase letters (including international characters), ' .
-                'numbers, underscores and dashes.',
-                $value
+                'Invalid label value "%s". Values can only contain' .
+                ' lowercase letters (including international characters), numbers, underscores and dashes.',
+                $value,
             ));
         }
     }
@@ -80,4 +80,4 @@ class QueryTags
     {
         return $this->labels;
     }
-} 
+}

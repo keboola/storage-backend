@@ -23,6 +23,7 @@ class BigQueryClientWrapper extends BigQueryClient
     /**
      * @inheritdoc
      * @param array<mixed> $config
+     * @param array<string, string> $queryTags
      * @throws InvalidArgumentException if the value is invalid
      */
     public function __construct(

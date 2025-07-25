@@ -8,8 +8,8 @@ use GuzzleHttp\Client;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientHandler;
 use Keboola\TableBackendUtils\Connection\Bigquery\BigQueryClientWrapper;
 use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
-use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 use Psr\Log\NullLogger;
+use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
 class QueryTagsTest extends BigqueryBaseCase
 {
@@ -29,7 +29,7 @@ class QueryTagsTest extends BigqueryBaseCase
             'e2e-utils-lib',
             [
                 'branch_id' => '1234',
-            ]
+            ],
         );
 
         $query = $this->bqClient->query('SELECT 1');
