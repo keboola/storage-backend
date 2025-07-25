@@ -8,6 +8,7 @@ use Google\Cloud\BigQuery\BigQueryClient;
 use Google\Cloud\BigQuery\Job;
 use Google\Cloud\BigQuery\JobConfigurationInterface;
 use Google\Cloud\BigQuery\QueryResults;
+use InvalidArgumentException;
 use Retry\BackOff\BackOffPolicyInterface;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\BackOff\ExponentialRandomBackOffPolicy;
@@ -18,13 +19,16 @@ class BigQueryClientWrapper extends BigQueryClient
 {
     private BackOffPolicyInterface $backOffPolicy;
 
+    private readonly QueryTags $queryTags;
     /**
      * @inheritdoc
      * @param array<mixed> $config
+     * @throws InvalidArgumentException if the value is invalid
      */
     public function __construct(
         array $config = [],
         readonly string $runId = '',
+        array $queryTags = [],
         BackOffPolicyInterface|null $backOffPolicy = null,
     ) {
         parent::__construct($config);
@@ -37,6 +41,8 @@ class BigQueryClientWrapper extends BigQueryClient
         } else {
             $this->backOffPolicy = $backOffPolicy;
         }
+
+        $this->queryTags = new QueryTags($queryTags);
     }
 
     /**
@@ -44,9 +50,19 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function runQuery(JobConfigurationInterface $query, array $options = []): QueryResults
     {
-        if ($this->runId !== '' && method_exists($query, 'labels')) {
-            $query = $query->labels(['run_id' => $this->runId]);
+        $labels = [];
+        if ($this->runId !== '') {
+            $labels['run_id'] = $this->runId;
         }
+
+        if ($this->queryTags->isEmpty() === false) {
+            $labels = array_merge($labels, $this->queryTags->toArray());
+        }
+
+        if (count($labels) !== 0 && method_exists($query, 'labels')) {
+            $query = $query->labels($labels);
+        }
+
         return $this->runJob($query, $options)
             ->queryResults();
     }

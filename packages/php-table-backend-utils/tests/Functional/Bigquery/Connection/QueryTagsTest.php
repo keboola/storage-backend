@@ -27,6 +27,9 @@ class QueryTagsTest extends BigqueryBaseCase
                 'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), true),
             ],
             'e2e-utils-lib',
+            [
+                'branch_id' => '1234',
+            ]
         );
 
         $query = $this->bqClient->query('SELECT 1');
@@ -41,5 +44,7 @@ class QueryTagsTest extends BigqueryBaseCase
         $this->assertArrayHasKey('run_id', $info['configuration']['labels']);
         $this->assertEquals('e2e-utils-lib', $info['configuration']['labels']['run_id']);
 
+        $this->assertArrayHasKey('branch_id', $info['configuration']['labels']);
+        $this->assertEquals('1234', $info['configuration']['labels']['branch_id']);
     }
 }
