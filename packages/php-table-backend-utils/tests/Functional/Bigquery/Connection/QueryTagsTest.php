@@ -18,7 +18,7 @@ class QueryTagsTest extends BigqueryBaseCase
         parent::setUp();
     }
 
-    public function testRunIdAndBranchIdQueryTagIsPresent(): void
+    public function testRunIdAndBranchIdQueryTagExists(): void
     {
         $bqClient = new BigQueryClientWrapper(
             [
