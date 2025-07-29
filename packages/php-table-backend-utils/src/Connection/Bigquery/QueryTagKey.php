@@ -9,6 +9,7 @@ use InvalidArgumentException;
 enum QueryTagKey: string
 {
     case BRANCH_ID = 'branch_id';
+    case RUN_ID = 'run_id';
 
     /**
      * Validates if the given string is a valid tag key

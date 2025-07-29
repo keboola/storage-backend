@@ -28,7 +28,7 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function __construct(
         array $config = [],
-        readonly string $runId = '',
+        string $runId = '',
         array $queryTags = [],
         BackOffPolicyInterface|null $backOffPolicy = null,
     ) {
@@ -43,6 +43,9 @@ class BigQueryClientWrapper extends BigQueryClient
             $this->backOffPolicy = $backOffPolicy;
         }
 
+        if ($runId !== '') {
+            $queryTags[QueryTagKey::RUN_ID->value] = $runId;
+        }
         $this->queryTags = new QueryTags($queryTags);
     }
 
@@ -51,17 +54,8 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function runQuery(JobConfigurationInterface $query, array $options = []): QueryResults
     {
-        $allQueryTags = [];
-        if ($this->runId !== '') {
-            $allQueryTags['run_id'] = $this->runId;
-        }
-
-        if ($this->queryTags->isEmpty() === false) {
-            $allQueryTags = array_merge($allQueryTags, $this->queryTags->toArray());
-        }
-
-        if (count($allQueryTags) !== 0 && method_exists($query, 'labels')) {
-            $query = $query->labels($allQueryTags);
+        if (count($this->queryTags->toArray()) !== 0 && method_exists($query, 'labels')) {
+            $query = $query->labels($this->queryTags->toArray());
         }
 
         return $this->runJob($query, $options)
