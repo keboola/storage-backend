@@ -1,7 +1,7 @@
-FROM debian:11
+FROM debian:12
 
-RUN echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-free" >> /etc/apt/sources.list \
-    && echo "deb-src http://deb.debian.org/debian bullseye-backports main contrib non-free" >> /etc/apt/sources.list \
+RUN echo "deb http://deb.debian.org/debian bookworm-backports main contrib non-free" >> /etc/apt/sources.list \
+    && echo "deb-src http://deb.debian.org/debian bookworm-backports main contrib non-free" >> /etc/apt/sources.list \
     && apt-get update -yq \
     && apt-get install -yqq \
         git \
@@ -9,7 +9,7 @@ RUN echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-f
         vim \
         openssh-client \
         python3-pip \
+        python3-packaging \
     && mkdir -p ~/.ssh || true \
     && chmod 700 ~/.ssh/ \
-    && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts \
-    && pip install packaging
+    && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
