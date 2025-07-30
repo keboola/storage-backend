@@ -24,7 +24,7 @@ LAST_TAG_IN_SINGLEREPO="${5}"
 ABSOLUTE_SOURCE_PATH=$(realpath "${SOURCE_REPO_PATH}")
 
 # Configure git to trust our repository paths
-git config --system --add safe.directory "${ABSOLUTE_SOURCE_PATH}"
+git config --system --add safe.directory "${ABSOLUTE_SOURCE_PATH}"/.git
 
 # We require the source to be a local path because we use --mirror flag. The --mirror flag is needed on the other hand
 # to copy all refs when doing a local clone.
