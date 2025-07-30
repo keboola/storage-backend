@@ -14,4 +14,5 @@ RUN echo "deb http://deb.debian.org/debian bookworm-backports main contrib non-f
     && chmod 700 ~/.ssh/ \
     && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
-RUN git config --system --add safe.directory /monorepo
+RUN git config --system --add safe.directory /monorepo \
+    && git config --system --add safe.directory /monorepo/.git
