@@ -25,19 +25,20 @@ final class DataSizeTableMetric implements TableMetricInterface
         string $table,
         Connection $connection,
     ): int {
+        // The same SQL as in keboola/connection to present same numbers.
         $sql = sprintf(
-            <<<'SQL'
-                SELECT ACTIVE_BYTES
-                FROM INFORMATION_SCHEMA.TABLE_STORAGE_METRICS
-                WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;
-                SQL,
-            SnowflakeQuote::quote($schema),
+            'SHOW TABLES LIKE %s IN SCHEMA %s;',
             SnowflakeQuote::quote($table),
+            SnowflakeQuote::quoteSingleIdentifier($schema),
         );
 
-        /** @var string $result */
-        $result = $connection->fetchOne($sql);
+        /**
+         * @var array{
+         *     bytes: string,
+         * } $result
+         */
+        $result = $connection->fetchAssociative($sql);
 
-        return (int) $result;
+        return (int) $result['bytes'];
     }
 }
