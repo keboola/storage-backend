@@ -20,6 +20,16 @@ LIB_PATH="${3}"
 TAG_PREFIX="${4}"
 LAST_TAG_IN_SINGLEREPO="${5}"
 
+# Get absolute path
+ABSOLUTE_SOURCE_PATH=$(realpath "${SOURCE_REPO_PATH}")
+
+echo "----- ABSOLUTE_SOURCE_PATH ----"
+echo $ABSOLUTE_SOURCE_PATH
+echo "-----"
+
+# Configure git to trust our repository paths
+git config --system --add safe.directory "${ABSOLUTE_SOURCE_PATH}"
+
 # We require the source to be a local path because we use --mirror flag. The --mirror flag is needed on the other hand
 # to copy all refs when doing a local clone.
 if [[ ! -d "${SOURCE_REPO_PATH}/.git" ]]; then
@@ -37,7 +47,6 @@ clean_up () {
 trap clean_up EXIT
 
 echo ">> Cloning source repo '${SOURCE_REPO_PATH}'"
-git config --system --add safe.directory /monorepo
 git clone --no-local --mirror "${SOURCE_REPO_PATH}" $TMP_DIR
 cd $TMP_DIR
 
