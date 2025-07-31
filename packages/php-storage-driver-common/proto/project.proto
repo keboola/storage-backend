@@ -40,6 +40,12 @@ message CreateProjectResponse {
   string projectReadOnlyRoleName = 4; // newly created role name which will have select grant on all tables and buckets in project
 }
 
+message UpdateProjectCommand {
+  string projectId = 1;
+  string region = 2;
+  string timezone = 3;
+}
+
 /**
  * Command is used when project is deleted in Keboola connection
  * Command will remove all necessary resource in project
