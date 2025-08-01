@@ -7,6 +7,7 @@ namespace Keboola\Db\ImportExport\Backend\Bigquery\Export;
 use Google\Cloud\BigQuery\BigQueryClient;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
+use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -42,8 +43,9 @@ class GcsExportAdapter implements BackendExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions,
     ): array {
-        $sql = sprintf(
-            'EXPORT DATA
+        $sql = match ($exportOptions->getFileType()) {
+            ExportFileType::CSV => sprintf(
+                'EXPORT DATA
 OPTIONS (
     uri = \'gs://%s*.csv%s\'
     ,format = \'CSV\'
@@ -54,12 +56,28 @@ OPTIONS (
 ) AS (
     %s
 );',
-            $destination->getRelativePath()->getPathname(),
-            $exportOptions->isCompressed() ? '.gz' : '', // add file suffix if gzip
-            CsvOptions::DEFAULT_DELIMITER,
-            $exportOptions->isCompressed() ? ',compression=\'GZIP\'' : '',
-            $source->getFromStatement(),
-        );
+                $destination->getRelativePath()->getPathname(),
+                $exportOptions->isCompressed() ? '.gz' : '', // add file suffix if gzip
+                CsvOptions::DEFAULT_DELIMITER,
+                $exportOptions->isCompressed() ? ',compression=\'GZIP\'' : '',
+                $source->getFromStatement(),
+            ),
+            ExportFileType::PARQUET => sprintf(
+                'EXPORT DATA
+OPTIONS (
+    uri = \'gs://%s*.parquet\'
+    ,format = \'PARQUET\'
+    ,overwrite = true
+    %s
+) AS (
+    %s
+);',
+                $destination->getRelativePath()->getPathname(),
+                $exportOptions->isCompressed() ? ',compression=\'SNAPPY\'' : '',
+                $source->getFromStatement(),
+            ),
+        };
+
         $this->bqClient->runQuery(
             $this->bqClient->query($sql)
                 ->parameters($source->getQueryBindings()),
