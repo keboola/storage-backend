@@ -9,19 +9,29 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
+ **
+ * Command is used to update project's in Keboola connection
+ * For now, only timezone is updated when this command is executed
+ *
  * Generated from protobuf message <code>keboola.storageDriver.command.project.UpdateProjectCommand</code>
  */
 class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
 {
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 1;</code>
      */
     protected $projectId = '';
     /**
+     * Region where the project is located
+     *
      * Generated from protobuf field <code>string region = 2;</code>
      */
     protected $region = '';
     /**
+     * New timezone setting for the project that will be applied
+     *
      * Generated from protobuf field <code>string timezone = 3;</code>
      */
     protected $timezone = '';
@@ -33,8 +43,11 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $projectId
+     *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
      *     @type string $region
+     *           Region where the project is located
      *     @type string $timezone
+     *           New timezone setting for the project that will be applied
      * }
      */
     public function __construct($data = NULL) {
@@ -43,6 +56,8 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 1;</code>
      * @return string
      */
@@ -52,6 +67,8 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *
      * Generated from protobuf field <code>string projectId = 1;</code>
      * @param string $var
      * @return $this
@@ -65,6 +82,8 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Region where the project is located
+     *
      * Generated from protobuf field <code>string region = 2;</code>
      * @return string
      */
@@ -74,6 +93,8 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Region where the project is located
+     *
      * Generated from protobuf field <code>string region = 2;</code>
      * @param string $var
      * @return $this
@@ -87,6 +108,8 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * New timezone setting for the project that will be applied
+     *
      * Generated from protobuf field <code>string timezone = 3;</code>
      * @return string
      */
@@ -96,6 +119,8 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * New timezone setting for the project that will be applied
+     *
      * Generated from protobuf field <code>string timezone = 3;</code>
      * @param string $var
      * @return $this
