@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Keboola\Db\ImportExportCommon;
 
 use Aws\S3\S3Client;
+use DateTimeInterface;
 use Exception;
+use Flow\Parquet\Reader;
 use Google\Cloud\Storage\StorageClient;
 use Google\Cloud\Storage\StorageObject;
 use Keboola\Csv\CsvFile;
@@ -324,6 +326,64 @@ trait StorageTrait
         $tmp = new Temp();
         $tmpFolder = $tmp->getTmpFolder();
         $finalFile = $tmpFolder . $tmpName;
+        $tmpFiles = $this->downloadFiles($files, $tmpFolder);
+        $this->concatCsv($tmpFiles, $finalFile);
+        return new CsvFile($finalFile);
+    }
+
+    /**
+     * @param Blob[]|array<string[]>|StorageObject[] $files
+     * @return string[]
+     */
+    public function getParquetFileFromStorage(
+        array $files,
+    ): array {
+        $tmp = new Temp();
+        $tmpFolder = $tmp->getTmpFolder();
+        return $this->downloadFiles($files, $tmpFolder);
+    }
+
+    /**
+     * @param string[] $tmpFiles
+     */
+    private function concatCsv(array $tmpFiles, string $finalFile): void
+    {
+        foreach ($tmpFiles as $file) {
+            $process = Process::fromShellCommandline('cat "${:FILE}" >> "${:FINAL_FILE}"');
+            $process->setTimeout(null);
+            $code = $process->run(null, [
+                'FILE' => $file,
+                'FINAL_FILE' => $finalFile,
+            ]);
+
+            if ($code !== 0) {
+                throw new ProcessFailedException($process);
+            }
+        }
+    }
+
+    private function getAbsBlobContent(
+        string $blob,
+    ): string {
+        $client = $this->createClient();
+        assert($client instanceof BlobRestProxy);
+        $stream = $client
+            ->getBlob((string) getenv('ABS_CONTAINER_NAME'), $blob)
+            ->getContentStream();
+
+        $content = stream_get_contents($stream);
+        if ($content === false) {
+            throw new Exception();
+        }
+        return $content;
+    }
+
+    /**
+     * @param Blob[]|array<string[]>|StorageObject[] $files
+     * @return string[]
+     */
+    private function downloadFiles(array $files, string $tmpFolder): array
+    {
         $tmpFiles = [];
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
@@ -360,41 +420,29 @@ trait StorageTrait
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
-        $this->concatCsv($tmpFiles, $finalFile);
-        return new CsvFile($finalFile);
+        return $tmpFiles;
     }
 
     /**
-     * @param string[] $tmpFiles
+     * @param string[] $files
+     * @return array<int<0, max>, array<string, mixed>>
      */
-    private function concatCsv(array $tmpFiles, string $finalFile): void
+    public function getParquetContent(array $files): array
     {
-        foreach ($tmpFiles as $file) {
-            $process = Process::fromShellCommandline('cat "${:FILE}" >> "${:FINAL_FILE}"');
-            $process->setTimeout(null);
-            $code = $process->run(null, [
-                'FILE' => $file,
-                'FINAL_FILE' => $finalFile,
-            ]);
-
-            if ($code !== 0) {
-                throw new ProcessFailedException($process);
+        $content = [];
+        $reader = new Reader();
+        foreach ($files as $tmpFile) {
+            $file = $reader->read($tmpFile);
+            foreach ($file->values() as $row) {
+                foreach ($row as $column => &$value) {
+                    if ($value instanceof DateTimeInterface) {
+                        $row[$column] = $value->format(DateTimeInterface::ATOM);
+                    } else {
+                        $row[$column] = $value;
+                    }
+                }
+                $content[] = $row;
             }
-        }
-    }
-
-    private function getAbsBlobContent(
-        string $blob,
-    ): string {
-        $client = $this->createClient();
-        assert($client instanceof BlobRestProxy);
-        $stream = $client
-            ->getBlob((string) getenv('ABS_CONTAINER_NAME'), $blob)
-            ->getContentStream();
-
-        $content = stream_get_contents($stream);
-        if ($content === false) {
-            throw new Exception();
         }
         return $content;
     }
