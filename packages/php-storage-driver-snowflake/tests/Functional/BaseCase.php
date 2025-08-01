@@ -18,10 +18,10 @@ abstract class BaseCase extends TestCase
 
     protected function getSnowflakeConnection(): Connection
     {
-        $this->connection = SnowflakeConnectionFactory::getConnectionWithCert(
+        $this->connection = SnowflakeConnectionFactory::getConnection(
             (string) getenv('SNOWFLAKE_HOST'),
             (string) getenv('SNOWFLAKE_USER'),
-            (string) getenv('SNOWFLAKE_PRIVATE_KEY'),
+            (string) getenv('SNOWFLAKE_PASSWORD'),
             [
                 'port' => (string) getenv('SNOWFLAKE_PORT'),
                 'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
