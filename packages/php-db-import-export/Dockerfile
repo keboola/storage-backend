@@ -94,6 +94,9 @@ RUN set -ex; \
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
     && docker-php-ext-install pdo_odbc
 
+#other php extensions
+RUN docker-php-ext-install bcmath
+
 ## Composer - deps always cached unless changed
 # First copy only composer files
 COPY composer.* /code/
