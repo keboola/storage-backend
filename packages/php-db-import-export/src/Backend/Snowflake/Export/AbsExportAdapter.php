@@ -48,12 +48,7 @@ class AbsExportAdapter implements BackendExportAdapterInterface
 FROM (%s)
 CREDENTIALS=(AZURE_SAS_TOKEN=\'%s\')
 FILE_FORMAT = (
-    TYPE = \'CSV\'
-    FIELD_DELIMITER = \',\'
-    FIELD_OPTIONALLY_ENCLOSED_BY = \'\"\'
-    %s
-    TIMESTAMP_FORMAT = \'%s\',
-    NULL_IF = ()
+%s
 )
 MAX_FILE_SIZE=%d
 DETAILED_OUTPUT = TRUE',
@@ -61,8 +56,7 @@ DETAILED_OUTPUT = TRUE',
             $destination->getFilePath(),
             $source->getFromStatement(),
             $destination->getSasToken(),
-            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
-            $timestampFormat,
+            FileFormat::getFileFormatForCopyInto($exportOptions),
             Exporter::DEFAULT_SLICE_SIZE,
         );
 

@@ -55,11 +55,7 @@ CREDENTIALS = (
 )
 REGION = '%s'
 FILE_FORMAT = (
-    TYPE = 'CSV' FIELD_DELIMITER = ','
-    FIELD_OPTIONALLY_ENCLOSED_BY = '\"'
-    %s
-    TIMESTAMP_FORMAT = '%s',
-    NULL_IF = ()
+%s
 )
 ENCRYPTION = (
     TYPE = 'AWS_SSE_S3'
@@ -74,8 +70,7 @@ EOT,
             $destination->getKey(),
             $destination->getSecret(),
             $destination->getRegion(),
-            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
-            $timestampFormat,
+            FileFormat::getFileFormatForCopyInto($exportOptions),
             Exporter::DEFAULT_SLICE_SIZE,
         );
 
