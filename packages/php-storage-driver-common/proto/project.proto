@@ -45,7 +45,7 @@ message CreateProjectResponse {
    * For now, only timezone is updated when this command is executed
    */
   message UpdateProjectCommand {
-    string projectId = 1; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+    string projectId = 1; // Keboola Connection project string id
     string region = 2;   // Region where the project is located
     string timezone = 3; // New timezone setting for the project that will be applied
 }
