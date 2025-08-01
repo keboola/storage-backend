@@ -12,6 +12,7 @@
         "php": "^8.2",
         "ext-json": "*",
         "ext-pdo": "*",
+        "ext-bcmath": "*",
         "doctrine/dbal": "^3.3",
         "google/cloud-bigquery": "^1.23",
         "google/cloud-storage": "^1.27",
@@ -25,6 +26,9 @@
         "symfony/process": "^4.4|^5.0|^6.0"
     },
     "require-dev": {
+        "flow-php/filesystem": "^0.21.0",
+        "flow-php/parquet": "^0.21.0",
+        "flow-php/types": "^0.21.0",
         "keboola/coding-standard": "^15",
         "php-parallel-lint/php-parallel-lint": "^1.3",
         "phpstan/extension-installer": "^1.1",

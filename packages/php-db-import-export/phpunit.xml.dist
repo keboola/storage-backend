@@ -29,7 +29,6 @@
         <testsuite name="snowflake-gcs">
             <directory>tests/functional/Snowflake</directory>
             <exclude>tests/functional/Snowflake/ExportLegacyTest.php</exclude>
-            <exclude>tests/functional/Snowflake/Exporter/ParquetExportTest.php</exclude>
             <!--Older test cases with ImporterInterface not supporting GCS-->
             <exclude>tests/functional/Snowflake/OtherImportTest.php</exclude>
             <exclude>tests/functional/Snowflake/FullImportTest.php</exclude>
@@ -46,7 +45,6 @@
             <file>tests/functional/Snowflake/OtherImportTest.php</file>
             <file>tests/functional/Snowflake/FullImportTest.php</file>
             <file>tests/functional/Snowflake/IncrementalImportTest.php</file>
-            <exclude>tests/functional/Snowflake/Exporter/ParquetExportTest.php</exclude>
         </testsuite>
 
         <testsuite name="tests-synapse">
