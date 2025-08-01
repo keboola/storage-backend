@@ -47,7 +47,7 @@ RUN apt-get update -q \
 	&& sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
 	&& locale-gen \
     && docker-php-ext-configure intl \
-    && docker-php-ext-install intl
+    && docker-php-ext-install intl bcmath
 
 # Snowflake ODBC
 # https://github.com/docker-library/php/issues/103#issuecomment-353674490
