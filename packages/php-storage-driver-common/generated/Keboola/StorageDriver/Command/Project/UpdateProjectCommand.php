@@ -18,7 +18,7 @@ use Google\Protobuf\Internal\GPBUtil;
 class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     * Keboola Connection project string id
      *
      * Generated from protobuf field <code>string projectId = 1;</code>
      */
@@ -43,7 +43,7 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
      *     Optional. Data for populating the Message object.
      *
      *     @type string $projectId
-     *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *           Keboola Connection project string id
      *     @type string $region
      *           Region where the project is located
      *     @type string $timezone
@@ -56,7 +56,7 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     * Keboola Connection project string id
      *
      * Generated from protobuf field <code>string projectId = 1;</code>
      * @return string
@@ -67,7 +67,7 @@ class UpdateProjectCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     * Keboola Connection project string id
      *
      * Generated from protobuf field <code>string projectId = 1;</code>
      * @param string $var
