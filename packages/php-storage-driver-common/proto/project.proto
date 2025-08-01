@@ -40,10 +40,14 @@ message CreateProjectResponse {
   string projectReadOnlyRoleName = 4; // newly created role name which will have select grant on all tables and buckets in project
 }
 
-message UpdateProjectCommand {
-  string projectId = 1;
-  string region = 2;
-  string timezone = 3;
+/**
+   * Command is used to update project's in Keboola connection
+   * For now, only timezone is updated when this command is executed
+   */
+  message UpdateProjectCommand {
+    string projectId = 1; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+    string region = 2;   // Region where the project is located
+    string timezone = 3; // New timezone setting for the project that will be applied
 }
 
 /**
