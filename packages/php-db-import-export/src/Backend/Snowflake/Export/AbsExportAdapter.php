@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\Export;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
+use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
 
@@ -51,13 +52,14 @@ FILE_FORMAT = (
 %s
 )
 MAX_FILE_SIZE=%d
-DETAILED_OUTPUT = TRUE',
+DETAILED_OUTPUT = TRUE%s',
             $destination->getContainerUrl(Storage\ABS\BaseFile::PROTOCOL_AZURE),
             $destination->getFilePath(),
             $source->getFromStatement(),
             $destination->getSasToken(),
             FileFormat::getFileFormatForCopyInto($exportOptions),
             Exporter::DEFAULT_SLICE_SIZE,
+            $exportOptions->getFileType() === ExportFileType::PARQUET ? PHP_EOL . 'HEADER=TRUE' : '',
         );
 
         $this->connection->executeQuery($sql, $source->getQueryBindings());

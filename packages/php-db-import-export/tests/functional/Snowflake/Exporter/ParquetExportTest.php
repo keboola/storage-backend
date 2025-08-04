@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Keboola\Db\ImportExportFunctional\Snowflake\Exporter;
 
-use DateTimeInterface;
-use Flow\Parquet\Reader;
 use Keboola\Db\ImportExport\Backend\Snowflake\Export\Exporter;
-use Keboola\Db\ImportExport\Backend\Snowflake\Export\S3ParquetExportAdapter;
 use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
@@ -98,18 +95,18 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $content = $this->getParquetContent($tmpFiles);
         $this->assertSame([
             [
-                '_COL_0' => 1.0,
-                '_COL_1' => 'test string',
-                '_COL_2' => 123.45,
-                '_COL_3' => '2024-01-01T00:00:00+00:00',
-                '_COL_4' => true,
+                'ID' => 1.0,
+                'STRING_COL' => 'test string',
+                'NUMBER_COL' => 123.45,
+                'DATE_COL' => '2024-01-01T00:00:00+00:00',
+                'BOOL_COL' => true,
             ],
             [
-                '_COL_0' => 2.0,
-                '_COL_1' => 'another string',
-                '_COL_2' => 678.9,
-                '_COL_3' => '2024-02-01T00:00:00+00:00',
-                '_COL_4' => false,
+                'ID' => 2.0,
+                'STRING_COL' => 'another string',
+                'NUMBER_COL' => 678.9,
+                'DATE_COL' => '2024-02-01T00:00:00+00:00',
+                'BOOL_COL' => false,
             ],
         ], $content);
     }
@@ -158,18 +155,18 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $content = $this->getParquetContent($tmpFiles);
         $this->assertSame([
             [
-                '_COL_0' => 1.0,
-                '_COL_1' => 'test string',
-                '_COL_2' => 123.45,
-                '_COL_3' => '2024-01-01T00:00:00+00:00',
-                '_COL_4' => true,
+                'ID' => 1.0,
+                'STRING_COL' => 'test string',
+                'NUMBER_COL' => 123.45,
+                'DATE_COL' => '2024-01-01T00:00:00+00:00',
+                'BOOL_COL' => true,
             ],
             [
-                '_COL_0' => 2.0,
-                '_COL_1' => 'another string',
-                '_COL_2' => 678.9,
-                '_COL_3' => '2024-02-01T00:00:00+00:00',
-                '_COL_4' => false,
+                'ID' => 2.0,
+                'STRING_COL' => 'another string',
+                'NUMBER_COL' => 678.9,
+                'DATE_COL' => '2024-02-01T00:00:00+00:00',
+                'BOOL_COL' => false,
             ],
         ], $content);
     }
@@ -220,18 +217,18 @@ class ParquetExportTest extends SnowflakeBaseTestCase
 
         $this->assertSame([
             [
-                '_COL_0' => 1.0,
-                '_COL_1' => 'test string',
-                '_COL_2' => 123.45,
-                '_COL_3' => '2024-01-01T00:00:00+00:00',
-                '_COL_4' => true,
+                'ID' => 1.0,
+                'STRING_COL' => 'test string',
+                'NUMBER_COL' => 123.45,
+                'DATE_COL' => '2024-01-01T00:00:00+00:00',
+                'BOOL_COL' => true,
             ],
             [
-                '_COL_0' => 2.0,
-                '_COL_1' => 'another string',
-                '_COL_2' => 678.9,
-                '_COL_3' => '2024-02-01T00:00:00+00:00',
-                '_COL_4' => false,
+                'ID' => 2.0,
+                'STRING_COL' => 'another string',
+                'NUMBER_COL' => 678.9,
+                'DATE_COL' => '2024-02-01T00:00:00+00:00',
+                'BOOL_COL' => false,
             ],
         ], $content);
     }

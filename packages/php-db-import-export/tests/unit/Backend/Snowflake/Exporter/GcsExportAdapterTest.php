@@ -179,6 +179,7 @@ FILE_FORMAT = (
 )
 MAX_FILE_SIZE=200000000
 DETAILED_OUTPUT = TRUE
+HEADER=TRUE
 EOT
             ,
             [],
@@ -223,6 +224,7 @@ FILE_FORMAT = (
 )
 MAX_FILE_SIZE=200000000
 DETAILED_OUTPUT = TRUE
+HEADER=TRUE
 EOT
             ,
             [],
