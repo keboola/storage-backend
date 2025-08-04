@@ -40,10 +40,6 @@ class AbsExportAdapter implements BackendExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions,
     ): array {
-        $timestampFormat = 'YYYY-MM-DD HH24:MI:SS';
-        if (in_array(Exporter::FEATURE_FRACTIONAL_SECONDS, $exportOptions->features(), true)) {
-            $timestampFormat = 'YYYY-MM-DD HH24:MI:SS.FF9';
-        }
         $sql = sprintf(
             'COPY INTO \'%s%s\' 
 FROM (%s)
