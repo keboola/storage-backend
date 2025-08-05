@@ -41,6 +41,16 @@ message CreateProjectResponse {
 }
 
 /**
+   * Command is used to update project's in Keboola connection
+   * For now, only timezone is updated when this command is executed
+   */
+  message UpdateProjectCommand {
+    string projectId = 1; // Keboola Connection project string id
+    string region = 2;   // Region where the project is located
+    string timezone = 3; // New timezone setting for the project that will be applied
+}
+
+/**
  * Command is used when project is deleted in Keboola connection
  * Command will remove all necessary resource in project
  */
