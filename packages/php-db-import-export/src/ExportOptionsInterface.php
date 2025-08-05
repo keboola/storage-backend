@@ -12,6 +12,8 @@ interface ExportOptionsInterface
 
     public function generateManifest(): bool;
 
+    public function getFileType(): ExportFileType;
+
     /**
      * @return string[]
      */

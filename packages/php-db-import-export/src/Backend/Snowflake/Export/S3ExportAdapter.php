@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\Export;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
+use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -41,10 +42,6 @@ class S3ExportAdapter implements BackendExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions,
     ): array {
-        $timestampFormat = 'YYYY-MM-DD HH24:MI:SS';
-        if (in_array(Exporter::FEATURE_FRACTIONAL_SECONDS, $exportOptions->features(), true)) {
-            $timestampFormat = 'YYYY-MM-DD HH24:MI:SS.FF9';
-        }
         $sql = sprintf(
             <<<EOT
 COPY INTO '%s/%s'
@@ -55,18 +52,14 @@ CREDENTIALS = (
 )
 REGION = '%s'
 FILE_FORMAT = (
-    TYPE = 'CSV' FIELD_DELIMITER = ','
-    FIELD_OPTIONALLY_ENCLOSED_BY = '\"'
-    %s
-    TIMESTAMP_FORMAT = '%s',
-    NULL_IF = ()
+%s
 )
 ENCRYPTION = (
     TYPE = 'AWS_SSE_S3'
 )
 OVERWRITE = TRUE
 MAX_FILE_SIZE=%d
-DETAILED_OUTPUT = TRUE
+DETAILED_OUTPUT = TRUE%s
 EOT,
             $destination->getS3Prefix(),
             $destination->getFilePath(),
@@ -74,9 +67,9 @@ EOT,
             $destination->getKey(),
             $destination->getSecret(),
             $destination->getRegion(),
-            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
-            $timestampFormat,
+            FileFormat::getFileFormatForCopyInto($exportOptions),
             Exporter::DEFAULT_SLICE_SIZE,
+            $exportOptions->getFileType() === ExportFileType::PARQUET ? PHP_EOL . 'HEADER=TRUE' : '',
         );
 
         $this->connection->executeQuery($sql, $source->getQueryBindings());

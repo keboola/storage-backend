@@ -6,6 +6,7 @@ namespace Keboola\Db\ImportExport\Backend\Snowflake\Export;
 
 use Doctrine\DBAL\Connection;
 use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
+use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
@@ -41,31 +42,22 @@ class GcsExportAdapter implements BackendExportAdapterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $exportOptions,
     ): array {
-        $timestampFormat = 'YYYY-MM-DD HH24:MI:SS';
-        if (in_array(Exporter::FEATURE_FRACTIONAL_SECONDS, $exportOptions->features(), true)) {
-            $timestampFormat = 'YYYY-MM-DD HH24:MI:SS.FF9';
-        }
         $sql = sprintf(
             'COPY INTO \'%s/%s\'
 FROM (%s)
 STORAGE_INTEGRATION = "%s"
 FILE_FORMAT = (
-    TYPE = \'CSV\'
-    FIELD_DELIMITER = \',\'
-    FIELD_OPTIONALLY_ENCLOSED_BY = \'\"\'
-    %s
-    TIMESTAMP_FORMAT = \'%s\',
-    NULL_IF = ()
+%s
 )
 MAX_FILE_SIZE=%d
-DETAILED_OUTPUT = TRUE',
+DETAILED_OUTPUT = TRUE%s',
             $destination->getGcsPrefix(),
             $destination->getFilePath(),
             $source->getFromStatement(),
             $destination->getStorageIntegrationName(),
-            $exportOptions->isCompressed() ? "COMPRESSION='GZIP'" : "COMPRESSION='NONE'",
-            $timestampFormat,
+            FileFormat::getFileFormatForCopyInto($exportOptions),
             Exporter::DEFAULT_SLICE_SIZE,
+            $exportOptions->getFileType() === ExportFileType::PARQUET ? PHP_EOL . 'HEADER=TRUE' : '',
         );
 
         $this->connection->executeQuery($sql, $source->getQueryBindings());

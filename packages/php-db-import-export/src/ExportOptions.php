@@ -24,6 +24,7 @@ class ExportOptions implements ExportOptionsInterface
         bool $isCompressed = false,
         bool $generateManifest = self::MANIFEST_SKIP,
         private readonly array $features = [],
+        private readonly ExportFileType $fileType = ExportFileType::CSV,
     ) {
         $this->isCompressed = $isCompressed;
         $this->exportId = BackendHelper::generateRandomExportPrefix();
@@ -51,5 +52,10 @@ class ExportOptions implements ExportOptionsInterface
     public function features(): array
     {
         return $this->features;
+    }
+
+    public function getFileType(): ExportFileType
+    {
+        return $this->fileType;
     }
 }
