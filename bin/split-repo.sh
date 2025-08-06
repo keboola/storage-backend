@@ -20,16 +20,10 @@ LIB_PATH="${3}"
 TAG_PREFIX="${4}"
 LAST_TAG_IN_SINGLEREPO="${5}"
 
-# Get absolute path
-ABSOLUTE_SOURCE_PATH=$(realpath "${SOURCE_REPO_PATH}")
-
-# Configure git to trust our repository paths
-git config --system --add safe.directory "${ABSOLUTE_SOURCE_PATH}"/.git
-
 # We require the source to be a local path because we use --mirror flag. The --mirror flag is needed on the other hand
 # to copy all refs when doing a local clone.
-if [[ ! -d "${ABSOLUTE_SOURCE_PATH}/.git" ]]; then
-  echo "Source repo '${ABSOLUTE_SOURCE_PATH}' is not a valid GIT repository"
+if [[ ! -d "${SOURCE_REPO_PATH}/.git" ]]; then
+  echo "Source repo '${SOURCE_REPO_PATH}' is not a valid GIT repository"
   exit 1
 fi
 
@@ -42,9 +36,9 @@ clean_up () {
 }
 trap clean_up EXIT
 
-echo ">> Cloning source repo '${ABSOLUTE_SOURCE_PATH}'"
-git clone --no-local --mirror "${ABSOLUTE_SOURCE_PATH}" $TMP_DIR
+echo ">> Cloning source repo '${SOURCE_REPO_PATH}'"
 cd $TMP_DIR
+git clone --no-local --mirror "${SOURCE_REPO_PATH}" $TMP_DIR
 
 echo ">> Rebuild repo"
 LIB_PATH="${LIB_PATH%/}/" # ensure trailing slash
