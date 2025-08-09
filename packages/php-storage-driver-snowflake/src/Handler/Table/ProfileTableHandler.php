@@ -17,6 +17,7 @@ use Keboola\StorageDriver\Snowflake\Profile\Column\DuplicateCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\NullCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\ColumnMetricInterface;
 use Keboola\StorageDriver\Snowflake\Profile\Table\ColumnCountTableMetric;
+use Keboola\StorageDriver\Snowflake\Profile\Table\DataSizeTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Table\RowCountTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\TableMetricInterface;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
@@ -53,7 +54,7 @@ final class ProfileTableHandler extends BaseHandler
         $tableMetrics = [
             new RowCountTableMetric(),
             new ColumnCountTableMetric(),
-//            new DataSizeTableMetric(), // @todo Not working properly for Snowflake.
+            new DataSizeTableMetric(),
         ];
 
         $tableProfile = [];
