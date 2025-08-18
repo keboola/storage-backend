@@ -22,6 +22,8 @@ class SnowflakeStatement implements Statement
      */
     private $dbh;
 
+    private RetryProxy $retry;
+
     /**
      * @var resource
      */
@@ -37,8 +39,30 @@ class SnowflakeStatement implements Statement
     /**
      * @param resource $dbh database handle
      */
-    public function __construct($dbh, string $query)
+    public function __construct($dbh, string $query, RetryProxy|null $retry = null)
     {
+        if ($retry === null) {
+            $this->retry = new RetryProxy(
+                new CallableRetryPolicy(
+                    function (Throwable $e): bool {
+                        if (str_contains($e->getMessage(), 'SYSTEM$ALLOWLIST')) {
+                            // Retry in case of SYSTEM$ALLOWLIST error #prod_24_7___inc_25140
+                            // this is usually accompanied with SNFLK incidents
+                            // or can happen in case hostname is wrong
+                            return true;
+                        }
+                        return false;
+                    },
+                    5, // 5 attempts
+                ),
+                new UniformRandomBackOffPolicy(
+                    3_000, // 3 seconds
+                    10_000, // 10 seconds
+                ),
+            );
+        } else {
+            $this->retry = $retry;
+        }
         $this->dbh = $dbh;
         $this->query = $query;
         $this->stmt = $this->prepare();
@@ -49,7 +73,10 @@ class SnowflakeStatement implements Statement
      */
     private function prepare()
     {
-        $stmt = @odbc_prepare($this->dbh, $this->query);
+        /** @var resource|false $stmt */
+        $stmt = $this->retry->call(function () {
+            return @odbc_prepare($this->dbh, $this->query);
+        });
         if (!$stmt) {
             throw DriverException::newFromHandle($this->dbh);
         }
@@ -87,27 +114,8 @@ class SnowflakeStatement implements Statement
             }
         }
 
-        $proxy = new RetryProxy(
-            new CallableRetryPolicy(
-                function (Throwable $e): bool {
-                    if (str_contains($e->getMessage(), 'SYSTEM$ALLOWLIST')) {
-                        // Retry in case of SYSTEM$ALLOWLIST error #prod_24_7___inc_25140
-                        // this is usually accompanied with SNFLK incidents
-                        // or can happen in case hostname is wrong
-                        return true;
-                    }
-                    return false;
-                },
-                5, // 5 attempts
-            ),
-            new UniformRandomBackOffPolicy(
-                3_000, // 3 seconds
-                10_000, // 10 seconds
-            ),
-        );
-
         try {
-            $proxy->call(function () {
+            $this->retry->call(function () {
                 odbc_execute(
                     $this->stmt,
                     $this->repairBinding($this->params),
