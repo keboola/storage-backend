@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Snowflake;
 use Keboola\StorageDriver\Snowflake\Profile\Column\DistinctCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\DuplicateCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\NullCountColumnMetric;
+use Keboola\StorageDriver\Snowflake\Profile\Column\NumericStatisticsColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\ColumnMetricInterface;
 use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseCase;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -23,14 +24,16 @@ final class NumberColumnMetricTest extends BaseCase
     private const COLUMN_NUMBER_NULLABLE = 'number_nullable';
     private const COLUMN_VARCHAR_NOT_NULLABLE = 'varchar_not_nullable';
     private const COLUMN_VARCHAR_NULLABLE = 'varchar_nullable';
+    private const COLUMN_ONLY_NULL = 'only_null';
 
     /**
      * @dataProvider metricProvider
+     * @param array<mixed> $expected
      */
     public function testMetric(
         ColumnMetricInterface $metric,
         string $column,
-        int $expected,
+        array|int $expected,
     ): void {
         $actual = $metric->collect(self::SCHEMA_NAME, self::TABLE_NAME, $column, $this->connection);
         $this->assertSame($expected, $actual);
@@ -109,6 +112,56 @@ final class NumberColumnMetricTest extends BaseCase
             self::COLUMN_VARCHAR_NULLABLE,
             3,
         ];
+
+        yield 'numeric statistics (number, not nullable)' => [
+            new NumericStatisticsColumnMetric(),
+            self::COLUMN_NUMBER_NOT_NULLABLE,
+            [
+                'avg' => 90919.272727,
+                'mode' => 5.0,
+                'median' => 3.0,
+                'min' => -10.0,
+                'max' => 999999.0,
+            ],
+        ];
+
+        // @todo Waiting for implementation of untyped tables profiling.
+//        yield 'numeric statistics (varchar, not nullable)' => [
+//            new NumericStatisticsColumnMetric(),
+//            self::COLUMN_VARCHAR_NOT_NULLABLE,
+//            [],
+//        ];
+
+        yield 'numeric statistics (number, nullable)' => [
+            new NumericStatisticsColumnMetric(),
+            self::COLUMN_NUMBER_NULLABLE,
+            [
+                'avg' => 13.375000,
+                'mode' => 5.0,
+                'median' => 3.0,
+                'min' => -10.0,
+                'max' => 100.0,
+            ],
+        ];
+
+        // @todo Waiting for implementation of untyped tables profiling.
+//        yield 'numeric statistics (varchar, nullable)' => [
+//            new NumericStatisticsColumnMetric(),
+//            self::COLUMN_VARCHAR_NULLABLE,
+//            [],
+//        ];
+
+        yield 'numeric statistics (number, only null)' => [
+            new NumericStatisticsColumnMetric(),
+            self::COLUMN_ONLY_NULL,
+            [
+                'avg' => null,
+                'mode' => null,
+                'median' => null,
+                'min' => null,
+                'max' => null,
+            ],
+        ];
     }
 
     protected function setUp(): void
@@ -136,24 +189,29 @@ final class NumberColumnMetricTest extends BaseCase
                         self::COLUMN_VARCHAR_NULLABLE,
                         new Snowflake(Snowflake::TYPE_VARCHAR, ['nullable' => true]),
                     ),
+                    // AVG, MODE, MEDIAN, MIN, MAX returns NULL if all records are NULL.
+                    new SnowflakeColumn(
+                        self::COLUMN_ONLY_NULL,
+                        new Snowflake(Snowflake::TYPE_NUMBER, ['nullable' => true]),
+                    ),
                 ]),
             ),
         );
 
         $this->connection->executeQuery(sprintf(
             <<<'SQL'
-                INSERT INTO %s.%s (%s, %s, %s, %s) VALUES
-                (1, 1, '1', '1'),
-                (2, 2, '2', '2'),
-                (3, NULL, '3', NULL),
-                (3, NULL, '3', NULL),
-                (4, 4, '4', '4'),
-                (5, 5, '5', '5'),
-                (5, 5, '5', '5'),
-                (100, 100, '100', '100'),
-                (0, 0, '0', '0'),
-                (-10, -10, '-10', '-10'),
-                (999999, NULL, '999999', NULL);
+                INSERT INTO %s.%s (%s, %s, %s, %s, %s) VALUES
+                (1, 1, '1', '1', NULL),
+                (2, 2, '2', '2', NULL),
+                (3, NULL, '3', NULL, NULL),
+                (3, NULL, '3', NULL, NULL),
+                (4, 4, '4', '4', NULL),
+                (5, 5, '5', '5', NULL),
+                (5, 5, '5', '5', NULL),
+                (100, 100, '100', '100', NULL),
+                (0, 0, '0', '0', NULL),
+                (-10, -10, '-10', '-10', NULL),
+                (999999, NULL, '999999', NULL, NULL);
                 SQL,
             SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
@@ -161,6 +219,7 @@ final class NumberColumnMetricTest extends BaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_NUMBER_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NOT_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NULLABLE),
+            SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_ONLY_NULL),
         ));
     }
 }
