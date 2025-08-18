@@ -7,6 +7,12 @@ namespace Keboola\TableBackendUtils\Connection\Snowflake;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ParameterType;
 use Keboola\TableBackendUtils\Connection\Exception\DriverException;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\BackOff\ExponentialRandomBackOffPolicy;
+use Retry\BackOff\UniformRandomBackOffPolicy;
+use Retry\Policy\CallableRetryPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 use Throwable;
 
 class SnowflakeStatement implements Statement
@@ -81,9 +87,33 @@ class SnowflakeStatement implements Statement
             }
         }
 
+        $proxy = new RetryProxy(
+            new CallableRetryPolicy(
+                function (Throwable $e): bool {
+                    if (str_contains($e->getMessage(), 'SYSTEM$ALLOWLIST')) {
+                        // Retry in case of SYSTEM$ALLOWLIST error #prod_24_7___inc_25140
+                        // this is usually accompanied with SNFLK incidents
+                        // or can happen in case hostname is wrong
+                        return true;
+                    }
+                    return false;
+                },
+                5, // 5 attempts
+            ),
+            new UniformRandomBackOffPolicy(
+                3_000, // 3 seconds
+                10_000, // 10 seconds
+            ),
+        );
+
         try {
-            odbc_execute($this->stmt, $this->repairBinding($this->params));
-        } catch (Throwable $e) {
+            $proxy->call(function () {
+                odbc_execute(
+                    $this->stmt,
+                    $this->repairBinding($this->params),
+                );
+            });
+        } catch (Throwable) {
             throw DriverException::newFromHandle($this->dbh);
         }
 
