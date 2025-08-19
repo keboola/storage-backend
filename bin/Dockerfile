@@ -12,4 +12,5 @@ RUN echo "deb http://deb.debian.org/debian bookworm-backports main contrib non-f
         python3-packaging \
     && mkdir -p ~/.ssh || true \
     && chmod 700 ~/.ssh/ \
-    && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts \
+    && git config --system --add safe.directory '*'
