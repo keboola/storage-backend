@@ -206,9 +206,11 @@ jobs:
           [[ "${GITDIR}" != /* ]] && GITDIR="$PWD/${GITDIR}"
           echo "GITDIR=${GITDIR}"
 
-          docker run \
+          # Show exactly what we'll run (for debugging)
+          set -x
+          docker run --rm \
             -v "$PWD:/monorepo" \
-            -v "$GITDIR:/monorepo/.git" \   # <-- key change
+            -v "$GITDIR:/monorepo/.git" \
             -w /monorepo \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
