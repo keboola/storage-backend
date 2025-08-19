@@ -198,6 +198,18 @@ jobs:
 
       - name: Split monorepo
         run: |
+          set -euxo pipefail
           ssh-add -l
+          GITDIR="$(git rev-parse --git-dir)"        # absolute path to the real git dir
+          echo "GITDIR=${GITDIR}"
+          
           docker build -t monorepo-tools ./bin
-          docker run -v $PWD:/monorepo -w /monorepo -v $SSH_AUTH_SOCK:/ssh-agent -v ~/.ssh/known_hosts:/root/.ssh/known_hosts -e SSH_AUTH_SOCK=/ssh-agent monorepo-tools bin/split-repo.sh . ${{ matrix.repo }} ${{ matrix.path }} ${{ matrix.name }}/ ${{ matrix.lastTag}}
+          docker run \
+            -v "$PWD:/monorepo" \
+            -v "$GITDIR:$GITDIR" \                   # <— make the pointed-to gitdir visible in the container
+            -w /monorepo \
+            -v "$SSH_AUTH_SOCK:/ssh-agent" \
+            -v ~/.ssh/known_hosts:/root/.ssh/known_hosts \
+            -e SSH_AUTH_SOCK=/ssh-agent \
+            monorepo-tools \
+            bin/split-repo.sh . "${{ matrix.repo }}" "${{ matrix.path }}" "${{ matrix.name }}/" "${{ matrix.lastTag }}"
