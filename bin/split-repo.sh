@@ -20,12 +20,19 @@ LIB_PATH="${3}"
 TAG_PREFIX="${4}"
 LAST_TAG_IN_SINGLEREPO="${5}"
 
-# We require the source to be a local path because we use --mirror flag. The --mirror flag is needed on the other hand
-# to copy all refs when doing a local clone.
-if [[ ! -d "${SOURCE_REPO_PATH}/.git" ]]; then
+echo ">> Splitting repo"
+echo "Source repo: ${SOURCE_REPO_PATH}"
+echo "Target repo: ${TARGET_REPO_URL}"
+echo "Library path: ${LIB_PATH}"
+echo "Tag prefix: ${TAG_PREFIX}"
+echo "Last tag in singlerepo: ${LAST_TAG_IN_SINGLEREPO}"
+
+if ! git -C "${SOURCE_REPO_PATH}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "Source repo '${SOURCE_REPO_PATH}' is not a valid GIT repository"
   exit 1
 fi
+echo "Work tree: $(git -C "${SOURCE_REPO_PATH}" rev-parse --show-toplevel || true)"
+echo "Git dir:   $(git -C "${SOURCE_REPO_PATH}" rev-parse --git-dir || true)"
 
 TMP_DIR=`mktemp -d`
 WORK_DIR=`pwd`
@@ -37,8 +44,8 @@ clean_up () {
 trap clean_up EXIT
 
 echo ">> Cloning source repo '${SOURCE_REPO_PATH}'"
-cd $TMP_DIR
-git clone --no-local --mirror "${SOURCE_REPO_PATH}" $TMP_DIR
+REAL_GIT_DIR="$(git -C "${SOURCE_REPO_PATH}" rev-parse --git-dir)"
+git clone --no-local --mirror "${REAL_GIT_DIR}" "$TMP_DIR"
 
 echo ">> Rebuild repo"
 LIB_PATH="${LIB_PATH%/}/" # ensure trailing slash

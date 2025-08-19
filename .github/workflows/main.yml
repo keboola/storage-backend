@@ -211,9 +211,28 @@ jobs:
       - uses: webfactory/ssh-agent@fc49353b67b2b7c1e0e6a600572d01a69f2672dd
         with:
           ssh-private-key: ${{ secrets[matrix.sshKey] }}
-
       - name: Split monorepo
         run: |
+          set -euxo pipefail
+
           ssh-add -l
           docker build -t monorepo-tools ./bin
-          docker run -v $PWD:/monorepo -w /monorepo -v $SSH_AUTH_SOCK:/ssh-agent -v ~/.ssh/known_hosts:/root/.ssh/known_hosts -e SSH_AUTH_SOCK=/ssh-agent monorepo-tools bin/split-repo.sh . ${{ matrix.repo }} ${{ matrix.path }} ${{ matrix.name }}/ ${{ matrix.lastTag}}
+
+          # Resolve absolute paths on the host
+          WORKTREE="$PWD"
+          GITDIR="$(git rev-parse --git-dir)"
+          [[ "${GITDIR}" != /* ]] && GITDIR="$WORKTREE/${GITDIR}"
+
+          echo "WORKTREE=${WORKTREE}"
+          echo "GITDIR=${GITDIR}"
+
+          # Run with identical absolute paths inside the container
+          docker run --rm \
+            -v "${WORKTREE}:${WORKTREE}" \
+            -v "${GITDIR}:${GITDIR}" \
+            -w "${WORKTREE}" \
+            -v "$SSH_AUTH_SOCK:/ssh-agent" \
+            -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
+            -e SSH_AUTH_SOCK=/ssh-agent \
+            monorepo-tools \
+            bin/split-repo.sh . "${{ matrix.repo }}" "${{ matrix.path }}" "${{ matrix.name }}/" "${{ matrix.lastTag }}"
