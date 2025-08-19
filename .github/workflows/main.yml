@@ -202,16 +202,19 @@ jobs:
           ssh-add -l
           docker build -t monorepo-tools ./bin
 
+          # Resolve absolute paths on the host
+          WORKTREE="$PWD"
           GITDIR="$(git rev-parse --git-dir)"
-          [[ "${GITDIR}" != /* ]] && GITDIR="$PWD/${GITDIR}"
+          [[ "${GITDIR}" != /* ]] && GITDIR="$WORKTREE/${GITDIR}"
+
+          echo "WORKTREE=${WORKTREE}"
           echo "GITDIR=${GITDIR}"
 
-          # Show exactly what we'll run (for debugging)
-          set -x
+          # Run with identical absolute paths inside the container
           docker run --rm \
-            -v "$PWD:/monorepo" \
-            -v "$GITDIR:/monorepo/.git" \
-            -w /monorepo \
+            -v "${WORKTREE}:${WORKTREE}" \
+            -v "${GITDIR}:${GITDIR}" \
+            -w "${WORKTREE}" \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
             -e SSH_AUTH_SOCK=/ssh-agent \
