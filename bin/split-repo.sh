@@ -22,7 +22,7 @@ LAST_TAG_IN_SINGLEREPO="${5}"
 
 # We require the source to be a local path because we use --mirror flag. The --mirror flag is needed on the other hand
 # to copy all refs when doing a local clone.
-if [[ ! -d "${SOURCE_REPO_PATH}/.git" ]]; then
+if ! git -C "${SOURCE_REPO_PATH}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "Source repo '${SOURCE_REPO_PATH}' is not a valid GIT repository"
   exit 1
 fi

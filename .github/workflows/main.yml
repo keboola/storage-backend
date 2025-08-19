@@ -195,21 +195,29 @@ jobs:
       - uses: webfactory/ssh-agent@fc49353b67b2b7c1e0e6a600572d01a69f2672dd
         with:
           ssh-private-key: ${{ secrets[matrix.sshKey] }}
-
       - name: Split monorepo
         run: |
           set -euxo pipefail
+          
           ssh-add -l
-          GITDIR="$(git rev-parse --git-dir)"        # absolute path to the real git dir
+          
+          # Build the tools image (use your updated Dockerfile that installs git-filter-repo via pip)
+          docker build -t monorepo-tools ./bin
+          
+          # Get the real gitdir and ensure it’s absolute
+          GITDIR="$(git rev-parse --git-dir)"
+          if [[ "${GITDIR}" != /* ]]; then
+            GITDIR="$PWD/${GITDIR}"
+          fi
           echo "GITDIR=${GITDIR}"
           
-          docker build -t monorepo-tools ./bin
+          # Run split inside the container, mounting both worktree and the real gitdir
           docker run \
             -v "$PWD:/monorepo" \
-            -v "$GITDIR:$GITDIR" \                   # <— make the pointed-to gitdir visible in the container
+            -v "$GITDIR:$GITDIR" \
             -w /monorepo \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
-            -v ~/.ssh/known_hosts:/root/.ssh/known_hosts \
+            -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
             -e SSH_AUTH_SOCK=/ssh-agent \
             monorepo-tools \
             bin/split-repo.sh . "${{ matrix.repo }}" "${{ matrix.path }}" "${{ matrix.name }}/" "${{ matrix.lastTag }}"
