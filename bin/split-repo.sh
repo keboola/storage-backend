@@ -27,14 +27,12 @@ echo "Library path: ${LIB_PATH}"
 echo "Tag prefix: ${TAG_PREFIX}"
 echo "Last tag in singlerepo: ${LAST_TAG_IN_SINGLEREPO}"
 
-echo "Work tree: $(git -C "${SOURCE_REPO_PATH}" rev-parse --show-toplevel)"
-echo "Git dir:   $(git -C "${SOURCE_REPO_PATH}" rev-parse --git-dir)"
-# We require the source to be a local path because we use --mirror flag. The --mirror flag is needed on the other hand
-# to copy all refs when doing a local clone.
 if ! git -C "${SOURCE_REPO_PATH}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "Source repo '${SOURCE_REPO_PATH}' is not a valid GIT repository"
   exit 1
 fi
+echo "Work tree: $(git -C "${SOURCE_REPO_PATH}" rev-parse --show-toplevel || true)"
+echo "Git dir:   $(git -C "${SOURCE_REPO_PATH}" rev-parse --git-dir || true)"
 
 TMP_DIR=`mktemp -d`
 WORK_DIR=`pwd`
