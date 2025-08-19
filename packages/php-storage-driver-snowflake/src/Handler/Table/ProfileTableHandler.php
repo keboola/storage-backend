@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake\Handler\Table;
 
 use Google\Protobuf\Internal\Message;
+use Keboola\Datatype\Definition\Snowflake;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse\Column;
@@ -12,9 +13,11 @@ use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
 use Keboola\StorageDriver\Shared\Utils\ProtobufHelper;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 use Keboola\StorageDriver\Snowflake\Handler\BaseHandler;
+use Keboola\StorageDriver\Snowflake\Profile\Column\AvgMinMaxLengthColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\DistinctCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\DuplicateCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\NullCountColumnMetric;
+use Keboola\StorageDriver\Snowflake\Profile\Column\NumericStatisticsColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\ColumnMetricInterface;
 use Keboola\StorageDriver\Snowflake\Profile\Table\ColumnCountTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Table\DataSizeTableMetric;
@@ -67,36 +70,55 @@ final class ProfileTableHandler extends BaseHandler
         }
 
         $response->setProfile(json_encode($tableProfile, JSON_THROW_ON_ERROR));
-
-        /** @var ColumnMetricInterface[] $columnMetrics */
-        $columnMetrics = [
-            new DistinctCountColumnMetric(),
-            new DuplicateCountColumnMetric(),
-            new NullCountColumnMetric(),
-        ];
-        $columnProfiles = [];
-
         $tableReflection = new SnowflakeTableReflection($connection, $schemaName, $tableName);
 
-        foreach ($tableReflection->getColumnsNames() as $column) {
-            $columnProfile = [];
+        $columnProfiles = [];
+        foreach ($tableReflection->getColumnsDefinitions() as $column) {
+            $columnName = $column->getColumnName();
+            $columnMetrics = $this->columnMetricsByType($column->getColumnDefinition()->getType());
 
+            $columnProfile = [];
             foreach ($columnMetrics as $metric) {
                 $columnProfile[$metric->name()] = $metric->collect(
                     $schemaName,
                     $tableName,
-                    $column,
+                    $columnName,
                     $connection,
                 );
             }
 
             $columnProfiles[] = (new Column())
-                ->setName($column)
+                ->setName($columnName)
                 ->setProfile(json_encode($columnProfile, JSON_THROW_ON_ERROR));
         }
 
         $response->setColumns($columnProfiles);
 
         return $response;
+    }
+
+    /**
+     * @return ColumnMetricInterface[]
+     */
+    private function columnMetricsByType(string $type): array
+    {
+        $default = [
+            new DistinctCountColumnMetric(),
+            new DuplicateCountColumnMetric(),
+            new NullCountColumnMetric(),
+        ];
+
+        $extra = match ($type) {
+            Snowflake::TYPE_FLOAT,
+            Snowflake::TYPE_NUMBER => [
+                new NumericStatisticsColumnMetric(),
+            ],
+            Snowflake::TYPE_VARCHAR => [
+                new AvgMinMaxLengthColumnMetric(),
+            ],
+            default => [],
+        };
+
+        return array_merge($default, $extra);
     }
 }

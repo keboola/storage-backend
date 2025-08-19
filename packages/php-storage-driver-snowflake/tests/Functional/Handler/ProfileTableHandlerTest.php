@@ -48,12 +48,12 @@ final class ProfileTableHandlerTest extends BaseCase
 
         /** @var array<string, string> $expectedColumnProfiles */
         $expectedColumnProfiles = [
-            'id' => '{"distinctCount":8,"duplicateCount":0,"nullCount":0}',
-            'col_varchar' => '{"distinctCount":7,"duplicateCount":1,"nullCount":0}',
+            'id' => '{"distinctCount":8,"duplicateCount":0,"nullCount":0,"numericStatistics":{"avg":4.5,"mode":4,"median":4.5,"min":1,"max":8}}', // phpcs:ignore
+            'col_varchar' => '{"distinctCount":7,"duplicateCount":1,"nullCount":0,"length":{"avg":14.5,"min":9,"max":20}}', // phpcs:ignore
             'col_bool' => '{"distinctCount":2,"duplicateCount":5,"nullCount":1}',
-            'col_number' => '{"distinctCount":5,"duplicateCount":2,"nullCount":1}',
-            'col_decimal' => '{"distinctCount":6,"duplicateCount":1,"nullCount":1}',
-            'col_float' => '{"distinctCount":5,"duplicateCount":2,"nullCount":1}',
+            'col_number' => '{"distinctCount":5,"duplicateCount":2,"nullCount":1,"numericStatistics":{"avg":75.714286,"mode":120,"median":60,"min":0,"max":200}}', // phpcs:ignore
+            'col_decimal' => '{"distinctCount":6,"duplicateCount":1,"nullCount":1,"numericStatistics":{"avg":108.857143,"mode":30,"median":30,"min":16,"max":499}}', // phpcs:ignore
+            'col_float' => '{"distinctCount":5,"duplicateCount":2,"nullCount":1,"numericStatistics":{"avg":4.11428571428571,"mode":4.5,"median":4.5,"min":2.4,"max":4.9}}', // phpcs:ignore
             'col_date' => '{"distinctCount":6,"duplicateCount":1,"nullCount":1}',
         ];
 
