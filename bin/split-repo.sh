@@ -37,9 +37,8 @@ clean_up () {
 trap clean_up EXIT
 
 echo ">> Cloning source repo '${SOURCE_REPO_PATH}'"
-git config --system --add safe.directory /monorepo
-git clone --no-local --mirror "${SOURCE_REPO_PATH}" $TMP_DIR
 cd $TMP_DIR
+git clone --no-local --mirror "${SOURCE_REPO_PATH}" $TMP_DIR
 
 echo ">> Rebuild repo"
 LIB_PATH="${LIB_PATH%/}/" # ensure trailing slash

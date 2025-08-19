@@ -198,23 +198,17 @@ jobs:
       - name: Split monorepo
         run: |
           set -euxo pipefail
-          
+
           ssh-add -l
-          
-          # Build the tools image (use your updated Dockerfile that installs git-filter-repo via pip)
           docker build -t monorepo-tools ./bin
-          
-          # Get the real gitdir and ensure it’s absolute
+
           GITDIR="$(git rev-parse --git-dir)"
-          if [[ "${GITDIR}" != /* ]]; then
-            GITDIR="$PWD/${GITDIR}"
-          fi
+          [[ "${GITDIR}" != /* ]] && GITDIR="$PWD/${GITDIR}"
           echo "GITDIR=${GITDIR}"
-          
-          # Run split inside the container, mounting both worktree and the real gitdir
+
           docker run \
             -v "$PWD:/monorepo" \
-            -v "$GITDIR:$GITDIR" \
+            -v "$GITDIR:/monorepo/.git" \   # <-- key change
             -w /monorepo \
             -v "$SSH_AUTH_SOCK:/ssh-agent" \
             -v "$HOME/.ssh/known_hosts:/root/.ssh/known_hosts" \
