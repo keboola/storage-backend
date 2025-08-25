@@ -37,7 +37,9 @@ class Bigquery extends Common
 
     public const TYPE_ARRAY = 'ARRAY';
 
+    // BOOL
     public const TYPE_BOOL = 'BOOL'; // NULL,TRUE,FALSE
+    public const TYPE_BOOLEAN = 'BOOLEAN'; // REST API alias
 
     public const TYPE_BYTES = 'BYTES'; // BYTES(L) L is a positive INT64
 
@@ -71,7 +73,9 @@ class Bigquery extends Common
     // alias for BIGNUMERIC
     public const TYPE_BIGDECIMAL = 'BIGDECIMAL';
 
+    // FLOAT64
     public const TYPE_FLOAT64 = 'FLOAT64';
+    public const TYPE_FLOAT = 'FLOAT'; // REST API alias
 
     public const TYPE_STRING = 'STRING'; // STRING(L) L is a positive INT64 value
 
@@ -114,6 +118,8 @@ class Bigquery extends Common
         self::TYPE_BYTEINT,
         self::TYPE_DECIMAL,
         self::TYPE_BIGDECIMAL,
+        self::TYPE_FLOAT,
+        self::TYPE_BOOLEAN,
     ];
 
     /* @see https://cloud.google.com/bigquery/docs/reference/rest/v2/tables#TableFieldSchema */
@@ -224,9 +230,11 @@ class Bigquery extends Common
                 $basetype = BaseType::NUMERIC;
                 break;
             case self::TYPE_FLOAT64:
+            case self::TYPE_FLOAT:
                 $basetype = BaseType::FLOAT;
                 break;
             case self::TYPE_BOOL:
+            case self::TYPE_BOOLEAN:
                 $basetype = BaseType::BOOLEAN;
                 break;
             case self::TYPE_DATE:
@@ -295,6 +303,8 @@ class Bigquery extends Common
             self::TYPE_BYTEINT => self::TYPE_INTEGER,
             self::TYPE_DECIMAL => self::TYPE_NUMERIC,
             self::TYPE_BIGDECIMAL => self::TYPE_BIGNUMERIC,
+            self::TYPE_FLOAT => self::TYPE_FLOAT64,
+            self::TYPE_BOOLEAN => self::TYPE_BOOL,
             default => $this->type
         };
     }

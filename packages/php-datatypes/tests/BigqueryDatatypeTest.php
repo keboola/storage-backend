@@ -53,6 +53,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
             ['bigdecimal', '78'],
 
             ['bool', 'anyLength'],
+            ['boolean', 'anyLength'],
             ['bytes', 'anyLength'],
             ['date', 'anyLength'],
             ['datetime', 'anyLength'],
@@ -69,6 +70,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
             ['tinyint', 'anyLength'],
             ['byteint', 'anyLength'],
             ['float64', 'anyLength'],
+            ['float', 'anyLength'],
         ];
     }
 
@@ -110,9 +112,11 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
                     $this->assertEquals(BaseType::NUMERIC, $basetype);
                     break;
                 case 'FLOAT64':
+                case 'FLOAT':
                     $this->assertEquals(BaseType::FLOAT, $basetype);
                     break;
                 case 'BOOL':
+                case 'BOOLEAN':
                     $this->assertEquals(BaseType::BOOLEAN, $basetype);
                     break;
                 case 'DATE':
@@ -333,6 +337,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
             ['bignumeric', '76,38'],
 
             ['bool', null],
+            ['boolean', null],
             ['date', null],
             ['datetime', null],
             ['time', null],
@@ -348,6 +353,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
             ['tinyint', null],
             ['byteint', null],
             ['float64', null],
+            ['float', null],
         ];
     }
 
@@ -498,6 +504,8 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
                 Bigquery::TYPE_BYTEINT => Bigquery::TYPE_INTEGER,
                 Bigquery::TYPE_DECIMAL => Bigquery::TYPE_NUMERIC,
                 Bigquery::TYPE_BIGDECIMAL => Bigquery::TYPE_BIGNUMERIC,
+                Bigquery::TYPE_FLOAT => Bigquery::TYPE_FLOAT64,
+                Bigquery::TYPE_BOOLEAN => Bigquery::TYPE_BOOL,
                 default => $type,
             };
 
