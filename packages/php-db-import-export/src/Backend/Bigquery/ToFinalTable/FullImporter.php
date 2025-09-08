@@ -73,10 +73,11 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $session->getAsQueryOptions(),
             ));
         } catch (Throwable $e) {
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getRollbackTransaction(),
-                $session->getAsQueryOptions(),
-            ));
+            RollbackTransactionHelper::rollbackTransaction(
+                $this->bqClient,
+                $session,
+                $this->sqlBuilder,
+            );
             throw $e;
         }
         $state->stopTimer(self::TIMER_COPY_TO_TARGET);
@@ -189,10 +190,11 @@ final class FullImporter implements ToFinalTableImporterInterface
             ));
         } catch (Throwable $e) {
             if ($transactionStarted) {
-                $this->bqClient->runQuery($this->bqClient->query(
-                    $this->sqlBuilder->getRollbackTransaction(),
-                    $session->getAsQueryOptions(),
-                ));
+                RollbackTransactionHelper::rollbackTransaction(
+                    $this->bqClient,
+                    $session,
+                    $this->sqlBuilder,
+                );
             }
             throw $e;
         } finally {
