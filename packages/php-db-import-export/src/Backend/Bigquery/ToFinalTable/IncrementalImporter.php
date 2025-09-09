@@ -148,18 +148,20 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
             $state->setImportedColumns($stagingTableDefinition->getColumnsNames());
         } catch (JobException|ServiceException $e) {
             if ($transactionStarted) {
-                $this->bqClient->runQuery($this->bqClient->query(
-                    $this->sqlBuilder->getRollbackTransaction(),
-                    $session->getAsQueryOptions(),
-                ));
+                RollbackTransactionHelper::rollbackTransaction(
+                    $this->bqClient,
+                    $session,
+                    $this->sqlBuilder,
+                );
             }
             throw BigqueryException::covertException($e);
         } catch (Throwable $e) {
             if ($transactionStarted) {
-                $this->bqClient->runQuery($this->bqClient->query(
-                    $this->sqlBuilder->getRollbackTransaction(),
-                    $session->getAsQueryOptions(),
-                ));
+                RollbackTransactionHelper::rollbackTransaction(
+                    $this->bqClient,
+                    $session,
+                    $this->sqlBuilder,
+                );
             }
             throw $e;
         } finally {

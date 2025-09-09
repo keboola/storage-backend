@@ -9,17 +9,23 @@ use Google\Cloud\BigQuery\Job;
 use Google\Cloud\BigQuery\JobConfigurationInterface;
 use Google\Cloud\BigQuery\QueryResults;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Retry\BackOff\BackOffPolicyInterface;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\BackOff\ExponentialRandomBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
+use Throwable;
 
 class BigQueryClientWrapper extends BigQueryClient
 {
     private BackOffPolicyInterface $backOffPolicy;
 
+    private LoggerInterface $logger;
+
     private readonly QueryTags $queryTags;
+
     /**
      * @inheritdoc
      * @param array<mixed> $config
@@ -31,6 +37,7 @@ class BigQueryClientWrapper extends BigQueryClient
         string $runId = '',
         array $queryTags = [],
         BackOffPolicyInterface|null $backOffPolicy = null,
+        LoggerInterface|null $logger = null,
     ) {
         parent::__construct($config);
         if ($backOffPolicy === null) {
@@ -47,6 +54,10 @@ class BigQueryClientWrapper extends BigQueryClient
             $queryTags[QueryTagKey::RUN_ID->value] = $runId;
         }
         $this->queryTags = new QueryTags($queryTags);
+        if ($logger === null) {
+            $logger = new NullLogger();
+        }
+        $this->logger = $logger;
     }
 
     /**
@@ -75,9 +86,27 @@ class BigQueryClientWrapper extends BigQueryClient
         assert($options['backOffPolicy'] instanceof BackOffPolicyInterface);
         $retryPolicy = new SimpleRetryPolicy($options['retryCount']);
         $proxy = new RetryProxy($retryPolicy, $options['backOffPolicy']);
-        $job = $proxy->call(function () use ($config, $options): Job {
-            return $this->startJob($config, $options);
-        });
+        try {
+            $job = $proxy->call(function () use ($config, $options): Job {
+                return $this->startJob($config, $options);
+            });
+        } catch (Throwable $e) {
+            $jobConfig = $config->toArray();
+            $this->logger->warning('BigQuery job failed to start.', [
+                'exception' => $e,
+                'jobConfig' => $jobConfig,
+            ]);
+            if (str_contains($e->getMessage(), 'Already Exists: Job')) {
+                // Job with the same ID already exists - get the existing job
+                if (!isset($jobConfig['jobReference']['jobId'])) {
+                    // this should never happen as ['jobReference']['jobId'] is assigned in the JobConfigurationTrait
+                    throw $e;
+                }
+                $job = $this->job($jobConfig['jobReference']['jobId']);
+            } else {
+                throw $e;
+            }
+        }
         assert($job instanceof Job);
         $context = $this->backOffPolicy->start();
         do {
