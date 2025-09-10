@@ -25,7 +25,7 @@ final class ProfileTableHandlerTest extends BaseCase
 
     public function testCreateProfile(): void
     {
-        $credentials = $this->createCredentials();
+        $credentials = $this->createCredentialsWithPassword();
 
         $handler = new ProfileTableHandler();
 
@@ -130,29 +130,5 @@ final class ProfileTableHandlerTest extends BaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
         ));
-    }
-
-    private function createCredentials(): GenericBackendCredentials
-    {
-        $host = (string) getenv('SNOWFLAKE_HOST');
-        $user = (string) getenv('SNOWFLAKE_USER');
-        $password = (string) getenv('SNOWFLAKE_PASSWORD');
-        $port = (int) getenv('SNOWFLAKE_PORT');
-        $warehouse = (string) getenv('SNOWFLAKE_WAREHOUSE');
-        $database = (string) getenv('SNOWFLAKE_DATABASE');
-
-        $any = new Any();
-        $any->pack(
-            (new SnowflakeCredentialsMeta())
-                ->setWarehouse($warehouse)
-                ->setDatabase($database),
-        );
-
-        return (new GenericBackendCredentials())
-            ->setHost($host)
-            ->setPort($port)
-            ->setPrincipal($user)
-            ->setSecret($password)
-            ->setMeta($any);
     }
 }
