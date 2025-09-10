@@ -32,7 +32,9 @@
     },
     "scripts": {
         "tests-functional": "phpunit --testsuite functional",
+        "tests-unit": "phpunit --testsuite unit",
         "tests": [
+            "@tests-unit",
             "@tests-functional"
         ],
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
