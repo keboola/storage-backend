@@ -68,3 +68,25 @@ message DropProjectCommand {
     string region = 2 [deprecated = true]; // region where exchanger is created during project creation
   }
 }
+
+/**
+  * Command is used when new dev branch is created in Keboola connection
+  * Command will setup all necessary resource needed for dev branch to work
+  * Main purpose is to create read only role for dev branch, but this may vary for each backend
+ */
+message CreateDevBranchCommand {
+  string stackPrefix = 1; // static prefix of stack used
+  string projectId = 2; // id of the project
+  string branchId = 3; // id of the dev branch
+  string projectRoleName = 4; // name of the project read only role, used to setup inheritance
+  string projectReadOnlyRoleName = 5; // name of the project read only role, used to setup inheritance
+  google.protobuf.Any meta = 6; // custom object for each backend
+}
+
+
+/**
+ * Response which is always returned as result of CreateDevBranchCommand
+ */
+message CreateDevBranchResponse {
+  string devBranchReadOnlyRoleName = 1;
+}
