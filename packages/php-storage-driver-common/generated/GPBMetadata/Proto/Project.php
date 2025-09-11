@@ -17,7 +17,7 @@ class Project
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ó
+ä
 proto/project.proto%keboola.storageDriver.command.project"ˆ
 CreateProjectCommand
 stackPrefix (	
@@ -47,7 +47,16 @@ spoolSpace (	J
 meta (2.google.protobuf.AnyH
 DropProjectBigqueryMeta
 gcsFileBucketName (	
-region (	Bbproto3'
+region (	B"°
+CreateDevBranchCommand
+stackPrefix (	
+	projectId (	
+branchId (	
+projectRoleName (	
+projectReadOnlyRoleName (	"
+meta (2.google.protobuf.Any"<
+CreateDevBranchResponse!
+devBranchReadOnlyRoleName (	bproto3'
         , true);
 
         static::$is_initialized = true;
