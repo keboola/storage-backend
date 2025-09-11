@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "keboola/storage-driver-common": "^7.1",
+        "keboola/storage-driver-common": ">=7.5",
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
