@@ -94,6 +94,6 @@ class NameGeneratorTest extends TestCase
     public function testDefaultNetworkPolicyName(): void
     {
         $objectName = $this->nameGenerator->defaultNetworkPolicyName();
-        $this->assertSame('BC_PREFIX_SYSTEM_IPS_ONLY', $objectName);
+        $this->assertSame('KBC_PREFIX_SYSTEM_IPS_ONLY', $objectName);
     }
 }

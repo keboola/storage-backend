@@ -20,13 +20,13 @@ final class CreateDevBranchHandlerTest extends BaseCase
         $this->connection->executeQuery(sprintf(
             'CREATE OR REPLACE ROLE %s;',
             SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestHash() . '_RO',
+                $this->getTestPrefix() . '_RO',
             ),
         ));
         $this->connection->executeQuery(sprintf(
             'CREATE OR REPLACE ROLE %s;',
             SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestHash() . '_PRJ',
+                $this->getTestPrefix() . '_PRJ',
             ),
         ));
     }
@@ -37,13 +37,13 @@ final class CreateDevBranchHandlerTest extends BaseCase
         $this->connection->executeQuery(sprintf(
             'DROP ROLE IF EXISTS %s;',
             SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestHash() . '_RO',
+                $this->getTestPrefix() . '_RO',
             ),
         ));
         $this->connection->executeQuery(sprintf(
             'DROP ROLE IF EXISTS %s;',
             SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestHash() . '_PRJ',
+                $this->getTestPrefix() . '_PRJ',
             ),
         ));
     }
@@ -52,11 +52,11 @@ final class CreateDevBranchHandlerTest extends BaseCase
     {
         $credentials = $this->createCredentialsWithKeyPair();
         $command = new CreateDevBranchCommand([
-            'stackPrefix' => $this->getStackPrefix(),
+            'stackPrefix' => $this->getTestPrefix(),
             'projectId' => '123',
             'branchId' => '456',
-            'projectRoleName' => $this->getTestHash() . '_PRJ',
-            'projectReadOnlyRoleName' => $this->getTestHash() . '_RO',
+            'projectRoleName' => $this->getTestPrefix() . '_PRJ',
+            'projectReadOnlyRoleName' => $this->getTestPrefix() . '_RO',
         ]);
 
         $roleName = (new NameGenerator($command->getStackPrefix()))

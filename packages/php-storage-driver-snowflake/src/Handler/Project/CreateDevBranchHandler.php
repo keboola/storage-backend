@@ -9,14 +9,13 @@ use Keboola\StorageDriver\Command\Project\CreateDevBranchCommand;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchResponse;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
+use Keboola\StorageDriver\Snowflake\Features;
 use Keboola\StorageDriver\Snowflake\Handler\BaseHandler;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 final class CreateDevBranchHandler extends BaseHandler
 {
-    public const FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE = 'input-mapping-read-only-storage';
-
     /**
      * @inheritDoc
      * @param GenericBackendCredentials $credentials
@@ -32,7 +31,7 @@ final class CreateDevBranchHandler extends BaseHandler
         assert($credentials instanceof GenericBackendCredentials);
         assert($command instanceof CreateDevBranchCommand);
 
-        if (!in_array(self::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE, $features, true)) {
+        if (!Features::isFeatureInList($features, Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE)) {
             return null;
         }
 
