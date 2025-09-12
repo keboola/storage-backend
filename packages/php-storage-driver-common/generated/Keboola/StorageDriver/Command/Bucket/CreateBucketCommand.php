@@ -54,6 +54,12 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      */
     protected $projectReadOnlyRoleName = '';
     /**
+     * backend read only role associated with dev branch, role has read access for all buckets in project and containing tables and dev branch buckets and tables
+     *
+     * Generated from protobuf field <code>string devBranchReadOnlyRoleName = 8;</code>
+     */
+    protected $devBranchReadOnlyRoleName = '';
+    /**
      * metadata specific for each backend
      *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
@@ -78,6 +84,8 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      *           backend role associated with project, role should contain all grants and be assigned to project user
      *     @type string $projectReadOnlyRoleName
      *           backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *     @type string $devBranchReadOnlyRoleName
+     *           backend read only role associated with dev branch, role has read access for all buckets in project and containing tables and dev branch buckets and tables
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -239,6 +247,32 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->projectReadOnlyRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * backend read only role associated with dev branch, role has read access for all buckets in project and containing tables and dev branch buckets and tables
+     *
+     * Generated from protobuf field <code>string devBranchReadOnlyRoleName = 8;</code>
+     * @return string
+     */
+    public function getDevBranchReadOnlyRoleName()
+    {
+        return $this->devBranchReadOnlyRoleName;
+    }
+
+    /**
+     * backend read only role associated with dev branch, role has read access for all buckets in project and containing tables and dev branch buckets and tables
+     *
+     * Generated from protobuf field <code>string devBranchReadOnlyRoleName = 8;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setDevBranchReadOnlyRoleName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->devBranchReadOnlyRoleName = $var;
 
         return $this;
     }
