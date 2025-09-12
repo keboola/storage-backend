@@ -17,8 +17,8 @@ class Bucket
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-¹
-proto/bucket.proto$keboola.storageDriver.command.bucket"Õ
+Ò
+proto/bucket.proto$keboola.storageDriver.command.bucket"î
 CreateBucketCommand
 stackPrefix (	
 	projectId (	
@@ -26,7 +26,8 @@ class Bucket
 branchId (	
 projectRoleName (	
 projectReadOnlyRoleName (	!
-devBranchReadOnlyRoleName (	"
+devBranchReadOnlyRoleName (	
+isBranchDefault	 ("
 meta (2.google.protobuf.AnyA
 CreateBucketTeradataMeta
 	permSpace (	

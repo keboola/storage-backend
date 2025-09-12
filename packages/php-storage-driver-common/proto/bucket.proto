@@ -16,6 +16,7 @@ message CreateBucketCommand {
   string projectRoleName = 4; // backend role associated with project, role should contain all grants and be assigned to project user
   string projectReadOnlyRoleName = 5; // backend read only role associated with project, role has read access for all buckets in project and containing tables
   string devBranchReadOnlyRoleName = 8; // backend read only role associated with dev branch, role has read access for all buckets in project and containing tables and dev branch buckets and tables
+  bool isBranchDefault = 9;
   google.protobuf.Any meta = 6; // metadata specific for each backend
   /**
    * Teradata backend metadata

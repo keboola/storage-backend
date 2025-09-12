@@ -60,6 +60,10 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      */
     protected $devBranchReadOnlyRoleName = '';
     /**
+     * Generated from protobuf field <code>bool isBranchDefault = 9;</code>
+     */
+    protected $isBranchDefault = false;
+    /**
      * metadata specific for each backend
      *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 6;</code>
@@ -86,6 +90,7 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
      *           backend read only role associated with project, role has read access for all buckets in project and containing tables
      *     @type string $devBranchReadOnlyRoleName
      *           backend read only role associated with dev branch, role has read access for all buckets in project and containing tables and dev branch buckets and tables
+     *     @type bool $isBranchDefault
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -273,6 +278,28 @@ class CreateBucketCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->devBranchReadOnlyRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>bool isBranchDefault = 9;</code>
+     * @return bool
+     */
+    public function getIsBranchDefault()
+    {
+        return $this->isBranchDefault;
+    }
+
+    /**
+     * Generated from protobuf field <code>bool isBranchDefault = 9;</code>
+     * @param bool $var
+     * @return $this
+     */
+    public function setIsBranchDefault($var)
+    {
+        GPBUtil::checkBool($var);
+        $this->isBranchDefault = $var;
 
         return $this;
     }
