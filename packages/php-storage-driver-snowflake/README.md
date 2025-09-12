@@ -55,7 +55,7 @@ set up env variables:
 For local tests and CI we need to edit the private key to one line and trim `-----BEGIN PRIVATE KEY----- -----END PRIVATE KEY-----` We can do this with `cat rsa_key.p8 | sed '1d;$d' | tr -d '\n'`
 ```bash
 # set private key in your local .env file
-PRIVATE_KEY=$(sed '1d;$d' rsa_key.p8 | tr -d '\n'); if grep -q '^SNOWFLAKE_PRIVATE_KEY=' .env; then sed -i "s|^SNOWFLAKE_PRIVATE_KEY=.*|SNOWFLAKE_PRIVATE_KEY=\"$PRIVATE_KEY\"|" .env; else echo "SNOWFLAKE_PRIVATE_KEY=\"$PRIVATE_KEY\"" >> .env; fi
+PRIVATE_KEY=$(sed '1d;$d' rsa_key.p8 | tr -d '\n'); if [ -f .env ]; then awk -v v="SNOWFLAKE_PRIVATE_KEY=\"$PRIVATE_KEY\"" 'BEGIN{r=0} /^SNOWFLAKE_PRIVATE_KEY=/{print v; r=1; next} {print} END{if(!r) print v}' .env > .env.tmp && mv .env.tmp .env; else printf '%s\n' "SNOWFLAKE_PRIVATE_KEY=\"$PRIVATE_KEY\"" > .env; fi
 ```
 
 ```dotenv
