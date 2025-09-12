@@ -39,7 +39,7 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     /**
      * type of file storage used for stage
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.fileStorageType fileStorage = 7;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.FileStorageType fileStorage = 7;</code>
      */
     protected $fileStorage = 0;
     /**
@@ -153,7 +153,7 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     /**
      * type of file storage used for stage
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.fileStorageType fileStorage = 7;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.FileStorageType fileStorage = 7;</code>
      * @return int
      */
     public function getFileStorage()
@@ -164,13 +164,13 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     /**
      * type of file storage used for stage
      *
-     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.fileStorageType fileStorage = 7;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.FileStorageType fileStorage = 7;</code>
      * @param int $var
      * @return $this
      */
     public function setFileStorage($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Project\CreateProjectCommand\fileStorageType::class);
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Project\CreateProjectCommand\FileStorageType::class);
         $this->fileStorage = $var;
 
         return $this;
