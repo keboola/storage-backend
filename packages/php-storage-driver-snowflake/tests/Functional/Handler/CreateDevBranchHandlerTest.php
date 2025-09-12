@@ -7,56 +7,22 @@ namespace Keboola\StorageDriver\Snowflake\Tests\Functional\Handler;
 use Keboola\StorageDriver\Command\Common\RuntimeOptions;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchCommand;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchResponse;
+use Keboola\StorageDriver\Snowflake\Features;
 use Keboola\StorageDriver\Snowflake\Handler\Project\CreateDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
-use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseCase;
+use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseProjectTestCase;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
-final class CreateDevBranchHandlerTest extends BaseCase
+final class CreateDevBranchHandlerTest extends BaseProjectTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->connection->executeQuery(sprintf(
-            'CREATE OR REPLACE ROLE %s;',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestPrefix() . '_RO',
-            ),
-        ));
-        $this->connection->executeQuery(sprintf(
-            'CREATE OR REPLACE ROLE %s;',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestPrefix() . '_PRJ',
-            ),
-        ));
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        $this->connection->executeQuery(sprintf(
-            'DROP ROLE IF EXISTS %s;',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestPrefix() . '_RO',
-            ),
-        ));
-        $this->connection->executeQuery(sprintf(
-            'DROP ROLE IF EXISTS %s;',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $this->getTestPrefix() . '_PRJ',
-            ),
-        ));
-    }
-
     public function testCreateDevBranch(): void
     {
-        $credentials = $this->createCredentialsWithKeyPair();
         $command = new CreateDevBranchCommand([
             'stackPrefix' => $this->getTestPrefix(),
             'projectId' => '123',
             'branchId' => '456',
-            'projectRoleName' => $this->getTestPrefix() . '_PRJ',
-            'projectReadOnlyRoleName' => $this->getTestPrefix() . '_RO',
+            'projectRoleName' => $this->projectResponse->getProjectRoleName(),
+            'projectReadOnlyRoleName' => $this->projectResponse->getProjectReadOnlyRoleName(),
         ]);
 
         $roleName = (new NameGenerator($command->getStackPrefix()))
@@ -72,10 +38,10 @@ final class CreateDevBranchHandlerTest extends BaseCase
         ));
 
         $response = (new CreateDevBranchHandler)(
-            $credentials,
+            $this->getCurrentProjectCredentials(),
             $command,
             [
-                'input-mapping-read-only-storage',
+                Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
             ],
             new RuntimeOptions(),
         );
@@ -98,13 +64,13 @@ final class CreateDevBranchHandlerTest extends BaseCase
                 $roleName,
             ),
         ));
-        $this->assertCount(1, $grants);
+        $this->assertCount(1, $grants, var_export($grants, true));
         $this->assertSame('ROLE', $grants[0]['granted_to']);
         $this->assertSame('ROLE', $grants[0]['granted_on']);
         $this->assertSame('USAGE', $grants[0]['privilege']);
         $this->assertSame($roleName, $grants[0]['grantee_name']);
         $this->assertSame(
-            SnowflakeQuote::quoteSingleIdentifier($command->getProjectReadOnlyRoleName()),
+            $command->getProjectReadOnlyRoleName(),
             $grants[0]['name'],
         );
 
@@ -115,11 +81,60 @@ final class CreateDevBranchHandlerTest extends BaseCase
                 $command->getProjectRoleName(),
             ),
         ));
-        $this->assertCount(1, $grants);
-        $this->assertSame('ROLE', $grants[0]['granted_to']);
-        $this->assertSame('ROLE', $grants[0]['granted_on']);
-        $this->assertSame('USAGE', $grants[0]['privilege']);
-        $this->assertSame($command->getProjectRoleName(), $grants[0]['grantee_name']);
-        $this->assertSame($roleName, $grants[0]['name']);
+        // expected count of grants in project role
+        $this->assertCount(7, $grants, var_export($grants, true));
+        // find grant for branch ro role
+        $grants = array_filter($grants, function ($grant) use ($roleName) {
+            // project role has ownership and usage on branch ro role
+            return $grant['name'] === $roleName && $grant['privilege'] === 'USAGE';
+        });
+        // test usage grant
+        $this->assertCount(1, $grants, var_export($grants, true));
+        $grant = reset($grants);
+        $this->assertSame('ROLE', $grant['granted_to']);
+        $this->assertSame('ROLE', $grant['granted_on']);
+        $this->assertSame('USAGE', $grant['privilege']);
+        $this->assertSame($command->getProjectRoleName(), $grant['grantee_name']);
+        $this->assertSame($roleName, $grant['name']);
+    }
+
+    public function testCreateDevBranchWithoutReadOnlyStorage(): void
+    {
+        $command = new CreateDevBranchCommand([
+            'stackPrefix' => $this->getTestPrefix(),
+            'projectId' => '123',
+            'branchId' => '456',
+            'projectRoleName' => $this->projectResponse->getProjectRoleName(),
+            'projectReadOnlyRoleName' => $this->projectResponse->getProjectReadOnlyRoleName(),
+        ]);
+
+        $roleName = (new NameGenerator($command->getStackPrefix()))
+            ->createReadOnlyRoleNameForBranch(
+                $command->getProjectId(),
+                $command->getBranchId(),
+            );
+        $this->connection->executeQuery(sprintf(
+            'DROP ROLE IF EXISTS %s;',
+            SnowflakeQuote::quoteSingleIdentifier(
+                $roleName,
+            ),
+        ));
+
+        $response = (new CreateDevBranchHandler)(
+            $this->getCurrentProjectCredentials(),
+            $command,
+            [],
+            new RuntimeOptions(),
+        );
+        $this->assertNull($response);
+
+        // assert that ro for branch was not created
+        $roles = $this->connection->fetchAllAssociative(sprintf(
+            'SHOW ROLES STARTS WITH %s;',
+            SnowflakeQuote::quote(
+                $roleName,
+            ),
+        ));
+        $this->assertCount(0, $roles);
     }
 }

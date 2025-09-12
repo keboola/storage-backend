@@ -7,7 +7,6 @@ namespace Keboola\StorageDriver\Snowflake\Tests\Functional;
 use Doctrine\DBAL\Connection;
 use Google\Protobuf\Any;
 use Keboola\KeyGenerator\PemKeyCertificateGenerator;
-use Keboola\StorageDriver\Command\Project\CreateProjectResponse;
 use Keboola\StorageDriver\Command\Project\DropProjectCommand;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials\SnowflakeCredentialsMeta;

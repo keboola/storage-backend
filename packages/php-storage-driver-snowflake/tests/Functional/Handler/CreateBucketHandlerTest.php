@@ -5,44 +5,18 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake\Tests\Functional\Handler;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
-use Keboola\KeyGenerator\PemKeyCertificatePair;
 use Keboola\StorageDriver\Command\Bucket\CreateBucketCommand;
 use Keboola\StorageDriver\Command\Bucket\CreateBucketResponse;
 use Keboola\StorageDriver\Command\Common\RuntimeOptions;
-use Keboola\StorageDriver\Command\Project\CreateProjectResponse;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 use Keboola\StorageDriver\Snowflake\Features;
 use Keboola\StorageDriver\Snowflake\Handler\Bucket\CreateBucketHandler;
-use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseCase;
+use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseProjectTestCase;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Throwable;
 
-final class CreateBucketHandlerTest extends BaseCase
+final class CreateBucketHandlerTest extends BaseProjectTestCase
 {
-    private PemKeyCertificatePair $keyPair;
-
-    private CreateProjectResponse $projectResponse;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->dropProjectForTest($this->getTestPrefix(), '123');
-        [$this->projectResponse, $this->keyPair] = $this->createProjectForTest(
-            $this->getTestPrefix(),
-            '123',
-            [
-                Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
-            ],
-        );
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        $this->dropProjectForTest($this->getTestPrefix(), '123');
-    }
-
     public function testCreateBucketInDefaultBranchWithReadOnlyStorageEnabled(): void
     {
         $command = new CreateBucketCommand([
@@ -56,10 +30,7 @@ final class CreateBucketHandlerTest extends BaseCase
             'isBranchDefault' => true,
         ]);
         $response = (new CreateBucketHandler())(
-            $this->createProjectCredentials(
-                $this->projectResponse,
-                $this->keyPair,
-            ),
+            $this->getCurrentProjectCredentials(),
             $command,
             [
                 Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
@@ -100,10 +71,7 @@ final class CreateBucketHandlerTest extends BaseCase
         ], $testUserConnection);
 
         // assert that project user can create new table in schema
-        $projectConnection = ConnectionFactory::createFromCredentials($this->createProjectCredentials(
-            $this->projectResponse,
-            $this->keyPair,
-        ));
+        $projectConnection = $this->getCurrentProjectConnection();
         $projectConnection->executeStatement(sprintf(
             'CREATE TABLE %s.test (ID INT)',
             SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
@@ -137,10 +105,7 @@ final class CreateBucketHandlerTest extends BaseCase
             'isBranchDefault' => false,
         ]);
         $response = (new CreateBucketHandler())(
-            $this->createProjectCredentials(
-                $this->projectResponse,
-                $this->keyPair,
-            ),
+            $this->getCurrentProjectCredentials(),
             $command,
             [
                 Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
@@ -182,10 +147,7 @@ final class CreateBucketHandlerTest extends BaseCase
             ],
         ], $testUserConnection);
         // assert that project user can create new table in schema
-        $projectConnection = ConnectionFactory::createFromCredentials($this->createProjectCredentials(
-            $this->projectResponse,
-            $this->keyPair,
-        ));
+        $projectConnection = $this->getCurrentProjectConnection();
         $projectConnection->executeStatement(sprintf(
             'CREATE TABLE %s.test (ID INT)',
             SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
@@ -219,10 +181,7 @@ final class CreateBucketHandlerTest extends BaseCase
             'isBranchDefault' => false,
         ]);
         $response = (new CreateBucketHandler())(
-            $this->createProjectCredentials(
-                $this->projectResponse,
-                $this->keyPair,
-            ),
+            $this->getCurrentProjectCredentials(),
             $command,
             [
                 Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
@@ -260,10 +219,7 @@ final class CreateBucketHandlerTest extends BaseCase
 
         // assert that project user can create new table in schema
         // this also tests that schema is created
-        $projectConnection = ConnectionFactory::createFromCredentials($this->createProjectCredentials(
-            $this->projectResponse,
-            $this->keyPair,
-        ));
+        $projectConnection = $this->getCurrentProjectConnection();
         $projectConnection->executeStatement(sprintf(
             'CREATE TABLE %s.test (ID INT)',
             SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
@@ -301,10 +257,7 @@ final class CreateBucketHandlerTest extends BaseCase
             'isBranchDefault' => true,
         ]);
         $response = (new CreateBucketHandler())(
-            $this->createProjectCredentials(
-                $this->projectResponse,
-                $this->keyPair,
-            ),
+            $this->getCurrentProjectCredentials(),
             $command,
             [],
             new RuntimeOptions(),
@@ -340,10 +293,7 @@ final class CreateBucketHandlerTest extends BaseCase
 
         // assert that project user can create new table in schema
         // this also tests that schema is created
-        $projectConnection = ConnectionFactory::createFromCredentials($this->createProjectCredentials(
-            $this->projectResponse,
-            $this->keyPair,
-        ));
+        $projectConnection = $this->getCurrentProjectConnection();
         $projectConnection->executeStatement(sprintf(
             'CREATE TABLE %s.test (ID INT)',
             SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
@@ -381,10 +331,7 @@ final class CreateBucketHandlerTest extends BaseCase
             'isBranchDefault' => false,
         ]);
         $response = (new CreateBucketHandler())(
-            $this->createProjectCredentials(
-                $this->projectResponse,
-                $this->keyPair,
-            ),
+            $this->getCurrentProjectCredentials(),
             $command,
             [],
             new RuntimeOptions(),
@@ -420,10 +367,7 @@ final class CreateBucketHandlerTest extends BaseCase
         ], $testUserConnection);
         // assert that project user can create new table in schema
         // this also tests that schema is created
-        $projectConnection = ConnectionFactory::createFromCredentials($this->createProjectCredentials(
-            $this->projectResponse,
-            $this->keyPair,
-        ));
+        $projectConnection = $this->getCurrentProjectConnection();
         $projectConnection->executeStatement(sprintf(
             'CREATE TABLE %s.test (ID INT)',
             SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
