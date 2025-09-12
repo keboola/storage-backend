@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "keboola/storage-driver-common": "^7.1",
+        "keboola/storage-driver-common": ">=7.5",
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
@@ -32,7 +32,9 @@
     },
     "scripts": {
         "tests-functional": "phpunit --testsuite functional",
+        "tests-unit": "phpunit --testsuite unit",
         "tests": [
+            "@tests-unit",
             "@tests-functional"
         ],
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
