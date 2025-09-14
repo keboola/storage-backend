@@ -13,6 +13,8 @@ use Keboola\StorageDriver\Snowflake\Features;
 
 abstract class BaseProjectTestCase extends BaseCase
 {
+    public const BASE_PROJECT_ID = '123';
+
     protected PemKeyCertificatePair $keyPair;
 
     protected CreateProjectResponse $projectResponse;
@@ -20,10 +22,10 @@ abstract class BaseProjectTestCase extends BaseCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->dropProjectForTest($this->getTestPrefix(), '123');
+        $this->dropProjectForTest($this->getTestPrefix(), self::BASE_PROJECT_ID);
         [$this->projectResponse, $this->keyPair] = $this->createProjectForTest(
             $this->getTestPrefix(),
-            '123',
+            self::BASE_PROJECT_ID,
             [
                 Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
             ],
@@ -33,7 +35,7 @@ abstract class BaseProjectTestCase extends BaseCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->dropProjectForTest($this->getTestPrefix(), '123');
+        $this->dropProjectForTest($this->getTestPrefix(), self::BASE_PROJECT_ID);
     }
 
     protected function getCurrentProjectCredentials(): GenericBackendCredentials
