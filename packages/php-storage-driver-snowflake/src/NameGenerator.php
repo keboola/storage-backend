@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake;
 
 use InvalidArgumentException;
-use Keboola\Snowflake\Exception;
 use Keboola\StorageDriver\Shared\Driver\Exception\Command\InvalidObjectNameException;
-use Keboola\Validate\Snowflake\ObjectNameValidate as SnowflakeObjectNameValidate;
 
 class NameGenerator
 {
@@ -20,7 +18,7 @@ class NameGenerator
     {
         return strtoupper(sprintf(
             '%s_%s_%s_RO',
-            rtrim($this->stackPrefix, '_'),
+            $this->getStackPrefix(),
             $projectId,
             $branchId,
         ));
@@ -44,7 +42,7 @@ class NameGenerator
     {
         return strtoupper(sprintf(
             '%s_%s_RO',
-            rtrim($this->stackPrefix, '_'),
+            $this->getStackPrefix(),
             $projectId,
         ));
     }
@@ -53,13 +51,17 @@ class NameGenerator
     {
         return strtoupper(sprintf(
             '%s_SYSTEM_IPS_ONLY',
-            rtrim($this->stackPrefix, '_'),
+            $this->getStackPrefix(),
         ));
     }
 
     public function createUserNameForProject(string $projectId): string
     {
-        $name = sprintf('%s%s', $this->stackPrefix, $projectId);
+        $name = sprintf(
+            '%s_%s',
+            $this->getStackPrefix(),
+            $projectId,
+        );
         if (!$this->isValidSnowflakeObjectName($name)) {
             throw new InvalidObjectNameException($name);
         }
@@ -84,5 +86,10 @@ class NameGenerator
         }
 
         return true;
+    }
+
+    private function getStackPrefix(): string
+    {
+        return rtrim($this->stackPrefix, '_');
     }
 }
