@@ -9,6 +9,7 @@ use Google\ApiCore\ValidationException;
 use Google\Protobuf\Any;
 use Google\Protobuf\Internal\Message;
 use InvalidArgumentException;
+use Keboola\KeyGenerator\PemKeyCertificateGenerator;
 use Keboola\StorageDriver\Command\Project\CreateProjectCommand;
 use Keboola\StorageDriver\Command\Project\CreateProjectResponse;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
@@ -18,7 +19,6 @@ use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 use Keboola\StorageDriver\Snowflake\Features;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
-use RuntimeException;
 
 /**
  * Do not use this handler as it is not fully tested yet.
@@ -153,42 +153,38 @@ final class CreateProjectHandler extends BaseHandler
         }
 
         if (Features::isFeatureInList($features, Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE)) {
+            // set secondary RSA key to be able to use this user to invoke commands
+            $keyPair = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
+            $connection->executeQuery(sprintf(
+                'ALTER USER %s SET RSA_PUBLIC_KEY_2=\'%s\'',
+                SnowflakeQuote::quoteSingleIdentifier($userName),
+                $keyPair->publicKey,
+            ));
+            $credentialsMeta = $credentials->getMeta();
+            assert($credentialsMeta !== null);
+            $connectionAsProjectUser = ConnectionFactory::createFromCredentials(
+                (new GenericBackendCredentials())
+                    ->setHost($credentials->getHost())
+                    ->setPort($credentials->getPort())
+                    ->setPrincipal($userName)
+                    ->setSecret($keyPair->privateKey)
+                    ->setMeta($credentialsMeta),
+            );
+
             $readOnlyRoleName = $nameGenerator->createReadOnlyRoleNameForProject($command->getProjectId());
-
-            $currentRole = $connection->fetchOne('SELECT CURRENT_ROLE()');
-            if (!is_string($currentRole)) {
-                throw new RuntimeException('Cannot get current role.');
-            }
-            $connection->executeQuery(sprintf(
-                'GRANT ROLE %s TO ROLE %s',
-                SnowflakeQuote::quoteSingleIdentifier($roleName),
-                SnowflakeQuote::quoteSingleIdentifier($currentRole),
-            ));
-
-            $connection->executeQuery(sprintf(
-                'USE ROLE %s',
-                SnowflakeQuote::quoteSingleIdentifier($roleName),
-            ));
-
-            $connection->executeQuery(sprintf(
+            $connectionAsProjectUser->executeQuery(sprintf(
                 'CREATE OR REPLACE ROLE %s',
                 SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
             ));
-            $connection->executeQuery(sprintf(
+            $connectionAsProjectUser->executeQuery(sprintf(
                 'GRANT USAGE ON DATABASE %s TO ROLE %s',
                 SnowflakeQuote::quoteSingleIdentifier($dbName),
                 SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
             ));
-            $connection->executeQuery(sprintf(
+            $connectionAsProjectUser->executeQuery(sprintf(
                 'GRANT ROLE %s TO ROLE %s',
                 SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
                 SnowflakeQuote::quoteSingleIdentifier($roleName),
-            ));
-
-            $connection->executeQuery(sprintf(
-                'REVOKE ROLE %s FROM ROLE %s',
-                SnowflakeQuote::quoteSingleIdentifier($roleName),
-                SnowflakeQuote::quoteSingleIdentifier($currentRole),
             ));
         }
         $meta = new Any();
