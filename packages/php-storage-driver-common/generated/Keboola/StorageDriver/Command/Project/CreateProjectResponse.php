@@ -41,6 +41,18 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 4;</code>
      */
     protected $projectReadOnlyRoleName = '';
+    /**
+     * database name associated with project
+     *
+     * Generated from protobuf field <code>string projectDatabaseName = 8;</code>
+     */
+    protected $projectDatabaseName = '';
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
+     */
+    protected $meta = null;
 
     /**
      * Constructor.
@@ -56,6 +68,10 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
      *           project user password
      *     @type string $projectReadOnlyRoleName
      *           newly created role name which will have select grant on all tables and buckets in project
+     *     @type string $projectDatabaseName
+     *           database name associated with project
+     *     @type \Google\Protobuf\Any $meta
+     *           metadata specific for each backend
      * }
      */
     public function __construct($data = NULL) {
@@ -163,6 +179,68 @@ class CreateProjectResponse extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->projectReadOnlyRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * database name associated with project
+     *
+     * Generated from protobuf field <code>string projectDatabaseName = 8;</code>
+     * @return string
+     */
+    public function getProjectDatabaseName()
+    {
+        return $this->projectDatabaseName;
+    }
+
+    /**
+     * database name associated with project
+     *
+     * Generated from protobuf field <code>string projectDatabaseName = 8;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setProjectDatabaseName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->projectDatabaseName = $var;
+
+        return $this;
+    }
+
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
+     * @return \Google\Protobuf\Any|null
+     */
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
+    public function hasMeta()
+    {
+        return isset($this->meta);
+    }
+
+    public function clearMeta()
+    {
+        unset($this->meta);
+    }
+
+    /**
+     * metadata specific for each backend
+     *
+     * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
+     * @param \Google\Protobuf\Any $var
+     * @return $this
+     */
+    public function setMeta($var)
+    {
+        GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
+        $this->meta = $var;
 
         return $this;
     }

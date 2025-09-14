@@ -31,6 +31,18 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
      */
     protected $projectId = '';
     /**
+     * how long data should be kept in backend in days, this is used to setup time-travel
+     *
+     * Generated from protobuf field <code>int32 dataRetentionTime = 6;</code>
+     */
+    protected $dataRetentionTime = 0;
+    /**
+     * type of file storage used for stage
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.FileStorageType fileStorage = 7;</code>
+     */
+    protected $fileStorage = 0;
+    /**
      * metadata specific for each backend
      *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 5;</code>
@@ -47,6 +59,10 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
      *           static prefix of stack used
      *     @type string $projectId
      *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+     *     @type int $dataRetentionTime
+     *           how long data should be kept in backend in days, this is used to setup time-travel
+     *     @type int $fileStorage
+     *           type of file storage used for stage
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -104,6 +120,58 @@ class CreateProjectCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->projectId = $var;
+
+        return $this;
+    }
+
+    /**
+     * how long data should be kept in backend in days, this is used to setup time-travel
+     *
+     * Generated from protobuf field <code>int32 dataRetentionTime = 6;</code>
+     * @return int
+     */
+    public function getDataRetentionTime()
+    {
+        return $this->dataRetentionTime;
+    }
+
+    /**
+     * how long data should be kept in backend in days, this is used to setup time-travel
+     *
+     * Generated from protobuf field <code>int32 dataRetentionTime = 6;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setDataRetentionTime($var)
+    {
+        GPBUtil::checkInt32($var);
+        $this->dataRetentionTime = $var;
+
+        return $this;
+    }
+
+    /**
+     * type of file storage used for stage
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.FileStorageType fileStorage = 7;</code>
+     * @return int
+     */
+    public function getFileStorage()
+    {
+        return $this->fileStorage;
+    }
+
+    /**
+     * type of file storage used for stage
+     *
+     * Generated from protobuf field <code>.keboola.storageDriver.command.project.CreateProjectCommand.FileStorageType fileStorage = 7;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setFileStorage($var)
+    {
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Project\CreateProjectCommand\FileStorageType::class);
+        $this->fileStorage = $var;
 
         return $this;
     }

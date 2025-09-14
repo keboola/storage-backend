@@ -11,6 +11,13 @@ package keboola.storageDriver.command.project;
 message CreateProjectCommand {
   string stackPrefix = 1; // static prefix of stack used
   string projectId = 2; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
+  int32 dataRetentionTime = 6; // how long data should be kept in backend in days, this is used to setup time-travel
+  enum FileStorageType {
+    S3 = 0; // AWS S3 stage
+    ABS = 1; // Azure Blob Storage stage
+    GCS = 2; // Google Cloud Storage stage
+  }
+  FileStorageType fileStorage = 7; // type of file storage used for stage
   google.protobuf.Any meta = 5; // metadata specific for each backend
   /**
    * Teradata backend metadata
@@ -27,6 +34,17 @@ message CreateProjectCommand {
     string gcsFileBucketName = 1; // file storage bucket in GCS, bigquery load from file doesn't support load with file credentials
     string region = 2 [deprecated = true]; // region where exchanger for sharing is created
   }
+  /**
+  * Snowflake backend metadata
+  */
+  message CreateProjectSnowflakeMeta {
+    string storageIntegrationName = 1; // Snowflake storage integration name used for project stage
+    string projectUserLoginType = 2; // Snowflake login type for newly created project user
+    string projectUserPublicKey = 3; // RSA public key part of key pair for newly created project user
+    bool setupDynamicBackends = 4; // if true, dynamic backend warehouses grans will be setup
+    string defaultWarehouseToGrant = 5; // default warehouse which will be granted to project user
+    repeated string additionalWarehousesToGrant = 6; // list of additional warehouses which will be granted to project user
+  }
 }
 
 /**
@@ -38,16 +56,22 @@ message CreateProjectResponse {
   string projectRoleName = 2; // newly created role name associated with project
   string projectPassword = 3; // project user password
   string projectReadOnlyRoleName = 4; // newly created role name which will have select grant on all tables and buckets in project
+  string projectDatabaseName = 8; // database name associated with project
+  google.protobuf.Any meta = 5; // metadata specific for each backend
+
+  message CreateProjectSnowflakeMeta {
+    bool isNetworkPolicySet = 1; // if true, network policy was setup for project user
+  }
 }
 
 /**
    * Command is used to update project's in Keboola connection
    * For now, only timezone is updated when this command is executed
    */
-  message UpdateProjectCommand {
-    string projectId = 1; // Keboola Connection project string id
-    string region = 2;   // Region where the project is located
-    string timezone = 3; // New timezone setting for the project that will be applied
+message UpdateProjectCommand {
+  string projectId = 1; // Keboola Connection project string id
+  string region = 2;   // Region where the project is located
+  string timezone = 3; // New timezone setting for the project that will be applied
 }
 
 /**
@@ -58,6 +82,7 @@ message DropProjectCommand {
   string projectUserName = 1; // project associated user name which will be removed
   string projectRoleName = 2; // project associated role name which will be removed
   string readOnlyRoleName = 3; // project associated read only role name which will be removed
+  string projectDatabaseName = 5; // database name associated with project
   google.protobuf.Any meta = 4; // metadata specific for each backend
 
   /**

@@ -36,6 +36,12 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
      */
     protected $readOnlyRoleName = '';
     /**
+     * database name associated with project
+     *
+     * Generated from protobuf field <code>string projectDatabaseName = 5;</code>
+     */
+    protected $projectDatabaseName = '';
+    /**
      * metadata specific for each backend
      *
      * Generated from protobuf field <code>.google.protobuf.Any meta = 4;</code>
@@ -54,6 +60,8 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
      *           project associated role name which will be removed
      *     @type string $readOnlyRoleName
      *           project associated read only role name which will be removed
+     *     @type string $projectDatabaseName
+     *           database name associated with project
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -137,6 +145,32 @@ class DropProjectCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->readOnlyRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * database name associated with project
+     *
+     * Generated from protobuf field <code>string projectDatabaseName = 5;</code>
+     * @return string
+     */
+    public function getProjectDatabaseName()
+    {
+        return $this->projectDatabaseName;
+    }
+
+    /**
+     * database name associated with project
+     *
+     * Generated from protobuf field <code>string projectDatabaseName = 5;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setProjectDatabaseName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->projectDatabaseName = $var;
 
         return $this;
     }
