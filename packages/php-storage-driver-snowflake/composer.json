@@ -9,16 +9,10 @@
             "email": "devel@keboola.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../php-storage-driver-common"
-        }
-    ],
     "require": {
         "php": "^8.2",
         "keboola/key-generator": "^1.0",
-        "keboola/storage-driver-common": "dev-main",
+        "keboola/storage-driver-common": ">=v7.6",
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
