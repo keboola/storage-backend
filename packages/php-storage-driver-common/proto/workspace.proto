@@ -17,9 +17,12 @@ message CreateWorkspaceCommand {
   string stackPrefix = 1; // static prefix of stack used
   string projectId = 2; // Keboola Connection project id, id is currently numeric, but string here as this could change in the future
   string workspaceId = 3; // Keboola Connection workspace id
+  string branchId = 8; // Keboola Connection dev branch id
+  bool isBranchDefault = 9; // true if workspace is created for main/default/production branch
   string projectUserName = 4; // backend user associated with project
   string projectRoleName = 5; // backend role associated with project, role should contain all grants and be assigned to project user
   string projectReadOnlyRoleName = 6; // backend read only role associated with project, role has read access for all buckets in project and containing tables
+  string devBranchReadOnlyRoleName = 10; // backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
   google.protobuf.Any meta = 7; // metadata specific for each backend
   /**
    * Teradata backend metadata

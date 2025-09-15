@@ -41,6 +41,18 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
      */
     protected $workspaceId = '';
     /**
+     * Keboola Connection dev branch id
+     *
+     * Generated from protobuf field <code>string branchId = 8;</code>
+     */
+    protected $branchId = '';
+    /**
+     * true if workspace is created for main/default/production branch
+     *
+     * Generated from protobuf field <code>bool isBranchDefault = 9;</code>
+     */
+    protected $isBranchDefault = false;
+    /**
      * backend user associated with project
      *
      * Generated from protobuf field <code>string projectUserName = 4;</code>
@@ -58,6 +70,12 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string projectReadOnlyRoleName = 6;</code>
      */
     protected $projectReadOnlyRoleName = '';
+    /**
+     * backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
+     *
+     * Generated from protobuf field <code>string devBranchReadOnlyRoleName = 10;</code>
+     */
+    protected $devBranchReadOnlyRoleName = '';
     /**
      * metadata specific for each backend
      *
@@ -77,12 +95,18 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *           Keboola Connection project id, id is currently numeric, but string here as this could change in the future
      *     @type string $workspaceId
      *           Keboola Connection workspace id
+     *     @type string $branchId
+     *           Keboola Connection dev branch id
+     *     @type bool $isBranchDefault
+     *           true if workspace is created for main/default/production branch
      *     @type string $projectUserName
      *           backend user associated with project
      *     @type string $projectRoleName
      *           backend role associated with project, role should contain all grants and be assigned to project user
      *     @type string $projectReadOnlyRoleName
      *           backend read only role associated with project, role has read access for all buckets in project and containing tables
+     *     @type string $devBranchReadOnlyRoleName
+     *           backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
      * }
@@ -171,6 +195,58 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     }
 
     /**
+     * Keboola Connection dev branch id
+     *
+     * Generated from protobuf field <code>string branchId = 8;</code>
+     * @return string
+     */
+    public function getBranchId()
+    {
+        return $this->branchId;
+    }
+
+    /**
+     * Keboola Connection dev branch id
+     *
+     * Generated from protobuf field <code>string branchId = 8;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setBranchId($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->branchId = $var;
+
+        return $this;
+    }
+
+    /**
+     * true if workspace is created for main/default/production branch
+     *
+     * Generated from protobuf field <code>bool isBranchDefault = 9;</code>
+     * @return bool
+     */
+    public function getIsBranchDefault()
+    {
+        return $this->isBranchDefault;
+    }
+
+    /**
+     * true if workspace is created for main/default/production branch
+     *
+     * Generated from protobuf field <code>bool isBranchDefault = 9;</code>
+     * @param bool $var
+     * @return $this
+     */
+    public function setIsBranchDefault($var)
+    {
+        GPBUtil::checkBool($var);
+        $this->isBranchDefault = $var;
+
+        return $this;
+    }
+
+    /**
      * backend user associated with project
      *
      * Generated from protobuf field <code>string projectUserName = 4;</code>
@@ -244,6 +320,32 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->projectReadOnlyRoleName = $var;
+
+        return $this;
+    }
+
+    /**
+     * backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
+     *
+     * Generated from protobuf field <code>string devBranchReadOnlyRoleName = 10;</code>
+     * @return string
+     */
+    public function getDevBranchReadOnlyRoleName()
+    {
+        return $this->devBranchReadOnlyRoleName;
+    }
+
+    /**
+     * backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
+     *
+     * Generated from protobuf field <code>string devBranchReadOnlyRoleName = 10;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setDevBranchReadOnlyRoleName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->devBranchReadOnlyRoleName = $var;
 
         return $this;
     }
