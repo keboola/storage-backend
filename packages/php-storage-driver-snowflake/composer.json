@@ -11,7 +11,8 @@
     ],
     "require": {
         "php": "^8.2",
-        "keboola/storage-driver-common": ">=7.5",
+        "keboola/key-generator": "^1.0",
+        "keboola/storage-driver-common": ">=v7.6",
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
@@ -38,6 +39,7 @@
             "@tests-functional"
         ],
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
+        "phpcbf": "phpcbf -s -n --extensions=php .",
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "check": [
             "@composer validate --no-check-all --strict",
