@@ -77,10 +77,7 @@ abstract class BaseCase extends TestCase
         );
     }
 
-    /**
-     * @param array<int,Features::FEATURE_*> $features
-     */
-    protected function dropProjectForTest(string $stackPrefix, string $projectId, array $features = []): void
+    protected function dropProjectForTest(string $stackPrefix, string $projectId): void
     {
         $nameGenerator = new NameGenerator($stackPrefix);
         $userName = $nameGenerator->createUserNameForProject($projectId);
@@ -115,13 +112,10 @@ abstract class BaseCase extends TestCase
             ),
         ));
 
-        if (Features::isFeatureInList($features, Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE)) {
-            // REVOKE is not needed, because the DB doesn't exists anymore
-            $connection->executeQuery(sprintf(
-                'DROP ROLE IF EXISTS %s',
-                SnowflakeQuote::quoteSingleIdentifier($command->getReadOnlyRoleName()),
-            ));
-        }
+        $connection->executeQuery(sprintf(
+            'DROP ROLE IF EXISTS %s',
+            SnowflakeQuote::quoteSingleIdentifier($command->getReadOnlyRoleName()),
+        ));
     }
 
     protected function createTestUserWithCredentials(

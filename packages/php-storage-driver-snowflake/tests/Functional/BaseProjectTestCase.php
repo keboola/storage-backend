@@ -35,7 +35,10 @@ abstract class BaseProjectTestCase extends BaseCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->dropProjectForTest($this->getTestPrefix(), self::BASE_PROJECT_ID);
+        $this->dropProjectForTest(
+            $this->getTestPrefix(),
+            self::BASE_PROJECT_ID,
+        );
     }
 
     protected function getCurrentProjectCredentials(): GenericBackendCredentials
