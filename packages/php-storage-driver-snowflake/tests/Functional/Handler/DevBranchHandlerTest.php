@@ -7,15 +7,17 @@ namespace Keboola\StorageDriver\Snowflake\Tests\Functional\Handler;
 use Keboola\StorageDriver\Command\Common\RuntimeOptions;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchCommand;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchResponse;
+use Keboola\StorageDriver\Command\Project\DropDevBranchCommand;
 use Keboola\StorageDriver\Snowflake\Features;
 use Keboola\StorageDriver\Snowflake\Handler\Project\CreateDevBranchHandler;
+use Keboola\StorageDriver\Snowflake\Handler\Project\DropDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
 use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseProjectTestCase;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
-final class CreateDevBranchHandlerTest extends BaseProjectTestCase
+final class DevBranchHandlerTest extends BaseProjectTestCase
 {
-    public function testCreateDevBranch(): void
+    public function testCreateDropDevBranch(): void
     {
         $command = new CreateDevBranchCommand([
             'stackPrefix' => $this->getTestPrefix(),
@@ -96,6 +98,25 @@ final class CreateDevBranchHandlerTest extends BaseProjectTestCase
         $this->assertSame('USAGE', $grant['privilege']);
         $this->assertSame($command->getProjectRoleName(), $grant['grantee_name']);
         $this->assertSame($roleName, $grant['name']);
+
+        $response = (new DropDevBranchHandler)(
+            $this->getCurrentProjectCredentials(),
+            (new DropDevBranchCommand([
+                'devBranchReadOnlyRoleName' => $roleName,
+            ])),
+            [],
+            new RuntimeOptions(),
+        );
+        $this->assertNull($response);
+
+        // assert that ro for branch no longer exists
+        $roles = $this->connection->fetchAllAssociative(sprintf(
+            'SHOW ROLES STARTS WITH %s;',
+            SnowflakeQuote::quote(
+                $roleName,
+            ),
+        ));
+        $this->assertCount(0, $roles);
     }
 
     public function testCreateDevBranchWithoutReadOnlyStorage(): void
@@ -136,5 +157,14 @@ final class CreateDevBranchHandlerTest extends BaseProjectTestCase
             ),
         ));
         $this->assertCount(0, $roles);
+
+        // try call drop it should do nothing
+        $response = (new DropDevBranchHandler)(
+            $this->getCurrentProjectCredentials(),
+            (new DropDevBranchCommand()),
+            [],
+            new RuntimeOptions(),
+        );
+        $this->assertNull($response);
     }
 }

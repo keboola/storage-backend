@@ -12,7 +12,7 @@
     "require": {
         "php": "^8.2",
         "keboola/key-generator": "^1.0",
-        "keboola/storage-driver-common": ">=v7.6",
+        "keboola/storage-driver-common": ">=v7.7",
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
