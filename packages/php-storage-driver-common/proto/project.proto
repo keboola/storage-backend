@@ -108,10 +108,17 @@ message CreateDevBranchCommand {
   google.protobuf.Any meta = 6; // custom object for each backend
 }
 
-
 /**
  * Response which is always returned as result of CreateDevBranchCommand
  */
 message CreateDevBranchResponse {
+  string devBranchReadOnlyRoleName = 1;
+}
+
+/**
+ * Command is used when dev branch is removed in Keboola connection
+ * Command will remove all necessary resource in dev branch
+ */
+message DropDevBranchCommand {
   string devBranchReadOnlyRoleName = 1;
 }
