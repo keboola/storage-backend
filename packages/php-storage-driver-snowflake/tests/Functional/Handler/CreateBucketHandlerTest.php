@@ -94,14 +94,15 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
 
     public function testCreateBucketInDevBranchWithReadOnlyStorageEnabledAndRealStorageBranches(): void
     {
+        $devBranchResponse = $this->createDevBranch();
         $command = new CreateBucketCommand([
             'stackPrefix' => $this->getTestPrefix(),
             'projectId' => 'DOES NOT MATTER',
             'bucketId' => 'in.c-test-bucket',
-            'branchId' => '4321',
+            'branchId' => '456',
             'projectRoleName' => 'DOES NOT MATTER',
-            'projectReadOnlyRoleName' => $this->projectResponse->getProjectReadOnlyRoleName(),
-            'devBranchReadOnlyRoleName' => 'DOES NOT MATTER',
+            'projectReadOnlyRoleName' => 'DOES NOT MATTER',
+            'devBranchReadOnlyRoleName' => $devBranchResponse->getDevBranchReadOnlyRoleName(),
             'isBranchDefault' => false,
         ]);
         $response = (new CreateBucketHandler())(
@@ -114,7 +115,7 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
             new RuntimeOptions(),
         );
         $this->assertInstanceOf(CreateBucketResponse::class, $response);
-        $this->assertSame('4321_in.c-test-bucket', $response->getCreateBucketObjectName());
+        $this->assertSame('456_in.c-test-bucket', $response->getCreateBucketObjectName());
         $this->assertSame([], iterator_to_array($response->getPath()));
 
         // assert that ro role has access to the new schema
@@ -129,6 +130,7 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
             $this->getTestPrefix(),
             $this->projectResponse->getProjectDatabaseName(),
         );
+        // assign project ro role and that that branch bucket is not visible
         $this->connection->executeQuery(sprintf(
             'GRANT ROLE %s TO USER %s',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
@@ -139,7 +141,27 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
         $this->assertVisibleSchemas([
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
-                'SCHEMA_NAME' => '4321_in.c-test-bucket',
+                'SCHEMA_NAME' => 'INFORMATION_SCHEMA',
+            ],
+        ], $testUserConnection);
+        // revoke role
+        $this->connection->executeQuery(sprintf(
+            'REVOKE ROLE %s FROM USER %s',
+            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
+            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+        ));
+        // assign project ro role and that that branch bucket is not visible
+        $this->connection->executeQuery(sprintf(
+            'GRANT ROLE %s TO USER %s',
+            SnowflakeQuote::quoteSingleIdentifier($devBranchResponse->getDevBranchReadOnlyRoleName()),
+            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+        ));
+        // test that user can see the new schema
+        $testUserConnection = ConnectionFactory::createFromCredentials($testUserCredentials);
+        $this->assertVisibleSchemas([
+            [
+                'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
+                'SCHEMA_NAME' => '456_in.c-test-bucket',
             ],
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),

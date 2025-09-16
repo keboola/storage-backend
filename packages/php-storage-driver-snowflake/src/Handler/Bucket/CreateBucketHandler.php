@@ -67,19 +67,16 @@ final class CreateBucketHandler extends BaseHandler
             ));
 
             if ($quotedRoleToGrant !== null) {
-                // in default branch we do grant to new schema and tables to the project read only role
-                $quotedReadOnlyRoleName = SnowflakeQuote::quoteSingleIdentifier($command->getProjectReadOnlyRoleName());
-
                 $connection->executeQuery(sprintf(
                     'GRANT USAGE ON SCHEMA %s TO ROLE %s',
                     $quotedSchemaName,
-                    $quotedReadOnlyRoleName,
+                    $quotedRoleToGrant,
                 ));
 
                 $connection->executeQuery(sprintf(
                     'GRANT SELECT ON FUTURE TABLES IN SCHEMA %s TO ROLE %s',
                     $quotedSchemaName,
-                    $quotedReadOnlyRoleName,
+                    $quotedRoleToGrant,
                 ));
             }
         } catch (Throwable $e) {
