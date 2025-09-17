@@ -6,6 +6,7 @@ namespace Keboola\StorageDriver\Snowflake\Tests\Functional\Profile;
 
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\StorageDriver\Snowflake\Profile\Table\ColumnCountTableMetric;
+use Keboola\StorageDriver\Snowflake\Profile\Table\DataSizeTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Table\RowCountTableMetric;
 use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseCase;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -33,13 +34,13 @@ final class TableMetricTest extends BaseCase
         $this->assertSame(8, $count);
     }
 
-//    public function testDataSize(): void
-//    {
-//        $metric = new DataSizeTableMetric();
-//        $bytes = $metric->collect(self::SCHEMA_NAME, self::TABLE_NAME, $this->connection);
-//
-//        $this->assertSame(369, $bytes);
-//    }
+    public function testDataSize(): void
+    {
+        $metric = new DataSizeTableMetric();
+        $bytes = $metric->collect(self::SCHEMA_NAME, self::TABLE_NAME, $this->connection);
+
+        $this->assertSame(3584, $bytes);
+    }
 
     protected function setUp(): void
     {
