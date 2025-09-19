@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake\Profile\Column;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\StorageDriver\Snowflake\Profile\ColumnMetricInterface;
+use Keboola\StorageDriver\Snowflake\Profile\MetricCollectFailedException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 final class AvgMinMaxLengthColumnMetric implements ColumnMetricInterface
@@ -52,8 +54,12 @@ final class AvgMinMaxLengthColumnMetric implements ColumnMetricInterface
             $columnQuoted,
         );
 
-        /** @var array{AVG_LENGTH: float, MIN_LENGTH: int, MAX_LENGTH: int} $result */
-        $result = $connection->fetchAssociative($sql);
+        try {
+            /** @var array{AVG_LENGTH: float, MIN_LENGTH: int, MAX_LENGTH: int} $result */
+            $result = $connection->fetchAssociative($sql);
+        } catch (Exception $e) {
+            throw MetricCollectFailedException::fromColumnMetric($schema, $table, $column, $this, $e);
+        }
 
         return [
             'avg' => (float) $result['AVG_LENGTH'],
