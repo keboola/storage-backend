@@ -15,17 +15,24 @@ use Keboola\StorageDriver\Snowflake\Handler\Bucket\CreateBucketHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Project\CreateDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Project\DropDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Table\ProfileTableHandler;
+use Psr\Log\LoggerInterface;
 
 final class HandlerFactory
 {
-    public static function create(Message $command): DriverCommandHandlerInterface
-    {
-        return match ($command::class) {
+    public static function create(
+        Message $command,
+        LoggerInterface $internalLogger,
+    ): DriverCommandHandlerInterface {
+        $handler = match ($command::class) {
             CreateProfileTableCommand::class => new ProfileTableHandler(),
             CreateBucketCommand::class => new CreateBucketHandler(),
             CreateDevBranchCommand::class => new CreateDevBranchHandler(),
             DropDevBranchCommand::class => new DropDevBranchHandler(),
             default => throw new CommandNotSupportedException($command::class),
         };
+
+        $handler->setInternalLogger($internalLogger);
+
+        return $handler;
     }
 }
