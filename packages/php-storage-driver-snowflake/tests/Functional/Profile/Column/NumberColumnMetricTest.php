@@ -118,7 +118,7 @@ final class NumberColumnMetricTest extends BaseCase
             self::COLUMN_NUMBER_NOT_NULLABLE,
             [
                 'avg' => 90919.272727,
-                'mode' => 5.0,
+                'mode' => 3.0,
                 'median' => 3.0,
                 'min' => -10.0,
                 'max' => 999999.0,

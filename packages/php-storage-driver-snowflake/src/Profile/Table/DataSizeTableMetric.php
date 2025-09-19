@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake\Profile\Table;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Keboola\StorageDriver\Snowflake\Profile\MetricCollectFailedException;
 use Keboola\StorageDriver\Snowflake\Profile\TableMetricInterface;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
@@ -32,12 +34,16 @@ final class DataSizeTableMetric implements TableMetricInterface
             SnowflakeQuote::quoteSingleIdentifier($schema),
         );
 
-        /**
-         * @var array{
-         *     bytes: string,
-         * } $result
-         */
-        $result = $connection->fetchAssociative($sql);
+        try {
+            /**
+             * @var array{
+             *     bytes: string,
+             * } $result
+             */
+            $result = $connection->fetchAssociative($sql);
+        } catch (Exception $e) {
+            throw MetricCollectFailedException::fromTableMetric($schema, $table, $this, $e);
+        }
 
         return (int) $result['bytes'];
     }
