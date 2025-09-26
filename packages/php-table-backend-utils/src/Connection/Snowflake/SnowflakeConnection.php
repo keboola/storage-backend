@@ -28,12 +28,18 @@ class SnowflakeConnection implements Connection
     ) {
         try {
             $handle = odbc_connect($dsn, $user, $password);
-            assert($handle !== false);
+            if ($handle === false) {
+                $code = odbc_error() ?: '0';
+                $message = odbc_errormsg() ?: 'ODBC connection failed';
+                throw DriverException::newConnectionFailure($message, (int) $code, null);
+            }
             $this->conn = $handle;
+        } catch (DriverException $e) {
+            // only rethrow our exception
+            throw $e;
         } catch (Throwable $e) {
             throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
         }
-
         if (isset($options['runId'])) {
             $queryTag = [
                 'runId' => $options['runId'],
