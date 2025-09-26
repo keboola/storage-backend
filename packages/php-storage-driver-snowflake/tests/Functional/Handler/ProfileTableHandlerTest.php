@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\StorageDriver\Snowflake\Tests\Functional\Handler;
 
-use Google\Protobuf\Any;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\StorageDriver\Command\Common\RuntimeOptions;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse\Column;
-use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
-use Keboola\StorageDriver\Credentials\GenericBackendCredentials\SnowflakeCredentialsMeta;
 use Keboola\StorageDriver\Snowflake\Handler\Table\ProfileTableHandler;
 use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseCase;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -25,7 +22,7 @@ final class ProfileTableHandlerTest extends BaseCase
 
     public function testCreateProfile(): void
     {
-        $credentials = $this->createCredentialsWithPassword();
+        $credentials = $this->createCredentialsWithKeyPair();
 
         $handler = new ProfileTableHandler();
 
@@ -48,7 +45,7 @@ final class ProfileTableHandlerTest extends BaseCase
 
         /** @var array<string, string> $expectedColumnProfiles */
         $expectedColumnProfiles = [
-            'id' => '{"distinctCount":8,"duplicateCount":0,"nullCount":0,"numericStatistics":{"avg":4.5,"mode":4,"median":4.5,"min":1,"max":8}}', // phpcs:ignore
+            'id' => '{"distinctCount":8,"duplicateCount":0,"nullCount":0,"numericStatistics":{"avg":4.5,"mode":6,"median":4.5,"min":1,"max":8}}', // phpcs:ignore
             'col_varchar' => '{"distinctCount":7,"duplicateCount":1,"nullCount":0,"length":{"avg":14.5,"min":9,"max":20}}', // phpcs:ignore
             'col_bool' => '{"distinctCount":2,"duplicateCount":5,"nullCount":1}',
             'col_number' => '{"distinctCount":5,"duplicateCount":2,"nullCount":1,"numericStatistics":{"avg":75.714286,"mode":120,"median":60,"min":0,"max":200}}', // phpcs:ignore

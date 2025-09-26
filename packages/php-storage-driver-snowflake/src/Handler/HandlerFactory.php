@@ -9,7 +9,6 @@ use Keboola\StorageDriver\Command\Bucket\CreateBucketCommand;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchCommand;
 use Keboola\StorageDriver\Command\Project\DropDevBranchCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
-use Keboola\StorageDriver\Contract\Driver\Command\DriverCommandHandlerInterface;
 use Keboola\StorageDriver\Shared\Driver\Exception\CommandNotSupportedException;
 use Keboola\StorageDriver\Snowflake\Handler\Bucket\CreateBucketHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Project\CreateDevBranchHandler;
@@ -18,7 +17,7 @@ use Keboola\StorageDriver\Snowflake\Handler\Table\ProfileTableHandler;
 
 final class HandlerFactory
 {
-    public static function create(Message $command): DriverCommandHandlerInterface
+    public static function create(Message $command): BaseHandler
     {
         return match ($command::class) {
             CreateProfileTableCommand::class => new ProfileTableHandler(),

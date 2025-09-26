@@ -14,6 +14,7 @@ interface TableMetricInterface
 
     /**
      * @return array<mixed>
+     * @throws MetricCollectFailedException
      */
     public function collect(
         string $schema,
