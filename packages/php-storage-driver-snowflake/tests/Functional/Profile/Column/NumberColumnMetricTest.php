@@ -118,7 +118,6 @@ final class NumberColumnMetricTest extends BaseCase
             self::COLUMN_NUMBER_NOT_NULLABLE,
             [
                 'avg' => 90919.272727,
-                'mode' => 5.0,
                 'median' => 3.0,
                 'min' => -10.0,
                 'max' => 999999.0,
@@ -137,7 +136,6 @@ final class NumberColumnMetricTest extends BaseCase
             self::COLUMN_NUMBER_NULLABLE,
             [
                 'avg' => 13.375000,
-                'mode' => 5.0,
                 'median' => 3.0,
                 'min' => -10.0,
                 'max' => 100.0,
@@ -156,7 +154,6 @@ final class NumberColumnMetricTest extends BaseCase
             self::COLUMN_ONLY_NULL,
             [
                 'avg' => null,
-                'mode' => null,
                 'median' => null,
                 'min' => null,
                 'max' => null,
@@ -189,7 +186,7 @@ final class NumberColumnMetricTest extends BaseCase
                         self::COLUMN_VARCHAR_NULLABLE,
                         new Snowflake(Snowflake::TYPE_VARCHAR, ['nullable' => true]),
                     ),
-                    // AVG, MODE, MEDIAN, MIN, MAX returns NULL if all records are NULL.
+                    // AVG, MEDIAN, MIN, MAX returns NULL if all records are NULL.
                     new SnowflakeColumn(
                         self::COLUMN_ONLY_NULL,
                         new Snowflake(Snowflake::TYPE_NUMBER, ['nullable' => true]),
