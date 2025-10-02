@@ -117,7 +117,6 @@ final class DecimalColumnMetricTest extends BaseCase
             self::COLUMN_DECIMAL_NOT_NULLABLE,
             [
                 'avg' => 1111111117.7657223,
-                'mode' => 10.5,
                 'median' => 10.5,
                 'min' => -5.25,
                 'max' => 9999999999.9999,
@@ -136,7 +135,6 @@ final class DecimalColumnMetricTest extends BaseCase
             self::COLUMN_DECIMAL_NULLABLE,
             [
                 'avg' => 1666666669.4583333,
-                'mode' => 10.5,
                 'median' => 5.75,
                 'min' => -5.25,
                 'max' => 10000000000.0,

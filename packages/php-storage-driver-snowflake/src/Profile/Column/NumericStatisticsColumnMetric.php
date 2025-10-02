@@ -17,13 +17,12 @@ final class NumericStatisticsColumnMetric implements ColumnMetricInterface
 
     public function description(): string
     {
-        return 'Basic statistics for numeric column (average, mode, median minimum and maximum).';
+        return 'Basic statistics for numeric column (average, median minimum and maximum).';
     }
 
     /**
      * @return array{
      *     avg: float|null,
-     *     mode: float|null,
      *     median: float|null,
      *     min: float|null,
      *     max: float|null,
@@ -41,13 +40,11 @@ final class NumericStatisticsColumnMetric implements ColumnMetricInterface
             <<<'SQL'
                 SELECT
                     AVG(%s) AS stats_avg,
-                    MODE(%s) AS stats_mode,
                     MEDIAN(%s) AS stats_median,
                     MIN(%s) AS stats_min,
                     MAX(%s) AS stats_max
                 FROM %s.%s
                 SQL,
-            $columnQuoted,
             $columnQuoted,
             $columnQuoted,
             $columnQuoted,
@@ -59,7 +56,6 @@ final class NumericStatisticsColumnMetric implements ColumnMetricInterface
         /**
          * @var array{
          *     STATS_AVG: string|null,
-         *     STATS_MODE: string|null,
          *     STATS_MEDIAN: string|null,
          *     STATS_MIN: string|null,
          *     STATS_MAX: string|null,
@@ -69,7 +65,6 @@ final class NumericStatisticsColumnMetric implements ColumnMetricInterface
 
         return [
             'avg' => $result['STATS_AVG'] !== null ? (float) $result['STATS_AVG'] : null,
-            'mode' => $result['STATS_MODE'] !== null ? (float) $result['STATS_MODE'] : null,
             'median' => $result['STATS_MEDIAN'] !== null ? (float) $result['STATS_MEDIAN'] : null,
             'min' => $result['STATS_MIN'] !== null ? (float) $result['STATS_MIN'] : null,
             'max' => $result['STATS_MAX'] !== null ? (float) $result['STATS_MAX'] : null,
