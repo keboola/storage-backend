@@ -16,7 +16,6 @@ use Keboola\StorageDriver\Snowflake\Features;
 use Keboola\StorageDriver\Snowflake\Handler\Project\CreateDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
-use function Keboola\Utils\returnBytes;
 
 abstract class BaseProjectTestCase extends BaseCase
 {
