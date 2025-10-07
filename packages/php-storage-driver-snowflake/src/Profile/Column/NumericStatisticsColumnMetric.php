@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake\Profile\Column;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Keboola\StorageDriver\Snowflake\Profile\ColumnMetricInterface;
+use Keboola\StorageDriver\Snowflake\Profile\MetricCollectFailedException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 final class NumericStatisticsColumnMetric implements ColumnMetricInterface
@@ -53,15 +55,19 @@ final class NumericStatisticsColumnMetric implements ColumnMetricInterface
             SnowflakeQuote::quoteSingleIdentifier($table),
         );
 
-        /**
-         * @var array{
-         *     STATS_AVG: string|null,
-         *     STATS_MEDIAN: string|null,
-         *     STATS_MIN: string|null,
-         *     STATS_MAX: string|null,
-         * } $result
-         */
-        $result = $connection->fetchAssociative($sql);
+        try {
+            /**
+             * @var array{
+             *     STATS_AVG: string|null,
+             *     STATS_MEDIAN: string|null,
+             *     STATS_MIN: string|null,
+             *     STATS_MAX: string|null,
+             * } $result
+             */
+            $result = $connection->fetchAssociative($sql);
+        } catch (Exception $e) {
+            throw MetricCollectFailedException::fromColumnMetric($schema, $table, $column, $this, $e);
+        }
 
         return [
             'avg' => $result['STATS_AVG'] !== null ? (float) $result['STATS_AVG'] : null,

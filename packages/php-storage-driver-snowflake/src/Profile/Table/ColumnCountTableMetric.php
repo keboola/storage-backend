@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake\Profile\Table;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Keboola\StorageDriver\Snowflake\Profile\MetricCollectFailedException;
 use Keboola\StorageDriver\Snowflake\Profile\TableMetricInterface;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
@@ -35,8 +37,12 @@ final class ColumnCountTableMetric implements TableMetricInterface
             SnowflakeQuote::quote($table),
         );
 
-        /** @var string $result */
-        $result = $connection->fetchOne($sql);
+        try {
+            /** @var string $result */
+            $result = $connection->fetchOne($sql);
+        } catch (Exception $e) {
+            throw MetricCollectFailedException::fromTableMetric($schema, $table, $this, $e);
+        }
 
         return (int) $result;
     }

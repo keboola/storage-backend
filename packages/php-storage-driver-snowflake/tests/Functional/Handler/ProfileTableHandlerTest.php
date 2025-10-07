@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\StorageDriver\Snowflake\Tests\Functional\Handler;
 
-use Google\Protobuf\Any;
 use Keboola\Datatype\Definition\Snowflake;
 use Keboola\StorageDriver\Command\Common\RuntimeOptions;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse\Column;
-use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
-use Keboola\StorageDriver\Credentials\GenericBackendCredentials\SnowflakeCredentialsMeta;
 use Keboola\StorageDriver\Snowflake\Handler\Table\ProfileTableHandler;
 use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseCase;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
@@ -25,7 +22,7 @@ final class ProfileTableHandlerTest extends BaseCase
 
     public function testCreateProfile(): void
     {
-        $credentials = $this->createCredentialsWithPassword();
+        $credentials = $this->createCredentialsWithKeyPair();
 
         $handler = new ProfileTableHandler();
 

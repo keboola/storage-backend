@@ -10,15 +10,16 @@ use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableResponse\Column;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
+use Keboola\StorageDriver\Shared\Driver\BaseHandler;
 use Keboola\StorageDriver\Shared\Utils\ProtobufHelper;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
-use Keboola\StorageDriver\Snowflake\Handler\BaseHandler;
 use Keboola\StorageDriver\Snowflake\Profile\Column\AvgMinMaxLengthColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\DistinctCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\DuplicateCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\NullCountColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Column\NumericStatisticsColumnMetric;
 use Keboola\StorageDriver\Snowflake\Profile\ColumnMetricInterface;
+use Keboola\StorageDriver\Snowflake\Profile\MetricCollectFailedException;
 use Keboola\StorageDriver\Snowflake\Profile\Table\ColumnCountTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Table\DataSizeTableMetric;
 use Keboola\StorageDriver\Snowflake\Profile\Table\RowCountTableMetric;
@@ -62,11 +63,20 @@ final class ProfileTableHandler extends BaseHandler
 
         $tableProfile = [];
         foreach ($tableMetrics as $metric) {
-            $tableProfile[$metric->name()] = $metric->collect(
-                $schemaName,
-                $tableName,
-                $connection,
-            );
+            try {
+                $tableProfile[$metric->name()] = $metric->collect(
+                    $schemaName,
+                    $tableName,
+                    $connection,
+                );
+            } catch (MetricCollectFailedException $e) {
+                $this->internalLogger->warning(
+                    $e->getMessage(),
+                    [
+                        'exception' => $e->getPrevious(),
+                    ],
+                );
+            }
         }
 
         $response->setProfile(json_encode($tableProfile, JSON_THROW_ON_ERROR));
@@ -79,12 +89,21 @@ final class ProfileTableHandler extends BaseHandler
 
             $columnProfile = [];
             foreach ($columnMetrics as $metric) {
-                $columnProfile[$metric->name()] = $metric->collect(
-                    $schemaName,
-                    $tableName,
-                    $columnName,
-                    $connection,
-                );
+                try {
+                    $columnProfile[$metric->name()] = $metric->collect(
+                        $schemaName,
+                        $tableName,
+                        $columnName,
+                        $connection,
+                    );
+                } catch (MetricCollectFailedException $e) {
+                    $this->internalLogger->warning(
+                        $e->getMessage(),
+                        [
+                            'exception' => $e->getPrevious(),
+                        ],
+                    );
+                }
             }
 
             $columnProfiles[] = (new Column())

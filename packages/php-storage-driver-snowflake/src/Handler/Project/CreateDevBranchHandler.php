@@ -8,9 +8,9 @@ use Google\Protobuf\Internal\Message;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchCommand;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchResponse;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
+use Keboola\StorageDriver\Shared\Driver\BaseHandler;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 use Keboola\StorageDriver\Snowflake\Features;
-use Keboola\StorageDriver\Snowflake\Handler\BaseHandler;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 

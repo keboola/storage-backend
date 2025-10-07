@@ -7,8 +7,8 @@ namespace Keboola\StorageDriver\Snowflake\Handler\Project;
 use Google\Protobuf\Internal\Message;
 use Keboola\StorageDriver\Command\Project\DropDevBranchCommand;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
+use Keboola\StorageDriver\Shared\Driver\BaseHandler;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
-use Keboola\StorageDriver\Snowflake\Handler\BaseHandler;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 final class DropDevBranchHandler extends BaseHandler
