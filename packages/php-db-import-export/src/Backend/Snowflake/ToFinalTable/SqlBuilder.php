@@ -308,14 +308,12 @@ class SqlBuilder
         SnowflakeTableDefinition $destinationTableDefinition,
         string $timestamp,
     ): string {
-        $timestampColumn = '';
-        if (!in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $sourceTableDefinition->getColumnsNames())) {
-            $timestampColumn = sprintf(
-                '\'%s\' AS %s',
-                $timestamp,
-                SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-            );
-        }
+        $timestampColumn = sprintf(
+            '\'%s\' AS %s',
+            $timestamp,
+            SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+        );
+
         // Build the source table reference
         $sourceTable = sprintf(
             '%s.%s',
@@ -332,7 +330,10 @@ class SqlBuilder
 
         $columns = array_map(
             static fn($col) => SnowflakeQuote::quoteSingleIdentifier($col),
-            $sourceTableDefinition->getColumnsNames(),
+            array_filter(
+                $sourceTableDefinition->getColumnsNames(),
+                static fn($col) => $col !== ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            ),
         );
 
         // Create the CTAS command
