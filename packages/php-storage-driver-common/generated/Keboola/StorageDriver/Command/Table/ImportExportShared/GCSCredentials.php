@@ -21,6 +21,12 @@ class GCSCredentials extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>string secret = 2;</code>
      */
     protected $secret = '';
+    /**
+     * used for GCS-Snowflake integration
+     *
+     * Generated from protobuf field <code>string securityIntegrationName = 3;</code>
+     */
+    protected $securityIntegrationName = '';
 
     /**
      * Constructor.
@@ -30,6 +36,8 @@ class GCSCredentials extends \Google\Protobuf\Internal\Message
      *
      *     @type string $key
      *     @type string $secret
+     *     @type string $securityIntegrationName
+     *           used for GCS-Snowflake integration
      * }
      */
     public function __construct($data = NULL) {
@@ -77,6 +85,32 @@ class GCSCredentials extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkString($var, True);
         $this->secret = $var;
+
+        return $this;
+    }
+
+    /**
+     * used for GCS-Snowflake integration
+     *
+     * Generated from protobuf field <code>string securityIntegrationName = 3;</code>
+     * @return string
+     */
+    public function getSecurityIntegrationName()
+    {
+        return $this->securityIntegrationName;
+    }
+
+    /**
+     * used for GCS-Snowflake integration
+     *
+     * Generated from protobuf field <code>string securityIntegrationName = 3;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setSecurityIntegrationName($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->securityIntegrationName = $var;
 
         return $this;
     }
