@@ -282,6 +282,7 @@ message ImportExportShared {
   message GCSCredentials {
     string key = 1;
     string secret = 2;
+    string securityIntegrationName = 3; // used for GCS-Snowflake integration
   }
   /**
    * Relative file properties based on:
@@ -293,11 +294,12 @@ message ImportExportShared {
     string fileName = 3;
   }
   /**
-   * Currently only CSV is supported file format in Keboola connection
+   * Currently only CSV and PARQUET are supported file format in Keboola connection
    * Additional formatTypeOptions can be specified
    */
   enum FileFormat {
     CSV = 0; // CSV file format can have set CsvTypeOptions in formatTypeOptions
+    PARQUET = 1;
   }
 }
 
