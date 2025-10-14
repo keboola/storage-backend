@@ -8,13 +8,13 @@ use Google\Protobuf\Internal\Message;
 use Keboola\Db\ImportExport\Backend\Snowflake\Export\Exporter;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\StorageDriver\Command\Info\TableInfo;
 use Keboola\StorageDriver\Command\Table\ImportExportShared\ABSCredentials;
 use Keboola\StorageDriver\Command\Table\ImportExportShared\FileProvider;
 use Keboola\StorageDriver\Command\Table\ImportExportShared\GCSCredentials;
 use Keboola\StorageDriver\Command\Table\ImportExportShared\S3Credentials;
 use Keboola\StorageDriver\Command\Table\TableExportToFileCommand;
 use Keboola\StorageDriver\Command\Table\TableExportToFileResponse;
-use Keboola\StorageDriver\Command\Table\TableInfo;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
 use Keboola\StorageDriver\Shared\Driver\BaseHandler;
 use Keboola\StorageDriver\Shared\Driver\Exception\Exception;
@@ -157,7 +157,9 @@ final class TableExportToFileHandler extends BaseHandler
             $protoOptions = $command->getExportOptions();
 
             if ($protoOptions->getIsCompressed()) {
-                $options->setIsCompressed(true);
+                $options = new ExportOptions(
+                    isCompressed: $protoOptions->getIsCompressed(),
+                );
             }
         }
 
