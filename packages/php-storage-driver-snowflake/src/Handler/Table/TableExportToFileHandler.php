@@ -54,6 +54,12 @@ final class TableExportToFileHandler extends BaseHandler
         return $response;
     }
 
+    /**
+     * @phpstan-assert !null $command->getSource()
+     * @phpstan-assert !null $command->getSource()->getTableName()
+     * @phpstan-assert !null $command->getFilePath()
+     * @phpstan-assert !null $command->getFileCredentials()
+     */
     private function validateCommand(TableExportToFileCommand $command): void
     {
         if (!$command->getSource()) {
@@ -79,12 +85,21 @@ final class TableExportToFileHandler extends BaseHandler
         assert($source !== null);
 
         $sourcePath = $source->getPath();
-        $schema = count($sourcePath) > 0 ? $sourcePath[0] : '';
+        // taking the last element of path as schema, because there might be also database in path
+        assert($sourcePath->count() > 0, 'Source path must have at least one element for schema name');
+        /** @var string $schema */
+        $schema = $sourcePath->offsetGet($sourcePath->count() - 1);
         $tableName = $source->getTableName();
 
         $columns = [];
-        if ($command->getExportOptions() && $command->getExportOptions()->getColumnsToExport()) {
-            $columns = iterator_to_array($command->getExportOptions()->getColumnsToExport());
+        $exportOptions = $command->getExportOptions();
+        if ($exportOptions !== null) {
+            foreach ($exportOptions->getColumnsToExport() as $item) {
+                if (!is_string($item) && !is_numeric($item)) {
+                    throw new Exception('Invalid column name in export options: must be string or number');
+                }
+                $columns[] = (string) $item;
+            }
         }
 
         return new Storage\Snowflake\Table($schema, $tableName, $columns);
@@ -111,8 +126,8 @@ final class TableExportToFileHandler extends BaseHandler
         }
         $fullPath = implode('/', $pathComponents);
 
-        switch ($fileProvider) {
-            case FileProvider::S3 && $credentials instanceof S3Credentials:
+        switch (true) {
+            case $fileProvider === FileProvider::S3 && $credentials instanceof S3Credentials:
                 return new Storage\S3\DestinationFile(
                     $credentials->getKey(),
                     $credentials->getSecret(),
@@ -121,7 +136,7 @@ final class TableExportToFileHandler extends BaseHandler
                     $fullPath,
                 );
 
-            case FileProvider::ABS && $credentials instanceof ABSCredentials:
+            case $fileProvider === FileProvider::ABS && $credentials instanceof ABSCredentials:
                 return new Storage\ABS\DestinationFile(
                     $filePath->getRoot(),
                     $fullPath,
@@ -129,7 +144,21 @@ final class TableExportToFileHandler extends BaseHandler
                     $credentials->getAccountName(),
                 );
 
-            case FileProvider::GCS && $credentials instanceof GCSCredentials:
+            case $fileProvider === FileProvider::GCS && $credentials instanceof GCSCredentials:
+                /**
+                 * @var array{
+                 * type: string,
+                 * project_id: string,
+                 * private_key_id: string,
+                 * private_key: string,
+                 * client_email: string,
+                 * client_id: string,
+                 * auth_uri: string,
+                 * token_uri: string,
+                 * auth_provider_x509_cert_url: string,
+                 * client_x509_cert_url: string,
+                 * } $credentialsArray
+                 */
                 $credentialsArray = json_decode($credentials->getSecret(), true);
                 if (!is_array($credentialsArray)) {
                     throw new Exception('Invalid GCS credentials: secret must be valid JSON');
