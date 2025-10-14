@@ -77,7 +77,7 @@ final class TableExportToFileHandler extends BaseHandler
     {
         $source = $command->getSource();
         assert($source !== null);
-        
+
         $sourcePath = $source->getPath();
         $schema = count($sourcePath) > 0 ? $sourcePath[0] : '';
         $tableName = $source->getTableName();
@@ -94,7 +94,7 @@ final class TableExportToFileHandler extends BaseHandler
     {
         $filePath = $command->getFilePath();
         assert($filePath !== null);
-        
+
         $fileProvider = $command->getFileProvider();
         $fileCredentials = $command->getFileCredentials();
         assert($fileCredentials !== null);
