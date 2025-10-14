@@ -75,9 +75,12 @@ final class TableExportToFileHandler extends BaseHandler
 
     private function createSource(TableExportToFileCommand $command): Storage\Snowflake\Table
     {
-        $sourcePath = $command->getSource()->getPath();
+        $source = $command->getSource();
+        assert($source !== null);
+        
+        $sourcePath = $source->getPath();
         $schema = count($sourcePath) > 0 ? $sourcePath[0] : '';
-        $tableName = $command->getSource()->getTableName();
+        $tableName = $source->getTableName();
 
         $columns = [];
         if ($command->getExportOptions() && $command->getExportOptions()->getColumnsToExport()) {
@@ -90,10 +93,14 @@ final class TableExportToFileHandler extends BaseHandler
     private function createDestination(TableExportToFileCommand $command): Storage\DestinationInterface
     {
         $filePath = $command->getFilePath();
+        assert($filePath !== null);
+        
         $fileProvider = $command->getFileProvider();
         $fileCredentials = $command->getFileCredentials();
+        assert($fileCredentials !== null);
 
         $credentials = $fileCredentials->unpack();
+        assert($credentials !== null);
 
         $pathComponents = [];
         if ($filePath->getPath()) {
@@ -126,10 +133,15 @@ final class TableExportToFileHandler extends BaseHandler
 
             case FileProvider::GCS:
                 assert($credentials instanceof GCSCredentials);
+                $credentialsArray = json_decode($credentials->getSecret(), true);
+                if (!is_array($credentialsArray)) {
+                    throw new Exception('Invalid GCS credentials: secret must be valid JSON');
+                }
                 return new Storage\GCS\DestinationFile(
                     $filePath->getRoot(),
                     $fullPath,
                     $credentials->getKey(),
+                    $credentialsArray,
                 );
 
             default:
