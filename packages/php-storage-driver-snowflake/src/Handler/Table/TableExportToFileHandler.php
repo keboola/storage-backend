@@ -22,6 +22,13 @@ use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 
 final class TableExportToFileHandler extends BaseHandler
 {
+    /**
+     * @param Message $credentials
+     * @param Message $command
+     * @param array<string, string> $features
+     * @param Message $runtimeOptions
+     * @return Message|null
+     */
     public function __invoke(
         Message $credentials,
         Message $command,
