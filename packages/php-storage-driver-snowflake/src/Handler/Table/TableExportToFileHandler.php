@@ -112,8 +112,7 @@ final class TableExportToFileHandler extends BaseHandler
         $fullPath = implode('/', $pathComponents);
 
         switch ($fileProvider) {
-            case FileProvider::S3:
-                assert($credentials instanceof S3Credentials);
+            case FileProvider::S3 && $credentials instanceof S3Credentials:
                 return new Storage\S3\DestinationFile(
                     $credentials->getKey(),
                     $credentials->getSecret(),
@@ -122,8 +121,7 @@ final class TableExportToFileHandler extends BaseHandler
                     $fullPath,
                 );
 
-            case FileProvider::ABS:
-                assert($credentials instanceof ABSCredentials);
+            case FileProvider::ABS && $credentials instanceof ABSCredentials:
                 return new Storage\ABS\DestinationFile(
                     $filePath->getRoot(),
                     $fullPath,
@@ -131,8 +129,7 @@ final class TableExportToFileHandler extends BaseHandler
                     $credentials->getAccountName(),
                 );
 
-            case FileProvider::GCS:
-                assert($credentials instanceof GCSCredentials);
+            case FileProvider::GCS && $credentials instanceof GCSCredentials:
                 $credentialsArray = json_decode($credentials->getSecret(), true);
                 if (!is_array($credentialsArray)) {
                     throw new Exception('Invalid GCS credentials: secret must be valid JSON');
@@ -145,7 +142,7 @@ final class TableExportToFileHandler extends BaseHandler
                 );
 
             default:
-                throw new Exception(sprintf('Unsupported file provider: %s', $fileProvider));
+                throw new Exception(sprintf('Unsupported file provider: "%s"', $fileProvider));
         }
     }
 
