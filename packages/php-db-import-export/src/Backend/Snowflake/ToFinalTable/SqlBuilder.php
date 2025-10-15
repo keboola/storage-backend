@@ -179,21 +179,13 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
-        $insColumns = $sourceTableDefinition->getColumnsNames();
-        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $insColumns, true)
-            && $importOptions->useTimestamp();
-
-        if ($useTimestamp) {
-            $insColumns = array_merge(
-                $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            );
-        }
-
+        $insColumns = [];
         $columnsSetSql = [];
 
         /** @var SnowflakeColumn $sourceColumn */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+            $insColumns[] = $sourceColumn->getColumnName();
+
             // output mapping same tables are required do not convert nulls to empty strings
             if (!$importOptions->isNullManipulationEnabled()) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
@@ -273,7 +265,11 @@ class SqlBuilder
             $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
         }
 
+        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $insColumns, true)
+            && $importOptions->useTimestamp();
+
         if ($useTimestamp) {
+            $insColumns[] = ToStageImporterInterface::TIMESTAMP_COLUMN_NAME;
             $columnsSetSql[] = SnowflakeQuote::quote($timestamp);
         }
 
