@@ -187,7 +187,9 @@ class SqlBuilder
             $insColumns[] = $sourceColumn->getColumnName();
 
             // output mapping same tables are required do not convert nulls to empty strings
-            if (!$importOptions->isNullManipulationEnabled()) {
+            if (!$importOptions->isNullManipulationEnabled()
+                && !in_array($sourceColumn->getColumnName(), $importOptions->ignoreColumns(), true)
+            ) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
                 $type = $destinationColumn->getColumnDefinition()->getType();
                 $useAutoCast = in_array($type, self::AUTO_CASTING_TYPES, true);
