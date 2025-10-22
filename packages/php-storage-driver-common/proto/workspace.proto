@@ -24,8 +24,8 @@ message CreateWorkspaceCommand {
   string projectReadOnlyRoleName = 6; // backend read only role associated with project, role has read access for all buckets in project and containing tables
   string devBranchReadOnlyRoleName = 10; // backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
   google.protobuf.Any meta = 7; // metadata specific for each backend
-  repeated string schemas_for_create_table_grants = 11; // schemas where workspace role should receive CREATE TABLE grant
-  repeated string tables_for_select_insert_update_grants = 12; // tables where workspace role should receive SELECT, INSERT, UPDATE grants
+  repeated string schemasForCreateTableGrants = 11; // schemas where workspace role should receive CREATE TABLE grant
+  repeated string tablesForSelectInsertUpdateGrants = 12; // tables where workspace role should receive SELECT, INSERT, UPDATE grants
   /**
    * Teradata backend metadata
    */

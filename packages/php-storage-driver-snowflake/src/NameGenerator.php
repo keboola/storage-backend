@@ -68,6 +68,21 @@ class NameGenerator
         return strtoupper($name);
     }
 
+    public function createWorkspaceSchemaName(string $workspaceId): string
+    {
+        return strtoupper(sprintf('WS_%s', $workspaceId));
+    }
+
+    public function createWorkspaceRoleName(string $workspaceId): string
+    {
+        return strtoupper(sprintf('WS_%s_ROLE', $workspaceId));
+    }
+
+    public function createWorkspaceUserName(string $workspaceId): string
+    {
+        return strtoupper(sprintf('WS_%s_USER', $workspaceId));
+    }
+
     /**
      * this function is rewrite of ObjectNameValidate from Connection
      */

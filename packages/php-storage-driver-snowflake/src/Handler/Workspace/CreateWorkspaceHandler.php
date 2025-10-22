@@ -36,9 +36,9 @@ final class CreateWorkspaceHandler extends BaseHandler
 
         $nameGenerator = new NameGenerator($command->getStackPrefix());
 
-        $workspaceSchemaName = sprintf('WS_%s', $command->getWorkspaceId());
-        $workspaceRoleName = sprintf('WS_%s_ROLE', $command->getWorkspaceId());
-        $workspaceUserName = sprintf('WS_%s_USER', $command->getWorkspaceId());
+        $workspaceSchemaName = $nameGenerator->createWorkspaceSchemaName($command->getWorkspaceId());
+        $workspaceRoleName = $nameGenerator->createWorkspaceRoleName($command->getWorkspaceId());
+        $workspaceUserName = $nameGenerator->createWorkspaceUserName($command->getWorkspaceId());
         $password = Password::generate();
 
         $database = $credentials->getPrincipal();

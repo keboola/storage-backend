@@ -85,15 +85,15 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     /**
      * schemas where workspace role should receive CREATE TABLE grant
      *
-     * Generated from protobuf field <code>repeated string schemas_for_create_table_grants = 11;</code>
+     * Generated from protobuf field <code>repeated string schemasForCreateTableGrants = 11;</code>
      */
-    private $schemas_for_create_table_grants;
+    private $schemasForCreateTableGrants;
     /**
      * tables where workspace role should receive SELECT, INSERT, UPDATE grants
      *
-     * Generated from protobuf field <code>repeated string tables_for_select_insert_update_grants = 12;</code>
+     * Generated from protobuf field <code>repeated string tablesForSelectInsertUpdateGrants = 12;</code>
      */
-    private $tables_for_select_insert_update_grants;
+    private $tablesForSelectInsertUpdateGrants;
 
     /**
      * Constructor.
@@ -121,9 +121,9 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *           backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
-     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $schemas_for_create_table_grants
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $schemasForCreateTableGrants
      *           schemas where workspace role should receive CREATE TABLE grant
-     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $tables_for_select_insert_update_grants
+     *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $tablesForSelectInsertUpdateGrants
      *           tables where workspace role should receive SELECT, INSERT, UPDATE grants
      * }
      */
@@ -405,25 +405,25 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     /**
      * schemas where workspace role should receive CREATE TABLE grant
      *
-     * Generated from protobuf field <code>repeated string schemas_for_create_table_grants = 11;</code>
+     * Generated from protobuf field <code>repeated string schemasForCreateTableGrants = 11;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getSchemasForCreateTableGrants()
     {
-        return $this->schemas_for_create_table_grants;
+        return $this->schemasForCreateTableGrants;
     }
 
     /**
      * schemas where workspace role should receive CREATE TABLE grant
      *
-     * Generated from protobuf field <code>repeated string schemas_for_create_table_grants = 11;</code>
+     * Generated from protobuf field <code>repeated string schemasForCreateTableGrants = 11;</code>
      * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setSchemasForCreateTableGrants($var)
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
-        $this->schemas_for_create_table_grants = $arr;
+        $this->schemasForCreateTableGrants = $arr;
 
         return $this;
     }
@@ -431,25 +431,25 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     /**
      * tables where workspace role should receive SELECT, INSERT, UPDATE grants
      *
-     * Generated from protobuf field <code>repeated string tables_for_select_insert_update_grants = 12;</code>
+     * Generated from protobuf field <code>repeated string tablesForSelectInsertUpdateGrants = 12;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getTablesForSelectInsertUpdateGrants()
     {
-        return $this->tables_for_select_insert_update_grants;
+        return $this->tablesForSelectInsertUpdateGrants;
     }
 
     /**
      * tables where workspace role should receive SELECT, INSERT, UPDATE grants
      *
-     * Generated from protobuf field <code>repeated string tables_for_select_insert_update_grants = 12;</code>
+     * Generated from protobuf field <code>repeated string tablesForSelectInsertUpdateGrants = 12;</code>
      * @param array<string>|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setTablesForSelectInsertUpdateGrants($var)
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
-        $this->tables_for_select_insert_update_grants = $arr;
+        $this->tablesForSelectInsertUpdateGrants = $arr;
 
         return $this;
     }
