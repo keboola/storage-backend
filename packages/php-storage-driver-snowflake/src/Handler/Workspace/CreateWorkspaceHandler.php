@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Keboola\StorageDriver\Snowflake\Handler\Workspace;
 
 use Google\Protobuf\Internal\Message;
-use Keboola\Package\Common\String\Password;
 use Keboola\StorageDriver\Command\Workspace\CreateWorkspaceCommand;
 use Keboola\StorageDriver\Command\Workspace\CreateWorkspaceResponse;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
 use Keboola\StorageDriver\Shared\Driver\BaseHandler;
+use Keboola\StorageDriver\Shared\Utils\Password;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
@@ -79,15 +79,6 @@ final class CreateWorkspaceHandler extends BaseHandler
                     'REVOKE CREATE STREAMLIT ON SCHEMA %s.%s FROM ROLE %s',
                     SnowflakeQuote::quoteSingleIdentifier($database),
                     SnowflakeQuote::quoteSingleIdentifier($workspaceSchemaName),
-                    SnowflakeQuote::quoteSingleIdentifier($workspaceRoleName),
-                ));
-            }
-
-            $warehouse = $credentials->getWarehouse();
-            if ($warehouse !== null && $warehouse !== '') {
-                $connection->executeQuery(sprintf(
-                    'GRANT USAGE ON WAREHOUSE %s TO ROLE %s',
-                    SnowflakeQuote::quoteSingleIdentifier($warehouse),
                     SnowflakeQuote::quoteSingleIdentifier($workspaceRoleName),
                 ));
             }

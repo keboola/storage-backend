@@ -243,12 +243,10 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
     private function createCredentialsFromResponse(
         CreateWorkspaceResponse $response,
     ): GenericBackendCredentials {
-        return new GenericBackendCredentials(
-            $this->projectResponse->getProjectDatabaseName(),
-            $response->getWorkspaceUserName(),
-            $response->getWorkspacePassword(),
-            (string) getenv('SNOWFLAKE_HOST'),
-            (string) getenv('SNOWFLAKE_PORT'),
-        );
+        return (new GenericBackendCredentials())
+            ->setHost((string) getenv('SNOWFLAKE_HOST'))
+            ->setPort((int) getenv('SNOWFLAKE_PORT'))
+            ->setPrincipal($response->getWorkspaceUserName())
+            ->setSecret($response->getWorkspacePassword());
     }
 }
