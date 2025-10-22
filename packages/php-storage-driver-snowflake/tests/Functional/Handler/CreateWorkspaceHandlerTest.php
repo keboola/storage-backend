@@ -241,7 +241,7 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
     }
 
     private function createCredentialsFromResponse(
-        CreateWorkspaceResponse $response
+        CreateWorkspaceResponse $response,
     ): GenericBackendCredentials {
         return new GenericBackendCredentials(
             $this->projectResponse->getProjectDatabaseName(),

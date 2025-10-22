@@ -151,7 +151,6 @@ final class CreateWorkspaceHandler extends BaseHandler
                     SnowflakeQuote::quoteSingleIdentifier($workspaceRoleName),
                 ));
             }
-
         } catch (Throwable $e) {
             throw new WorkspaceCreationFailedException($e->getMessage(), $e->getCode(), $e);
         }
