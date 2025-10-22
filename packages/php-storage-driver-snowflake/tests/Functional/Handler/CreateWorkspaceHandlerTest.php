@@ -29,6 +29,9 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
         ));
 
         foreach ($workspaces as $workspace) {
+            assert(is_array($workspace));
+            assert(isset($workspace['name']));
+            assert(is_string($workspace['name']));
             $schemaName = $workspace['name'];
             $roleName = sprintf('%s_ROLE', $schemaName);
             $userName = sprintf('%s_USER', $schemaName);

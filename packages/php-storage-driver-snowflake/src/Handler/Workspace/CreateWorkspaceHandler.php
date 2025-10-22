@@ -84,6 +84,7 @@ final class CreateWorkspaceHandler extends BaseHandler
             }
 
             foreach ($command->getSchemasForCreateTableGrants() as $schemaName) {
+                assert(is_string($schemaName));
                 $connection->executeQuery(sprintf(
                     'GRANT CREATE TABLE ON SCHEMA %s.%s TO ROLE %s',
                     SnowflakeQuote::quoteSingleIdentifier($database),
@@ -93,6 +94,7 @@ final class CreateWorkspaceHandler extends BaseHandler
             }
 
             foreach ($command->getTablesForSelectInsertUpdateGrants() as $tableName) {
+                assert(is_string($tableName));
                 $parts = explode('.', $tableName);
                 if (count($parts) === 2) {
                     $schemaName = $parts[0];
