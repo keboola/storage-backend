@@ -35,7 +35,7 @@ final class CreateWorkspaceHandler extends BaseHandler
         $connection = ConnectionFactory::createFromCredentials($credentials);
 
         $nameGenerator = new NameGenerator($command->getStackPrefix());
-        
+
         $workspaceSchemaName = sprintf('WS_%s', $command->getWorkspaceId());
         $workspaceRoleName = sprintf('WS_%s_ROLE', $command->getWorkspaceId());
         $workspaceUserName = sprintf('WS_%s_USER', $command->getWorkspaceId());
@@ -73,7 +73,7 @@ final class CreateWorkspaceHandler extends BaseHandler
                 SnowflakeQuote::quoteSingleIdentifier($workspaceRoleName),
             ));
             $streamlitGrant = array_filter($grants, fn($grant) => $grant['privilege'] === 'CREATE STREAMLIT');
-            
+
             if (count($streamlitGrant) !== 0) {
                 $connection->executeQuery(sprintf(
                     'REVOKE CREATE STREAMLIT ON SCHEMA %s.%s FROM ROLE %s',
@@ -106,7 +106,7 @@ final class CreateWorkspaceHandler extends BaseHandler
                 if (count($parts) === 2) {
                     $schemaName = $parts[0];
                     $tableNameOnly = $parts[1];
-                    
+
                     $connection->executeQuery(sprintf(
                         'GRANT SELECT, INSERT, UPDATE ON TABLE %s.%s.%s TO ROLE %s',
                         SnowflakeQuote::quoteSingleIdentifier($database),

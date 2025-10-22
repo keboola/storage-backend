@@ -7,6 +7,7 @@ namespace Keboola\StorageDriver\Snowflake\Tests\Functional\Handler;
 use Keboola\StorageDriver\Command\Common\RuntimeOptions;
 use Keboola\StorageDriver\Command\Workspace\CreateWorkspaceCommand;
 use Keboola\StorageDriver\Command\Workspace\CreateWorkspaceResponse;
+use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
 use Keboola\StorageDriver\Snowflake\Handler\Workspace\CreateWorkspaceHandler;
 use Keboola\StorageDriver\Snowflake\Tests\Functional\BaseProjectTestCase;
@@ -18,20 +19,20 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        
+
         $connection = $this->getCurrentProjectConnection();
-        
+
         $workspaces = $connection->fetchAllAssociative(sprintf(
             'SHOW SCHEMAS LIKE %s IN DATABASE %s',
             SnowflakeQuote::quote('WS_%'),
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
         ));
-        
+
         foreach ($workspaces as $workspace) {
             $schemaName = $workspace['name'];
             $roleName = sprintf('%s_ROLE', $schemaName);
             $userName = sprintf('%s_USER', $schemaName);
-            
+
             try {
                 $connection->executeQuery(sprintf(
                     'DROP SCHEMA IF EXISTS %s.%s CASCADE',
@@ -40,7 +41,7 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
                 ));
             } catch (Throwable $e) {
             }
-            
+
             try {
                 $connection->executeQuery(sprintf(
                     'DROP ROLE IF EXISTS %s',
@@ -48,7 +49,7 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
                 ));
             } catch (Throwable $e) {
             }
-            
+
             try {
                 $connection->executeQuery(sprintf(
                     'DROP USER IF EXISTS %s',
@@ -73,20 +74,20 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
             'projectReadOnlyRoleName' => $this->projectResponse->getProjectReadOnlyRoleName(),
             'devBranchReadOnlyRoleName' => '',
         ]);
-        
+
         $response = (new CreateWorkspaceHandler())(
             $this->getCurrentProjectCredentials(),
             $command,
             [],
             new RuntimeOptions(),
         );
-        
+
         $this->assertInstanceOf(CreateWorkspaceResponse::class, $response);
         $this->assertSame(sprintf('WS_%s_USER', $workspaceId), $response->getWorkspaceUserName());
         $this->assertSame(sprintf('WS_%s_ROLE', $workspaceId), $response->getWorkspaceRoleName());
         $this->assertSame(sprintf('WS_%s', $workspaceId), $response->getWorkspaceObjectName());
         $this->assertNotEmpty($response->getWorkspacePassword());
-        
+
         $connection = $this->getCurrentProjectConnection();
         $schemas = $connection->fetchAllAssociative(sprintf(
             'SHOW SCHEMAS LIKE %s IN DATABASE %s',
@@ -95,13 +96,13 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
         ));
         $this->assertCount(1, $schemas);
         $this->assertSame(sprintf('WS_%s', $workspaceId), $schemas[0]['name']);
-        
+
         $roles = $connection->fetchAllAssociative(sprintf(
             'SHOW ROLES LIKE %s',
             SnowflakeQuote::quote(sprintf('WS_%s_ROLE', $workspaceId)),
         ));
         $this->assertCount(1, $roles);
-        
+
         $users = $connection->fetchAllAssociative(sprintf(
             'SHOW USERS LIKE %s',
             SnowflakeQuote::quote(sprintf('WS_%s_USER', $workspaceId)),
@@ -112,20 +113,20 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
     public function testCreateWorkspaceWithDirectGrantPermissions(): void
     {
         $connection = $this->getCurrentProjectConnection();
-        
+
         $testBucketSchema = 'out.c-test-bucket';
         $connection->executeQuery(sprintf(
             'CREATE SCHEMA IF NOT EXISTS %s.%s',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
-        
+
         $connection->executeQuery(sprintf(
             'CREATE TABLE IF NOT EXISTS %s.%s.test_table (id INT, name VARCHAR(100))',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
-        
+
         $connection->executeQuery(sprintf(
             'INSERT INTO %s.%s.test_table (id, name) VALUES (1, %s), (2, %s)',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
@@ -133,7 +134,7 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
             SnowflakeQuote::quote('Alice'),
             SnowflakeQuote::quote('Bob'),
         ));
-        
+
         $workspaceId = '67890';
         $command = new CreateWorkspaceCommand([
             'stackPrefix' => $this->getTestPrefix(),
@@ -148,70 +149,70 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
             'schemasForCreateTableGrants' => [$testBucketSchema],
             'tablesForSelectInsertUpdateGrants' => [sprintf('%s.test_table', $testBucketSchema)],
         ]);
-        
+
         $response = (new CreateWorkspaceHandler())(
             $this->getCurrentProjectCredentials(),
             $command,
             [],
             new RuntimeOptions(),
         );
-        
+
         $this->assertInstanceOf(CreateWorkspaceResponse::class, $response);
-        
+
         $workspaceUserCredentials = $this->createCredentialsFromResponse($response);
         $workspaceConnection = ConnectionFactory::createFromCredentials($workspaceUserCredentials);
-        
+
         $workspaceConnection->executeQuery(sprintf(
             'USE ROLE %s',
             SnowflakeQuote::quoteSingleIdentifier($response->getWorkspaceRoleName()),
         ));
-        
+
         $data = $workspaceConnection->fetchAllAssociative(sprintf(
             'SELECT * FROM %s.%s.test_table ORDER BY id',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
-        
+
         $this->assertCount(2, $data);
         $this->assertSame('1', $data[0]['ID']);
         $this->assertSame('Alice', $data[0]['NAME']);
         $this->assertSame('2', $data[1]['ID']);
         $this->assertSame('Bob', $data[1]['NAME']);
-        
+
         $workspaceConnection->executeQuery(sprintf(
             'INSERT INTO %s.%s.test_table (id, name) VALUES (3, %s)',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
             SnowflakeQuote::quote('Charlie'),
         ));
-        
+
         $data = $workspaceConnection->fetchAllAssociative(sprintf(
             'SELECT COUNT(*) as cnt FROM %s.%s.test_table',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
         $this->assertSame('3', $data[0]['CNT']);
-        
+
         $workspaceConnection->executeQuery(sprintf(
             'UPDATE %s.%s.test_table SET name = %s WHERE id = 1',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
             SnowflakeQuote::quote('Alice Updated'),
         ));
-        
+
         $data = $workspaceConnection->fetchAllAssociative(sprintf(
             'SELECT name FROM %s.%s.test_table WHERE id = 1',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
         $this->assertSame('Alice Updated', $data[0]['NAME']);
-        
+
         $workspaceConnection->executeQuery(sprintf(
             'CREATE TABLE %s.%s.new_table (id INT)',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
-        
+
         $tables = $workspaceConnection->fetchAllAssociative(sprintf(
             'SHOW TABLES LIKE %s IN SCHEMA %s.%s',
             SnowflakeQuote::quote('new_table'),
@@ -219,19 +220,19 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
         $this->assertCount(1, $tables);
-        
+
         $connection->executeQuery(sprintf(
             'DROP TABLE IF EXISTS %s.%s.new_table',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
-        
+
         $connection->executeQuery(sprintf(
             'DROP TABLE IF EXISTS %s.%s.test_table',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
             SnowflakeQuote::quoteSingleIdentifier($testBucketSchema),
         ));
-        
+
         $connection->executeQuery(sprintf(
             'DROP SCHEMA IF EXISTS %s.%s CASCADE',
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
@@ -239,9 +240,10 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
         ));
     }
 
-    private function createCredentialsFromResponse(CreateWorkspaceResponse $response): \Keboola\StorageDriver\Credentials\GenericBackendCredentials
-    {
-        return new \Keboola\StorageDriver\Credentials\GenericBackendCredentials(
+    private function createCredentialsFromResponse(
+        CreateWorkspaceResponse $response
+    ): GenericBackendCredentials {
+        return new GenericBackendCredentials(
             $this->projectResponse->getProjectDatabaseName(),
             $response->getWorkspaceUserName(),
             $response->getWorkspacePassword(),
