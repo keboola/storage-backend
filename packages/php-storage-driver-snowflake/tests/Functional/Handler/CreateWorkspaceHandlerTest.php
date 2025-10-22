@@ -89,7 +89,7 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
         $expectedSchemaName = sprintf('WORKSPACE_%s', $workspaceId);
         $expectedUserName = sprintf('%sWORKSPACE_%s', $this->getTestPrefix(), $workspaceId);
         $expectedRoleName = $expectedUserName;
-        
+
         $this->assertSame($expectedUserName, $response->getWorkspaceUserName());
         $this->assertSame($expectedRoleName, $response->getWorkspaceRoleName());
         $this->assertSame($expectedSchemaName, $response->getWorkspaceObjectName());
