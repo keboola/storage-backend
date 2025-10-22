@@ -68,19 +68,41 @@ class NameGenerator
         return strtoupper($name);
     }
 
-    public function createWorkspaceSchemaName(string $workspaceId): string
-    {
-        return strtoupper(sprintf('WS_%s', $workspaceId));
+    public function createWorkspaceSchemaName(
+        string $workspaceId,
+        bool $isBranchDefault,
+        string $branchId,
+    ): string {
+        $devBranchPrefix = $this->getDevBranchPrefix($isBranchDefault, $branchId);
+        $workspaceName = $devBranchPrefix . 'workspace_' . $workspaceId;
+        return strtoupper($workspaceName);
     }
 
-    public function createWorkspaceRoleName(string $workspaceId): string
-    {
-        return strtoupper(sprintf('WS_%s_ROLE', $workspaceId));
+    public function createWorkspaceRoleName(
+        string $workspaceId,
+        bool $isBranchDefault,
+        string $branchId,
+    ): string {
+        return $this->createWorkspaceUserName($workspaceId, $isBranchDefault, $branchId);
     }
 
-    public function createWorkspaceUserName(string $workspaceId): string
+    public function createWorkspaceUserName(
+        string $workspaceId,
+        bool $isBranchDefault,
+        string $branchId,
+    ): string {
+        $devBranchPrefix = $this->getDevBranchPrefix($isBranchDefault, $branchId);
+        $credentialsName = $this->stackPrefix . $devBranchPrefix . 'workspace_' . $workspaceId;
+        return strtoupper($credentialsName);
+    }
+
+    private function getDevBranchPrefix(bool $isDefaultBranch, string $devBranchId): string
     {
-        return strtoupper(sprintf('WS_%s_USER', $workspaceId));
+        $workspacePrefix = '';
+        if (!$isDefaultBranch) {
+            $workspacePrefix = $devBranchId . '_';
+        }
+        return $workspacePrefix;
     }
 
     /**

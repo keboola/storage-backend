@@ -24,7 +24,7 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
 
         $workspaces = $connection->fetchAllAssociative(sprintf(
             'SHOW SCHEMAS LIKE %s IN DATABASE %s',
-            SnowflakeQuote::quote('WS_%'),
+            SnowflakeQuote::quote('%WORKSPACE_%'),
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
         ));
 
@@ -33,8 +33,8 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
             assert(isset($workspace['name']));
             assert(is_string($workspace['name']));
             $schemaName = $workspace['name'];
-            $roleName = sprintf('%s_ROLE', $schemaName);
-            $userName = sprintf('%s_USER', $schemaName);
+            $roleName = $this->getTestPrefix() . $schemaName;
+            $userName = $this->getTestPrefix() . $schemaName;
 
             try {
                 $connection->executeQuery(sprintf(
@@ -86,29 +86,33 @@ final class CreateWorkspaceHandlerTest extends BaseProjectTestCase
         );
 
         $this->assertInstanceOf(CreateWorkspaceResponse::class, $response);
-        $this->assertSame(sprintf('WS_%s_USER', $workspaceId), $response->getWorkspaceUserName());
-        $this->assertSame(sprintf('WS_%s_ROLE', $workspaceId), $response->getWorkspaceRoleName());
-        $this->assertSame(sprintf('WS_%s', $workspaceId), $response->getWorkspaceObjectName());
+        $expectedSchemaName = sprintf('WORKSPACE_%s', $workspaceId);
+        $expectedUserName = sprintf('%sWORKSPACE_%s', $this->getTestPrefix(), $workspaceId);
+        $expectedRoleName = $expectedUserName;
+        
+        $this->assertSame($expectedUserName, $response->getWorkspaceUserName());
+        $this->assertSame($expectedRoleName, $response->getWorkspaceRoleName());
+        $this->assertSame($expectedSchemaName, $response->getWorkspaceObjectName());
         $this->assertNotEmpty($response->getWorkspacePassword());
 
         $connection = $this->getCurrentProjectConnection();
         $schemas = $connection->fetchAllAssociative(sprintf(
             'SHOW SCHEMAS LIKE %s IN DATABASE %s',
-            SnowflakeQuote::quote(sprintf('WS_%s', $workspaceId)),
+            SnowflakeQuote::quote($expectedSchemaName),
             SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectDatabaseName()),
         ));
         $this->assertCount(1, $schemas);
-        $this->assertSame(sprintf('WS_%s', $workspaceId), $schemas[0]['name']);
+        $this->assertSame($expectedSchemaName, $schemas[0]['name']);
 
         $roles = $connection->fetchAllAssociative(sprintf(
             'SHOW ROLES LIKE %s',
-            SnowflakeQuote::quote(sprintf('WS_%s_ROLE', $workspaceId)),
+            SnowflakeQuote::quote($expectedRoleName),
         ));
         $this->assertCount(1, $roles);
 
         $users = $connection->fetchAllAssociative(sprintf(
             'SHOW USERS LIKE %s',
-            SnowflakeQuote::quote(sprintf('WS_%s_USER', $workspaceId)),
+            SnowflakeQuote::quote($expectedUserName),
         ));
         $this->assertCount(1, $users);
     }
