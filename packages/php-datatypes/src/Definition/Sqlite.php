@@ -125,9 +125,7 @@ class Sqlite extends Common
                 }
                 break;
             default:
-                if ($length !== null && $length !== '') {
-                    $valid = false;
-                }
+                $valid = false;
                 break;
         }
 
