@@ -40,7 +40,8 @@ class SnowflakeExceptionConverter implements ExceptionConverter
         if (preg_match($pattern, $exception->getMessage())) {
             return new AccountDecommissionedException(
                 new SnowflakeDriverException(
-                    'Snowflake account is marked for decommission. Please contact your administrator or update the component configuration to use an active account.',
+                    'Snowflake account is marked for decommission. ' .
+                    'Please contact your administrator or update the component configuration to use an active account.',
                     null,
                     $exception->getCode(),
                     $exception,
