@@ -159,14 +159,13 @@ final class TableExportToFileHandler extends BaseHandler
                  * client_x509_cert_url: string,
                  * } $credentialsArray
                  */
-                $credentialsArray = json_decode($credentials->getSecret(), true);
-                if (!is_array($credentialsArray)) {
-                    throw new Exception('Invalid GCS credentials: secret must be valid JSON');
-                }
+                $credentialsArray = json_decode($credentials->getKey(), true);
+
+                $credentialsArray['private_key'] = $credentials->getSecret();
                 return new Storage\GCS\DestinationFile(
                     $filePath->getRoot(),
                     $fullPath,
-                    $credentials->getKey(),
+                    $credentials->getSecurityIntegrationName(),
                     $credentialsArray,
                 );
 
