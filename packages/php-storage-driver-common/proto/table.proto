@@ -281,6 +281,7 @@ message ImportExportShared {
   message GCSCredentials {
     string key = 1;
     string secret = 2;
+    string securityIntegrationName = 3; // used for GCS-Snowflake integration
   }
   /**
    * Relative file properties based on:
