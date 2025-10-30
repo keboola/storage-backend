@@ -68,6 +68,43 @@ class NameGenerator
         return strtoupper($name);
     }
 
+    public function createWorkspaceSchemaName(
+        string $workspaceId,
+        bool $isBranchDefault,
+        string $branchId,
+    ): string {
+        $devBranchPrefix = $this->getDevBranchPrefix($isBranchDefault, $branchId);
+        $workspaceName = $devBranchPrefix . 'workspace_' . $workspaceId;
+        return strtoupper($workspaceName);
+    }
+
+    public function createWorkspaceRoleName(
+        string $workspaceId,
+        bool $isBranchDefault,
+        string $branchId,
+    ): string {
+        return $this->createWorkspaceUserName($workspaceId, $isBranchDefault, $branchId);
+    }
+
+    public function createWorkspaceUserName(
+        string $workspaceId,
+        bool $isBranchDefault,
+        string $branchId,
+    ): string {
+        $devBranchPrefix = $this->getDevBranchPrefix($isBranchDefault, $branchId);
+        $credentialsName = $this->stackPrefix . $devBranchPrefix . 'workspace_' . $workspaceId;
+        return strtoupper($credentialsName);
+    }
+
+    private function getDevBranchPrefix(bool $isDefaultBranch, string $devBranchId): string
+    {
+        $workspacePrefix = '';
+        if (!$isDefaultBranch) {
+            $workspacePrefix = $devBranchId . '_';
+        }
+        return $workspacePrefix;
+    }
+
     /**
      * this function is rewrite of ObjectNameValidate from Connection
      */

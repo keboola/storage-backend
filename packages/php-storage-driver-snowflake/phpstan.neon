@@ -1,3 +1,5 @@
 parameters:
+    scanDirectories:
+        - ../../packages/php-storage-driver-common/generated
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
