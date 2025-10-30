@@ -10,6 +10,7 @@ use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Query;
 use Keboola\TableBackendUtils\Connection\Exception\ConnectionException;
 use Keboola\TableBackendUtils\Connection\Exception\DriverException as SnowflakeDriverException;
+use Keboola\TableBackendUtils\Connection\Snowflake\Exception\AccountDecommissionedException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
@@ -27,6 +28,20 @@ class SnowflakeExceptionConverter implements ExceptionConverter
             return new ConnectionException(
                 new SnowflakeDriverException(
                     'Incorrect username or password was specified.',
+                    null,
+                    $exception->getCode(),
+                    $exception,
+                ),
+                $query,
+            );
+        }
+
+        $pattern = '/This account has been marked for decommission/';
+        if (preg_match($pattern, $exception->getMessage())) {
+            return new AccountDecommissionedException(
+                new SnowflakeDriverException(
+                    'Snowflake account is marked for decommission. ' .
+                    'Please contact your administrator or update the component configuration to use an active account.',
                     null,
                     $exception->getCode(),
                     $exception,
