@@ -179,23 +179,17 @@ class SqlBuilder
             SnowflakeQuote::quoteSingleIdentifier($destinationTableDefinition->getTableName()),
         );
 
-        $insColumns = $sourceTableDefinition->getColumnsNames();
-        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $insColumns, true)
-            && $importOptions->useTimestamp();
-
-        if ($useTimestamp) {
-            $insColumns = array_merge(
-                $sourceTableDefinition->getColumnsNames(),
-                [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
-            );
-        }
-
+        $insColumns = [];
         $columnsSetSql = [];
 
         /** @var SnowflakeColumn $sourceColumn */
         foreach ($sourceTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+            $insColumns[] = $sourceColumn->getColumnName();
+
             // output mapping same tables are required do not convert nulls to empty strings
-            if (!$importOptions->isNullManipulationEnabled()) {
+            if (!$importOptions->isNullManipulationEnabled()
+                && !in_array($sourceColumn->getColumnName(), $importOptions->ignoreColumns(), true)
+            ) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
                 $type = $destinationColumn->getColumnDefinition()->getType();
                 $useAutoCast = in_array($type, self::AUTO_CASTING_TYPES, true);
@@ -273,7 +267,11 @@ class SqlBuilder
             $columnsSetSql[] = SnowflakeQuote::quoteSingleIdentifier($sourceColumn->getColumnName());
         }
 
+        $useTimestamp = !in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $insColumns, true)
+            && $importOptions->useTimestamp();
+
         if ($useTimestamp) {
+            $insColumns[] = ToStageImporterInterface::TIMESTAMP_COLUMN_NAME;
             $columnsSetSql[] = SnowflakeQuote::quote($timestamp);
         }
 
@@ -308,14 +306,12 @@ class SqlBuilder
         SnowflakeTableDefinition $destinationTableDefinition,
         string $timestamp,
     ): string {
-        $timestampColumn = '';
-        if (!in_array(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME, $sourceTableDefinition->getColumnsNames())) {
-            $timestampColumn = sprintf(
-                '\'%s\' AS %s',
-                $timestamp,
-                SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
-            );
-        }
+        $timestampColumn = sprintf(
+            '\'%s\' AS %s',
+            $timestamp,
+            SnowflakeQuote::quoteSingleIdentifier(ToStageImporterInterface::TIMESTAMP_COLUMN_NAME),
+        );
+
         // Build the source table reference
         $sourceTable = sprintf(
             '%s.%s',
@@ -332,7 +328,10 @@ class SqlBuilder
 
         $columns = array_map(
             static fn($col) => SnowflakeQuote::quoteSingleIdentifier($col),
-            $sourceTableDefinition->getColumnsNames(),
+            array_filter(
+                $sourceTableDefinition->getColumnsNames(),
+                static fn($col) => $col !== ToStageImporterInterface::TIMESTAMP_COLUMN_NAME,
+            ),
         );
 
         // Create the CTAS command
