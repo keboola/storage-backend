@@ -38,6 +38,10 @@ class DataType
      * Generated from protobuf enum <code>DECIMAL = 5;</code>
      */
     const DECIMAL = 5;
+    /**
+     * Generated from protobuf enum <code>TIMESTAMP = 6;</code>
+     */
+    const TIMESTAMP = 6;
 
     private static $valueToName = [
         self::STRING => 'STRING',
@@ -46,6 +50,7 @@ class DataType
         self::BIGINT => 'BIGINT',
         self::REAL => 'REAL',
         self::DECIMAL => 'DECIMAL',
+        self::TIMESTAMP => 'TIMESTAMP',
     ];
 
     public static function name($value)

@@ -149,6 +149,7 @@ message ImportExportShared {
     BIGINT = 3;
     REAL = 4;
     DECIMAL = 5;
+    TIMESTAMP = 6;
   }
   message Table {
     repeated string path = 1; // path where table exists
