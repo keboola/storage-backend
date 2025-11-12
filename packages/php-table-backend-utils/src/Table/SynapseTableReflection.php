@@ -13,7 +13,6 @@ use Keboola\TableBackendUtils\Table\Synapse\TableDistributionDefinition;
 use Keboola\TableBackendUtils\Table\Synapse\TableIndexDefinition;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use LogicException;
-use function Keboola\Utils\returnBytes;
 
 final class SynapseTableReflection implements TableReflectionInterface
 {
@@ -200,13 +199,38 @@ EOT,
             SynapseQuote::quoteSingleIdentifier($this->tableName),
         ));
 
+        $data = preg_replace('/[B\s]+/ui', '', $info['data']);
+        assert($data !== null);
         return new TableStats(
-            (int) returnBytes(
-                // removes all whitespaces and unit(bytes)
-                preg_replace('/[B\s]+/ui', '', $info['data']),
+            (int) $this->returnBytes(
+            // removes all whitespaces and unit(bytes)
+                $data,
             ),
             (int) $info['rows'],
         );
+    }
+
+    private function returnBytes(string $val): int|string
+    {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val) - 1]);
+        $val = substr($val, 0, -1);
+        switch ($last) {
+            // The 'G' modifier is available since PHP 5.1.0
+            case 'g':
+                //@phpstan-ignore-next-line
+                $val *= 1024;
+            // passthrough
+            case 'm':
+                $val *= 1024;
+            // passthrough
+            case 'k':
+                //@phpstan-ignore-next-line
+                $val *= 1024;
+            // passthrough
+        }
+
+        return $val;
     }
 
     public function isTemporary(): bool

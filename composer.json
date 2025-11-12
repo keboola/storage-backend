@@ -7,9 +7,9 @@
         }
     ],
     "require": {
-        "php": "^8.2",
         "aws/aws-sdk-php": "^3",
         "doctrine/dbal": "^3.3",
+        "ext-bcmath": "*",
         "ext-json": "*",
         "ext-odbc": "*",
         "ext-pdo": "*",
@@ -18,17 +18,21 @@
         "google/protobuf": "^3.21",
         "keboola/common-exceptions": "^1",
         "keboola/csv-options": "^1",
+        "keboola/key-generator": "^1.0",
         "keboola/php-csv-db-import": "^6",
         "keboola/php-file-storage-utils": "^0.2.2",
         "keboola/php-temp": "^2.0",
-        "keboola/php-utils": "^4.1",
         "keboola/retry": "^0.5.0",
         "microsoft/azure-storage-blob": "^1.4",
+        "php": "^8.2",
         "symfony/console": "^5.2|^6",
         "symfony/filesystem": "^5.2|^6",
         "symfony/process": "^4.4|^5.0|^6.0"
     },
     "require-dev": {
+        "flow-php/filesystem": "^0.21.0",
+        "flow-php/parquet": "^0.21.0",
+        "flow-php/types": "^0.21.0",
         "keboola/coding-standard": "^15",
         "keboola/phpunit-retry-annotations": "^0.3.0",
         "php-parallel-lint/php-parallel-lint": "^1.3",
@@ -62,13 +66,14 @@
             "GPBMetadata\\Tests\\": "packages/php-storage-driver-common/tests/generated/GPBMetadata/Tests",
             "Keboola\\DatatypeTest\\": "packages/php-datatypes/tests/",
             "Keboola\\StorageDriver\\GeneratedTests\\": "packages/php-storage-driver-common/tests/generated/Keboola/StorageDriver/GeneratedTests",
+            "Keboola\\StorageDriver\\Snowflake\\Tests\\": "packages/php-storage-driver-snowflake/tests/",
+            "Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\": "packages/php-storage-driver-snowflake/tests/Functional",
             "Keboola\\StorageDriver\\TestsStubLoader\\": "packages/php-storage-driver-common/tests/StubLoader",
             "Keboola\\StorageDriver\\UnitTests\\": "packages/php-storage-driver-common/tests/unit",
             "Tests\\Keboola\\Db\\ImportExportCommon\\": "packages/php-db-import-export/tests/Common",
             "Tests\\Keboola\\Db\\ImportExportFunctional\\": "packages/php-db-import-export/tests/functional/",
             "Tests\\Keboola\\Db\\ImportExportUnit\\": "packages/php-db-import-export/tests/unit",
-            "Tests\\Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/tests",
-            "Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\": "packages/php-storage-driver-snowflake/tests/Functional"
+            "Tests\\Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/tests"
         }
     },
     "replace": {
