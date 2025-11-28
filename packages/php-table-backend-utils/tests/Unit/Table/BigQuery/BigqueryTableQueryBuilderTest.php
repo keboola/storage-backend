@@ -7,6 +7,8 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Table\BigQuery;
 use Generator;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Datatype\Definition\Common;
+use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
+use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
@@ -106,5 +108,98 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
                 'invalidDefaultValueForBooleanColumn',
             ),
         ];
+    }
+
+    public function testCreateTableWithPrimaryKey(): void
+    {
+        $columns = new ColumnCollection([
+            new BigqueryColumn(
+                'id',
+                new Bigquery(Bigquery::TYPE_INTEGER),
+            ),
+            new BigqueryColumn(
+                'name',
+                new Bigquery(Bigquery::TYPE_STRING),
+            ),
+        ]);
+
+        $sql = $this->qb->getCreateTableCommand(
+            'mydataset',
+            'mytable',
+            $columns,
+            ['id'],
+        );
+
+        $expectedSql = <<<SQL
+CREATE TABLE `mydataset`.`mytable` 
+(
+`id` INTEGER,
+`name` STRING,
+PRIMARY KEY (`id`) NOT ENFORCED
+);
+SQL;
+
+        $this->assertSame($expectedSql, $sql);
+    }
+
+    public function testCreateTableWithCompositePrimaryKey(): void
+    {
+        $columns = new ColumnCollection([
+            new BigqueryColumn(
+                'id',
+                new Bigquery(Bigquery::TYPE_INTEGER),
+            ),
+            new BigqueryColumn(
+                'type',
+                new Bigquery(Bigquery::TYPE_STRING),
+            ),
+            new BigqueryColumn(
+                'name',
+                new Bigquery(Bigquery::TYPE_STRING),
+            ),
+        ]);
+
+        $sql = $this->qb->getCreateTableCommand(
+            'mydataset',
+            'mytable',
+            $columns,
+            ['id', 'type'],
+        );
+
+        $expectedSql = <<<SQL
+CREATE TABLE `mydataset`.`mytable` 
+(
+`id` INTEGER,
+`type` STRING,
+`name` STRING,
+PRIMARY KEY (`id`,`type`) NOT ENFORCED
+);
+SQL;
+
+        $this->assertSame($expectedSql, $sql);
+    }
+
+    public function testCreateTableWithInvalidPrimaryKey(): void
+    {
+        $columns = new ColumnCollection([
+            new BigqueryColumn(
+                'id',
+                new Bigquery(Bigquery::TYPE_INTEGER),
+            ),
+            new BigqueryColumn(
+                'name',
+                new Bigquery(Bigquery::TYPE_STRING),
+            ),
+        ]);
+
+        $this->expectException(QueryBuilderException::class);
+        $this->expectExceptionMessage('Trying to set "nonexistent" as PKs but not present in columns');
+
+        $this->qb->getCreateTableCommand(
+            'mydataset',
+            'mytable',
+            $columns,
+            ['nonexistent'],
+        );
     }
 }
