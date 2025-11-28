@@ -10,6 +10,7 @@ use Google\Cloud\Core\Exception\NotFoundException;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
+use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
@@ -48,7 +49,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            [], // primary keys aren't supported in BQ
+            $primaryKeys,
         );
 
         self::assertSame($expectedSql, $sql);
@@ -87,6 +88,67 @@ CREATE TABLE `$testDb`.`$tableName`
 EOT
             ,
         ];
+
+        yield 'single primary key' => [
+            'cols' => [
+                BigqueryColumn::createGenericColumn('id'),
+                BigqueryColumn::createGenericColumn('name'),
+            ],
+            'primaryKeys' => ['id'],
+            'expectedColumnNames' => ['id', 'name'],
+            'expectedPrimaryKeys' => ['id'],
+            'query' => <<<EOT
+CREATE TABLE `$testDb`.`$tableName` 
+(
+`id` STRING DEFAULT '' NOT NULL,
+`name` STRING DEFAULT '' NOT NULL,
+PRIMARY KEY (`id`) NOT ENFORCED
+);
+EOT
+            ,
+        ];
+
+        yield 'composite primary key' => [
+            'cols' => [
+                BigqueryColumn::createGenericColumn('id'),
+                BigqueryColumn::createGenericColumn('type'),
+                BigqueryColumn::createGenericColumn('name'),
+            ],
+            'primaryKeys' => ['id', 'type'],
+            'expectedColumnNames' => ['id', 'type', 'name'],
+            'expectedPrimaryKeys' => ['id', 'type'],
+            'query' => <<<EOT
+CREATE TABLE `$testDb`.`$tableName` 
+(
+`id` STRING DEFAULT '' NOT NULL,
+`type` STRING DEFAULT '' NOT NULL,
+`name` STRING DEFAULT '' NOT NULL,
+PRIMARY KEY (`id`,`type`) NOT ENFORCED
+);
+EOT
+            ,
+        ];
+    }
+
+    public function testInvalidPrimaryKeyThrowsException(): void
+    {
+        $this->cleanDataset(self::TEST_SCHEMA);
+        $this->createDataset(self::TEST_SCHEMA);
+
+        $columns = [
+            BigqueryColumn::createGenericColumn('col1'),
+            BigqueryColumn::createGenericColumn('col2'),
+        ];
+
+        $this->expectException(QueryBuilderException::class);
+        $this->expectExceptionMessage('Trying to set "nonexistent" as PKs but not present in columns');
+
+        $this->qb->getCreateTableCommand(
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC,
+            new ColumnCollection($columns),
+            ['nonexistent'],
+        );
     }
 
     public function testGetDropTableCommand(): void
@@ -120,7 +182,7 @@ EOT
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
             new ColumnCollection($columns),
-            [], // primary keys aren't supported in BQ
+            [],
         );
 
         $this->bqClient->runQuery($this->bqClient->query($sql));

@@ -140,5 +140,81 @@ EOT
             ,
             'createPrimaryKeys' => true,
         ];
+
+        yield 'single primary key' => [
+            'definition' => new BigqueryTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        BigqueryColumn::createGenericColumn('id'),
+                        BigqueryColumn::createGenericColumn('name'),
+                    ],
+                ),
+                ['id'],
+            ),
+            'query' => <<<EOT
+CREATE TABLE `$testDb`.`$tableName` 
+(
+`id` STRING DEFAULT '' NOT NULL,
+`name` STRING DEFAULT '' NOT NULL,
+PRIMARY KEY (`id`) NOT ENFORCED
+);
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+
+        yield 'composite primary key' => [
+            'definition' => new BigqueryTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        BigqueryColumn::createGenericColumn('id'),
+                        BigqueryColumn::createGenericColumn('type'),
+                        BigqueryColumn::createGenericColumn('name'),
+                    ],
+                ),
+                ['id', 'type'],
+            ),
+            'query' => <<<EOT
+CREATE TABLE `$testDb`.`$tableName` 
+(
+`id` STRING DEFAULT '' NOT NULL,
+`type` STRING DEFAULT '' NOT NULL,
+`name` STRING DEFAULT '' NOT NULL,
+PRIMARY KEY (`id`,`type`) NOT ENFORCED
+);
+EOT
+            ,
+            'createPrimaryKeys' => true,
+        ];
+
+        yield 'primary keys not created when flag is false' => [
+            'definition' => new BigqueryTableDefinition(
+                $testDb,
+                $tableName,
+                false,
+                new ColumnCollection(
+                    [
+                        BigqueryColumn::createGenericColumn('id'),
+                        BigqueryColumn::createGenericColumn('name'),
+                    ],
+                ),
+                ['id'],
+            ),
+            'query' => <<<EOT
+CREATE TABLE `$testDb`.`$tableName` 
+(
+`id` STRING DEFAULT '' NOT NULL,
+`name` STRING DEFAULT '' NOT NULL
+);
+EOT
+            ,
+            'createPrimaryKeys' => false,
+        ];
     }
 }

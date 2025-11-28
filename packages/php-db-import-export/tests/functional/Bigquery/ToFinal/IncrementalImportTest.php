@@ -380,4 +380,128 @@ SQL,
         $destinationContent = $this->fetchTable($this->getDestinationDbName(), self::TABLE_TRANSLATIONS);
         $this->assertEqualsCanonicalizing($expectedContent, $destinationContent);
     }
+
+    /**
+     * Test that deduplication with duplicate primary keys is deterministic.
+     * When source table contains multiple rows with identical PK values,
+     * the deduplication should consistently choose the same row.
+     */
+    public function testDeterministicDeduplicationWithDuplicatePrimaryKeys(): void
+    {
+        $tableName = 'test_dedup_deterministic';
+
+        // Create destination table with PK
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'CREATE TABLE %s.%s
+            (
+              `id` INT64 NOT NULL,
+              `name` STRING(50) NOT NULL,
+              `value` STRING(100),
+              `_timestamp` TIMESTAMP
+           )',
+            BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+        $this->bqClient->dataset($this->getDestinationDbName())->table($tableName)->update(
+            [
+                'tableConstraints' => [
+                    'primaryKey' => [
+                        'columns' => ['id', 'name'],
+                    ],
+                ],
+            ],
+        );
+
+        // Create source table with duplicate PK rows
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'CREATE TABLE %s.%s
+            (
+              `id` INT64,
+              `name` STRING(50),
+              `value` STRING(100)
+           )',
+            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        // Insert data with duplicate PKs (id=1,name=Alice appears twice, id=2,name=Bob appears twice)
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            <<<SQL
+INSERT INTO %s.%s (`id`, `name`, `value`) VALUES
+(1, 'Alice', 'value1'),
+(2, 'Bob', 'value2'),
+(1, 'Alice', 'value1_updated'),
+(2, 'Bob', 'value2_updated')
+SQL,
+            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        $destination = (new BigqueryTableReflection(
+            $this->bqClient,
+            $this->getDestinationDbName(),
+            $tableName,
+        ))->getTableDefinition();
+        $source = (new BigqueryTableReflection(
+            $this->bqClient,
+            $this->getSourceDbName(),
+            $tableName,
+        ))->getTableDefinition();
+
+        $importOptions = new BigqueryImportOptions(
+            isIncremental: true,
+            useTimestamp: true,
+            usingTypes: BigqueryImportOptions::USING_TYPES_USER,
+        );
+
+        // Run import multiple times to verify deterministic behavior
+        $results = [];
+        for ($i = 0; $i < 3; $i++) {
+            // Truncate destination before each import
+            $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                'TRUNCATE TABLE %s.%s',
+                BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                BigqueryQuote::quoteSingleIdentifier($tableName),
+            )));
+
+            $state = new ImportState($destination->getTableName());
+            (new IncrementalImporter($this->bqClient))->importToTable(
+                $source,
+                $destination,
+                $importOptions,
+                $state,
+            );
+
+            // Fetch results (without timestamp for comparison)
+            $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
+                'SELECT `id`, `name`, `value` FROM %s.%s ORDER BY `id`, `name`',
+                BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                BigqueryQuote::quoteSingleIdentifier($tableName),
+            )));
+
+            $rows = [];
+            foreach ($result as $row) {
+                assert(is_array($row));
+                $rows[] = [
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'value' => $row['value'],
+                ];
+            }
+            $results[] = $rows;
+        }
+
+        // Verify all three runs produced identical results (deterministic)
+        $this->assertEquals($results[0], $results[1], 'First and second import runs should produce identical results');
+        $this->assertEquals($results[1], $results[2], 'Second and third import runs should produce identical results');
+
+        // Verify we got exactly 2 rows (one for each unique PK combination)
+        $this->assertCount(2, $results[0], 'Should have exactly 2 rows after deduplication');
+
+        // Verify the results are deterministically chosen (ordered by all columns)
+        $this->assertEquals(1, $results[0][0]['id']);
+        $this->assertEquals('Alice', $results[0][0]['name']);
+        $this->assertEquals(2, $results[0][1]['id']);
+        $this->assertEquals('Bob', $results[0][1]['name']);
+    }
 }

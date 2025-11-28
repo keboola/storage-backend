@@ -429,6 +429,13 @@ SQL,
             self::SRC_ALIAS,
         );
 
+        // Order by all columns for deterministic tie-breaking when duplicate PKs exist
+        $allColumnsSql = $this->getColumnsString(
+            $columns,
+            ',',
+            self::SRC_ALIAS,
+        );
+
         $stage = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
@@ -438,7 +445,7 @@ SQL,
         return sprintf(
             <<<SQL
 SELECT %s FROM (
-    SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS `_row_number_`
+    SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s DESC) AS `_row_number_`
     FROM %s as %s
 ) AS a
     WHERE a.`_row_number_` = 1
@@ -446,7 +453,7 @@ SQL,
             $this->getColumnsString($columns, ',', 'a'),
             $this->getColumnsString($columns, ', ', self::SRC_ALIAS),
             $pkSql,
-            $pkSql,
+            $allColumnsSql,
             $stage,
             self::SRC_ALIAS,
         );
