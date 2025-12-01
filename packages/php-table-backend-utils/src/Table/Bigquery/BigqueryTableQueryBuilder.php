@@ -20,7 +20,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
     private const INVALID_DEFAULT_VALUE_FOR_NUMERIC_COLUMN = 'invalidDefaultValueForNumericColumn';
     private const INVALID_DEFAULT_VALUE_FOR_BOOLAN_COLUMN = 'invalidDefaultValueForBooleanColumn';
     private const INVALID_KEY_TO_UPDATE = 'invalidKeyToUpdate';
-    private const INVALID_PKS_FOR_TABLE = 'invalidPksForTable';
+    private const INVALID_PK_FOR_TABLE = 'invalidPKForTable';
 
     /** @var string[] */
     protected static array $boolishValues = ['true', 'false', '0', '1'];
@@ -79,7 +79,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
                     'Trying to set "%s" as PKs but not present in columns',
                     implode(',', $pksNotPresentInColumns),
                 ),
-                self::INVALID_PKS_FOR_TABLE,
+                self::INVALID_PK_FOR_TABLE,
             );
         }
 
