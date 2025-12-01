@@ -44,7 +44,13 @@ EOT,
         $conn->expects(self::once())->method('fetchAllAssociative')
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 10,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 10,
                 ],
             ]);
 
@@ -92,7 +98,13 @@ EOT,
         $conn->expects(self::once())->method('fetchAllAssociative')
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 10,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 10,
                 ],
             ]);
 
@@ -142,7 +154,13 @@ EOT,
         $conn->expects(self::once())->method('fetchAllAssociative')
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 10,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 10,
                 ],
             ]);
 
@@ -192,7 +210,13 @@ EOT,
         $conn->expects(self::once())->method('fetchAllAssociative')
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 7,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 7,
                 ],
             ]);
 
@@ -252,7 +276,13 @@ EOT;
         $conn->expects(self::once())->method('fetchAllAssociative')
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 7,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 7,
                 ],
             ]);
 
