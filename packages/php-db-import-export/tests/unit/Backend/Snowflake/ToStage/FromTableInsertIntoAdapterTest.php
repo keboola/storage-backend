@@ -83,6 +83,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
                     'TABLE_TYPE' => 'BASE TABLE',
                     'BYTES' => 0,
                     'ROW_COUNT' => 10,
+                    'name' => 'stagingTable',
                     'kind' => 'BASE TABLE',
                     'bytes' => 0,
                     'rows' => 10,
