@@ -380,4 +380,130 @@ SQL,
         $destinationContent = $this->fetchTable($this->getDestinationDbName(), self::TABLE_TRANSLATIONS);
         $this->assertEqualsCanonicalizing($expectedContent, $destinationContent);
     }
+
+    /**
+     * Test documenting non-deterministic deduplication behavior with duplicate primary keys.
+     *
+     * KNOWN LIMITATION: When source table contains multiple rows with identical PK values,
+     * the deduplication uses ORDER BY on PK columns only, which provides no tie-breaker.
+     * This results in non-deterministic selection of which duplicate row is kept.
+     *
+     * This test verifies that:
+     * 1. Deduplication does occur (only unique PK rows remain)
+     * 2. The behavior is currently non-deterministic (may pick different rows on different runs)
+     *
+     * To fix this issue, the ORDER BY clause in getDedupSelect() should include all columns,
+     * not just primary key columns.
+     */
+    public function testDeduplicationWithDuplicatePKsIsNonDeterministic(): void
+    {
+        $tableName = 'test_dedup_nondeterministic';
+
+        // Create destination table with PK
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'CREATE TABLE %s.%s
+            (
+              `id` INT64 NOT NULL,
+              `name` STRING(50) NOT NULL,
+              `value` STRING(100),
+              `_timestamp` TIMESTAMP
+           )',
+            BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+        $this->bqClient->dataset($this->getDestinationDbName())->table($tableName)->update(
+            [
+                'tableConstraints' => [
+                    'primaryKey' => [
+                        'columns' => ['id', 'name'],
+                    ],
+                ],
+            ],
+        );
+
+        // Create source table with duplicate PK rows
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'CREATE TABLE %s.%s
+            (
+              `id` INT64,
+              `name` STRING(50),
+              `value` STRING(100)
+           )',
+            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        // Insert data with duplicate PKs - different non-PK values
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            <<<SQL
+INSERT INTO %s.%s (`id`, `name`, `value`) VALUES
+(1, 'Alice', 'value1'),
+(2, 'Bob', 'value2'),
+(1, 'Alice', 'value1_duplicate'),
+(2, 'Bob', 'value2_duplicate')
+SQL,
+            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        $destination = (new BigqueryTableReflection(
+            $this->bqClient,
+            $this->getDestinationDbName(),
+            $tableName,
+        ))->getTableDefinition();
+        $source = (new BigqueryTableReflection(
+            $this->bqClient,
+            $this->getSourceDbName(),
+            $tableName,
+        ))->getTableDefinition();
+
+        $importOptions = new BigqueryImportOptions(
+            isIncremental: true,
+            useTimestamp: true,
+            usingTypes: BigqueryImportOptions::USING_TYPES_USER,
+        );
+
+        $state = new ImportState($destination->getTableName());
+        $result = (new IncrementalImporter($this->bqClient))->importToTable(
+            $source,
+            $destination,
+            $importOptions,
+            $state,
+        );
+
+        // Verify deduplication occurred - should have exactly 2 rows (one per unique PK)
+        $destinationData = $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'SELECT `id`, `name`, `value` FROM %s.%s ORDER BY `id`, `name`',
+            BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        $rows = [];
+        foreach ($destinationData as $row) {
+            assert(is_array($row));
+            $rows[] = $row;
+        }
+
+        // Verify exactly 2 rows remain (deduplication worked)
+        $this->assertCount(2, $rows, 'Deduplication should reduce 4 rows to 2 unique PK rows');
+
+        // Verify correct PK combinations exist
+        $this->assertEquals(1, $rows[0]['id']);
+        $this->assertEquals('Alice', $rows[0]['name']);
+        $this->assertEquals(2, $rows[1]['id']);
+        $this->assertEquals('Bob', $rows[1]['name']);
+
+        // Note: We do NOT assert which 'value' was selected (value1 vs value1_duplicate)
+        // because the current implementation is non-deterministic
+        $this->assertContains(
+            $rows[0]['value'],
+            ['value1', 'value1_duplicate'],
+            'Value should be one of the duplicate options (non-deterministic selection)',
+        );
+        $this->assertContains(
+            $rows[1]['value'],
+            ['value2', 'value2_duplicate'],
+            'Value should be one of the duplicate options (non-deterministic selection)',
+        );
+    }
 }

@@ -20,6 +20,7 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
     private const INVALID_DEFAULT_VALUE_FOR_NUMERIC_COLUMN = 'invalidDefaultValueForNumericColumn';
     private const INVALID_DEFAULT_VALUE_FOR_BOOLAN_COLUMN = 'invalidDefaultValueForBooleanColumn';
     private const INVALID_KEY_TO_UPDATE = 'invalidKeyToUpdate';
+    private const INVALID_PK_FOR_TABLE = 'invalidPKForTable';
 
     /** @var string[] */
     protected static array $boolishValues = ['true', 'false', '0', '1'];
@@ -55,11 +56,12 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
         ColumnCollection $columns,
         array $primaryKeys = [],
     ): string {
-        assert(count($primaryKeys) === 0, 'primary keys aren\'t supported in BQ');
         $columnsSqlDefinitions = [];
+        $columnNames = [];
         /** @var BigqueryColumn $column */
         foreach ($columns->getIterator() as $column) {
             $columnName = $column->getColumnName();
+            $columnNames[] = $columnName;
             $columnDefinition = $column->getColumnDefinition();
 
             $columnsSqlDefinitions[] = sprintf(
@@ -68,6 +70,30 @@ class BigqueryTableQueryBuilder implements TableQueryBuilderInterface
                 $columnDefinition->getSQLDefinition(),
             );
         }
+
+        // check that all PKs are valid columns
+        $pksNotPresentInColumns = array_diff($primaryKeys, $columnNames);
+        if ($pksNotPresentInColumns !== []) {
+            throw new QueryBuilderException(
+                sprintf(
+                    'Trying to set "%s" as PKs but not present in columns',
+                    implode(',', $pksNotPresentInColumns),
+                ),
+                self::INVALID_PK_FOR_TABLE,
+            );
+        }
+
+        if ($primaryKeys !== []) {
+            $columnsSqlDefinitions[] =
+                sprintf(
+                    'PRIMARY KEY (%s) NOT ENFORCED',
+                    implode(',', array_map(
+                        static fn($item) => BigqueryQuote::quoteSingleIdentifier($item),
+                        $primaryKeys,
+                    )),
+                );
+        }
+
         $columnsSql = implode(",\n", $columnsSqlDefinitions);
         return sprintf(
             'CREATE TABLE %s.%s 
