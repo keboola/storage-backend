@@ -15,10 +15,11 @@ class Workspace
           return;
         }
         \GPBMetadata\Google\Protobuf\Any::initOnce();
+        \GPBMetadata\Proto\Table::initOnce();
         $pool->internalAddGeneratedFile(
             '
-®
-proto/workspace.proto\'keboola.storageDriver.command.workspace"“
+ì
+proto/workspace.proto\'keboola.storageDriver.command.workspaceproto/table.proto"“
 CreateWorkspaceCommand
 stackPrefix (	
 	projectId (	
@@ -71,7 +72,20 @@ $GrantWorkspaceAccessToProjectCommand
 workspaceRoleName (	
 workspaceObjectName (	
 projectUserName (	
-projectRoleName (	bproto3'
+projectRoleName (	"¨
+LoadTableToWorkspaceCommandg
+source (2W.keboola.storageDriver.command.workspace.LoadTableToWorkspaceCommand.SourceTableMappingR
+destination (2=.keboola.storageDriver.command.table.ImportExportShared.Table\\
+importOptions (2E.keboola.storageDriver.command.table.ImportExportShared.ImportOptionsí
+SourceTableMapping
+path (	
+	tableName (	^
+whereFilters (2H.keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter
+limit (}
+columnMappings (2e.keboola.storageDriver.command.workspace.LoadTableToWorkspaceCommand.SourceTableMapping.ColumnMappingH
+ColumnMapping
+sourceColumnName (	
+destinationColumnName (	bproto3'
         , true);
 
         static::$is_initialized = true;
