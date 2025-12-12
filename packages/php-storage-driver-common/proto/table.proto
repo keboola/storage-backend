@@ -392,6 +392,10 @@ message TableImportResponse {
 
 /**
  * Command is used when copying table into another table in same backend
+ * Command is used to copy tables:
+ * - between workspace and storage Output mapping (OM)
+ * - inside storage (like pull from branch)
+ * Command is not used to copy tables from Storage to Workspace Input mapping (IM)
  */
 message TableImportFromTableCommand {
   SourceTableMapping source = 1;

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/any.proto";
+import "proto/table.proto";
 
 package keboola.storageDriver.command.workspace;
 
@@ -106,4 +107,38 @@ message RevokeWorkspaceAccessToProjectCommand {
   string workspaceObjectName = 3;
   string projectUserName = 4;
   string projectRoleName = 5;
+}
+
+/**
+ * Command is used to copy tables from Storage to Workspace Input mapping (IM)
+ * Interface is similar to TableImportFromTableCommand in table.proto
+ */
+message LoadTableToWorkspaceCommand {
+  SourceTableMapping source = 1;
+  /**
+   * Source table input mapping
+   */
+  message SourceTableMapping {
+    repeated string path = 1; // path where table exists
+    string tableName = 2; // table name
+    repeated keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 3; // where causes
+    int64 limit = 4; // limit number of records
+    repeated ColumnMapping columnMappings = 5; // column names mapping
+    message ColumnMapping {
+      string sourceColumnName = 1; // name of column in source table
+      string destinationColumnName = 2; // name of column in destination table
+    }
+  }
+  /**
+   * Resulting table on the backend
+   * Table must exists before import
+   * All table properties are loaded from backend
+   */
+  keboola.storageDriver.command.table.ImportExportShared.Table destination = 2;
+  /**
+   * Import options may vary based on backend
+   * based on:
+   * https://github.com/keboola/php-db-import-export/blob/master/src/ImportOptions.php
+   */
+  keboola.storageDriver.command.table.ImportExportShared.ImportOptions importOptions = 3;
 }
