@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package keboola.storageDriver.service;
+
+// Import all command and response definitions
+import "proto/common.proto";
+
+/**
+ * Unified storage driver service providing all backend operations
+ * Supports both generic Execute() for backward compatibility and typed RPC methods
+ */
+service StorageDriverService {
+  // Generic execute method using wrapper pattern (backward compatible)
+  rpc Execute(keboola.storageDriver.command.common.DriverRequest)
+      returns (keboola.storageDriver.command.common.DriverResponse);
+}
