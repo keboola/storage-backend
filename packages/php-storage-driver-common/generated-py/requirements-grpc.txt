@@ -1,0 +1,8 @@
+# Python Protocol Buffers Runtime Library
+# Required for using the generated protobuf Python code
+protobuf>=3.21.0,<5.0.0
+
+# gRPC Runtime and Tools
+# Required for running gRPC servers and clients
+grpcio>=1.60.0
+grpcio-tools>=1.60.0
