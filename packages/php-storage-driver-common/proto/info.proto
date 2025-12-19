@@ -27,6 +27,13 @@ enum TableType {
 message ObjectInfoCommand {
   repeated string path = 1;
   ObjectType expectedObjectType = 2;
+
+  ObjectView objectView = 3;
+
+  enum ObjectView {
+    SUMMARY = 0;
+    WITH_DEFINITION = 1;
+  }
 }
 
 message ObjectInfoResponse {
@@ -46,6 +53,14 @@ message ObjectInfoResponse {
 message ObjectInfo {
   string objectName = 1; // Object name
   ObjectType objectType = 2; // Type of object
+  /**
+   * Allows object to include definition information's
+   */
+  oneof definition {
+    TableInfo tableInfo = 3;
+    ViewInfo viewInfo = 4;
+    SchemaInfo schemaInfo = 5;
+  }
 }
 
 message DatabaseInfo {
