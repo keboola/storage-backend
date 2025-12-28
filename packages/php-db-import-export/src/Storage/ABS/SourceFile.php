@@ -161,7 +161,6 @@ class SourceFile extends BaseFile implements SourceInterface
                     // snowflake needs protocol in files to be azure://
                     return str_replace('https://', 'azure://', $entryUrl);
                 case self::PROTOCOL_HTTPS:
-                    // synapse needs protocol in files to be https://
                     return str_replace('azure://', 'https://', $entryUrl);
             }
         }, $entries);

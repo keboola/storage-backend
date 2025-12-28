@@ -2,9 +2,9 @@
 
 ## Supported operations
 
-- Load/Import csv from `ABS` to `Snowflake` or `Synapse`
+- Load/Import csv from `ABS` to `Snowflake`
 - Load/Import csv from `GCS` to `Bigquery`
-- Unload/Export table from `Snowflake` or `Synapse` to `ABS`
+- Unload/Export table from `Snowflake` to `ABS`
 
 ## Features
 
@@ -24,12 +24,6 @@
 Prepare `.env` (copy of `.env.dist`) and set up AWS keys which has access to `keboola-drivers` bucket in order to build this image. Also add this user to group `ci-php-import-export-lib` witch will allow you to work with newly created bucket for tests.
 
 User can be created in `Dev - Main legacy`, where are also groups for `keboola-drivers` and `ci-php-import-export-lib`.
-
-If you don't have access to `keboola-drivers` you have to change Dockerfile.
-- Comment out first stage which downloads Teradata driver and tools and supply own downloaded from Teradata site:
-  - Tools: https://downloads.teradata.com/download/tools/teradata-tools-and-utilities-linux-installation-package-0
-  - Driver: https://downloads.teradata.com/download/connectivity/odbc-driver/linux
-  - Change `COPY --from=td` commands in Dockerfile with copy of you local Teradata packages
 
 Then run `docker compose build`
 
@@ -93,94 +87,6 @@ CREATE STORAGE INTEGRATION "KEBOOLA_DB_IMPORT_EXPORT"
 -- get service account id `STORAGE_GCP_SERVICE_ACCOUNT`
 DESC STORAGE INTEGRATION "KEBOOLA_DB_IMPORT_EXPORT";
 -- continue according manual ^ in snflk documentation assign roles for Data loading and unloading
-```
-
-#### SYNAPSE
-
-Create synapse server on Azure portal or using CLI.
-
-set up env variables:
-SYNAPSE_UID
-SYNAPSE_PWD
-SYNAPSE_DATABASE
-SYNAPSE_SERVER
-
-Run query:
-```sql
-CREATE MASTER KEY;
-```
-this will create master key for polybase.
-
-##### Managed Identity
-
-Managed Identity is required when using ABS in vnet.
-[docs](https://docs.microsoft.com/en-us/azure/azure-sql/database/vnet-service-endpoint-rule-overview#impact-of-using-vnet-service-endpoints-with-azure-storage)
-How to setup and use Managed Identity is described in [docs](https://docs.microsoft.com/en-us/azure/synapse-analytics/sql-data-warehouse/quickstart-bulk-load-copy-tsql-examples#c-managed-identity)
-
-> TLDR;
-> In IAM of ABS add role assignment "Blob Storage Data {Reader or Contributor}" to your Synapse server principal
-
-#### Exasol
-You can run Exasol locally in Docker or you can use SaaS.
-
-**Exasol locally in Docker**
-
-Run Exasol on your local machine in docker (for this case .env is preconfigured)
-```
-docker compose up -d exasol
-```
-
-Run Exasol server somewhere else and set up env variables:
-```bash
-EXASOL_HOST=
-EXASOL_USERNAME=
-EXASOL_PASSWORD=
-```
-
-**Exasol in SaaS**
-
-Login to SaaS UI (or use a local client) and create user with following grants.
-```SQL
-
-CREATE USER "<nick>_ie" IDENTIFIED BY "password";
-
-GRANT 
-CREATE SESSION,
-CREATE SCHEMA,
-CREATE TABLE,
-CREATE VIEW,
-CREATE USER,
-CREATE ROLE,
-DROP USER,
-DROP ANY ROLE,
-GRANT ANY ROLE,
-ALTER ANY SCHEMA,
-ALTER USER,
-IMPORT,
-EXPORT
-TO "<nick>_ie"
-WITH ADMIN OPTION;
-```
-
-Obtain host (with port), username and password (from previous step) and fill it in `.env` as desribed above. Make sure, that your account has enabled network for your IP.
-
-#### Teradata
-
-Prepare Teradata servers on AWS/Azure and set following properties. See
-
-create new database for tests:
-```sql
-CREATE DATABASE <nick>_ie_lib_tests FROM dbc
-    AS PERMANENT = 1e8,
-       SPOOL = 1e8;
-```
-
-```bash
-TERADATA_HOST=
-TERADATA_USERNAME=
-TERADATA_PASSWORD=
-TERADATA_PORT=
-TERADATA_DATABASE=
 ```
 
 #### Bigquery
@@ -304,67 +210,6 @@ $exportOptions = new ExportOptions(...);
 );
 ```
 
-#### Synapse next (experimental)
-
-Import to Synapse
-
-```php
-use Keboola\TableBackendUtils\Table\SynapseTableDefinition;
-use Keboola\TableBackendUtils\Table\SynapseTableQueryBuilder;
-use Keboola\Db\ImportExport\Backend\Synapse\ToStage\StageTableDefinitionFactory;
-use Keboola\Db\ImportExport\Storage;
-use Keboola\Db\ImportExport\Backend\Synapse\ToStage\ToStageImporter;
-use Keboola\Db\ImportExport\Backend\Synapse\SynapseImportOptions;
-use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\IncrementalImporter;
-use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\FullImporter;
-use Keboola\Db\ImportExport\Backend\Synapse\ToFinalTable\SqlBuilder;
-use Doctrine\DBAL\Connection;
-
-$importSource = new Storage\ABS\SourceFile(...);
-// or
-$importSource = new Storage\Synapse\Table(...);
-// or
-$importSource = new Storage\Synapse\SelectSource(...);
-
-$destinationTable = new SynapseTableDefinition(...);
-$options = new SynapseImportOptions(...);
-$synapseConnection = new Connection(...);
-
-$stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
-    $destinationTable,
-    $importSource->getColumnsNames()
-);
-$qb = new SynapseTableQueryBuilder($synapseConnection);
-$synapseConnection->executeStatement(
-    $qb->getCreateTableCommandFromDefinition($stagingTable)
-);
-$toStageImporter = new ToStageImporter($synapseConnection);
-$toFinalTableImporter = new IncrementalImporter($synapseConnection);
-// or
-$toFinalTableImporter = new FullImporter($synapseConnection);
-try {
-    $importState = $toStageImporter->importToStagingTable(
-        $importSource,
-        $stagingTable,
-        $options
-    );
-    $result = $toFinalTableImporter->importToTable(
-        $stagingTable,
-        $destinationTable,
-        $options,
-        $importState
-    );
-} finally {
-    $synapseConnection->executeStatement(
-        (new SqlBuilder())->getDropTableIfExistsCommand(
-            $stagingTable->getSchemaName(),
-            $stagingTable->getTableName()
-        )
-    );    
-}
-
-```
-
 ### Internals/Extending
 
 Library consists of few simple interfaces.
@@ -381,7 +226,7 @@ For each backend there is corresponding adapter which supports own combination o
 
 #### Create new storage
 
-Storage is now file storage ABS|S3 (in future) or table storage Snowflake|Synapse.
+Storage is now file storage ABS|S3 (in future) or table storage Snowflake.
 Storage can have `Source` and `Destination` which must implement `SourceInterface` or `DestinationInterface`. These interfaces are empty and it's up to adapter to support own combination.
 In general there is one Import/Export adapter per FileStorage <=> TableStorage combination.
 
@@ -389,7 +234,7 @@ Adapter must implement:
 - `Keboola\Db\ImportExport\Backend\BackendImportAdapterInterface` for import
 - `Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface` for export
 
-Backend can require own extended AdapterInterface (Synapse and Snowflake do now).
+Backend can require own extended AdapterInterface.
 
 
 

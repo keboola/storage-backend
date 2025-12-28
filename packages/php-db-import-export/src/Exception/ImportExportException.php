@@ -13,9 +13,6 @@ use Keboola\Db\Import\Exception as LegacyException;
  * Each backend should have own code prefix:
  * Snowflake - 11xx
  * Redshift - 12xx
- * Exasol - 13xx
- * Teradata - 14xx
- * Synapse - 15xx
  *
  * Common exceptions have code <1000 (Keboola\Db\Import\Exception)
  *

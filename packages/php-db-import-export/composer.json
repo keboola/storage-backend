@@ -56,16 +56,10 @@
         "tests-snowflake-abs": "SUITE=tests-snowflake STORAGE_TYPE=ABS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-abs",
         "tests-snowflake-s3": "SUITE=tests-snowflake-s3  STORAGE_TYPE=S3 BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-s3",
         "tests-snowflake-gcs": "SUITE=tests-snowflake-gcs  STORAGE_TYPE=GCS BUILD_PREFIX=$BUILD_PREFIX phpunit --colors=always --testsuite snowflake-gcs",
-        "tests-synapse": "SUITE=tests-synapse-sas STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=SAS CREDENTIALS_EXPORT_TYPE=MASTER_KEY TABLE_DISTRIBUTION=HASH phpunit --colors=always --testsuite tests-synapse",
-        "tests-synapse-mi": "SUITE=tests-synapse-mi STORAGE_TYPE=ABS CREDENTIALS_IMPORT_TYPE=MANAGED_IDENTITY CREDENTIALS_EXPORT_TYPE=MANAGED_IDENTITY phpunit --colors=always --testsuite synapse-mi",
-        "tests-exasol": "SUITE=tests-exasol STORAGE_TYPE=S3 phpunit --colors=always --testsuite exasol",
         "tests-bigquery": "SUITE=tests-bigquery STORAGE_TYPE=GCS phpunit --colors=always --testsuite tests-bigquery",
         "tests-functional": [
             "@tests-snowflake-abs",
             "@tests-snowflake-s3",
-            "@tests-synapse",
-            "@tests-synapse-mi",
-            "@tests-exasol",
             "@tests-bigquery"
         ],
         "tests": [
@@ -82,7 +76,6 @@
         "loadS3": "php ./tests/Common/StubLoader/loader.php s3",
         "loadGcs-snowflake": "php ./tests/Common/StubLoader/loader.php gcs-snowflake",
         "loadGcs-bigquery": "php ./tests/Common/StubLoader/loader.php gcs-bigquery",
-        "init-synapse": "php ./tests/InitSynapse.php",
         "load-data": [
             "@loadAbs",
             "@loadS3",
