@@ -16,27 +16,6 @@ env:
   SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
   SNOWFLAKE_DATABASE: KEBOOLA_CI_TABLE_UTILS
   SNOWFLAKE_WAREHOUSE: DEV
-  # Synapse
-  SYNAPSE_UID: ci
-  SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
-  SYNAPSE_DATABASE: ci-github-actions
-  SYNAPSE_SERVER: ci-github-actions.database.windows.net
-  SYNAPSE_PRINCIPAL: 9a024e58-4bc6-403a-b6a0-78b1ffdaefd6
-  SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
-  SYNAPSE_PRINCIPAL_TENANT: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
-  SYNAPSE_RESOURCE_GROUP: ci-php-table-backend-utils
-  SYNAPSE_SQL_SERVER_NAME: ci-github-actions
-  SYNAPSE_DW_SERVER_NAME: ci-github-actions
-  # Teradata
-  TERADATA_HOST: 20.105.40.100
-  TERADATA_USERNAME: dbc
-  TERADATA_PASSWORD: ${{ secrets.TERADATA_PASSWORD }}
-  TERADATA_PORT: 1025
-  TERADATA_DATABASE: ci_table_utils
-  # Exasol
-  EXASOL_HOST: exasol:8563
-  EXASOL_USERNAME: sys
-  EXASOL_PASSWORD: exasol
   # Bigquery
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
 
@@ -74,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [exasol, snowflake, synapse, teradata, bigquery]
+        suite: [snowflake, bigquery]
     steps:
       -
         name: Checkout
@@ -89,20 +68,7 @@ jobs:
         name: Load Docker image
         run: |
           docker load --input /tmp/image.tar
-#
-# Before tests, start services
-      -
-        name: Synapse start
-        if: ${{ matrix.suite == 'synapse' }}
-        run: |
-          bash ./ci/synapse.sh -r
-          bash ./ci/synapse.sh -w
-      -
-        name: Exasol start
-        if: ${{ matrix.suite == 'exasol' }}
-        run: |
-          docker compose up -d exasol
-          sleep 60
+
 #
 # TESTS
 #
@@ -111,14 +77,3 @@ jobs:
         env:
           SUITE: ${{ matrix.suite }}
         run: docker compose run production composer tests-${{ matrix.suite }}
-#
-# After tests, stop services
-      -
-        name: Exasol stop
-        if: ${{ always() && matrix.suite == 'exasol' }}
-        run: docker compose stop exasol
-      -
-        name: Synapse stop
-        if: ${{ always() && matrix.suite == 'synapse' }}
-        run: | 
-          bash ./ci/synapse.sh -p
