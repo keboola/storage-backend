@@ -61,7 +61,6 @@ class BigqueryBaseCase extends TestCase
 
         /** @var array<string, string> $credentials */
         $credentials = json_decode($keyFile, true, 512, JSON_THROW_ON_ERROR);
-        assert($credentials !== false);
         return $credentials;
     }
 

@@ -6,7 +6,6 @@ namespace Keboola\TableBackendUtils\Connection\Exception;
 
 use Doctrine\DBAL\Driver\AbstractException;
 use Throwable;
-use function assert;
 
 class DriverException extends AbstractException
 {
@@ -16,7 +15,6 @@ class DriverException extends AbstractException
     public static function newFromHandle($resource): self
     {
         $errorCode = odbc_error($resource);
-        assert($errorCode !== false);
         $errorMsg = odbc_errormsg($resource);
 
         return new self($errorMsg, null, (int) $errorCode);
