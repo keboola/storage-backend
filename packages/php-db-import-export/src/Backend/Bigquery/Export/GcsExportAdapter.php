@@ -86,6 +86,7 @@ OPTIONS (
         if ($exportOptions->generateManifest()) {
             (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromFolderGenerator(
                 $destination->getClient(),
+                new Storage\GCS\ManifestGenerator\WriteStreamFactory(),
             ))
                 ->generateAndSaveManifest($destination->getRelativePath());
         }
