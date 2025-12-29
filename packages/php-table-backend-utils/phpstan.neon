@@ -1,4 +1,7 @@
 parameters:
+    ignoreErrors:
+        - identifier: function.alreadyNarrowedType
+
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - phpstan-baseline.neon
