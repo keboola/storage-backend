@@ -26,6 +26,7 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
         Snowflake::TYPE_VARBINARY,
         Snowflake::TYPE_VECTOR,
     ];
+
     /**
      * @var array<string, array<string, array{name: string,
      *      type: string,
@@ -81,12 +82,70 @@ final class SnowflakeSchemaReflection implements SchemaReflectionInterface
     }
 
     /**
+     * @return array{name: string, type: TableType::*}[]
+     */
+    public function getObjects(): array
+    {
+        /** @var array<int, array{name: string, kind: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SHOW OBJECTS IN SCHEMA %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+            ),
+        );
+
+        return array_map(
+            static function (array $row): array {
+                switch (strtoupper($row['kind'])) {
+                    case 'TABLE':
+                    case 'TEMPORARY':
+                        $type = TableType::TABLE;
+                        break;
+                    case 'TEMP VIEW':
+                    case 'VIEW':
+                        $type = TableType::VIEW;
+                        break;
+                    case 'EXTERNAL TABLE':
+                        $type = TableType::SNOWFLAKE_EXTERNAL;
+                        break;
+                    default:
+                        throw new RuntimeException(sprintf(
+                            'Object "%s" has unknown type "%s".',
+                            $row['name'],
+                            $row['kind'],
+                        ));
+                }
+                return [
+                    'name' => $row['name'],
+                    'type' => $type,
+                ];
+            },
+            $rows,
+        );
+    }
+
+    public function hasObject(string $objectName, bool $isCaseSensitive = true): bool
+    {
+        $areNamesSame = $isCaseSensitive
+            ? static fn($a, $b) => $a === $b
+            : static fn($a, $b) => strtoupper($a) === strtoupper($b);
+        $objects = $this->getObjects();
+        foreach ($objects as $object) {
+            if ($areNamesSame($object['name'], $objectName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return array<string, SnowflakeTableDefinition>
      */
     public function getDefinitions(): array
     {
         $informationsQuery = sprintf(
-            'SELECT TABLE_NAME, TABLE_TYPE, BYTES, ROW_COUNT '.
+            'SELECT TABLE_NAME, TABLE_TYPE, BYTES, ROW_COUNT ' .
             'FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = %s ORDER BY TABLE_NAME;',
             SnowflakeQuote::quote($this->schemaName),
         );
@@ -151,7 +210,8 @@ SQL,
          *     key_sequence: int,
          *     constraint_name: string,
          *     rely: bool,
-         *     comment: ?string}> $primaryKeys */
+         *     comment: ?string}> $primaryKeys
+         */
         $primaryKeys = $this->connection->fetchAllAssociative($primaryKeyQuery);
 
         $tables = [];
