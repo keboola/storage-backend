@@ -1,3 +1,7 @@
 parameters:
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - identifier: method.alreadyNarrowedType
+
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
