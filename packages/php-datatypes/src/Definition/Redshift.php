@@ -59,13 +59,13 @@ class Redshift extends Common
     public function getSQLDefinition(): string
     {
         $definition =  $this->getType();
-        if ($this->getLength() && $this->getLength() !== '') {
+        if (!$this->isEmpty($this->getLength())) {
             $definition .= '(' . $this->getLength() . ')';
         }
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
-        if ($this->getCompression() && $this->getCompression() !== '') {
+        if (!$this->isEmpty($this->getCompression())) {
             $definition .= ' ENCODE ' . $this->getCompression();
         }
         return $definition;
@@ -133,7 +133,7 @@ class Redshift extends Common
      */
     private function validateType(string $type): void
     {
-        if (!in_array(strtoupper($type), $this::TYPES)) {
+        if (!in_array(strtoupper($type), self::TYPES, true)) {
             throw new InvalidTypeException("'{$type}' is not a valid type");
         }
     }
