@@ -17,8 +17,6 @@ COPY docker/composer-install.sh /tmp/composer-install.sh
 
 RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
-    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update -q \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends\
         git \
@@ -31,7 +29,6 @@ RUN apt-get update -q \
         debsig-verify \
         dirmngr \
         gpg-agent \
-        msodbcsql17 \
         libonig-dev \
         libxml2-dev \
 	&& rm -r /var/lib/apt/lists/* \
@@ -57,14 +54,6 @@ RUN set -ex; \
     mv temp.m4 /usr/src/php/ext/odbc/config.m4; \
     docker-php-ext-configure odbc --with-unixODBC=shared,/usr; \
     docker-php-ext-install odbc; \
-    docker-php-source delete
-
-
-
-#Synapse ODBC
-RUN set -ex; \
-    pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
-    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
     docker-php-source delete
 
 ## Snowflake

@@ -39,14 +39,10 @@
     },
     "scripts": {
         "tests-unit": "phpunit --colors=always --testsuite unit",
-        "tests-exasol": "phpunit --colors=always --testsuite Exasol",
         "tests-snowflake": "phpunit --colors=always --testsuite Snowflake",
-        "tests-synapse": "phpunit --colors=always --testsuite Synapse",
         "tests-bigquery": "phpunit --colors=always --testsuite Bigquery",
         "tests-functional": [
-            "@tests-exasol",
             "@tests-snowflake",
-            "@tests-synapse",
             "@tests-bigquery"
         ],
         "tests": [

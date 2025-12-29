@@ -28,19 +28,6 @@ class InvalidViewDefinitionException extends RuntimeException implements Applica
         );
     }
 
-    public static function createForMissingDefinition(
-        string $schemaName,
-        string $viewName,
-    ): InvalidViewDefinitionException {
-        return new self(
-            sprintf(
-                'Definition of view "%s" in schema "%s"cannot be obtained from Synapse or it\'s invalid.',
-                $viewName,
-                $schemaName,
-            ),
-        );
-    }
-
     public static function createViewRefreshError(
         string $schemaName,
         string $viewName,

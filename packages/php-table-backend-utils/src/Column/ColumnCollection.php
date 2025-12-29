@@ -6,8 +6,6 @@ namespace Keboola\TableBackendUtils\Column;
 
 use Keboola\Datatype\Definition\Redshift;
 use Keboola\Datatype\Definition\Snowflake;
-use Keboola\Datatype\Definition\Synapse;
-use Keboola\Datatype\Definition\Teradata;
 use Keboola\TableBackendUtils\Collection;
 use Keboola\TableBackendUtils\ColumnException;
 
@@ -18,10 +16,6 @@ final class ColumnCollection extends Collection
 {
     /** @var array|int[] */
     protected static array $limits = [
-        Synapse::class => 1024,
-        // https://www.stitchdata.com/docs/destinations/microsoft-azure-synapse-analytics/reference
-        Teradata::class => 2048,
-        // https://docs.teradata.com/r/Teradata-VantageTM-Database-Design/March-2019/Teradata-System-Limits/Database-Limits
         Redshift::class => 1600,
         // https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_usage.html
         Snowflake::class => 10000,

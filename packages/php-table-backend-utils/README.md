@@ -1,6 +1,6 @@
 # Table backend utils
 
-Common stuff for table backends (Snowflake|Synapse|Redshift) shared between apps.
+Common stuff for table backends (Snowflake|Redshift) shared between apps.
 
 
 ## Interfaces
@@ -149,38 +149,6 @@ cp .env.dist .env
 
 Set `TEST_PREFIX=` ENV
 
-#### SYNAPSE
-
-Create synapse server on Azure portal or using CLI.
-
-set up env variables:
-```bash
-SYNAPSE_UID=UID
-SYNAPSE_PWD=xxxx
-SYNAPSE_DATABASE=synapse_db
-SYNAPSE_SERVER=<synapse>.database.windows.net
-```
-
-#### Teradata
-
-Prepare Teradata servers on AWS/Azure and set following properties. See 
-
-create new database for tests:
-```sql
-CREATE DATABASE <nick>_utils_tests FROM dbc
-    AS PERMANENT = 1e8,
-       SPOOL = 1e8;
-```
-
-set up env variables:
-```bash
-TERADATA_HOST=
-TERADATA_PORT=1025
-TERADATA_USERNAME=
-TERADATA_PASSWORD=
-TERADATA_DATABASE=
-```
-
 #### AWS
 
 In order to download TD odbc driver, create a user who can access S3 bucket with the driver package. 
@@ -190,30 +158,6 @@ set up env variables:
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 ```
-
-#### Exasol
-
-Run Exasol on your local machine in docker (for this case .env is preconfigured)
-```
-docker compose up -d exasol
-```
-
-Run Exasol server somewhere else and set up env variables:
-```bash
-EXASOL_HOST=
-EXASOL_USERNAME=
-EXASOL_PASSWORD=
-```
-
-_issues:_
-
-- on slower machines Exasol can take a lot of resources. Run `docker compose -f docker compose.yml -f docker compose.limits.yml up exasol` to limit memory and cpu 
-
-- If you are getting error `exadt::ERROR: the private interface with address '<ip>/16' either does not exist or is down.` https://github.com/exasol/docker-db/issues/45
-Exasol saves you (container) current ip address and docker daemon is changing default bridge range. There are two ways to fix this:
-1. each reboot set you current ip range to exasol `docket-compose run --rm exasol exaconf modify-node -n 11 -p '<ip>/16'` this is have to be done each time when ip addresses are not align.
-2. set docker default bridge to some fixed range: edit or create `/etc/docker/daemon.json` and set `{"bip":"172.0.0.1/24"}` (or different range that suites you)
-
 
 #### Snowflake
 

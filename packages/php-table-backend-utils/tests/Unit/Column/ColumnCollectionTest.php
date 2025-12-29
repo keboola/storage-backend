@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Unit\Column;
 
 use Keboola\TableBackendUtils\Column\ColumnCollection;
-use Keboola\TableBackendUtils\Column\ColumnInterface;
-use Keboola\TableBackendUtils\Column\Exasol\ExasolColumn;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
-use Keboola\TableBackendUtils\Column\SynapseColumn;
-use Keboola\TableBackendUtils\Column\Teradata\TeradataColumn;
 use Keboola\TableBackendUtils\ColumnException;
 use PHPUnit\Framework\TestCase;
 
@@ -18,8 +14,8 @@ class ColumnCollectionTest extends TestCase
     public function testGetIterator(): void
     {
         $collection = new ColumnCollection([
-            SynapseColumn::createGenericColumn('col1'),
-            SynapseColumn::createGenericColumn('col2'),
+            SnowflakeColumn::createGenericColumn('col1'),
+            SnowflakeColumn::createGenericColumn('col2'),
         ]);
 
         $this->assertIsIterable($collection);
@@ -27,7 +23,7 @@ class ColumnCollectionTest extends TestCase
 
     /**
      * @dataProvider  tooMuchColumnsProviderWithLimits
-     * @param class-string<SynapseColumn|TeradataColumn> $definitionClass
+     * @param class-string<SnowflakeColumn> $definitionClass
      */
     public function testTooMuchColumns(string $definitionClass, int $limit): void
     {
@@ -41,26 +37,11 @@ class ColumnCollectionTest extends TestCase
         new ColumnCollection($cols);
     }
 
-    /**
-     * @dataProvider  tooMuchColumnsProviderWithNoLimits
-     * @param class-string<SnowflakeColumn|ExasolColumn> $definitionClass
-     */
-    public function testNoColumnsLimit(string $definitionClass, int $limit): void
-    {
-        $cols = [];
-        for ($i = 0; $i < $limit + 2; $i++) {
-            $cols[] = $definitionClass::createGenericColumn('name' . $i);
-        }
-
-        $this->expectNotToPerformAssertions();
-        new ColumnCollection($cols);
-    }
-
     public function testCount(): void
     {
         $collection = new ColumnCollection([
-            SynapseColumn::createGenericColumn('col1'),
-            SynapseColumn::createGenericColumn('col2'),
+            SnowflakeColumn::createGenericColumn('col1'),
+            SnowflakeColumn::createGenericColumn('col2'),
         ]);
         $this->assertCount(2, $collection);
     }
@@ -72,31 +53,9 @@ class ColumnCollectionTest extends TestCase
     {
         return
             [
-                'synapse' => [
-                    SynapseColumn::class,
-                    1024,
-                ],
-                'teradata' => [
-                    TeradataColumn::class,
-                    2048,
-                ],
                 'snowflake' => [
                     SnowflakeColumn::class,
                     10000,
-                ],
-            ];
-    }
-
-    /**
-     * @return array<string, array{string, int}>
-     */
-    public function tooMuchColumnsProviderWithNoLimits(): array
-    {
-        return
-            [
-                'exasol' => [
-                    ExasolColumn::class,
-                    5000,
                 ],
             ];
     }

@@ -18,18 +18,6 @@ services:
       - SNOWFLAKE_PRIVATE_KEY
       - SNOWFLAKE_DATABASE
       - SNOWFLAKE_WAREHOUSE
-      - SYNAPSE_UID
-      - SYNAPSE_PWD
-      - SYNAPSE_DATABASE
-      - SYNAPSE_SERVER
-      - TERADATA_HOST
-      - TERADATA_PORT
-      - TERADATA_USERNAME
-      - TERADATA_PASSWORD
-      - TERADATA_DATABASE
-      - EXASOL_HOST
-      - EXASOL_USERNAME
-      - EXASOL_PASSWORD
       - BQ_KEY_FILE
   dev: &dev
     <<: *prod
@@ -40,10 +28,3 @@ services:
   dev-xdebug:
     <<: *dev
     build: docker/xdebug
-  exasol:
-    image: exasol/docker-db:latest-7.1
-    privileged: true
-    volumes:
-      - exa-volume:/exa
-volumes:
-  exa-volume:
