@@ -38,7 +38,7 @@ final class CreateProjectHandler extends BaseHandler
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): ?Message {
+    ): Message {
         assert($credentials instanceof GenericBackendCredentials);
         assert($command instanceof CreateProjectCommand);
 

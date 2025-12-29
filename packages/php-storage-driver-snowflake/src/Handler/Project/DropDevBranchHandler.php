@@ -17,14 +17,13 @@ final class DropDevBranchHandler extends BaseHandler
      * @inheritDoc
      * @param GenericBackendCredentials $credentials
      * @param DropDevBranchCommand $command
-     * @return null
      */
     public function __invoke(
         Message $credentials,
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): Message|null {
+    ): null {
         assert($credentials instanceof GenericBackendCredentials);
         assert($command instanceof DropDevBranchCommand);
 
