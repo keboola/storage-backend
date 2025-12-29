@@ -1,0 +1,19 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$lengthOptions of method Keboola\\Datatype\\Definition\\MySQL\:\:getLengthFromArray\(\) expects array\{character_maximum\?\: int\|string\|null, numeric_precision\?\: int\|string\|null, numeric_scale\?\: int\|string\|null\}, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Definition/MySQL.php
+
+		-
+			message: '#^Parameter \#1 \$lengthOptions of method Keboola\\Datatype\\Definition\\Redshift\:\:getLengthFromArray\(\) expects array\{character_maximum\?\: int\|string\|null, numeric_precision\?\: int\|string\|null, numeric_scale\?\: int\|string\|null\}, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Definition/Redshift.php
+
+		-
+			message: '#^Parameter \#1 \$lengthOptions of method Keboola\\Datatype\\Definition\\Snowflake\:\:getLengthFromArray\(\) expects array\{character_maximum\?\: int\|string\|null, numeric_precision\?\: int\|string\|null, numeric_scale\?\: int\|string\|null\}, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Definition/Snowflake.php
