@@ -105,8 +105,6 @@ jobs:
     secrets:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
-      SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
-      SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
       BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
     needs: build
 
@@ -121,12 +119,10 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.IE_AWS_SECRET_ACCESS_KEY }}
       ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
       SNOWFLAKE_PASSWORD: ${{ secrets.CI_SNOWFLAKE_PASSWORD }}
-      SYNAPSE_PWD: ${{ secrets.IE_SYNAPSE_PWD }}
       AZURE_CLIENT_SECRET: ${{ secrets.IE_AZURE_CLIENT_SECRET }}
       BQ_KEY_FILE: ${{ secrets.IE_BQ_KEY_FILE }}
       OAUTH_TOKEN_GITHUB: ${{ secrets.IE_OAUTH_TOKEN_GITHUB }}
       GCS_CREDENTIALS: ${{ secrets.IE_GCS_CREDENTIALS }}
-      SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.IE_SYNAPSE_PRINCIPAL_PASSWORD }}
     needs: build
 
   build_php_storage_driver_common:

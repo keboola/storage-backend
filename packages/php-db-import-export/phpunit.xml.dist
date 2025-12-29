@@ -14,10 +14,6 @@
             <directory>tests/functional/Storage</directory>
         </testsuite>
 
-        <testsuite name="exasol">
-            <directory>tests/functional/Exasol</directory>
-        </testsuite>
-
         <testsuite name="snowflake">
             <directory>tests/functional/Snowflake</directory>
         </testsuite>
@@ -45,16 +41,6 @@
             <file>tests/functional/Snowflake/OtherImportTest.php</file>
             <file>tests/functional/Snowflake/FullImportTest.php</file>
             <file>tests/functional/Snowflake/IncrementalImportTest.php</file>
-        </testsuite>
-
-        <testsuite name="tests-synapse">
-            <directory>tests/functional/Synapse</directory>
-        </testsuite>
-
-        <testsuite name="synapse-mi">
-            <directory>tests/functional/Synapse</directory>
-            <exclude>tests/functional/Synapse/SqlBuilderTest.php</exclude>
-            <exclude>tests/functional/Synapse/FromTableCTASAdapterSqlBuilderTest.php</exclude>
         </testsuite>
 
         <testsuite name="tests-bigquery">

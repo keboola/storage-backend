@@ -21,26 +21,11 @@ class SnowflakeAdapterTest extends BaseTestCase
         $absSource = $this->createDummyABSSourceInstance('');
         $snowflakeTable = new Storage\Snowflake\Table('', '');
         $snowflakeSelectSource = new Storage\Snowflake\SelectSource('', []);
-        $synapseTable = new Storage\Synapse\Table('', '');
 
         $this->assertTrue(
             SnowflakeImportAdapter::isSupported(
                 $snowflakeTable,
                 $snowflakeTable,
-            ),
-        );
-
-        $this->assertFalse(
-            SnowflakeImportAdapter::isSupported(
-                $snowflakeSelectSource,
-                $synapseTable,
-            ),
-        );
-
-        $this->assertFalse(
-            SnowflakeImportAdapter::isSupported(
-                $absSource,
-                $synapseTable,
             ),
         );
     }

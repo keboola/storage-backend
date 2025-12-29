@@ -17,8 +17,6 @@ on:
         required: true
       SNOWFLAKE_PASSWORD:
         required: true
-      SYNAPSE_PWD:
-        required: true
       AZURE_CLIENT_SECRET:
         required: true
       OAUTH_TOKEN_GITHUB:
@@ -26,8 +24,6 @@ on:
       GCS_CREDENTIALS:
         required: true
       BQ_KEY_FILE:
-        required: true
-      SYNAPSE_PRINCIPAL_PASSWORD:
         required: true
 
 concurrency: build-php-db-import-export
@@ -46,18 +42,6 @@ env:
   SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
   SNOWFLAKE_DATABASE: KEBOOLA_CI_PHP_IE_LIB
   SNOWFLAKE_WAREHOUSE: DEV
-  # Synapse
-  SYNAPSE_UID: keboola
-  SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
-  SYNAPSE_DATABASE: ci-php-ei-lib-gh-db-7nybfrempo4vcbd4248b7ca
-  SYNAPSE_SERVER: ci-php-ei-lib-gh-sql-7nybfrempo4vcbd4248b7ca.database.windows.net
-  SYNAPSE_SQL_SERVER_NAME: ci-php-ei-lib-gh-sql-7nybfrempo4vcbd4248b7ca
-  SYNAPSE_DW_SERVER_NAME: ci-php-ei-lib-gh-db-7nybfrempo4vcbd4248b7ca
-  SYNAPSE_PRINCIPAL_TENANT: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
-  SYNAPSE_PRINCIPAL: 355a3e15-5251-42a9-8266-85c3e17ae82d
-  SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
-  AZURE_RESOURCE_GROUP: ci-import-export-lib
-  SYNAPSE_RESOURCE_GROUP: ci-import-export-lib
   # Bigquery
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
   BQ_BUCKET_NAME: ie-ci-files-bucket

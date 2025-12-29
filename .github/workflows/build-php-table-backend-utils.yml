@@ -15,10 +15,6 @@ on:
         required: true
       SNOWFLAKE_PRIVATE_KEY:
         required: true
-      SYNAPSE_PWD:
-        required: true
-      SYNAPSE_PRINCIPAL_PASSWORD:
-        required: true
       BQ_KEY_FILE:
         required: true
 env:
@@ -35,17 +31,6 @@ env:
   SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
   SNOWFLAKE_DATABASE: KEBOOLA_CI_TABLE_UTILS
   SNOWFLAKE_WAREHOUSE: DEV
-  # Synapse
-  SYNAPSE_UID: ci
-  SYNAPSE_PWD: ${{ secrets.SYNAPSE_PWD }}
-  SYNAPSE_DATABASE: ci-github-actions
-  SYNAPSE_SERVER: ci-github-actions.database.windows.net
-  SYNAPSE_PRINCIPAL: 9a024e58-4bc6-403a-b6a0-78b1ffdaefd6
-  SYNAPSE_PRINCIPAL_PASSWORD: ${{ secrets.SYNAPSE_PRINCIPAL_PASSWORD }}
-  SYNAPSE_PRINCIPAL_TENANT: 9b85ee6f-4fb0-4a46-8cb7-4dcc6b262a89
-  SYNAPSE_RESOURCE_GROUP: ci-php-table-backend-utils
-  SYNAPSE_SQL_SERVER_NAME: ci-github-actions
-  SYNAPSE_DW_SERVER_NAME: ci-github-actions
   # Bigquery
   BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
 

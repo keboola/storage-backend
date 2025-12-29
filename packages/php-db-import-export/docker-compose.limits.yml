@@ -1,4 +1,1 @@
 services:
-  exasol:
-    mem_limit: 2g
-    cpus: 1

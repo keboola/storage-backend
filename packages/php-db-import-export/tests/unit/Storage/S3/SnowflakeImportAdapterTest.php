@@ -23,7 +23,6 @@ class SnowflakeImportAdapterTest extends BaseTestCase
         $s3Source = $this->createDummyS3SourceInstance('');
         $snowflakeTable = new Storage\Snowflake\Table('', '');
         $snowflakeSelectSource = new Storage\Snowflake\SelectSource('', []);
-        $synapseTable = new Storage\Synapse\Table('', '');
 
         $this->assertTrue(
             SnowflakeImportAdapter::isSupported(
@@ -36,13 +35,6 @@ class SnowflakeImportAdapterTest extends BaseTestCase
             SnowflakeImportAdapter::isSupported(
                 $snowflakeSelectSource,
                 $snowflakeTable,
-            ),
-        );
-
-        $this->assertFalse(
-            SnowflakeImportAdapter::isSupported(
-                $s3Source,
-                $synapseTable,
             ),
         );
     }

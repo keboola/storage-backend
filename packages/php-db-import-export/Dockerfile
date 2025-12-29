@@ -30,8 +30,6 @@ RUN apt-get update -q \
         unixodbc \
         unixodbc-dev
 RUN apt-get install gnupg -y --no-install-recommends \
-    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list  \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add -  \
     && apt-get update -q \
@@ -45,7 +43,6 @@ RUN apt-get install gnupg -y --no-install-recommends \
         debsig-verify \
         dirmngr \
         gpg-agent \
-        msodbcsql17 \
         libonig-dev \
         libxml2-dev \
         parallel \
@@ -84,11 +81,6 @@ RUN mkdir -p ~/.gnupg \
     && gpg --batch --delete-key --yes $SNOWFLAKE_GPG_KEY \
     && dpkg -i /tmp/snowflake-odbc.deb
 
-#Synapse ODBC
-RUN set -ex; \
-    pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
-    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
-    docker-php-source delete
 
 #php odbc
 RUN docker-php-ext-configure pdo_odbc --with-pdo-odbc=unixODBC,/usr \
