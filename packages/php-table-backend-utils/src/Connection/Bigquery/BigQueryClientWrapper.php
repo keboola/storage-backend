@@ -65,7 +65,7 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function runQuery(JobConfigurationInterface $query, array $options = []): QueryResults
     {
-        if (count($this->queryTags->toArray()) !== 0 && method_exists($query, 'labels')) {
+        if (count($this->queryTags->toArray()) !== 0) {
             $query = $query->labels($this->queryTags->toArray());
         }
 
@@ -102,6 +102,7 @@ class BigQueryClientWrapper extends BigQueryClient
                     // this should never happen as ['jobReference']['jobId'] is assigned in the JobConfigurationTrait
                     throw $e;
                 }
+                assert(is_string($jobConfig['jobReference']['jobId']));
                 $job = $this->job($jobConfig['jobReference']['jobId']);
             } else {
                 throw $e;

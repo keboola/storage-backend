@@ -32,13 +32,14 @@ final class ProfileTableHandler extends BaseHandler
      * @inheritDoc
      * @param GenericBackendCredentials $credentials
      * @param CreateProfileTableCommand $command
+     * @return CreateProfileTableResponse
      */
     public function __invoke(
         Message $credentials,
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): Message|null {
+    ): Message {
         assert($credentials instanceof GenericBackendCredentials);
         assert($command instanceof CreateProfileTableCommand);
 
