@@ -1,0 +1,3 @@
+# Python Protocol Buffers Runtime Library
+# Required for using the generated protobuf Python code
+protobuf>=3.21.0,<5.0.0
