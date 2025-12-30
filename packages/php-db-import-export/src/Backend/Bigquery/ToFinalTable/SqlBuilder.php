@@ -8,9 +8,11 @@ use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
+use Keboola\Db\ImportExport\Backend\SourceDestinationColumnMap;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 
 class SqlBuilder
@@ -133,7 +135,7 @@ class SqlBuilder
     {
         return sprintf(
             <<< SQL
-SELECT COUNT(*) AS count FROM %s.INFORMATION_SCHEMA.TABLES WHERE `table_type` != 'VIEW' AND table_name = %s;
+SELECT COUNT(*) AS COUNT FROM %s.INFORMATION_SCHEMA.TABLES WHERE `table_type` != 'VIEW' AND TABLE_NAME = %s;
 SQL,
             BigqueryQuote::quoteSingleIdentifier($dbName),
             BigqueryQuote::quote($tableName),
@@ -248,7 +250,7 @@ SQL,
             $stagingTable,
             $destinationTable,
             $this->getPrimaryKeyWhereConditions(
-                $destinationTableDefinition->getPrimaryKeysNames(),
+                $destinationTableDefinition,
                 $importOptions,
             ),
         );
@@ -284,8 +286,15 @@ SQL,
         string $timestampValue,
     ): string {
         $columnsSet = [];
+        $columnMap = SourceDestinationColumnMap::createForTables(
+            $stagingTableDefinition,
+            $destinationTableDefinition,
+            $importOptions->ignoreColumns(),
+            SourceDestinationColumnMap::MODE_MAP_BY_NAME,
+        );
 
-        foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
+        foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+            $columnName = $sourceColumn->getColumnName();
             if ($importOptions->usingUserDefinedTypes()) {
                 $columnsSet[] = sprintf(
                     '%s = `src`.%s',
@@ -303,11 +312,22 @@ SQL,
                     BigqueryQuote::quoteSingleIdentifier($columnName),
                 );
             } else {
-                $columnsSet[] = sprintf(
-                    '%s = COALESCE(`src`.%s, \'\')',
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                );
+                $destinationColumn = $columnMap->getDestination($sourceColumn);
+                // loading from STRING (so usingTypes = STRING) table to TYPED table - used in inc WS load
+                if ($destinationColumn->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
+                    $columnsSet[] = sprintf(
+                        '%s = CAST(`src`.%s AS %s)',
+                        BigqueryQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        $destinationColumn->getColumnDefinition()->getSQLDefinition(),
+                    );
+                } else {
+                    $columnsSet[] = sprintf(
+                        '%s = COALESCE(`src`.%s, \'\')',
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                    );
+                }
             }
         }
 
@@ -331,16 +351,25 @@ SQL,
                 $stagingTableDefinition->getColumnsNames(),
             );
         } else {
-            $columnsComparisonSql = array_map(
-                static function ($columnName) {
-                    return sprintf(
+            $columnsComparisonSql = [];
+            foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
+                $columnName = $sourceColumn->getColumnName();
+                $destinationColumn = $columnMap->getDestination($sourceColumn);
+                if ($destinationColumn->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
+                    $columnsComparisonSql[] = sprintf(
+                        '`dest`.%s != CAST(`src`.%s AS %s)',
+                        BigqueryQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        $destinationColumn->getColumnDefinition()->getSQLDefinition(),
+                    );
+                } else {
+                    $columnsComparisonSql[] = sprintf(
                         '`dest`.%s != COALESCE(`src`.%s, \'\')',
                         BigqueryQuote::quoteSingleIdentifier($columnName),
                         BigqueryQuote::quoteSingleIdentifier($columnName),
                     );
-                },
-                $stagingTableDefinition->getColumnsNames(),
-            );
+                }
+            }
         }
 
         $dest = sprintf(
@@ -355,7 +384,7 @@ SQL,
             implode(', ', $columnsSet),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
-            $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions),
+            $this->getPrimaryKeyWhereConditions($destinationTableDefinition, $importOptions),
             implode(' OR ', $columnsComparisonSql),
         );
     }
@@ -364,22 +393,42 @@ SQL,
      * @param string[] $primaryKeys
      */
     private function getPrimaryKeyWhereConditions(
-        array $primaryKeys,
+        BigqueryTableDefinition $destinationTableDefinition,
         BigqueryImportOptions $importOptions,
     ): string {
-        $pkWhereSql = array_map(function (string $col) use ($importOptions) {
-            $str = '`dest`.%s = COALESCE(`src`.%s, \'\')';
-            if ($importOptions->usingUserDefinedTypes()) {
-                $str = '`dest`.%s = `src`.%s';
-            }
-            return sprintf(
-                $str,
-                BigqueryQuote::quoteSingleIdentifier($col),
-                BigqueryQuote::quoteSingleIdentifier($col),
-            );
-        }, $primaryKeys);
+        $pks = $destinationTableDefinition->getPrimaryKeysNames();
+        $pkSQLParts = [];
+        foreach ($destinationTableDefinition->getColumnsDefinitions() as $columnDefinition) {
+            $columnName = $columnDefinition->getColumnName();
+            if (in_array($columnName, $pks)) {
 
-        return implode(' AND ', $pkWhereSql) . ' ';
+                if ($importOptions->usingUserDefinedTypes()) {
+                    $str = sprintf(
+                        '`dest`.%s = `src`.%s',
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                    );
+                } else {
+                    if ($columnDefinition->getColumnDefinition()->getBasetype() !== BaseType::STRING) {
+                        $str = sprintf(
+                            '`dest`.%s = CAST(`src`.%s AS %s)',
+                            BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                            $columnDefinition->getColumnDefinition()->getSQLDefinition(),
+                        );
+                    } else {
+                        $str = sprintf(
+                            '`dest`.%s = COALESCE(`src`.%s, \'\')',
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                            BigqueryQuote::quoteSingleIdentifier($columnName),
+                        );
+                    }
+                }
+                $pkSQLParts[] = $str;
+            }
+        }
+
+        return implode(' AND ', $pkSQLParts) . ' ';
     }
 
     /**
@@ -439,7 +488,7 @@ SQL,
             <<<SQL
 SELECT %s FROM (
     SELECT %s, ROW_NUMBER() OVER (PARTITION BY %s ORDER BY %s) AS `_row_number_`
-    FROM %s as %s
+    FROM %s AS %s
 ) AS a
     WHERE a.`_row_number_` = 1
 SQL,
