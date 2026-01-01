@@ -21,6 +21,10 @@ class ObjectInfoCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectType expectedObjectType = 2;</code>
      */
     protected $expectedObjectType = 0;
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectInfoCommand.ObjectView objectView = 3;</code>
+     */
+    protected $objectView = 0;
 
     /**
      * Constructor.
@@ -30,6 +34,7 @@ class ObjectInfoCommand extends \Google\Protobuf\Internal\Message
      *
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $path
      *     @type int $expectedObjectType
+     *     @type int $objectView
      * }
      */
     public function __construct($data = NULL) {
@@ -77,6 +82,28 @@ class ObjectInfoCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Info\ObjectType::class);
         $this->expectedObjectType = $var;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectInfoCommand.ObjectView objectView = 3;</code>
+     * @return int
+     */
+    public function getObjectView()
+    {
+        return $this->objectView;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.info.ObjectInfoCommand.ObjectView objectView = 3;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setObjectView($var)
+    {
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Info\ObjectInfoCommand\ObjectView::class);
+        $this->objectView = $var;
 
         return $this;
     }
