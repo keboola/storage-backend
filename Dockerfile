@@ -18,9 +18,6 @@ COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 RUN apt-get update -q \
     && apt-get install gnupg -y --no-install-recommends \
-    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
-    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list  \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add -  \
     && apt-get update -q \
@@ -37,7 +34,6 @@ RUN apt-get update -q \
         debsig-verify \
         dirmngr \
         gpg-agent \
-        msodbcsql17 \
         libonig-dev \
         libxml2-dev \
         awscli \
@@ -86,12 +82,6 @@ ENV LC_ALL=en_US.UTF-8
 ARG SQLSRV_VERSION=5.10.1
 ARG SNOWFLAKE_ODBC_VERSION=2.25.12
 ARG SNOWFLAKE_GPG_KEY=630D9F3CAB551AF3
-
-#Synapse ODBC
-RUN set -ex; \
-    pecl install sqlsrv-$SQLSRV_VERSION pdo_sqlsrv-$SQLSRV_VERSION; \
-    docker-php-ext-enable sqlsrv pdo_sqlsrv; \
-    docker-php-source delete
 
 ## Snowflake
 COPY ./docker/snowflake/generic.pol /etc/debsig/policies/$SNOWFLAKE_GPG_KEY/generic.pol

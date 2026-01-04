@@ -22,14 +22,14 @@ final class CreateBucketHandler extends BaseHandler
      * @inheritDoc
      * @param GenericBackendCredentials $credentials
      * @param CreateBucketCommand $command
-     * @return CreateBucketResponse|null
+     * @return CreateBucketResponse
      */
     public function __invoke(
         Message $credentials,
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): Message|null {
+    ): Message {
         assert($credentials instanceof GenericBackendCredentials);
         assert($command instanceof CreateBucketCommand);
 
