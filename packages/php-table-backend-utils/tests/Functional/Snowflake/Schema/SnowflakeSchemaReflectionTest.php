@@ -9,6 +9,7 @@ use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaReflection;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
+use Keboola\TableBackendUtils\Table\TableType;
 use RuntimeException;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 use function PHPUnit\Framework\assertEquals;
@@ -83,6 +84,118 @@ CREATE VIEW %s.%s AS
         );
         $this->connection->executeQuery($sql);
         self::assertSame([$viewName], $this->schemaRef->getViewsNames());
+    }
+
+    public function testGetObjectsHasObject(): void
+    {
+        $this->initTable();
+        // create transient table
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE TRANSIENT TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100)
+);',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier('transient_table'),
+            ),
+        );
+        // create temporary table
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE TEMPORARY TABLE %s.%s (
+            "id" INTEGER,
+    "first_name" VARCHAR(100),
+    "last_name" VARCHAR(100)
+);',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier('temporary_table'),
+            ),
+        );
+
+        $this->connection->executeQuery(
+            <<<SQL
+CREATE OR REPLACE STAGE s3_stage URL = 's3://xxxx'
+    CREDENTIALS = ( AWS_KEY_ID = 'XXX' AWS_SECRET_KEY = 'YYY');
+SQL,
+        );
+        $this->connection->executeQuery(sprintf(
+            <<<SQL
+CREATE OR REPLACE
+EXTERNAL TABLE %s.%s (
+    ID NUMBER(38,0) AS (VALUE:c1::INT),
+    FIRST_NAME VARCHAR(255) AS (VALUE:c2::STRING)
+    ) 
+    LOCATION=@s3_stage/data 
+    REFRESH_ON_CREATE = FALSE 
+    AUTO_REFRESH = FALSE 
+    FILE_FORMAT = (TYPE = CSV SKIP_HEADER=1 TRIM_SPACE=TRUE );
+SQL,
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier('external_table'),
+        ));
+
+        $sql = sprintf(
+            '
+CREATE VIEW %s.%s AS
+     SELECT   "first_name",
+              "last_name" 
+     FROM %s.%s;
+',
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier('view_generic'),
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+        );
+        $this->connection->executeQuery($sql);
+        $sql = sprintf(
+            '
+CREATE TEMPORARY VIEW %s.%s AS
+     SELECT   "first_name",
+              "last_name" 
+     FROM %s.%s;
+',
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier('view_temporary'),
+            SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+        );
+        $this->connection->executeQuery($sql);
+        self::assertSame([
+            [
+                'name' => 'external_table',
+                'type' => TableType::TABLE,
+            ],
+            [
+                'name' => 'temporary_table',
+                'type' => TableType::TABLE,
+            ],
+            [
+                'name' => 'transient_table',
+                'type' => TableType::TABLE,
+            ],
+            [
+                'name' => 'utilsTest_refTab',
+                'type' => TableType::TABLE,
+            ],
+            [
+                'name' => 'view_generic',
+                'type' => TableType::VIEW,
+            ],
+            [
+                'name' => 'view_temporary',
+                'type' => TableType::VIEW,
+            ],
+        ], $this->schemaRef->getObjects());
+
+        $this->assertTrue($this->schemaRef->hasObject('external_table'));
+        $this->assertFalse($this->schemaRef->hasObject('EXTERNAL_TABLE'));
+        $this->assertTrue($this->schemaRef->hasObject('EXTERNAL_TABLE', false));
+
+        $this->assertTrue($this->schemaRef->hasObject('view_generic'));
+        $this->assertFalse($this->schemaRef->hasObject('VIEW_GENERIC'));
+        $this->assertTrue($this->schemaRef->hasObject('VIEW_GENERIC', false));
     }
 
     public function testGetDefinitions(): void
@@ -188,61 +301,61 @@ CREATE VIEW %s.%s AS
 
         $this->assertEquals(
             [
-                'col_number_default'          => 'NUMBER (38,0)',
-                'col_number_9'                => 'NUMBER (9,0)',
-                'col_number_9_2'              => 'NUMBER (9,2)',
-                'col_dec_default'             => 'NUMBER (38,0)',
-                'col_decimal_default'         => 'NUMBER (38,0)',
-                'col_numeric_default'         => 'NUMBER (38,0)',
-                'col_int_default'             => 'NUMBER (38,0)',
-                'col_integer_default'         => 'NUMBER (38,0)',
-                'col_bigint_default'          => 'NUMBER (38,0)',
-                'col_smallint_default'        => 'NUMBER (38,0)',
-                'col_tinyint_default'         => 'NUMBER (38,0)',
-                'col_byteint_default'         => 'NUMBER (38,0)',
-                'col_float_default'           => 'FLOAT',
-                'col_float4_default'          => 'FLOAT',
-                'col_float8_default'          => 'FLOAT',
-                'col_double_default'          => 'FLOAT',
-                'col_double_precision_default'=> 'FLOAT',
-                'col_real_default'            => 'FLOAT',
-                'col_varchar_default'         => 'VARCHAR (16777216)',
-                'col_varchar_50'              => 'VARCHAR (50)',
-                'col_varchar_100'             => 'VARCHAR (100)',
-                'col_char_default'            => 'VARCHAR (1)',
-                'col_char_10'                 => 'VARCHAR (10)',
-                'col_char_20'                 => 'VARCHAR (20)',
-                'col_character_default'       => 'VARCHAR (1)',
-                'col_character_20'            => 'VARCHAR (20)',
-                'col_char_varying_default'    => 'VARCHAR (16777216)',
-                'col_character_varying_default'=> 'VARCHAR (16777216)',
-                'col_string_default'          => 'VARCHAR (16777216)',
-                'col_text_default'            => 'VARCHAR (16777216)',
-                'col_nchar_varying_default'   => 'VARCHAR (16777216)',
-                'col_nchar_default'           => 'VARCHAR (1)',
-                'col_nvarchar_default'        => 'VARCHAR (16777216)',
-                'col_nvarchar2_default'       => 'VARCHAR (16777216)',
-                'col_boolean_default'         => 'BOOLEAN',
-                'col_date_default'            => 'DATE',
-                'col_datetime_default'        => 'TIMESTAMP_NTZ (9)',
-                'col_time_default'            => 'TIME (9)',
-                'col_time_3'                  => 'TIME (3)',
-                'col_timestamp_default'       => 'TIMESTAMP_NTZ (9)',
-                'col_timestamp_ntz_default'   => 'TIMESTAMP_NTZ (9)',
-                'col_timestamp_ntz_6'         => 'TIMESTAMP_NTZ (6)',
-                'col_timestamp_ltz_default'   => 'TIMESTAMP_LTZ (9)',
-                'col_timestamp_ltz_6'         => 'TIMESTAMP_LTZ (6)',
-                'col_timestamp_tz_default'    => 'TIMESTAMP_TZ (9)',
-                'col_timestamp_tz_6'          => 'TIMESTAMP_TZ (6)',
-                'col_variant_default'         => 'VARIANT',
-                'col_binary_default'          => 'BINARY (8388608)',
-                'col_varbinary_default'       => 'BINARY (8388608)',
-                'col_object_default'          => 'OBJECT',
-                'col_array_default'           => 'ARRAY',
-                'col_geography_default'       => 'GEOGRAPHY',
-                'col_geometry_default'        => 'GEOMETRY',
-                'col_vector_int_10'           => 'VECTOR (INT, 10)',
-                'col_vector_float_15'         => 'VECTOR (FLOAT, 15)',
+                'col_number_default' => 'NUMBER (38,0)',
+                'col_number_9' => 'NUMBER (9,0)',
+                'col_number_9_2' => 'NUMBER (9,2)',
+                'col_dec_default' => 'NUMBER (38,0)',
+                'col_decimal_default' => 'NUMBER (38,0)',
+                'col_numeric_default' => 'NUMBER (38,0)',
+                'col_int_default' => 'NUMBER (38,0)',
+                'col_integer_default' => 'NUMBER (38,0)',
+                'col_bigint_default' => 'NUMBER (38,0)',
+                'col_smallint_default' => 'NUMBER (38,0)',
+                'col_tinyint_default' => 'NUMBER (38,0)',
+                'col_byteint_default' => 'NUMBER (38,0)',
+                'col_float_default' => 'FLOAT',
+                'col_float4_default' => 'FLOAT',
+                'col_float8_default' => 'FLOAT',
+                'col_double_default' => 'FLOAT',
+                'col_double_precision_default' => 'FLOAT',
+                'col_real_default' => 'FLOAT',
+                'col_varchar_default' => 'VARCHAR (16777216)',
+                'col_varchar_50' => 'VARCHAR (50)',
+                'col_varchar_100' => 'VARCHAR (100)',
+                'col_char_default' => 'VARCHAR (1)',
+                'col_char_10' => 'VARCHAR (10)',
+                'col_char_20' => 'VARCHAR (20)',
+                'col_character_default' => 'VARCHAR (1)',
+                'col_character_20' => 'VARCHAR (20)',
+                'col_char_varying_default' => 'VARCHAR (16777216)',
+                'col_character_varying_default' => 'VARCHAR (16777216)',
+                'col_string_default' => 'VARCHAR (16777216)',
+                'col_text_default' => 'VARCHAR (16777216)',
+                'col_nchar_varying_default' => 'VARCHAR (16777216)',
+                'col_nchar_default' => 'VARCHAR (1)',
+                'col_nvarchar_default' => 'VARCHAR (16777216)',
+                'col_nvarchar2_default' => 'VARCHAR (16777216)',
+                'col_boolean_default' => 'BOOLEAN',
+                'col_date_default' => 'DATE',
+                'col_datetime_default' => 'TIMESTAMP_NTZ (9)',
+                'col_time_default' => 'TIME (9)',
+                'col_time_3' => 'TIME (3)',
+                'col_timestamp_default' => 'TIMESTAMP_NTZ (9)',
+                'col_timestamp_ntz_default' => 'TIMESTAMP_NTZ (9)',
+                'col_timestamp_ntz_6' => 'TIMESTAMP_NTZ (6)',
+                'col_timestamp_ltz_default' => 'TIMESTAMP_LTZ (9)',
+                'col_timestamp_ltz_6' => 'TIMESTAMP_LTZ (6)',
+                'col_timestamp_tz_default' => 'TIMESTAMP_TZ (9)',
+                'col_timestamp_tz_6' => 'TIMESTAMP_TZ (6)',
+                'col_variant_default' => 'VARIANT',
+                'col_binary_default' => 'BINARY (8388608)',
+                'col_varbinary_default' => 'BINARY (8388608)',
+                'col_object_default' => 'OBJECT',
+                'col_array_default' => 'ARRAY',
+                'col_geography_default' => 'GEOGRAPHY',
+                'col_geometry_default' => 'GEOMETRY',
+                'col_vector_int_10' => 'VECTOR (INT, 10)',
+                'col_vector_float_15' => 'VECTOR (FLOAT, 15)',
             ],
             $columnsReflection,
         );
@@ -273,8 +386,8 @@ CREATE VIEW %s.%s AS
             // Numeric types
             case Snowflake::TYPE_NUMBER:
                 $definitions['col_number_default'] = '"col_number_default"           NUMBER';
-                $definitions['col_number_9']       = '"col_number_9"                 NUMBER(9)';
-                $definitions['col_number_9_2']     = '"col_number_9_2"               NUMBER(9,2)';
+                $definitions['col_number_9'] = '"col_number_9"                 NUMBER(9)';
+                $definitions['col_number_9_2'] = '"col_number_9_2"               NUMBER(9,2)';
                 break;
             case Snowflake::TYPE_DEC:
                 $definitions['col_dec_default'] = '"col_dec_default"              DEC';
@@ -325,17 +438,17 @@ CREATE VIEW %s.%s AS
             // String types
             case Snowflake::TYPE_VARCHAR:
                 $definitions['col_varchar_default'] = '"col_varchar_default"          VARCHAR';
-                $definitions['col_varchar_50']      = '"col_varchar_50"               VARCHAR(50)';
-                $definitions['col_varchar_100']     = '"col_varchar_100"              VARCHAR(100)';
+                $definitions['col_varchar_50'] = '"col_varchar_50"               VARCHAR(50)';
+                $definitions['col_varchar_100'] = '"col_varchar_100"              VARCHAR(100)';
                 break;
             case Snowflake::TYPE_CHAR:
                 $definitions['col_char_default'] = '"col_char_default"             CHAR';
-                $definitions['col_char_10']      = '"col_char_10"                  CHAR(10)';
-                $definitions['col_char_20']      = '"col_char_20"                  CHAR(20)';
+                $definitions['col_char_10'] = '"col_char_10"                  CHAR(10)';
+                $definitions['col_char_20'] = '"col_char_20"                  CHAR(20)';
                 break;
             case Snowflake::TYPE_CHARACTER:
                 $definitions['col_character_default'] = '"col_character_default"        CHARACTER';
-                $definitions['col_character_20']      = '"col_character_20"             CHARACTER(20)';
+                $definitions['col_character_20'] = '"col_character_20"             CHARACTER(20)';
                 break;
             case Snowflake::TYPE_CHAR_VARYING:
                 $definitions['col_char_varying_default'] = '"col_char_varying_default"     CHAR VARYING';
@@ -376,22 +489,22 @@ CREATE VIEW %s.%s AS
                 break;
             case Snowflake::TYPE_TIME:
                 $definitions['col_time_default'] = '"col_time_default"             TIME';
-                $definitions['col_time_3']     = '"col_time_3"                   TIME(3)';
+                $definitions['col_time_3'] = '"col_time_3"                   TIME(3)';
                 break;
             case Snowflake::TYPE_TIMESTAMP:
                 $definitions['col_timestamp_default'] = '"col_timestamp_default"        TIMESTAMP';
                 break;
             case Snowflake::TYPE_TIMESTAMP_NTZ:
                 $definitions['col_timestamp_ntz_default'] = '"col_timestamp_ntz_default"    TIMESTAMP_NTZ';
-                $definitions['col_timestamp_ntz_6']       = '"col_timestamp_ntz_6"          TIMESTAMP_NTZ(6)';
+                $definitions['col_timestamp_ntz_6'] = '"col_timestamp_ntz_6"          TIMESTAMP_NTZ(6)';
                 break;
             case Snowflake::TYPE_TIMESTAMP_LTZ:
                 $definitions['col_timestamp_ltz_default'] = '"col_timestamp_ltz_default"    TIMESTAMP_LTZ';
-                $definitions['col_timestamp_ltz_6']       = '"col_timestamp_ltz_6"          TIMESTAMP_LTZ(6)';
+                $definitions['col_timestamp_ltz_6'] = '"col_timestamp_ltz_6"          TIMESTAMP_LTZ(6)';
                 break;
             case Snowflake::TYPE_TIMESTAMP_TZ:
                 $definitions['col_timestamp_tz_default'] = '"col_timestamp_tz_default"     TIMESTAMP_TZ';
-                $definitions['col_timestamp_tz_6']       = '"col_timestamp_tz_6"           TIMESTAMP_TZ(6)';
+                $definitions['col_timestamp_tz_6'] = '"col_timestamp_tz_6"           TIMESTAMP_TZ(6)';
                 break;
 
             // Semi-structured & Other types
