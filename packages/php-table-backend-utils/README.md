@@ -280,22 +280,6 @@ This command will run all checks load fixtures and run tests
 docker compose run --rm dev composer ci
 ```
 
-
-## Teradata connection
-
-You can use following method to get connection to Teradata for your queries
-```php
-\Keboola\TableBackendUtils\Connection\Teradata\TeradataConnection::getConnection([
-            'host' => getenv('TERADATA_HOST'),
-            'user' => getenv('TERADATA_USERNAME'),
-            'password' => getenv('TERADATA_PASSWORD'),
-            'port' => getenv('TERADATA_PORT'),
-            'dbname' => '',
-        ]);
-```
-
-If you want to use connection via PHPStorm DataGrip or other DB client, remove port when you setting up connection in client. Otherwise test connection will fail.
-
 ## License
 
 MIT licensed, see [LICENSE](./LICENSE) file.
