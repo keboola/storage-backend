@@ -8,7 +8,7 @@ use UnexpectedValueException;
 
 /**
  **
- * Currently only CSV is supported file format in Keboola connection
+ * Currently only CSV and PARQUET are supported file format in Keboola connection
  * Additional formatTypeOptions can be specified
  *
  * Protobuf type <code>keboola.storageDriver.command.table.ImportExportShared.FileFormat</code>
@@ -21,9 +21,14 @@ class FileFormat
      * Generated from protobuf enum <code>CSV = 0;</code>
      */
     const CSV = 0;
+    /**
+     * Generated from protobuf enum <code>PARQUET = 1;</code>
+     */
+    const PARQUET = 1;
 
     private static $valueToName = [
         self::CSV => 'CSV',
+        self::PARQUET => 'PARQUET',
     ];
 
     public static function name($value)
