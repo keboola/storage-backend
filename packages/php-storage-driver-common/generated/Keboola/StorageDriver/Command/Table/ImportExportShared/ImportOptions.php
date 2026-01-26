@@ -69,9 +69,9 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      */
     private $importAsNull;
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestmapMode timestmapMode = 10;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode timestampMode = 10;</code>
      */
-    protected $timestmapMode = 0;
+    protected $timestampMode = 0;
 
     /**
      * Constructor.
@@ -97,7 +97,7 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *     @type int $createMode
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $importAsNull
      *           list of values which should be imported as null, default should be always empty string
-     *     @type int $timestmapMode
+     *     @type int $timestampMode
      * }
      */
     public function __construct($data = NULL) {
@@ -336,23 +336,23 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestmapMode timestmapMode = 10;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode timestampMode = 10;</code>
      * @return int
      */
-    public function getTimestmapMode()
+    public function getTimestampMode()
     {
-        return $this->timestmapMode;
+        return $this->timestampMode;
     }
 
     /**
-     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestmapMode timestmapMode = 10;</code>
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode timestampMode = 10;</code>
      * @param int $var
      * @return $this
      */
-    public function setTimestmapMode($var)
+    public function setTimestampMode($var)
     {
-        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\TimestmapMode::class);
-        $this->timestmapMode = $var;
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\TimestampMode::class);
+        $this->timestampMode = $var;
 
         return $this;
     }

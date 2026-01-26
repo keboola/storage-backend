@@ -10,9 +10,9 @@ use UnexpectedValueException;
  **
  * Timestamp mode decide how timestamp column is handled
  *
- * Protobuf type <code>keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestmapMode</code>
+ * Protobuf type <code>keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode</code>
  */
-class TimestmapMode
+class TimestampMode
 {
     /**
      * no timestamp column is used (there is no managed timestamp column)
@@ -61,5 +61,5 @@ class TimestmapMode
 }
 
 // Adding a class alias for backwards compatibility with the previous class name.
-class_alias(TimestmapMode::class, \Keboola\StorageDriver\Command\Table\ImportExportShared_ImportOptions_TimestmapMode::class);
+class_alias(TimestampMode::class, \Keboola\StorageDriver\Command\Table\ImportExportShared_ImportOptions_TimestampMode::class);
 
