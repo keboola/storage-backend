@@ -27,7 +27,7 @@ class TimestampMode
      */
     const CURRENT_TIME = 1;
     /**
-     * timestamp column is required to be present source file and its value is used from source
+     * timestamp column is required to be present in source file and its value is used from source
      *
      * Generated from protobuf enum <code>FROM_SOURCE = 2;</code>
      */
