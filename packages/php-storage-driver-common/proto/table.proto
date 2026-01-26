@@ -217,7 +217,7 @@ message ImportExportShared {
     enum TimestampMode {
       NONE = 0; // no timestamp column is used (there is no managed timestamp column)
       CURRENT_TIME = 1; // timestamp column is set to current time on each row insert/update
-      FROM_SOURCE = 2; // timestamp column is required to be present source file and its value is used from source
+      FROM_SOURCE = 2; // timestamp column is required to be present in source file and its value is used from source
     }
     TimestampMode timestampMode = 10;
   }
