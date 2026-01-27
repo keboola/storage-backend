@@ -11,6 +11,8 @@ use Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable\FullImporter;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToFinalTable\SqlBuilder;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\Bigquery\ToStage\ToStageImporter;
+use Keboola\Db\ImportExport\Backend\ImportState;
+use Keboola\Db\ImportExport\Backend\TimestampMode;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage\Bigquery\Table;
 use Keboola\Db\ImportExport\Storage\SourceInterface;
@@ -639,5 +641,84 @@ class FullImportTest extends BigqueryBaseTestCase
             $expected,
             0,
         );
+    }
+
+    public function testFullLoadWithTimestampFromSource(): void
+    {
+        $tableName = 'test_full_timestamp_from_source';
+
+        // 1. Create destination table with _timestamp column (typed table)
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'CREATE TABLE %s.%s
+            (
+              `id` INT64 NOT NULL,
+              `name` STRING(50),
+              `value` STRING(100),
+              `_timestamp` TIMESTAMP
+           )',
+            BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        // 2. Create source table WITH _timestamp column
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            'CREATE TABLE %s.%s
+            (
+              `id` INT64,
+              `name` STRING(50),
+              `value` STRING(100),
+              `_timestamp` TIMESTAMP
+           )',
+            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        // 3. Populate source with explicit timestamps (NOT current time)
+        $this->bqClient->runQuery($this->bqClient->query(sprintf(
+            <<<SQL
+INSERT INTO %s.%s (`id`, `name`, `value`, `_timestamp`) VALUES
+(1, 'row1', 'val1', '2023-06-15 12:00:00'),
+(2, 'row2', 'val2', '2023-06-15 13:00:00'),
+(3, 'row3', 'val3', '2023-06-15 14:00:00')
+SQL,
+            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+            BigqueryQuote::quoteSingleIdentifier($tableName),
+        )));
+
+        // 4. Get table definitions
+        $destination = (new BigqueryTableReflection(
+            $this->bqClient,
+            $this->getDestinationDbName(),
+            $tableName,
+        ))->getTableDefinition();
+        $source = (new BigqueryTableReflection(
+            $this->bqClient,
+            $this->getSourceDbName(),
+            $tableName,
+        ))->getTableDefinition();
+
+        // 5. Run FullImporter with TimestampMode::FromSource
+        $state = new ImportState($destination->getTableName());
+        (new FullImporter($this->bqClient))->importToTable(
+            $source,
+            $destination,
+            new BigqueryImportOptions(
+                isIncremental: false,
+                useTimestamp: false,
+                usingTypes: BigqueryImportOptions::USING_TYPES_USER,
+                timestampMode: TimestampMode::FromSource,
+            ),
+            $state,
+        );
+
+        // 6. Verify results - timestamps should come from source, not current time
+        $expectedContent = [
+            ['id' => 1, 'name' => 'row1', 'value' => 'val1', '_timestamp' => '2023-06-15 12:00:00'],
+            ['id' => 2, 'name' => 'row2', 'value' => 'val2', '_timestamp' => '2023-06-15 13:00:00'],
+            ['id' => 3, 'name' => 'row3', 'value' => 'val3', '_timestamp' => '2023-06-15 14:00:00'],
+        ];
+
+        $destinationContent = $this->fetchTable($this->getDestinationDbName(), $tableName);
+        $this->assertEqualsCanonicalizing($expectedContent, $destinationContent);
     }
 }
