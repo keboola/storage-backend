@@ -9,23 +9,24 @@ use UnexpectedValueException;
 /**
  **
  * Timestamp mode decide how timestamp column is handled
+ * CURRENT_TIME is intentionally with value 0 to be default behavior
  *
  * Protobuf type <code>keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode</code>
  */
 class TimestampMode
 {
     /**
-     * no timestamp column is used (there is no managed timestamp column)
-     *
-     * Generated from protobuf enum <code>NONE = 0;</code>
-     */
-    const NONE = 0;
-    /**
      * timestamp column is set to current time on each row insert/update
      *
-     * Generated from protobuf enum <code>CURRENT_TIME = 1;</code>
+     * Generated from protobuf enum <code>CURRENT_TIME = 0;</code>
      */
-    const CURRENT_TIME = 1;
+    const CURRENT_TIME = 0;
+    /**
+     * no timestamp column is used (there is no managed timestamp column)
+     *
+     * Generated from protobuf enum <code>NONE = 1;</code>
+     */
+    const NONE = 1;
     /**
      * timestamp column is required to be present in source file and its value is used from source
      *
@@ -34,8 +35,8 @@ class TimestampMode
     const FROM_SOURCE = 2;
 
     private static $valueToName = [
-        self::NONE => 'NONE',
         self::CURRENT_TIME => 'CURRENT_TIME',
+        self::NONE => 'NONE',
         self::FROM_SOURCE => 'FROM_SOURCE',
     ];
 
