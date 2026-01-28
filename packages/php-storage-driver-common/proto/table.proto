@@ -211,6 +211,16 @@ message ImportExportShared {
     CreateMode createMode = 8;
 
     repeated string importAsNull = 9; // list of values which should be imported as null, default should be always empty string
+    /**
+     * Timestamp mode decide how timestamp column is handled
+     * CURRENT_TIME is intentionally with value 0 to be default behavior
+     */
+    enum TimestampMode {
+      CURRENT_TIME = 0; // timestamp column is set to current time on each row insert/update
+      NONE = 1; // no timestamp column is used (there is no managed timestamp column)
+      FROM_SOURCE = 2; // timestamp column is required to be present in source file and its value is used from source
+    }
+    TimestampMode timestampMode = 10;
   }
   /**
    * Common export options

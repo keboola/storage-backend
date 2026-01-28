@@ -8,6 +8,7 @@ use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryImportOptions;
+use Keboola\Db\ImportExport\Backend\TimestampMode;
 use Keboola\Db\ImportExport\Backend\ToStageImporterInterface;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
@@ -286,7 +287,15 @@ SQL,
         $columnsSet = [];
 
         foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
-            if ($importOptions->usingUserDefinedTypes()) {
+            if ($importOptions->usingUserDefinedTypes()
+                || (
+                    $importOptions->timestampMode === TimestampMode::FromSource
+                    && $columnName === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
+                )
+            ) {
+                // if table is typed
+                // if timestamp from source and column is _timestamp column
+                // do not convert nulls or empty strings
                 $columnsSet[] = sprintf(
                     '%s = `src`.%s',
                     BigqueryQuote::quoteSingleIdentifier($columnName),
@@ -331,16 +340,20 @@ SQL,
                 $stagingTableDefinition->getColumnsNames(),
             );
         } else {
-            $columnsComparisonSql = array_map(
-                static function ($columnName) {
-                    return sprintf(
-                        '`dest`.%s != COALESCE(`src`.%s, \'\')',
-                        BigqueryQuote::quoteSingleIdentifier($columnName),
-                        BigqueryQuote::quoteSingleIdentifier($columnName),
-                    );
-                },
-                $stagingTableDefinition->getColumnsNames(),
-            );
+            $columnsComparisonSql = [];
+            foreach ($stagingTableDefinition->getColumnsNames() as $key => $columnName) {
+                if ($importOptions->timestampMode === TimestampMode::FromSource
+                    && $columnName === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
+                ) {
+                    // do not compare timestamp column if it is taken from source
+                    continue;
+                }
+                $columnsComparisonSql[$key] = sprintf(
+                    '`dest`.%s != COALESCE(`src`.%s, \'\')',
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                    BigqueryQuote::quoteSingleIdentifier($columnName),
+                );
+            }
         }
 
         $dest = sprintf(

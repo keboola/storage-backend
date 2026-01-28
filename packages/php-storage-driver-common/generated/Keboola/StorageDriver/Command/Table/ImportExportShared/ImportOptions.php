@@ -68,6 +68,10 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string importAsNull = 9;</code>
      */
     private $importAsNull;
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode timestampMode = 10;</code>
+     */
+    protected $timestampMode = 0;
 
     /**
      * Constructor.
@@ -93,6 +97,7 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
      *     @type int $createMode
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $importAsNull
      *           list of values which should be imported as null, default should be always empty string
+     *     @type int $timestampMode
      * }
      */
     public function __construct($data = NULL) {
@@ -326,6 +331,28 @@ class ImportOptions extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->importAsNull = $arr;
+
+        return $this;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode timestampMode = 10;</code>
+     * @return int
+     */
+    public function getTimestampMode()
+    {
+        return $this->timestampMode;
+    }
+
+    /**
+     * Generated from protobuf field <code>.keboola.storageDriver.command.table.ImportExportShared.ImportOptions.TimestampMode timestampMode = 10;</code>
+     * @param int $var
+     * @return $this
+     */
+    public function setTimestampMode($var)
+    {
+        GPBUtil::checkEnum($var, \Keboola\StorageDriver\Command\Table\ImportExportShared\ImportOptions\TimestampMode::class);
+        $this->timestampMode = $var;
 
         return $this;
     }
