@@ -17,8 +17,8 @@ class Credentials
         \GPBMetadata\Google\Protobuf\Any::initOnce();
         $pool->internalAddGeneratedFile(
             '
-€
-proto/credentials.proto!keboola.storageDriver.credentials"¹
+Ÿ
+proto/credentials.proto!keboola.storageDriver.credentials"Ø
 GenericBackendCredentials
 host (	
 	principal (	
@@ -44,12 +44,13 @@ class Credentials
 database (	
 rest_endpoint (	
 api_key (	
-allow_insecure (k
+allow_insecure (‰
 SupabaseCredentialsMeta
 database (	
 rest_endpoint (	
 api_key (	
-allow_insecure (bproto3'
+allow_insecure (
+management_api_token (	bproto3'
         , true);
 
         static::$is_initialized = true;

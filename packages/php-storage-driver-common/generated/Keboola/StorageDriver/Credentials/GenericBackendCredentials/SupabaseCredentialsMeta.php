@@ -43,6 +43,12 @@ class SupabaseCredentialsMeta extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>bool allow_insecure = 4;</code>
      */
     protected $allow_insecure = false;
+    /**
+     * OAuth access token for Management API
+     *
+     * Generated from protobuf field <code>string management_api_token = 5;</code>
+     */
+    protected $management_api_token = '';
 
     /**
      * Constructor.
@@ -58,6 +64,8 @@ class SupabaseCredentialsMeta extends \Google\Protobuf\Internal\Message
      *           Supabase API key for REST API authentication
      *     @type bool $allow_insecure
      *           Allow HTTP for local testing (default: false)
+     *     @type string $management_api_token
+     *           OAuth access token for Management API
      * }
      */
     public function __construct($data = NULL) {
@@ -165,6 +173,32 @@ class SupabaseCredentialsMeta extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkBool($var);
         $this->allow_insecure = $var;
+
+        return $this;
+    }
+
+    /**
+     * OAuth access token for Management API
+     *
+     * Generated from protobuf field <code>string management_api_token = 5;</code>
+     * @return string
+     */
+    public function getManagementApiToken()
+    {
+        return $this->management_api_token;
+    }
+
+    /**
+     * OAuth access token for Management API
+     *
+     * Generated from protobuf field <code>string management_api_token = 5;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setManagementApiToken($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->management_api_token = $var;
 
         return $this;
     }
