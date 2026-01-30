@@ -38,8 +38,8 @@ jobs:
           echo "git rev-parse origin/$MAIN_BRANCH: $(git rev-parse origin/$MAIN_BRANCH)"
           echo "git rev-parse HEAD: $(git rev-parse HEAD)"
           echo "github.ref_type: ${{ github.ref_type }}"
-          echo "isReleaseTag=$(if [ "$(git rev-parse origin/$MAIN_BRANCH)" == "$(git rev-parse HEAD)" ] && ${{ github.ref_type == 'tag' }}; then echo 1; else echo 0; fi)" >> "$GITHUB_OUTPUT"
-          echo "isReleaseTag=$(if [ "$(git rev-parse origin/$MAIN_BRANCH)" == "$(git rev-parse HEAD)" ] && ${{ github.ref_type == 'tag' }}; then echo 1; else echo 0; fi)"
+          echo "isReleaseTag=$(if ${{ github.ref_type == 'tag' }}; then echo 1; else echo 0; fi)" >> "$GITHUB_OUTPUT"
+          echo "isReleaseTag=$(if ${{ github.ref_type == 'tag' }}; then echo 1; else echo 0; fi)"
       -
         name: Configure AWS Credentials
         id: creds
