@@ -120,3 +120,15 @@ message TableInfo {
     }
   }
 }
+
+/**
+ * Command to list available buckets/schemas for external bucket registration.
+ * Returns user-accessible schema names excluding internal schemas.
+ */
+message ListBucketsCommand {
+  // Empty - no parameters needed, credentials provide connection info
+}
+
+message ListBucketsResponse {
+  repeated string schemas = 1;  // List of user-accessible schema names
+}
