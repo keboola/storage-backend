@@ -9,9 +9,9 @@ use Google\Protobuf\Internal\RepeatedField;
 use Google\Protobuf\Internal\GPBUtil;
 
 /**
- * Generated from protobuf message <code>keboola.storageDriver.command.info.ListBucketsResponse</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.info.ListSchemasResponse</code>
  */
-class ListBucketsResponse extends \Google\Protobuf\Internal\Message
+class ListSchemasResponse extends \Google\Protobuf\Internal\Message
 {
     /**
      * List of user-accessible schema names

@@ -10,12 +10,12 @@ use Google\Protobuf\Internal\GPBUtil;
 
 /**
  **
- * Command to list available buckets/schemas for external bucket registration.
+ * Command to list available schemas for external bucket registration.
  * Returns user-accessible schema names excluding internal schemas.
  *
- * Generated from protobuf message <code>keboola.storageDriver.command.info.ListBucketsCommand</code>
+ * Generated from protobuf message <code>keboola.storageDriver.command.info.ListSchemasCommand</code>
  */
-class ListBucketsCommand extends \Google\Protobuf\Internal\Message
+class ListSchemasCommand extends \Google\Protobuf\Internal\Message
 {
 
     /**
