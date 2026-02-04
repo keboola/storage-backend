@@ -50,7 +50,7 @@
         "lock": false
     },
     "scripts": {
-        "protobuf": "rm -rf ./generated/* && protoc $(find proto -iname \"*.proto\") --php_out=generated",
+        "protobuf": "rm -rf ./generated/* && protoc $(find proto -iname \"*.proto\") --php_out=generated --python_out=generated-py",
         "protobufTests": "rm -rf ./tests/generated/* && protoc $(find tests/proto -iname \"*.proto\") --php_out=tests/generated",
         "phplint": "parallel-lint -j 10 --exclude vendor --exclude bin .",
         "phpcs": "phpcs --extensions=php tests contract Shared --ignore=./tests/generated/*",
