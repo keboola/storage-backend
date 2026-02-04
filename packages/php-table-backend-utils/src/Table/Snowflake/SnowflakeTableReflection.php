@@ -17,6 +17,10 @@ use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use RuntimeException;
 use Throwable;
 
+/**
+ * @phpstan-type SHOW_TABLE_ROW array{name:string,kind:string,bytes:string,rows:string,is_external:'Y'|'N'}
+ * @phpstan-type SHOW_VIEW_ROW array{name:string,kind:string}
+ */
 final class SnowflakeTableReflection implements TableReflectionInterface
 {
     public const DEPENDENT_OBJECT_TABLE = 'TABLE';
@@ -57,43 +61,99 @@ final class SnowflakeTableReflection implements TableReflectionInterface
         if ($force === false && $this->isTemporary !== null) {
             return;
         }
-        /** @var array<array{TABLE_TYPE:string,BYTES:string,ROW_COUNT:string}> $row */
-        $row = $this->connection->fetchAllAssociative(
-            sprintf(
-            //phpcs:ignore
-                'SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s;',
-                SnowflakeQuote::quote($this->schemaName),
-                SnowflakeQuote::quote($this->tableName),
-            ),
-        );
-        if (count($row) === 0) {
-            throw TableNotExistsReflectionException::createForTable([$this->schemaName, $this->tableName]);
-        }
-        $this->sizeBytes = (int) $row[0]['BYTES'];
-        $this->rowCount = (int) $row[0]['ROW_COUNT'];
 
-        switch (strtoupper($row[0]['TABLE_TYPE'])) {
+        try {
+            /** @var array<SHOW_TABLE_ROW> $rows */
+            $rows = $this->connection->fetchAllAssociative(
+                sprintf(
+                //phpcs:ignore
+                    'SHOW TABLES LIKE %s IN SCHEMA %s',
+                    SnowflakeQuote::quote($this->tableName),
+                    SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+                ),
+            );// show tables is case insensitive on table names so we need to check if we got any exact match
+            /** @var SHOW_TABLE_ROW|null $table */
+            $table = $this->getTableByNameFromShow($rows);
+            if ($table === null) {
+                // if table is actually a view, fetch view info
+                /** @var array<SHOW_VIEW_ROW> $rows */
+                $rows = $this->connection->fetchAllAssociative(
+                    sprintf(
+                    //phpcs:ignore
+                        'SHOW VIEWS LIKE %s IN SCHEMA %s',
+                        SnowflakeQuote::quote($this->tableName),
+                        SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
+                    ),
+                );
+                $view = $this->getTableByNameFromShow($rows);
+                if ($view === null) {
+                    throw TableNotExistsReflectionException::createForTable([$this->schemaName, $this->tableName]);
+                }
+                $this->sizeBytes = 0;
+                $this->rowCount = 0;
+                $this->isTemporary = false;
+                $this->tableType = TableType::VIEW;
+                return;
+            }
+        } catch (Throwable $e) {
+            if ($e instanceof TableNotExistsReflectionException) {
+                throw $e;
+            }
+            if (str_contains($e->getMessage(), 'Cannot access object or it does not exist')) {
+                throw TableNotExistsReflectionException::createForTable([$this->schemaName, $this->tableName], $e);
+            }
+
+            throw $e;
+        }
+
+        $this->sizeBytes = (int) $table['bytes'];
+        $this->rowCount = (int) $table['rows'];
+
+        if (array_key_exists('is_external', $table) && $table['is_external'] === 'Y') {
+            $this->isTemporary = false;
+            $this->tableType = TableType::SNOWFLAKE_EXTERNAL;
+            return;
+        }
+
+        switch (strtoupper($table['kind'])) {
             case 'BASE TABLE':
+            case 'TABLE':
                 $this->isTemporary = false;
                 return;
             case 'EXTERNAL TABLE':
                 $this->isTemporary = false;
                 $this->tableType = TableType::SNOWFLAKE_EXTERNAL;
                 return;
+            case 'TEMPORARY':
             case 'LOCAL TEMPORARY':
             case 'TEMPORARY TABLE':
                 $this->isTemporary = true;
                 return;
             case 'VIEW':
+            case 'MATERIALIZED_VIEW':
                 $this->isTemporary = false;
                 $this->tableType = TableType::VIEW;
                 return;
             default:
                 throw new RuntimeException(sprintf(
                     'Table type "%s" is not known.',
-                    $row[0]['TABLE_TYPE'],
+                    $table['kind'],
                 ));
         }
+    }
+
+    /**
+     * @param array<SHOW_TABLE_ROW|SHOW_VIEW_ROW> $rows
+     * @return SHOW_TABLE_ROW|SHOW_VIEW_ROW|null
+     */
+    private function getTableByNameFromShow(array $rows): ?array
+    {
+        foreach ($rows as $row) {
+            if ($row['name'] === $this->tableName) {
+                return $row;
+            }
+        }
+        return null;
     }
 
     /**

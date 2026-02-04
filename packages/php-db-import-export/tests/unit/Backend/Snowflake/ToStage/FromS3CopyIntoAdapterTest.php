@@ -42,11 +42,15 @@ EOT,
         );
 
         $conn->expects(self::once())->method('fetchAllAssociative')
-            // phpcs:ignore
-            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 10,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 10,
                 ],
             ]);
 
@@ -92,11 +96,15 @@ EOT,
         );
 
         $conn->expects(self::once())->method('fetchAllAssociative')
-            // phpcs:ignore
-            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 10,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 10,
                 ],
             ]);
 
@@ -144,11 +152,15 @@ EOT,
         );
 
         $conn->expects(self::once())->method('fetchAllAssociative')
-            // phpcs:ignore
-            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 10,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 10,
                 ],
             ]);
 
@@ -196,11 +208,15 @@ EOT,
         );
 
         $conn->expects(self::once())->method('fetchAllAssociative')
-            // phpcs:ignore
-            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 7,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 7,
                 ],
             ]);
 
@@ -258,11 +274,15 @@ EOT;
         $conn->expects(self::exactly(2))->method('executeStatement')->withConsecutive([$q1], [$q2]);
 
         $conn->expects(self::once())->method('fetchAllAssociative')
-            // phpcs:ignore
-            ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
             ->willReturn([
                 [
-                    'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
+                    'TABLE_TYPE' => 'BASE TABLE',
+                    'BYTES' => 0,
+                    'ROW_COUNT' => 7,
+                    'name' => 'stagingTable',
+                    'kind' => 'BASE TABLE',
+                    'bytes' => 0,
+                    'rows' => 7,
                 ],
             ]);
 
