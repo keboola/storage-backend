@@ -255,7 +255,7 @@ class Snowflake extends Common
      */
     private function validateType(string $type): void
     {
-        if (!in_array(strtoupper($type), $this::TYPES)) {
+        if (!in_array(strtoupper($type), self::TYPES, true)) {
             throw new InvalidTypeException("'{$type}' is not a valid type");
         }
     }

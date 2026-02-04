@@ -40,7 +40,9 @@ class QueryTagsTest extends BigqueryBaseCase
         $info = $job->info();
 
         $this->assertArrayHasKey('configuration', $info);
+        $this->assertIsArray($info['configuration']);
         $this->assertArrayHasKey('labels', $info['configuration']);
+        $this->assertIsArray($info['configuration']['labels']);
         $this->assertArrayHasKey('run_id', $info['configuration']['labels']);
         $this->assertEquals('e2e-utils-lib', $info['configuration']['labels']['run_id']);
 

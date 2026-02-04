@@ -79,12 +79,21 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         self::assertEquals($expectedSqlDefinition, $definition->getSQLDefinition(), 'SQL definition doesnt match');
 
         // check that SQLtoRestDatatypeConverter returns same definition as BQ REST API
+        $tableInfo = $this->bqClient
+            ->dataset(self::TEST_SCHEMA)
+            ->table(self::TABLE_GENERIC)
+            ->info();
+        assert(is_array($tableInfo));
+        assert(array_key_exists('schema', $tableInfo));
+        assert(is_array($tableInfo['schema']));
+        assert(array_key_exists('fields', $tableInfo['schema']));
+        assert(is_array($tableInfo['schema']['fields']));
+        assert(array_key_exists(1, $tableInfo['schema']['fields']));
+        assert(is_array($tableInfo['schema']['fields'][1]));
+
         self::assertEquals(
             RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
-                $this->bqClient
-                    ->dataset(self::TEST_SCHEMA)
-                    ->table(self::TABLE_GENERIC)
-                    ->info()['schema']['fields'][1],
+                $tableInfo['schema']['fields'][1],
             ),
             RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
                 SQLtoRestDatatypeConverter::convertColumnToRestFormat($column),
