@@ -45,6 +45,10 @@
         "ci": [
             "@composer validate --no-check-all --strict",
             "@build"
+        ],
+        "ci-tests": [
+            "@composer validate --no-check-all --strict",
+            "@tests"
         ]
     },
     "config": {

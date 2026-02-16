@@ -79,7 +79,7 @@ jobs:
 
         run: |
           docker compose build $LOCAL_IMAGE
-          docker compose run $LOCAL_IMAGE composer check
+          docker compose run $LOCAL_IMAGE composer ci-tests
       -
         name: Push docker image
         env:

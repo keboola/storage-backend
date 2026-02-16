@@ -31,4 +31,4 @@ jobs:
           phpVersion: ${{ matrix.php-versions }}
         run: |
           composer install
-          composer ci
+          composer ci-tests
