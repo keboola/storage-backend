@@ -415,7 +415,11 @@ SQL,
             implode(', ', $columnsSet),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
-            $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions, $destinationTableDefinition),
+            $this->getPrimaryKeyWhereConditions(
+                $destinationTableDefinition->getPrimaryKeysNames(),
+                $importOptions,
+                $destinationTableDefinition,
+            ),
             implode(' OR ', $columnsComparisonSql),
         );
     }
