@@ -251,6 +251,7 @@ SQL,
             $this->getPrimaryKeyWhereConditions(
                 $destinationTableDefinition->getPrimaryKeysNames(),
                 $importOptions,
+                $destinationTableDefinition,
             ),
         );
     }
@@ -330,7 +331,7 @@ SQL,
             }
 
             // Cast to destination type when staging columns are STRING
-            if ($destType !== null) {
+            if ($destType !== null && strtoupper($destType) !== 'STRING') {
                 $columnsSet[] = sprintf(
                     '%s = CAST(%s AS %s)',
                     BigqueryQuote::quoteSingleIdentifier($columnName),
@@ -374,13 +375,31 @@ SQL,
                     // do not compare timestamp column if it is taken from source
                     continue;
                 }
-                // Cast dest to STRING so comparison works when staging columns are STRING
-                // but destination columns are typed (e.g. INT64 from cross-backend CSV loads)
-                $columnsComparisonSql[$key] = sprintf(
-                    'CAST(`dest`.%s AS STRING) != COALESCE(`src`.%s, \'\')',
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                    BigqueryQuote::quoteSingleIdentifier($columnName),
-                );
+                // Resolve destination column type for comparison
+                $destColType = null;
+                /** @var BigqueryColumn $col */
+                foreach ($destinationTableDefinition->getColumnsDefinitions() as $col) {
+                    if ($col->getColumnName() === $columnName) {
+                        $destColType = $col->getColumnDefinition()->getType();
+                        break;
+                    }
+                }
+
+                if ($destColType !== null && strtoupper($destColType) !== 'STRING') {
+                    // Cast dest to STRING so comparison works when staging columns are STRING
+                    // but destination columns are typed (e.g. INT64 from cross-backend CSV loads)
+                    $columnsComparisonSql[$key] = sprintf(
+                        'CAST(`dest`.%s AS STRING) != COALESCE(`src`.%s, \'\')',
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                    );
+                } else {
+                    $columnsComparisonSql[$key] = sprintf(
+                        '`dest`.%s != COALESCE(`src`.%s, \'\')',
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                        BigqueryQuote::quoteSingleIdentifier($columnName),
+                    );
+                }
             }
         }
 
@@ -396,7 +415,7 @@ SQL,
             implode(', ', $columnsSet),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
-            $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions),
+            $this->getPrimaryKeyWhereConditions($destinationTableDefinition->getPrimaryKeysNames(), $importOptions, $destinationTableDefinition),
             implode(' OR ', $columnsComparisonSql),
         );
     }
@@ -407,8 +426,9 @@ SQL,
     private function getPrimaryKeyWhereConditions(
         array $primaryKeys,
         BigqueryImportOptions $importOptions,
+        BigqueryTableDefinition $destinationTableDefinition,
     ): string {
-        $pkWhereSql = array_map(function (string $col) use ($importOptions) {
+        $pkWhereSql = array_map(function (string $col) use ($importOptions, $destinationTableDefinition) {
             if ($importOptions->usingUserDefinedTypes()) {
                 return sprintf(
                     '`dest`.%s = `src`.%s',
@@ -416,10 +436,28 @@ SQL,
                     BigqueryQuote::quoteSingleIdentifier($col),
                 );
             }
-            // Cast dest to STRING so comparison works when staging columns are STRING
-            // but destination columns are typed (e.g. INT64 from cross-backend CSV loads)
+
+            // Check if PK column needs CAST
+            $destColType = null;
+            /** @var BigqueryColumn $colDef */
+            foreach ($destinationTableDefinition->getColumnsDefinitions() as $colDef) {
+                if ($colDef->getColumnName() === $col) {
+                    $destColType = $colDef->getColumnDefinition()->getType();
+                    break;
+                }
+            }
+
+            if ($destColType !== null && strtoupper($destColType) !== 'STRING') {
+                // Cast dest to STRING so comparison works when staging columns are STRING
+                // but destination columns are typed (e.g. INT64 from cross-backend CSV loads)
+                return sprintf(
+                    'CAST(`dest`.%s AS STRING) = COALESCE(`src`.%s, \'\')',
+                    BigqueryQuote::quoteSingleIdentifier($col),
+                    BigqueryQuote::quoteSingleIdentifier($col),
+                );
+            }
             return sprintf(
-                'CAST(`dest`.%s AS STRING) = COALESCE(`src`.%s, \'\')',
+                '`dest`.%s = COALESCE(`src`.%s, \'\')',
                 BigqueryQuote::quoteSingleIdentifier($col),
                 BigqueryQuote::quoteSingleIdentifier($col),
             );
