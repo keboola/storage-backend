@@ -31,6 +31,12 @@ class AddPrimaryKeyCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string primaryKeysNames = 4;</code>
      */
     private $primaryKeysNames;
+    /**
+     * skip duplication check when adding primary keys
+     *
+     * Generated from protobuf field <code>bool skipDuplicatesCheck = 5;</code>
+     */
+    protected $skipDuplicatesCheck = false;
 
     /**
      * Constructor.
@@ -44,6 +50,8 @@ class AddPrimaryKeyCommand extends \Google\Protobuf\Internal\Message
      *           table name
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $primaryKeysNames
      *           primary key columns names
+     *     @type bool $skipDuplicatesCheck
+     *           skip duplication check when adding primary keys
      * }
      */
     public function __construct($data = NULL) {
@@ -125,6 +133,32 @@ class AddPrimaryKeyCommand extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->primaryKeysNames = $arr;
+
+        return $this;
+    }
+
+    /**
+     * skip duplication check when adding primary keys
+     *
+     * Generated from protobuf field <code>bool skipDuplicatesCheck = 5;</code>
+     * @return bool
+     */
+    public function getSkipDuplicatesCheck()
+    {
+        return $this->skipDuplicatesCheck;
+    }
+
+    /**
+     * skip duplication check when adding primary keys
+     *
+     * Generated from protobuf field <code>bool skipDuplicatesCheck = 5;</code>
+     * @param bool $var
+     * @return $this
+     */
+    public function setSkipDuplicatesCheck($var)
+    {
+        GPBUtil::checkBool($var);
+        $this->skipDuplicatesCheck = $var;
 
         return $this;
     }
