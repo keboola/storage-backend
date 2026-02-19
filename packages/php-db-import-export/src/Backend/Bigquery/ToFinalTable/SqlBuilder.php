@@ -99,11 +99,24 @@ class SqlBuilder
             if (in_array($columnDefinition->getColumnName(), $importOptions->getConvertEmptyValuesToNull(), true)) {
                 // use nullif only for string base type
                 if ($columnDefinition->getColumnDefinition()->getBasetype() === BaseType::STRING) {
-                    $columnsSetSql[] = sprintf(
+                    $nullifExpr = sprintf(
                         'NULLIF(%s.%s, \'\')',
                         BigqueryQuote::quoteSingleIdentifier(self::SRC_ALIAS),
                         BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
                     );
+                    // Cast to destination type when staging columns are STRING
+                    // but destination is typed (e.g. TIMESTAMP from cross-backend CSV loads)
+                    $destType = $destinationColumn->getColumnDefinition()->getType();
+                    if (strtoupper($destType) !== 'STRING') {
+                        $columnsSetSql[] = sprintf(
+                            'CAST(%s AS %s) AS %s',
+                            $nullifExpr,
+                            $destType,
+                            BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName()),
+                        );
+                    } else {
+                        $columnsSetSql[] = $nullifExpr;
+                    }
                 } else {
                     $columnsSetSql[] = BigqueryQuote::quoteSingleIdentifier($columnDefinition->getColumnName());
                 }

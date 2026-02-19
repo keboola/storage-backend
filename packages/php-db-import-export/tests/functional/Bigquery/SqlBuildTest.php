@@ -469,6 +469,84 @@ class SqlBuildTest extends BigqueryBaseTestCase
         }
     }
 
+    /**
+     * Tests CAST(NULLIF(...) AS <type>) in INSERT when destination columns are
+     * non-STRING (e.g. TIMESTAMP) but staging is STRING (cross-backend CSV load).
+     */
+    public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTypedDestColumns(): void
+    {
+        $this->createTestDb();
+
+        // Destination table with TIMESTAMP column (nullable)
+        $destinationColumns = [
+            $this->createNullableGenericColumn('id'),
+            $this->createNullableGenericColumn('col1'),
+            new BigqueryColumn('col2', new Bigquery(Bigquery::TYPE_TIMESTAMP, ['nullable' => true])),
+        ];
+        $destination = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection($destinationColumns),
+            [],
+        );
+        $qb = new BigqueryTableQueryBuilder();
+        $this->bqClient->runQuery($this->bqClient->query(
+            $qb->getCreateTableCommandFromDefinition($destination),
+        ));
+
+        // Staging table with STRING data (STRING_TABLE strategy)
+        $this->createStagingTableWithData(true);
+        $fakeStage = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+        );
+
+        // Fake destination matching staging columns: col1 STRING, col2 TIMESTAMP
+        $fakeDestination = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                new BigqueryColumn('col2', new Bigquery(Bigquery::TYPE_TIMESTAMP, ['nullable' => true])),
+            ]),
+            [],
+        );
+
+        // convertEmptyValuesToNull on col2 (TIMESTAMP destination)
+        $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $fakeDestination,
+            new BigqueryImportOptions(
+                ['col2'], // convert col2 to null when empty
+                false,
+                false,
+                BigqueryImportOptions::SKIP_NO_LINE,
+                BigqueryImportOptions::USING_TYPES_STRING,
+            ),
+            '2020-01-01 00:00:00',
+        );
+
+        // col1: no convert, STRING dest → CAST(COALESCE(...) as STRING)
+        // col2: convert, TIMESTAMP dest → CAST(NULLIF(...) AS TIMESTAMP)
+        self::assertEquals(
+            // phpcs:ignore
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT CAST(COALESCE(`src`.`col1`, \'\') as STRING) AS `col1`,CAST(NULLIF(`src`.`col2`, \'\') AS TIMESTAMP) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
+            $sql,
+        );
+
+        // The staging data has col2 values '1', '2', '2', '' — '1' and '2' are not valid
+        // timestamps, so we only verify the SQL is correct rather than executing it with
+        // real timestamp data. The E2E test in connection covers the full data path.
+    }
+
     public function testGetTruncateTableCommand(): void
     {
         $this->createTestDb();
