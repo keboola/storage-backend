@@ -81,6 +81,7 @@ message AddPrimaryKeyCommand {
   repeated string path = 1; // path where table is located
   string tableName = 2; // table name
   repeated string primaryKeysNames = 4; // primary key columns names
+  bool skipDuplicatesCheck = 5; // skip duplication check when adding primary keys
 }
 
 message DropPrimaryKeyCommand {
