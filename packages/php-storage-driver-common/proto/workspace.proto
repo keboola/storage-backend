@@ -6,6 +6,14 @@ import "proto/table.proto";
 package keboola.storageDriver.command.workspace;
 
 /**
+ * Represents a table in a storage bucket for direct grant write access
+ */
+message DirectGrantTable {
+  repeated string path = 1; // path where table exists (e.g. dataset/schema)
+  string tableName = 2;     // table name within the dataset
+}
+
+/**
  * Command is used when new workspace is created in Keboola connection
  * Command will:
  * - create new workspace which is usually new schema
@@ -25,6 +33,8 @@ message CreateWorkspaceCommand {
   string projectReadOnlyRoleName = 6; // backend read only role associated with project, role has read access for all buckets in project and containing tables
   string devBranchReadOnlyRoleName = 10; // backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
   google.protobuf.Any meta = 7; // metadata specific for each backend
+  repeated DirectGrantTable directGrantTables = 11; // tables in storage buckets to which workspace should have write access (table-level IAM)
+
   /**
    * Teradata backend metadata
    */
@@ -54,6 +64,7 @@ message DropWorkspaceCommand {
   string workspaceRoleName = 2; // backend role associated with workspace
   string workspaceObjectName = 3; // object name in backend which will be removed
   bool isCascade = 4; // drop all object workspace contains
+  repeated DirectGrantTable directGrantTables = 5; // tables with direct grant write access that need IAM cleanup before SA deletion
 }
 /**
  * Command will remove workspace content

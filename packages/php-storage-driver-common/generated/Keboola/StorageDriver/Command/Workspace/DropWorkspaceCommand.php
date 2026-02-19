@@ -40,6 +40,12 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>bool isCascade = 4;</code>
      */
     protected $isCascade = false;
+    /**
+     * tables with direct grant write access that need IAM cleanup before SA deletion
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.workspace.DirectGrantTable directGrantTables = 5;</code>
+     */
+    private $directGrantTables;
 
     /**
      * Constructor.
@@ -55,6 +61,8 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *           object name in backend which will be removed
      *     @type bool $isCascade
      *           drop all object workspace contains
+     *     @type array<\Keboola\StorageDriver\Command\Workspace\DirectGrantTable>|\Google\Protobuf\Internal\RepeatedField $directGrantTables
+     *           tables with direct grant write access that need IAM cleanup before SA deletion
      * }
      */
     public function __construct($data = NULL) {
@@ -162,6 +170,32 @@ class DropWorkspaceCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkBool($var);
         $this->isCascade = $var;
+
+        return $this;
+    }
+
+    /**
+     * tables with direct grant write access that need IAM cleanup before SA deletion
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.workspace.DirectGrantTable directGrantTables = 5;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getDirectGrantTables()
+    {
+        return $this->directGrantTables;
+    }
+
+    /**
+     * tables with direct grant write access that need IAM cleanup before SA deletion
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.workspace.DirectGrantTable directGrantTables = 5;</code>
+     * @param array<\Keboola\StorageDriver\Command\Workspace\DirectGrantTable>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setDirectGrantTables($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Workspace\DirectGrantTable::class);
+        $this->directGrantTables = $arr;
 
         return $this;
     }

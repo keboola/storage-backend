@@ -82,6 +82,12 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>.google.protobuf.Any meta = 7;</code>
      */
     protected $meta = null;
+    /**
+     * tables in storage buckets to which workspace should have write access (table-level IAM)
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.workspace.DirectGrantTable directGrantTables = 11;</code>
+     */
+    private $directGrantTables;
 
     /**
      * Constructor.
@@ -109,6 +115,8 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
      *           backend dev branch read only role associated with project, role has read access for all buckets in project and containing tables including bucket in dev branch
      *     @type \Google\Protobuf\Any $meta
      *           metadata specific for each backend
+     *     @type array<\Keboola\StorageDriver\Command\Workspace\DirectGrantTable>|\Google\Protobuf\Internal\RepeatedField $directGrantTables
+     *           tables in storage buckets to which workspace should have write access (table-level IAM)
      * }
      */
     public function __construct($data = NULL) {
@@ -382,6 +390,32 @@ class CreateWorkspaceCommand extends \Google\Protobuf\Internal\Message
     {
         GPBUtil::checkMessage($var, \Google\Protobuf\Any::class);
         $this->meta = $var;
+
+        return $this;
+    }
+
+    /**
+     * tables in storage buckets to which workspace should have write access (table-level IAM)
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.workspace.DirectGrantTable directGrantTables = 11;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getDirectGrantTables()
+    {
+        return $this->directGrantTables;
+    }
+
+    /**
+     * tables in storage buckets to which workspace should have write access (table-level IAM)
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.workspace.DirectGrantTable directGrantTables = 11;</code>
+     * @param array<\Keboola\StorageDriver\Command\Workspace\DirectGrantTable>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setDirectGrantTables($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Workspace\DirectGrantTable::class);
+        $this->directGrantTables = $arr;
 
         return $this;
     }

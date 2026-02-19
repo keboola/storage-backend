@@ -18,8 +18,11 @@ class Workspace
         \GPBMetadata\Proto\Table::initOnce();
         $pool->internalAddGeneratedFile(
             '
-ì
-proto/workspace.proto\'keboola.storageDriver.command.workspaceproto/table.proto"“
+Î
+proto/workspace.proto\'keboola.storageDriver.command.workspaceproto/table.proto"3
+DirectGrantTable
+path (	
+	tableName (	"é
 CreateWorkspaceCommand
 stackPrefix (	
 	projectId (	
@@ -31,7 +34,8 @@ class Workspace
 projectReadOnlyRoleName (	!
 devBranchReadOnlyRoleName
  (	"
-meta (2.google.protobuf.AnyD
+meta (2.google.protobuf.AnyT
+directGrantTables (29.keboola.storageDriver.command.workspace.DirectGrantTableD
 CreateWorkspaceTeradataMeta
 	permSpace (	
 
@@ -42,12 +46,13 @@ spoolSpace (	1
 workspaceUserName (	
 workspaceRoleName (	
 workspacePassword (	
-workspaceObjectName (	"|
+workspaceObjectName (	"Ò
 DropWorkspaceCommand
 workspaceUserName (	
 workspaceRoleName (	
 workspaceObjectName (	
-	isCascade ("e
+	isCascade (T
+directGrantTables (29.keboola.storageDriver.command.workspace.DirectGrantTable"e
 ClearWorkspaceCommand
 workspaceObjectName (	
 ignoreErrors (
