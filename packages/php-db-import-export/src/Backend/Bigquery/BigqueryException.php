@@ -19,6 +19,9 @@ class BigqueryException extends Exception
             if (preg_match('/.*Required field .+ cannot be null.*/m', $e->getMessage(), $output_array) === 1) {
                 return new BigqueryInputDataException($e->getMessage());
             }
+            if (preg_match('/Bad \w+ value/m', $e->getMessage()) === 1) {
+                return new BigqueryInputDataException($e->getMessage());
+            }
             return new self($e->getMessage());
         }
         return $e;

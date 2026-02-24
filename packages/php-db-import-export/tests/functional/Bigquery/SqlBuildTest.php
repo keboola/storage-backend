@@ -469,6 +469,84 @@ class SqlBuildTest extends BigqueryBaseTestCase
         }
     }
 
+    /**
+     * Tests CAST(NULLIF(...) AS <type>) in INSERT when destination columns are
+     * non-STRING (e.g. TIMESTAMP) but staging is STRING (cross-backend CSV load).
+     */
+    public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTypedDestColumns(): void
+    {
+        $this->createTestDb();
+
+        // Destination table with TIMESTAMP column (nullable)
+        $destinationColumns = [
+            $this->createNullableGenericColumn('id'),
+            $this->createNullableGenericColumn('col1'),
+            new BigqueryColumn('col2', new Bigquery(Bigquery::TYPE_TIMESTAMP, ['nullable' => true])),
+        ];
+        $destination = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection($destinationColumns),
+            [],
+        );
+        $qb = new BigqueryTableQueryBuilder();
+        $this->bqClient->runQuery($this->bqClient->query(
+            $qb->getCreateTableCommandFromDefinition($destination),
+        ));
+
+        // Staging table with STRING data (STRING_TABLE strategy)
+        $this->createStagingTableWithData(true);
+        $fakeStage = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+        );
+
+        // Fake destination matching staging columns: col1 STRING, col2 TIMESTAMP
+        $fakeDestination = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                new BigqueryColumn('col2', new Bigquery(Bigquery::TYPE_TIMESTAMP, ['nullable' => true])),
+            ]),
+            [],
+        );
+
+        // convertEmptyValuesToNull on col2 (TIMESTAMP destination)
+        $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
+            $fakeStage,
+            $fakeDestination,
+            new BigqueryImportOptions(
+                ['col2'], // convert col2 to null when empty
+                false,
+                false,
+                BigqueryImportOptions::SKIP_NO_LINE,
+                BigqueryImportOptions::USING_TYPES_STRING,
+            ),
+            '2020-01-01 00:00:00',
+        );
+
+        // col1: no convert, STRING dest → CAST(COALESCE(...) as STRING)
+        // col2: convert, TIMESTAMP dest → CAST(NULLIF(...) AS TIMESTAMP)
+        self::assertEquals(
+            // phpcs:ignore
+            'INSERT INTO `import_export_test_schema`.`import_export_test_test` (`col1`, `col2`) SELECT CAST(COALESCE(`src`.`col1`, \'\') as STRING) AS `col1`,CAST(NULLIF(`src`.`col2`, \'\') AS TIMESTAMP) AS `col2` FROM `import_export_test_schema`.`stagingTable` AS `src`',
+            $sql,
+        );
+
+        // The staging data has col2 values '1', '2', '2', '' — '1' and '2' are not valid
+        // timestamps, so we only verify the SQL is correct rather than executing it with
+        // real timestamp data. The E2E test in connection covers the full data path.
+    }
+
     public function testGetTruncateTableCommand(): void
     {
         $this->createTestDb();
@@ -1040,6 +1118,279 @@ class SqlBuildTest extends BigqueryBaseTestCase
         );
 
         self::assertEquals($expectedSql, $sql);
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+
+        $result = $this->fetchTable($stagingTableDefinition->getSchemaName(), $stagingTableDefinition->getTableName());
+
+        self::assertCount(1, $result);
+        self::assertSame([
+            [
+                'pk1' => '2',
+                'pk2' => '1',
+                'col1' => '1',
+                'col2' => '1',
+            ],
+        ], $result);
+    }
+
+    /**
+     * Tests that CAST is applied in SET, PK WHERE, and comparison
+     * when destination columns are non-STRING (e.g. INT64) but staging is STRING.
+     * This is the cross-backend CSV load scenario.
+     */
+    public function testGetUpdateWithPkCommandWithTypedDestColumns(): void
+    {
+        $this->createTestDb();
+
+        // Create real destination table with typed col1 (INT64)
+        $tableDefinition = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('id'),
+                new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+        );
+        $qb = new BigqueryTableQueryBuilder();
+        $this->bqClient->runQuery($this->bqClient->query(
+            $qb->getCreateTableCommandFromDefinition($tableDefinition),
+        ));
+
+        // Create staging table with STRING data (cross-backend CSV scenario)
+        $this->createStagingTableWithData(false);
+
+        // Fake destination: col1 is INT64 (PK), col2 is STRING
+        $fakeDestination = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1'],
+        );
+        // Fake stage (always STRING from CSV)
+        $fakeStage = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+        );
+
+        // Insert initial data in destination (col1 is INT64)
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',2,\'1\')',
+                self::TEST_DB_QUOTED,
+                self::TEST_TABLE_QUOTED,
+            ),
+        ));
+
+        // no convert values no timestamp
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            new BigqueryImportOptions(
+                [],
+                false,
+                false,
+                BigqueryImportOptions::SKIP_NO_LINE,
+                BigqueryImportOptions::USING_TYPES_STRING,
+            ),
+            '2020-01-01 00:00:00',
+        );
+
+        // CAST must be applied: SET col1=CAST(...AS INT64), PK WHERE CAST(dest.col1 AS STRING), comparison CAST
+        // col2 is STRING so no CAST
+        self::assertEquals(
+            // phpcs:ignore
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = CAST(COALESCE(`src`.`col1`, \'\') AS INT64), `col2` = COALESCE(`src`.`col2`, \'\') FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE CAST(`dest`.`col1` AS STRING) = COALESCE(`src`.`col1`, \'\')  AND (CAST(`dest`.`col1` AS STRING) != COALESCE(`src`.`col1`, \'\') OR `dest`.`col2` != COALESCE(`src`.`col2`, \'\'))',
+            $sql,
+        );
+
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+
+        $result = $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED);
+        // col1=2 matched staging col1='2', col2 updated from '1' to '2'
+        self::assertCount(1, $result);
+        self::assertSame('1', $result[0]['id']);
+        self::assertSame('2', $result[0]['col2']);
+    }
+
+    /**
+     * Tests CAST with convertEmptyValuesToNull on typed destination columns.
+     */
+    public function testGetUpdateWithPkCommandConvertValuesWithTypedDestColumns(): void
+    {
+        $this->createTestDb();
+
+        // Create real destination table with typed col1 (INT64)
+        $tableDefinition = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('id'),
+                new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+        );
+        $qb = new BigqueryTableQueryBuilder();
+        $this->bqClient->runQuery($this->bqClient->query(
+            $qb->getCreateTableCommandFromDefinition($tableDefinition),
+        ));
+
+        $this->createStagingTableWithData(false);
+
+        // Fake destination: col1 is INT64 (PK), col2 is STRING
+        $fakeDestination = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            true,
+            new ColumnCollection([
+                new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            ['col1'],
+        );
+        $fakeStage = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_STAGING_TABLE,
+            true,
+            new ColumnCollection([
+                $this->createNullableGenericColumn('col1'),
+                $this->createNullableGenericColumn('col2'),
+            ]),
+            [],
+        );
+
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',2,\'1\')',
+                self::TEST_DB_QUOTED,
+                self::TEST_TABLE_QUOTED,
+            ),
+        ));
+
+        // convert col1 to null when empty
+        $sql = $this->getBuilder()->getUpdateWithPkCommand(
+            $fakeStage,
+            $fakeDestination,
+            new BigqueryImportOptions(
+                ['col1'],
+                false,
+                false,
+                BigqueryImportOptions::SKIP_NO_LINE,
+                BigqueryImportOptions::USING_TYPES_STRING,
+            ),
+            '2020-01-01 00:00:00',
+        );
+
+        // col1 SET uses IF+CAST(..AS INT64), col2 no CAST (STRING dest)
+        self::assertEquals(
+            // phpcs:ignore
+            'UPDATE `import_export_test_schema`.`import_export_test_test` AS `dest` SET `col1` = CAST(IF(`src`.`col1` = \'\', NULL, `src`.`col1`) AS INT64), `col2` = COALESCE(`src`.`col2`, \'\') FROM `import_export_test_schema`.`stagingTable` AS `src` WHERE CAST(`dest`.`col1` AS STRING) = COALESCE(`src`.`col1`, \'\')  AND (CAST(`dest`.`col1` AS STRING) != COALESCE(`src`.`col1`, \'\') OR `dest`.`col2` != COALESCE(`src`.`col2`, \'\'))',
+            $sql,
+        );
+
+        $this->bqClient->runQuery($this->bqClient->query($sql));
+    }
+
+    /**
+     * Tests CAST on PK WHERE in DELETE when destination PK columns are non-STRING.
+     */
+    public function testGetDeleteOldItemsCommandWithTypedDestColumns(): void
+    {
+        $this->createTestDb();
+
+        // Destination with typed pk1 (INT64) and STRING pk2
+        $tableDefinition = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_TABLE,
+            false,
+            new ColumnCollection([
+                new BigqueryColumn(
+                    'id',
+                    new Bigquery(Bigquery::TYPE_INT),
+                ),
+                new BigqueryColumn('pk1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => false, 'default' => '0'])),
+                BigqueryColumn::createGenericColumn('pk2'),
+                BigqueryColumn::createGenericColumn('col1'),
+                BigqueryColumn::createGenericColumn('col2'),
+            ]),
+            ['pk1', 'pk2'],
+        );
+        $tableSql = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
+        );
+        $qb = new BigqueryTableQueryBuilder();
+        $this->bqClient->runQuery($this->bqClient->query($qb->getCreateTableCommandFromDefinition($tableDefinition)));
+        // pk1 is INT64
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s(`id`,`pk1`,`pk2`,`col1`,`col2`) VALUES (1,1,\'1\',\'1\',\'1\')',
+                $tableSql,
+            ),
+        ));
+
+        // Staging table (all STRING, as from CSV)
+        $stagingTableDefinition = new BigqueryTableDefinition(
+            self::TEST_DB,
+            self::TEST_STAGING_TABLE,
+            false,
+            new ColumnCollection([
+                BigqueryColumn::createGenericColumn('pk1'),
+                BigqueryColumn::createGenericColumn('pk2'),
+                BigqueryColumn::createGenericColumn('col1'),
+                BigqueryColumn::createGenericColumn('col2'),
+            ]),
+            ['pk1', 'pk2'],
+        );
+        $this->bqClient->runQuery($this->bqClient->query(
+            $qb->getCreateTableCommandFromDefinition($stagingTableDefinition),
+        ));
+        $stagingTableSql = sprintf(
+            '%s.%s',
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+            BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+        );
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
+                $stagingTableSql,
+            ),
+        ));
+        $this->bqClient->runQuery($this->bqClient->query(
+            sprintf(
+                'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'1\',\'1\',\'1\')',
+                $stagingTableSql,
+            ),
+        ));
+
+        $sql = $this->getBuilder()->getDeleteOldItemsCommand(
+            $stagingTableDefinition,
+            $tableDefinition,
+            $this->getSimpleImportOptions(),
+        );
+
+        // pk1 is INT64 → CAST applied, pk2 is STRING → no CAST
+        self::assertEquals(
+            // phpcs:ignore
+            'DELETE `import_export_test_schema`.`stagingTable` AS `src` WHERE EXISTS (SELECT * FROM `import_export_test_schema`.`import_export_test_test` AS `dest` WHERE CAST(`dest`.`pk1` AS STRING) = COALESCE(`src`.`pk1`, \'\') AND `dest`.`pk2` = COALESCE(`src`.`pk2`, \'\') )',
+            $sql,
+        );
+
         $this->bqClient->runQuery($this->bqClient->query($sql));
 
         $result = $this->fetchTable($stagingTableDefinition->getSchemaName(), $stagingTableDefinition->getTableName());
