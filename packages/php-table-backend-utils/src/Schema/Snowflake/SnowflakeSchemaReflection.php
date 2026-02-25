@@ -129,7 +129,8 @@ SQL,
         );
 
         $primaryKeyQuery = sprintf(
-            'SHOW PRIMARY KEYS',
+            'SHOW PRIMARY KEYS IN SCHEMA %s',
+            SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
         );
 
         /** @var array<int, array{TABLE_NAME: string, TABLE_TYPE: string, BYTES: int, ROW_COUNT: int}> $informations */
@@ -206,6 +207,9 @@ SQL,
         }
 
         foreach ($primaryKeys as $primaryKey) {
+            if ($primaryKey['schema_name'] !== $this->schemaName) {
+                continue;
+            }
             $tableKey = md5($primaryKey['table_name']);
             if (!array_key_exists($tableKey, $tables)) {
                 // Snowflake can show primary keys for table you don't have permissions for

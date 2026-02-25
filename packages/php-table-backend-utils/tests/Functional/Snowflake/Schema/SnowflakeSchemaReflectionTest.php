@@ -169,6 +169,58 @@ CREATE VIEW %s.%s AS
         self::assertCount(0, $definitions);
     }
 
+    public function testGetDefinitionsPrimaryKeysNotDuplicatedAcrossSchemas(): void
+    {
+        $otherSchema = self::TESTS_PREFIX . 'otherSchema';
+        $this->cleanSchema($otherSchema);
+        $this->createSchema(self::TEST_SCHEMA);
+        $this->createSchema($otherSchema);
+
+        try {
+            $tableName = 'TABLENAME';
+
+            // create table with primary key in the target schema
+            $this->connection->executeQuery(
+                sprintf(
+                    'CREATE TABLE %s.%s ("ID_SRC" INTEGER, PRIMARY KEY ("ID_SRC"))',
+                    SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName),
+                ),
+            );
+
+            // create table with same name and same primary key in a different schema
+            $this->connection->executeQuery(
+                sprintf(
+                    'CREATE TABLE %s.%s ("ID_SRC" INTEGER, PRIMARY KEY ("ID_SRC"))',
+                    SnowflakeQuote::quoteSingleIdentifier($otherSchema),
+                    SnowflakeQuote::quoteSingleIdentifier($tableName),
+                ),
+            );
+
+            // create a second table in the target schema with same PK column name
+            $backupTableName = 'TABLENAME_BACKUP';
+            $this->connection->executeQuery(
+                sprintf(
+                    'CREATE TABLE %s.%s ("ID_SRC" INTEGER, PRIMARY KEY ("ID_SRC"))',
+                    SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                    SnowflakeQuote::quoteSingleIdentifier($backupTableName),
+                ),
+            );
+
+            $definitions = $this->schemaRef->getDefinitions();
+
+            self::assertCount(2, $definitions);
+
+            // TABLENAME must have exactly one primary key, not duplicated from other schema
+            self::assertSame(['ID_SRC'], $definitions[$tableName]->getPrimaryKeysNames());
+
+            // TABLENAME_BACKUP must also have exactly one primary key
+            self::assertSame(['ID_SRC'], $definitions[$backupTableName]->getPrimaryKeysNames());
+        } finally {
+            $this->cleanSchema($otherSchema);
+        }
+    }
+
     public function testGetDefinitionsCoversAllTypes(): void
     {
         $this->createSchema(self::TEST_SCHEMA);
