@@ -184,6 +184,9 @@ class ParquetExportTest extends SnowflakeBaseTestCase
 
     public function testExportParquetWithTimezone(): void
     {
+        // Snowflake does not support unloading TIMESTAMP_LTZ/TZ to Parquet,
+        // so we use TIMESTAMP_NTZ here. Session timezone does not affect NTZ values,
+        // meaning timezone conversion only applies to CSV exports with LTZ columns.
         $tableName = $this->getTestTableName();
         $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
         $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
@@ -191,14 +194,12 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $this->connection->executeQuery(sprintf(
             'CREATE TABLE %s.%s (
                 "ID" INTEGER,
-                "TS" TIMESTAMP_LTZ
+                "TS" TIMESTAMP_NTZ
             )',
             $schema,
             $table,
         ));
 
-        // Insert with explicit UTC timezone for deterministic values
-        $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s ("ID", "TS") VALUES
             (1, \'2024-01-15 12:00:00\'),
@@ -206,7 +207,6 @@ class ParquetExportTest extends SnowflakeBaseTestCase
             $schema,
             $table,
         ));
-        $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
 
         $source = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
@@ -242,10 +242,9 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $ts2 = $content[1]['TS'];
         assert(is_string($ts1));
         assert(is_string($ts2));
-        // January: PST = UTC-8, so 12:00 UTC -> 04:00 PST
-        $this->assertStringStartsWith('2024-01-15T04:00:00', $ts1);
-        // July: PDT = UTC-7, so 12:00 UTC -> 05:00 PDT
-        $this->assertStringStartsWith('2024-07-15T05:00:00', $ts2);
+        // TIMESTAMP_NTZ is timezone-naive, so values remain unchanged regardless of session timezone
+        $this->assertStringStartsWith('2024-01-15T12:00:00', $ts1);
+        $this->assertStringStartsWith('2024-07-15T12:00:00', $ts2);
     }
 
     public function testExportParquetTimezoneDoesNotAffectSession(): void
@@ -254,22 +253,21 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
         $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
 
+        // Snowflake does not support unloading TIMESTAMP_LTZ/TZ to Parquet
         $this->connection->executeQuery(sprintf(
             'CREATE TABLE %s.%s (
                 "ID" INTEGER,
-                "TS" TIMESTAMP_LTZ
+                "TS" TIMESTAMP_NTZ
             )',
             $schema,
             $table,
         ));
 
-        $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
         $this->connection->executeQuery(sprintf(
             'INSERT INTO %s.%s ("ID", "TS") VALUES (1, \'2024-01-15 12:00:00\')',
             $schema,
             $table,
         ));
-        $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
 
         $timezoneBefore = $this->getCurrentSessionTimezone();
 
