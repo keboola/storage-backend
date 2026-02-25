@@ -15,6 +15,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\ToStageImporter;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
@@ -274,6 +275,122 @@ class ExportTest extends SnowflakeBaseTestCase
 
         $files = $this->getFileNames($this->getExportDir(), false);
         $this->assertContains($this->getExportDir() . '/tw_testmanifest', array_values($files));
+    }
+
+    public function testExportWithTimezone(): void
+    {
+        $tableName = 'tz_csv_test_' . uniqid();
+        $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
+        $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
+
+        $this->connection->executeQuery(sprintf(
+            'CREATE TABLE %s.%s (
+                "id" VARCHAR(100),
+                "ts" TIMESTAMP_LTZ
+            )',
+            $schema,
+            $table,
+        ));
+
+        // Insert with explicit UTC timezone for deterministic values
+        $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
+        $this->connection->executeQuery(sprintf(
+            'INSERT INTO %s.%s ("id", "ts") VALUES
+            (\'1\', \'2024-01-15 12:00:00\'),
+            (\'2\', \'2024-07-15 12:00:00\')',
+            $schema,
+            $table,
+        ));
+        $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
+
+        $source = new Storage\Snowflake\Table(
+            $this->getDestinationSchemaName(),
+            $tableName,
+        );
+        $options = new ExportOptions(
+            isCompressed: false,
+            generateManifest: ExportOptions::MANIFEST_SKIP,
+            timezone: 'America/Los_Angeles',
+        );
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/tz_csv_test');
+
+        $result = (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options,
+        );
+
+        $this->assertCount(1, $result);
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
+        $slice = reset($result);
+        $this->assertSame(2, (int) $slice['ROW_COUNT']);
+
+        $files = $this->listFiles($this->getExportDir());
+        $actual = $this->getCsvFileFromStorage($files);
+
+        $rows = iterator_to_array($actual);
+        usort($rows, fn($a, $b) => strcmp($a[0], $b[0]));
+
+        // January: PST = UTC-8, so 12:00 UTC -> 04:00 PST
+        $this->assertSame('2024-01-15 04:00:00', $rows[0][1]);
+        // July: PDT = UTC-7, so 12:00 UTC -> 05:00 PDT
+        $this->assertSame('2024-07-15 05:00:00', $rows[1][1]);
+    }
+
+    public function testExportTimezoneDoesNotAffectSession(): void
+    {
+        $tableName = 'tz_csv_restore_' . uniqid();
+        $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
+        $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
+
+        $this->connection->executeQuery(sprintf(
+            'CREATE TABLE %s.%s (
+                "id" VARCHAR(100),
+                "ts" TIMESTAMP_LTZ
+            )',
+            $schema,
+            $table,
+        ));
+
+        $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
+        $this->connection->executeQuery(sprintf(
+            'INSERT INTO %s.%s ("id", "ts") VALUES (\'1\', \'2024-01-15 12:00:00\')',
+            $schema,
+            $table,
+        ));
+        $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
+
+        $timezoneBefore = $this->getCurrentSessionTimezone();
+
+        $source = new Storage\Snowflake\Table(
+            $this->getDestinationSchemaName(),
+            $tableName,
+        );
+        $options = new ExportOptions(
+            isCompressed: false,
+            generateManifest: ExportOptions::MANIFEST_SKIP,
+            timezone: 'Pacific/Auckland',
+        );
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/tz_csv_restore');
+
+        (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options,
+        );
+
+        $timezoneAfter = $this->getCurrentSessionTimezone();
+        $this->assertSame($timezoneBefore, $timezoneAfter);
+    }
+
+    private function getCurrentSessionTimezone(): string
+    {
+        $this->connection->executeQuery("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION");
+        /** @var string $timezone */
+        $timezone = $this->connection->fetchOne(
+            'SELECT "value" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))',
+        );
+        return $timezone;
     }
 
     private function importTable(
