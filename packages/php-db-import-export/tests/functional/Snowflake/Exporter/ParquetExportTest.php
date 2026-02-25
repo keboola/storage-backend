@@ -30,6 +30,16 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $this->createSchema($this->getDestinationSchemaName());
     }
 
+    private function getCurrentSessionTimezone(): string
+    {
+        $this->connection->executeQuery("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION");
+        /** @var string $timezone */
+        $timezone = $this->connection->fetchOne(
+            'SELECT "value" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))',
+        );
+        return $timezone;
+    }
+
     private function createTestTable(string $tableName): void
     {
         $this->connection->executeQuery(sprintf(
@@ -261,7 +271,7 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         ));
         $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
 
-        $timezoneBefore = $this->connection->fetchOne('SELECT CURRENT_TIMEZONE()');
+        $timezoneBefore = $this->getCurrentSessionTimezone();
 
         $source = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
@@ -282,7 +292,7 @@ class ParquetExportTest extends SnowflakeBaseTestCase
             $options,
         );
 
-        $timezoneAfter = $this->connection->fetchOne('SELECT CURRENT_TIMEZONE()');
+        $timezoneAfter = $this->getCurrentSessionTimezone();
         $this->assertSame($timezoneBefore, $timezoneAfter);
     }
 
