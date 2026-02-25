@@ -128,8 +128,11 @@ SQL,
             SnowflakeQuote::quote($this->schemaName),
         );
 
+        /** @var string $databaseName */
+        $databaseName = $this->connection->fetchOne('SELECT CURRENT_DATABASE()');
         $primaryKeyQuery = sprintf(
-            'SHOW PRIMARY KEYS IN SCHEMA %s',
+            'SHOW PRIMARY KEYS IN SCHEMA %s.%s',
+            SnowflakeQuote::quoteSingleIdentifier($databaseName),
             SnowflakeQuote::quoteSingleIdentifier($this->schemaName),
         );
 
