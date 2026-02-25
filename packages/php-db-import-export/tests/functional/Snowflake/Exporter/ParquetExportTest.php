@@ -8,7 +8,6 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Export\Exporter;
 use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
-use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class ParquetExportTest extends SnowflakeBaseTestCase
@@ -28,16 +27,6 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $this->cleanSchema($this->getSourceSchemaName());
         $this->createSchema($this->getSourceSchemaName());
         $this->createSchema($this->getDestinationSchemaName());
-    }
-
-    private function getCurrentSessionTimezone(): string
-    {
-        $this->connection->executeQuery("SHOW PARAMETERS LIKE 'TIMEZONE' IN SESSION");
-        /** @var string $timezone */
-        $timezone = $this->connection->fetchOne(
-            'SELECT "value" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))',
-        );
-        return $timezone;
     }
 
     private function createTestTable(string $tableName): void
@@ -182,31 +171,10 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         ], $content);
     }
 
-    public function testExportParquetWithTimezone(): void
+    public function testExportParquetWithTimezoneThrowsException(): void
     {
-        // Snowflake does not support unloading TIMESTAMP_LTZ/TZ to Parquet,
-        // so we use TIMESTAMP_NTZ here. Session timezone does not affect NTZ values,
-        // meaning timezone conversion only applies to CSV exports with LTZ columns.
         $tableName = $this->getTestTableName();
-        $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
-        $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
-
-        $this->connection->executeQuery(sprintf(
-            'CREATE TABLE %s.%s (
-                "ID" INTEGER,
-                "TS" TIMESTAMP_NTZ
-            )',
-            $schema,
-            $table,
-        ));
-
-        $this->connection->executeQuery(sprintf(
-            'INSERT INTO %s.%s ("ID", "TS") VALUES
-            (1, \'2024-01-15 12:00:00\'),
-            (2, \'2024-07-15 12:00:00\')',
-            $schema,
-            $table,
-        ));
+        $this->createTestTable($tableName);
 
         $source = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
@@ -221,77 +189,14 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         /** @var Storage\S3\DestinationFile $destination */
         $destination = $this->getDestinationInstance($this->getExportDir() . '/parquet_tz_test');
 
-        $result = (new Exporter($this->connection))->exportTable(
-            $source,
-            $destination,
-            $options,
-        );
-
-        $this->assertCount(1, $result);
-        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
-        $slice = reset($result);
-        $this->assertSame(2, (int) $slice['ROW_COUNT']);
-
-        $files = $this->listFiles($this->getExportDir());
-        $tmpFiles = $this->getParquetFileFromStorage($files);
-        $content = $this->getParquetContent($tmpFiles);
-
-        usort($content, fn($a, $b) => $a['ID'] <=> $b['ID']);
-
-        $ts1 = $content[0]['TS'];
-        $ts2 = $content[1]['TS'];
-        assert(is_string($ts1));
-        assert(is_string($ts2));
-        // TIMESTAMP_NTZ is timezone-naive, so values remain unchanged regardless of session timezone
-        $this->assertStringStartsWith('2024-01-15T12:00:00', $ts1);
-        $this->assertStringStartsWith('2024-07-15T12:00:00', $ts2);
-    }
-
-    public function testExportParquetTimezoneDoesNotAffectSession(): void
-    {
-        $tableName = $this->getTestTableName();
-        $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
-        $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
-
-        // Snowflake does not support unloading TIMESTAMP_LTZ/TZ to Parquet
-        $this->connection->executeQuery(sprintf(
-            'CREATE TABLE %s.%s (
-                "ID" INTEGER,
-                "TS" TIMESTAMP_NTZ
-            )',
-            $schema,
-            $table,
-        ));
-
-        $this->connection->executeQuery(sprintf(
-            'INSERT INTO %s.%s ("ID", "TS") VALUES (1, \'2024-01-15 12:00:00\')',
-            $schema,
-            $table,
-        ));
-
-        $timezoneBefore = $this->getCurrentSessionTimezone();
-
-        $source = new Storage\Snowflake\Table(
-            $this->getDestinationSchemaName(),
-            $tableName,
-        );
-        $options = new ExportOptions(
-            isCompressed: false,
-            generateManifest: ExportOptions::MANIFEST_SKIP,
-            fileType: ExportFileType::PARQUET,
-            timezone: 'Pacific/Auckland',
-        );
-        /** @var Storage\S3\DestinationFile $destination */
-        $destination = $this->getDestinationInstance($this->getExportDir() . '/parquet_tz_restore');
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Timezone option is not supported for Parquet exports.');
 
         (new Exporter($this->connection))->exportTable(
             $source,
             $destination,
             $options,
         );
-
-        $timezoneAfter = $this->getCurrentSessionTimezone();
-        $this->assertSame($timezoneBefore, $timezoneAfter);
     }
 
     public function testExportParquetWithQuery(): void
