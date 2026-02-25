@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\BackendExportAdapterInterface;
 use Keboola\Db\ImportExport\Backend\ExporterInterface;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 
 class Exporter implements ExporterInterface
 {
@@ -41,8 +42,20 @@ class Exporter implements ExporterInterface
         Storage\DestinationInterface $destination,
         ExportOptionsInterface $options,
     ): array {
-        return $this->getAdapter($source, $destination)
-            ->runCopyCommand($source, $destination, $options);
+        $timezone = $options->getTimezone();
+        if ($timezone !== null) {
+            $this->connection->executeStatement(
+                sprintf('ALTER SESSION SET TIMEZONE = %s', SnowflakeQuote::quote($timezone)),
+            );
+        }
+        try {
+            return $this->getAdapter($source, $destination)
+                ->runCopyCommand($source, $destination, $options);
+        } finally {
+            if ($timezone !== null) {
+                $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
+            }
+        }
     }
 
     private function getAdapter(

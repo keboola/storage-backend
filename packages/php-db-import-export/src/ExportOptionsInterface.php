@@ -18,4 +18,6 @@ interface ExportOptionsInterface
      * @return string[]
      */
     public function features(): array;
+
+    public function getTimezone(): ?string;
 }

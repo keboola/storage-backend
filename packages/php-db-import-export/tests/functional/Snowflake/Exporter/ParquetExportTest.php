@@ -8,6 +8,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Export\Exporter;
 use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class ParquetExportTest extends SnowflakeBaseTestCase
@@ -169,6 +170,120 @@ class ParquetExportTest extends SnowflakeBaseTestCase
                 'BOOL_COL' => false,
             ],
         ], $content);
+    }
+
+    public function testExportParquetWithTimezone(): void
+    {
+        $tableName = $this->getTestTableName();
+        $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
+        $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
+
+        $this->connection->executeQuery(sprintf(
+            'CREATE TABLE %s.%s (
+                "ID" INTEGER,
+                "TS" TIMESTAMP_LTZ
+            )',
+            $schema,
+            $table,
+        ));
+
+        // Insert with explicit UTC timezone for deterministic values
+        $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
+        $this->connection->executeQuery(sprintf(
+            'INSERT INTO %s.%s ("ID", "TS") VALUES
+            (1, \'2024-01-15 12:00:00\'),
+            (2, \'2024-07-15 12:00:00\')',
+            $schema,
+            $table,
+        ));
+        $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
+
+        $source = new Storage\Snowflake\Table(
+            $this->getDestinationSchemaName(),
+            $tableName,
+        );
+        $options = new ExportOptions(
+            isCompressed: false,
+            generateManifest: ExportOptions::MANIFEST_SKIP,
+            fileType: ExportFileType::PARQUET,
+            timezone: 'America/Los_Angeles',
+        );
+        /** @var Storage\S3\DestinationFile $destination */
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/parquet_tz_test');
+
+        $result = (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options,
+        );
+
+        $this->assertCount(1, $result);
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
+        $slice = reset($result);
+        $this->assertSame(2, (int) $slice['ROW_COUNT']);
+
+        $files = $this->listFiles($this->getExportDir());
+        $tmpFiles = $this->getParquetFileFromStorage($files);
+        $content = $this->getParquetContent($tmpFiles);
+
+        usort($content, fn($a, $b) => $a['ID'] <=> $b['ID']);
+
+        $ts1 = $content[0]['TS'];
+        $ts2 = $content[1]['TS'];
+        assert(is_string($ts1));
+        assert(is_string($ts2));
+        // January: PST = UTC-8, so 12:00 UTC -> 04:00 PST
+        $this->assertStringStartsWith('2024-01-15T04:00:00', $ts1);
+        // July: PDT = UTC-7, so 12:00 UTC -> 05:00 PDT
+        $this->assertStringStartsWith('2024-07-15T05:00:00', $ts2);
+    }
+
+    public function testExportParquetTimezoneDoesNotAffectSession(): void
+    {
+        $tableName = $this->getTestTableName();
+        $schema = SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName());
+        $table = SnowflakeQuote::quoteSingleIdentifier($tableName);
+
+        $this->connection->executeQuery(sprintf(
+            'CREATE TABLE %s.%s (
+                "ID" INTEGER,
+                "TS" TIMESTAMP_LTZ
+            )',
+            $schema,
+            $table,
+        ));
+
+        $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
+        $this->connection->executeQuery(sprintf(
+            'INSERT INTO %s.%s ("ID", "TS") VALUES (1, \'2024-01-15 12:00:00\')',
+            $schema,
+            $table,
+        ));
+        $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
+
+        $timezoneBefore = $this->connection->fetchOne('SELECT CURRENT_TIMEZONE()');
+
+        $source = new Storage\Snowflake\Table(
+            $this->getDestinationSchemaName(),
+            $tableName,
+        );
+        $options = new ExportOptions(
+            isCompressed: false,
+            generateManifest: ExportOptions::MANIFEST_SKIP,
+            fileType: ExportFileType::PARQUET,
+            timezone: 'Pacific/Auckland',
+        );
+        /** @var Storage\S3\DestinationFile $destination */
+        $destination = $this->getDestinationInstance($this->getExportDir() . '/parquet_tz_restore');
+
+        (new Exporter($this->connection))->exportTable(
+            $source,
+            $destination,
+            $options,
+        );
+
+        $timezoneAfter = $this->connection->fetchOne('SELECT CURRENT_TIMEZONE()');
+        $this->assertSame($timezoneBefore, $timezoneAfter);
     }
 
     public function testExportParquetWithQuery(): void

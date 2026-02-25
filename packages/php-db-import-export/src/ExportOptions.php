@@ -25,6 +25,7 @@ class ExportOptions implements ExportOptionsInterface
         bool $generateManifest = self::MANIFEST_SKIP,
         private readonly array $features = [],
         private readonly ExportFileType $fileType = ExportFileType::CSV,
+        private readonly ?string $timezone = null,
     ) {
         $this->isCompressed = $isCompressed;
         $this->exportId = BackendHelper::generateRandomExportPrefix();
@@ -57,5 +58,10 @@ class ExportOptions implements ExportOptionsInterface
     public function getFileType(): ExportFileType
     {
         return $this->fileType;
+    }
+
+    public function getTimezone(): ?string
+    {
+        return $this->timezone;
     }
 }

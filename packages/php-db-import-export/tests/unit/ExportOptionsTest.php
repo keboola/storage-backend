@@ -24,4 +24,18 @@ class ExportOptionsTest extends TestCase
         self::assertTrue($options->isCompressed());
         self::assertTrue($options->generateManifest());
     }
+
+    public function testDefaultTimezoneIsNull(): void
+    {
+        $options = new ExportOptions();
+
+        self::assertNull($options->getTimezone());
+    }
+
+    public function testCustomTimezone(): void
+    {
+        $options = new ExportOptions(timezone: 'UTC');
+
+        self::assertSame('UTC', $options->getTimezone());
+    }
 }
