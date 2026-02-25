@@ -9,6 +9,7 @@ use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
+use Throwable;
 
 class ParquetExportTest extends SnowflakeBaseTestCase
 {
@@ -189,7 +190,7 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         /** @var Storage\S3\DestinationFile $destination */
         $destination = $this->getDestinationInstance($this->getExportDir() . '/parquet_tz_test');
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Timezone option is not supported for Parquet exports.');
 
         (new Exporter($this->connection))->exportTable(
