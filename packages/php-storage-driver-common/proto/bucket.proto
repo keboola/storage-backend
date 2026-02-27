@@ -61,6 +61,7 @@ message LinkBucketCommand {
 
   message LinkBucketBigqueryMeta {
     string region = 1 [deprecated = true]; // region where linked bucket is created
+    string targetServiceAccountEmail = 2; // email of KBC2 project service account; required when linking external BQ buckets where the driver must grant subscriber access to this SA
   }
 }
 
@@ -126,6 +127,8 @@ message GrantBucketAccessToReadOnlyRoleCommand {
  */
 message GrantBucketAccessToReadOnlyRoleResponse {
   string createBucketObjectName = 1; // resulting object name actually stored in backend
+  string sourceListing = 2; // full Analytics Hub listing reference (e.g. projects/exbq/locations/us/dataExchanges/ex/listings/l), BigQuery external buckets only
+  bool sourceListingSharingAllowed = 3; // whether KBC1's SA has analyticshub.listings.setIamPolicy on the listing, BigQuery external buckets only
 }
 
 message RevokeBucketAccessFromReadOnlyRoleCommand {
