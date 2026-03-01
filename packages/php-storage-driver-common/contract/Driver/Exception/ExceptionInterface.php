@@ -18,6 +18,7 @@ interface ExceptionInterface extends ApplicationExceptionInterface, ExceptionWit
     public const ERR_TIMEOUT = 1000;
     public const ERR_CONNECTION = 1001;
     public const ERR_AUTH = 1002;
+    public const ERR_DATABASE_MISMATCH = 1003;
 
     // Objects related exception codes 2xxx
     public const ERR_NOT_FOUND = 2000;
@@ -25,6 +26,7 @@ interface ExceptionInterface extends ApplicationExceptionInterface, ExceptionWit
     public const ERR_DATABASE_NOT_FOUND = 2002;
     public const ERR_SCHEMA_NOT_FOUND = 2003;
     public const ERR_TABLE_NOT_FOUND = 2004;
+    public const ERR_VIEW_NOT_FOUND = 2008;
     public const ERR_COLUMN_NOT_FOUND = 2005;
     public const ERR_OBJECT_ALREADY_EXISTS = 2006;
     public const ERR_OBJECT_PERMISSION_DENIED = 2007;
