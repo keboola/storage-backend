@@ -6,6 +6,7 @@ namespace Keboola\StorageDriver\Snowflake\Handler;
 
 use Google\Protobuf\Internal\Message;
 use Keboola\StorageDriver\Command\Bucket\CreateBucketCommand;
+use Keboola\StorageDriver\Command\Info\ObjectInfoCommand;
 use Keboola\StorageDriver\Command\Project\CreateDevBranchCommand;
 use Keboola\StorageDriver\Command\Project\DropDevBranchCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
@@ -13,6 +14,7 @@ use Keboola\StorageDriver\Command\Table\TableExportToFileCommand;
 use Keboola\StorageDriver\Contract\Driver\Command\DriverCommandHandlerInterface;
 use Keboola\StorageDriver\Shared\Driver\Exception\CommandNotSupportedException;
 use Keboola\StorageDriver\Snowflake\Handler\Bucket\CreateBucketHandler;
+use Keboola\StorageDriver\Snowflake\Handler\Info\ObjectInfoHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Project\CreateDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Project\DropDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Table\ProfileTableHandler;
@@ -30,6 +32,7 @@ final class HandlerFactory
             CreateBucketCommand::class => new CreateBucketHandler(),
             CreateDevBranchCommand::class => new CreateDevBranchHandler(),
             DropDevBranchCommand::class => new DropDevBranchHandler(),
+            ObjectInfoCommand::class => new ObjectInfoHandler(),
             TableExportToFileCommand::class => new TableExportToFileHandler(),
             default => throw new CommandNotSupportedException($command::class),
         };

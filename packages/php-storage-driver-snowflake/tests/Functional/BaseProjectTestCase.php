@@ -41,8 +41,8 @@ abstract class BaseProjectTestCase extends BaseCase
 
     protected function tearDown(): void
     {
-        var_export('Tearing down project'.PHP_EOL);
         parent::tearDown();
+
         $this->dropProjectForTest(
             $this->getTestPrefix(),
             self::BASE_PROJECT_ID,

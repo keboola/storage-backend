@@ -287,6 +287,7 @@ services:
       - SNOWFLAKE_PRIVATE_KEY
       - SNOWFLAKE_DATABASE
       - SNOWFLAKE_WAREHOUSE
+      - SNOWFLAKE_STACK_PREFIX
 
 volumes:
   exa-volume:

@@ -11,11 +11,11 @@ use Keboola\StorageDriver\Command\Project\DropProjectCommand;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials;
 use Keboola\StorageDriver\Credentials\GenericBackendCredentials\SnowflakeCredentialsMeta;
 use Keboola\StorageDriver\Snowflake\ConnectionFactory;
-use Keboola\StorageDriver\Snowflake\Features;
 use Keboola\StorageDriver\Snowflake\NameGenerator;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaQueryBuilder;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 abstract class BaseCase extends TestCase
 {
@@ -65,8 +65,9 @@ abstract class BaseCase extends TestCase
     {
         $stackPrefix = getenv('SNOWFLAKE_STACK_PREFIX');
         if (empty($stackPrefix)) {
-            $stackPrefix = 'LOCAL_DRIVER_';
+            throw new RuntimeException('Environment variable SNOWFLAKE_STACK_PREFIX must be set.');
         }
+
         return $stackPrefix;
     }
 
