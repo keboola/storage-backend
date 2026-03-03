@@ -23,13 +23,13 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
      */
     protected $createBucketObjectName = '';
     /**
-     * full Analytics Hub listing reference (e.g. projects/exbq/locations/us/dataExchanges/ex/listings/l), BigQuery external buckets only
+     * Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
      *
      * Generated from protobuf field <code>string sourceListing = 2;</code>
      */
     protected $sourceListing = '';
     /**
-     * whether KBC1's SA has analyticshub.listings.setIamPolicy on the listing, BigQuery external buckets only
+     * true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
      *
      * Generated from protobuf field <code>bool sourceListingSharingAllowed = 3;</code>
      */
@@ -44,9 +44,9 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
      *     @type string $createBucketObjectName
      *           resulting object name actually stored in backend
      *     @type string $sourceListing
-     *           full Analytics Hub listing reference (e.g. projects/exbq/locations/us/dataExchanges/ex/listings/l), BigQuery external buckets only
+     *           Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
      *     @type bool $sourceListingSharingAllowed
-     *           whether KBC1's SA has analyticshub.listings.setIamPolicy on the listing, BigQuery external buckets only
+     *           true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
      * }
      */
     public function __construct($data = NULL) {
@@ -81,7 +81,7 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
     }
 
     /**
-     * full Analytics Hub listing reference (e.g. projects/exbq/locations/us/dataExchanges/ex/listings/l), BigQuery external buckets only
+     * Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
      *
      * Generated from protobuf field <code>string sourceListing = 2;</code>
      * @return string
@@ -92,7 +92,7 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
     }
 
     /**
-     * full Analytics Hub listing reference (e.g. projects/exbq/locations/us/dataExchanges/ex/listings/l), BigQuery external buckets only
+     * Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
      *
      * Generated from protobuf field <code>string sourceListing = 2;</code>
      * @param string $var
@@ -107,7 +107,7 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
     }
 
     /**
-     * whether KBC1's SA has analyticshub.listings.setIamPolicy on the listing, BigQuery external buckets only
+     * true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
      *
      * Generated from protobuf field <code>bool sourceListingSharingAllowed = 3;</code>
      * @return bool
@@ -118,7 +118,7 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
     }
 
     /**
-     * whether KBC1's SA has analyticshub.listings.setIamPolicy on the listing, BigQuery external buckets only
+     * true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
      *
      * Generated from protobuf field <code>bool sourceListingSharingAllowed = 3;</code>
      * @param bool $var

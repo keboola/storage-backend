@@ -92,7 +92,7 @@ message ShareBucketCommand {
  * Response which is always returned as result of ShareBucketResponse
  */
 message ShareBucketResponse {
-    string bucketShareRoleName = 1;
+  string bucketShareRoleName = 1;
 }
 
 message UnlinkBucketCommand {
@@ -127,8 +127,8 @@ message GrantBucketAccessToReadOnlyRoleCommand {
  */
 message GrantBucketAccessToReadOnlyRoleResponse {
   string createBucketObjectName = 1; // resulting object name actually stored in backend
-  string sourceListing = 2; // full Analytics Hub listing reference (e.g. projects/exbq/locations/us/dataExchanges/ex/listings/l), BigQuery external buckets only
-  bool sourceListingSharingAllowed = 3; // whether KBC1's SA has analyticshub.listings.setIamPolicy on the listing, BigQuery external buckets only
+  string sourceListing = 2; // Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
+  bool sourceListingSharingAllowed = 3; // true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
 }
 
 message RevokeBucketAccessFromReadOnlyRoleCommand {
