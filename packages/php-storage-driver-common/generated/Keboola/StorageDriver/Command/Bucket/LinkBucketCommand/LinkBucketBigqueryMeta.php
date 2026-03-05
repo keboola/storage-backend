@@ -20,6 +20,12 @@ class LinkBucketBigqueryMeta extends \Google\Protobuf\Internal\Message
      * @deprecated
      */
     protected $region = '';
+    /**
+     * email of KBC2 project service account; required when linking external BQ buckets where the driver must grant subscriber access to this SA
+     *
+     * Generated from protobuf field <code>string targetServiceAccountEmail = 2;</code>
+     */
+    protected $targetServiceAccountEmail = '';
 
     /**
      * Constructor.
@@ -29,6 +35,8 @@ class LinkBucketBigqueryMeta extends \Google\Protobuf\Internal\Message
      *
      *     @type string $region
      *           region where linked bucket is created
+     *     @type string $targetServiceAccountEmail
+     *           email of KBC2 project service account; required when linking external BQ buckets where the driver must grant subscriber access to this SA
      * }
      */
     public function __construct($data = NULL) {
@@ -62,6 +70,32 @@ class LinkBucketBigqueryMeta extends \Google\Protobuf\Internal\Message
         @trigger_error('region is deprecated.', E_USER_DEPRECATED);
         GPBUtil::checkString($var, True);
         $this->region = $var;
+
+        return $this;
+    }
+
+    /**
+     * email of KBC2 project service account; required when linking external BQ buckets where the driver must grant subscriber access to this SA
+     *
+     * Generated from protobuf field <code>string targetServiceAccountEmail = 2;</code>
+     * @return string
+     */
+    public function getTargetServiceAccountEmail()
+    {
+        return $this->targetServiceAccountEmail;
+    }
+
+    /**
+     * email of KBC2 project service account; required when linking external BQ buckets where the driver must grant subscriber access to this SA
+     *
+     * Generated from protobuf field <code>string targetServiceAccountEmail = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setTargetServiceAccountEmail($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->targetServiceAccountEmail = $var;
 
         return $this;
     }

@@ -61,6 +61,7 @@ message LinkBucketCommand {
 
   message LinkBucketBigqueryMeta {
     string region = 1 [deprecated = true]; // region where linked bucket is created
+    string targetServiceAccountEmail = 2; // email of KBC2 project service account; required when linking external BQ buckets where the driver must grant subscriber access to this SA
   }
 }
 
@@ -91,7 +92,7 @@ message ShareBucketCommand {
  * Response which is always returned as result of ShareBucketResponse
  */
 message ShareBucketResponse {
-    string bucketShareRoleName = 1;
+  string bucketShareRoleName = 1;
 }
 
 message UnlinkBucketCommand {
@@ -126,6 +127,8 @@ message GrantBucketAccessToReadOnlyRoleCommand {
  */
 message GrantBucketAccessToReadOnlyRoleResponse {
   string createBucketObjectName = 1; // resulting object name actually stored in backend
+  string sourceListing = 2; // Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
+  bool sourceListingSharingAllowed = 3; // true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
 }
 
 message RevokeBucketAccessFromReadOnlyRoleCommand {

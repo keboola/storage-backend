@@ -22,6 +22,18 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
      * Generated from protobuf field <code>string createBucketObjectName = 1;</code>
      */
     protected $createBucketObjectName = '';
+    /**
+     * Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
+     *
+     * Generated from protobuf field <code>string sourceListing = 2;</code>
+     */
+    protected $sourceListing = '';
+    /**
+     * true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
+     *
+     * Generated from protobuf field <code>bool sourceListingSharingAllowed = 3;</code>
+     */
+    protected $sourceListingSharingAllowed = false;
 
     /**
      * Constructor.
@@ -31,6 +43,10 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
      *
      *     @type string $createBucketObjectName
      *           resulting object name actually stored in backend
+     *     @type string $sourceListing
+     *           Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
+     *     @type bool $sourceListingSharingAllowed
+     *           true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
      * }
      */
     public function __construct($data = NULL) {
@@ -60,6 +76,58 @@ class GrantBucketAccessToReadOnlyRoleResponse extends \Google\Protobuf\Internal\
     {
         GPBUtil::checkString($var, True);
         $this->createBucketObjectName = $var;
+
+        return $this;
+    }
+
+    /**
+     * Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
+     *
+     * Generated from protobuf field <code>string sourceListing = 2;</code>
+     * @return string
+     */
+    public function getSourceListing()
+    {
+        return $this->sourceListing;
+    }
+
+    /**
+     * Analytics Hub listing resource name (BQ external buckets only); empty string if not applicable
+     *
+     * Generated from protobuf field <code>string sourceListing = 2;</code>
+     * @param string $var
+     * @return $this
+     */
+    public function setSourceListing($var)
+    {
+        GPBUtil::checkString($var, True);
+        $this->sourceListing = $var;
+
+        return $this;
+    }
+
+    /**
+     * true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
+     *
+     * Generated from protobuf field <code>bool sourceListingSharingAllowed = 3;</code>
+     * @return bool
+     */
+    public function getSourceListingSharingAllowed()
+    {
+        return $this->sourceListingSharingAllowed;
+    }
+
+    /**
+     * true if KBC SA has listingAdmin on the listing, allowing setIamPolicy calls (BQ external buckets only)
+     *
+     * Generated from protobuf field <code>bool sourceListingSharingAllowed = 3;</code>
+     * @param bool $var
+     * @return $this
+     */
+    public function setSourceListingSharingAllowed($var)
+    {
+        GPBUtil::checkBool($var);
+        $this->sourceListingSharingAllowed = $var;
 
         return $this;
     }
