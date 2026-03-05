@@ -149,9 +149,6 @@ class SnowflakeTableQueryBuilder implements TableQueryBuilderInterface
         );
     }
 
-    /**
-     * @param SnowflakeTableDefinition $definition
-     */
     public function getCreateTableCommandFromDefinition(
         TableDefinitionInterface $definition,
         bool $definePrimaryKeys = self::CREATE_TABLE_WITHOUT_PRIMARY_KEYS,
