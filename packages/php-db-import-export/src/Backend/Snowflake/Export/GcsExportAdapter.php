@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\ExportFileType;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\ExportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use Keboola\Db\ImportExport\Storage\GCS\ManifestGenerator\WriteStreamFactory;
 
 class GcsExportAdapter implements BackendExportAdapterInterface
 {
@@ -68,6 +69,7 @@ DETAILED_OUTPUT = TRUE%s',
         if ($exportOptions->generateManifest()) {
             (new Storage\GCS\ManifestGenerator\GcsSlicedManifestFromUnloadQueryResultGenerator(
                 $destination->getClient(),
+                new WriteStreamFactory(),
             ))
                 ->generateAndSaveManifest($destination->getRelativePath(), $unloadedFiles);
         }
