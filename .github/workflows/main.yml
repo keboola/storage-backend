@@ -14,11 +14,8 @@ env:
   AWS_CREDENTIALS_ROLE_TO_ASSUME: arn:aws:iam::149899208592:role/ci-storage-backend-BaseStorageBackendRole-5WXOY9DYENCT
   MAIN_BRANCH: main
 jobs:
-  build:
+  paths_filter:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     outputs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
@@ -40,14 +37,6 @@ jobs:
           echo "github.ref_type: ${{ github.ref_type }}"
           echo "isReleaseTag=$(if [ "$(git rev-parse origin/$MAIN_BRANCH)" == "$(git rev-parse HEAD)" ] && ${{ github.ref_type == 'tag' }}; then echo 1; else echo 0; fi)" >> "$GITHUB_OUTPUT"
           echo "isReleaseTag=$(if [ "$(git rev-parse origin/$MAIN_BRANCH)" == "$(git rev-parse HEAD)" ] && ${{ github.ref_type == 'tag' }}; then echo 1; else echo 0; fi)"
-      -
-        name: Configure AWS Credentials
-        id: creds
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-duration-seconds: 900
-          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
 
       - uses: dorny/paths-filter@v3
         id: changes
@@ -69,6 +58,34 @@ jobs:
               - 'packages/php-datatypes/**'
               - 'packages/php-table-backend-utils/**'
 
+  static_analysis:
+    if: ${{ needs.paths_filter.outputs.isReleaseTag == '0' }}
+    needs: paths_filter
+    uses: ./.github/workflows/static-analysis.yml
+    with:
+      changed-php-datatypes: ${{ needs.paths_filter.outputs.changed-php-datatypes == 'true' }}
+      changed-php-table-backend-utils: ${{ needs.paths_filter.outputs.changed-php-table-backend-utils == 'true' }}
+      changed-php-db-import-export: ${{ needs.paths_filter.outputs.changed-php-db-import-export == 'true' }}
+      changed-php-storage-driver-common: ${{ needs.paths_filter.outputs.changed-php-storage-driver-common == 'true' }}
+      changed-php-storage-driver-snowflake: ${{ needs.paths_filter.outputs.changed-php-storage-driver-snowflake == 'true' }}
+
+  build:
+    needs: paths_filter
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      -
+        name: Configure AWS Credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-duration-seconds: 900
+          role-to-assume: ${{ env.AWS_CREDENTIALS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_CREDENTIALS_REGION }}
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -88,33 +105,33 @@ jobs:
           docker push $REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   build_datatypes:
-    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
+    if: ${{ needs.paths_filter.outputs.isReleaseTag == '0' }}
     uses: ./.github/workflows/build-php-datatypes.yml
     with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-datatypes == 'true' }}
+      hasCodeChanged: ${{ needs.paths_filter.outputs.changed-php-datatypes == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: build
+    needs: [paths_filter, build]
 
   build_php_table_backend_utils:
-    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
+    if: ${{ needs.paths_filter.outputs.isReleaseTag == '0' }}
     uses: ./.github/workflows/build-php-table-backend-utils.yml
     with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-table-backend-utils == 'true' }}
+      hasCodeChanged: ${{ needs.paths_filter.outputs.changed-php-table-backend-utils == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
-      isRequiredRepoChanged: ${{ needs.build.outputs.table-utils-requirements== 'true' }}
+      isRequiredRepoChanged: ${{ needs.paths_filter.outputs.table-utils-requirements == 'true' }}
     secrets:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
       BQ_KEY_FILE: ${{ secrets.BQ_KEY_FILE }}
-    needs: build
+    needs: [paths_filter, build]
 
   build_php_db_import_export:
-    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
+    if: ${{ needs.paths_filter.outputs.isReleaseTag == '0' }}
     uses: ./.github/workflows/build-php-db-import-export.yml
     with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-db-import-export == 'true' }}
+      hasCodeChanged: ${{ needs.paths_filter.outputs.changed-php-db-import-export == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
-      isRequiredRepoChanged: ${{ needs.build.outputs.db-import-export-requirements == 'true' }}
+      isRequiredRepoChanged: ${{ needs.paths_filter.outputs.db-import-export-requirements == 'true' }}
     secrets:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.IE_AWS_SECRET_ACCESS_KEY }}
       ABS_ACCOUNT_KEY: ${{ secrets.ABS_ACCOUNT_KEY }}
@@ -123,32 +140,33 @@ jobs:
       BQ_KEY_FILE: ${{ secrets.IE_BQ_KEY_FILE }}
       OAUTH_TOKEN_GITHUB: ${{ secrets.IE_OAUTH_TOKEN_GITHUB }}
       GCS_CREDENTIALS: ${{ secrets.IE_GCS_CREDENTIALS }}
-    needs: build
+    needs: [paths_filter, build]
 
   build_php_storage_driver_common:
-    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
+    if: ${{ needs.paths_filter.outputs.isReleaseTag == '0' }}
     uses: ./.github/workflows/build-php-storage-driver-common.yml
     with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-common == 'true' }}
+      hasCodeChanged: ${{ needs.paths_filter.outputs.changed-php-storage-driver-common == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
     secrets:
       S3_BUCKET: ${{ secrets.S3_BUCKET }}
       S3_AWS_REGION: ${{ secrets.S3_AWS_REGION }}
-    needs: build
+    needs: [paths_filter, build]
 
   build_php_storage_driver_snowflake:
-    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
+    if: ${{ needs.paths_filter.outputs.isReleaseTag == '0' }}
     uses: ./.github/workflows/build-php-storage-driver-snowflake.yml
     with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-snowflake == 'true' }}
+      hasCodeChanged: ${{ needs.paths_filter.outputs.changed-php-storage-driver-snowflake == 'true' }}
       isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
     secrets:
       SNOWFLAKE_PASSWORD: ${{ secrets.PHP_STORAGE_DRIVER_SNOWFLAKE_SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_PRIVATE_KEY: ${{ secrets.PHP_STORAGE_DRIVER_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY }}
-    needs: build
+    needs: [paths_filter, build]
 
   test_results:
     needs:
+        - static_analysis
         - build_datatypes
         - build_php_table_backend_utils
         - build_php_db_import_export
@@ -157,7 +175,8 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       always()
-        && contains(fromJson('["success", "skipped"]'), needs.build_datatypes.result) 
+        && contains(fromJson('["success", "skipped"]'), needs.static_analysis.result)
+        && contains(fromJson('["success", "skipped"]'), needs.build_datatypes.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_table_backend_utils.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_db_import_export.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_storage_driver_common.result)

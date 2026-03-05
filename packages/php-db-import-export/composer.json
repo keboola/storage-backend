@@ -91,6 +91,10 @@
         "ci": [
             "@composer validate --no-check-publish --no-check-all",
             "@build"
+        ],
+        "ci-tests": [
+            "@composer validate --no-check-publish --no-check-all",
+            "@tests-unit"
         ]
     },
     "config": {

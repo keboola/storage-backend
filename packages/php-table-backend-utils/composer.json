@@ -60,6 +60,10 @@
             "@phpcs",
             "@phpstan",
             "@tests-unit"
+        ],
+        "ci-tests": [
+            "@composer validate --no-check-publish --no-check-all",
+            "@tests-unit"
         ]
     },
     "config": {

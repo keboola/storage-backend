@@ -128,7 +128,7 @@ jobs:
       - name: Check
         run: |
           docker compose run ci-php-db-import-export php -v
-          docker compose run ci-php-db-import-export composer ci
+          docker compose run ci-php-db-import-export composer ci-tests
 
   # Load stubs to S3/ABS
   load-s3:

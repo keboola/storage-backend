@@ -18,6 +18,7 @@
     },
     "require-dev": {
         "keboola/coding-standard": "^15",
+        "php-parallel-lint/php-parallel-lint": "^1.3",
         "phpstan/phpstan": "^1.4",
         "phpstan/phpstan-phpunit": "^1",
         "phpunit/phpunit": "^9"
@@ -39,16 +40,22 @@
             "@tests-unit",
             "@tests-functional"
         ],
+        "phplint": "parallel-lint -j 10 --exclude vendor .",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
         "phpcbf": "phpcbf -s -n --extensions=php .",
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "check": [
             "@composer validate --no-check-all --strict",
+            "@phplint",
             "@phpcs",
             "@phpstan"
         ],
         "ci": [
             "@check",
+            "@tests"
+        ],
+        "ci-tests": [
+            "@composer validate --no-check-all --strict",
             "@tests"
         ]
     },

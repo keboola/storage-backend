@@ -75,6 +75,10 @@
         "ci": [
             "@check",
             "@tests"
+        ],
+        "ci-tests": [
+            "@composer validate --no-check-all --strict",
+            "@tests"
         ]
     }
 }

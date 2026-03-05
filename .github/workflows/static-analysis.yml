@@ -1,0 +1,99 @@
+name: Static Analysis
+
+on:
+  workflow_call:
+    inputs:
+      changed-php-datatypes:
+        required: true
+        type: boolean
+      changed-php-table-backend-utils:
+        required: true
+        type: boolean
+      changed-php-db-import-export:
+        required: true
+        type: boolean
+      changed-php-storage-driver-common:
+        required: true
+        type: boolean
+      changed-php-storage-driver-snowflake:
+        required: true
+        type: boolean
+
+jobs:
+  static_analysis:
+    runs-on: ubuntu-latest
+    if: >-
+      inputs.changed-php-datatypes
+      || inputs.changed-php-table-backend-utils
+      || inputs.changed-php-db-import-export
+      || inputs.changed-php-storage-driver-common
+      || inputs.changed-php-storage-driver-snowflake
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y unixodbc-dev
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, bcmath, pdo, odbc
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.json') }}
+          restore-keys: composer-
+
+      - name: Install monorepo dependencies
+        run: composer install --no-interaction
+
+      - name: Validate monorepo
+        run: vendor/bin/monorepo-builder validate
+
+      - name: Static analysis - php-datatypes
+        if: ${{ inputs.changed-php-datatypes }}
+        working-directory: packages/php-datatypes
+        run: |
+          composer install --no-interaction
+          composer phplint
+          composer phpcs
+          composer phpstan
+
+      - name: Static analysis - php-table-backend-utils
+        if: ${{ inputs.changed-php-table-backend-utils }}
+        working-directory: packages/php-table-backend-utils
+        run: |
+          composer install --no-interaction
+          composer phplint
+          composer phpcs
+          composer phpstan
+
+      - name: Static analysis - php-db-import-export
+        if: ${{ inputs.changed-php-db-import-export }}
+        working-directory: packages/php-db-import-export
+        run: |
+          composer install --no-interaction
+          composer phplint
+          composer phpcs
+          composer phpstan
+
+      - name: Static analysis - php-storage-driver-common
+        if: ${{ inputs.changed-php-storage-driver-common }}
+        working-directory: packages/php-storage-driver-common
+        run: |
+          composer install --no-interaction
+          composer phplint
+          composer phpcs
+          composer phpstan
+
+      - name: Static analysis - php-storage-driver-snowflake
+        if: ${{ inputs.changed-php-storage-driver-snowflake }}
+        working-directory: packages/php-storage-driver-snowflake
+        run: |
+          composer install --no-interaction
+          composer phplint
+          composer phpcs
+          composer phpstan
