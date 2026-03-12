@@ -137,3 +137,13 @@ message RevokeBucketAccessFromReadOnlyRoleCommand {
   bool ignoreErrors = 3 [deprecated = true]; // if true all backend errors should be ignored and command will always pass
   google.protobuf.Any meta = 4; // metadata specific for each backend
 }
+
+/**
+ * Grants roles/analyticshub.subscriber to a service account on an Analytics Hub listing.
+ * Used for linking external BQ buckets: called with KBC1's PROJECT credentials (which have
+ * listingAdmin on the listing) to grant subscriber access to KBC2's service account.
+ */
+message GrantExternalBucketSubscriberCommand {
+  string listingName = 1; // full Analytics Hub listing resource name (projects/.../locations/.../dataExchanges/.../listings/...)
+  string subscriberServiceAccountEmail = 2; // email of the service account that should receive subscriber access
+}
