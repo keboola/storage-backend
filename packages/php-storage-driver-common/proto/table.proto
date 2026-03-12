@@ -554,13 +554,14 @@ message CreateProfileTableResponse {
 }
 
 /**
- * Command is used to create a VIEW as materialization of an alias table
- * VIEW is created as SELECT over a source table in the same dataset
- * For dropping views use DropTableCommand
+ * Command is used to create a VIEW as materialization of an alias table.
+ * VIEW is created as SELECT over a source table, optionally in a different schema/path.
+ * For dropping views use DropTableCommand.
  */
 message CreateViewCommand {
-  repeated string path = 1; // dataset path where the view is created
-  string viewName = 2; // name of the view to create
-  string sourceTableName = 3; // source table in the same dataset
-  repeated string columns = 4; // columns to include; empty = SELECT *
+  repeated string path = 1;             // path where the view will be created
+  string viewName = 2;                  // name of the view to create
+  repeated string sourcePath = 3;       // path of the source table; if empty, same as path
+  string sourceTableName = 4;           // name of the source table
+  repeated string columns = 5;          // columns to include in the view; empty = SELECT *
 }
