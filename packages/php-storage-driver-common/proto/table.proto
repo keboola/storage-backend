@@ -564,4 +564,5 @@ message CreateViewCommand {
   repeated string sourcePath = 3;       // path of the source table; if empty, same as path
   string sourceTableName = 4;           // name of the source table
   repeated string columns = 5;          // columns to include in the view; empty = SELECT *
+  repeated ImportExportShared.TableWhereFilter whereFilters = 6;  // WHERE clause filters for the view
 }
