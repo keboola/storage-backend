@@ -48,6 +48,12 @@ class CreateViewCommand extends \Google\Protobuf\Internal\Message
      * Generated from protobuf field <code>repeated string columns = 5;</code>
      */
     private $columns;
+    /**
+     * WHERE clause filters for the view
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 6;</code>
+     */
+    private $whereFilters;
 
     /**
      * Constructor.
@@ -65,6 +71,8 @@ class CreateViewCommand extends \Google\Protobuf\Internal\Message
      *           name of the source table
      *     @type array<string>|\Google\Protobuf\Internal\RepeatedField $columns
      *           columns to include in the view; empty = SELECT *
+     *     @type array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $whereFilters
+     *           WHERE clause filters for the view
      * }
      */
     public function __construct($data = NULL) {
@@ -198,6 +206,32 @@ class CreateViewCommand extends \Google\Protobuf\Internal\Message
     {
         $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
         $this->columns = $arr;
+
+        return $this;
+    }
+
+    /**
+     * WHERE clause filters for the view
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 6;</code>
+     * @return \Google\Protobuf\Internal\RepeatedField
+     */
+    public function getWhereFilters()
+    {
+        return $this->whereFilters;
+    }
+
+    /**
+     * WHERE clause filters for the view
+     *
+     * Generated from protobuf field <code>repeated .keboola.storageDriver.command.table.ImportExportShared.TableWhereFilter whereFilters = 6;</code>
+     * @param array<\Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter>|\Google\Protobuf\Internal\RepeatedField $var
+     * @return $this
+     */
+    public function setWhereFilters($var)
+    {
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::MESSAGE, \Keboola\StorageDriver\Command\Table\ImportExportShared\TableWhereFilter::class);
+        $this->whereFilters = $arr;
 
         return $this;
     }
