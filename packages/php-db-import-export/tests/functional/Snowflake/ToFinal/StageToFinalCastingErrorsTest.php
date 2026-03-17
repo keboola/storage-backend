@@ -138,13 +138,14 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
         if (!$exceptionThrown) {
             // Snowflake no longer throws exceptions for some casting errors,
             // verify that the import completed and data exists in the table
-            $count = (int) $this->connection->fetchOne(
+            /** @var int|string|false $countResult */
+            $countResult = $this->connection->fetchOne(
                 sprintf(
                     'SELECT COUNT(*) FROM %s."types"',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                 ),
             );
-            $this->assertGreaterThan(0, $count, 'Import should have inserted rows');
+            $this->assertGreaterThan(0, (int) $countResult, 'Import should have inserted rows');
         }
     }
 }
