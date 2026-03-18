@@ -286,26 +286,28 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
-        $exceptionThrown = false;
-        try {
-            $importer->importToStagingTable(
-                $this->getSourceInstanceFromCsv(
-                    '02_tw_accounts.csv.invalid.manifest',
-                    new CsvOptions(),
-                    self::TWITTER_COLUMNS,
-                    true,
-                    false,
-                ),
-                $stagingTable,
-                $this->getSnowflakeImportOptions(),
-            );
-        } catch (LegacyImportException | FileNotFoundException $e) {
-            $exceptionThrown = true;
-        }
+        $importer->importToStagingTable(
+            $this->getSourceInstanceFromCsv(
+                '02_tw_accounts.csv.invalid.manifest',
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
+                true,
+                false,
+            ),
+            $stagingTable,
+            $this->getSnowflakeImportOptions(),
+        );
 
-        // Snowflake may or may not throw an exception for invalid manifests
-        // depending on the Snowflake version/configuration
-        $this->assertTrue(true, 'Test completed - import either failed with expected exception or succeeded');
+        // Snowflake no longer throws exception for invalid manifests -
+        // verify staging table was created (import may load 0 rows)
+        $count = $this->connection->fetchOne(
+            sprintf(
+                'SELECT COUNT(*) FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
+        );
+        $this->assertIsString($count);
     }
 
     public function testCopyIntoInvalidTypes(): void
@@ -327,31 +329,33 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
-        $exceptionThrown = false;
-        try {
-            $importer->importToStagingTable(
-                $this->getSourceInstanceFromCsv(
-                    'typed_table.invalid-types.csv',
-                    new CsvOptions(),
-                    [
-                        'charCol',
-                        'numCol',
-                        'floatCol',
-                        'boolCol',
-                    ],
-                    false,
-                    false,
-                ),
-                $stagingTable,
-                $this->getSnowflakeImportOptions(),
-            );
-        } catch (LegacyImportException $e) {
-            $exceptionThrown = true;
-        }
+        $importer->importToStagingTable(
+            $this->getSourceInstanceFromCsv(
+                'typed_table.invalid-types.csv',
+                new CsvOptions(),
+                [
+                    'charCol',
+                    'numCol',
+                    'floatCol',
+                    'boolCol',
+                ],
+                false,
+                false,
+            ),
+            $stagingTable,
+            $this->getSnowflakeImportOptions(),
+        );
 
-        // Snowflake may or may not throw an exception for invalid types
-        // depending on the Snowflake version/configuration
-        $this->assertTrue(true, 'Test completed - import either failed with expected exception or succeeded');
+        // Snowflake no longer throws exception for invalid types -
+        // verify data was imported into staging table
+        $count = $this->connection->fetchOne(
+            sprintf(
+                'SELECT COUNT(*) FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ),
+        );
+        $this->assertGreaterThan(0, (int) $count, 'Data should be imported to staging table');
     }
 
     public function testStageImportNullBehavior(): void

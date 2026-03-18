@@ -208,36 +208,27 @@ class ConnectionTest extends SnowflakeBaseCase
     {
         $this->initTable();
         $longString = str_repeat('a', 101);
-        $exceptionThrown = false;
-        try {
-            $this->insertRowToTable(
-                self::TEST_SCHEMA,
-                self::TABLE_GENERIC,
-                1,
-                'franta',
-                $longString,
-            );
-        } catch (StringTooLongException $e) {
-            $exceptionThrown = true;
-            $this->assertStringContainsString(
-                'cannot be inserted because it\'s bigger than column size',
-                $e->getMessage(),
-            );
-        }
 
-        // Snowflake behavior varies: may throw StringTooLongException,
-        // silently truncate, or reject the insert without exception
-        if (!$exceptionThrown) {
-            $result = $this->connection->fetchOne(
-                sprintf(
-                    'SELECT COUNT(*) FROM %s.%s WHERE "id" = 1',
-                    SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                    SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-                ),
-            );
-            // Row may or may not exist - both outcomes are acceptable
-            $this->assertTrue(true, 'Insert completed without StringTooLongException');
-        }
+        // Snowflake no longer throws StringTooLongException - it silently truncates
+        $this->insertRowToTable(
+            self::TEST_SCHEMA,
+            self::TABLE_GENERIC,
+            1,
+            'franta',
+            $longString,
+        );
+
+        $result = $this->connection->fetchAssociative(
+            sprintf(
+                'SELECT "id", "last_name" FROM %s.%s WHERE "id" = 1',
+                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        );
+        $this->assertIsArray($result);
+        $this->assertSame('1', $result['id']);
+        // String should be truncated to column size (VARCHAR(100))
+        $this->assertLessThanOrEqual(100, strlen($result['last_name']));
     }
 
     public function testInvalidCredentials(): void
