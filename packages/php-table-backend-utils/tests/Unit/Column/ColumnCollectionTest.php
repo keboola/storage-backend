@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\ColumnException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ColumnCollectionTest extends TestCase
@@ -16,15 +17,15 @@ class ColumnCollectionTest extends TestCase
         $collection = new ColumnCollection([
             SnowflakeColumn::createGenericColumn('col1'),
             SnowflakeColumn::createGenericColumn('col2'),
-        ]);
+            ],);
 
-        $this->assertIsIterable($collection);
+        $this->assertIsIterable($collection); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
-     * @dataProvider  tooMuchColumnsProviderWithLimits
      * @param class-string<SnowflakeColumn> $definitionClass
      */
+    #[DataProvider('tooMuchColumnsProviderWithLimits')]
     public function testTooMuchColumns(string $definitionClass, int $limit): void
     {
         $cols = [];
@@ -42,14 +43,14 @@ class ColumnCollectionTest extends TestCase
         $collection = new ColumnCollection([
             SnowflakeColumn::createGenericColumn('col1'),
             SnowflakeColumn::createGenericColumn('col2'),
-        ]);
+            ],);
         $this->assertCount(2, $collection);
     }
 
     /**
      * @return array<string, array{string, int}>
      */
-    public function tooMuchColumnsProviderWithLimits(): array
+    public static function tooMuchColumnsProviderWithLimits(): array
     {
         return
             [

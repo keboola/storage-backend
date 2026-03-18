@@ -8,13 +8,14 @@ use Keboola\Csv\CsvFile;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class IncrementalImportTest extends SnowflakeImportExportBaseTest
 {
     /**
      * @return array<mixed>
      */
-    public function incrementalImportData(): array
+    public static function incrementalImportData(): array
     {
         // accounts
         $expectationAccountsFile = new CsvFile(self::DATA_DIR . 'expectation.tw_accounts.increment.csv');
@@ -23,7 +24,6 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $expectedAccountsRows[] = $row;
         }
         $accountColumns = array_shift($expectedAccountsRows);
-        $expectedAccountsRows = array_values($expectedAccountsRows);
 
         // multi pk
         $expectationMultiPkFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk.increment.csv');
@@ -32,43 +32,42 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $expectedMultiPkRows[] = $row;
         }
         $multiPkColumns = array_shift($expectedMultiPkRows);
-        $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
         $tests = [];
         $tests[] = [
-            $this->getSourceInstance('tw_accounts.csv', $accountColumns, false),
-            $this->getSimpleImportOptions(),
-            $this->getSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
-            $this->getSimpleIncrementalImportOptions(),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
+            static::getSourceInstance('tw_accounts.csv', $accountColumns, false),
+            static::getSimpleImportOptions(),
+            static::getSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
+            static::getSimpleIncrementalImportOptions(),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'accounts-3'),
             $expectedAccountsRows,
             4,
         ];
         $tests[] = [
-            $this->getSourceInstance('tw_accounts.csv', $accountColumns, false),
+            static::getSourceInstance('tw_accounts.csv', $accountColumns, false),
             new ImportOptions(
                 [],
                 false,
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
             ),
-            $this->getSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
+            static::getSourceInstance('tw_accounts.increment.csv', $accountColumns, false),
             new ImportOptions(
                 [],
                 true, // incremental
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
             ),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-without-ts'),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'accounts-without-ts'),
             $expectedAccountsRows,
             4,
         ];
         $tests[] = [
-            $this->getSourceInstance('multi-pk.csv', $multiPkColumns, false),
-            $this->getSimpleImportOptions(),
-            $this->getSourceInstance('multi-pk.increment.csv', $multiPkColumns, false),
-            $this->getSimpleIncrementalImportOptions(),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'multi-pk'),
+            static::getSourceInstance('multi-pk.csv', $multiPkColumns, false),
+            static::getSimpleImportOptions(),
+            static::getSourceInstance('multi-pk.increment.csv', $multiPkColumns, false),
+            static::getSimpleIncrementalImportOptions(),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'multi-pk'),
             $expectedMultiPkRows,
             4,
         ];
@@ -76,10 +75,10 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
     }
 
     /**
-     * @dataProvider  incrementalImportData
      * @param Storage\Snowflake\Table $destination
      * @param array<mixed> $expected
      */
+    #[DataProvider('incrementalImportData')]
     public function testIncrementalImport(
         Storage\SourceInterface $initialSource,
         ImportOptions $initialOptions,

@@ -61,7 +61,7 @@ final class TableMetricTest extends BaseCase
                     new SnowflakeColumn('email', new Snowflake(Snowflake::TYPE_VARCHAR)),
                     new SnowflakeColumn('isActive', new Snowflake(Snowflake::TYPE_BOOLEAN)),
                     new SnowflakeColumn('score', new Snowflake(Snowflake::TYPE_FLOAT)),
-                ]),
+                    ],),
             ),
         );
 
@@ -79,6 +79,6 @@ final class TableMetricTest extends BaseCase
                 SQL,
             SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
-        ));
+        ),);
     }
 }

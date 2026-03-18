@@ -34,7 +34,7 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
         $command = new ObjectInfoCommand([
             'path' => [$this->projectResponse->getProjectDatabaseName()],
             'expectedObjectType' => ObjectType::DATABASE,
-        ]);
+            ],);
 
         $response = (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -75,15 +75,19 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
     {
         $this->expectException(DatabaseMismatchException::class);
         $this->expectExceptionCode(ExceptionInterface::ERR_DATABASE_MISMATCH);
-        $this->expectExceptionMessage(sprintf(
-            'Requested database "nonexistent_database_xyz" does not match the connected database "%s".',
-            $this->projectResponse->getProjectDatabaseName(),
-        ));
+        $this->expectExceptionMessage(
+            sprintf(
+                'Requested database "nonexistent_database_xyz" does not match the connected database "%s".',
+                $this->projectResponse->getProjectDatabaseName(),
+            ),
+        );
 
-        $command = new ObjectInfoCommand([
+        $command = new ObjectInfoCommand(
+            [
             'path' => ['nonexistent_database_xyz'],
             'expectedObjectType' => ObjectType::DATABASE,
-        ]);
+            ],
+        );
 
         (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -96,16 +100,18 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
     public function testSchemaInfo(): void
     {
         $this->createTestTable();
-        $this->projectConnection->executeStatement(sprintf(
-            'CREATE TABLE %s."another_table" (ID INT)',
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
-        ));
+        $this->projectConnection->executeStatement(
+            sprintf(
+                'CREATE TABLE %s."another_table" (ID INT)',
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+            ),
+        );
         $this->createTestView();
 
         $command = new ObjectInfoCommand([
             'path' => [self::SCHEMA_NAME],
             'expectedObjectType' => ObjectType::SCHEMA,
-        ]);
+            ],);
 
         $response = (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -150,7 +156,7 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
         $command = new ObjectInfoCommand([
             'path' => ['nonexistent_schema_xyz'],
             'expectedObjectType' => ObjectType::SCHEMA,
-        ]);
+            ],);
 
         (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -167,7 +173,7 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
         $command = new ObjectInfoCommand([
             'path' => [self::SCHEMA_NAME, self::TABLE_NAME],
             'expectedObjectType' => ObjectType::TABLE,
-        ]);
+            ],);
 
         $response = (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -224,7 +230,7 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
         $command = new ObjectInfoCommand([
             'path' => [self::SCHEMA_NAME, 'nonexistent_table'],
             'expectedObjectType' => ObjectType::TABLE,
-        ]);
+            ],);
 
         (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -242,7 +248,7 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
         $command = new ObjectInfoCommand([
             'path' => [self::SCHEMA_NAME, self::VIEW_NAME],
             'expectedObjectType' => ObjectType::VIEW,
-        ]);
+            ],);
 
         $response = (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -294,7 +300,7 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
         $command = new ObjectInfoCommand([
             'path' => [self::SCHEMA_NAME, 'nonexistent_view'],
             'expectedObjectType' => ObjectType::VIEW,
-        ]);
+            ],);
 
         (new ObjectInfoHandler())(
             $this->getCurrentProjectCredentials(),
@@ -309,35 +315,43 @@ final class ObjectInfoHandlerTest extends BaseProjectTestCase
         parent::setUp();
 
         $this->projectConnection = $this->getCurrentProjectConnection();
-        $this->projectConnection->executeStatement(sprintf(
-            'CREATE SCHEMA %s',
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
-        ));
+        $this->projectConnection->executeStatement(
+            sprintf(
+                'CREATE SCHEMA %s',
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+            ),
+        );
     }
 
     private function createTestTable(): void
     {
-        $this->projectConnection->executeStatement(sprintf(
-            'CREATE TABLE %s.%s (ID INT NOT NULL, NAME VARCHAR(100), AGE NUMBER(10,0), PRIMARY KEY (ID))',
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
-        ));
+        $this->projectConnection->executeStatement(
+            sprintf(
+                'CREATE TABLE %s.%s (ID INT NOT NULL, NAME VARCHAR(100), AGE NUMBER(10,0), PRIMARY KEY (ID))',
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
+            ),
+        );
 
-        $this->projectConnection->executeStatement(sprintf(
-            'INSERT INTO %s.%s (ID, NAME, AGE) VALUES (1, \'Alice\', 30), (2, \'Bob\', 25), (3, \'Charlie\', 35)',
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
-        ));
+        $this->projectConnection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.%s (ID, NAME, AGE) VALUES (1, \'Alice\', 30), (2, \'Bob\', 25), (3, \'Charlie\', 35)',
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
+            ),
+        );
     }
 
     private function createTestView(): void
     {
-        $this->projectConnection->executeStatement(sprintf(
-            'CREATE VIEW %s.%s AS SELECT ID, NAME FROM %s.%s',
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
-            SnowflakeQuote::quoteSingleIdentifier(self::VIEW_NAME),
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
-        ));
+        $this->projectConnection->executeStatement(
+            sprintf(
+                'CREATE VIEW %s.%s AS SELECT ID, NAME FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+                SnowflakeQuote::quoteSingleIdentifier(self::VIEW_NAME),
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
+            ),
+        );
     }
 }

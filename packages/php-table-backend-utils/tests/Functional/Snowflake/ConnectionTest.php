@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutRea
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnection;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
 
 class ConnectionTest extends SnowflakeBaseCase
@@ -22,17 +23,13 @@ class ConnectionTest extends SnowflakeBaseCase
         $this->cleanSchema(self::TEST_SCHEMA);
     }
 
-    /**
-     * @dataProvider connectionProvider
-     */
+    #[DataProvider('connectionProvider')]
     public function testSnowflakeConnection(Connection $connection): void
     {
         $this->assertConnectionIsWorking($connection);
     }
 
-    /**
-     * @dataProvider connectionProvider
-     */
+    #[DataProvider('connectionProvider')]
     public function testSnowflakeFetchAll(Connection $connection): void
     {
         $this->initTable();
@@ -70,7 +67,8 @@ class ConnectionTest extends SnowflakeBaseCase
         );
 
         $result = $connection->fetchAllAssociative($sqlSelect);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'id' => '1',
                 'first_name' => 'franta',
@@ -81,49 +79,67 @@ class ConnectionTest extends SnowflakeBaseCase
                 'first_name' => 'pepik',
                 'last_name' => 'knedla',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllAssociative($sqlSelectBindNamed, ['first_name' => 'franta']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'id' => '1',
                 'first_name' => 'franta',
                 'last_name' => 'omacka',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
-        $result = $connection->fetchAllAssociative($sqlSelectBindMultipleNamed, [
+        $result = $connection->fetchAllAssociative(
+            $sqlSelectBindMultipleNamed,
+            [
             'first_name' => 'franta',
             'last_name' => 'omacka',
-        ]);
-        $this->assertSame([
+            ],
+        );
+        $this->assertSame(
+            [
             [
                 'id' => '1',
                 'first_name' => 'franta',
                 'last_name' => 'omacka',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllAssociative($sqlSelectBindNotNamed, ['franta']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'id' => '1',
                 'first_name' => 'franta',
                 'last_name' => 'omacka',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllAssociative($sqlSelectBindMultipleNotNamed, ['franta', 'omacka']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'id' => '1',
                 'first_name' => 'franta',
                 'last_name' => 'omacka',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllAssociativeIndexed($sqlSelect);
-        $this->assertSame([
+        $this->assertSame(
+            [
             1 => [
                 'first_name' => 'franta',
                 'last_name' => 'omacka',
@@ -132,56 +148,80 @@ class ConnectionTest extends SnowflakeBaseCase
                 'first_name' => 'pepik',
                 'last_name' => 'knedla',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllAssociativeIndexed($sqlSelectBindNamed, ['first_name' => 'franta']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             1 => [
                 'first_name' => 'franta',
                 'last_name' => 'omacka',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchFirstColumn($sqlSelect);
-        $this->assertSame([
+        $this->assertSame(
+            [
             '1',
             '2',
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchFirstColumn($sqlSelectBindNamed, ['first_name' => 'franta']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             '1',
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAssociative($sqlSelect);
-        $this->assertSame([
+        $this->assertSame(
+            [
             'id' => '1',
             'first_name' => 'franta',
             'last_name' => 'omacka',
 
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAssociative($sqlSelectBindNamed, ['first_name' => 'pepik']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             'id' => '2',
             'first_name' => 'pepik',
             'last_name' => 'knedla',
 
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllKeyValue($sqlSelect);
-        $this->assertSame([
+        $this->assertSame(
+            [
             1 => 'franta',
             2 => 'pepik',
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllKeyValue($sqlSelectBindNamed, ['first_name' => 'franta']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             1 => 'franta',
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllNumeric($sqlSelect);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 '1',
                 'franta',
@@ -192,22 +232,27 @@ class ConnectionTest extends SnowflakeBaseCase
                 'pepik',
                 'knedla',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $result = $connection->fetchAllNumeric($sqlSelectBindNamed, ['first_name' => 'franta']);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 '1',
                 'franta',
                 'omacka',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testStringToLong(): void
     {
         $this->initTable();
-        $longString= str_repeat('a', 101);
+        $longString = str_repeat('a', 101);
         $this->expectException(StringTooLongException::class);
         $this->expectExceptionMessage(sprintf(
             // phpcs:ignore
@@ -226,12 +271,12 @@ class ConnectionTest extends SnowflakeBaseCase
     public function testInvalidCredentials(): void
     {
         $connection = SnowflakeConnectionFactory::getConnection(
-            (string) getenv('SNOWFLAKE_HOST'),
+            (string) getenv('SNOWFLAKE_HOST'), // @phpstan-ignore cast.string
             'invalid',
             'invalid',
             [
-                'port' => (string) getenv('SNOWFLAKE_PORT'),
-                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                'port' => (string) getenv('SNOWFLAKE_PORT'), // @phpstan-ignore cast.string
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'), // @phpstan-ignore cast.string
             ],
         );
 
@@ -245,12 +290,12 @@ class ConnectionTest extends SnowflakeBaseCase
     public function testInvalidAccessToDatabase(): void
     {
         $connection = SnowflakeConnectionFactory::getConnection(
-            (string) getenv('SNOWFLAKE_HOST'),
-            (string) getenv('SNOWFLAKE_USER'),
-            (string) getenv('SNOWFLAKE_PASSWORD'),
+            (string) getenv('SNOWFLAKE_HOST'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_USER'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_PASSWORD'), // @phpstan-ignore cast.string
             [
-                'port' => (string) getenv('SNOWFLAKE_PORT'),
-                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
+                'port' => (string) getenv('SNOWFLAKE_PORT'), // @phpstan-ignore cast.string
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'), // @phpstan-ignore cast.string
                 'database' => 'invalidDatabase',
             ],
         );
@@ -260,14 +305,12 @@ class ConnectionTest extends SnowflakeBaseCase
         $this->connection->close();
         $this->assertConnectionIsWorking($this->connection);
         $this->assertSame(
-            (string) getenv('SNOWFLAKE_DATABASE'),
+            (string) getenv('SNOWFLAKE_DATABASE'), // @phpstan-ignore cast.string
             $this->connection->fetchOne('SELECT CURRENT_DATABASE()'),
         );
     }
 
-    /**
-     * @dataProvider connectionProvider
-     */
+    #[DataProvider('connectionProvider')]
     public function testWillDisconnect(Connection $wrappedConnection): void
     {
         $wrappedConnectionRef = new ReflectionClass($wrappedConnection);
@@ -290,9 +333,7 @@ class ConnectionTest extends SnowflakeBaseCase
         $wrappedConnection->close();
     }
 
-    /**
-     * @dataProvider connectionProvider
-     */
+    #[DataProvider('connectionProvider')]
     public function testQueryTagging(Connection $connection): void
     {
         $connection->executeQuery('SELECT current_date;');
@@ -309,9 +350,7 @@ SQL,);
         $this->assertEquals('{"runId":"runIdValue"}', $queries[0]['QUERY_TAG']);
     }
 
-    /**
-     * @dataProvider connectionProvider
-     */
+    #[DataProvider('connectionProvider')]
     public function testQueryTimeoutLimit(Connection $connection): void
     {
         $connection->executeStatement('ALTER SESSION SET STATEMENT_TIMEOUT_IN_SECONDS = 3');
@@ -328,9 +367,7 @@ SQL,);
         }
     }
 
-    /**
-     * @dataProvider connectionProvider
-     */
+    #[DataProvider('connectionProvider')]
     public function testSchema(Connection $connection): void
     {
 
@@ -340,13 +377,13 @@ SQL,);
 
         $this->connection->executeStatement('CREATE SCHEMA IF NOT EXISTS "tableUtils-testSchema"');
         $connection = SnowflakeConnectionFactory::getConnection(
-            (string) getenv('SNOWFLAKE_HOST'),
-            (string) getenv('SNOWFLAKE_USER'),
-            (string) getenv('SNOWFLAKE_PASSWORD'),
+            (string) getenv('SNOWFLAKE_HOST'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_USER'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_PASSWORD'), // @phpstan-ignore cast.string
             [
-                'port' => (string) getenv('SNOWFLAKE_PORT'),
-                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
-                'database' => (string) getenv('SNOWFLAKE_DATABASE'),
+                'port' => (string) getenv('SNOWFLAKE_PORT'), // @phpstan-ignore cast.string
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'), // @phpstan-ignore cast.string
+                'database' => (string) getenv('SNOWFLAKE_DATABASE'), // @phpstan-ignore cast.string
                 'schema' => 'tableUtils-testSchema',
             ],
         );

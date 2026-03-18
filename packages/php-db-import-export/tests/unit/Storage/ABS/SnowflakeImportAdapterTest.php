@@ -97,35 +97,54 @@ EOT,
 
         [$cmd1Files, $cmd2Files] = array_chunk($files, 1000);
 
-        $cmd1Files = implode(', ', array_map(static function ($file) {
-            return sprintf("'%s'", $file);
-        }, $cmd1Files));
-        $cmd2Files = implode(', ', array_map(static function ($file) {
-            return sprintf("'%s'", $file);
-        }, $cmd2Files));
+        $cmd1Files = implode(
+            ', ',
+            array_map(
+                static function ($file) {
+                    return sprintf("'%s'", $file);
+                },
+                $cmd1Files,
+            ),
+        );
+        $cmd2Files = implode(
+            ', ',
+            array_map(
+                static function ($file) {
+                    return sprintf("'%s'", $file);
+                },
+                $cmd2Files,
+            ),
+        );
 
         $conn = $this->mockConnection();
-        $conn->expects($this->exactly(2))->method('query')->withConsecutive(
-            [
-                <<<EOT
+        $matcher = $this->exactly(2);
+        $conn->expects($matcher)->method('query')->willReturnCallback(
+            function (...$parameters) use ($matcher, $cmd1Files, $cmd2Files) {
+                if ($matcher->numberOfInvocations() === 1) {
+                    $this->assertSame(
+                        <<<EOT
 COPY INTO "schema"."stagingTable" 
 FROM 'containerUrl'
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
 FILES = ($cmd1Files)
-EOT
-                ,
-            ],
-            [
-                <<<EOT
+EOT,
+                        $parameters[0],
+                    );
+                }
+                if ($matcher->numberOfInvocations() === 2) {
+                    $this->assertSame(
+                        <<<EOT
 COPY INTO "schema"."stagingTable" 
 FROM 'containerUrl'
 CREDENTIALS=(AZURE_SAS_TOKEN='sasToken')
 FILE_FORMAT = (TYPE=CSV FIELD_DELIMITER = ',' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' ESCAPE_UNENCLOSED_FIELD = NONE)
 FILES = ($cmd2Files)
-EOT
-                ,
-            ],
+EOT,
+                        $parameters[0],
+                    );
+                }
+            },
         );
         $conn->expects($this->once())->method('fetchAll')
             ->with('SELECT COUNT(*) AS "count" FROM "schema"."stagingTable"')

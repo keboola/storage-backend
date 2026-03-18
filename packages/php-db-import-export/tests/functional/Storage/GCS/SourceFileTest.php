@@ -11,7 +11,7 @@ class SourceFileTest extends BaseTestCase
 {
     use GCSSourceTrait;
 
-    protected function getGCSBucketEnvName(): string
+    protected static function getGCSBucketEnvName(): string
     {
         return 'GCS_BUCKET_NAME';
     }

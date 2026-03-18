@@ -20,6 +20,7 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class SqlBuilderTest extends SnowflakeBaseTestCase
@@ -66,7 +67,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
             new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             [
                 'pk1',
                 'pk2',
@@ -86,11 +87,13 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
             $sql,
         );
         $this->connection->executeStatement($sql);
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.%s',
-            SnowflakeQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($deduplicationDef->getTableName()),
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($deduplicationDef->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($deduplicationDef->getTableName()),
+            ),
+        );
 
         self::assertCount(2, $result);
     }
@@ -160,7 +163,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
                 SnowflakeColumn::createGenericColumn('pk2'),
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
         $tableSql = sprintf(
@@ -185,7 +188,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
                 SnowflakeColumn::createGenericColumn('pk2'),
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stagingTableDefinition));
@@ -220,20 +223,25 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            $stagingTableSql,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                $stagingTableSql,
+            ),
+        );
 
         self::assertCount(1, $result);
-        self::assertSame([
+        self::assertSame(
+            [
             [
                 'pk1' => '2',
                 'pk2' => '1',
                 'col1' => '1',
                 'col2' => '1',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetDeleteOldItemsCommandRequireSameTables(): void
@@ -255,7 +263,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
                 SnowflakeColumn::createGenericColumn('pk2'),
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
         $tableSql = sprintf(
@@ -280,7 +288,7 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
                 SnowflakeColumn::createGenericColumn('pk2'),
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($stagingTableDefinition));
@@ -323,31 +331,38 @@ class SqlBuilderTest extends SnowflakeBaseTestCase
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            $stagingTableSql,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                $stagingTableSql,
+            ),
+        );
 
         self::assertCount(1, $result);
-        self::assertSame([
+        self::assertSame(
+            [
             [
                 'pk1' => '2',
                 'pk2' => '1',
                 'col1' => '1',
                 'col2' => '1',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     private function assertTableNotExists(string $schemaName, string $tableName): void
     {
         try {
             (new SnowflakeTableReflection($this->connection, $schemaName, $tableName))->getTableStats();
-            self::fail(sprintf(
-                'Table "%s.%s" is expected to not exist.',
-                $schemaName,
-                $tableName,
-            ));
+            self::fail(
+                sprintf(
+                    'Table "%s.%s" is expected to not exist.',
+                    $schemaName,
+                    $tableName,
+                ),
+            );
         } catch (TableNotExistsReflectionException $e) {
         }
     }
@@ -405,7 +420,7 @@ EOT,);
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -428,12 +443,15 @@ EOT,);
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => null,
                 'col1' => '1',
@@ -454,7 +472,9 @@ EOT,);
                 'col1' => '',
                 'col2' => '',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetInsertAllIntoTargetTableCommandCasting(): void
@@ -505,7 +525,7 @@ EOT,);
                         ],
                     ),
                 ),
-            ]),
+                ],),
             ['pk1'],
         );
         $stage = new SnowflakeTableDefinition(
@@ -520,7 +540,7 @@ EOT,);
                 $this->createNullableGenericColumn('OBJECT'),
                 $this->createNullableGenericColumn('ARRAY'),
                 $this->createNullableGenericColumn('VECTOR'),
-            ]),
+                ],),
             [],
         );
         $this->connection->executeStatement(
@@ -530,9 +550,12 @@ EOT,);
             (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition($stage),
         );
 
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARIANT(\'4.14\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
@@ -541,13 +564,17 @@ SELECT \'1\',
        ARRAY_CONSTRUCT(1, 2, 3, NULL),
        ARRAY_CONSTRUCT(1,2,3)::VECTOR(INT,3)
 ;',
-            self::TEST_SCHEMA,
-            self::TEST_TABLE,
-        ));
+                self::TEST_SCHEMA,
+                self::TEST_TABLE,
+            ),
+        );
 
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARCHAR(TO_VARIANT(\'3.14\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
@@ -556,9 +583,10 @@ SELECT \'1\',
        TO_VARCHAR(ARRAY_CONSTRUCT(1, 2, 3, NULL)),
        TO_VARCHAR(TO_ARRAY([1,2,3]::VECTOR(INT,3)))
 ;',
-            self::TEST_SCHEMA,
-            self::TEST_STAGING_TABLE,
-        ));
+                self::TEST_SCHEMA,
+                self::TEST_STAGING_TABLE,
+            ),
+        );
 
         // no convert values no timestamp
         $sql = $this->getBuilder()->getInsertAllIntoTargetTableCommand(
@@ -593,9 +621,10 @@ SELECT \'1\',
         // phpcs:ignore
             'SELECT "pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY", cast("VECTOR" AS ARRAY) AS "VECTOR" FROM %s',
             self::TEST_TABLE_IN_SCHEMA,
-        ));
+        ),);
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'pk1' => '1',
                 'VARIANT' => '"4.14"',
@@ -651,7 +680,9 @@ EOD,
 EOD,
 
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetInsertAllIntoTargetTableCommandSameTables(): void
@@ -668,7 +699,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -699,12 +730,15 @@ EOD,
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => null,
                 'col1' => '1',
@@ -725,7 +759,9 @@ EOD,
                 'col1' => '',
                 'col2' => '',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     protected function createTestTableWithColumns(
@@ -780,7 +816,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -803,12 +839,15 @@ EOD,
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => null,
                 'col1' => '1',
@@ -829,7 +868,9 @@ EOD,
                 'col1' => null,
                 'col2' => '',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(): void
@@ -845,7 +886,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -873,10 +914,12 @@ EOD,
         $out = $this->connection->executeStatement($sql);
         self::assertEquals(4, $out);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
         foreach ($result as $item) {
             self::assertArrayHasKey('id', $item);
@@ -916,7 +959,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is fewer columns
@@ -927,7 +970,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -938,18 +981,23 @@ EOD,
             ),
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '1',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         // no convert values no timestamp
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
@@ -965,18 +1013,23 @@ EOD,
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '2',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetUpdateWithPkCommandRequireSameTables(): void
@@ -992,7 +1045,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -1003,7 +1056,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -1014,18 +1067,23 @@ EOD,
             ),
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '1',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         // no convert values no timestamp
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
@@ -1049,18 +1107,23 @@ EOD,
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '2',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetUpdateWithPkCommandCasting(): void
@@ -1107,7 +1170,7 @@ EOD,
                     ],
                 ),
             ),
-        ]);
+            ],);
         $destination = new SnowflakeTableDefinition(
             self::TEST_SCHEMA,
             self::TEST_TABLE,
@@ -1129,9 +1192,12 @@ EOD,
             (new SnowflakeTableQueryBuilder())->getCreateTableCommandFromDefinition($stage),
         );
 
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARIANT(\'4.14\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
@@ -1140,13 +1206,17 @@ SELECT \'1\',
        ARRAY_CONSTRUCT(1, 2, 3, NULL),
        [1,2,3]::VECTOR(INT,3)
 ;',
-            self::TEST_SCHEMA,
-            self::TEST_TABLE,
-        ));
+                self::TEST_SCHEMA,
+                self::TEST_TABLE,
+            ),
+        );
 
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("pk1","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","VECTOR") 
 SELECT \'1\', 
        TO_VARIANT(\'3.14\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
@@ -1155,9 +1225,10 @@ SELECT \'1\',
        ARRAY_CONSTRUCT(1, 2, 3, NULL),
        [1,2,3]::VECTOR(INT,3)
 ;',
-            self::TEST_SCHEMA,
-            self::TEST_STAGING_TABLE,
-        ));
+                self::TEST_SCHEMA,
+                self::TEST_STAGING_TABLE,
+            ),
+        );
 
         // no convert values no timestamp
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
@@ -1189,9 +1260,10 @@ SELECT \'1\',
         // phpcs:ignore
             'SELECT "pk1", "VARIANT", "BINARY", "VARBINARY", "OBJECT", "ARRAY", cast("VECTOR" AS ARRAY) AS "VECTOR" FROM %s',
             self::TEST_TABLE_IN_SCHEMA,
-        ));
+        ),);
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'pk1' => '1',
                 'VARIANT' => '"3.14"',
@@ -1220,7 +1292,9 @@ EOD,
 EOD,
 
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetUpdateWithPkCommandConvertValues(): void
@@ -1236,7 +1310,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -1247,7 +1321,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -1264,12 +1338,15 @@ EOD,
             ),
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '',
@@ -1280,7 +1357,9 @@ EOD,
                 'col1' => '2',
                 'col2' => '',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $options = new SnowflakeImportOptions(['col1']);
 
@@ -1298,12 +1377,15 @@ EOD,
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => null,
@@ -1314,7 +1396,9 @@ EOD,
                 'col1' => '2',
                 'col2' => '2',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetUpdateWithPkCommandConvertValuesWithTimestamp(): void
@@ -1333,7 +1417,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -1344,7 +1428,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -1363,12 +1447,15 @@ EOD,
             ),
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '',
@@ -1381,7 +1468,9 @@ EOD,
                 'col2' => '',
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         // use timestamp
         $options = new SnowflakeImportOptions(['col1'], false, true);
@@ -1399,10 +1488,12 @@ EOD,
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
         foreach ($result as $item) {
             self::assertArrayHasKey('id', $item);
@@ -1433,7 +1524,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -1444,7 +1535,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -1463,12 +1554,15 @@ EOD,
             ),
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1481,7 +1575,9 @@ EOD,
                 'col2' => '3',
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         // use timestamp
         $options = new SnowflakeImportOptions(
@@ -1507,12 +1603,15 @@ EOD,
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             // no changes on all columns - no update of timestamp
             [
                 'id' => '1',
@@ -1527,10 +1626,12 @@ EOD,
                 'col2' => '2',
                 '_timestamp' => $timestampSet->format(DateTimeHelper::FORMAT),
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
-    public function nullManipulationWithTimestampFeatures(): Generator
+    public static function nullManipulationWithTimestampFeatures(): Generator
     {
         yield 'default' => [
             // phpcs:ignore
@@ -1539,9 +1640,7 @@ EOD,
         ];
     }
 
-    /**
-     * @dataProvider nullManipulationWithTimestampFeatures
-     */
+    #[DataProvider('nullManipulationWithTimestampFeatures')]
     public function testGetUpdateWithPkCommandNullManipulationWithTimestampFeatures(
         string $expectedSQL,
         bool $expectedTimestampChange,
@@ -1567,7 +1666,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -1578,7 +1677,7 @@ EOD,
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -1597,12 +1696,15 @@ EOD,
             ),
         );
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1615,7 +1717,9 @@ EOD,
                 'col2' => null,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         // use timestamp
         $options = new SnowflakeImportOptions(
@@ -1641,10 +1745,12 @@ EOD,
         );
         $this->connection->executeStatement($sql);
 
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
         $assertTimestamp = $timestampInit;
         if ($expectedTimestampChange) {
@@ -1652,7 +1758,8 @@ EOD,
         }
 
         // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1665,7 +1772,9 @@ EOD,
                 'col2' => null,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],  // timestamp is not update when row has same value and there is null
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetUpdateWithPkCommandNullManipulationSpecialDatatypes(): void
@@ -1719,7 +1828,7 @@ EOD,
                     '_timestamp',
                     new Snowflake(Snowflake::TYPE_TIMESTAMP),
                 ),
-            ]),
+                ],),
             ['id'],
         );
         $stageDefinition = new SnowflakeTableDefinition(
@@ -1764,7 +1873,7 @@ EOD,
                         ['nullable' => true],
                     ),
                 ),
-            ]),
+                ],),
             [],
         );
         $this->connection->executeStatement(
@@ -1808,13 +1917,17 @@ EOD,
         // this hack can be removed, when Snowflake start to select vectors correctly
         // Snowflake web console works properly, so this is probably bug in ODBC driver
         // We try driver version 3.4.0 and behaviour was the same
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT "id","array",CAST("vector" AS ARRAY) AS "vector" ,"geometry","geography","_timestamp" FROM %s.%s',
-            SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                // phpcs:ignore
+                'SELECT "id","array",CAST("vector" AS ARRAY) AS "vector" ,"geometry","geography","_timestamp" FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($tableDefinition->getTableName()),
+            ),
+        );
 
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'array' => <<<EOD
@@ -1925,7 +2038,9 @@ EOD,
 EOD,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         // use timestamp
         $options = new SnowflakeImportOptions(
@@ -1956,13 +2071,16 @@ EOD,
         // this hack can be removed, when Snowflake start to select vectors correctly
         // Snowflake web console works properly, so this is probably bug in ODBC driver
         // We try driver version 3.4.0 and behaviour was the same
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT "id","array",CAST("vector" AS ARRAY) AS "vector" ,"geometry","geography","_timestamp" FROM %s',
-            self::TEST_TABLE_IN_SCHEMA,
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT "id","array",CAST("vector" AS ARRAY) AS "vector" ,"geometry","geography","_timestamp" FROM %s',
+                self::TEST_TABLE_IN_SCHEMA,
+            ),
+        );
 
         // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'array' => <<<EOD
@@ -2073,7 +2191,9 @@ EOD,
 EOD,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     private function getStagingTableDefinition(): SnowflakeTableDefinition
@@ -2087,7 +2207,7 @@ EOD,
                 $this->createNullableGenericColumn('pk2'),
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
     }

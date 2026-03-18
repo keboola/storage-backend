@@ -28,7 +28,7 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
             'projectReadOnlyRoleName' => $this->projectResponse->getProjectReadOnlyRoleName(),
             'devBranchReadOnlyRoleName' => 'DOES NOT MATTER',
             'isBranchDefault' => true,
-        ]);
+            ],);
         $response = (new CreateBucketHandler())(
             $this->getCurrentProjectCredentials(),
             $command,
@@ -44,22 +44,27 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
         // assert that ro role has access to the new schema
         // create new user and assign read only role
         // test that user can see the new schema
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
         $testUserCredentials = $this->createTestUserWithCredentials(
             $this->getTestPrefix(),
             $this->projectResponse->getProjectDatabaseName(),
         );
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+            ),
+        );
         $testUserConnection = ConnectionFactory::createFromCredentials($testUserCredentials);
-        $this->assertVisibleSchemas([
+        $this->assertVisibleSchemas(
+            [
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => 'in.c-test-bucket',
@@ -68,28 +73,39 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => 'INFORMATION_SCHEMA',
             ],
-        ], $testUserConnection);
+            ],
+            $testUserConnection,
+        );
 
         // assert that project user can create new table in schema
         $projectConnection = $this->getCurrentProjectConnection();
-        $projectConnection->executeStatement(sprintf(
-            'CREATE TABLE %s.test (ID INT)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
-        $projectConnection->executeStatement(sprintf(
-            'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
+        $projectConnection->executeStatement(
+            sprintf(
+                'CREATE TABLE %s.test (ID INT)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
+        $projectConnection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
         // assert that user with ro role can read the data
-        $values = $testUserConnection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.test',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
-        $this->assertSame([
+        $values = $testUserConnection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.test',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
+        $this->assertSame(
+            [
             ['ID' => '1'],
             ['ID' => '2'],
             ['ID' => '3'],
-        ], $values);
+            ],
+            $values,
+        );
     }
 
     public function testCreateBucketInDevBranchWithReadOnlyStorageEnabledAndRealStorageBranches(): void
@@ -104,7 +120,7 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
             'projectReadOnlyRoleName' => 'DOES NOT MATTER',
             'devBranchReadOnlyRoleName' => $devBranchResponse->getDevBranchReadOnlyRoleName(),
             'isBranchDefault' => false,
-        ]);
+            ],);
         $response = (new CreateBucketHandler())(
             $this->getCurrentProjectCredentials(),
             $command,
@@ -120,45 +136,57 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
 
         // assert that ro role has access to the new schema
         // grant project role to root user so we can grant role to test user
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
         // create new user and assign read only role
         $testUserCredentials = $this->createTestUserWithCredentials(
             $this->getTestPrefix(),
             $this->projectResponse->getProjectDatabaseName(),
         );
         // assign project ro role and that that branch bucket is not visible
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+            ),
+        );
         // test that user can see the new schema
         $testUserConnection = ConnectionFactory::createFromCredentials($testUserCredentials);
-        $this->assertVisibleSchemas([
+        $this->assertVisibleSchemas(
+            [
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => 'INFORMATION_SCHEMA',
             ],
-        ], $testUserConnection);
+            ],
+            $testUserConnection,
+        );
         // revoke role
-        $this->connection->executeQuery(sprintf(
-            'REVOKE ROLE %s FROM USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'REVOKE ROLE %s FROM USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+            ),
+        );
         // assign project ro role and that that branch bucket is not visible
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($devBranchResponse->getDevBranchReadOnlyRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($devBranchResponse->getDevBranchReadOnlyRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+            ),
+        );
         // test that user can see the new schema
         $testUserConnection = ConnectionFactory::createFromCredentials($testUserCredentials);
-        $this->assertVisibleSchemas([
+        $this->assertVisibleSchemas(
+            [
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => '456_in.c-test-bucket',
@@ -167,27 +195,38 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => 'INFORMATION_SCHEMA',
             ],
-        ], $testUserConnection);
+            ],
+            $testUserConnection,
+        );
         // assert that project user can create new table in schema
         $projectConnection = $this->getCurrentProjectConnection();
-        $projectConnection->executeStatement(sprintf(
-            'CREATE TABLE %s.test (ID INT)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
-        $projectConnection->executeStatement(sprintf(
-            'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
+        $projectConnection->executeStatement(
+            sprintf(
+                'CREATE TABLE %s.test (ID INT)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
+        $projectConnection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
         // assert that user with ro role can read the data
-        $values = $testUserConnection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.test',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
-        $this->assertSame([
+        $values = $testUserConnection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.test',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
+        $this->assertSame(
+            [
             ['ID' => '1'],
             ['ID' => '2'],
             ['ID' => '3'],
-        ], $values);
+            ],
+            $values,
+        );
     }
 
     public function testCreateBucketInDevBranchWithReadOnlyStorageEnabledAndWithoutRealStorageBranches(): void
@@ -201,7 +240,7 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
             'projectReadOnlyRoleName' => 'DOES NOT MATTER',
             'devBranchReadOnlyRoleName' => 'DOES NOT MATTER',
             'isBranchDefault' => false,
-        ]);
+            ],);
         $response = (new CreateBucketHandler())(
             $this->getCurrentProjectCredentials(),
             $command,
@@ -217,52 +256,68 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
         // assert that ro role has no access to the new schema
         // create new user and assign read only role
         // test that user can see the new schema
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
         $testUserCredentials = $this->createTestUserWithCredentials(
             $this->getTestPrefix(),
             $this->projectResponse->getProjectDatabaseName(),
         );
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+            ),
+        );
         $testUserConnection = ConnectionFactory::createFromCredentials($testUserCredentials);
-        $this->assertVisibleSchemas([
+        $this->assertVisibleSchemas(
+            [
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => 'INFORMATION_SCHEMA',
             ],
-        ], $testUserConnection);
+            ],
+            $testUserConnection,
+        );
 
         // assert that project user can create new table in schema
         // this also tests that schema is created
         $projectConnection = $this->getCurrentProjectConnection();
-        $projectConnection->executeStatement(sprintf(
-            'CREATE TABLE %s.test (ID INT)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
-        $projectConnection->executeStatement(sprintf(
-            'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
+        $projectConnection->executeStatement(
+            sprintf(
+                'CREATE TABLE %s.test (ID INT)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
+        $projectConnection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
         try {
             // assert that user with ro role cannot read the data
-            $testUserConnection->fetchAllAssociative(sprintf(
-                'SELECT * FROM %s.test',
-                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-            ));
+            $testUserConnection->fetchAllAssociative(
+                sprintf(
+                    'SELECT * FROM %s.test',
+                    SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+                ),
+            );
             $this->fail('User with ro role should not have access to the new schema');
         } catch (Throwable $e) {
-            $this->assertStringContainsString(sprintf(
-                'Schema \'%s."%s"\' does not exist or not authorized.',
-                $this->projectResponse->getProjectDatabaseName(),
-                $response->getCreateBucketObjectName(),
-            ), $e->getMessage());
+            $this->assertStringContainsString(
+                sprintf(
+                    'Schema \'%s."%s"\' does not exist or not authorized.',
+                    $this->projectResponse->getProjectDatabaseName(),
+                    $response->getCreateBucketObjectName(),
+                ),
+                $e->getMessage(),
+            );
         }
     }
 
@@ -277,7 +332,7 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
             'projectReadOnlyRoleName' => $this->projectResponse->getProjectReadOnlyRoleName(),
             'devBranchReadOnlyRoleName' => 'DOES NOT MATTER',
             'isBranchDefault' => true,
-        ]);
+            ],);
         $response = (new CreateBucketHandler())(
             $this->getCurrentProjectCredentials(),
             $command,
@@ -291,52 +346,68 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
         // assert that ro role has no access to the new schema
         // create new user and assign read only role
         // test that user can see the new schema
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
         $testUserCredentials = $this->createTestUserWithCredentials(
             $this->getTestPrefix(),
             $this->projectResponse->getProjectDatabaseName(),
         );
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+            ),
+        );
         $testUserConnection = ConnectionFactory::createFromCredentials($testUserCredentials);
-        $this->assertVisibleSchemas([
+        $this->assertVisibleSchemas(
+            [
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => 'INFORMATION_SCHEMA',
             ],
-        ], $testUserConnection);
+            ],
+            $testUserConnection,
+        );
 
         // assert that project user can create new table in schema
         // this also tests that schema is created
         $projectConnection = $this->getCurrentProjectConnection();
-        $projectConnection->executeStatement(sprintf(
-            'CREATE TABLE %s.test (ID INT)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
-        $projectConnection->executeStatement(sprintf(
-            'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
+        $projectConnection->executeStatement(
+            sprintf(
+                'CREATE TABLE %s.test (ID INT)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
+        $projectConnection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
         try {
             // assert that user with ro role cannot read the data
-            $testUserConnection->fetchAllAssociative(sprintf(
-                'SELECT * FROM %s.test',
-                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-            ));
+            $testUserConnection->fetchAllAssociative(
+                sprintf(
+                    'SELECT * FROM %s.test',
+                    SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+                ),
+            );
             $this->fail('User with ro role should not have access to the new schema');
         } catch (Throwable $e) {
-            $this->assertStringContainsString(sprintf(
-                'Schema \'%s."%s"\' does not exist or not authorized.',
-                $this->projectResponse->getProjectDatabaseName(),
-                $response->getCreateBucketObjectName(),
-            ), $e->getMessage());
+            $this->assertStringContainsString(
+                sprintf(
+                    'Schema \'%s."%s"\' does not exist or not authorized.',
+                    $this->projectResponse->getProjectDatabaseName(),
+                    $response->getCreateBucketObjectName(),
+                ),
+                $e->getMessage(),
+            );
         }
     }
 
@@ -351,7 +422,7 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
             'projectReadOnlyRoleName' => 'DOES NOT MATTER',
             'devBranchReadOnlyRoleName' => 'DOES NOT MATTER',
             'isBranchDefault' => false,
-        ]);
+            ],);
         $response = (new CreateBucketHandler())(
             $this->getCurrentProjectCredentials(),
             $command,
@@ -364,53 +435,69 @@ final class CreateBucketHandlerTest extends BaseProjectTestCase
 
         // assert that ro role has access to the new schema
         // grant project role to root user so we can grant role to test user
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_USER')),
+            ),
+        );
         // create new user and assign read only role
         $testUserCredentials = $this->createTestUserWithCredentials(
             $this->getTestPrefix(),
             $this->projectResponse->getProjectDatabaseName(),
         );
-        $this->connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($this->projectResponse->getProjectReadOnlyRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($testUserCredentials->getPrincipal()),
+            ),
+        );
         // test that user can see the new schema
         $testUserConnection = ConnectionFactory::createFromCredentials($testUserCredentials);
-        $this->assertVisibleSchemas([
+        $this->assertVisibleSchemas(
+            [
             [
                 'DATABASE_NAME' => $this->projectResponse->getProjectDatabaseName(),
                 'SCHEMA_NAME' => 'INFORMATION_SCHEMA',
             ],
-        ], $testUserConnection);
+            ],
+            $testUserConnection,
+        );
         // assert that project user can create new table in schema
         // this also tests that schema is created
         $projectConnection = $this->getCurrentProjectConnection();
-        $projectConnection->executeStatement(sprintf(
-            'CREATE TABLE %s.test (ID INT)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
-        $projectConnection->executeStatement(sprintf(
-            'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
-            SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-        ));
+        $projectConnection->executeStatement(
+            sprintf(
+                'CREATE TABLE %s.test (ID INT)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
+        $projectConnection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.test (ID) VALUES (1), (2), (3)',
+                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+            ),
+        );
         try {
             // assert that user with ro role cannot read the data
-            $testUserConnection->fetchAllAssociative(sprintf(
-                'SELECT * FROM %s.test',
-                SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
-            ));
+            $testUserConnection->fetchAllAssociative(
+                sprintf(
+                    'SELECT * FROM %s.test',
+                    SnowflakeQuote::quoteSingleIdentifier($response->getCreateBucketObjectName()),
+                ),
+            );
             $this->fail('User with ro role should not have access to the new schema');
         } catch (Throwable $e) {
-            $this->assertStringContainsString(sprintf(
-                'Schema \'%s."%s"\' does not exist or not authorized.',
-                $this->projectResponse->getProjectDatabaseName(),
-                $response->getCreateBucketObjectName(),
-            ), $e->getMessage());
+            $this->assertStringContainsString(
+                sprintf(
+                    'Schema \'%s."%s"\' does not exist or not authorized.',
+                    $this->projectResponse->getProjectDatabaseName(),
+                    $response->getCreateBucketObjectName(),
+                ),
+                $e->getMessage(),
+            );
         }
     }
 

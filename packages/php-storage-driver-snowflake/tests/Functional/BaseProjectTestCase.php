@@ -64,15 +64,17 @@ abstract class BaseProjectTestCase extends BaseCase
 
     protected function createDevBranch(): CreateDevBranchResponse
     {
-        $this->connection->executeQuery(sprintf(
-            'DROP ROLE IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier(
-                (new NameGenerator($this->getTestPrefix()))->createReadOnlyRoleNameForBranch(
-                    '123',
-                    '456',
+        $this->connection->executeQuery(
+            sprintf(
+                'DROP ROLE IF EXISTS %s',
+                SnowflakeQuote::quoteSingleIdentifier(
+                    (new NameGenerator($this->getTestPrefix()))->createReadOnlyRoleNameForBranch(
+                        '123',
+                        '456',
+                    ),
                 ),
             ),
-        ));
+        );
         $response = (new CreateDevBranchHandler)(
             $this->getCurrentProjectCredentials(),
             new CreateDevBranchCommand([
@@ -81,7 +83,7 @@ abstract class BaseProjectTestCase extends BaseCase
                 'branchId' => '456',
                 'projectRoleName' => $this->projectResponse->getProjectRoleName(),
                 'projectReadOnlyRoleName' => $this->projectResponse->getProjectReadOnlyRoleName(),
-            ]),
+                ],),
             [
                 Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
             ],

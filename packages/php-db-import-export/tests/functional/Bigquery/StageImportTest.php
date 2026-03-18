@@ -95,13 +95,16 @@ class StageImportTest extends BigqueryBaseTestCase
         );
 
         self::assertEquals(1, $state->getResult()->getImportedRowsCount());
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'id' => 1,
                 'first_name' => '2',
                 'last_name' => null,
             ],
-        ], $this->fetchTable(self::TEST_DATABASE, self::TABLE_GENERIC));
+            ],
+            $this->fetchTable(self::TEST_DATABASE, self::TABLE_GENERIC),
+        );
     }
 
     public function testStageImportNullDefaultNullMarker(): void
@@ -139,13 +142,16 @@ class StageImportTest extends BigqueryBaseTestCase
         );
 
         self::assertEquals(1, $state->getResult()->getImportedRowsCount());
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'id' => 1,
                 'first_name' => '',
                 'last_name' => '3',
             ],
-        ], $this->fetchTable(self::TEST_DATABASE, self::TABLE_GENERIC));
+            ],
+            $this->fetchTable(self::TEST_DATABASE, self::TABLE_GENERIC),
+        );
     }
 
     public function testAsciiZeroImport(): void
@@ -406,13 +412,15 @@ class StageImportTest extends BigqueryBaseTestCase
             ),
         );
         $this->bqClient->runQuery($query);
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
-                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC.'_CTAS'),
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
+                    BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                    BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC.'_CTAS'),
+                ),
             ),
-        ));
+        );
 
         $importer = new ToStageImporter($this->bqClient);
         $ref = new BigqueryTableReflection(
@@ -464,13 +472,15 @@ class StageImportTest extends BigqueryBaseTestCase
             ),
         );
         $this->bqClient->runQuery($query);
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
-                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
+                    BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                    BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+                ),
             ),
-        ));
+        );
 
         $importer = new ToStageImporter($this->bqClient);
         $ref = new BigqueryTableReflection(
@@ -522,13 +532,15 @@ class StageImportTest extends BigqueryBaseTestCase
             ),
         );
         $this->bqClient->runQuery($query);
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
-                BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
-                BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`first_name`,`last_name`) VALUES (1,\'test\',\'test\')',
+                    BigqueryQuote::quoteSingleIdentifier(self::TEST_DATABASE),
+                    BigqueryQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+                ),
             ),
-        ));
+        );
 
         $importer = new ToStageImporter($this->bqClient);
         $ref = new BigqueryTableReflection(

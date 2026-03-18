@@ -29,7 +29,9 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
     {
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'out.csv_2Cols',
@@ -54,7 +56,7 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -79,7 +81,9 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
     {
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'out.csv_2Cols',
@@ -104,7 +108,7 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -144,7 +148,9 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
     {
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
+        /** @var string[] $accountHeader */
+        $accountHeader = $file->getHeader();
+        $source = $this->getSourceInstance('tw_accounts.csv', $accountHeader);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             'accounts-3',
@@ -161,7 +167,7 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
         // query needed otherwise timestamp is downloaded
         $query = sprintf(
             'SELECT %s FROM %s',
-            ColumnsHelper::getColumnsString($file->getHeader()),
+            ColumnsHelper::getColumnsString($accountHeader),
             $destination->getQuotedTableWithScheme(),
         );
         $source = new Storage\Snowflake\SelectSource($query);
@@ -175,7 +181,7 @@ class ExportLegacyTest extends SnowflakeImportExportBaseTest
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);

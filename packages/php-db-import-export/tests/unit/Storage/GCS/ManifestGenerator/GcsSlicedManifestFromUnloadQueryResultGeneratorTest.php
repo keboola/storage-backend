@@ -24,32 +24,28 @@ class GcsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
             'permanent/256/snapshots/in/c-API-tests-e46793dac57ccf8cefb82ae9b8c05844cfabf985/languages/17982.csv.gz',
         );
 
-        $streamableUploaderMock = $this->getMockBuilder(StreamableUploader::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $streamableUploaderMock = $this->createStub(StreamableUploader::class);
         $streamableUploaderMock->method('getResumeUri')->willReturn('');
         $streamableUploaderMock->method('upload')->willReturn([]);
 
-        $bucketMock = $this->getMockBuilder(Bucket::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['upload', 'getStreamableUploader'])
-            ->getMock();
+        $bucketMock = $this->createMock(Bucket::class);
         $bucketMock->expects($this->once())->method('getStreamableUploader')
             ->willReturn($streamableUploaderMock);
 
         /** @var MockObject|StorageClient $gcsClientMock */
-        $gcsClientMock = $this->getMockBuilder(StorageClient::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['bucket'])
-            ->getMock();
+        $gcsClientMock = $this->createMock(StorageClient::class);
         $gcsClientMock->expects($this->once())->method('bucket')->willReturn($bucketMock);
 
         $generator = new GcsSlicedManifestFromUnloadQueryResultGenerator($gcsClientMock);
-        $generator->generateAndSaveManifest($path, [
+        $generator->generateAndSaveManifest(
+            $path,
+            [
             ['FILE_NAME' => '17982.csv.gz_0_0_0.csv.gz', 'FILE_SIZE' => '10', 'ROW_COUNT' => '5'],
             ['FILE_NAME' => '17982.csv.gz_0_0_1.csv.gz', 'FILE_SIZE' => '25', 'ROW_COUNT' => '15'],
-        ]);
+            ],
+        );
 
+        /** @phpstan-ignore method.alreadyNarrowedType */
         $this->assertInstanceOf(SlicedManifestGeneratorInterface::class, $generator);
     }
 }

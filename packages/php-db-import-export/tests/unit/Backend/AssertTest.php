@@ -17,6 +17,8 @@ use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use Keboola\TableBackendUtils\Table\TableType;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -58,9 +60,7 @@ class AssertTest extends TestCase
         );
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumnsIgnore(): void
     {
         // first in cols
@@ -69,11 +69,13 @@ class AssertTest extends TestCase
                 SnowflakeColumn::createGenericColumn('test2'),
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
-            destination: new ColumnCollection([
+                ],),
+            destination: new ColumnCollection(
+                [
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
+                ],
+            ),
             ignoreSourceColumns: ['test2'],
         );
 
@@ -83,11 +85,13 @@ class AssertTest extends TestCase
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test2'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
-            destination: new ColumnCollection([
+                ],),
+            destination: new ColumnCollection(
+                [
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
+                ],
+            ),
             ignoreSourceColumns: ['test2'],
         );
 
@@ -97,11 +101,13 @@ class AssertTest extends TestCase
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
                 SnowflakeColumn::createGenericColumn('test2'),
-            ]),
-            destination: new ColumnCollection([
+                ],),
+            destination: new ColumnCollection(
+                [
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
+                ],
+            ),
             ignoreSourceColumns: ['test2'],
         );
     }
@@ -273,7 +279,7 @@ class AssertTest extends TestCase
         );
     }
 
-    public function dataProviderAssertTypesLength(): Generator
+    public static function dataProviderAssertTypesLength(): Generator
     {
         yield 'simple length equals' => [
             'sourceType' => 'simpleType',
@@ -402,9 +408,9 @@ class AssertTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderAssertTypesLength
      * @param array{class-string<Throwable>, string}|null $expectedException
      */
+    #[DataProvider('dataProviderAssertTypesLength')]
     public function testAssertSameColumnsWithSpecificLengths(
         string $sourceType,
         string $sourceLength,
@@ -501,9 +507,7 @@ class AssertTest extends TestCase
         };
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumnsInvalidLengthIgnore(): void
     {
         $sourceCols = [
@@ -703,9 +707,7 @@ class AssertTest extends TestCase
         );
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumnsUnorderedIgnore(): void
     {
         // ignore source column
@@ -714,11 +716,13 @@ class AssertTest extends TestCase
                 SnowflakeColumn::createGenericColumn('test2'),
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
-            destination: new ColumnCollection([
+                ],),
+            destination: new ColumnCollection(
+                [
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
+                ],
+            ),
             ignoreSourceColumns: ['test2'],
         );
         // ignore destination column
@@ -726,12 +730,14 @@ class AssertTest extends TestCase
             source: new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
-            destination: new ColumnCollection([
+                ],),
+            destination: new ColumnCollection(
+                [
                 SnowflakeColumn::createGenericColumn('test2'),
                 SnowflakeColumn::createGenericColumn('test'),
                 SnowflakeColumn::createGenericColumn('test1'),
-            ]),
+                ],
+            ),
             ignoreDestinationColumns: ['test2'],
         );
     }
@@ -898,9 +904,9 @@ class AssertTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderAssertTypesLength
      * @param array{class-string<Throwable>, string}|null $expectedException
      */
+    #[DataProvider('dataProviderAssertTypesLength')]
     public function testAssertSameColumnsUnorderedWithSpecificLengths(
         string $sourceType,
         string $sourceLength,
@@ -933,9 +939,7 @@ class AssertTest extends TestCase
         );
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumnsUnorderedInvalidLengthIgnore(): void
     {
         $sourceCols = [

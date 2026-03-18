@@ -6,6 +6,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Escaping;
 
 use Generator;
 use Keboola\TableBackendUtils\Escaping\RedshiftQuote;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class RedshiftQuoteTest extends TestCase
@@ -13,7 +14,7 @@ class RedshiftQuoteTest extends TestCase
     /**
      * @return \Generator<string, array<int, string>>
      */
-    public function valueQuoteProvider(): Generator
+    public static function valueQuoteProvider(): Generator
     {
         yield 'simple' => [
             'valueToQuote',
@@ -29,9 +30,7 @@ class RedshiftQuoteTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider valueQuoteProvider
-     */
+    #[DataProvider('valueQuoteProvider')]
     public function testQuote(string $value, string $expectedOutput): void
     {
         self::assertSame($expectedOutput, RedshiftQuote::quote($value));
@@ -40,7 +39,7 @@ class RedshiftQuoteTest extends TestCase
     /**
      * @return \Generator<string, array<int, string>>
      */
-    public function valueQuoteIdentifierProvider(): Generator
+    public static function valueQuoteIdentifierProvider(): Generator
     {
         yield 'simple' => [
             'valueToQuote',
@@ -57,9 +56,7 @@ class RedshiftQuoteTest extends TestCase
     }
 
 
-    /**
-     * @dataProvider valueQuoteIdentifierProvider
-     */
+    #[DataProvider('valueQuoteIdentifierProvider')]
     public function testQuoteSingleIdentifier(string $value, string $expectedOutput): void
     {
         self::assertSame($expectedOutput, RedshiftQuote::quoteSingleIdentifier($value));

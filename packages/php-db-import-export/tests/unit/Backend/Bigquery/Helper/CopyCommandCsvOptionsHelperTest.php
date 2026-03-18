@@ -18,11 +18,14 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
             new CsvOptions(),
         );
 
-        self::assertSame([
+        self::assertSame(
+            [
             'field_delimiter=\',\'',
             'quote=\'\"\'',
             'allow_quoted_newlines=true',
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetCsvCopyCommandOptionsNoEscapeNoEnclosure(): void
@@ -35,10 +38,13 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
             ),
         );
 
-        self::assertSame([
+        self::assertSame(
+            [
             'field_delimiter=\',\'',
             'skip_leading_rows=1',
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetCsvCopyCommandOptionsSkipHeader(): void
@@ -48,12 +54,15 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
             new CsvOptions(),
         );
 
-        self::assertSame([
+        self::assertSame(
+            [
             'field_delimiter=\',\'',
             'skip_leading_rows=1',
             'quote=\'\"\'',
             'allow_quoted_newlines=true',
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetCsvCopyCommandOptionsUnenclosedField(): void
@@ -67,9 +76,12 @@ class CopyCommandCsvOptionsHelperTest extends TestCase
             ),
         );
 
-        self::assertSame([
+        self::assertSame(
+            [
             'field_delimiter=\',\'',
             'skip_leading_rows=1',
-        ], $result);
+            ],
+            $result,
+        );
     }
 }

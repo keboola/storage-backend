@@ -11,16 +11,18 @@ use PHPUnit\Framework\MockObject\MockObject;
 trait MockConnectionTrait
 {
     /**
-     * @return Connection|MockObject
+     * @return Connection&MockObject
      */
-    private function mockConnection()
+    private function mockConnection(): Connection
     {
-        /** @var Connection|MockObject $mock */
+        /** @var Connection&MockObject $mock */
         $mock = $this->createMock(Connection::class);
 
-        $mock->expects(self::any())->method('quoteIdentifier')->willReturnCallback(static function ($input) {
-            return QuoteHelper::quoteIdentifier($input);
-        });
+        $mock->method('quoteIdentifier')->willReturnCallback(
+            static function ($input) {
+                return QuoteHelper::quoteIdentifier($input);
+            },
+        );
 
         return $mock;
     }

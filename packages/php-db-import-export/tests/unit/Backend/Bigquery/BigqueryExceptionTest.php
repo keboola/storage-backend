@@ -7,6 +7,7 @@ namespace Tests\Keboola\Db\ImportExportUnit\Backend\Bigquery;
 use Generator;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryException;
 use Keboola\Db\ImportExport\Backend\Bigquery\BigqueryInputDataException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -14,17 +15,17 @@ class BigqueryExceptionTest extends TestCase
 {
 
     /**
-     * @dataProvider provideJobAndExpectedError
-     * @param mixed[] $job
+     * @param mixed[]            $job
      * @param callable(Throwable $throwable): void $expectedThrowableAssertion
      */
+    #[DataProvider('provideJobAndExpectedError')]
     public function testCreateExceptionFromJobResult(array $job, callable $expectedThrowableAssertion): void
     {
         $e = BigqueryException::createExceptionFromJobResult($job);
         $expectedThrowableAssertion($e);
     }
 
-    public function provideJobAndExpectedError(): Generator
+    public static function provideJobAndExpectedError(): Generator
     {
         yield 'single error' => [
             [
@@ -108,16 +109,16 @@ class BigqueryExceptionTest extends TestCase
                     'code' => 'REQUESTED',
                 ],
             ],
-            function (Throwable $e) {
-                $this->assertStringStartsWith(
+            static function (Throwable $e) {
+                self::assertStringStartsWith(
                     'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp.'
                     . ' Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]];'
                     . ' line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 '
                     . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:',
                     $e->getMessage(),
                 );
-                $this->assertCount(1, explode(PHP_EOL, $e->getMessage()));
-                $this->assertInstanceOf(BigqueryInputDataException::class, $e);
+                self::assertCount(1, explode(PHP_EOL, $e->getMessage()));
+                self::assertInstanceOf(BigqueryInputDataException::class, $e);
             },
         ];
         yield 'multiple errors' => [
@@ -208,9 +209,9 @@ class BigqueryExceptionTest extends TestCase
                     'code' => 'REQUESTED',
                 ],
             ],
-            function (Throwable $e) {
+            static function (Throwable $e) {
                 // phpcs:ignore Generic.Files.LineLength
-                $this->assertStringStartsWith(
+                self::assertStringStartsWith(
                     'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp. '
                     . 'Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]]; '
                     . 'line_number: 2 byte_offset_to_start_of_line: 17 column_index: 1 '
@@ -218,7 +219,7 @@ class BigqueryExceptionTest extends TestCase
                     $e->getMessage(),
                 );
                 // phpcs:ignore Generic.Files.LineLength
-                $this->assertStringContainsString(
+                self::assertStringContainsString(
                 // different line number
                     'Error while reading data, error message: Could not parse \'00:00:00\' as a timestamp.'
                     . ' Required format is YYYY-MM-DD HH:MM[:SS[.SSSSSS]] or YYYY/MM/DD HH:MM[:SS[.SSSSSS]];'
@@ -226,8 +227,8 @@ class BigqueryExceptionTest extends TestCase
                     . 'column_name: "timestamp" column_type: TIMESTAMP value: "00:00:00" File:',
                     $e->getMessage(),
                 );
-                $this->assertCount(2, explode(PHP_EOL, $e->getMessage()));
-                $this->assertInstanceOf(BigqueryInputDataException::class, $e);
+                self::assertCount(2, explode(PHP_EOL, $e->getMessage()));
+                self::assertInstanceOf(BigqueryInputDataException::class, $e);
             },
         ];
         yield 'too many errors' => [
@@ -379,14 +380,14 @@ class BigqueryExceptionTest extends TestCase
                     'code' => 'REQUESTED',
                 ],
             ],
-            function (Throwable $e) {
-                $this->assertStringStartsWith(
+            static function (Throwable $e) {
+                self::assertStringStartsWith(
                     'There were too many errors during the import. For more information check job',
                     $e->getMessage(),
                 );
 
-                $this->assertCount(1, explode(PHP_EOL, $e->getMessage()));
-                $this->assertInstanceOf(BigqueryInputDataException::class, $e);
+                self::assertCount(1, explode(PHP_EOL, $e->getMessage()));
+                self::assertInstanceOf(BigqueryInputDataException::class, $e);
             },
         ];
         yield 'Required column value is missing' => [
@@ -537,10 +538,10 @@ class BigqueryExceptionTest extends TestCase
                     'code' => 'REQUESTED',
                 ],
             ],
-            function (Throwable $e) {
-                $this->assertEquals('Required column value is missing', $e->getMessage());
-                $this->assertCount(1, explode(PHP_EOL, $e->getMessage()));
-                $this->assertInstanceOf(BigqueryInputDataException::class, $e);
+            static function (Throwable $e) {
+                self::assertEquals('Required column value is missing', $e->getMessage());
+                self::assertCount(1, explode(PHP_EOL, $e->getMessage()));
+                self::assertInstanceOf(BigqueryInputDataException::class, $e);
             },
         ];
         yield 'Some other errors apart from parsing ones' => [
@@ -631,13 +632,13 @@ class BigqueryExceptionTest extends TestCase
                     'code' => 'REQUESTED',
                 ],
             ],
-            function (Throwable $e) {
-                $this->assertStringContainsString(
+            static function (Throwable $e) {
+                self::assertStringContainsString(
                     'There were additional errors during the import. For more information check job ',
                     $e->getMessage(),
                 );
-                $this->assertCount(2, explode(PHP_EOL, $e->getMessage()));
-                $this->assertInstanceOf(BigqueryInputDataException::class, $e);
+                self::assertCount(2, explode(PHP_EOL, $e->getMessage()));
+                self::assertInstanceOf(BigqueryInputDataException::class, $e);
             },
         ];
         yield 'No user errors, only application errors' => [
@@ -731,13 +732,13 @@ class BigqueryExceptionTest extends TestCase
                     'code' => 'REQUESTED',
                 ],
             ],
-            function (Throwable $e) {
-                $this->assertStringContainsString(
+            static function (Throwable $e) {
+                self::assertStringContainsString(
                     'Error while reading data, error message: CSV processing encountered too many errors, '
                     . 'giving up. Rows: 2000; errors: 1500; max bad: 0; error percent: 0',
                     $e->getMessage(),
                 );
-                $this->assertInstanceOf(BigqueryException::class, $e);
+                self::assertInstanceOf(BigqueryException::class, $e);
             },
         ];
     }

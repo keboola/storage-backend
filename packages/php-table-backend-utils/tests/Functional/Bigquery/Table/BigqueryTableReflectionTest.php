@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Table\Bigquery\RangePartitioningConfig;
 use Keboola\TableBackendUtils\Table\Bigquery\TimePartitioningConfig;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
 class BigqueryTableReflectionTest extends BigqueryBaseCase
@@ -32,16 +33,17 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         $this->initTable();
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, self::TABLE_GENERIC);
 
-        self::assertSame([
+        self::assertSame(
+            [
             'id',
             'first_name',
             'last_name',
-        ], $ref->getColumnsNames());
+            ],
+            $ref->getColumnsNames(),
+        );
     }
 
-    /**
-     * @dataProvider tableColsDataProvider
-     */
+    #[DataProvider('tableColsDataProvider')]
     public function testColumnDefinition(
         string $sqlDef,
         string $expectedSqlDefinition,
@@ -79,13 +81,15 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
         self::assertEquals($expectedSqlDefinition, $definition->getSQLDefinition(), 'SQL definition doesnt match');
 
         // check that SQLtoRestDatatypeConverter returns same definition as BQ REST API
+        /** @var array<string, mixed> $tableInfo */
+        $tableInfo = $this->bqClient
+            ->dataset(self::TEST_SCHEMA)
+            ->table(self::TABLE_GENERIC)
+            ->info();
+        /** @var array{fields: array<int, array{name: string, type: string, mode?: 'NULLABLE'|'REPEATED'|'REQUIRED', fields?: array<mixed>, description?: string, maxLength?: string, precision?: string, scale?: string}>} $schema */
+        $schema = $tableInfo['schema'];
         self::assertEquals(
-            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
-                $this->bqClient
-                    ->dataset(self::TEST_SCHEMA)
-                    ->table(self::TABLE_GENERIC)
-                    ->info()['schema']['fields'][1],
-            ),
+            RESTtoSQLDatatypeConverter::convertColumnToSQLFormat($schema['fields'][1]),
             RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
                 SQLtoRestDatatypeConverter::convertColumnToRestFormat($column),
             ),
@@ -95,7 +99,7 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
     /**
      * @return Generator<string,array<mixed>>
      */
-    public function tableColsDataProvider(): Generator
+    public static function tableColsDataProvider(): Generator
     {
         yield 'ARRAY simple' => [
             'ARRAY<INT64>',
@@ -452,7 +456,7 @@ SQL,
             BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             BigqueryQuote::quoteSingleIdentifier('test-partitions'),
             implode(',', $rows),
-        )));
+        ),),);
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
         $this->assertCount(1, $ref->getPartitionsList());
     }
@@ -487,14 +491,14 @@ INSERT %s.%s (`id`,`test`) VALUES (1,'test');
 SQL,
             BigqueryQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
             BigqueryQuote::quoteSingleIdentifier('test-partitions'),
-        )));
+        ),),);
         $ref = new BigqueryTableReflection($this->bqClient, self::TEST_SCHEMA, 'test-partitions');
         // expect none partition returned by reflection class
         // there is one unnamed partition even when no partitioning is set and we ignore it
         $this->assertCount(0, $ref->getPartitionsList());
     }
 
-    public function partitioningProvider(): Generator
+    public static function partitioningProvider(): Generator
     {
         yield 'Time simple' => [
             'config' => [
@@ -596,8 +600,8 @@ SQL,
 
     /**
      * @param array<mixed> $config
-     * @dataProvider partitioningProvider
      */
+    #[DataProvider('partitioningProvider')]
     public function testTableWithPartitioningConfig(
         array $config,
         ?PartitioningConfig $expectedPartitioning,

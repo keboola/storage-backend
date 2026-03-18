@@ -8,6 +8,7 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\MySQL;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -47,37 +48,45 @@ class MySQLDatatypeTest extends TestCase
         new MySQL('NUMERIC', ['length' => '65,0']);
         new MySQL('NUMERIC', ['length' => '65']);
         new MySQL('NUMERIC', ['length' => '10,10']);
-        new MySQL('NUMERIC', [
+        new MySQL(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_precision' => '38',
                 'numeric_scale' => '0',
             ],
-        ]);
-        new MySQL('NUMERIC', [
+            ],
+        );
+        new MySQL(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_precision' => '20',
                 'numeric_scale' => '20',
             ],
-        ]);
-        new MySQL('NUMERIC', [
+            ],
+        );
+        new MySQL(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_precision' => '20',
             ],
-        ]);
-        new MySQL('NUMERIC', [
+            ],
+        );
+        new MySQL(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_scale' => '20',
             ],
-        ]);
+            ],
+        );
         $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @dataProvider invalidNumericLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidNumericLengths($length): void
+    #[DataProvider('invalidNumericLengths')]
+    public function testInvalidNumericLengths(string|int|null $length): void
     {
         try {
             new MySQL('NUMERIC', ['length' => $length]);
@@ -96,12 +105,8 @@ class MySQLDatatypeTest extends TestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @dataProvider invalidIntegerLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidIntegerLengths($length): void
+    #[DataProvider('invalidIntegerLengths')]
+    public function testInvalidIntegerLengths(string|int|null $length): void
     {
         try {
             new MySQL('INTEGER', ['length' => $length]);
@@ -122,12 +127,8 @@ class MySQLDatatypeTest extends TestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @dataProvider invalidFloatLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidFloatLengths($length): void
+    #[DataProvider('invalidFloatLengths')]
+    public function testInvalidFloatLengths(string|int|null $length): void
     {
         try {
             new MySQL('FLOAT', ['length' => $length]);
@@ -143,11 +144,14 @@ class MySQLDatatypeTest extends TestCase
         new MySQL('varchar', ['length' => '1']);
         new MySQL('VARCHAR', ['length' => '1']);
         new MySQL('VARCHAR', ['length' => '4294967295']);
-        new MySQL('VARCHAR', [
+        new MySQL(
+            'VARCHAR',
+            [
             'length' => [
                 'character_maximum' => '16777216',
             ],
-        ]);
+            ],
+        );
         $this->expectNotToPerformAssertions();
     }
 
@@ -171,12 +175,8 @@ class MySQLDatatypeTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider invalidVariableCharacterLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidVariableCharacterLengths($length): void
+    #[DataProvider('invalidVariableCharacterLengths')]
+    public function testInvalidVariableCharacterLengths(string|int|null $length): void
     {
         try {
             new MySQL('VARCHAR', ['length' => $length]);
@@ -186,12 +186,8 @@ class MySQLDatatypeTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider invalidFixedCharacterLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidFixedCharacterLengths($length): void
+    #[DataProvider('invalidFixedCharacterLengths')]
+    public function testInvalidFixedCharacterLengths(string|int|null $length): void
     {
         try {
             new MySQL('CHAR', ['length' => $length]);
@@ -247,7 +243,7 @@ class MySQLDatatypeTest extends TestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidNumericLengths(): array
+    public static function invalidNumericLengths(): array
     {
         return [
             ['notANumber'],
@@ -265,7 +261,7 @@ class MySQLDatatypeTest extends TestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidIntegerLengths(): array
+    public static function invalidIntegerLengths(): array
     {
         return [
             ['notANumber'],
@@ -277,7 +273,7 @@ class MySQLDatatypeTest extends TestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidFixedCharacterLengths(): array
+    public static function invalidFixedCharacterLengths(): array
     {
         return [
             ['a'],
@@ -291,7 +287,7 @@ class MySQLDatatypeTest extends TestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidVariableCharacterLengths(): array
+    public static function invalidVariableCharacterLengths(): array
     {
         return [
             [''],
@@ -317,7 +313,7 @@ class MySQLDatatypeTest extends TestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidFloatLengths(): array
+    public static function invalidFloatLengths(): array
     {
         return [
             ['notANumber'],

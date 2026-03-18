@@ -9,6 +9,7 @@ use Generator;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Utils;
 use Keboola\TableBackendUtils\Connection\Bigquery\Retry;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -24,11 +25,11 @@ class RetryTest extends TestCase
 
     private function getRequestException(int $code, ?string $message = ''): Throwable
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $response = $this->createStub(ResponseInterface::class);
         $response->method('getBody')->willReturn(Utils::streamFor($message));
         return new RequestException(
             '',
-            $this->createMock(RequestInterface::class),
+            $this->createStub(RequestInterface::class),
             $response,
             $this->getException($code),
         );
@@ -37,7 +38,7 @@ class RetryTest extends TestCase
     /**
      * @return int[][]
      */
-    public function retryCodesProvider(): array
+    public static function retryCodesProvider(): array
     {
         return [
             [200],
@@ -46,9 +47,7 @@ class RetryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider retryCodesProvider
-     */
+    #[DataProvider('retryCodesProvider')]
     public function testSuccessResponse(int $statusCode): void
     {
         $fn = Retry::getRetryDecider(new NullLogger());
@@ -59,7 +58,7 @@ class RetryTest extends TestCase
     /**
      * @return int[][]
      */
-    public function retryCodesErrorProvider(): array
+    public static function retryCodesErrorProvider(): array
     {
         return [
             [429],
@@ -68,9 +67,7 @@ class RetryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider retryCodesErrorProvider
-     */
+    #[DataProvider('retryCodesErrorProvider')]
     public function testRetryOnCodesResponse(int $statusCode): void
     {
         $fn = Retry::getRetryDecider(new NullLogger());
@@ -92,7 +89,7 @@ class RetryTest extends TestCase
         $this->assertFalse($fn($ex));
     }
 
-    public function responseContentProvider(): Generator
+    public static function responseContentProvider(): Generator
     {
         foreach (['Throwable', 'RequestException'] as $exceptionType) {
             yield 'not error response ' . ' ' . $exceptionType => [
@@ -148,7 +145,8 @@ class RetryTest extends TestCase
              *     }>
              *   }} $json
              */
-            $json = json_decode(<<<EOD
+            $json = json_decode(
+                <<<EOD
 {
     "error": {
         "code": 404,
@@ -163,7 +161,11 @@ class RetryTest extends TestCase
         "status": "NOT_FOUND"
     }
 }
-EOD, true, 512, JSON_THROW_ON_ERROR);
+EOD,
+                true,
+                512,
+                JSON_THROW_ON_ERROR,
+            );
 
             foreach ([
                          'rateLimitExceeded',
@@ -202,15 +204,14 @@ EOD, true, 512, JSON_THROW_ON_ERROR);
         }
     }
 
-    /**
-     * @dataProvider responseContentProvider
-     */
+    #[DataProvider('responseContentProvider')]
     public function testResponseContent(string $json, bool $expectToRetry, string $exceptionType): void
     {
         $fn = Retry::getRetryDecider(new NullLogger());
-        $ex = $this->getException(418, $json);
         if ($exceptionType === 'RequestException') {
-            $this->getRequestException(418, $json);
+            $ex = $this->getRequestException(418, $json);
+        } else {
+            $ex = $this->getException(418, $json);
         }
 
         $this->assertSame($expectToRetry, $fn($ex));

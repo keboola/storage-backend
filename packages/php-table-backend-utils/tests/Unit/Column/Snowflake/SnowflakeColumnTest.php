@@ -8,7 +8,7 @@ use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers SnowflakeColumn
+ * @covers \Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn
  */
 class SnowflakeColumnTest extends TestCase
 {

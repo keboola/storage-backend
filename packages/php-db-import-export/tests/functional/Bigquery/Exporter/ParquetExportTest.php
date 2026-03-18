@@ -43,7 +43,9 @@ class ParquetExportTest extends BigqueryBaseTestCase
         $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Bigquery\Table(
             $this->getDestinationDbName(),
             self::TABLE_OUT_CSV_2COLS,
@@ -78,7 +80,9 @@ class ParquetExportTest extends BigqueryBaseTestCase
         $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Bigquery\Table(
             $this->getDestinationDbName(),
             self::TABLE_OUT_CSV_2COLS,
@@ -102,7 +106,8 @@ class ParquetExportTest extends BigqueryBaseTestCase
         $files = $this->listFiles($this->getExportDir());
         $actual = $this->getParquetFileFromStorage($files);
         $content = $this->getParquetContent($actual);
-        $this->assertArrayEqualsSorted([
+        $this->assertArrayEqualsSorted(
+            [
             [
                 'col1' => 'a',
                 'col2' => 'b',
@@ -113,7 +118,10 @@ class ParquetExportTest extends BigqueryBaseTestCase
                 'col2' => 'd',
                 '_timestamp' => '2014-11-10T14:12:06+00:00',
             ],
-        ], $content, 'col1');
+            ],
+            $content,
+            'col1',
+        );
     }
 
     public function testExportSimpleWithQuery(): void
@@ -121,7 +129,9 @@ class ParquetExportTest extends BigqueryBaseTestCase
         $this->initTable(self::TABLE_ACCOUNTS_3);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
+        /** @var string[] $accountHeader */
+        $accountHeader = $file->getHeader();
+        $source = $this->getSourceInstance('tw_accounts.csv', $accountHeader);
         $destination = new Storage\Bigquery\Table(
             $this->getDestinationDbName(),
             self::TABLE_ACCOUNTS_3,
@@ -133,7 +143,7 @@ class ParquetExportTest extends BigqueryBaseTestCase
         // query needed otherwise timestamp is downloaded
         $query = sprintf(
             'SELECT %s FROM %s',
-            implode(',', $file->getHeader()),
+            implode(',', $accountHeader),
             $destination->getQuotedTableWithScheme(),
         );
         $source = new Storage\Bigquery\SelectSource($query);
@@ -152,7 +162,8 @@ class ParquetExportTest extends BigqueryBaseTestCase
         $files = $this->listFiles($this->getExportDir());
         $actual = $this->getParquetFileFromStorage($files);
         $content = $this->getParquetContent($actual);
-        $this->assertArrayEqualsSorted([
+        $this->assertArrayEqualsSorted(
+            [
             [
                 'id' => '18',
                 'idTwitter' => '512024829',
@@ -195,7 +206,10 @@ class ParquetExportTest extends BigqueryBaseTestCase
                 'oauthSecret' => 'ddd',
                 'idApp' => '1',
             ],
-        ], $content, 'id');
+            ],
+            $content,
+            'id',
+        );
     }
 
     private function importTable(
@@ -216,9 +230,11 @@ class ParquetExportTest extends BigqueryBaseTestCase
             $source->getColumnsNames(),
         );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTable),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTable),
+            ),
+        );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,

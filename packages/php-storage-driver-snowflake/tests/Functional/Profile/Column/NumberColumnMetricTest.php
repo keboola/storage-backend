@@ -16,6 +16,7 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class NumberColumnMetricTest extends BaseCase
 {
@@ -27,9 +28,9 @@ final class NumberColumnMetricTest extends BaseCase
     private const COLUMN_ONLY_NULL = 'only_null';
 
     /**
-     * @dataProvider metricProvider
      * @param array<mixed> $expected
      */
+    #[DataProvider('metricProvider')]
     public function testMetric(
         ColumnMetricInterface $metric,
         string $column,
@@ -39,7 +40,7 @@ final class NumberColumnMetricTest extends BaseCase
         $this->assertSame($expected, $actual);
     }
 
-    public function metricProvider(): Generator
+    public static function metricProvider(): Generator
     {
         yield 'distinctCount (number, not nullable)' => [
             new DistinctCountColumnMetric(),
@@ -191,7 +192,7 @@ final class NumberColumnMetricTest extends BaseCase
                         self::COLUMN_ONLY_NULL,
                         new Snowflake(Snowflake::TYPE_NUMBER, ['nullable' => true]),
                     ),
-                ]),
+                    ],),
             ),
         );
 
@@ -217,6 +218,6 @@ final class NumberColumnMetricTest extends BaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NOT_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_ONLY_NULL),
-        ));
+        ),);
     }
 }

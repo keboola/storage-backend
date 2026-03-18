@@ -29,19 +29,22 @@ class GcsExportAdapterTest extends BaseTestCase
             'path',
         );
 
-        /** @var Storage\GCS\DestinationFile&MockObject $destination */
+        /**
+ * @var Storage\GCS\DestinationFile&MockObject $destination
+*/
         $destination = self::createMock(Storage\GCS\DestinationFile::class);
         $destination->expects(self::once())->method('getRelativePath')->willReturn($path);
 
-        /** @var QueryJobConfiguration&MockObject $query */
+        /**
+ * @var QueryJobConfiguration&MockObject $query
+*/
         $query = $this->createMock(QueryJobConfiguration::class);
         $query->expects(self::once())->method('parameters')->with([])->willReturnSelf();
 
-        /** @var BigQueryClient&MockObject $bqClient */
-        $bqClient = $this->getMockBuilder(BigQueryClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['runQuery', 'query'])
-            ->getMock();
+        /**
+ * @var BigQueryClient&MockObject $bqClient
+*/
+        $bqClient = $this->createMock(BigQueryClient::class);
         $bqClient->expects(self::once())->method('runQuery')->with($query);
         $bqClient->expects(self::once())->method('query')
             ->with(
@@ -53,7 +56,6 @@ OPTIONS (
     ,overwrite = true
     ,header = false
     ,field_delimiter = ','
-    
 ) AS (
     SELECT * FROM `schema`.`table`
 );
@@ -83,19 +85,22 @@ EOT,
             'path',
         );
 
-        /** @var Storage\GCS\DestinationFile&MockObject $destination */
+        /**
+ * @var Storage\GCS\DestinationFile&MockObject $destination
+*/
         $destination = self::createMock(Storage\GCS\DestinationFile::class);
         $destination->expects(self::once())->method('getRelativePath')->willReturn($path);
 
-        /** @var QueryJobConfiguration&MockObject $query */
+        /**
+ * @var QueryJobConfiguration&MockObject $query
+*/
         $query = $this->createMock(QueryJobConfiguration::class);
         $query->expects(self::once())->method('parameters')->with([])->willReturnSelf();
 
-        /** @var BigQueryClient&MockObject $bqClient */
-        $bqClient = $this->getMockBuilder(BigQueryClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['runQuery', 'query'])
-            ->getMock();
+        /**
+ * @var BigQueryClient&MockObject $bqClient
+*/
+        $bqClient = $this->createMock(BigQueryClient::class);
         $bqClient->expects(self::once())->method('runQuery')->with($query);
         $bqClient->expects(self::once())->method('query')
             ->with(
@@ -137,19 +142,22 @@ EOT,
             'path',
         );
 
-        /** @var Storage\GCS\DestinationFile&MockObject $destination */
+        /**
+ * @var Storage\GCS\DestinationFile&MockObject $destination
+*/
         $destination = self::createMock(Storage\GCS\DestinationFile::class);
         $destination->expects(self::once())->method('getRelativePath')->willReturn($path);
 
-        /** @var QueryJobConfiguration&MockObject $query */
+        /**
+ * @var QueryJobConfiguration&MockObject $query
+*/
         $query = $this->createMock(QueryJobConfiguration::class);
         $query->expects(self::once())->method('parameters')->with(['param1' => 'value1'])->willReturnSelf();
 
-        /** @var BigQueryClient&MockObject $bqClient */
-        $bqClient = $this->getMockBuilder(BigQueryClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['runQuery', 'query'])
-            ->getMock();
+        /**
+ * @var BigQueryClient&MockObject $bqClient
+*/
+        $bqClient = $this->createMock(BigQueryClient::class);
         $bqClient->expects(self::once())->method('runQuery')->with($query);
         $bqClient->expects(self::once())->method('query')
             ->with(
@@ -161,7 +169,6 @@ OPTIONS (
     ,overwrite = true
     ,header = false
     ,field_delimiter = ','
-    
 ) AS (
     SELECT * FROM `schema`.`table`
 );
@@ -191,19 +198,22 @@ EOT,
             'path',
         );
 
-        /** @var Storage\GCS\DestinationFile&MockObject $destination */
+        /**
+ * @var Storage\GCS\DestinationFile&MockObject $destination
+*/
         $destination = self::createMock(Storage\GCS\DestinationFile::class);
         $destination->expects(self::once())->method('getRelativePath')->willReturn($path);
 
-        /** @var QueryJobConfiguration&MockObject $query */
+        /**
+ * @var QueryJobConfiguration&MockObject $query
+*/
         $query = $this->createMock(QueryJobConfiguration::class);
         $query->expects(self::once())->method('parameters')->with([])->willReturnSelf();
 
-        /** @var BigQueryClient&MockObject $bqClient */
-        $bqClient = $this->getMockBuilder(BigQueryClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['runQuery', 'query'])
-            ->getMock();
+        /**
+ * @var BigQueryClient&MockObject $bqClient
+*/
+        $bqClient = $this->createMock(BigQueryClient::class);
         $bqClient->expects(self::once())->method('runQuery')->with($query);
         $bqClient->expects(self::once())->method('query')
             ->with(
@@ -213,7 +223,6 @@ OPTIONS (
     uri = 'gs://bucket/path*.parquet'
     ,format = 'PARQUET'
     ,overwrite = true
-    
 ) AS (
     SELECT * FROM `schema`.`table`
 );
@@ -243,19 +252,22 @@ EOT,
             'path',
         );
 
-        /** @var Storage\GCS\DestinationFile&MockObject $destination */
+        /**
+ * @var Storage\GCS\DestinationFile&MockObject $destination
+*/
         $destination = self::createMock(Storage\GCS\DestinationFile::class);
         $destination->expects(self::once())->method('getRelativePath')->willReturn($path);
 
-        /** @var QueryJobConfiguration&MockObject $query */
+        /**
+ * @var QueryJobConfiguration&MockObject $query
+*/
         $query = $this->createMock(QueryJobConfiguration::class);
         $query->expects(self::once())->method('parameters')->with([])->willReturnSelf();
 
-        /** @var BigQueryClient&MockObject $bqClient */
-        $bqClient = $this->getMockBuilder(BigQueryClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['runQuery', 'query'])
-            ->getMock();
+        /**
+ * @var BigQueryClient&MockObject $bqClient
+*/
+        $bqClient = $this->createMock(BigQueryClient::class);
         $bqClient->expects(self::once())->method('runQuery')->with($query);
         $bqClient->expects(self::once())->method('query')
             ->with(

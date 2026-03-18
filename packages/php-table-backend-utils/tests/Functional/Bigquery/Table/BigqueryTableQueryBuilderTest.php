@@ -14,6 +14,7 @@ use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
 class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
@@ -30,11 +31,11 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
 
     /**
      * @param BigqueryColumn[] $columns
-     * @param string[] $primaryKeys
-     * @param string[] $expectedColumnNames
-     * @param string[] $expectedPKs
-     * @dataProvider createTableTestSqlProvider
+     * @param string[]         $primaryKeys
+     * @param string[]         $expectedColumnNames
+     * @param string[]         $expectedPKs
      */
+    #[DataProvider('createTableTestSqlProvider')]
     public function testGetCreateCommand(
         array $columns,
         array $primaryKeys,
@@ -64,22 +65,22 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
     }
 
     /**
-     * @return \Generator<string, mixed, mixed, mixed>
+     * @return \Generator<string, array<string, mixed>>
      */
-    public function createTableTestSqlProvider(): Generator
+    public static function createTableTestSqlProvider(): Generator
     {
         $testDb = self::TEST_SCHEMA;
         $tableName = self::TABLE_GENERIC;
 
         yield 'no keys' => [
-            'cols' => [
+            'columns' => [
                 BigqueryColumn::createGenericColumn('col1'),
                 BigqueryColumn::createGenericColumn('col2'),
             ],
             'primaryKeys' => [],
             'expectedColumnNames' => ['col1', 'col2'],
-            'expectedPrimaryKeys' => [],
-            'query' => <<<EOT
+            'expectedPKs' => [],
+            'expectedSql' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 
 (
 `col1` STRING DEFAULT '' NOT NULL,
@@ -90,14 +91,14 @@ EOT
         ];
 
         yield 'single primary key' => [
-            'cols' => [
+            'columns' => [
                 BigqueryColumn::createGenericColumn('id'),
                 BigqueryColumn::createGenericColumn('name'),
             ],
             'primaryKeys' => ['id'],
             'expectedColumnNames' => ['id', 'name'],
-            'expectedPrimaryKeys' => ['id'],
-            'query' => <<<EOT
+            'expectedPKs' => ['id'],
+            'expectedSql' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 
 (
 `id` STRING DEFAULT '' NOT NULL,
@@ -109,15 +110,15 @@ EOT
         ];
 
         yield 'composite primary key' => [
-            'cols' => [
+            'columns' => [
                 BigqueryColumn::createGenericColumn('id'),
                 BigqueryColumn::createGenericColumn('type'),
                 BigqueryColumn::createGenericColumn('name'),
             ],
             'primaryKeys' => ['id', 'type'],
             'expectedColumnNames' => ['id', 'type', 'name'],
-            'expectedPrimaryKeys' => ['id', 'type'],
-            'query' => <<<EOT
+            'expectedPKs' => ['id', 'type'],
+            'expectedSql' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 
 (
 `id` STRING DEFAULT '' NOT NULL,
@@ -191,9 +192,12 @@ EOT
         $sql = $this->qb->getAddColumnCommand(
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
-            new BigqueryColumn('col3', new Bigquery(
-                Bigquery::TYPE_STRING,
-            )),
+            new BigqueryColumn(
+                'col3',
+                new Bigquery(
+                    Bigquery::TYPE_STRING,
+                ),
+            ),
         );
         $this->assertEquals(
             sprintf(
@@ -214,11 +218,14 @@ EOT
 
         // drop column
         $sql = $this->qb->getDropColumnCommand(self::TEST_SCHEMA, self::TABLE_GENERIC, 'col2');
-        $this->assertEquals(sprintf(
-            'ALTER TABLE `%s`.`%s` DROP COLUMN `col2`',
-            self::TEST_SCHEMA,
-            self::TABLE_GENERIC,
-        ), $sql);
+        $this->assertEquals(
+            sprintf(
+                'ALTER TABLE `%s`.`%s` DROP COLUMN `col2`',
+                self::TEST_SCHEMA,
+                self::TABLE_GENERIC,
+            ),
+            $sql,
+        );
         $this->bqClient->runQuery($this->bqClient->query($sql));
 
         $tableReflection = new BigqueryTableReflection(

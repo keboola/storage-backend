@@ -14,18 +14,16 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class BooleanColumnMetricTest extends BaseCase
 {
     private const TABLE_NAME = 'metric_column_boolean_test';
     private const COLUMN_BOOL_NOT_NULLABLE = 'bool_not_nullable';
     private const COLUMN_BOOL_NULLABLE = 'bool_nullable';
-//    private const COLUMN_STRING_NOT_NULLABLE = 'string_not_nullable'; @todo Test string columns equivalent to boolean
-//    private const COLUMN_STRING_NULLABLE = 'string_nullable';
-
-    /**
-     * @dataProvider metricProvider
-     */
+    //    private const COLUMN_STRING_NOT_NULLABLE = 'string_not_nullable'; // @todo Test string columns = boolean
+    //    private const COLUMN_STRING_NULLABLE = 'string_nullable';
+    #[DataProvider('metricProvider')]
     public function testMetric(
         ColumnMetricInterface $metric,
         string $column,
@@ -79,7 +77,7 @@ final class BooleanColumnMetricTest extends BaseCase
                         self::COLUMN_BOOL_NULLABLE,
                         new Snowflake(Snowflake::TYPE_BOOLEAN, ['nullable' => true]),
                     ),
-                ]),
+                    ],),
             ),
         );
 
@@ -97,6 +95,6 @@ final class BooleanColumnMetricTest extends BaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_BOOL_NOT_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_BOOL_NULLABLE),
-        ));
+        ),);
     }
 }
