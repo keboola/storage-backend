@@ -16,12 +16,14 @@ class NameGenerator
 
     public function createReadOnlyRoleNameForBranch(string $projectId, string $branchId): string
     {
-        return strtoupper(sprintf(
-            '%s_%s_%s_RO',
-            $this->getStackPrefix(),
-            $projectId,
-            $branchId,
-        ));
+        return strtoupper(
+            sprintf(
+                '%s_%s_%s_RO',
+                $this->getStackPrefix(),
+                $projectId,
+                $branchId,
+            ),
+        );
     }
 
     public function createObjectNameForBucketInProject(
@@ -40,19 +42,23 @@ class NameGenerator
 
     public function createReadOnlyRoleNameForProject(string $projectId): string
     {
-        return strtoupper(sprintf(
-            '%s_%s_RO',
-            $this->getStackPrefix(),
-            $projectId,
-        ));
+        return strtoupper(
+            sprintf(
+                '%s_%s_RO',
+                $this->getStackPrefix(),
+                $projectId,
+            ),
+        );
     }
 
     public function defaultNetworkPolicyName(): string
     {
-        return strtoupper(sprintf(
-            '%s_SYSTEM_IPS_ONLY',
-            $this->getStackPrefix(),
-        ));
+        return strtoupper(
+            sprintf(
+                '%s_SYSTEM_IPS_ONLY',
+                $this->getStackPrefix(),
+            ),
+        );
     }
 
     public function createUserNameForProject(string $projectId): string

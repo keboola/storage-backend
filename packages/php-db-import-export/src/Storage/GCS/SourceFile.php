@@ -115,13 +115,14 @@ class SourceFile extends BaseFile implements SourceInterface
         try {
             $bucket = $client->bucket($this->bucket);
             $response = $bucket->object($this->filePath);
-            /** @var array{entries:array{url:string}} $manifest */
+            /** @var array{entries: array<int, array{url: string}>} $manifest */
             $manifest = json_decode($response->downloadAsString(), true, 512, JSON_THROW_ON_ERROR);
         } catch (Throwable $e) {
             throw new Exception('Load error: ' . $e->getMessage(), Exception::MANDATORY_FILE_NOT_FOUND, $e);
         }
 
-        $entries = array_map(static fn(array $entry) => $entry['url'], $manifest['entries']);
+        /** @var string[] $entries */
+        $entries = array_map(static fn(array $entry): string => $entry['url'], $manifest['entries']);
 
         return $this->transformManifestEntries($entries, $protocol);
     }

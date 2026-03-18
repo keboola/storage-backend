@@ -35,6 +35,7 @@ final class Retry
             if ($argsNum === 2) {
                 $ex = func_get_arg(0);
                 if ($ex instanceof Throwable) {
+                    /** @var bool */
                     return Retry::getRetryDecider($logger, $includeUnauthorized)($ex);
                 }
             }
@@ -78,8 +79,10 @@ final class Retry
             }
 
             try {
-                $message = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
-                assert(is_array($message));
+                $decoded = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
+                assert(is_array($decoded));
+                /** @var array<string, mixed> $message */
+                $message = $decoded;
             } catch (JsonException) {
                 Retry::logNotRetry($statusCode, $message, $logger);
                 return false;
@@ -90,18 +93,24 @@ final class Retry
                 return false;
             }
 
-            if (!array_key_exists('errors', $message['error'])) {
+            /** @var array<string, mixed> $error */
+            $error = $message['error'];
+            if (!array_key_exists('errors', $error)) {
                 Retry::logNotRetry($statusCode, $message, $logger);
                 return false;
             }
 
-            if (!is_array($message['error']['errors'])) {
+            if (!is_array($error['errors'])) {
                 Retry::logNotRetry($statusCode, $message, $logger);
                 return false;
             }
 
-            foreach ($message['error']['errors'] as $error) {
-                if (array_key_exists('reason', $error) && in_array($error['reason'], self::RETRY_ON_REASON, false)) {
+            /** @var array<array<string, mixed>> $errors */
+            $errors = $error['errors'];
+            foreach ($errors as $errorEntry) {
+                if (array_key_exists('reason', $errorEntry)
+                    && in_array($errorEntry['reason'], self::RETRY_ON_REASON, false)
+                ) {
                     Retry::logRetry($statusCode, $message, $logger);
                     return true;
                 }

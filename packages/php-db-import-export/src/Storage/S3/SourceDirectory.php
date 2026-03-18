@@ -8,6 +8,7 @@ class SourceDirectory extends SourceFile
 {
     /**
      * returns all files in directory
+     *
      * @return string[]
      */
     public function getManifestEntries(): array
@@ -18,11 +19,16 @@ class SourceDirectory extends SourceFile
             'Bucket' => $this->bucket,
             'Delimiter' => '/',
             'Prefix' => $prefix,
-        ]);
+            ],);
 
-        return array_map(static function (array $file) {
-            return $file['Key'];
-        }, $response->get('Contents'));
+        /** @var array<int, array{Key: string}> $contents */
+        $contents = $response->get('Contents');
+        return array_map(
+            static function (array $file): string {
+                return $file['Key'];
+            },
+            $contents,
+        );
     }
 
     public function getPrefix(): string

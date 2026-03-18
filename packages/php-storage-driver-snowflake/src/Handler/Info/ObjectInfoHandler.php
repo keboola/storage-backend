@@ -33,6 +33,7 @@ final class ObjectInfoHandler extends BaseHandler
      * @inheritDoc
      * @param GenericBackendCredentials $credentials
      * @param ObjectInfoCommand $command
+     * @return ObjectInfoResponse
      */
     public function __invoke(
         Message $credentials,
@@ -40,7 +41,9 @@ final class ObjectInfoHandler extends BaseHandler
         array $features,
         Message $runtimeOptions,
     ): Message|null {
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($command instanceof ObjectInfoCommand);
 
         $connection = ConnectionFactory::createFromCredentials($credentials);
@@ -63,7 +66,9 @@ final class ObjectInfoHandler extends BaseHandler
             case ObjectType::VIEW:
                 return $this->getViewResponse($path, $connection, $response);
             default:
-                throw new UnknownObjectException(ObjectType::name($command->getExpectedObjectType()));
+                $typeName = ObjectType::name($command->getExpectedObjectType());
+                assert(is_string($typeName));
+                throw new UnknownObjectException($typeName);
         }
     }
 
@@ -125,10 +130,12 @@ final class ObjectInfoHandler extends BaseHandler
 
         // Validate schema exists
         /** @var array<array{SCHEMA_NAME: string}> $schemas */
-        $schemas = $connection->fetchAllAssociative(sprintf(
-            'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = %s',
-            SnowflakeQuote::quote($schemaName),
-        ));
+        $schemas = $connection->fetchAllAssociative(
+            sprintf(
+                'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = %s',
+                SnowflakeQuote::quote($schemaName),
+            ),
+        );
 
         if (count($schemas) === 0) {
             throw new ObjectNotFoundException($schemaName, ExceptionInterface::ERR_SCHEMA_NOT_FOUND);
@@ -166,14 +173,16 @@ final class ObjectInfoHandler extends BaseHandler
         assert(count($path) === 2, 'Error path must have exactly two elements.');
 
         try {
-            $response->setTableInfo(TableReflectionResponseTransformer::transformTableReflectionToResponse(
-                $path[0],
-                new SnowflakeTableReflection(
-                    $connection,
+            $response->setTableInfo(
+                TableReflectionResponseTransformer::transformTableReflectionToResponse(
                     $path[0],
-                    $path[1],
+                    new SnowflakeTableReflection(
+                        $connection,
+                        $path[0],
+                        $path[1],
+                    ),
                 ),
-            ));
+            );
         } catch (TableNotExistsReflectionException) {
             throw new ObjectNotFoundException($path[1], ExceptionInterface::ERR_TABLE_NOT_FOUND);
         }
@@ -192,14 +201,16 @@ final class ObjectInfoHandler extends BaseHandler
         assert(count($path) === 2, 'Error path must have exactly two elements.');
 
         try {
-            $response->setViewInfo(ViewReflectionResponseTransformer::transformTableReflectionToResponse(
-                $path[0],
-                new SnowflakeTableReflection(
-                    $connection,
+            $response->setViewInfo(
+                ViewReflectionResponseTransformer::transformTableReflectionToResponse(
                     $path[0],
-                    $path[1],
+                    new SnowflakeTableReflection(
+                        $connection,
+                        $path[0],
+                        $path[1],
+                    ),
                 ),
-            ));
+            );
         } catch (TableNotExistsReflectionException) {
             throw new ObjectNotFoundException($path[1], ExceptionInterface::ERR_VIEW_NOT_FOUND);
         }

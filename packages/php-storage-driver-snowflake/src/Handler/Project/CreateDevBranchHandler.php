@@ -28,7 +28,9 @@ final class CreateDevBranchHandler extends BaseHandler
         array $features,
         Message $runtimeOptions,
     ): Message|null {
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($command instanceof CreateDevBranchCommand);
 
         if (!Features::isFeatureInList($features, Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE)) {

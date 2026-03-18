@@ -41,17 +41,26 @@ class GcsSlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInt
             ];
         }
 
-        /** @var string $encodedManifest */
-        $encodedManifest = json_encode([
+        /** @var non-empty-string $encodedManifest */
+        $encodedManifest = json_encode(
+            [
             'entries' => $entries,
-        ], JSON_THROW_ON_ERROR);
+            ],
+            JSON_THROW_ON_ERROR,
+        );
 
-        $writeStream = new WriteStream(null, [
+        $writeStream = new WriteStream(
+            null,
+            [
             'chunkSize' => self::CHUNK_SIZE_256_KB,
-        ]);
-        $uploader = $bucket->getStreamableUploader($writeStream, [
+            ],
+        );
+        $uploader = $bucket->getStreamableUploader(
+            $writeStream,
+            [
             'name' => $path->getPathnameWithoutRoot() . 'manifest',
-        ]);
+            ],
+        );
         $writeStream->setUploader($uploader);
         $stream = fopen('data://text/plain;base64,' . base64_encode($encodedManifest), 'rb');
         if ($stream !== false) {

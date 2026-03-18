@@ -53,10 +53,12 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             $this->connection->query($sql);
         }
 
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
-            $destination->getSchema(),
-            $stagingTableName,
-        ));
+        $rows = $this->connection->fetchAll(
+            $this->sqlBuilder->getTableItemsCountCommand(
+                $destination->getSchema(),
+                $stagingTableName,
+            ),
+        );
 
         return (int) $rows[0]['count'];
     }
@@ -94,10 +96,13 @@ FILES = (%s)',
                 QuoteHelper::quote($source->getKey()),
                 QuoteHelper::quote($source->getSecret()),
                 QuoteHelper::quote($source->getRegion()),
-                implode(' ', CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
-                    $importOptions,
-                    $source->getCsvOptions(),
-                )),
+                implode(
+                    ' ',
+                    CopyCommandCsvOptionsHelper::getCsvCopyCommandOptions(
+                        $importOptions,
+                        $source->getCsvOptions(),
+                    ),
+                ),
                 implode(', ', $quotedFiles),
             );
         }

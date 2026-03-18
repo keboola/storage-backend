@@ -25,7 +25,9 @@ final class DropDevBranchHandler extends BaseHandler
         array $features,
         Message $runtimeOptions,
     ): Message|null {
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($command instanceof DropDevBranchCommand);
 
         if (empty($command->getDevBranchReadOnlyRoleName())) {

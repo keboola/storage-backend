@@ -65,6 +65,7 @@ class BigQueryClientWrapper extends BigQueryClient
      */
     public function runQuery(JobConfigurationInterface $query, array $options = []): QueryResults
     {
+        /** @phpstan-ignore function.alreadyNarrowedType */
         if (count($this->queryTags->toArray()) !== 0 && method_exists($query, 'labels')) {
             $query = $query->labels($this->queryTags->toArray());
         }
@@ -91,6 +92,7 @@ class BigQueryClientWrapper extends BigQueryClient
                 return $this->startJob($config, $options);
             });
         } catch (Throwable $e) {
+            /** @var array{jobReference?: array{jobId?: string}} $jobConfig */
             $jobConfig = $config->toArray();
             $this->logger->warning('BigQuery job failed to start.', [
                 'exception' => $e,

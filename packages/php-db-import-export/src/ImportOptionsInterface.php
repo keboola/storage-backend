@@ -12,7 +12,9 @@ interface ImportOptionsInterface
     public const SKIP_FIRST_LINE = 1;
     public const DEFAULT_IMPORT_AS_NULL = ['']; // default import empty string as null
 
-    /** @return string[] */
+    /**
+     * @return string[]
+     */
     public function getConvertEmptyValuesToNull(): array;
 
     public function getNumberOfIgnoredLines(): int;

@@ -16,7 +16,7 @@ class DriverException extends AbstractException
     public static function newFromHandle($resource): self
     {
         $errorCode = odbc_error($resource);
-        assert($errorCode !== false);
+        assert($errorCode !== false); // @phpstan-ignore function.alreadyNarrowedType, notIdentical.alwaysTrue
         $errorMsg = odbc_errormsg($resource);
 
         return new self($errorMsg, null, (int) $errorCode);

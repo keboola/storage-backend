@@ -59,12 +59,13 @@ class Redshift extends Common
     public function getSQLDefinition(): string
     {
         $definition =  $this->getType();
-        if ($this->getLength() && $this->getLength() !== '') {
+        if ($this->getLength() && $this->getLength() !== '') { // @phpstan-ignore notIdentical.alwaysTrue
             $definition .= '(' . $this->getLength() . ')';
         }
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
+        /** @phpstan-ignore notIdentical.alwaysTrue */
         if ($this->getCompression() && $this->getCompression() !== '') {
             $definition .= ' ENCODE ' . $this->getCompression();
         }
@@ -85,7 +86,7 @@ class Redshift extends Common
     }
 
     /**
-     * @param array{length?:string|array|null} $options
+     * @param array{length?:string|array<string, int|string|null>|null} $options
      * @throws InvalidOptionException
      */
     private function processLength(array $options): ?string
@@ -94,7 +95,7 @@ class Redshift extends Common
             return null;
         }
         if (is_array($options['length'])) {
-            return $this->getLengthFromArray($options['length']);
+            return $this->getLengthFromArray($options['length']); // @phpstan-ignore argument.type
         }
         return (string) $options['length'];
     }
@@ -133,7 +134,7 @@ class Redshift extends Common
      */
     private function validateType(string $type): void
     {
-        if (!in_array(strtoupper($type), $this::TYPES)) {
+        if (!in_array(strtoupper($type), self::TYPES)) {
             throw new InvalidTypeException("'{$type}' is not a valid type");
         }
     }

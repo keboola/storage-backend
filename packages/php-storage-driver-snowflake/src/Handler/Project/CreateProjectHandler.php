@@ -39,7 +39,9 @@ final class CreateProjectHandler extends BaseHandler
         array $features,
         Message $runtimeOptions,
     ): ?Message {
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($command instanceof CreateProjectCommand);
 
         $commandMeta = $command->getMeta();
@@ -47,10 +49,12 @@ final class CreateProjectHandler extends BaseHandler
             // override root user and use other database as root
             $commandMeta = $commandMeta->unpack();
             if (!$commandMeta instanceof CreateProjectCommand\CreateProjectSnowflakeMeta) {
-                throw new InvalidArgumentException(sprintf(
-                    'Expected CreateProjectCommand\CreateProjectSnowflakeMeta, got "%s"',
-                    get_debug_type($commandMeta),
-                ));
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Expected CreateProjectCommand\CreateProjectSnowflakeMeta, got "%s"',
+                        get_debug_type($commandMeta),
+                    ),
+                );
             }
             if ($command->getFileStorage() === CreateProjectCommand\FileStorageType::GCS
                 && $commandMeta->getStorageIntegrationName() === ''
@@ -67,49 +71,63 @@ final class CreateProjectHandler extends BaseHandler
 
         $connection = ConnectionFactory::createFromCredentials($credentials);
 
-        $connection->executeQuery(sprintf(
-            'CREATE DATABASE %s DATA_RETENTION_TIME_IN_DAYS = %d',
-            SnowflakeQuote::quoteSingleIdentifier($dbName),
-            $command->getDataRetentionTime(),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'CREATE DATABASE %s DATA_RETENTION_TIME_IN_DAYS = %d',
+                SnowflakeQuote::quoteSingleIdentifier($dbName),
+                $command->getDataRetentionTime(),
+            ),
+        );
 
         //create credentials
-        $connection->executeQuery(sprintf(
-            'CREATE ROLE %s',
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-        ));
-        $connection->executeQuery(sprintf(
-            'GRANT OWNERSHIP ON DATABASE %s TO ROLE %s',
-            SnowflakeQuote::quoteSingleIdentifier($dbName),
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'CREATE ROLE %s',
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+            ),
+        );
+        $connection->executeQuery(
+            sprintf(
+                'GRANT OWNERSHIP ON DATABASE %s TO ROLE %s',
+                SnowflakeQuote::quoteSingleIdentifier($dbName),
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+            ),
+        );
 
         // required for sql aliases
-        $connection->executeQuery(sprintf(
-            'GRANT CREATE ROLE ON ACCOUNT TO ROLE %s',
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'GRANT CREATE ROLE ON ACCOUNT TO ROLE %s',
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+            ),
+        );
 
         // required for sql aliases
-        $connection->executeQuery(sprintf(
-            'GRANT CREATE USER ON ACCOUNT TO ROLE %s',
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'GRANT CREATE USER ON ACCOUNT TO ROLE %s',
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+            ),
+        );
 
         if ($command->getFileStorage() === CreateProjectCommand\FileStorageType::GCS) {
-            $connection->executeQuery(sprintf(
-                'GRANT USAGE ON INTEGRATION %s TO ROLE %s',
-                SnowflakeQuote::quoteSingleIdentifier($commandMeta->getStorageIntegrationName()),
-                SnowflakeQuote::quoteSingleIdentifier($roleName),
-            ));
+            $connection->executeQuery(
+                sprintf(
+                    'GRANT USAGE ON INTEGRATION %s TO ROLE %s',
+                    SnowflakeQuote::quoteSingleIdentifier($commandMeta->getStorageIntegrationName()),
+                    SnowflakeQuote::quoteSingleIdentifier($roleName),
+                ),
+            );
         }
 
-        $connection->executeQuery(sprintf(
-            'CREATE USER %s DEFAULT_ROLE = %s TYPE=%s',
-            SnowflakeQuote::quoteSingleIdentifier($userName),
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-            SnowflakeQuote::quote($commandMeta->getProjectUserLoginType()),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'CREATE USER %s DEFAULT_ROLE = %s TYPE=%s',
+                SnowflakeQuote::quoteSingleIdentifier($userName),
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+                SnowflakeQuote::quote($commandMeta->getProjectUserLoginType()),
+            ),
+        );
 
         $isNetworkPolicySet = $this->setNetworkPolicyForProjectUser(
             $connection,
@@ -118,17 +136,21 @@ final class CreateProjectHandler extends BaseHandler
             $nameGenerator,
         );
 
-        $connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-            SnowflakeQuote::quoteSingleIdentifier($userName),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+                SnowflakeQuote::quoteSingleIdentifier($userName),
+            ),
+        );
 
-        $connection->executeQuery(sprintf(
-            'ALTER USER %s SET RSA_PUBLIC_KEY=\'%s\'',
-            SnowflakeQuote::quoteSingleIdentifier($userName),
-            $commandMeta->getProjectUserPublicKey(),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'ALTER USER %s SET RSA_PUBLIC_KEY=\'%s\'',
+                SnowflakeQuote::quoteSingleIdentifier($userName),
+                $commandMeta->getProjectUserPublicKey(),
+            ),
+        );
 
         // it's intentionally below other queries, so that for dynamic backends service can use credentials from project
         // as does EnableWorkspaceSnowflakeDynamicBackendSize::execute, keeping them as close as possible
@@ -137,29 +159,35 @@ final class CreateProjectHandler extends BaseHandler
         ) {
             foreach ($commandMeta->getAdditionalWarehousesToGrant() as $warehouseName) {
                 assert(is_string($warehouseName));
-                $connection->executeQuery(sprintf(
-                    'GRANT USAGE ON WAREHOUSE %s TO ROLE %s WITH GRANT OPTION',
-                    SnowflakeQuote::quoteSingleIdentifier($warehouseName),
-                    SnowflakeQuote::quoteSingleIdentifier($roleName),
-                ));
+                $connection->executeQuery(
+                    sprintf(
+                        'GRANT USAGE ON WAREHOUSE %s TO ROLE %s WITH GRANT OPTION',
+                        SnowflakeQuote::quoteSingleIdentifier($warehouseName),
+                        SnowflakeQuote::quoteSingleIdentifier($roleName),
+                    ),
+                );
             }
         } else {
             // grant option is required for sql aliases
-            $connection->executeQuery(sprintf(
-                'GRANT USAGE ON WAREHOUSE %s TO ROLE %s WITH GRANT OPTION',
-                SnowflakeQuote::quoteSingleIdentifier($commandMeta->getDefaultWarehouseToGrant()),
-                SnowflakeQuote::quoteSingleIdentifier($roleName),
-            ));
+            $connection->executeQuery(
+                sprintf(
+                    'GRANT USAGE ON WAREHOUSE %s TO ROLE %s WITH GRANT OPTION',
+                    SnowflakeQuote::quoteSingleIdentifier($commandMeta->getDefaultWarehouseToGrant()),
+                    SnowflakeQuote::quoteSingleIdentifier($roleName),
+                ),
+            );
         }
 
         if (Features::isFeatureInList($features, Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE)) {
             // set secondary RSA key to be able to use this user to invoke commands
             $keyPair = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
-            $connection->executeQuery(sprintf(
-                'ALTER USER %s SET RSA_PUBLIC_KEY_2=\'%s\'',
-                SnowflakeQuote::quoteSingleIdentifier($userName),
-                $keyPair->publicKey,
-            ));
+            $connection->executeQuery(
+                sprintf(
+                    'ALTER USER %s SET RSA_PUBLIC_KEY_2=\'%s\'',
+                    SnowflakeQuote::quoteSingleIdentifier($userName),
+                    $keyPair->publicKey,
+                ),
+            );
             $credentialsMeta = $credentials->getMeta();
             assert($credentialsMeta !== null);
             $connectionAsProjectUser = ConnectionFactory::createFromCredentials(
@@ -172,32 +200,42 @@ final class CreateProjectHandler extends BaseHandler
             );
 
             $readOnlyRoleName = $nameGenerator->createReadOnlyRoleNameForProject($command->getProjectId());
-            $connectionAsProjectUser->executeQuery(sprintf(
-                'CREATE OR REPLACE ROLE %s',
-                SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
-            ));
-            $connectionAsProjectUser->executeQuery(sprintf(
-                'GRANT USAGE ON DATABASE %s TO ROLE %s',
-                SnowflakeQuote::quoteSingleIdentifier($dbName),
-                SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
-            ));
-            $connectionAsProjectUser->executeQuery(sprintf(
-                'GRANT ROLE %s TO ROLE %s',
-                SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
-                SnowflakeQuote::quoteSingleIdentifier($roleName),
-            ));
+            $connectionAsProjectUser->executeQuery(
+                sprintf(
+                    'CREATE OR REPLACE ROLE %s',
+                    SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
+                ),
+            );
+            $connectionAsProjectUser->executeQuery(
+                sprintf(
+                    'GRANT USAGE ON DATABASE %s TO ROLE %s',
+                    SnowflakeQuote::quoteSingleIdentifier($dbName),
+                    SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
+                ),
+            );
+            $connectionAsProjectUser->executeQuery(
+                sprintf(
+                    'GRANT ROLE %s TO ROLE %s',
+                    SnowflakeQuote::quoteSingleIdentifier($readOnlyRoleName),
+                    SnowflakeQuote::quoteSingleIdentifier($roleName),
+                ),
+            );
         }
         $meta = new Any();
-        $meta->pack((new CreateProjectResponse\CreateProjectSnowflakeMeta())
-            ->setIsNetworkPolicySet($isNetworkPolicySet));
+        $meta->pack(
+            (new CreateProjectResponse\CreateProjectSnowflakeMeta())
+            ->setIsNetworkPolicySet($isNetworkPolicySet),
+        );
 
-        return new CreateProjectResponse([
+        return new CreateProjectResponse(
+            [
             'projectUserName' => $userName,
             'projectRoleName' => $roleName,
             'projectReadOnlyRoleName' => $readOnlyRoleName ?? '',
             'projectDatabaseName' => $dbName,
             'meta' => $meta,
-        ]);
+            ],
+        );
     }
 
     public function setNetworkPolicyForProjectUser(
@@ -206,20 +244,24 @@ final class CreateProjectHandler extends BaseHandler
         string $userName,
         NameGenerator $nameGenerator,
     ): bool {
-        $parameters = $connection->fetchAllAssociative(sprintf(
-            'SHOW PARAMETERS LIKE \'network_policy\' IN USER %s',
-            SnowflakeQuote::quoteSingleIdentifier($userName),
-        ));
+        $parameters = $connection->fetchAllAssociative(
+            sprintf(
+                'SHOW PARAMETERS LIKE \'network_policy\' IN USER %s',
+                SnowflakeQuote::quoteSingleIdentifier($userName),
+            ),
+        );
         if ($parameters[0]['value'] !== $nameGenerator->defaultNetworkPolicyName()) {
             // this backend does not have the policy set on the backend user, so we don't assign it to project user
             return false;
         }
         $defaultNetworkPolicyName = $nameGenerator->defaultNetworkPolicyName();
-        $connection->executeQuery(sprintf(
-            'ALTER USER %s SET NETWORK_POLICY = %s',
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-            SnowflakeQuote::quote($defaultNetworkPolicyName),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'ALTER USER %s SET NETWORK_POLICY = %s',
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+                SnowflakeQuote::quote($defaultNetworkPolicyName),
+            ),
+        );
 
         return true;
     }

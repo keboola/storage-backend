@@ -39,9 +39,12 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         assert($destination instanceof BigqueryTableDefinition);
         assert($importOptions instanceof BigqueryImportOptions);
 
-        $quotedColumns = array_map(static function ($column) {
-            return BigqueryQuote::quoteSingleIdentifier($column);
-        }, $destination->getColumnsNames());
+        $quotedColumns = array_map(
+            static function ($column) {
+                return BigqueryQuote::quoteSingleIdentifier($column);
+            },
+            $destination->getColumnsNames(),
+        );
 
         if ($source instanceof Table && $importOptions->usingUserDefinedTypes()) {
             Assert::assertSameColumnsOrdered(
@@ -70,9 +73,11 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         );
 
         if ($source instanceof SelectSource) {
-            $this->bqClient->runQuery($this->bqClient->query($sql)->parameters(
-                $source->getQueryBindings(),
-            ));
+            $this->bqClient->runQuery(
+                $this->bqClient->query($sql)->parameters(
+                    $source->getQueryBindings(),
+                ),
+            );
         } else {
             $this->bqClient->runQuery($this->bqClient->query($sql));
         }
