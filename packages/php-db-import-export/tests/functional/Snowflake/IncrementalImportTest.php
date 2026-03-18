@@ -23,7 +23,6 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $expectedAccountsRows[] = $row;
         }
         $accountColumns = array_shift($expectedAccountsRows);
-        $expectedAccountsRows = array_values($expectedAccountsRows);
 
         // multi pk
         $expectationMultiPkFile = new CsvFile(self::DATA_DIR . 'expectation.multi-pk.increment.csv');
@@ -32,7 +31,6 @@ class IncrementalImportTest extends SnowflakeImportExportBaseTest
             $expectedMultiPkRows[] = $row;
         }
         $multiPkColumns = array_shift($expectedMultiPkRows);
-        $expectedMultiPkRows = array_values($expectedMultiPkRows);
 
         $tests = [];
         $tests[] = [

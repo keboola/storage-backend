@@ -206,7 +206,6 @@ abstract class ImportExportBaseTest extends TestCase
 
         /** @var string[] $columns */
         $columns = array_shift($rows);
-        $rows = array_values($rows);
 
         return new CsvStub(
             $columns,

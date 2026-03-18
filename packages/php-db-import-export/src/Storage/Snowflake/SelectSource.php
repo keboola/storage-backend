@@ -79,7 +79,7 @@ class SelectSource implements SourceInterface, SqlSourceInterface
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function getQueryBindings(): array
     {

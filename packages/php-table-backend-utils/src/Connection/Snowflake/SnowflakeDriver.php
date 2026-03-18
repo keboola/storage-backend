@@ -15,7 +15,8 @@ class SnowflakeDriver implements Driver
     private ?string $certFilePath = null;
 
     /**
-     * @param array{
+     * Snowflake-specific connection params:
+     * array{
      *     'host':string,
      *     'user':string,
      *     'password'?:string,
@@ -30,7 +31,9 @@ class SnowflakeDriver implements Driver
      *     'queryTimeout'?: int,
      *     'clientSessionKeepAlive'?: bool,
      *     'maxBackoffAttempts'?:int
-     * } $params
+     * }
+     *
+     * @param array<string, mixed> $params
      */
     public function connect(
         array $params,

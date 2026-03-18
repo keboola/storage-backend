@@ -205,7 +205,7 @@ class MySQLDatatypeTest extends TestCase
     {
         foreach (MySQL::TYPES as $type) {
             if ($type === 'VARCHAR') {
-                $basetype = (new MySQL($type, ['length' => 255]))->getBasetype();
+                $basetype = (new MySQL($type, ['length' => '255']))->getBasetype();
             } else {
                 $basetype = (new MySQL($type))->getBasetype();
             }

@@ -40,7 +40,7 @@ class GenericStorageDatatypeTest extends TestCase
     public function testToMetadata(): void
     {
         $datatype = new GenericStorage('DATE', [
-            'length' => 10,
+            'length' => '10',
             'nullable' => false,
             'default' => '1970-01-01',
             'format' => 'Y-m-d',
@@ -77,7 +77,7 @@ class GenericStorageDatatypeTest extends TestCase
     public function testToArray(): void
     {
         $datatype = new GenericStorage('DATE', [
-            'length' => 10,
+            'length' => '10',
             'nullable' => false,
             'default' => '1970-01-01',
             'format' => 'Y-m-d',
@@ -94,7 +94,7 @@ class GenericStorageDatatypeTest extends TestCase
     public function testSqlDefinition(): void
     {
         $datatype = new GenericStorage('DATE', [
-            'length' => 10,
+            'length' => '10',
             'nullable' => false,
             'default' => '1970-01-01',
             'format' => 'Y-m-d',
@@ -103,7 +103,7 @@ class GenericStorageDatatypeTest extends TestCase
         $this->assertEquals("DATE(10) NOT NULL DEFAULT '1970-01-01'", $datatype->getSQLDefinition());
 
         $datatype = new GenericStorage('INTEGER', [
-            'length' => 10,
+            'length' => '10',
         ]);
         $this->assertEquals('INTEGER(10) NULL DEFAULT NULL', $datatype->getSQLDefinition());
 
@@ -114,7 +114,7 @@ class GenericStorageDatatypeTest extends TestCase
     public function testFalseyDefaults(): void
     {
         $datatype = new GenericStorage('INTEGER', [
-            'length' => 11,
+            'length' => '11',
             'nullable' => false,
             'default' => 0,
         ]);

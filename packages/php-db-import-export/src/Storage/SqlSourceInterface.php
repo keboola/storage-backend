@@ -11,7 +11,7 @@ interface SqlSourceInterface extends SourceInterface
     public function getFromStatementWithStringCasting(): string;
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function getQueryBindings(): array;
 }
