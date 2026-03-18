@@ -136,6 +136,7 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
                 SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
             ),
         );
-        $this->assertSame('1', (string) $count, 'Row should be imported into destination table');
+        $this->assertNotFalse($count);
+        $this->assertSame('1', $count, 'Row should be imported into destination table');
     }
 }

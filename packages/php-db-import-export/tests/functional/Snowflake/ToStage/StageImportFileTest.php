@@ -355,6 +355,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
                 SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
             ),
         );
+        $this->assertNotFalse($count);
         $this->assertGreaterThan(0, (int) $count, 'Data should be imported to staging table');
     }
 

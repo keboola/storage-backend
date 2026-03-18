@@ -227,6 +227,7 @@ class ConnectionTest extends SnowflakeBaseCase
         );
         $this->assertIsArray($result);
         $this->assertSame('1', $result['id']);
+        $this->assertIsString($result['last_name']);
         // String should be truncated to column size (VARCHAR(100))
         $this->assertLessThanOrEqual(100, strlen($result['last_name']));
     }
