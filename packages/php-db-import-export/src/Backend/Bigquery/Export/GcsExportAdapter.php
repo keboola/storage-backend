@@ -58,7 +58,7 @@ OPTIONS (
                 $destination->getRelativePath()->getPathname(),
                 $exportOptions->isCompressed() ? '.gz' : '', // add file suffix if gzip
                 CsvOptions::DEFAULT_DELIMITER,
-                $exportOptions->isCompressed() ? "    ,compression='GZIP'\n" : "\n",
+                $exportOptions->isCompressed() ? "    ,compression='GZIP'\n" : "    \n",
                 $source->getFromStatement(),
             ),
             ExportFileType::PARQUET => sprintf(
@@ -71,7 +71,7 @@ OPTIONS (
     %s
 );',
                 $destination->getRelativePath()->getPathname(),
-                $exportOptions->isCompressed() ? "    ,compression='SNAPPY'\n" : "\n",
+                $exportOptions->isCompressed() ? "    ,compression='SNAPPY'\n" : "    \n",
                 $source->getFromStatement(),
             ),
         };
