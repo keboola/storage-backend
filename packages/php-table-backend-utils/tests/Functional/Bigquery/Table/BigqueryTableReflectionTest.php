@@ -83,7 +83,8 @@ class BigqueryTableReflectionTest extends BigqueryBaseCase
             ->dataset(self::TEST_SCHEMA)
             ->table(self::TABLE_GENERIC)
             ->info();
-        $fieldInfo = $tableInfo['schema']['fields'][1]; // @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible
+        // @phpstan-ignore offsetAccess.nonOffsetAccessible, offsetAccess.nonOffsetAccessible
+        $fieldInfo = $tableInfo['schema']['fields'][1];
         self::assertEquals(
             RESTtoSQLDatatypeConverter::convertColumnToSQLFormat($fieldInfo), // @phpstan-ignore argument.type
             RESTtoSQLDatatypeConverter::convertColumnToSQLFormat(
