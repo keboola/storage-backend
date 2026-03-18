@@ -22,6 +22,7 @@
         "keboola/php-file-storage-utils": "^0.2.2",
         "keboola/php-temp": "^2.0",
         "keboola/php-utils": "^4.1",
+        "keboola/key-generator": "^1.0",
         "keboola/retry": "^0.5.0",
         "microsoft/azure-storage-blob": "^1.4",
         "symfony/console": "^5.2|^6",
@@ -29,6 +30,9 @@
         "symfony/process": "^4.4|^5.0|^6.0"
     },
     "require-dev": {
+        "flow-php/filesystem": "^0.21.0",
+        "flow-php/parquet": "^0.21.0",
+        "flow-php/types": "^0.21.0",
         "keboola/coding-standard": "^15",
         "keboola/phpunit-retry-annotations": "^0.3.0",
         "php-parallel-lint/php-parallel-lint": "^1.3",

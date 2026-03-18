@@ -12,9 +12,6 @@ parameters:
         -
             message: '#query\(\) expects array<int<0, max>\|string, mixed>#'
             identifier: argument.type
-        # Flow PHP classes not always available
-        - identifier: class.notFound
-          path: tests/*
         # Test-only: array_values on list has no effect (intentional safety measure after array_shift)
         - identifier: arrayValues.list
           path: tests/*

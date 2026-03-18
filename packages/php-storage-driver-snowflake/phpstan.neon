@@ -4,17 +4,6 @@ includes:
 parameters:
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
-        - identifier: class.notFound
-        - identifier: property.nonObject
-          path: src/Handler/Project/*
-        - identifier: property.nonObject
-          path: tests/Functional/*
-        - identifier: argument.type
-          path: src/Handler/Project/*
-        - identifier: argument.type
-          path: tests/Functional/*
-        - identifier: return.type
-          path: tests/Functional/*
         - identifier: method.alreadyNarrowedType
           path: tests/Functional/*
         - identifier: function.alreadyNarrowedType
