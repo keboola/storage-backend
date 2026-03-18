@@ -10,7 +10,7 @@ use Keboola\TableBackendUtils\View\Snowflake\SnowflakeViewReflection;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 /**
- * @covers SnowflakeViewReflection
+ * @covers \Keboola\TableBackendUtils\View\Snowflake\SnowflakeViewReflection
  */
 class SnowflakeViewReflectionTest extends SnowflakeBaseCase
 {

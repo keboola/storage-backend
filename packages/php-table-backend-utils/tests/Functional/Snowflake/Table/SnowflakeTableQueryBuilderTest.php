@@ -17,7 +17,7 @@ use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 // TODO we dont use DEFAULT values in columns.
 /**
- * @covers SnowflakeTableQueryBuilder
+ * @covers \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder
  * @uses   ColumnCollection
  */
 class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase

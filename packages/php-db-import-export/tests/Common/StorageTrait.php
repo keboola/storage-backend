@@ -34,9 +34,9 @@ trait StorageTrait
 
     protected function getBuildPrefix(): string
     {
-        $buildPrefix = '';
-        if (getenv('BUILD_PREFIX') !== false) {
-            $buildPrefix = getenv('BUILD_PREFIX');
+        $buildPrefix = getenv('BUILD_PREFIX');
+        if ($buildPrefix === false) {
+            return '';
         }
         return $buildPrefix;
     }
@@ -90,7 +90,7 @@ trait StorageTrait
     /**
      * @param string[] $columns
      * @param string[]|null $primaryKeys
-     * @return S3\SourceFile|ABS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
+     * @return S3\SourceFile|ABS\SourceFile|Storage\GCS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
      */
     public function getSourceInstance(
         string $filePath,
@@ -132,7 +132,7 @@ trait StorageTrait
     /**
      * @param string[] $columns
      * @param string[]|null $primaryKeys
-     * @return S3\SourceFile|ABS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
+     * @return S3\SourceFile|ABS\SourceFile|Storage\GCS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
      */
     public function getSourceInstanceFromCsv(
         string $filePath,
@@ -433,7 +433,10 @@ trait StorageTrait
         $reader = new Reader();
         foreach ($files as $tmpFile) {
             $file = $reader->read($tmpFile);
-            foreach ($file->values() as $row) {
+            /** @var iterable<array<string, mixed>> $values */
+            $values = $file->values(); // @phpstan-ignore method.nonObject
+            foreach ($values as $row) {
+                /** @var array<string, mixed> $row */
                 foreach ($row as $column => &$value) {
                     if ($value instanceof DateTimeInterface) {
                         $row[$column] = $value->format(DateTimeInterface::ATOM);

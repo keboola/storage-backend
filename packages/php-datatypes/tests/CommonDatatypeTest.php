@@ -40,8 +40,8 @@ class CommonDatatypeTest extends TestCase
         $datatype->method('getBasetype')->willReturn('STRING');
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
-            $this->assertArrayHasKey('value', $mdat);
+            $this->assertArrayHasKey('key', $mdat); // @phpstan-ignore method.alreadyNarrowedType
+            $this->assertArrayHasKey('value', $mdat); // @phpstan-ignore method.alreadyNarrowedType
             if ($mdat['key'] === Common::KBC_METADATA_KEY_TYPE) {
                 $this->assertEquals('VARCHAR', $mdat['value']);
             } elseif ($mdat['key'] === Common::KBC_METADATA_KEY_LENGTH) {
@@ -68,8 +68,8 @@ class CommonDatatypeTest extends TestCase
         $datatype->method('getBasetype')->willReturn('NUMERIC');
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
-            $this->assertArrayHasKey('value', $mdat);
+            $this->assertArrayHasKey('key', $mdat); // @phpstan-ignore method.alreadyNarrowedType
+            $this->assertArrayHasKey('value', $mdat); // @phpstan-ignore method.alreadyNarrowedType
             if ($mdat['key'] === Common::KBC_METADATA_KEY_TYPE) {
                 $this->assertEquals('NUMERIC', $mdat['value']);
             } elseif ($mdat['key'] === Common::KBC_METADATA_KEY_LENGTH) {

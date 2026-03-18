@@ -70,8 +70,8 @@ class SqlCommandBuilderTest extends TestCase
             {
                 return ['col1', 'col2'];
             }
-            /** @return string[]|null */
-            public function getPrimaryKeysNames(): ?array
+            /** @return string[] */
+            public function getPrimaryKeysNames(): array
             {
                 return [];
             }

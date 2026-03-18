@@ -39,7 +39,7 @@ final class ProfileTableHandler extends BaseHandler
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): Message|null {
+    ): Message {
         /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
         /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */

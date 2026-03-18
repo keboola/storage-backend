@@ -1,5 +1,56 @@
 parameters:
     reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # Runtime type checks that PHPStan 2 considers redundant but are intentional
+        - identifier: function.alreadyNarrowedType
+        - identifier: staticMethod.alreadyNarrowedType
+        - identifier: method.alreadyNarrowedType
+        # Doctrine DBAL array type parameter mismatches
+        -
+            message: '#executeQuery\(\) expects array<int<0, max>\|string, mixed>#'
+            identifier: argument.type
+        -
+            message: '#query\(\) expects array<int<0, max>\|string, mixed>#'
+            identifier: argument.type
+        # Flow PHP classes not always available
+        - identifier: class.notFound
+          path: tests/*
+        # Test-only: array_values on list has no effect (intentional safety measure after array_shift)
+        - identifier: arrayValues.list
+          path: tests/*
+        # Test-only: various argument type mismatches from data providers and CSV parsing
+        -
+            message: '#getSourceInstance\(\) expects array<string>, (array|mixed) given#'
+            identifier: argument.type
+            path: tests/*
+        -
+            message: '#getSourceInstanceFromCsv\(\) expects array<string>, (array|mixed) given#'
+            identifier: argument.type
+            path: tests/*
+        -
+            message: '#getColumnsString\(\) expects array<string>, array given#'
+            identifier: argument.type
+            path: tests/*
+        -
+            message: '#implode expects array<string>, array given#'
+            identifier: argument.type
+            path: tests/*
+        -
+            message: '#array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)#'
+            identifier: argument.type
+            path: tests/*
+        -
+            message: '#array_map expects array, mixed given#'
+            identifier: argument.type
+            path: tests/*
+        -
+            message: '#BigqueryException::createExceptionFromJobResult\(\) expects#'
+            identifier: argument.type
+            path: tests/*
+        -
+            message: '#Snowflake\\Table constructor expects array<string>, mixed given#'
+            identifier: argument.type
+            path: tests/*
 
 includes:
     - phpstan-baseline.neon

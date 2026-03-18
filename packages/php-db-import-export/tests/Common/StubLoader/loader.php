@@ -18,6 +18,7 @@ $basedir = dirname(__DIR__);
 
 require_once $basedir . '/../../vendor/autoload.php';
 
+/** @var list<string> $argv */
 switch ($argv[1]) {
     case 'abs':
         require_once 'AbsLoader.php';

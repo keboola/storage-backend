@@ -11,7 +11,7 @@ use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaQueryBuilder;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 /**
- * @covers SnowflakeSchemaQueryBuilder
+ * @covers \Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaQueryBuilder
  */
 class SnowflakeSchemaQueryBuilderTest extends SnowflakeBaseCase
 {

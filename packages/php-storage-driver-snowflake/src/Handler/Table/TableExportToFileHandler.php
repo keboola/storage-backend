@@ -36,7 +36,7 @@ final class TableExportToFileHandler extends BaseHandler
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): Message|null {
+    ): Message {
         assert($credentials instanceof GenericBackendCredentials);
         assert($command instanceof TableExportToFileCommand);
 

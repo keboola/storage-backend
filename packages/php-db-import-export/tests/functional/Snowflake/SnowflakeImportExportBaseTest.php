@@ -262,14 +262,15 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
     public function tearDown(): void
     {
         parent::tearDown();
+        /** @phpstan-ignore unset.possiblyHookedProperty */
         unset($this->connection);
     }
 
     public function getSourceSchemaName(): string
     {
-        $buildPrefix = '';
-        if (getenv('BUILD_PREFIX') !== false) {
-            $buildPrefix = getenv('BUILD_PREFIX');
+        $buildPrefix = getenv('BUILD_PREFIX');
+        if ($buildPrefix === false) {
+            $buildPrefix = '';
         }
 
         return self::SNOWFLAKE_SOURCE_SCHEMA_NAME
@@ -281,9 +282,9 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
 
     public function getDestinationSchemaName(): string
     {
-        $buildPrefix = '';
-        if (getenv('BUILD_PREFIX') !== false) {
-            $buildPrefix = getenv('BUILD_PREFIX');
+        $buildPrefix = getenv('BUILD_PREFIX');
+        if ($buildPrefix === false) {
+            $buildPrefix = '';
         }
 
         return self::SNOWFLAKE_DEST_SCHEMA_NAME

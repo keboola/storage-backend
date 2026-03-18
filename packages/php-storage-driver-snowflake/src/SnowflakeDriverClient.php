@@ -35,7 +35,7 @@ final class SnowflakeDriverClient implements ClientInterface
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): Message|null {
+    ): Message {
         $handler = HandlerFactory::create(
             $command,
             $this->internalLogger,

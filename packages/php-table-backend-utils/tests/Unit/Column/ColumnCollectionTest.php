@@ -18,7 +18,7 @@ class ColumnCollectionTest extends TestCase
             SnowflakeColumn::createGenericColumn('col2'),
         ]);
 
-        $this->assertIsIterable($collection);
+        $this->assertIsIterable($collection); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**

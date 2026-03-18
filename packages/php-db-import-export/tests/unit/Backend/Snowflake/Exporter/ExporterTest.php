@@ -27,6 +27,7 @@ class ExporterTest extends TestCase
         $conn->expects(self::exactly(2))
             ->method('executeStatement')
             ->willReturnCallback(function (string $sql): int {
+                /** @var int $callIndex */
                 static $callIndex = 0;
                 $callIndex++;
                 if ($callIndex === 1) {
@@ -102,6 +103,7 @@ class ExporterTest extends TestCase
         $conn->expects(self::exactly(2))
             ->method('executeStatement')
             ->willReturnCallback(function (string $sql): int {
+                /** @var int $callIndex */
                 static $callIndex = 0;
                 $callIndex++;
                 if ($callIndex === 1) {

@@ -12,6 +12,7 @@ $basedir = dirname(__DIR__);
 
 require_once $basedir . '/../vendor/autoload.php';
 
+/** @var list<string> $argv */
 switch ($argv[1]) {
     case 's3':
         require_once 'S3Loader.php';
