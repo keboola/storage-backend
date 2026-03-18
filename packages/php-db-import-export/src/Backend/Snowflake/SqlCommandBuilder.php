@@ -31,9 +31,12 @@ class SqlCommandBuilder
         string $tableName,
         array $columns,
     ): string {
-        $columnsSql = array_map(function ($column) {
-            return sprintf('%s varchar', QuoteHelper::quoteIdentifier($column));
-        }, $columns);
+        $columnsSql = array_map(
+            function ($column) {
+                return sprintf('%s varchar', QuoteHelper::quoteIdentifier($column));
+            },
+            $columns,
+        );
         return sprintf(
             'CREATE TEMPORARY TABLE %s.%s (%s)',
             QuoteHelper::quoteIdentifier($schema),
@@ -108,13 +111,16 @@ class SqlCommandBuilder
     private function getPrimayKeyWhereConditions(
         array $primaryKeys,
     ): string {
-        $pkWhereSql = array_map(function (string $col) {
-            return sprintf(
-                '"dest".%s = COALESCE("src".%s, \'\')',
-                QuoteHelper::quoteIdentifier($col),
-                QuoteHelper::quoteIdentifier($col),
-            );
-        }, $primaryKeys);
+        $pkWhereSql = array_map(
+            function (string $col) {
+                return sprintf(
+                    '"dest".%s = COALESCE("src".%s, \'\')',
+                    QuoteHelper::quoteIdentifier($col),
+                    QuoteHelper::quoteIdentifier($col),
+                );
+            },
+            $primaryKeys,
+        );
 
         return implode(' AND ', $pkWhereSql) . ' ';
     }
@@ -136,23 +142,29 @@ class SqlCommandBuilder
         ImportOptionsInterface $importOptions,
         string $stagingTableName,
     ): string {
-        $columnsSetSqlSelect = implode(', ', array_map(function ($column) use (
-            $importOptions,
-        ) {
-            if (in_array($column, $importOptions->getConvertEmptyValuesToNull())) {
-                return sprintf(
-                    'IFF(%s = \'\', NULL, %s)',
-                    QuoteHelper::quoteIdentifier($column),
-                    QuoteHelper::quoteIdentifier($column),
-                );
-            }
+        $columnsSetSqlSelect = implode(
+            ', ',
+            array_map(
+                function ($column) use (
+                    $importOptions,
+                ) {
+                    if (in_array($column, $importOptions->getConvertEmptyValuesToNull())) {
+                        return sprintf(
+                            'IFF(%s = \'\', NULL, %s)',
+                            QuoteHelper::quoteIdentifier($column),
+                            QuoteHelper::quoteIdentifier($column),
+                        );
+                    }
 
-            return sprintf(
-                "COALESCE(%s, '') AS %s",
-                QuoteHelper::quoteIdentifier($column),
-                QuoteHelper::quoteIdentifier($column),
-            );
-        }, $source->getColumnsNames()));
+                    return sprintf(
+                        "COALESCE(%s, '') AS %s",
+                        QuoteHelper::quoteIdentifier($column),
+                        QuoteHelper::quoteIdentifier($column),
+                    );
+                },
+                $source->getColumnsNames(),
+            ),
+        );
 
         if (in_array(Importer::TIMESTAMP_COLUMN_NAME, $source->getColumnsNames())
             || $importOptions->useTimestamp() === false

@@ -22,7 +22,7 @@ final class CreateBucketHandler extends BaseHandler
      * @inheritDoc
      * @param GenericBackendCredentials $credentials
      * @param CreateBucketCommand $command
-     * @return CreateBucketResponse|null
+     * @return CreateBucketResponse
      */
     public function __invoke(
         Message $credentials,
@@ -30,7 +30,9 @@ final class CreateBucketHandler extends BaseHandler
         array $features,
         Message $runtimeOptions,
     ): Message|null {
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($command instanceof CreateBucketCommand);
 
         $connection = ConnectionFactory::createFromCredentials($credentials);
@@ -47,10 +49,14 @@ final class CreateBucketHandler extends BaseHandler
             if ($command->getIsBranchDefault()) {
                 // in default branch we do grant to new schema and tables to the project read only role
                 $quotedRoleToGrant = SnowflakeQuote::quoteSingleIdentifier($command->getProjectReadOnlyRoleName());
-            } elseif (Features::isOneOfFeaturesInList($features, [
+            } elseif (Features::isOneOfFeaturesInList(
+                $features,
+                [
                 Features::FEATURE_PROTECTED_DEFAULT_BRANCH,
                 Features::FEATURE_REAL_STORAGE_BRANCHES,
-            ])) {
+                ],
+            )
+            ) {
                 // in dev branch in case real storage in dev branches is enabled
                 // we grant schema and tables to the dev branch read only role only
                 // in default branch we do grant to new schema and tables to the project read only role
@@ -61,23 +67,29 @@ final class CreateBucketHandler extends BaseHandler
         try {
             $quotedSchemaName = SnowflakeQuote::quoteSingleIdentifier($bucketSchemaName);
 
-            $connection->executeQuery(sprintf(
-                'CREATE SCHEMA %s WITH MANAGED ACCESS',
-                $quotedSchemaName,
-            ));
+            $connection->executeQuery(
+                sprintf(
+                    'CREATE SCHEMA %s WITH MANAGED ACCESS',
+                    $quotedSchemaName,
+                ),
+            );
 
             if ($quotedRoleToGrant !== null) {
-                $connection->executeQuery(sprintf(
-                    'GRANT USAGE ON SCHEMA %s TO ROLE %s',
-                    $quotedSchemaName,
-                    $quotedRoleToGrant,
-                ));
+                $connection->executeQuery(
+                    sprintf(
+                        'GRANT USAGE ON SCHEMA %s TO ROLE %s',
+                        $quotedSchemaName,
+                        $quotedRoleToGrant,
+                    ),
+                );
 
-                $connection->executeQuery(sprintf(
-                    'GRANT SELECT ON FUTURE TABLES IN SCHEMA %s TO ROLE %s',
-                    $quotedSchemaName,
-                    $quotedRoleToGrant,
-                ));
+                $connection->executeQuery(
+                    sprintf(
+                        'GRANT SELECT ON FUTURE TABLES IN SCHEMA %s TO ROLE %s',
+                        $quotedSchemaName,
+                        $quotedRoleToGrant,
+                    ),
+                );
             }
         } catch (Throwable $e) {
             throw new BucketCreationFailedException($e->getMessage(), $e->getCode(), $e);

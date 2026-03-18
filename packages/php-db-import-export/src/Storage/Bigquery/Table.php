@@ -80,13 +80,17 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return $this->tableName;
     }
 
-    /** @return string[]|null */
+    /**
+     * @return string[]|null
+     */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
     }
 
-    /** @return array<mixed> */
+    /**
+     * @return array<mixed>
+     */
     public function getQueryBindings(): array
     {
         return [];
@@ -103,9 +107,12 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 
     public function getFromStatementWithStringCasting(): string
     {
-        $quotedColumns = array_map(static function ($column) {
-            return sprintf('CAST(%s AS STRING)', BigqueryQuote::quoteSingleIdentifier($column));
-        }, $this->getColumnsNames());
+        $quotedColumns = array_map(
+            static function ($column) {
+                return sprintf('CAST(%s AS STRING)', BigqueryQuote::quoteSingleIdentifier($column));
+            },
+            $this->getColumnsNames(),
+        );
 
         $select = '*';
         if (count($quotedColumns) > 0) {

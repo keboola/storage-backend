@@ -57,7 +57,7 @@ class GenericStorage extends Common
     public function getSQLDefinition(): string
     {
         $sql = $this->getType();
-        if ($this->getLength() && $this->getLength() !== '') {
+        if ($this->getLength() && $this->getLength() !== '') { // @phpstan-ignore notIdentical.alwaysTrue
             $sql .= '(' . $this->getLength() . ')';
         }
         $sql .= ($this->isNullable()) ? ' NULL' : ' NOT NULL';

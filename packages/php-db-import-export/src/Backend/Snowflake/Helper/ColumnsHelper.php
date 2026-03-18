@@ -16,11 +16,17 @@ final class ColumnsHelper
         string $delimiter = ', ',
         ?string $tableAlias = null,
     ): string {
-        return implode($delimiter, array_map(function ($columns) use (
-            $tableAlias,
-        ) {
-            $alias = $tableAlias === null ? '' : $tableAlias . '.';
-            return $alias . QuoteHelper::quoteIdentifier($columns);
-        }, $columns));
+        return implode(
+            $delimiter,
+            array_map(
+                function ($columns) use (
+                    $tableAlias,
+                ) {
+                    $alias = $tableAlias === null ? '' : $tableAlias . '.';
+                    return $alias . QuoteHelper::quoteIdentifier($columns);
+                },
+                $columns,
+            ),
+        );
     }
 }

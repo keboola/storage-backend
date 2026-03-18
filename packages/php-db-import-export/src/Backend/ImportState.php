@@ -14,7 +14,7 @@ class ImportState
 
     protected int $importedRowsCount = 0;
 
-    /** @var array<mixed> */
+    /** @var array<string, array{name: string, durationSeconds: float|null}> */
     private array $timers = [];
 
     /** @var string[] */
@@ -39,7 +39,7 @@ class ImportState
             'timers' => array_values($this->timers), // convert to indexed array
             'importedRowsCount' => $this->importedRowsCount,
             'importedColumns' => $this->importedColumns,
-        ]);
+            ],);
     }
 
     public function getStagingTableName(): string

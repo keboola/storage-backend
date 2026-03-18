@@ -28,6 +28,7 @@ final class SnowflakeDriverClient implements ClientInterface
 
     /**
      * @param string[] $features
+     * @return DriverResponse
      */
     public function runCommand(
         Message $credentials,

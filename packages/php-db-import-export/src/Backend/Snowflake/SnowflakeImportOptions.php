@@ -62,13 +62,16 @@ class SnowflakeImportOptions extends ImportOptions
     {
         $nullIf = ', NULL_IF=()';
         if ($this->importAsNull() !== []) {
-            $nullIf = sprintf(', NULL_IF=(%s)', implode(
-                ',',
-                array_map(
-                    fn(string $s) => SnowflakeQuote::quote($s),
-                    $this->importAsNull(),
+            $nullIf = sprintf(
+                ', NULL_IF=(%s)',
+                implode(
+                    ',',
+                    array_map(
+                        fn(string $s) => SnowflakeQuote::quote($s),
+                        $this->importAsNull(),
+                    ),
                 ),
-            ));
+            );
         }
         return $nullIf;
     }

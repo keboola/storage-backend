@@ -114,7 +114,7 @@ class Snowflake extends Common
      * Snowflake constructor.
      *
      * @param array{
-     *     length?:string|null|array,
+     *     length?:string|null|array<string, int|string|null>,
      *     nullable?:bool,
      *     default?:string|null
      * } $options
@@ -172,7 +172,7 @@ class Snowflake extends Common
     }
 
     /**
-     * @param array{length?: string|null|array} $options
+     * @param array{length?: string|null|array<string, int|string|null>} $options
      * @throws InvalidOptionException
      */
     private function processLength(array $options): ?string
@@ -181,7 +181,7 @@ class Snowflake extends Common
             return null;
         }
         if (is_array($options['length'])) {
-            return $this->getLengthFromArray($options['length']);
+            return $this->getLengthFromArray($options['length']); // @phpstan-ignore argument.type
         }
         return (string) $options['length'];
     }
@@ -255,7 +255,7 @@ class Snowflake extends Common
      */
     private function validateType(string $type): void
     {
-        if (!in_array(strtoupper($type), $this::TYPES)) {
+        if (!in_array(strtoupper($type), self::TYPES)) {
             throw new InvalidTypeException("'{$type}' is not a valid type");
         }
     }

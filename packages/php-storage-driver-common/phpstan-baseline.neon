@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Variable \$argv might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: tests/StubLoader/loader.php

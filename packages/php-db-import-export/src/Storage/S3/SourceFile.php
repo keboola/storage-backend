@@ -78,15 +78,20 @@ class SourceFile extends BaseFile implements SourceInterface
             $response = $client->getObject([
                 'Bucket' => $this->bucket,
                 'Key' => ltrim($this->filePath, '/'),
-            ]);
+                ],);
         } catch (AwsException $e) {
             throw new Exception('Load error: ' . $e->getMessage(), Exception::MANDATORY_FILE_NOT_FOUND, $e);
         }
 
-        $manifest = json_decode((string) $response['Body'], true);
-        return array_map(static function ($entry) {
-            return $entry['url'];
-        }, $manifest['entries']);
+        $body = (string) $response['Body']; // @phpstan-ignore cast.string
+        /** @var array{entries: array<int, array{url: string}>} $manifest */
+        $manifest = json_decode($body, true);
+        return array_map(
+            static function (array $entry): string {
+                return $entry['url'];
+            },
+            $manifest['entries'],
+        );
     }
 
     public function isSliced(): bool

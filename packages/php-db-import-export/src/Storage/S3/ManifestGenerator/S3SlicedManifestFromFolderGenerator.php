@@ -26,10 +26,13 @@ class S3SlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInte
      */
     public function generateAndSaveManifest(RelativePathInterface $path): void
     {
-        $iterator = $this->s3Client->getIterator('ListObjects', [
+        $iterator = $this->s3Client->getIterator(
+            'ListObjects',
+            [
             'Bucket' => $path->getRoot(),
             'Prefix' => $path->getPathnameWithoutRoot(),
-        ]);
+            ],
+        );
         $entries = [];
         /** @var array{Key:string} $object */
         foreach ($iterator as $object) {
@@ -48,6 +51,6 @@ class S3SlicedManifestFromFolderGenerator implements SlicedManifestGeneratorInte
             'Key' => $path->getPathnameWithoutRoot() . 'manifest',
             'Body' => json_encode($manifest, JSON_THROW_ON_ERROR),
             'ServerSideEncryption' => 'AES256',
-        ]);
+            ],);
     }
 }

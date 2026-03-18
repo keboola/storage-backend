@@ -25,18 +25,20 @@ class Result implements ResultInterface
     }
 
     /**
-     * @inheritdoc
+     * @return list<mixed>|false
      */
     public function fetchNumeric()
     {
+        /** @var list<mixed>|false */
         return $this->fetch(self::FETCH_NUMERIC);
     }
 
     /**
-     * @inheritdoc
+     * @return array<string, mixed>|false
      */
     public function fetchAssociative()
     {
+        /** @var array<string, mixed>|false */
         return $this->fetch(self::FETCH_ASSOCIATIVE);
     }
 
@@ -89,7 +91,7 @@ class Result implements ResultInterface
 
     /**
      * @param self::FETCH_* $fetchMode
-     * @return array<mixed>|false
+     * @return array<string, mixed>|list<mixed>|false
      */
     private function fetch(string $fetchMode)
     {

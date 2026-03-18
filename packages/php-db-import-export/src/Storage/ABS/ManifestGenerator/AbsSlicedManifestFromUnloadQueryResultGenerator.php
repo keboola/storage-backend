@@ -53,7 +53,7 @@ class AbsSlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestG
         $manifest = [
             'entries' => $entries,
         ];
-        /** @var string $encodedManifest */
+        /** @var non-empty-string $encodedManifest */
         $encodedManifest = json_encode($manifest, JSON_THROW_ON_ERROR);
 
         $this->absClient->createBlockBlob(

@@ -1,0 +1,199 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Handler\\Bucket\\CreateBucketHandler\:\:__invoke\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Handler/Bucket/CreateBucketHandler.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Handler\\Info\\ObjectInfoHandler\:\:__invoke\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Handler/Info/ObjectInfoHandler.php
+
+		-
+			message: '#^Call to method createPemKeyCertificate\(\) on an unknown class Keboola\\KeyGenerator\\PemKeyCertificateGenerator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Handler/Project/CreateProjectHandler.php
+
+		-
+			message: '#^Cannot access property \$privateKey on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Handler/Project/CreateProjectHandler.php
+
+		-
+			message: '#^Cannot access property \$publicKey on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Handler/Project/CreateProjectHandler.php
+
+		-
+			message: '#^Instantiated class Keboola\\KeyGenerator\\PemKeyCertificateGenerator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Handler/Project/CreateProjectHandler.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Handler\\Project\\CreateProjectHandler\:\:__invoke\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Handler/Project/CreateProjectHandler.php
+
+		-
+			message: '#^Parameter \#1 \$var of method Keboola\\StorageDriver\\Credentials\\GenericBackendCredentials\:\:setSecret\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Handler/Project/CreateProjectHandler.php
+
+		-
+			message: '#^Parameter \#3 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Handler/Project/CreateProjectHandler.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Handler\\Table\\ProfileTableHandler\:\:__invoke\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Handler/Table/ProfileTableHandler.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Handler\\Table\\TableExportToFileHandler\:\:__invoke\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Handler/Table/TableExportToFileHandler.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\SnowflakeDriverClient\:\:runCommand\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/SnowflakeDriverClient.php
+
+		-
+			message: '#^Access to property \$privateKey on an unknown class Keboola\\KeyGenerator\\PemKeyCertificatePair\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Call to method createPemKeyCertificate\(\) on an unknown class Keboola\\KeyGenerator\\PemKeyCertificateGenerator\.$#'
+			identifier: class.notFound
+			count: 2
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Cannot access property \$privateKey on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Cannot access property \$publicKey on mixed\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Instantiated class Keboola\\KeyGenerator\\PemKeyCertificateGenerator not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\BaseCase\:\:createProjectForTest\(\) has invalid return type Keboola\\KeyGenerator\\PemKeyCertificatePair\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\BaseCase\:\:createProjectForTest\(\) should return array\{Keboola\\StorageDriver\\Command\\Project\\CreateProjectResponse, Keboola\\KeyGenerator\\PemKeyCertificatePair\} but returns array\{Keboola\\StorageDriver\\Command\\Project\\CreateProjectResponse, mixed\}\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Parameter \#1 \$var of method Keboola\\StorageDriver\\Credentials\\GenericBackendCredentials\:\:setSecret\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Parameter \#3 \.\.\.\$values of function sprintf expects bool\|float\|int\|string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Parameter \$certificatePair of method Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\BaseCase\:\:createProjectCredentials\(\) has invalid type Keboola\\KeyGenerator\\PemKeyCertificatePair\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/BaseCase.php
+
+		-
+			message: '#^Property Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\BaseProjectTestCase\:\:\$keyPair has unknown class Keboola\\KeyGenerator\\PemKeyCertificatePair as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/BaseProjectTestCase.php
+
+		-
+			message: '#^Access to property \$privateKey on an unknown class Keboola\\KeyGenerator\\PemKeyCertificatePair\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Call to method createPemKeyCertificate\(\) on an unknown class Keboola\\KeyGenerator\\PemKeyCertificateGenerator\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Cannot access property \$publicKey on mixed\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Instantiated class Keboola\\KeyGenerator\\PemKeyCertificateGenerator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\ConnectionFactoryTest\:\:createProjectForTest\(\) has invalid return type Keboola\\KeyGenerator\\PemKeyCertificatePair\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Method Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\ConnectionFactoryTest\:\:createProjectForTest\(\) should return array\{Keboola\\StorageDriver\\Command\\Project\\CreateProjectResponse, Keboola\\KeyGenerator\\PemKeyCertificatePair\} but returns array\{Keboola\\StorageDriver\\Command\\Project\\CreateProjectResponse, mixed\}\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Parameter \#1 \$var of method Keboola\\StorageDriver\\Credentials\\GenericBackendCredentials\:\:setSecret\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Parameter \$certificatePair of method Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\ConnectionFactoryTest\:\:createProjectCredentials\(\) has invalid type Keboola\\KeyGenerator\\PemKeyCertificatePair\.$#'
+			identifier: class.notFound
+			count: 1
+			path: tests/Functional/ConnectionFactoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''USAGE'' and ''USAGE'' will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Functional/Handler/DevBranchHandlerTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Keboola\\\\StorageDriver\\\\Command\\\\Table\\\\CreateProfileTableResponse\\\\Column'' and Keboola\\StorageDriver\\Command\\Table\\CreateProfileTableResponse\\Column will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Functional/Handler/ProfileTableHandlerTest.php

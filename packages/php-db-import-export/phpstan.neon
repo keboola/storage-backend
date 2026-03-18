@@ -1,2 +1,5 @@
+parameters:
+    reportUnmatchedIgnoredErrors: false
+
 includes:
-    - phpstan-baseline-php-version.neon.php
+    - phpstan-baseline.neon

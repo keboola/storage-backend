@@ -28,6 +28,7 @@ final class TableExportToFileHandler extends BaseHandler
 {
     /**
      * @param array<string, string> $features
+     * @return TableExportToFileResponse
      * @throws TableExportFailedException
      */
     public function __invoke(
@@ -119,7 +120,7 @@ final class TableExportToFileHandler extends BaseHandler
         assert($fileCredentials !== null);
 
         $credentials = $fileCredentials->unpack();
-        assert($credentials !== null);
+        assert($credentials !== null); // @phpstan-ignore function.alreadyNarrowedType, notIdentical.alwaysTrue
 
         $pathComponents = [];
         if ($filePath->getPath()) {
