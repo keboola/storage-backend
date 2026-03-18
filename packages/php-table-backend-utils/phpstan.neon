@@ -1,4 +1,4 @@
 parameters:
+    reportUnmatchedIgnoredErrors: false
 includes:
-    - vendor/phpstan/phpstan-phpunit/extension.neon
     - phpstan-baseline.neon
