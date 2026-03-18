@@ -65,21 +65,17 @@ class OtherImportTest extends SnowflakeImportExportBaseTest
             'accounts-3',
         );
 
-        try {
-            (new Importer($this->connection))->importTable(
-                $source,
-                $destination,
-                $options,
-            );
-            // Snowflake may no longer throw exception for invalid manifests
-        } catch (Exception $e) {
-            // Verify expected error code when exception is thrown
-            if (getenv('STORAGE_TYPE') === StorageType::STORAGE_S3) {
-                $this->assertSame(Exception::INVALID_SOURCE_DATA, $e->getCode());
-            } else {
-                $this->assertSame(Exception::MANDATORY_FILE_NOT_FOUND, $e->getCode());
-            }
+        $this->expectException(Exception::class);
+        if (getenv('STORAGE_TYPE') === StorageType::STORAGE_S3) {
+            $this->expectExceptionCode(Exception::INVALID_SOURCE_DATA);
+        } else {
+            $this->expectExceptionCode(Exception::MANDATORY_FILE_NOT_FOUND);
         }
+        (new Importer($this->connection))->importTable(
+            $source,
+            $destination,
+            $options,
+        );
     }
 
     public function testMoreColumnsShouldThrowException(): void

@@ -286,22 +286,24 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
-        try {
-            $importer->importToStagingTable(
-                $this->getSourceInstanceFromCsv(
-                    '02_tw_accounts.csv.invalid.manifest',
-                    new CsvOptions(),
-                    self::TWITTER_COLUMNS,
-                    true,
-                    false,
-                ),
-                $stagingTable,
-                $this->getSnowflakeImportOptions(),
-            );
-            // Snowflake may no longer throw exception for invalid manifests
-        } catch (LegacyImportException | FileNotFoundException $e) {
-            // Expected - Snowflake still throws for some storage types
+        if (getenv('STORAGE_TYPE') === StorageType::STORAGE_ABS) {
+            $this->expectException(LegacyImportException::class);
+        } else {
+            // fails on SQL. Manifest with invalid files is being created during loadS3
+            $this->expectException(FileNotFoundException::class);
         }
+
+        $importer->importToStagingTable(
+            $this->getSourceInstanceFromCsv(
+                '02_tw_accounts.csv.invalid.manifest',
+                new CsvOptions(),
+                self::TWITTER_COLUMNS,
+                true,
+                false,
+            ),
+            $stagingTable,
+            $this->getSnowflakeImportOptions(),
+        );
     }
 
     public function testCopyIntoInvalidTypes(): void
@@ -323,27 +325,24 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
 
-        try {
-            $importer->importToStagingTable(
-                $this->getSourceInstanceFromCsv(
-                    'typed_table.invalid-types.csv',
-                    new CsvOptions(),
-                    [
-                        'charCol',
-                        'numCol',
-                        'floatCol',
-                        'boolCol',
-                    ],
-                    false,
-                    false,
-                ),
-                $stagingTable,
-                $this->getSnowflakeImportOptions(),
-            );
-            // Snowflake may no longer throw exception for invalid types
-        } catch (LegacyImportException $e) {
-            // Expected - Snowflake still throws for some operations
-        }
+        $this->expectException(LegacyImportException::class);
+
+        $importer->importToStagingTable(
+            $this->getSourceInstanceFromCsv(
+                'typed_table.invalid-types.csv',
+                new CsvOptions(),
+                [
+                    'charCol',
+                    'numCol',
+                    'floatCol',
+                    'boolCol',
+                ],
+                false,
+                false,
+            ),
+            $stagingTable,
+            $this->getSnowflakeImportOptions(),
+        );
     }
 
     public function testStageImportNullBehavior(): void

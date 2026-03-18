@@ -122,22 +122,16 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
         ));
         $toFinalTableImporter = new FullImporter($this->connection);
 
-        $toFinalTableImporter->importToTable(
-            $stagingTable,
-            $destination,
-            $options,
-            new ImportState($stagingTable->getTableName()),
-        );
-
-        // Snowflake no longer throws casting exceptions - import completed without error.
-        // Row may or may not be inserted depending on Snowflake version behavior.
-        $count = $this->connection->fetchOne(
-            sprintf(
-                'SELECT COUNT(*) FROM %s."types"',
-                SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-            ),
-        );
-        $this->assertNotFalse($count);
-        $this->assertContains($count, ['0', '1'], 'Row may or may not be inserted');
+        try {
+            $toFinalTableImporter->importToTable(
+                $stagingTable,
+                $destination,
+                $options,
+                new ImportState($stagingTable->getTableName()),
+            );
+            $this->fail('Import must fail');
+        } catch (Exception $e) {
+            $this->assertMatchesRegularExpression($expectedMessage, $e->getMessage());
+        }
     }
 }

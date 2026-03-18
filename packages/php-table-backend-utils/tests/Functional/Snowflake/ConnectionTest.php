@@ -207,10 +207,13 @@ class ConnectionTest extends SnowflakeBaseCase
     public function testStringToLong(): void
     {
         $this->initTable();
-        $longString = str_repeat('a', 101);
-
-        // Snowflake no longer throws StringTooLongException -
-        // it silently rejects the insert without error
+        $longString= str_repeat('a', 101);
+        $this->expectException(StringTooLongException::class);
+        $this->expectExceptionMessage(sprintf(
+            // phpcs:ignore
+            'An exception occurred while executing a query: String \'%s\' cannot be inserted because it\'s bigger than column size',
+            $longString,
+        ));
         $this->insertRowToTable(
             self::TEST_SCHEMA,
             self::TABLE_GENERIC,
@@ -218,18 +221,6 @@ class ConnectionTest extends SnowflakeBaseCase
             'franta',
             $longString,
         );
-
-        // Verify the insert completed without exception.
-        // Row may or may not exist depending on Snowflake version behavior.
-        $count = $this->connection->fetchOne(
-            sprintf(
-                'SELECT COUNT(*) FROM %s.%s WHERE "id" = 1',
-                SnowflakeQuote::quoteSingleIdentifier(self::TEST_SCHEMA),
-                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-            ),
-        );
-        // Count is either '0' (row rejected) or '1' (row truncated and inserted)
-        $this->assertContains($count, ['0', '1']);
     }
 
     public function testInvalidCredentials(): void
