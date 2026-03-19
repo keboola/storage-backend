@@ -432,9 +432,10 @@ trait StorageTrait
         $content = [];
         $reader = new Reader();
         foreach ($files as $tmpFile) {
+            /** @var \Flow\Parquet\ParquetFile $file */
             $file = $reader->read($tmpFile);
             /** @var iterable<array<string, mixed>> $values */
-            $values = $file->values(); // @phpstan-ignore method.nonObject
+            $values = $file->values();
             foreach ($values as $row) {
                 /** @var array<string, mixed> $row */
                 foreach ($row as $column => &$value) {

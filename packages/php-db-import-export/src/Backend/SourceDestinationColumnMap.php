@@ -125,7 +125,6 @@ final class SourceDestinationColumnMap
             // this can happen only when class is used with different source and destination tables instances
             throw new Exception(sprintf('Column "%s" not found in destination table', $source->getColumnName()));
         }
-        assert($destination !== null); // @phpstan-ignore notIdentical.alwaysTrue, function.alreadyNarrowedType
         return $destination;
     }
 

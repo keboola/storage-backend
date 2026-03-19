@@ -53,7 +53,7 @@ class MySQL extends Common
     public function getSQLDefinition(): string
     {
         $definition =  $this->getType();
-        if ($this->getLength() && $this->getLength() !== '') { // @phpstan-ignore notIdentical.alwaysTrue
+        if ($this->getLength()) {
             $definition .= '(' . $this->getLength() . ')';
         }
         if (!$this->isNullable()) {

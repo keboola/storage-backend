@@ -59,14 +59,13 @@ class Redshift extends Common
     public function getSQLDefinition(): string
     {
         $definition =  $this->getType();
-        if ($this->getLength() && $this->getLength() !== '') { // @phpstan-ignore notIdentical.alwaysTrue
+        if ($this->getLength()) {
             $definition .= '(' . $this->getLength() . ')';
         }
         if (!$this->isNullable()) {
             $definition .= ' NOT NULL';
         }
-        /** @phpstan-ignore notIdentical.alwaysTrue */
-        if ($this->getCompression() && $this->getCompression() !== '') {
+        if ($this->getCompression()) {
             $definition .= ' ENCODE ' . $this->getCompression();
         }
         return $definition;

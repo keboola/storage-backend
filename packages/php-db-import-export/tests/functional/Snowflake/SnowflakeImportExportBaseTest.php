@@ -262,8 +262,7 @@ abstract class SnowflakeImportExportBaseTest extends ImportExportBaseTest
     public function tearDown(): void
     {
         parent::tearDown();
-        /** @phpstan-ignore unset.possiblyHookedProperty */
-        unset($this->connection);
+        $this->connection->disconnect();
     }
 
     public function getSourceSchemaName(): string
