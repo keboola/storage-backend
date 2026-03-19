@@ -161,7 +161,7 @@ abstract class ImportExportBaseTest extends TestCase
     public const EXPECTATION_FILE_DATA_KEEP_AS_IS = false;
     /**
      * @param self::EXPECTATION_FILE_DATA_* $convertNullsString
-     * @return array{0:string[], 1:array<string,mixed>}
+     * @return array{0:string[], 1:list<array<mixed>>}
      */
     protected function getExpectationFileData(
         string $filePathInDataDir,

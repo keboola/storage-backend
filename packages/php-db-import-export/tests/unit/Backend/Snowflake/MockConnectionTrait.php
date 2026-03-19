@@ -19,7 +19,7 @@ trait MockConnectionTrait
         $mock = $this->createMock(Connection::class);
 
         $mock->method('quoteIdentifier')->willReturnCallback(
-            static function ($input) {
+            static function (string $input) {
                 return QuoteHelper::quoteIdentifier($input);
             },
         );
