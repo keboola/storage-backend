@@ -17,7 +17,7 @@
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
-        "keboola/coding-standard": "^15",
+        "keboola/coding-standard": "^16",
         "phpstan/phpstan": "^2",
         "phpstan/phpstan-phpunit": "^2",
         "phpunit/phpunit": "^12"
