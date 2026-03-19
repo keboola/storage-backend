@@ -258,7 +258,7 @@ final class CreateProjectHandler extends BaseHandler
         $connection->executeQuery(
             sprintf(
                 'ALTER USER %s SET NETWORK_POLICY = %s',
-                SnowflakeQuote::quoteSingleIdentifier($roleName),
+                SnowflakeQuote::quoteSingleIdentifier($userName),
                 SnowflakeQuote::quote($defaultNetworkPolicyName),
             ),
         );

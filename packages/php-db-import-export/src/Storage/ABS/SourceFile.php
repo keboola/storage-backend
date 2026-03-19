@@ -19,7 +19,7 @@ use Keboola\FileStorage\Path\RelativePath;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use function GuzzleHttp\json_decode;
+use JsonException;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
@@ -76,8 +76,16 @@ class SourceFile extends BaseFile implements SourceInterface
         }
         $content = stream_get_contents($manifestBlob->getContentStream());
         assert(is_string($content));
-        /** @var array{entries: array<int, array{url: string}>} $manifest */
-        $manifest = json_decode($content, true);
+        try {
+            /** @var array{entries: array<int, array{url: string}>} $manifest */
+            $manifest = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception(
+                'Failed to decode manifest JSON: ' . $e->getMessage(),
+                Exception::MANDATORY_FILE_NOT_FOUND,
+                $e,
+            );
+        }
         return $manifest;
     }
 
