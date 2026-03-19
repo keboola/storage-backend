@@ -160,9 +160,7 @@ class Bigquery extends Common
             unset($options['default']);
         }
         if (array_key_exists('fieldAsArray', $options)) {
-            if (is_array($options['fieldAsArray'])) {
-                $this->fieldAsArray = $options['fieldAsArray'];
-            }
+            $this->fieldAsArray = $options['fieldAsArray'];
             unset($options['fieldAsArray']);
         }
         parent::__construct($type, $options);
