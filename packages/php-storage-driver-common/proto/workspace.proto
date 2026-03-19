@@ -89,6 +89,36 @@ message ResetWorkspacePasswordResponse {
 }
 
 /**
+ * Command to create an additional workspace user (e.g., for query service credentials)
+ * Unlike CreateWorkspaceCommand, this does NOT create a dataset — it only creates a new
+ * service account with access to the existing workspace dataset.
+ */
+message CreateWorkspaceUserCommand {
+  string stackPrefix = 1;
+  string projectId = 2;
+  string workspaceId = 3;
+  string workspaceObjectName = 4; // dataset name, to grant access
+  string projectRoleName = 5;
+  string projectReadOnlyRoleName = 6;
+  google.protobuf.Any meta = 7;
+}
+
+/**
+ * Response for CreateWorkspaceUserCommand
+ */
+message CreateWorkspaceUserResponse {
+  string workspaceUserName = 1;  // JSON service account credentials (public part)
+  string workspacePassword = 2;  // private_key
+}
+
+/**
+ * Command to drop an additional workspace user created by CreateWorkspaceUserCommand
+ */
+message DropWorkspaceUserCommand {
+  string workspaceUserName = 1;  // JSON service account credentials (to extract email)
+}
+
+/**
  * Command will remove single workspace object
  */
 message DropWorkspaceObjectCommand {
