@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Exception as InternalException;
+use JsonException;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
@@ -19,7 +20,6 @@ use Keboola\FileStorage\Path\RelativePath;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use JsonException;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
