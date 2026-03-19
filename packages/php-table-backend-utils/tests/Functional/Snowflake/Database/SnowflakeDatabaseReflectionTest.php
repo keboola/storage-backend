@@ -17,9 +17,7 @@ class SnowflakeDatabaseReflectionTest extends SnowflakeBaseCase
     protected function setUp(): void
     {
         $this->markTestSkipped('Test won\'t work as testing user has not such high privileges.');
-        /**
- * @phpstan-ignore-next-line
-*/
+        /** @phpstan-ignore-next-line */
         parent::setUp();
         $this->setUpUser(self::USERNAME);
         $this->setUpRole(self::ROLE);

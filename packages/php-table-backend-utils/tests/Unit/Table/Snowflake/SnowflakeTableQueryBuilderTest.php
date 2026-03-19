@@ -143,49 +143,37 @@ class SnowflakeTableQueryBuilderTest extends TestCase
         yield 'drop default' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '10']),
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => null]),
-            /**
- * @lang Snowflake
-*/
+            /** @lang Snowflake */
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP DEFAULT',
         ];
         yield 'add nullable' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => false, 'default' => '']),
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
-            /**
- * @lang Snowflake
-*/
+            /** @lang Snowflake */
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP NOT NULL',
         ];
         yield 'drop nullable' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => false, 'default' => '']),
-            /**
- * @lang Snowflake
-*/
+            /** @lang Snowflake */
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET NOT NULL',
         ];
         yield 'increase length of text column' => [
             new Snowflake('VARCHAR', ['length' => '12', 'nullable' => true, 'default' => '']),
             new Snowflake('VARCHAR', ['length' => '38', 'nullable' => true, 'default' => '']),
-            /**
- * @lang Snowflake
-*/
+            /** @lang Snowflake */
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE VARCHAR(38)',
         ];
         yield 'increase precision of numeric column' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
             new Snowflake('NUMERIC', ['length' => '14,8', 'nullable' => true, 'default' => '']),
-            /**
- * @lang Snowflake
-*/
+            /** @lang Snowflake */
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
         ];
         yield 'full set of changes (increase precision, drop nullable, drop default)' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => 'grunbread']),
             new Snowflake('NUMERIC', ['length' => '14,8', 'nullable' => false, 'default' => '']),
-            /**
- * @lang Snowflake
-*/
+            /** @lang Snowflake */
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP DEFAULT, '
             . 'COLUMN "testColumn" SET NOT NULL, COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
         ];

@@ -20,7 +20,7 @@ require_once $basedir . '/../../vendor/autoload.php';
 
 switch ($argv[1]) {
     case 'abs':
-        include_once 'AbsLoader.php';
+        require_once 'AbsLoader.php';
 
         $loader = new AbsLoader(
             (string) getenv('ABS_ACCOUNT_NAME'),
@@ -31,7 +31,7 @@ switch ($argv[1]) {
         $loader->load();
         break;
     case 's3':
-        include_once 'S3Loader.php';
+        require_once 'S3Loader.php';
 
         $loader = new S3Loader(
             (string) getenv('AWS_REGION'),
@@ -42,7 +42,7 @@ switch ($argv[1]) {
         $loader->load();
         break;
     case 'gcs-snowflake':
-        include_once 'GCSLoader.php';
+        require_once 'GCSLoader.php';
 
         /**
      * @var array{
@@ -67,7 +67,7 @@ switch ($argv[1]) {
         $loader->load();
         break;
     case 'gcs-bigquery':
-        include_once 'GCSLoader.php';
+        require_once 'GCSLoader.php';
 
         /**
      * @var array{

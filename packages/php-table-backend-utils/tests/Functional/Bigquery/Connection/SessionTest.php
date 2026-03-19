@@ -29,14 +29,14 @@ class SessionTest extends BigqueryBaseCase
             $this->bqClient->query(
                 'SELECT 1',
                 [
-                'configuration' => [
-                'query' => [
-                    'connectionProperties' => [
-                        'key' => 'session_id',
-                        'value' => $session->getSessionId(),
+                    'configuration' => [
+                        'query' => [
+                            'connectionProperties' => [
+                                'key' => 'session_id',
+                                'value' => $session->getSessionId(),
+                            ],
+                        ],
                     ],
-                ],
-                ],
                 ],
             ),
         );
