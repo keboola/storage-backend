@@ -6,12 +6,11 @@ namespace Keboola\StorageDriver\Snowflake\Tests\Functional;
 
 use Doctrine\DBAL\Connection;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeConnectionFactory;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 class ConnectionTestWithPassword extends BaseCase
 {
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testQuery(): void
     {
         $connection = $this->getSnowflakeConnection();

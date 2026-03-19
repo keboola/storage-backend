@@ -15,12 +15,14 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 /**
  * @covers \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection
- * @uses   ColumnCollection
  */
+#[UsesClass(ColumnCollection::class)]
 class SnowflakeTableReflectionTest extends SnowflakeBaseCase
 {
     protected function setUp(): void
@@ -33,41 +35,53 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
     {
         $this->initTable();
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
-        self::assertSame([
+        self::assertSame(
+            [
             'id',
             'first_name',
             'last_name',
-        ], $ref->getColumnsNames());
+            ],
+            $ref->getColumnsNames(),
+        );
 
         // same test on view
         $this->initView();
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
 
-        self::assertSame([
+        self::assertSame(
+            [
             'id',
             'first_name',
             'last_name',
-        ], $ref->getColumnsNames());
+            ],
+            $ref->getColumnsNames(),
+        );
     }
 
     public function testGetTableColumnsNamesCase(): void
     {
         $this->initTable();
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
-        self::assertSame([
+        self::assertSame(
+            [
             'id',
             'first_name',
             'last_name',
-        ], $ref->getColumnsNames());
+            ],
+            $ref->getColumnsNames(),
+        );
 
         // same test on view
         $this->initView();
         $ref = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::VIEW_GENERIC);
-        self::assertSame([
+        self::assertSame(
+            [
             'id',
             'first_name',
             'last_name',
-        ], $ref->getColumnsNames());
+            ],
+            $ref->getColumnsNames(),
+        );
     }
 
     public function testGetPrimaryKeysNames(): void
@@ -146,9 +160,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         self::assertEquals(0, $stats2->getDataSizeBytes());
     }
 
-    /**
-     * @dataProvider tableColsDataProvider
-     */
+    #[DataProvider('tableColsDataProvider')]
     public function testColumnDefinition(
         string $sqlDef,
         string $expectedSqlDefinition,
@@ -188,7 +200,7 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
     /**
      * @return Generator<string,array<mixed>>
      */
-    public function tableColsDataProvider(): Generator
+    public static function tableColsDataProvider(): Generator
     {
         yield 'DECIMAL' => [
             'DECIMAL', // sql which goes to table
@@ -432,10 +444,13 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         $dependentViews = $ref->getDependentViews();
         self::assertCount(1, $dependentViews);
 
-        self::assertSame([
+        self::assertSame(
+            [
             'schema_name' => self::TEST_SCHEMA,
             'name' => self::VIEW_GENERIC,
-        ], $dependentViews[0]);
+            ],
+            $dependentViews[0],
+        );
     }
 
     public function testDependenciesWithCaseSensitivity(): void
@@ -514,10 +529,13 @@ class SnowflakeTableReflectionTest extends SnowflakeBaseCase
         $dependentViews = $ref->getDependentViews();
         self::assertCount(1, $dependentViews);
 
-        self::assertSame([
+        self::assertSame(
+            [
             'schema_name' => self::TEST_SCHEMA,
             'name' => self::VIEW_GENERIC,
-        ], $dependentViews[0]);
+            ],
+            $dependentViews[0],
+        );
     }
 
     public function testDetectTempTable(): void
@@ -647,7 +665,8 @@ SQL,
         }
 
         $data = $this->connection->fetchAllAssociative('SELECT * FROM car_sales');
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'SRC' => '{
   "date": "2017-04-28",
@@ -662,7 +681,9 @@ SQL,
 }',
                 'DEALER' => 'Tindel Toyota',
             ],
-        ], $data);
+            ],
+            $data,
+        );
         /** @var SnowflakeTableDefinition $definition */
         $definition = $ref->getTableDefinition();
         $this->assertEquals(TableType::TABLE, $definition->getTableType());

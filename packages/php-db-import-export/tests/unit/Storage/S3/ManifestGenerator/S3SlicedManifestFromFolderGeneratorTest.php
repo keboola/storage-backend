@@ -16,33 +16,37 @@ class S3SlicedManifestFromFolderGeneratorTest extends TestCase
 {
     public function testGenerateAndSaveManifest(): void
     {
+        // putObject() is a magic method on S3Client (__call), so we mock __call directly.
         /** @var MockObject|S3Client $mock */
-        $mock = $this->getMockBuilder(S3Client::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getIterator', 'putObject'])
-            ->getMock();
-        $mock->expects($this->once())->method('getIterator')->willReturn([
+        $mock = $this->createMock(S3Client::class);
+        $mock->expects($this->once())->method('getIterator')->willReturn(
+            [
             [
                 'Key' => 'key1',
             ],
             [
                 'Key' => 'key2',
             ],
-        ]);
-        $mock->expects($this->once())->method('putObject')
-            ->with([
+            ],
+        );
+        $mock->expects($this->once())->method('__call')
+            ->with(
+                'putObject',
+                [[
                 'Bucket' => 'bucket',
                 'Key' => 'prefix/xxxmanifest',
                 //phpcs:ignore
                 'Body' => '{"entries":[{"url":"s3:\/\/bucket\/key1","mandatory":true},{"url":"s3:\/\/bucket\/key2","mandatory":true}]}',
                 'ServerSideEncryption' => 'AES256',
-            ]);
+                ]],
+            );
 
         $path = RelativePath::createFromRootAndPath(new S3Provider(), 'bucket', 'prefix/xxx');
 
         $generator = new S3SlicedManifestFromFolderGenerator($mock);
         $generator->generateAndSaveManifest($path);
 
+        /** @phpstan-ignore method.alreadyNarrowedType */
         $this->assertInstanceOf(SlicedManifestGeneratorInterface::class, $generator);
     }
 }

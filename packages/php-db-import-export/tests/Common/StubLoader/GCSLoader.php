@@ -41,7 +41,7 @@ class GCSLoader extends BaseStubLoader
         $this->client = new StorageClient([
             'keyFile' => $credentials,
             'debug' => true,
-        ]);
+            ],);
         $this->bucketName = $bucketName;
         file_put_contents('/tmp/gcs-credentials.json', (string) json_encode($credentials));
 
@@ -113,32 +113,40 @@ class GCSLoader extends BaseStubLoader
         echo PHP_EOL;
 
         $promises = [];
-        $promises[] = fn() => new Promise(function ($resolve) use ($bucket) {
-            $blobName = '02_tw_accounts.csv.invalid.manifest';
-            $res = $bucket->upload(
-                json_encode([
-                    'entries' => [
+        $promises[] = fn() => new Promise(
+            function ($resolve) use ($bucket) {
+                $blobName = '02_tw_accounts.csv.invalid.manifest';
+                $res = $bucket->upload(
+                    json_encode(
                         [
-                            'url' => sprintf(
-                                'gs://%s/not-exists.csv',
-                                $this->bucketName,
-                            ),
-                            'mandatory' => true,
+                            'entries' => [
+                                [
+                                    'url' => sprintf(
+                                        'gs://%s/not-exists.csv',
+                                        $this->bucketName,
+                                    ),
+                                    'mandatory' => true,
+                                ],
+                            ],
                         ],
+                        JSON_THROW_ON_ERROR,
+                    ),
+                    [
+                        'name' => $blobName,
                     ],
-                ], JSON_THROW_ON_ERROR),
-                [
-                    'name' => $blobName,
-                ],
-            );
-            $resolve([$blobName, $res]);
-        });
+                );
+                $resolve([$blobName, $res]);
+            },
+        );
 
-        parallel($promises)->then(function (): void {
-            return;
-        }, function (Throwable $e): void {
-            echo 'Error: ' . $e->getMessage() . PHP_EOL;
-        });
+        parallel($promises)->then(
+            function (): void {
+                return;
+            },
+            function (Throwable $e): void {
+                echo 'Error: ' . $e->getMessage() . PHP_EOL;
+            },
+        );
 
         echo "GCS load complete \n";
     }

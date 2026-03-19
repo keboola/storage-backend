@@ -9,13 +9,14 @@ use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class FullImportTest extends SnowflakeImportExportBaseTest
 {
     /**
      * @return array<mixed>
      */
-    public function fullImportData(): array
+    public static function fullImportData(): array
     {
         $expectedEscaping = [];
         $file = new CsvFile(self::DATA_DIR . 'escaping/standard-with-enclosures.csv');
@@ -51,132 +52,132 @@ class FullImportTest extends SnowflakeImportExportBaseTest
 
         // full imports
         $tests[] = [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
                 $escapingHeader,
                 true,
             ),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.csv_2Cols'),
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedLargeSlicedManifest,
             1501,
         ];
 
         $tests[] = [
-            $this->getSourceInstance('empty.manifest', $escapingHeader, true),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            static::getSourceInstance('empty.manifest', $escapingHeader, true),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.csv_2Cols'),
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             [],
             0,
         ];
 
         $tests[] = [
-            $this->getSourceInstance('lemma.csv', $lemmaHeader),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.lemma'),
-            $this->getSimpleImportOptions(),
+            static::getSourceInstance('lemma.csv', $lemmaHeader),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.lemma'),
+            static::getSimpleImportOptions(),
             $expectedLemma,
             5,
         ];
 
         $tests[] = [
-            $this->getSourceInstance('standard-with-enclosures.csv', $escapingHeader),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
-            $this->getSimpleImportOptions(),
+            static::getSourceInstance('standard-with-enclosures.csv', $escapingHeader),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.csv_2Cols'),
+            static::getSimpleImportOptions(),
             $expectedEscaping,
             7,
         ];
 
         $tests[] = [
-            $this->getSourceInstance('gzipped-standard-with-enclosures.csv.gz', $escapingHeader),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
-            $this->getSimpleImportOptions(),
+            static::getSourceInstance('gzipped-standard-with-enclosures.csv.gz', $escapingHeader),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.csv_2Cols'),
+            static::getSimpleImportOptions(),
             $expectedEscaping,
             7,
         ];
 
         $tests[] = [
-            $this->getSourceInstanceFromCsv(
+            static::getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
                 $escapingHeader,
             ),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
-            $this->getSimpleImportOptions(),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.csv_2Cols'),
+            static::getSimpleImportOptions(),
             $expectedEscaping,
             7,
         ];
 
         $tests[] = [
-            $this->getSourceInstanceFromCsv('raw.rs.csv', new CsvOptions("\t", '', '\\'), $escapingHeader),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
-            $this->getSimpleImportOptions(),
+            static::getSourceInstanceFromCsv('raw.rs.csv', new CsvOptions("\t", '', '\\'), $escapingHeader),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.csv_2Cols'),
+            static::getSimpleImportOptions(),
             $expectedEscaping,
             7,
         ];
 
         $tests[] = [
-            $this->getSourceInstance('tw_accounts.changedColumnsOrder.csv', $accountChangedColumnsOrderHeader),
+            static::getSourceInstance('tw_accounts.changedColumnsOrder.csv', $accountChangedColumnsOrderHeader),
             new Storage\Snowflake\Table(
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 'accounts-3',
             ),
-            $this->getSimpleImportOptions(),
+            static::getSimpleImportOptions(),
             $expectedAccounts,
             3,
         ];
         $tests[] = [
-            $this->getSourceInstance('tw_accounts.csv', $accountsHeader),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
-            $this->getSimpleImportOptions(),
+            static::getSourceInstance('tw_accounts.csv', $accountsHeader),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'accounts-3'),
+            static::getSimpleImportOptions(),
             $expectedAccounts,
             3,
         ];
         // manifests
         $tests[] = [
-            $this->getSourceInstance('sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest', $accountsHeader, true),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            static::getSourceInstance('sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest', $accountsHeader, true),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'accounts-3'),
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
         ];
 
         $tests[] = [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
                 $accountsHeader,
                 true,
             ),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'accounts-3'),
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
         ];
 
         // folder
         $tests[] = [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced_accounts_no_manifest/',
                 $accountsHeader,
                 true,
                 true,
             ),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'accounts-3'),
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'accounts-3'),
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedAccounts,
             3,
         ];
 
         // reserved words
         $tests[] = [
-            $this->getSourceInstance('reserved-words.csv', ['column', 'table'], false),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'table'),
-            $this->getSimpleImportOptions(),
+            static::getSourceInstance('reserved-words.csv', ['column', 'table'], false),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'table'),
+            static::getSimpleImportOptions(),
             [['table', 'column']],
             1,
         ];
         // import table with _timestamp columns - used by snapshots
         $tests[] = [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'with-ts.csv',
                 [
                     'col1',
@@ -186,10 +187,10 @@ class FullImportTest extends SnowflakeImportExportBaseTest
                 false,
             ),
             new Storage\Snowflake\Table(
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 'out.csv_2Cols',
             ),
-            $this->getSimpleImportOptions(),
+            static::getSimpleImportOptions(),
             [
                 ['a', 'b', '2014-11-10 13:12:06.000'],
                 ['c', 'd', '2014-11-10 14:12:06.000'],
@@ -198,8 +199,8 @@ class FullImportTest extends SnowflakeImportExportBaseTest
         ];
         // test creating table without _timestamp column
         $tests[] = [
-            $this->getSourceInstance('standard-with-enclosures.csv', $escapingHeader, false),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.no_timestamp_table'),
+            static::getSourceInstance('standard-with-enclosures.csv', $escapingHeader, false),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.no_timestamp_table'),
             new ImportOptions(
                 [],
                 false,
@@ -211,24 +212,28 @@ class FullImportTest extends SnowflakeImportExportBaseTest
         ];
         // copy from table
         $tests[] = [
-            new Storage\Snowflake\Table($this->getSourceSchemaName(), 'out.csv_2Cols', $escapingHeader),
-            new Storage\Snowflake\Table($this->getDestinationSchemaName(), 'out.csv_2Cols'),
-            $this->getSimpleImportOptions(),
+            new Storage\Snowflake\Table(static::getSourceSchemaName(), 'out.csv_2Cols', $escapingHeader),
+            new Storage\Snowflake\Table(static::getDestinationSchemaName(), 'out.csv_2Cols'),
+            static::getSimpleImportOptions(),
             [['a', 'b'], ['c', 'd']],
             2,
         ];
         $tests[] = [
-            new Storage\Snowflake\Table($this->getSourceSchemaName(), 'types', [
+            new Storage\Snowflake\Table(
+                static::getSourceSchemaName(),
+                'types',
+                [
                 'charCol',
                 'numCol',
                 'floatCol',
                 'boolCol',
-            ]),
+                ],
+            ),
             new Storage\Snowflake\Table(
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 'types',
             ),
-            $this->getSimpleImportOptions(),
+            static::getSimpleImportOptions(),
             [['a', '10.5', '0.3', 'true']],
             1,
         ];
@@ -237,10 +242,10 @@ class FullImportTest extends SnowflakeImportExportBaseTest
     }
 
     /**
-     * @dataProvider  fullImportData
      * @param Storage\Snowflake\Table $destination
      * @param array<mixed> $expected
      */
+    #[DataProvider('fullImportData')]
     public function testFullImport(
         Storage\SourceInterface $source,
         Storage\DestinationInterface $destination,

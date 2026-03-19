@@ -12,7 +12,7 @@ use MicrosoftAzure\Storage\Common\Internal\Resources;
 
 trait ABSSourceTrait
 {
-    protected function createDummyABSSourceInstance(
+    protected static function createDummyABSSourceInstance(
         string $file,
         bool $isSliced = false,
     ): Storage\ABS\SourceFile {
@@ -27,13 +27,13 @@ trait ABSSourceTrait
         );
     }
 
-    protected function createABSSourceDestinationInstance(
+    protected static function createABSSourceDestinationInstance(
         string $filePath,
     ): Storage\ABS\DestinationFile {
         return new Storage\ABS\DestinationFile(
             (string) getenv('ABS_CONTAINER_NAME'),
             $filePath,
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME'), 'rwla'),
+            static::getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME'), 'rwla'),
             (string) getenv('ABS_ACCOUNT_NAME'),
             (string) getenv('ABS_ACCOUNT_KEY'),
         );
@@ -43,14 +43,14 @@ trait ABSSourceTrait
      * @param string[] $columns
      * @param string[]|null $primaryKeys
      */
-    protected function createABSSourceInstance(
+    protected static function createABSSourceInstance(
         string $filePath,
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
         ?array $primaryKeys = null,
     ): Storage\ABS\SourceFile {
-        return $this->createABSSourceInstanceFromCsv(
+        return static::createABSSourceInstanceFromCsv(
             $filePath,
             new CsvOptions(),
             $columns,
@@ -64,7 +64,7 @@ trait ABSSourceTrait
      * @param string[] $columns
      * @param string[]|null $primaryKeys
      */
-    protected function createABSSourceInstanceFromCsv(
+    protected static function createABSSourceInstanceFromCsv(
         string $filePath,
         CsvOptions $options,
         array $columns = [],
@@ -80,7 +80,7 @@ trait ABSSourceTrait
         return new $class(
             (string) getenv('ABS_CONTAINER_NAME'),
             $filePath,
-            $this->getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
+            static::getCredentialsForAzureContainer((string) getenv('ABS_CONTAINER_NAME')),
             (string) getenv('ABS_ACCOUNT_NAME'),
             $options,
             $isSliced,
@@ -90,7 +90,7 @@ trait ABSSourceTrait
         );
     }
 
-    protected function getCredentialsForAzureContainer(
+    protected static function getCredentialsForAzureContainer(
         string $container,
         string $permissions = 'rwl',
     ): string {

@@ -10,6 +10,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Export\S3ExportAdapter;
 use Keboola\Db\ImportExport\ExportOptions;
 use Keboola\Db\ImportExport\Storage;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -26,25 +27,27 @@ class ExporterTest extends TestCase
 
         $conn->expects(self::exactly(2))
             ->method('executeStatement')
-            ->willReturnCallback(function (string $sql): int {
-                /** @var int $callIndex */
-                static $callIndex = 0;
-                $callIndex++;
-                if ($callIndex === 1) {
-                    self::assertSame("ALTER SESSION SET TIMEZONE = 'UTC'", $sql);
-                } else {
-                    self::assertSame('ALTER SESSION UNSET TIMEZONE', $sql);
-                }
-                return 0;
-            });
+            ->willReturnCallback(
+                function (string $sql): int {
+                    /** @var int $callIndex */
+                    static $callIndex = 0;
+                    $callIndex++;
+                    if ($callIndex === 1) {
+                        self::assertSame("ALTER SESSION SET TIMEZONE = 'UTC'", $sql);
+                    } else {
+                        self::assertSame('ALTER SESSION UNSET TIMEZONE', $sql);
+                    }
+                    return 0;
+                },
+            );
 
         $conn->expects(self::once())->method('executeQuery');
         $conn->expects(self::once())
             ->method('fetchAllAssociative')
             ->willReturn($expectedCopyResult);
 
-        /** @var Storage\S3\DestinationFile|MockObject $destination */
-        $destination = $this->createMock(Storage\S3\DestinationFile::class);
+        /** @var Storage\S3\DestinationFile|Stub $destination */
+        $destination = $this->createStub(Storage\S3\DestinationFile::class);
         $destination->method('getFilePath')->willReturn('xxx/path');
         $destination->method('getKey')->willReturn('key');
         $destination->method('getSecret')->willReturn('secret');
@@ -77,8 +80,8 @@ class ExporterTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn($expectedCopyResult);
 
-        /** @var Storage\S3\DestinationFile|MockObject $destination */
-        $destination = $this->createMock(Storage\S3\DestinationFile::class);
+        /** @var Storage\S3\DestinationFile|Stub $destination */
+        $destination = $this->createStub(Storage\S3\DestinationFile::class);
         $destination->method('getFilePath')->willReturn('xxx/path');
         $destination->method('getKey')->willReturn('key');
         $destination->method('getSecret')->willReturn('secret');
@@ -102,24 +105,26 @@ class ExporterTest extends TestCase
 
         $conn->expects(self::exactly(2))
             ->method('executeStatement')
-            ->willReturnCallback(function (string $sql): int {
-                /** @var int $callIndex */
-                static $callIndex = 0;
-                $callIndex++;
-                if ($callIndex === 1) {
-                    self::assertSame("ALTER SESSION SET TIMEZONE = 'Europe/Prague'", $sql);
-                } else {
-                    self::assertSame('ALTER SESSION UNSET TIMEZONE', $sql);
-                }
-                return 0;
-            });
+            ->willReturnCallback(
+                function (string $sql): int {
+                    /** @var int $callIndex */
+                    static $callIndex = 0;
+                    $callIndex++;
+                    if ($callIndex === 1) {
+                        self::assertSame("ALTER SESSION SET TIMEZONE = 'Europe/Prague'", $sql);
+                    } else {
+                        self::assertSame('ALTER SESSION UNSET TIMEZONE', $sql);
+                    }
+                    return 0;
+                },
+            );
 
         $conn->expects(self::once())
             ->method('executeQuery')
             ->willThrowException(new RuntimeException('Export failed'));
 
-        /** @var Storage\S3\DestinationFile|MockObject $destination */
-        $destination = $this->createMock(Storage\S3\DestinationFile::class);
+        /** @var Storage\S3\DestinationFile|Stub $destination */
+        $destination = $this->createStub(Storage\S3\DestinationFile::class);
         $destination->method('getFilePath')->willReturn('xxx/path');
         $destination->method('getKey')->willReturn('key');
         $destination->method('getSecret')->willReturn('secret');

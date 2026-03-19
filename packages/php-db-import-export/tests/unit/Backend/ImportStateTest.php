@@ -26,17 +26,18 @@ class ImportStateTest extends TestCase
         $state->setImportedColumns(['col1', 'col2']);
 
         $result = $state->getResult();
-        self::assertInstanceOf(Result::class, $result);
+        self::assertInstanceOf(Result::class, $result); // @phpstan-ignore staticMethod.alreadyNarrowedType
         self::assertEquals(10, $result->getImportedRowsCount());
         self::assertSame(['col1', 'col2'], $result->getImportedColumns());
-        /** @var array<int, array{name: string, durationSeconds: float|null}> $timers */
-        $timers = $result->getTimers();
-        self::assertCount(2, $timers);
-        self::assertEquals('timer1', $timers[0]['name']);
-        self::assertSame([
+        self::assertCount(2, $result->getTimers());
+        self::assertEquals('timer1', $result->getTimers()[0]['name']);
+        self::assertSame(
+            [
             'name' => 'timer2',
             'durationSeconds' => null,
-        ], $timers[1]);
+            ],
+            $result->getTimers()[1],
+        );
         self::assertSame([], $result->getWarnings());
     }
 }

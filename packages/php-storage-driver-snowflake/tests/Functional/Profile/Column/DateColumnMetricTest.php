@@ -15,6 +15,7 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class DateColumnMetricTest extends BaseCase
 {
@@ -24,9 +25,7 @@ final class DateColumnMetricTest extends BaseCase
     private const COLUMN_VARCHAR_NOT_NULLABLE = 'varchar_not_nullable';
     private const COLUMN_VARCHAR_NULLABLE = 'varchar_nullable';
 
-    /**
-     * @dataProvider metricProvider
-     */
+    #[DataProvider('metricProvider')]
     public function testMetric(
         ColumnMetricInterface $metric,
         string $column,
@@ -36,7 +35,7 @@ final class DateColumnMetricTest extends BaseCase
         $this->assertSame($expected, $actual);
     }
 
-    public function metricProvider(): Generator
+    public static function metricProvider(): Generator
     {
         yield 'distinctCount (date, not nullable)' => [
             new DistinctCountColumnMetric(),
@@ -136,7 +135,7 @@ final class DateColumnMetricTest extends BaseCase
                         self::COLUMN_VARCHAR_NULLABLE,
                         new Snowflake(Snowflake::TYPE_VARCHAR, ['nullable' => true]),
                     ),
-                ]),
+                    ],),
             ),
         );
 
@@ -159,6 +158,6 @@ final class DateColumnMetricTest extends BaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_DATE_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NOT_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NULLABLE),
-        ));
+        ),);
     }
 }

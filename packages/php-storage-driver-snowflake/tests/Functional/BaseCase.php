@@ -29,10 +29,12 @@ abstract class BaseCase extends TestCase
     {
         $this->getSnowflakeConnection();
 
-        $this->connection->executeQuery(sprintf(
-            'CREATE OR REPLACE SCHEMA %s',
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE OR REPLACE SCHEMA %s',
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+            ),
+        );
     }
 
     protected function getSnowflakeConnection(): Connection
@@ -48,7 +50,7 @@ abstract class BaseCase extends TestCase
 
     private function getTestName(): string
     {
-        return get_class($this) . '::' . $this->getName();
+        return get_class($this) . '::' . $this->name();
     }
 
     private function getTestHash(): string
@@ -89,34 +91,42 @@ abstract class BaseCase extends TestCase
             'projectRoleName' => $userName,
             'readOnlyRoleName' => $nameGenerator->createReadOnlyRoleNameForProject($projectId),
             'projectDatabaseName' => $userName,
-        ]);
+            ],);
 
         $connection = $this->getSnowflakeConnection();
-        $connection->executeQuery(sprintf(
-            'DROP DATABASE IF EXISTS %s CASCADE',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $command->getProjectDatabaseName(),
+        $connection->executeQuery(
+            sprintf(
+                'DROP DATABASE IF EXISTS %s CASCADE',
+                SnowflakeQuote::quoteSingleIdentifier(
+                    $command->getProjectDatabaseName(),
+                ),
             ),
-        ));
+        );
 
-        $connection->executeQuery(sprintf(
-            'DROP USER IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $command->getProjectUserName(),
+        $connection->executeQuery(
+            sprintf(
+                'DROP USER IF EXISTS %s',
+                SnowflakeQuote::quoteSingleIdentifier(
+                    $command->getProjectUserName(),
+                ),
             ),
-        ));
+        );
 
-        $connection->executeQuery(sprintf(
-            'DROP ROLE IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $command->getProjectRoleName(),
+        $connection->executeQuery(
+            sprintf(
+                'DROP ROLE IF EXISTS %s',
+                SnowflakeQuote::quoteSingleIdentifier(
+                    $command->getProjectRoleName(),
+                ),
             ),
-        ));
+        );
 
-        $connection->executeQuery(sprintf(
-            'DROP ROLE IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier($command->getReadOnlyRoleName()),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'DROP ROLE IF EXISTS %s',
+                SnowflakeQuote::quoteSingleIdentifier($command->getReadOnlyRoleName()),
+            ),
+        );
     }
 
     protected function createTestUserWithCredentials(
@@ -125,17 +135,21 @@ abstract class BaseCase extends TestCase
     ): GenericBackendCredentials {
         $keyPair = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
         $testUserName = $stackPrefix . '_TEST_USER';
-        $this->connection->executeStatement(sprintf(
-            'CREATE OR REPLACE USER %s RSA_PUBLIC_KEY=\'%s\' DEFAULT_WAREHOUSE = %s TYPE = SERVICE',
-            SnowflakeQuote::quoteSingleIdentifier($testUserName),
-            $keyPair->publicKey,
-            (string) getenv('SNOWFLAKE_WAREHOUSE'),
-        ));
-        $this->connection->executeStatement(sprintf(
-            'GRANT USAGE ON WAREHOUSE %s TO USER %s',
-            SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_WAREHOUSE')),
-            SnowflakeQuote::quoteSingleIdentifier($testUserName),
-        ));
+        $this->connection->executeStatement(
+            sprintf(
+                'CREATE OR REPLACE USER %s RSA_PUBLIC_KEY=\'%s\' DEFAULT_WAREHOUSE = %s TYPE = SERVICE',
+                SnowflakeQuote::quoteSingleIdentifier($testUserName),
+                $keyPair->publicKey,
+                (string) getenv('SNOWFLAKE_WAREHOUSE'),
+            ),
+        );
+        $this->connection->executeStatement(
+            sprintf(
+                'GRANT USAGE ON WAREHOUSE %s TO USER %s',
+                SnowflakeQuote::quoteSingleIdentifier((string) getenv('SNOWFLAKE_WAREHOUSE')),
+                SnowflakeQuote::quoteSingleIdentifier($testUserName),
+            ),
+        );
         $any = new Any();
         $any->pack(
             (new SnowflakeCredentialsMeta())

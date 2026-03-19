@@ -17,10 +17,7 @@ class AbsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
     public function testGenerateAndSaveManifest(): void
     {
         /** @var MockObject|BlobRestProxy $mock */
-        $mock = $this->getMockBuilder(BlobRestProxy::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getAccountName', 'createBlockBlob'])
-            ->getMock();
+        $mock = $this->createMock(BlobRestProxy::class);
 
         $mock->expects($this->once())->method('createBlockBlob')
             ->with(
@@ -33,11 +30,15 @@ class AbsSlicedManifestFromUnloadQueryResultGeneratorTest extends TestCase
         $path = RelativePath::createFromRootAndPath(new AbsProvider(), 'container', 'prefix/xxx');
 
         $generator = new AbsSlicedManifestFromUnloadQueryResultGenerator($mock, 'keboola');
-        $generator->generateAndSaveManifest($path, [
+        $generator->generateAndSaveManifest(
+            $path,
+            [
             ['FILE_NAME' => '17982.csv.gz_0_0_0.csv.gz', 'FILE_SIZE' => '10', 'ROW_COUNT' => '5'],
             ['FILE_NAME' => '17982.csv.gz_0_0_1.csv.gz', 'FILE_SIZE' => '25', 'ROW_COUNT' => '15'],
-        ]);
+            ],
+        );
 
+        /** @phpstan-ignore method.alreadyNarrowedType */
         $this->assertInstanceOf(SlicedManifestGeneratorInterface::class, $generator);
     }
 }

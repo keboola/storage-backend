@@ -10,12 +10,14 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder
- * @uses   ColumnCollection
  */
+#[UsesClass(ColumnCollection::class)]
 class SnowflakeTableQueryBuilderTest extends TestCase
 {
     private SnowflakeTableQueryBuilder $qb;
@@ -26,11 +28,11 @@ class SnowflakeTableQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param SnowflakeColumn[] $columns
-     * @param string[] $PKs
-     * @dataProvider createTableInvalidPKsProvider
+     * @param  SnowflakeColumn[] $columns
+     * @param  string[]          $PKs
      * @throws \Exception
      */
+    #[DataProvider('createTableInvalidPKsProvider')]
     public function testGetCreateCommandWithInvalidPks(array $columns, array $PKs, string $exceptionString): void
     {
         $this->expectException(QueryBuilderException::class);
@@ -42,14 +44,14 @@ class SnowflakeTableQueryBuilderTest extends TestCase
     /**
      * @return \Generator<string, mixed, mixed, mixed>
      */
-    public function createTableInvalidPKsProvider(): Generator
+    public static function createTableInvalidPKsProvider(): Generator
     {
         yield 'key of ouf columns' => [
-            'cols' => [
+            'columns' => [
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
             ],
-            'primaryKeys' => ['colNotExisting'],
+            'PKs' => ['colNotExisting'],
             'exceptionString' => 'Trying to set colNotExisting as PKs but not present in columns',
         ];
     }
@@ -94,9 +96,7 @@ class SnowflakeTableQueryBuilderTest extends TestCase
         self::assertEquals('TRUNCATE TABLE "testDb"."testTable"', $dropTableCommand);
     }
 
-    /**
-     * @dataProvider provideGetColumnDefinitionUpdate
-     */
+    #[DataProvider('provideGetColumnDefinitionUpdate')]
     public function testGetColumnDefinitionUpdate(
         Snowflake $existingColumn,
         Snowflake $desiredColumn,
@@ -117,9 +117,7 @@ class SnowflakeTableQueryBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideInvalidGetColumnDefinitionUpdate
-     */
+    #[DataProvider('provideInvalidGetColumnDefinitionUpdate')]
     public function testInvalidGetColumnDefinitionUpdate(
         Snowflake $existingColumn,
         Snowflake $desiredColumn,
@@ -140,48 +138,60 @@ class SnowflakeTableQueryBuilderTest extends TestCase
     /**
      * @return \Generator<string, array{Snowflake,Snowflake,string}>
      */
-    public function provideGetColumnDefinitionUpdate(): Generator
+    public static function provideGetColumnDefinitionUpdate(): Generator
     {
         yield 'drop default' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '10']),
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => null]),
-            /** @lang Snowflake */
+            /**
+ * @lang Snowflake
+*/
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP DEFAULT',
         ];
         yield 'add nullable' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => false, 'default' => '']),
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
-            /** @lang Snowflake */
+            /**
+ * @lang Snowflake
+*/
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP NOT NULL',
         ];
         yield 'drop nullable' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => false, 'default' => '']),
-            /** @lang Snowflake */
+            /**
+ * @lang Snowflake
+*/
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET NOT NULL',
         ];
         yield 'increase length of text column' => [
             new Snowflake('VARCHAR', ['length' => '12', 'nullable' => true, 'default' => '']),
             new Snowflake('VARCHAR', ['length' => '38', 'nullable' => true, 'default' => '']),
-            /** @lang Snowflake */
+            /**
+ * @lang Snowflake
+*/
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE VARCHAR(38)',
         ];
         yield 'increase precision of numeric column' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => '']),
             new Snowflake('NUMERIC', ['length' => '14,8', 'nullable' => true, 'default' => '']),
-            /** @lang Snowflake */
+            /**
+ * @lang Snowflake
+*/
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
         ];
         yield 'full set of changes (increase precision, drop nullable, drop default)' => [
             new Snowflake('NUMERIC', ['length' => '12,8', 'nullable' => true, 'default' => 'grunbread']),
             new Snowflake('NUMERIC', ['length' => '14,8', 'nullable' => false, 'default' => '']),
-            /** @lang Snowflake */
+            /**
+ * @lang Snowflake
+*/
             'ALTER TABLE "testDb"."testTable" MODIFY COLUMN "testColumn" DROP DEFAULT, '
             . 'COLUMN "testColumn" SET NOT NULL, COLUMN "testColumn" SET DATA TYPE NUMERIC(14, 8)',
         ];
     }
 
-    public function provideInvalidGetColumnDefinitionUpdate(): Generator
+    public static function provideInvalidGetColumnDefinitionUpdate(): Generator
     {
         yield 'add default' => [
             new Snowflake('VARCHAR', ['length' => '10', 'nullable' => true, 'default' => '']),

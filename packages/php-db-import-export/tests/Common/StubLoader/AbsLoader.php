@@ -106,7 +106,8 @@ class AbsLoader extends BaseStubLoader
         $promises[] = $this->getBlobService()->createBlockBlobAsync(
             $this->containerName,
             '02_tw_accounts.csv.invalid.manifest',
-            json_encode([
+            json_encode(
+                [
                 'entries' => [
                     [
                         'url' => sprintf(
@@ -118,7 +119,9 @@ class AbsLoader extends BaseStubLoader
                         'mandatory' => true,
                     ],
                 ],
-            ], JSON_THROW_ON_ERROR),
+                ],
+                JSON_THROW_ON_ERROR,
+            ),
         );
 
         foreach ($promises as $promise) {

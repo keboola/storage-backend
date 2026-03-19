@@ -15,6 +15,7 @@ use Keboola\Db\ImportExport\Storage\FileNotFoundException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportCommon\StorageType;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
@@ -47,10 +48,10 @@ class StageImportFileTest extends SnowflakeBaseTestCase
     }
 
     /**
-     * @dataProvider importSettingProvider
-     * @param array{string, CsvOptions, array<string>, bool, bool} $sourceSetting
+     * @param  array{string, CsvOptions, array<string>, bool, bool} $sourceSetting
      * @throws Exception
      */
+    #[DataProvider('importSettingProvider')]
     public function testImport(
         string $table,
         array $sourceSetting,
@@ -105,18 +106,18 @@ class StageImportFileTest extends SnowflakeBaseTestCase
     /**
      * @return Generator<string, array{
      *     table:string,
-     *     sourceSettings: array<mixed>,
+     *     sourceSetting: array<mixed>,
      *     expectedNumberOfRows:int,
      *     expectedFirstLineLength:int,
      *     skippedLines?:int,
      *     markAsSkipped?:bool
      * }>
      */
-    public function importSettingProvider(): Generator
+    public static function importSettingProvider(): Generator
     {
         yield 'with enclosures' => [
             'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
-            'sourceSettings' => [
+            'sourceSetting' => [
                 'escaping/standard-with-enclosures.csv',
                 new CsvOptions(',', '"'),
                 [
@@ -131,7 +132,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         ];
         yield 'with tabs as separators' => [
             'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
-            'sourceSettings' => [
+            'sourceSetting' => [
                 'tw_accounts.tabs.csv',
                 // 9 is tabular
                 new CsvOptions(chr(9), ''),
@@ -144,7 +145,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         ];
         yield 'with manifest' => [
             'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
-            'sourceSettings' => [
+            'sourceSetting' => [
                 sprintf('sliced/accounts/%s.accounts.csvmanifest', (string) getenv('STORAGE_TYPE')),
                 new CsvOptions(),
                 self::TWITTER_COLUMNS,
@@ -155,13 +156,15 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             'expectedFirstLineLength' => 12,
         ];
 
-        $sourceDirClassExists = class_exists(sprintf(
-            'Keboola\Db\ImportExport\Storage\%s\SourceDirectory',
-            getenv('STORAGE_TYPE'),
-        ));
+        $sourceDirClassExists = class_exists(
+            sprintf(
+                'Keboola\Db\ImportExport\Storage\%s\SourceDirectory',
+                getenv('STORAGE_TYPE'),
+            ),
+        );
         yield 'with directory' => [
             'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
-            'sourceSettings' => [
+            'sourceSetting' => [
                 'sliced_accounts_no_manifest',
                 new CsvOptions(),
                 self::TWITTER_COLUMNS,
@@ -175,7 +178,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         ];
         yield 'with single csv' => [
             'table' => self::TABLE_OUT_CSV_2COLS_WITHOUT_TS,
-            'sourceSettings' => [
+            'sourceSetting' => [
                 'long_col_6k.csv',
                 new CsvOptions(),
                 [
@@ -192,7 +195,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         // Setting skip lines = 2 -> 2 lines should be imported
         yield 'with skipped lines' => [
             'table' => self::TABLE_ACCOUNTS_WITHOUT_TS,
-            'sourceSettings' => [
+            'sourceSetting' => [
                 'tw_accounts.csv',
                 new CsvOptions(),
                 self::TWITTER_COLUMNS,
@@ -205,9 +208,7 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider nullifyFileProvider
-     */
+    #[DataProvider('nullifyFileProvider')]
     public function testWithNullifyValue(string $fileName): void
     {
         $this->initTable(self::TABLE_NULLIFY);
@@ -242,20 +243,23 @@ class StageImportFileTest extends SnowflakeBaseTestCase
             $this->getSnowflakeImportOptions(),
         );
 
-        self::assertSame([
+        self::assertSame(
+            [
             ['id' => '1', 'col1' => 'test', 'col2' => '50'],
             ['id' => '2', 'col1' => null, 'col2' => '500'],
             ['id' => '3', 'col1' => 'Bageta', 'col2' => null],
-        ], $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+            ],
+            $this->connection->fetchAllAssociative(
+                sprintf(
+                    'SELECT * FROM %s.%s',
+                    SnowflakeQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+                ),
             ),
-        ));
+        );
     }
 
-    public function nullifyFileProvider(): Generator
+    public static function nullifyFileProvider(): Generator
     {
         yield 'with empty value' => [
             'nullify.csv',
@@ -266,7 +270,6 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         ];
     }
 
-// testCopyIntoInvalidTypes
     public function testInvalidManifestImport(): void
     {
         $this->initTable(self::TABLE_ACCOUNTS_WITHOUT_TS);
@@ -289,7 +292,6 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         if (getenv('STORAGE_TYPE') === StorageType::STORAGE_ABS) {
             $this->expectException(LegacyImportException::class);
         } else {
-            // fails on SQL. Manifest with invalid files is being created during loadS3
             $this->expectException(FileNotFoundException::class);
         }
 
@@ -385,18 +387,21 @@ class StageImportFileTest extends SnowflakeBaseTestCase
         );
 
         self::assertEquals(1, $state->getResult()->getImportedRowsCount());
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'id' => '1',
                 'first_name' => null,
                 'last_name' => null,
             ],
-        ], $this->connection->fetchAllAssociative(
-            sprintf(
-                'SELECT * FROM %s.%s',
-                SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                SnowflakeQuote::quoteSingleIdentifier('targetTable'),
+            ],
+            $this->connection->fetchAllAssociative(
+                sprintf(
+                    'SELECT * FROM %s.%s',
+                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier('targetTable'),
+                ),
             ),
-        ));
+        );
     }
 }

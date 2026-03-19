@@ -15,7 +15,9 @@ class SourceFileTest extends BaseTestCase
     public function testDefaultValues(): void
     {
         $source = $this->createDummyS3SourceInstance('file.csv');
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\S3\SourceFile::class, $source);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('eu-central-1', $source->getRegion());
         self::assertEquals('s3Key', $source->getKey());

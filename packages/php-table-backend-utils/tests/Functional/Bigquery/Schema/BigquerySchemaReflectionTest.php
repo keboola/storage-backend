@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Schema\Bigquery\BigquerySchemaReflection;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 
 class BigquerySchemaReflectionTest extends BigqueryBaseCase
@@ -77,9 +78,7 @@ EOT;
         $schemaRef->getTablesNames();
     }
 
-    /**
-     * @dataProvider createTableTestFromDefinitionSqlProvider
-     */
+    #[DataProvider('createTableTestFromDefinitionSqlProvider')]
     public function testGetCreateTableCommandFromDefinition(
         BigqueryTableDefinition $definition,
         string $expectedSql,
@@ -108,13 +107,13 @@ EOT;
     /**
      * @return \Generator<string, array{
      *     definition: BigqueryTableDefinition,
-     *     query: string,
+     *     expectedSql: string,
      *     createPrimaryKeys: bool
      * }>
      */
-    public function createTableTestFromDefinitionSqlProvider(): Generator
+    public static function createTableTestFromDefinitionSqlProvider(): Generator
     {
-        $testDb = $this->getDatasetName();
+        $testDb = self::getDatasetName();
         $tableName = self::TABLE_GENERIC;
 
         yield 'no keys' => [
@@ -130,7 +129,7 @@ EOT;
                 ),
                 [],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 
 (
 `col1` STRING DEFAULT '' NOT NULL,
@@ -154,7 +153,7 @@ EOT
                 ),
                 ['id'],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 
 (
 `id` STRING DEFAULT '' NOT NULL,
@@ -180,7 +179,7 @@ EOT
                 ),
                 ['id', 'type'],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 
 (
 `id` STRING DEFAULT '' NOT NULL,
@@ -206,7 +205,7 @@ EOT
                 ),
                 ['id'],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE `$testDb`.`$tableName` 
 (
 `id` STRING DEFAULT '' NOT NULL,

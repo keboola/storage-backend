@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Connection\Bigquery;
 use InvalidArgumentException;
 use Keboola\TableBackendUtils\Connection\Bigquery\QueryTagKey;
 use Keboola\TableBackendUtils\Connection\Bigquery\QueryTags;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class QueryTagsTest extends TestCase
@@ -22,7 +23,7 @@ class QueryTagsTest extends TestCase
     {
         $queryTags = new QueryTags([
             QueryTagKey::BRANCH_ID->value => 'test-branch',
-        ]);
+            ],);
 
         $this->assertFalse($queryTags->isEmpty());
         $this->assertEquals(
@@ -50,7 +51,7 @@ class QueryTagsTest extends TestCase
 
         new QueryTags([
             'invalid_key' => 'some-value',
-        ]);
+            ],);
     }
 
     public function testInvalidQueryTagsAddition(): void
@@ -75,9 +76,7 @@ class QueryTagsTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider validQueryTagsValuesProvider
-     */
+    #[DataProvider('validQueryTagsValuesProvider')]
     public function testValidQueryTagsValues(string $value): void
     {
         $queryTags = new QueryTags();
@@ -88,7 +87,7 @@ class QueryTagsTest extends TestCase
     /**
      * @return array<string, array{string}>
      */
-    public function validQueryTagsValuesProvider(): array
+    public static function validQueryTagsValuesProvider(): array
     {
         return [
             'empty value' => [''],
@@ -107,9 +106,7 @@ class QueryTagsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidQueryTagsValuesProvider
-     */
+    #[DataProvider('invalidQueryTagsValuesProvider')]
     public function testInvalidQueryTagsValues(string $value, string $expectedMessage): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -122,7 +119,7 @@ class QueryTagsTest extends TestCase
     /**
      * @return array<string, array{string, string}>
      */
-    public function invalidQueryTagsValuesProvider(): array
+    public static function invalidQueryTagsValuesProvider(): array
     {
         return [
             'uppercase letters' => [

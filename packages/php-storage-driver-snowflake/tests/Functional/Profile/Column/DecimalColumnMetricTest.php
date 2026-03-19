@@ -16,6 +16,7 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class DecimalColumnMetricTest extends BaseCase
 {
@@ -26,9 +27,9 @@ final class DecimalColumnMetricTest extends BaseCase
     private const COLUMN_VARCHAR_NULLABLE = 'varchar_nullable';
 
     /**
-     * @dataProvider metricProvider
      * @param array<mixed>|int $expected
      */
+    #[DataProvider('metricProvider')]
     public function testMetric(
         ColumnMetricInterface $metric,
         string $column,
@@ -38,7 +39,7 @@ final class DecimalColumnMetricTest extends BaseCase
         $this->assertSame($expected, $actual);
     }
 
-    public function metricProvider(): Generator
+    public static function metricProvider(): Generator
     {
         yield 'distinctCount (decimal, not nullable)' => [
             new DistinctCountColumnMetric(),
@@ -192,7 +193,7 @@ final class DecimalColumnMetricTest extends BaseCase
                         self::COLUMN_VARCHAR_NULLABLE,
                         new Snowflake(Snowflake::TYPE_VARCHAR, ['nullable' => true]),
                     ),
-                ]),
+                    ],),
             ),
         );
 
@@ -215,6 +216,6 @@ final class DecimalColumnMetricTest extends BaseCase
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_DECIMAL_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NOT_NULLABLE),
             SnowflakeQuote::quoteSingleIdentifier(self::COLUMN_VARCHAR_NULLABLE),
-        ));
+        ),);
     }
 }

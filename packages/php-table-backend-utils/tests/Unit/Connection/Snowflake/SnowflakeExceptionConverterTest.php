@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Connection\Snowflake\Exception\CannotAccessObjectE
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\StringTooLongException;
 use Keboola\TableBackendUtils\Connection\Snowflake\Exception\WarehouseTimeoutReached;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeExceptionConverter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SnowflakeExceptionConverterTest extends TestCase
@@ -19,7 +20,7 @@ class SnowflakeExceptionConverterTest extends TestCase
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function exceptionProvider(): Generator
+    public static function exceptionProvider(): Generator
     {
         yield 'Incorrect username' => [
             ConnectionException::class,
@@ -58,10 +59,9 @@ class SnowflakeExceptionConverterTest extends TestCase
     }
 
     /**
-     * @dataProvider exceptionProvider
-     *
      * @param class-string $expectedException
      */
+    #[DataProvider('exceptionProvider')]
     public function testConvert(
         string $expectedException,
         string $expectedExceptionMessage,

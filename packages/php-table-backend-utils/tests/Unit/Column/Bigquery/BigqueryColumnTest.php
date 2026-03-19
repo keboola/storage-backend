@@ -7,6 +7,7 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column\Bigquery;
 use Generator;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\SQLtoRestDatatypeConverter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -102,7 +103,7 @@ class BigqueryColumnTest extends TestCase
         $this->assertEquals(null, $col->getColumnDefinition()->getLength());
     }
 
-    public function repeatedDataTypeProvider(): Generator
+    public static function repeatedDataTypeProvider(): Generator
     {
         yield 'array int' => [
             'dataToExtend' => [
@@ -241,8 +242,8 @@ class BigqueryColumnTest extends TestCase
 
     /**
      * @param array<mixed> $dataToExtend
-     * @dataProvider repeatedDataTypeProvider
      */
+    #[DataProvider('repeatedDataTypeProvider')]
     public function testCreateArrayColumn(
         array $dataToExtend,
         string $expectedSqlDefinition,

@@ -31,10 +31,14 @@ class SqlCommandBuilderTest extends TestCase
 
     public function testGetCreateStagingTableCommand(): void
     {
-        $sql = $this->getInstance()->getCreateStagingTableCommand('schema', 'stagingTable', [
+        $sql = $this->getInstance()->getCreateStagingTableCommand(
+            'schema',
+            'stagingTable',
+            [
             'col1',
             'col2',
-        ]);
+            ],
+        );
         self::assertEquals('CREATE TEMPORARY TABLE "schema"."stagingTable" ("col1" varchar, "col2" varchar)', $sql);
     }
 
@@ -65,13 +69,17 @@ class SqlCommandBuilderTest extends TestCase
     private function getDummySource(): SourceInterface
     {
         return new class implements SourceInterface {
-            /** @return string[] */
+            /**
+             * @return string[]
+             */
             public function getColumnsNames(): array
             {
                 return ['col1', 'col2'];
             }
-            /** @return string[] */
-            public function getPrimaryKeysNames(): array
+            /**
+             * @return string[]|null
+             */
+            public function getPrimaryKeysNames(): ?array // @phpstan-ignore return.unusedType
             {
                 return [];
             }

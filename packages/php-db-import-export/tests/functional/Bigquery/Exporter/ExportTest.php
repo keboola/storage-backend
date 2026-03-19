@@ -41,7 +41,9 @@ class ExportTest extends BigqueryBaseTestCase
         $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Bigquery\Table(
             $this->getDestinationDbName(),
             self::TABLE_OUT_CSV_2COLS,
@@ -76,7 +78,9 @@ class ExportTest extends BigqueryBaseTestCase
         $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Bigquery\Table(
             $this->getDestinationDbName(),
             self::TABLE_OUT_CSV_2COLS,
@@ -124,7 +128,9 @@ class ExportTest extends BigqueryBaseTestCase
         $this->initTable(self::TABLE_ACCOUNTS_3);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('tw_accounts.csv', $header);
         $destination = new Storage\Bigquery\Table(
             $this->getDestinationDbName(),
             self::TABLE_ACCOUNTS_3,
@@ -136,7 +142,7 @@ class ExportTest extends BigqueryBaseTestCase
         // query needed otherwise timestamp is downloaded
         $query = sprintf(
             'SELECT %s FROM %s',
-            implode(',', $file->getHeader()),
+            implode(',', $header),
             $destination->getQuotedTableWithScheme(),
         );
         $source = new Storage\Bigquery\SelectSource($query);
@@ -182,9 +188,11 @@ class ExportTest extends BigqueryBaseTestCase
             $source->getColumnsNames(),
         );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTable),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTable),
+            ),
+        );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,

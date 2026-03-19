@@ -23,10 +23,14 @@ class ColumnsHelperTest extends TestCase
 
     public function testGetColumnsStringTableAlias(): void
     {
-        $colsString = ColumnsHelper::getColumnsString([
+        $colsString = ColumnsHelper::getColumnsString(
+            [
             'col1',
             'col2',
-        ], ', ', 'a');
+            ],
+            ', ',
+            'a',
+        );
         self::assertEquals('a."col1", a."col2"', $colsString);
     }
 }

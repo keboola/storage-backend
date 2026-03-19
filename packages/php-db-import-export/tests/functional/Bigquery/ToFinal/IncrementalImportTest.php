@@ -21,11 +21,12 @@ use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportFunctional\Bigquery\BigqueryBaseTestCase;
 
 class IncrementalImportTest extends BigqueryBaseTestCase
 {
-    protected function getBigqueryIncrementalImportOptions(
+    protected static function getBigqueryIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): BigqueryImportOptions {
         return new BigqueryImportOptions(
@@ -50,60 +51,60 @@ class IncrementalImportTest extends BigqueryBaseTestCase
     /**
      * @return Generator<string, array<mixed>>
      */
-    public function incrementalImportData(): Generator
+    public static function incrementalImportData(): Generator
     {
-        $accountsStub = $this->getParseCsvStub('expectation.tw_accounts.increment.csv');
-        $accountsNoDedupStub = $this->getParseCsvStub('expectation.tw_accounts.increment.nodedup.csv');
-        $multiPKStub = $this->getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
+        $accountsStub = static::getParseCsvStub('expectation.tw_accounts.increment.csv');
+        $accountsNoDedupStub = static::getParseCsvStub('expectation.tw_accounts.increment.nodedup.csv');
+        $multiPKStub = static::getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
 
         yield 'simple no dedup' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.csv',
                 $accountsNoDedupStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            $this->getSimpleImportOptions(),
-            $this->getSourceInstance(
+            static::getSimpleImportOptions(),
+            static::getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountsNoDedupStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            $this->getBigqueryIncrementalImportOptions(),
-            [$this->getDestinationDbName(), 'accounts-3'],
+            static::getBigqueryIncrementalImportOptions(),
+            [static::getDestinationDbName(), 'accounts-3'],
             $accountsNoDedupStub->getRows(),
             4,
             self::TABLE_ACCOUNTS_3,
             [],
         ];
         yield 'simple' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            $this->getSimpleImportOptions(),
-            $this->getSourceInstance(
+            static::getSimpleImportOptions(),
+            static::getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            $this->getBigqueryIncrementalImportOptions(),
-            [$this->getDestinationDbName(), 'accounts-3'],
+            static::getBigqueryIncrementalImportOptions(),
+            [static::getDestinationDbName(), 'accounts-3'],
             $accountsStub->getRows(),
             4,
             self::TABLE_ACCOUNTS_3,
             ['id'],
         ];
         yield 'simple no timestamp' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.csv',
                 $accountsStub->getColumns(),
                 false,
@@ -116,7 +117,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
             ),
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountsStub->getColumns(),
                 false,
@@ -129,30 +130,30 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 false, // disable timestamp
                 ImportOptions::SKIP_FIRST_LINE,
             ),
-            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
+            [static::getDestinationDbName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $accountsStub->getRows(),
             4,
             self::TABLE_ACCOUNTS_WITHOUT_TS,
             ['id'],
         ];
         yield 'multi pk' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'multi-pk_not-null.csv',
                 $multiPKStub->getColumns(),
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem'],
             ),
-            $this->getSimpleImportOptions(),
-            $this->getSourceInstance(
+            static::getSimpleImportOptions(),
+            static::getSourceInstance(
                 'multi-pk_not-null.increment.csv',
                 $multiPKStub->getColumns(),
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem'],
             ),
-            $this->getBigqueryIncrementalImportOptions(),
-            [$this->getDestinationDbName(), self::TABLE_MULTI_PK_WITH_TS],
+            static::getBigqueryIncrementalImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_MULTI_PK_WITH_TS],
             $multiPKStub->getRows(),
             3,
             self::TABLE_MULTI_PK_WITH_TS,
@@ -161,11 +162,11 @@ class IncrementalImportTest extends BigqueryBaseTestCase
     }
 
     /**
-     * @dataProvider  incrementalImportData
-     * @param string[] $table
-     * @param string[] $dedupCols
+     * @param string[]     $table
+     * @param string[]     $dedupCols
      * @param array<mixed> $expected
      */
+    #[DataProvider('incrementalImportData')]
     public function testIncrementalImport(
         Storage\SourceInterface $fullLoadSource,
         BigqueryImportOptions $fullLoadOptions,
@@ -205,9 +206,11 @@ class IncrementalImportTest extends BigqueryBaseTestCase
         try {
             // full load
             $qb = new BigqueryTableQueryBuilder();
-            $this->bqClient->runQuery($this->bqClient->query(
-                $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable),
-            ));
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $qb->getCreateTableCommandFromDefinition($fullLoadStagingTable),
+                ),
+            );
 
             $importState = $toStageImporter->importToStagingTable(
                 $fullLoadSource,
@@ -222,9 +225,11 @@ class IncrementalImportTest extends BigqueryBaseTestCase
             );
             // incremental load
             $qb = new BigqueryTableQueryBuilder();
-            $this->bqClient->runQuery($this->bqClient->query(
-                $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable),
-            ));
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $qb->getCreateTableCommandFromDefinition($incrementalLoadStagingTable),
+                ),
+            );
             $importState = $toStageImporter->importToStagingTable(
                 $incrementalSource,
                 $incrementalLoadStagingTable,
@@ -237,18 +242,22 @@ class IncrementalImportTest extends BigqueryBaseTestCase
                 $importState,
             );
         } finally {
-            $this->bqClient->runQuery($this->bqClient->query(
-                (new SqlBuilder())->getDropTableIfExistsCommand(
-                    $fullLoadStagingTable->getSchemaName(),
-                    $fullLoadStagingTable->getTableName(),
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    (new SqlBuilder())->getDropTableIfExistsCommand(
+                        $fullLoadStagingTable->getSchemaName(),
+                        $fullLoadStagingTable->getTableName(),
+                    ),
                 ),
-            ));
-            $this->bqClient->runQuery($this->bqClient->query(
-                (new SqlBuilder())->getDropTableIfExistsCommand(
-                    $incrementalLoadStagingTable->getSchemaName(),
-                    $incrementalLoadStagingTable->getTableName(),
+            );
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    (new SqlBuilder())->getDropTableIfExistsCommand(
+                        $incrementalLoadStagingTable->getSchemaName(),
+                        $incrementalLoadStagingTable->getTableName(),
+                    ),
                 ),
-            ));
+            );
         }
 
         self::assertEquals($expectedImportedRowCount, $result->getImportedRowsCount());
@@ -263,7 +272,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
         );
     }
 
-    public function incrementalImportTimestampBehavior(): Generator
+    public static function incrementalImportTimestampBehavior(): Generator
     {
         yield 'import typed table, timestamp update always `no feature`' => [
             'features' => [],
@@ -301,10 +310,10 @@ class IncrementalImportTest extends BigqueryBaseTestCase
     }
 
     /**
-     * @dataProvider incrementalImportTimestampBehavior
-     * @param string[] $features
+     * @param string[]     $features
      * @param array<mixed> $expectedContent
      */
+    #[DataProvider('incrementalImportTimestampBehavior')]
     public function testImportTimestampBehavior(array $features, array $expectedContent): void
     {
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -318,7 +327,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
             BigqueryQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
-        )));
+        ),),);
         $this->bqClient->dataset($this->getDestinationDbName())->table(self::TABLE_TRANSLATIONS)->update(
             [
                 'tableConstraints' => [
@@ -349,17 +358,21 @@ INSERT INTO %s.%s (`id`, `name`, `price`, `isDeleted`) VALUES
 SQL,
             BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
             BigqueryQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
-        )));
-        $this->bqClient->runQuery($this->bqClient->query(sprintf(
-            <<<SQL
+        ),),);
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    <<<SQL
 INSERT INTO %s.%s (`id`, `name`, `price`, `isDeleted`, `_timestamp`) VALUES
 (1, 'test', 100, 0, '2021-01-01 00:00:00'),
 (2, 'test2', 200, 0, '2021-01-01 00:00:00'),
 (3, 'test3', 300, 0, '2021-01-01 00:00:00')
 SQL,
-            BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
-            BigqueryQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
-        )));
+                    BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    BigqueryQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
+                ),
+            ),
+        );
 
         $state = new ImportState($destination->getTableName());
         (new IncrementalImporter(
@@ -411,7 +424,7 @@ SQL,
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
         $this->bqClient->dataset($this->getDestinationDbName())->table($tableName)->update(
             [
                 'tableConstraints' => [
@@ -432,7 +445,7 @@ SQL,
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         // Insert data with duplicate PKs - different non-PK values
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -445,7 +458,7 @@ INSERT INTO %s.%s (`id`, `name`, `value`) VALUES
 SQL,
             BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         $destination = (new BigqueryTableReflection(
             $this->bqClient,
@@ -473,11 +486,15 @@ SQL,
         );
 
         // Verify deduplication occurred - should have exactly 2 rows (one per unique PK)
-        $destinationData = $this->bqClient->runQuery($this->bqClient->query(sprintf(
-            'SELECT `id`, `name`, `value` FROM %s.%s ORDER BY `id`, `name`',
-            BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
-            BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        $destinationData = $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'SELECT `id`, `name`, `value` FROM %s.%s ORDER BY `id`, `name`',
+                    BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
+                    BigqueryQuote::quoteSingleIdentifier($tableName),
+                ),
+            ),
+        );
 
         $rows = [];
         foreach ($destinationData as $row) {
@@ -523,12 +540,14 @@ SQL,
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
-        $this->bqClient->dataset($this->getDestinationDbName())->table($tableName)->update([
+        ),),);
+        $this->bqClient->dataset($this->getDestinationDbName())->table($tableName)->update(
+            [
             'tableConstraints' => [
                 'primaryKey' => ['columns' => 'id'],
             ],
-        ]);
+            ],
+        );
 
         // 2. Pre-populate destination with initial data
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -540,7 +559,7 @@ INSERT INTO %s.%s (`id`, `name`, `value`, `_timestamp`) VALUES
 SQL,
             BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         // 3. Create source table WITH _timestamp column
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -553,7 +572,7 @@ SQL,
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         // 4. Populate source with explicit timestamps (NOT current time)
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -565,7 +584,7 @@ INSERT INTO %s.%s (`id`, `name`, `value`, `_timestamp`) VALUES
 SQL,
             BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         // 5. Get table definitions
         $destination = (new BigqueryTableReflection(
