@@ -20,7 +20,7 @@
         "keboola/coding-standard": "^15",
         "phpstan/phpstan": "^2",
         "phpstan/phpstan-phpunit": "^2",
-        "phpunit/phpunit": "^9"
+        "phpunit/phpunit": "^12"
     },
     "autoload": {
         "psr-4": {
