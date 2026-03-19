@@ -9,7 +9,7 @@
     "description": "Package allows to import files to Snowflake from multiple cloud storages",
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "ext-json": "*",
         "ext-pdo": "*",
         "ext-bcmath": "*",
