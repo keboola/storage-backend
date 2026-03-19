@@ -22,7 +22,7 @@ class SourceDirectory extends SourceFile
             ],);
 
         /** @var array<int, array{Key: string}> $contents */
-        $contents = $response->get('Contents');
+        $contents = $response->get('Contents') ?? [];
         return array_map(
             static function (array $file): string {
                 return $file['Key'];

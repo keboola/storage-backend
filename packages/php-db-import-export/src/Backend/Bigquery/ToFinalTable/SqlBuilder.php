@@ -307,8 +307,8 @@ SQL,
 
         foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
             if ($importOptions->usingUserDefinedTypes()
-                || (                $importOptions->timestampMode === TimestampMode::FromSource
-                && $columnName === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME)
+                || ($importOptions->timestampMode === TimestampMode::FromSource
+                    && $columnName === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME)
             ) {
                 // if table is typed
                 // if timestamp from source and column is _timestamp column

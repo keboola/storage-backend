@@ -160,6 +160,10 @@ class Bigquery extends Common
             unset($options['default']);
         }
         if (array_key_exists('fieldAsArray', $options)) {
+            // @phpstan-ignore function.alreadyNarrowedType
+            if (!is_array($options['fieldAsArray'])) {
+                throw new InvalidOptionException('Option "fieldAsArray" must be an array');
+            }
             $this->fieldAsArray = $options['fieldAsArray'];
             unset($options['fieldAsArray']);
         }
