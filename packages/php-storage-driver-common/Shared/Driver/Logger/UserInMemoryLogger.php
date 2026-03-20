@@ -43,7 +43,7 @@ class UserInMemoryLogger extends AbstractLogger
 
     /**
      * @throws \JsonException
-     * @param mixed $level
+     * @param string $level
      * @param Stringable|string $message
      * @param array<mixed> $context
      */

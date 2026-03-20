@@ -1,46 +1,115 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Method Keboola\\\\TableBackendUtils\\\\Connection\\\\ConnectionRetryWrapper\\:\\:beginTransaction\\(\\) should return bool but returns mixed\\.$#"
+			message: '#^Cannot access offset ''jobId'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Connection/Bigquery/BigQueryClientWrapper.php
+
+		-
+			message: '#^Anonymous function should return bool\|Closure but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Connection/Bigquery/Retry.php
+
+		-
+			message: '#^Parameter \#2 \$array of function array_key_exists expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Connection/Bigquery/Retry.php
+
+		-
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\ConnectionRetryWrapper\:\:beginTransaction\(\) should return bool but returns mixed\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Connection/ConnectionRetryWrapper.php
 
 		-
-			message: "#^Method Keboola\\\\TableBackendUtils\\\\Connection\\\\ConnectionRetryWrapper\\:\\:commit\\(\\) should return bool but returns mixed\\.$#"
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\ConnectionRetryWrapper\:\:commit\(\) should return bool but returns mixed\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Connection/ConnectionRetryWrapper.php
 
 		-
-			message: "#^Method Keboola\\\\TableBackendUtils\\\\Connection\\\\ConnectionRetryWrapper\\:\\:exec\\(\\) should return int but returns mixed\\.$#"
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\ConnectionRetryWrapper\:\:exec\(\) should return int but returns mixed\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Connection/ConnectionRetryWrapper.php
 
 		-
-			message: "#^Method Keboola\\\\TableBackendUtils\\\\Connection\\\\ConnectionRetryWrapper\\:\\:lastInsertId\\(\\) should return int\\|string\\|false but returns mixed\\.$#"
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\ConnectionRetryWrapper\:\:lastInsertId\(\) should return int\|string\|false but returns mixed\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Connection/ConnectionRetryWrapper.php
 
 		-
-			message: "#^Method Keboola\\\\TableBackendUtils\\\\Connection\\\\ConnectionRetryWrapper\\:\\:prepare\\(\\) should return Doctrine\\\\DBAL\\\\Driver\\\\Statement but returns mixed\\.$#"
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\ConnectionRetryWrapper\:\:prepare\(\) should return Doctrine\\DBAL\\Driver\\Statement but returns mixed\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Connection/ConnectionRetryWrapper.php
 
 		-
-			message: "#^Method Keboola\\\\TableBackendUtils\\\\Connection\\\\ConnectionRetryWrapper\\:\\:query\\(\\) should return Doctrine\\\\DBAL\\\\Driver\\\\Result but returns mixed\\.$#"
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\ConnectionRetryWrapper\:\:query\(\) should return Doctrine\\DBAL\\Driver\\Result but returns mixed\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Connection/ConnectionRetryWrapper.php
 
 		-
-			message: "#^Method Keboola\\\\TableBackendUtils\\\\Connection\\\\ConnectionRetryWrapper\\:\\:rollBack\\(\\) should return bool but returns mixed\\.$#"
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\ConnectionRetryWrapper\:\:rollBack\(\) should return bool but returns mixed\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Connection/ConnectionRetryWrapper.php
 
 		-
-			message: "#^Parameter \\#1 \\$params of static method Doctrine\\\\DBAL\\\\DriverManager\\:\\:getConnection\\(\\) expects array\\{application_name\\?\\: string, charset\\?\\: string, dbname\\?\\: string, defaultTableOptions\\?\\: array\\<string, mixed\\>, default_dbname\\?\\: string, driver\\?\\: 'ibm_db2'\\|'mysqli'\\|'oci8'\\|'pdo_mysql'\\|'pdo_oci'\\|'pdo_pgsql'\\|'pdo_sqlite'\\|'pdo_sqlsrv'\\|'pgsql'\\|'sqlite3'\\|'sqlsrv', driverClass\\?\\: class\\-string\\<Doctrine\\\\DBAL\\\\Driver\\>, driverOptions\\?\\: array, \\.\\.\\.\\}, array\\{port\\?\\: string, warehouse\\?\\: string, database\\?\\: string, schema\\?\\: string, tracing\\?\\: int, loginTimeout\\?\\: int, networkTimeout\\?\\: int, queryTimeout\\?\\: int, \\.\\.\\.\\} given\\.$#"
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\Snowflake\\Result\:\:fetchAssociative\(\) should return array\<string, mixed\>\|false but returns array\<mixed\>\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Connection/Snowflake/Result.php
+
+		-
+			message: '#^Method Keboola\\TableBackendUtils\\Connection\\Snowflake\\Result\:\:fetchNumeric\(\) should return list\<mixed\>\|false but returns array\<mixed\>\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Connection/Snowflake/Result.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$params contains unknown class Keboola\\TableBackendUtils\\Connection\\Snowflake\\Doctrine\\DBAL\\Driver\.$#'
+			identifier: class.notFound
 			count: 2
 			path: src/Connection/Snowflake/SnowflakeConnectionFactory.php
 
 		-
-			message: "#^Parameter \\#1 \\$params \\(array\\{host\\: string, user\\: string, password\\?\\: string, privateKey\\?\\: string, port\\?\\: string, warehouse\\?\\: string, database\\?\\: string, schema\\?\\: string, \\.\\.\\.\\}\\) of method Keboola\\\\TableBackendUtils\\\\Connection\\\\Snowflake\\\\SnowflakeDriver\\:\\:connect\\(\\) should be compatible with parameter \\$params \\(array\\{application_name\\?\\: string, charset\\?\\: string, dbname\\?\\: string, defaultTableOptions\\?\\: array\\<string, mixed\\>, default_dbname\\?\\: string, driver\\?\\: 'ibm_db2'\\|'mysqli'\\|'oci8'\\|'pdo_mysql'\\|'pdo_oci'\\|'pdo_pgsql'\\|'pdo_sqlite'\\|'pdo_sqlsrv'\\|'pgsql'\\|'sqlite3'\\|'sqlsrv', driverClass\\?\\: class\\-string\\<Doctrine\\\\DBAL\\\\Driver\\>, driverOptions\\?\\: array, \\.\\.\\.\\}\\) of method Doctrine\\\\DBAL\\\\Driver\\:\\:connect\\(\\)$#"
+			message: '#^Parameter \#1 \$params of static method Doctrine\\DBAL\\DriverManager\:\:getConnection\(\) expects array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}, array\{port\?\: string, warehouse\?\: string, database\?\: string, schema\?\: string, tracing\?\: int, loginTimeout\?\: int, networkTimeout\?\: int, queryTimeout\?\: int, \.\.\.\} given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Connection/Snowflake/SnowflakeConnectionFactory.php
+
+		-
+			message: '#^Parameter \#1 \$params \(array\{host\: string, user\: string, password\?\: string, privateKey\?\: string, port\?\: string, warehouse\?\: string, database\?\: string, schema\?\: string, \.\.\.\}\) of method Keboola\\TableBackendUtils\\Connection\\Snowflake\\SnowflakeDriver\:\:connect\(\) should be compatible with parameter \$params \(array\{application_name\?\: string, charset\?\: string, dbname\?\: string, defaultTableOptions\?\: array\<string, mixed\>, default_dbname\?\: string, driver\?\: ''ibm_db2''\|''mysqli''\|''oci8''\|''pdo_mysql''\|''pdo_oci''\|''pdo_pgsql''\|''pdo_sqlite''\|''pdo_sqlsrv''\|''pgsql''\|''sqlite3''\|''sqlsrv'', driverClass\?\: class\-string\<Doctrine\\DBAL\\Driver\>, driverOptions\?\: array\<mixed\>, \.\.\.\}\) of method Doctrine\\DBAL\\Driver\:\:connect\(\)$#'
+			identifier: method.childParameterType
 			count: 1
 			path: src/Connection/Snowflake/SnowflakeDriver.php
+
+		-
+			message: '#^Parameter \#1 \$tableName of method Keboola\\TableBackendUtils\\Schema\\Snowflake\\SnowflakeSchemaReflection\:\:fallbackColumnType\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Schema/Snowflake/SnowflakeSchemaReflection.php
+
+		-
+			message: '#^Parameter \#2 \$columnName of method Keboola\\TableBackendUtils\\Schema\\Snowflake\\SnowflakeSchemaReflection\:\:fallbackColumnType\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Schema/Snowflake/SnowflakeSchemaReflection.php
+
+		-
+			message: '#^Parameter \#1 \$dbResponse of static method Keboola\\TableBackendUtils\\Column\\Bigquery\\Parser\\RESTtoSQLDatatypeConverter\:\:convertColumnToSQLFormat\(\) expects array\{name\: string, type\: string, mode\?\: ''NULLABLE''\|''REPEATED''\|''REQUIRED'', fields\?\: array\<mixed\>, description\?\: string, maxLength\?\: string, precision\?\: string, scale\?\: string, \.\.\.\}, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Functional/Bigquery/Table/BigqueryTableReflectionTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsIterable\(\) with Keboola\\TableBackendUtils\\Column\\ColumnCollection will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/Column/ColumnCollectionTest.php

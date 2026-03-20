@@ -20,9 +20,9 @@ class SessionTest extends BigqueryBaseCase
         $s = new SessionFactory($this->bqClient);
         $session = $s->createSession();
 
-        $sessionIdDecoded = base64_decode($session->getSessionId());
         // session id is base64 string which contains <project>$<uuid>
-        $this->assertIsString($sessionIdDecoded);
+        $sessionIdDecoded = base64_decode($session->getSessionId());
+        $this->assertStringContainsString('$', $sessionIdDecoded);
 
         // plain session use
         $job = $this->bqClient->runJob($this->bqClient->query('SELECT 1', [
