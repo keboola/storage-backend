@@ -11,6 +11,7 @@ use Keboola\StorageDriver\Command\Project\CreateDevBranchCommand;
 use Keboola\StorageDriver\Command\Project\DropDevBranchCommand;
 use Keboola\StorageDriver\Command\Table\CreateProfileTableCommand;
 use Keboola\StorageDriver\Command\Table\TableExportToFileCommand;
+use Keboola\StorageDriver\Command\Workspace\DropWorkspaceObjectCommand;
 use Keboola\StorageDriver\Contract\Driver\Command\DriverCommandHandlerInterface;
 use Keboola\StorageDriver\Shared\Driver\Exception\CommandNotSupportedException;
 use Keboola\StorageDriver\Snowflake\Handler\Bucket\CreateBucketHandler;
@@ -19,6 +20,7 @@ use Keboola\StorageDriver\Snowflake\Handler\Project\CreateDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Project\DropDevBranchHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Table\ProfileTableHandler;
 use Keboola\StorageDriver\Snowflake\Handler\Table\TableExportToFileHandler;
+use Keboola\StorageDriver\Snowflake\Handler\Workspace\DropObject\DropWorkspaceObjectHandler;
 use Psr\Log\LoggerInterface;
 
 final class HandlerFactory
@@ -34,6 +36,7 @@ final class HandlerFactory
             DropDevBranchCommand::class => new DropDevBranchHandler(),
             ObjectInfoCommand::class => new ObjectInfoHandler(),
             TableExportToFileCommand::class => new TableExportToFileHandler(),
+            DropWorkspaceObjectCommand::class => new DropWorkspaceObjectHandler(),
             default => throw new CommandNotSupportedException($command::class),
         };
 
