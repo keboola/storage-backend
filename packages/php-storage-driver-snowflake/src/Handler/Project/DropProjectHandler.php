@@ -33,7 +33,9 @@ final class DropProjectHandler extends BaseHandler
         array $features,
         Message $runtimeOptions,
     ): ?Message {
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($command instanceof DropProjectCommand);
 
         $connection = ConnectionFactory::createFromCredentials(
@@ -45,45 +47,57 @@ final class DropProjectHandler extends BaseHandler
         if (!is_string($currentRole)) {
             throw new RuntimeException('Cannot get current role.');
         }
-        $connection->executeQuery(sprintf(
-            'GRANT ROLE %s TO ROLE %s',
-            SnowflakeQuote::quoteSingleIdentifier($command->getProjectRoleName()),
-            SnowflakeQuote::quoteSingleIdentifier($currentRole),
-        ));
+        $connection->executeQuery(
+            sprintf(
+                'GRANT ROLE %s TO ROLE %s',
+                SnowflakeQuote::quoteSingleIdentifier($command->getProjectRoleName()),
+                SnowflakeQuote::quoteSingleIdentifier($currentRole),
+            ),
+        );
 
         // assume project role to be able to drop the project database
-        $connection->executeQuery(sprintf(
-            'USE ROLE %s',
-            SnowflakeQuote::quoteSingleIdentifier($command->getProjectRoleName()),
-        ));
-
-        $connection->executeQuery(sprintf(
-            'DROP DATABASE %s CASCADE',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $command->getProjectDatabaseName(),
+        $connection->executeQuery(
+            sprintf(
+                'USE ROLE %s',
+                SnowflakeQuote::quoteSingleIdentifier($command->getProjectRoleName()),
             ),
-        ));
+        );
 
-        $connection->executeQuery(sprintf(
-            'DROP USER %s',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $command->getProjectUserName(),
+        $connection->executeQuery(
+            sprintf(
+                'DROP DATABASE %s CASCADE',
+                SnowflakeQuote::quoteSingleIdentifier(
+                    $command->getProjectDatabaseName(),
+                ),
             ),
-        ));
+        );
 
-        $connection->executeQuery(sprintf(
-            'DROP ROLE %s',
-            SnowflakeQuote::quoteSingleIdentifier(
-                $command->getProjectRoleName(),
+        $connection->executeQuery(
+            sprintf(
+                'DROP USER %s',
+                SnowflakeQuote::quoteSingleIdentifier(
+                    $command->getProjectUserName(),
+                ),
             ),
-        ));
+        );
+
+        $connection->executeQuery(
+            sprintf(
+                'DROP ROLE %s',
+                SnowflakeQuote::quoteSingleIdentifier(
+                    $command->getProjectRoleName(),
+                ),
+            ),
+        );
 
         if (Features::isFeatureInList($features, Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE)) {
             // REVOKE is not needed, because the DB doesn't exists anymore
-            $connection->executeQuery(sprintf(
-                'DROP ROLE IF EXISTS %s',
-                SnowflakeQuote::quoteSingleIdentifier($command->getReadOnlyRoleName()),
-            ));
+            $connection->executeQuery(
+                sprintf(
+                    'DROP ROLE IF EXISTS %s',
+                    SnowflakeQuote::quoteSingleIdentifier($command->getReadOnlyRoleName()),
+                ),
+            );
         }
 
         return null;

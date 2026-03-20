@@ -61,7 +61,7 @@ class BigqueryBaseCase extends TestCase
 
         /** @var array<string, string> $credentials */
         $credentials = json_decode($keyFile, true, 512, JSON_THROW_ON_ERROR);
-        assert($credentials !== false);
+        assert($credentials !== false); // @phpstan-ignore function.alreadyNarrowedType, notIdentical.alwaysTrue
         return $credentials;
     }
 
@@ -102,7 +102,7 @@ class BigqueryBaseCase extends TestCase
         );
     }
 
-    public function getDatasetName(): string
+    public static function getDatasetName(): string
     {
         return getenv('TEST_PREFIX') . self::TEST_SCHEMA;
     }
@@ -114,13 +114,17 @@ class BigqueryBaseCase extends TestCase
         string $firstName,
         string $lastName,
     ): void {
-        $this->bqClient->runQuery($this->bqClient->query(sprintf(
-            'INSERT INTO %s.%s VALUES (%d, %s, %s)',
-            BigqueryQuote::quoteSingleIdentifier($schemaName),
-            BigqueryQuote::quoteSingleIdentifier($tableName),
-            $id,
-            BigqueryQuote::quote($firstName),
-            BigqueryQuote::quote($lastName),
-        )));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+                    BigqueryQuote::quoteSingleIdentifier($schemaName),
+                    BigqueryQuote::quoteSingleIdentifier($tableName),
+                    $id,
+                    BigqueryQuote::quote($firstName),
+                    BigqueryQuote::quote($lastName),
+                ),
+            ),
+        );
     }
 }

@@ -16,7 +16,9 @@ class SourceFileTest extends BaseTestCase
     public function testDefaultValues(): void
     {
         $source = $this->createDummyGCSSourceInstance('file.csv');
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\GCS\BaseFile::class, $source);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertSame('file.csv', $source->getFilePath());
         self::assertSame('integration', $source->getStorageIntegrationName());
@@ -25,6 +27,7 @@ class SourceFileTest extends BaseTestCase
         self::assertSame('', $source->getPrefix());
         self::assertSame([], $source->getColumnsNames());
         self::assertNull($source->getPrimaryKeysNames());
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(CsvOptions::class, $source->getCsvOptions());
     }
 }

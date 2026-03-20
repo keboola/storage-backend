@@ -31,7 +31,9 @@ class DestinationFileTest extends BaseTestCase
                 'client_x509_cert_url' => '',
             ],
         );
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\GCS\BaseFile::class, $source);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\DestinationInterface::class, $source);
         self::assertEquals('file.csv', $source->getFilePath());
         self::assertEquals('integration', $source->getStorageIntegrationName());

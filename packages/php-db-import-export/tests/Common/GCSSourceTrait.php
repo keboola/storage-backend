@@ -10,12 +10,12 @@ use Keboola\Db\ImportExport\Storage;
 
 trait GCSSourceTrait
 {
-    protected function getGCSBucketEnvName(): string
+    protected static function getGCSBucketEnvName(): string
     {
         throw new Exception('Method "getGCSBucketEnvName" must be overridden in you test case.');
     }
 
-    protected function createDummyGCSSourceInstance(
+    protected static function createDummyGCSSourceInstance(
         string $file,
         bool $isSliced = false,
     ): Storage\GCS\SourceFile {
@@ -45,14 +45,14 @@ trait GCSSourceTrait
      * @param string[] $columns
      * @param string[]|null $primaryKeys
      */
-    protected function createGCSSourceInstance(
+    protected static function createGCSSourceInstance(
         string $filePath,
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
         ?array $primaryKeys = null,
     ): Storage\GCS\SourceFile {
-        return $this->createGCSSourceInstanceFromCsv(
+        return static::createGCSSourceInstanceFromCsv(
             $filePath,
             new CsvOptions(),
             $columns,
@@ -68,7 +68,7 @@ trait GCSSourceTrait
      * @param string[] $columns
      * @param string[]|null $primaryKeys
      */
-    protected function createGCSSourceInstanceFromCsv(
+    protected static function createGCSSourceInstanceFromCsv(
         string $filePath,
         CsvOptions $options,
         array $columns = [],
@@ -81,10 +81,10 @@ trait GCSSourceTrait
         }
 
         return new Storage\GCS\SourceFile(
-            (string) getenv($this->getGCSBucketEnvName()),
+            (string) getenv(static::getGCSBucketEnvName()), // @phpstan-ignore method.staticCall
             $filePath,
             (string) getenv('GCS_INTEGRATION_NAME'),
-            $this->getGCSCredentials(),
+            static::getGCSCredentials(), // @phpstan-ignore method.staticCall
             $options,
             $isSliced,
             $columns,
@@ -106,7 +106,7 @@ trait GCSSourceTrait
      * client_x509_cert_url: string,
      * }
      */
-    protected function getGCSCredentials(): array
+    protected static function getGCSCredentials(): array
     {
         /**
          * @var array{
@@ -123,15 +123,17 @@ trait GCSSourceTrait
          * }
          */
         $credentials = json_decode((string) getenv('GCS_CREDENTIALS'), true, 512, JSON_THROW_ON_ERROR);
-        assert(array_key_exists('type', $credentials));
-        assert(array_key_exists('project_id', $credentials));
-        assert(array_key_exists('private_key_id', $credentials));
-        assert(array_key_exists('private_key', $credentials));
-        assert(array_key_exists('client_email', $credentials));
-        assert(array_key_exists('client_id', $credentials));
-        assert(array_key_exists('auth_uri', $credentials));
-        assert(array_key_exists('token_uri', $credentials));
-        assert(array_key_exists('auth_provider_x509_cert_url', $credentials));
+        assert(array_key_exists('type', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('project_id', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('private_key_id', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('private_key', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('client_email', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('client_id', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('auth_uri', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('token_uri', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert( // @phpstan-ignore function.alreadyNarrowedType
+            array_key_exists('auth_provider_x509_cert_url', $credentials),
+        );
         return $credentials;
     }
 }

@@ -26,11 +26,13 @@ final class ConnectionRetryWrapper implements Connection
 
     public function prepare(string $sql): Statement
     {
+        /** @var Statement */
         return $this->retryProxy->call(fn() => $this->connection->prepare($sql));
     }
 
     public function query(string $sql): Result
     {
+        /** @var Result */
         return $this->retryProxy->call(fn() => $this->connection->query($sql));
     }
 
@@ -44,6 +46,7 @@ final class ConnectionRetryWrapper implements Connection
 
     public function exec(string $sql): int
     {
+        /** @var int */
         return $this->retryProxy->call(fn() => $this->connection->exec($sql));
     }
 
@@ -52,6 +55,7 @@ final class ConnectionRetryWrapper implements Connection
      */
     public function lastInsertId($name = null)
     {
+        /** @var int|string|false */
         return $this->retryProxy->call(fn() => $this->connection->lastInsertId($name));
     }
 
@@ -60,6 +64,7 @@ final class ConnectionRetryWrapper implements Connection
      */
     public function beginTransaction()
     {
+        /** @var bool */
         return $this->retryProxy->call(fn() => $this->connection->beginTransaction());
     }
 
@@ -68,6 +73,7 @@ final class ConnectionRetryWrapper implements Connection
      */
     public function commit()
     {
+        /** @var bool */
         return $this->retryProxy->call(fn() => $this->connection->commit());
     }
 
@@ -76,6 +82,7 @@ final class ConnectionRetryWrapper implements Connection
      */
     public function rollBack()
     {
+        /** @var bool */
         return $this->retryProxy->call(fn() => $this->connection->rollBack());
     }
 }

@@ -20,6 +20,7 @@ use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportFunctional\Bigquery\BigqueryBaseTestCase;
 
 class FullImportTest extends BigqueryBaseTestCase
@@ -69,17 +70,22 @@ class FullImportTest extends BigqueryBaseTestCase
         /** @var BigqueryTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
         $destination = $this->cloneDefinitionWithDedupCol($destination, ['VisitID']);
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTable),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTable),
+            ),
+        );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
@@ -129,14 +135,19 @@ class FullImportTest extends BigqueryBaseTestCase
         );
         /** @var BigqueryTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'id',
             'row_number',
-        ]);
+            ],
+        );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTable),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTable),
+            ),
+        );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
@@ -189,17 +200,22 @@ class FullImportTest extends BigqueryBaseTestCase
         /** @var BigqueryTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
         $destination = $this->cloneDefinitionWithDedupCol($destination, ['VisitID']);
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTable),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTable),
+            ),
+        );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
@@ -252,17 +268,22 @@ class FullImportTest extends BigqueryBaseTestCase
         /** @var BigqueryTableDefinition $destination */
         $destination = $destinationRef->getTableDefinition();
         $destination = $this->cloneDefinitionWithDedupCol($destination, ['VisitID', 'Something']);
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTable),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTable),
+            ),
+        );
         $importState = $importer->importToStagingTable(
             $source,
             $stagingTable,
@@ -271,13 +292,15 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // now 6 lines. Add one with same VisitId and Something as an existing line has
         // -> expecting that this line will be skipped when DEDUP
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                "INSERT INTO %s.%s VALUES ('134', 'xx', 'yy', 'abc', 'def');",
-                BigqueryQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
-                BigqueryQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    "INSERT INTO %s.%s VALUES ('134', 'xx', 'yy', 'abc', 'def');",
+                    BigqueryQuote::quoteSingleIdentifier($stagingTable->getSchemaName()),
+                    BigqueryQuote::quoteSingleIdentifier($stagingTable->getTableName()),
+                ),
             ),
-        ));
+        );
         $toFinalTableImporter = new FullImporter($this->bqClient);
         $result = $toFinalTableImporter->importToTable(
             $stagingTable,
@@ -293,12 +316,12 @@ class FullImportTest extends BigqueryBaseTestCase
     /**
      * @return Generator<string, array<mixed>>
      */
-    public function fullImportData(): Generator
+    public static function fullImportData(): Generator
     {
-        $escapingStub = $this->getParseCsvStub('escaping/standard-with-enclosures.csv');
-        $accountsStub = $this->getParseCsvStub('tw_accounts.csv');
-        $accountsChangedColumnsOrderStub = $this->getParseCsvStub('tw_accounts.changedColumnsOrder.csv');
-        $lemmaStub = $this->getParseCsvStub('lemma.csv');
+        $escapingStub = static::getParseCsvStub('escaping/standard-with-enclosures.csv');
+        $accountsStub = static::getParseCsvStub('tw_accounts.csv');
+        $accountsChangedColumnsOrderStub = static::getParseCsvStub('tw_accounts.changedColumnsOrder.csv');
+        $lemmaStub = static::getParseCsvStub('lemma.csv');
 
         // large sliced manifest
         $expectedLargeSlicedManifest = [];
@@ -307,82 +330,82 @@ class FullImportTest extends BigqueryBaseTestCase
         }
 
         yield 'large manifest' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
                 $escapingStub->getColumns(),
                 true,
                 false,
                 [],
             ),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedLargeSlicedManifest,
             1501,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'empty manifest' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'empty.manifest',
                 $escapingStub->getColumns(),
                 true,
                 false,
                 [],
             ),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             [],
             0,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'lemma' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'lemma.csv',
                 $lemmaStub->getColumns(),
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationDbName(), self::TABLE_OUT_LEMMA],
-            $this->getSimpleImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_OUT_LEMMA],
+            static::getSimpleImportOptions(),
             $lemmaStub->getRows(),
             5,
             self::TABLE_OUT_LEMMA,
         ];
 
         yield 'standard with enclosures' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingStub->getColumns(),
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSimpleImportOptions(),
             $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'gzipped standard with enclosure' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
                 $escapingStub->getColumns(),
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSimpleImportOptions(),
             $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'standard with enclosures tabs' => [
-            $this->getSourceInstanceFromCsv(
+            static::getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
                 $escapingStub->getColumns(),
@@ -390,15 +413,15 @@ class FullImportTest extends BigqueryBaseTestCase
                 false,
                 [],
             ),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSimpleImportOptions(),
             $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'accounts changedColumnsOrder' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
                 $accountsChangedColumnsOrderStub->getColumns(),
                 false,
@@ -406,24 +429,24 @@ class FullImportTest extends BigqueryBaseTestCase
                 ['id'],
             ),
             [
-                $this->getDestinationDbName(),
+                static::getDestinationDbName(),
                 self::TABLE_ACCOUNTS_3,
             ],
-            $this->getSimpleImportOptions(),
+            static::getSimpleImportOptions(),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'accounts' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            static::getSimpleImportOptions(),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
@@ -431,15 +454,15 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // line ending detection is not supported yet for S3
         yield 'accounts crlf' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.crlf.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            static::getSimpleImportOptions(),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
@@ -447,30 +470,30 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // manifests
         yield 'accounts sliced' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest',
                 $accountsStub->getColumns(),
                 true,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
 
         yield 'accounts sliced gzip' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
                 $accountsStub->getColumns(),
                 true,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationDbName(), self::TABLE_ACCOUNTS_3],
-            $this->getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationDbName(), self::TABLE_ACCOUNTS_3],
+            static::getSimpleImportOptions(ImportOptions::SKIP_NO_LINE),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
@@ -478,22 +501,22 @@ class FullImportTest extends BigqueryBaseTestCase
 
         // reserved words
         yield 'reserved words' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'reserved-words.csv',
                 ['column', 'table'],
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationDbName(), self::TABLE_TABLE],
-            $this->getSimpleImportOptions(),
+            [static::getDestinationDbName(), self::TABLE_TABLE],
+            static::getSimpleImportOptions(),
             [['table', 'column', null]],
             1,
             self::TABLE_TABLE,
         ];
         // import table with _timestamp columns - used by snapshots
         yield 'import with _timestamp columns' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'with-ts.csv',
                 [
                     'col1',
@@ -505,10 +528,10 @@ class FullImportTest extends BigqueryBaseTestCase
                 [],
             ),
             [
-                $this->getDestinationDbName(),
+                static::getDestinationDbName(),
                 self::TABLE_OUT_CSV_2COLS,
             ],
-            $this->getSimpleImportOptions(),
+            static::getSimpleImportOptions(),
             [
                 ['a', 'b', '2014-11-10 13:12:06'],
                 ['c', 'd', '2014-11-10 14:12:06'],
@@ -518,7 +541,7 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
         // test creating table without _timestamp column
         yield 'table without _timestamp column' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingStub->getColumns(),
                 false,
@@ -526,7 +549,7 @@ class FullImportTest extends BigqueryBaseTestCase
                 [],
             ),
             [
-                $this->getDestinationDbName(),
+                static::getDestinationDbName(),
                 self::TABLE_OUT_NO_TIMESTAMP_TABLE,
             ],
             new BigqueryImportOptions(
@@ -541,16 +564,16 @@ class FullImportTest extends BigqueryBaseTestCase
         ];
         // copy from table
         yield 'copy from table' => [
-            new Table($this->getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
-            [$this->getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSimpleImportOptions(),
+            new Table(static::getSourceDbName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
+            [static::getDestinationDbName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSimpleImportOptions(),
             [['a', 'b'], ['c', 'd']],
             2,
             self::TABLE_OUT_CSV_2COLS,
         ];
         yield 'copy from table 2' => [
             new Table(
-                $this->getSourceDbName(),
+                static::getSourceDbName(),
                 self::TABLE_TYPES,
                 [
                     'charCol',
@@ -560,10 +583,10 @@ class FullImportTest extends BigqueryBaseTestCase
                 ],
             ),
             [
-                $this->getDestinationDbName(),
+                static::getDestinationDbName(),
                 self::TABLE_TYPES,
             ],
-            $this->getSimpleImportOptions(),
+            static::getSimpleImportOptions(),
             [['a', '10.5', '0.3', 'true']],
             1,
             self::TABLE_TYPES,
@@ -571,10 +594,10 @@ class FullImportTest extends BigqueryBaseTestCase
     }
 
     /**
-     * @dataProvider  fullImportData
      * @param array{0:string, 1:string} $table
      * @param array<mixed> $expected
      */
+    #[DataProvider('fullImportData')]
     public function testFullImportWithDataSet(
         SourceInterface $source,
         array $table,
@@ -599,9 +622,11 @@ class FullImportTest extends BigqueryBaseTestCase
         );
 
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTable),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTable),
+            ),
+        );
         $toStageImporter = new ToStageImporter($this->bqClient);
         $toFinalTableImporter = new FullImporter($this->bqClient);
         try {
@@ -625,10 +650,14 @@ class FullImportTest extends BigqueryBaseTestCase
             $count = $current['count'];
 
             if ($count > 0) {
-                $this->bqClient->runQuery($this->bqClient->query((new SqlBuilder())->getDropTableUnsafe(
-                    $stagingTable->getSchemaName(),
-                    $stagingTable->getTableName(),
-                )));
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        (new SqlBuilder())->getDropTableUnsafe(
+                            $stagingTable->getSchemaName(),
+                            $stagingTable->getTableName(),
+                        ),
+                    ),
+                );
             }
         }
 
@@ -658,7 +687,7 @@ class FullImportTest extends BigqueryBaseTestCase
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getDestinationDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         // 2. Create source table WITH _timestamp column
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -671,7 +700,7 @@ class FullImportTest extends BigqueryBaseTestCase
            )',
             BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         // 3. Populate source with explicit timestamps (NOT current time)
         $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -683,7 +712,7 @@ INSERT INTO %s.%s (`id`, `name`, `value`, `_timestamp`) VALUES
 SQL,
             BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
             BigqueryQuote::quoteSingleIdentifier($tableName),
-        )));
+        ),),);
 
         // 4. Get table definitions
         $destination = (new BigqueryTableReflection(

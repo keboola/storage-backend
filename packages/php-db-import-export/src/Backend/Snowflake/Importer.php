@@ -58,11 +58,13 @@ class Importer implements ImporterInterface
         $this->importState = new ImportState(BackendHelper::generateStagingTableName());
         $this->validateColumns($source, $destination);
 
-        $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
-            $destination->getSchema(),
-            $this->importState->getStagingTableName(),
-            $source->getColumnsNames(),
-        ));
+        $this->runQuery(
+            $this->sqlBuilder->getCreateStagingTableCommand(
+                $destination->getSchema(),
+                $this->importState->getStagingTableName(),
+                $source->getColumnsNames(),
+            ),
+        );
 
         try {
             //import files to staging table
@@ -214,11 +216,13 @@ class Importer implements ImporterInterface
         array $primaryKeys,
     ): void {
         $tempTableName = BackendHelper::generateStagingTableName();
-        $this->runQuery($this->sqlBuilder->getCreateStagingTableCommand(
-            $destination->getSchema(),
-            $tempTableName,
-            $source->getColumnsNames(),
-        ));
+        $this->runQuery(
+            $this->sqlBuilder->getCreateStagingTableCommand(
+                $destination->getSchema(),
+                $tempTableName,
+                $source->getColumnsNames(),
+            ),
+        );
 
         $this->runQuery(
             $this->sqlBuilder->getDedupCommand(
@@ -295,6 +299,7 @@ class Importer implements ImporterInterface
     ): SnowflakeImportAdapterInterface {
         $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
+            /** @var class-string $adapter */
             $ref = new ReflectionClass($adapter);
             if (!$ref->implementsInterface(SnowflakeImportAdapterInterface::class)) {
                 throw new InternalException(
@@ -315,7 +320,9 @@ class Importer implements ImporterInterface
                         ),
                     );
                 }
-                $adapterForUse = new $adapter($this->connection);
+                /** @var SnowflakeImportAdapterInterface $adapterInstance */
+                $adapterInstance = new $adapter($this->connection);
+                $adapterForUse = $adapterInstance;
             }
         }
         if ($adapterForUse === null) {

@@ -53,7 +53,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
         parent::tearDown();
     }
 
-    protected function getGCSBucketEnvName(): string
+    protected static function getGCSBucketEnvName(): string
     {
         return 'GCS_BUCKET_NAME';
     }
@@ -80,14 +80,16 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
         string $firstName,
         string $lastName,
     ): void {
-        $this->connection->executeQuery(sprintf(
-            'INSERT INTO %s.%s VALUES (%d, %s, %s)',
-            SnowflakeQuote::quoteSingleIdentifier($schemaName),
-            SnowflakeQuote::quoteSingleIdentifier($tableName),
-            $id,
-            SnowflakeQuote::quote($firstName),
-            SnowflakeQuote::quote($lastName),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+                SnowflakeQuote::quoteSingleIdentifier($schemaName),
+                SnowflakeQuote::quoteSingleIdentifier($tableName),
+                $id,
+                SnowflakeQuote::quote($firstName),
+                SnowflakeQuote::quote($lastName),
+            ),
+        );
     }
 
     protected function initSingleTable(
@@ -145,32 +147,40 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
                     ),
                 );
 
-                $this->connection->executeQuery(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', CURRENT_TIMESTAMP());',
-                    SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                    SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                $this->connection->executeQuery(
+                    sprintf(
+                        'INSERT INTO %s.%s VALUES (\'x\', \'y\', CURRENT_TIMESTAMP());',
+                        SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                        SnowflakeQuote::quoteSingleIdentifier($tableName),
+                    ),
+                );
 
-                $this->connection->executeQuery(sprintf(
-                    'CREATE TABLE %s.%s (
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE TABLE %s.%s (
           "col1" VARCHAR(2000000) ,
           "col2" VARCHAR(2000000) 
         );',
-                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                    SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                        SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                        SnowflakeQuote::quoteSingleIdentifier($tableName),
+                    ),
+                );
 
-                $this->connection->executeQuery(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
-                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                    SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                $this->connection->executeQuery(
+                    sprintf(
+                        'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
+                        SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                        SnowflakeQuote::quoteSingleIdentifier($tableName),
+                    ),
+                );
 
-                $this->connection->executeQuery(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
-                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                    SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                $this->connection->executeQuery(
+                    sprintf(
+                        'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
+                        SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                        SnowflakeQuote::quoteSingleIdentifier($tableName),
+                    ),
+                );
                 break;
             case self::TABLE_ACCOUNTS_WITHOUT_TS:
                 $this->connection->executeQuery(sprintf(
@@ -190,7 +200,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             ) ',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_NULLIFY:
                 $this->connection->executeQuery(sprintf(
@@ -201,7 +211,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             ) ',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_TYPES:
                 $this->connection->executeQuery(sprintf(
@@ -213,23 +223,27 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
               "_timestamp" TIMESTAMP
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-                ));
+                ),);
 
-                $this->connection->executeQuery(sprintf(
-                    'CREATE TABLE  %s."types" (
+                $this->connection->executeQuery(
+                    sprintf(
+                        'CREATE TABLE  %s."types" (
               "charCol"  VARCHAR(4000) ,
               "numCol" decimal(10,1) ,
               "floatCol" float ,
               "boolCol" tinyint 
             );',
-                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                ));
-                $this->connection->executeQuery(sprintf(
-                    'INSERT INTO  %s."types" VALUES
+                        SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    ),
+                );
+                $this->connection->executeQuery(
+                    sprintf(
+                        'INSERT INTO  %s."types" VALUES
               (\'a\', \'10.5\', \'0.3\', 1)
            ;',
-                    SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-                ));
+                        SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                    ),
+                );
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
                 $this->connection->executeQuery(sprintf(
@@ -240,7 +254,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
            )',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_SINGLE_PK:
                 $this->connection->executeQuery(sprintf(
@@ -254,7 +268,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_MULTI_PK:
                 $this->connection->executeQuery(sprintf(
@@ -268,7 +282,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_MULTI_PK_WITH_TS:
                 $this->connection->executeQuery(sprintf(
@@ -283,7 +297,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_ACCOUNTS_3:
                 $this->connection->executeQuery(sprintf(
@@ -305,7 +319,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_OUT_LEMMA:
                 $this->connection->executeQuery(sprintf(
@@ -317,7 +331,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_TABLE:
                 $this->connection->executeQuery(sprintf(
@@ -329,7 +343,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
                 $this->connection->executeQuery(sprintf(
@@ -339,7 +353,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             case self::TABLE_NULL_EMPTY_STRING:
                 $this->connection->executeQuery(sprintf(
@@ -350,21 +364,21 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
             );',
                     SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
                     SnowflakeQuote::quoteSingleIdentifier($tableName),
-                ));
+                ),);
                 break;
             default:
                 throw new Exception("unknown table {$tableName}");
         }
     }
 
-    protected function getSourceSchemaName(): string
+    protected static function getSourceSchemaName(): string
     {
         return self::SNFLK_DEST_SCHEMA_NAME
             . '-'
             . getenv('SUITE');
     }
 
-    protected function getDestinationSchemaName(): string
+    protected static function getDestinationSchemaName(): string
     {
         return self::SNFLK_SOURCE_SCHEMA_NAME
             . '-'
@@ -401,7 +415,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
         );
     }
 
-    protected function getSnowflakeImportOptions(
+    protected static function getSnowflakeImportOptions(
         int $skipLines = 1,
         bool $useTimeStamp = true,
     ): SnowflakeImportOptions {
@@ -440,29 +454,47 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
         }
 
         if (!in_array('_timestamp', $source->getColumnsNames(), true)) {
-            $tableColumns = array_filter($tableColumns, static function ($column) {
-                return $column !== '_timestamp';
-            });
+            $tableColumns = array_filter(
+                $tableColumns,
+                static function ($column) {
+                    return $column !== '_timestamp';
+                },
+            );
         }
 
-        $tableColumns = array_map(static function ($column) {
-            return sprintf('%s', $column);
-        }, $tableColumns);
+        $tableColumns = array_map(
+            static function ($column) {
+                return sprintf('%s', $column);
+            },
+            $tableColumns,
+        );
 
         $sql = sprintf(
             'SELECT %s FROM %s.%s',
-            implode(', ', array_map(static function ($item) {
-                return SnowflakeQuote::quoteSingleIdentifier($item);
-            }, $tableColumns)),
+            implode(
+                ', ',
+                array_map(
+                    static function ($item) {
+                        return SnowflakeQuote::quoteSingleIdentifier($item);
+                    },
+                    $tableColumns,
+                ),
+            ),
             SnowflakeQuote::quoteSingleIdentifier($destination->getSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier($destination->getTableName()),
         );
 
-        $queryResult = array_map(static function ($row) {
-            return array_map(static function ($column) {
-                return $column;
-            }, array_values($row));
-        }, $this->connection->fetchAllAssociative($sql));
+        $queryResult = array_map(
+            static function ($row) {
+                return array_map(
+                    static function ($column) {
+                        return $column;
+                    },
+                    array_values($row),
+                );
+            },
+            $this->connection->fetchAllAssociative($sql),
+        );
 
         $this->assertArrayEqualsSorted(
             $expected,
@@ -472,7 +504,7 @@ class SnowflakeBaseTestCase extends ImportExportBaseTest
         );
     }
 
-    protected function getSimpleImportOptions(
+    protected static function getSimpleImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): SnowflakeImportOptions {
         return new SnowflakeImportOptions(

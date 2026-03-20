@@ -18,13 +18,16 @@ class DestinationFileTest extends BaseTestCase
             'myBucket',
             'file.csv',
         );
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\S3\DestinationFile::class, $destination);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\DestinationInterface::class, $destination);
         self::assertEquals('eu-central-1', $destination->getRegion());
         self::assertEquals('s3Key', $destination->getKey());
         self::assertEquals('s3://myBucket', $destination->getS3Prefix());
         self::assertEquals('s3Secret', $destination->getSecret());
-        $this->assertSame([
+        $this->assertSame(
+            [
             'file.csv_001.csv',
             'file.csv_002.csv',
             'file.csv_003.csv',
@@ -57,9 +60,12 @@ class DestinationFileTest extends BaseTestCase
             'file.csv_030.csv',
             'file.csv_031.csv',
             'file.csv_032.csv',
-        ], $destination->getSlicedFilesNames(false));
+            ],
+            $destination->getSlicedFilesNames(false),
+        );
 
-        $this->assertSame([
+        $this->assertSame(
+            [
             'file.csv_001.csv.gz',
             'file.csv_002.csv.gz',
             'file.csv_003.csv.gz',
@@ -70,6 +76,8 @@ class DestinationFileTest extends BaseTestCase
             'file.csv_008.csv.gz',
             'file.csv_009.csv.gz',
             'file.csv_010.csv.gz',
-        ], $destination->getSlicedFilesNames(true));
+            ],
+            $destination->getSlicedFilesNames(true),
+        );
     }
 }

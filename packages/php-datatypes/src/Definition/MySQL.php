@@ -29,10 +29,10 @@ class MySQL extends Common
     ];
 
     /**
-     * Snowflake constructor.
+     * MySQL constructor.
      *
      * @param array{
-     *     length?:string|null|array,
+     *     length?:string|null|array<string, int|string|null>,
      *     nullable?:bool,
      *     default?:string|null
      * } $options
@@ -53,7 +53,7 @@ class MySQL extends Common
     public function getSQLDefinition(): string
     {
         $definition =  $this->getType();
-        if ($this->getLength() && $this->getLength() !== '') {
+        if ($this->getLength() && $this->getLength() !== '') { // @phpstan-ignore notIdentical.alwaysTrue
             $definition .= '(' . $this->getLength() . ')';
         }
         if (!$this->isNullable()) {
@@ -75,7 +75,7 @@ class MySQL extends Common
     }
 
     /**
-     * @param array{length?: string|null|array} $options
+     * @param array{length?: string|null|array<string, int|string|null>} $options
      * @throws InvalidOptionException
      */
     private function processLength(array $options): ?string
@@ -84,7 +84,7 @@ class MySQL extends Common
             return null;
         }
         if (is_array($options['length'])) {
-            return $this->getLengthFromArray($options['length']);
+            return $this->getLengthFromArray($options['length']); // @phpstan-ignore argument.type
         }
         return (string) $options['length'];
     }
@@ -123,7 +123,7 @@ class MySQL extends Common
      */
     private function validateType(string $type): void
     {
-        if (!in_array(strtoupper($type), $this::TYPES)) {
+        if (!in_array(strtoupper($type), self::TYPES)) {
             throw new InvalidTypeException("'{$type}' is not a valid type");
         }
     }

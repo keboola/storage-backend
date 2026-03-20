@@ -1,0 +1,10 @@
+parameters:
+    ignoreErrors:
+        -
+            message: '#^Call to an undefined method Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\BaseCase\:\:name\(\)\.$#'
+            identifier: method.notFound
+            path: tests/Functional/BaseCase.php
+
+        -
+            message: '#^Method .* never returns null so it can be removed from the return type\.$#'
+            identifier: return.unusedType

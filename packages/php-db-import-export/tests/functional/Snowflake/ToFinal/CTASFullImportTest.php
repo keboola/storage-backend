@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 /**
@@ -63,10 +64,13 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             self::TABLE_COLUMN_NAME_ROW_NUMBER,
         );
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'id',
             'row_number',
-        ]);
+            ],
+        );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
@@ -121,13 +125,16 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             self::TABLE_SINGLE_PK,
         );
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
@@ -182,13 +189,16 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
             self::TABLE_MULTI_PK,
         );
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
@@ -223,14 +233,14 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
     /**
      * @return Generator<string, array<mixed>>
      */
-    public function fullImportData(): Generator
+    public static function fullImportData(): Generator
     {
-        $escapingStub = $this->getParseCsvStub('escaping/standard-with-enclosures.csv');
+        $escapingStub = static::getParseCsvStub('escaping/standard-with-enclosures.csv');
 
         // copy from table
         yield 'copy from table' => [
-            new Table($this->getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
+            new Table(static::getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
             new SnowflakeImportOptions(
                 convertEmptyValuesToNull: [],
                 isIncremental: false,
@@ -244,7 +254,7 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
         ];
         yield 'copy from table 2' => [
             new Table(
-                $this->getSourceSchemaName(),
+                static::getSourceSchemaName(),
                 self::TABLE_TYPES,
                 [
                     'charCol',
@@ -254,7 +264,7 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
                 ],
             ),
             [
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 self::TABLE_TYPES,
             ],
             new SnowflakeImportOptions(
@@ -271,10 +281,10 @@ class CTASFullImportTest extends SnowflakeBaseTestCase
     }
 
     /**
-     * @dataProvider  fullImportData
-     * @param string[] $table
+     * @param string[]     $table
      * @param array<mixed> $expected
      */
+    #[DataProvider('fullImportData')]
     public function testFullImportWithDataSet(
         SourceInterface $source,
         array $table,

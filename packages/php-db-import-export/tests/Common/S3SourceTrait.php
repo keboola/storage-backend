@@ -9,7 +9,7 @@ use Keboola\Db\ImportExport\Storage;
 
 trait S3SourceTrait
 {
-    protected function createDummyS3SourceInstance(
+    protected static function createDummyS3SourceInstance(
         string $file,
         bool $isSliced = false,
     ): Storage\S3\SourceFile {
@@ -29,14 +29,14 @@ trait S3SourceTrait
      * @param string[] $columns
      * @param string[]|null $primaryKeys
      */
-    protected function createS3SourceInstance(
+    protected static function createS3SourceInstance(
         string $filePath,
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
         ?array $primaryKeys = null,
     ): Storage\S3\SourceFile {
-        return $this->createS3SourceInstanceFromCsv(
+        return static::createS3SourceInstanceFromCsv(
             $filePath,
             new CsvOptions(),
             $columns,
@@ -48,10 +48,11 @@ trait S3SourceTrait
 
     /**
      * filePath is expected without AWS_S3_KEY
-     * @param string[] $columns
+     *
+     * @param string[]      $columns
      * @param string[]|null $primaryKeys
      */
-    protected function createS3SourceInstanceFromCsv(
+    protected static function createS3SourceInstanceFromCsv(
         string $filePath,
         CsvOptions $options,
         array $columns = [],

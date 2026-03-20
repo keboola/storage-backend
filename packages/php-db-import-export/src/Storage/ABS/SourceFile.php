@@ -64,17 +64,21 @@ class SourceFile extends BaseFile implements SourceInterface
     }
 
     /**
-     * @return mixed
+     * @return array{entries: array<int, array{url: string}>}
      * @throws Exception
      */
-    private function downloadAndParseManifest(BlobRestProxy $blobClient)
+    private function downloadAndParseManifest(BlobRestProxy $blobClient): array
     {
         try {
             $manifestBlob = $blobClient->getBlob($this->container, $this->filePath);
         } catch (ServiceException $e) {
             throw new ManifestNotFoundException($e);
         }
-        return json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
+        $content = stream_get_contents($manifestBlob->getContentStream());
+        assert(is_string($content));
+        /** @var array{entries: array<int, array{url: string}>} $manifest */
+        $manifest = json_decode($content, true);
+        return $manifest;
     }
 
     /**
@@ -110,7 +114,8 @@ class SourceFile extends BaseFile implements SourceInterface
         }
 
         $manifest = $this->downloadAndParseManifest($blobClient);
-        $entries = array_map(function (array $entry) {
+        /** @var string[] $entries */
+        $entries = array_map(function (array $entry): string {
             return $entry['url'];
         }, $manifest['entries']);
 

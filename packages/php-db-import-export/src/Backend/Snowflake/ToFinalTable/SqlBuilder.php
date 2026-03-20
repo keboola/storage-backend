@@ -92,12 +92,18 @@ class SqlBuilder
         string $delimiter = ', ',
         ?string $tableAlias = null,
     ): string {
-        return implode($delimiter, array_map(static function ($columns) use (
-            $tableAlias,
-        ) {
-            $alias = $tableAlias === null ? '' : $tableAlias . '.';
-            return $alias . SnowflakeQuote::quoteSingleIdentifier($columns);
-        }, $columns));
+        return implode(
+            $delimiter,
+            array_map(
+                static function ($columns) use (
+                    $tableAlias,
+                ) {
+                    $alias = $tableAlias === null ? '' : $tableAlias . '.';
+                    return $alias . SnowflakeQuote::quoteSingleIdentifier($columns);
+                },
+                $columns,
+            ),
+        );
     }
 
     public function getDeleteOldItemsCommand(
@@ -135,17 +141,20 @@ class SqlBuilder
         array $primaryKeys,
         SnowflakeImportOptions $importOptions,
     ): string {
-        $pkWhereSql = array_map(function (string $col) use ($importOptions) {
-            $str = '"dest".%s = COALESCE("src".%s, \'\')';
-            if (!$importOptions->isNullManipulationEnabled()) {
-                $str = '"dest".%s = "src".%s';
-            }
-            return sprintf(
-                $str,
-                QuoteHelper::quoteIdentifier($col),
-                QuoteHelper::quoteIdentifier($col),
-            );
-        }, $primaryKeys);
+        $pkWhereSql = array_map(
+            function (string $col) use ($importOptions) {
+                $str = '"dest".%s = COALESCE("src".%s, \'\')';
+                if (!$importOptions->isNullManipulationEnabled()) {
+                    $str = '"dest".%s = "src".%s';
+                }
+                return sprintf(
+                    $str,
+                    QuoteHelper::quoteIdentifier($col),
+                    QuoteHelper::quoteIdentifier($col),
+                );
+            },
+            $primaryKeys,
+        );
 
         return implode(' AND ', $pkWhereSql) . ' ';
     }
@@ -448,10 +457,15 @@ class SqlBuilder
         } else {
             foreach ($stagingTableDefinition->getColumnsDefinitions() as $sourceColumn) {
                 $destinationColumn = $columnMap->getDestination($sourceColumn);
-                if (in_array($destinationColumn->getColumnDefinition()->getType(), [
+                if (in_array(
+                    $destinationColumn->getColumnDefinition()->getType(),
+                    [
                     Snowflake::TYPE_GEOGRAPHY,
                     Snowflake::TYPE_GEOMETRY,
-                ], true)) {
+                    ],
+                    true,
+                )
+                ) {
                     $columnsComparisonSql[] = sprintf(
                         'ST_ASEWKT("dest".%s) IS DISTINCT FROM ST_ASEWKT("src".%s)',
                         SnowflakeQuote::quoteSingleIdentifier($destinationColumn->getColumnName()),

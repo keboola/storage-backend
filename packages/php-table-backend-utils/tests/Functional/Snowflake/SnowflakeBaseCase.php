@@ -19,7 +19,7 @@ class SnowflakeBaseCase extends TestCase
 
     protected Connection $connection;
 
-    public function connectionProvider(): Generator
+    public static function connectionProvider(): Generator
     {
         yield 'password connection' => [
             SnowflakeConnectionFactory::getConnection(
@@ -39,7 +39,7 @@ class SnowflakeBaseCase extends TestCase
             SnowflakeConnectionFactory::getConnectionWithCert(
                 (string) getenv('SNOWFLAKE_HOST'),
                 (string) getenv('SNOWFLAKE_USER'),
-                $this->normalizePrivateKey((string) getenv('SNOWFLAKE_PRIVATE_KEY')),
+                self::normalizePrivateKey((string) getenv('SNOWFLAKE_PRIVATE_KEY')),
                 [
                     'port' => (string) getenv('SNOWFLAKE_PORT'),
                     'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'),
@@ -70,7 +70,7 @@ class SnowflakeBaseCase extends TestCase
         );
     }
 
-    private function normalizePrivateKey(string $privateKey): string
+    private static function normalizePrivateKey(string $privateKey): string
     {
         $privateKey = trim($privateKey);
         $privateKey = str_replace(["\r", "\n"], '', $privateKey);
@@ -150,39 +150,49 @@ class SnowflakeBaseCase extends TestCase
 
     protected function tearDown(): void
     {
-        $this->connection->close();
+        if (isset($this->connection)) {
+            $this->connection->close();
+        }
         parent::tearDown();
     }
 
     protected function setUpUser(string $userName): void
     {
         // delete existing user
-        $this->connection->executeQuery(sprintf(
-            'DROP USER IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier($userName),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'DROP USER IF EXISTS %s',
+                SnowflakeQuote::quoteSingleIdentifier($userName),
+            ),
+        );
 
         // create user
-        $this->connection->executeQuery(sprintf(
-            'CREATE USER %s PASSWORD = %s',
-            SnowflakeQuote::quoteSingleIdentifier($userName),
-            SnowflakeQuote::quote(bin2hex(random_bytes(8))),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE USER %s PASSWORD = %s',
+                SnowflakeQuote::quoteSingleIdentifier($userName),
+                SnowflakeQuote::quote(bin2hex(random_bytes(8))),
+            ),
+        );
     }
 
     protected function setUpRole(string $roleName): void
     {
         // delete existing role
-        $this->connection->executeQuery(sprintf(
-            'DROP ROLE IF EXISTS %s',
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'DROP ROLE IF EXISTS %s',
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+            ),
+        );
 
         // create role
-        $this->connection->executeQuery(sprintf(
-            'CREATE ROLE %s;',
-            SnowflakeQuote::quoteSingleIdentifier($roleName),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE ROLE %s;',
+                SnowflakeQuote::quoteSingleIdentifier($roleName),
+            ),
+        );
     }
 
     protected function insertRowToTable(
@@ -192,13 +202,15 @@ class SnowflakeBaseCase extends TestCase
         string $firstName,
         string $lastName,
     ): void {
-        $this->connection->executeQuery(sprintf(
-            'INSERT INTO %s.%s VALUES (%d, %s, %s)',
-            SnowflakeQuote::quoteSingleIdentifier($schemaName),
-            SnowflakeQuote::quoteSingleIdentifier($tableName),
-            $id,
-            SnowflakeQuote::quote($firstName),
-            SnowflakeQuote::quote($lastName),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'INSERT INTO %s.%s VALUES (%d, %s, %s)',
+                SnowflakeQuote::quoteSingleIdentifier($schemaName),
+                SnowflakeQuote::quoteSingleIdentifier($tableName),
+                $id,
+                SnowflakeQuote::quote($firstName),
+                SnowflakeQuote::quote($lastName),
+            ),
+        );
     }
 }

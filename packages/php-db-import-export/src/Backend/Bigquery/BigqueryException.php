@@ -27,7 +27,15 @@ class BigqueryException extends Exception
         return $e;
     }
 
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint
+    /**
+     * @param array{
+     *     status: array{
+     *         errorResult?: array{message: string},
+     *         errors?: array<int, array{message: string, reason: string}>,
+     *     },
+     *     jobReference: array{jobId: string},
+     * } $jobInfo
+     */
     public static function createExceptionFromJobResult(array $jobInfo): Throwable
     {
         $errorMessage = $jobInfo['status']['errorResult']['message'] ?? 'Unknown error';
@@ -42,14 +50,20 @@ class BigqueryException extends Exception
             }
         }
 
-        $filteredJobErrors = array_filter($jobErrors, function ($error) use ($jobInfo) {
-            // the errorResult is the first in list of errors as well
-            return $error['message'] !== $jobInfo['status']['errorResult']['message'];
-        });
+        $filteredJobErrors = array_filter(
+            $jobErrors,
+            function ($error) use ($jobInfo) {
+                // the errorResult is the first in list of errors as well
+                return $error['message'] !== ($jobInfo['status']['errorResult']['message'] ?? '');
+            },
+        );
         $countOfErrors = count($filteredJobErrors);
-        $parsingErrors = array_filter($filteredJobErrors, function ($error) {
-            return self::isUserError($error['message'], $error['reason']);
-        });
+        $parsingErrors = array_filter(
+            $filteredJobErrors,
+            function ($error) {
+                return self::isUserError($error['message'], $error['reason']);
+            },
+        );
         if (count($parsingErrors) > 0) {
             // filter parsing errors
             $areExtraErrors = count($parsingErrors) !== $countOfErrors;
@@ -72,7 +86,9 @@ class BigqueryException extends Exception
         return false;
     }
 
-    // phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint
+    /**
+     * @param array<int, array{message: string, reason: string}> $parsingErrors
+     */
     private static function getErrorMessageForErrorList(
         array $parsingErrors,
         bool $areExtraErrors,
@@ -87,9 +103,16 @@ class BigqueryException extends Exception
             );
         }
 
-        $message = implode(PHP_EOL, array_map(function ($error) {
-            return $error['message'];
-        }, $parsingErrors));
+        $messages = array_map(
+            function ($error): string {
+                return $error['message'];
+            },
+            $parsingErrors,
+        );
+        $message = implode(
+            PHP_EOL,
+            $messages,
+        );
         if ($areExtraErrors) {
             $message .= PHP_EOL . sprintf(
                 'There were additional errors during the import. For more information check job "%s"'

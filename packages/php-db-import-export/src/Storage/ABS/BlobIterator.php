@@ -9,6 +9,9 @@ use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\Blob;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
 
+/**
+ * @implements Iterator<int, Blob>
+ */
 final class BlobIterator implements Iterator
 {
     private const DEFAULT_PAGE_SIZE = 1000;

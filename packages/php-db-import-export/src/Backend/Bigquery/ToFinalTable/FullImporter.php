@@ -45,18 +45,22 @@ final class FullImporter implements ToFinalTableImporterInterface
         Session $session,
     ): void {
         try {
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getBeginTransaction(),
-                $session->getAsQueryOptions(),
-            ));
-            // truncate destination table
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getTruncateTable(
-                    $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName(),
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getBeginTransaction(),
+                    $session->getAsQueryOptions(),
                 ),
-                $session->getAsQueryOptions(),
-            ));
+            );
+            // truncate destination table
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getTruncateTable(
+                        $destinationTableDefinition->getSchemaName(),
+                        $destinationTableDefinition->getTableName(),
+                    ),
+                    $session->getAsQueryOptions(),
+                ),
+            );
             $state->startTimer(self::TIMER_COPY_TO_TARGET);// move data with INSERT INTO
             $sql = $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
                 $stagingTableDefinition,
@@ -64,14 +68,18 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $options,
                 DateTimeHelper::getNowFormatted(),
             );
-            $this->bqClient->runQuery($this->bqClient->query(
-                $sql,
-                $session->getAsQueryOptions(),
-            ));
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getCommitTransaction(),
-                $session->getAsQueryOptions(),
-            ));
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $sql,
+                    $session->getAsQueryOptions(),
+                ),
+            );
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getCommitTransaction(),
+                    $session->getAsQueryOptions(),
+                ),
+            );
         } catch (Throwable $e) {
             RollbackTransactionHelper::rollbackTransaction(
                 $this->bqClient,
@@ -142,14 +150,16 @@ final class FullImporter implements ToFinalTableImporterInterface
         try {
             $transactionStarted = false;
             // 2 transfer data from source to dedup table with dedup process
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getCreateDedupTable(
-                    $stagingTableDefinition,
-                    $deduplicationTableName,
-                    $destinationTableDefinition->getPrimaryKeysNames(),
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getCreateDedupTable(
+                        $stagingTableDefinition,
+                        $deduplicationTableName,
+                        $destinationTableDefinition->getPrimaryKeysNames(),
+                    ),
+                    $session->getAsQueryOptions(),
                 ),
-                $session->getAsQueryOptions(),
-            ));
+            );
             /** @var BigqueryTableDefinition $deduplicationTableDefinition */
             $deduplicationTableDefinition = (new BigqueryTableReflection(
                 $this->bqClient,
@@ -157,37 +167,45 @@ final class FullImporter implements ToFinalTableImporterInterface
                 $deduplicationTableName,
             ))->getTableDefinition();
 
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getBeginTransaction(),
-                $session->getAsQueryOptions(),
-            ));
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getBeginTransaction(),
+                    $session->getAsQueryOptions(),
+                ),
+            );
             $transactionStarted = true;
 
             // 3 truncate destination table
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getTruncateTable(
-                    $destinationTableDefinition->getSchemaName(),
-                    $destinationTableDefinition->getTableName(),
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getTruncateTable(
+                        $destinationTableDefinition->getSchemaName(),
+                        $destinationTableDefinition->getTableName(),
+                    ),
+                    $session->getAsQueryOptions(),
                 ),
-                $session->getAsQueryOptions(),
-            ));
+            );
 
             // 4 move data with INSERT INTO
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
-                    $deduplicationTableDefinition,
-                    $destinationTableDefinition,
-                    $options,
-                    DateTimeHelper::getNowFormatted(),
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getInsertAllIntoTargetTableCommand(
+                        $deduplicationTableDefinition,
+                        $destinationTableDefinition,
+                        $options,
+                        DateTimeHelper::getNowFormatted(),
+                    ),
+                    $session->getAsQueryOptions(),
                 ),
-                $session->getAsQueryOptions(),
-            ));
+            );
             $state->stopTimer(self::TIMER_DEDUP);
 
-            $this->bqClient->runQuery($this->bqClient->query(
-                $this->sqlBuilder->getCommitTransaction(),
-                $session->getAsQueryOptions(),
-            ));
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    $this->sqlBuilder->getCommitTransaction(),
+                    $session->getAsQueryOptions(),
+                ),
+            );
         } catch (Throwable $e) {
             if ($transactionStarted) {
                 RollbackTransactionHelper::rollbackTransaction(
@@ -200,13 +218,15 @@ final class FullImporter implements ToFinalTableImporterInterface
         } finally {
             if (isset($deduplicationTableDefinition)) {
                 // 5 drop dedup table
-                $this->bqClient->runQuery($this->bqClient->query(
-                    $this->sqlBuilder->getDropTableIfExistsCommand(
-                        $deduplicationTableDefinition->getSchemaName(),
-                        $deduplicationTableDefinition->getTableName(),
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        $this->sqlBuilder->getDropTableIfExistsCommand(
+                            $deduplicationTableDefinition->getSchemaName(),
+                            $deduplicationTableDefinition->getTableName(),
+                        ),
+                        $session->getAsQueryOptions(),
                     ),
-                    $session->getAsQueryOptions(),
-                ));
+                );
             }
         }
     }

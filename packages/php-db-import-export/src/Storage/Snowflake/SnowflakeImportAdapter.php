@@ -45,9 +45,12 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
         ImportOptionsInterface $importOptions,
         string $stagingTableName,
     ): int {
-        $quotedColumns = array_map(function ($column) {
-            return $this->connection->quoteIdentifier($column);
-        }, $source->getColumnsNames());
+        $quotedColumns = array_map(
+            function ($column) {
+                return $this->connection->quoteIdentifier($column);
+            },
+            $source->getColumnsNames(),
+        );
 
         $sql = sprintf(
             'INSERT INTO %s.%s (%s) %s',
@@ -62,10 +65,12 @@ class SnowflakeImportAdapter implements SnowflakeImportAdapterInterface
             $source instanceof SelectSource ? $source->getQueryBindings() : [],
         );
 
-        $rows = $this->connection->fetchAll($this->sqlBuilder->getTableItemsCountCommand(
-            $destination->getSchema(),
-            $stagingTableName,
-        ));
+        $rows = $this->connection->fetchAll(
+            $this->sqlBuilder->getTableItemsCountCommand(
+                $destination->getSchema(),
+                $stagingTableName,
+            ),
+        );
 
         return (int) $rows[0]['count'];
     }

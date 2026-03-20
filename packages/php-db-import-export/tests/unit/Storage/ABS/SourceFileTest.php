@@ -6,6 +6,7 @@ namespace Tests\Keboola\Db\ImportExportUnit\Storage\ABS;
 
 use Generator;
 use Keboola\Db\ImportExport\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Tests\Keboola\Db\ImportExportUnit\BaseTestCase;
 
@@ -16,7 +17,9 @@ class SourceFileTest extends BaseTestCase
     public function testDefaultValues(): void
     {
         $source = $this->createDummyABSSourceInstance('file.csv');
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\ABS\BaseFile::class, $source);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('file.csv', $source->getFilePath());
         self::assertEquals([], $source->getColumnsNames());
@@ -24,9 +27,7 @@ class SourceFileTest extends BaseTestCase
         self::assertSame('azureCredentials', $source->getSasToken());
     }
 
-    /**
-     * @dataProvider getFilePartsProvider
-     */
+    #[DataProvider('getFilePartsProvider')]
     public function testGetFilepathParts(string $file, string $expPrefix, string $expFile): void
     {
         $source = $this->createDummyABSSourceInstance($file);
@@ -34,7 +35,7 @@ class SourceFileTest extends BaseTestCase
         self::assertEquals($expFile, $source->getFileName());
     }
 
-    public function getFilePartsProvider(): Generator
+    public static function getFilePartsProvider(): Generator
     {
         yield [
             'data/shared/file.csv',

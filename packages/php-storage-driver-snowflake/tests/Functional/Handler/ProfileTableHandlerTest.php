@@ -57,7 +57,7 @@ final class ProfileTableHandlerTest extends BaseCase
         /** @var Column[] $columns */
         $columns = iterator_to_array($response->getColumns());
         foreach ($columns as $column) {
-            $this->assertInstanceOf(Column::class, $column);
+            $this->assertInstanceOf(Column::class, $column); // @phpstan-ignore method.alreadyNarrowedType
             $this->assertArrayHasKey($column->getName(), $expectedColumnProfiles);
             $this->assertSame($expectedColumnProfiles[$column->getName()], $column->getProfile());
         }
@@ -106,7 +106,7 @@ final class ProfileTableHandlerTest extends BaseCase
                         'col_date',
                         new Snowflake(Snowflake::TYPE_DATE),
                     ),
-                ]),
+                    ],),
             ),
         );
 
@@ -124,8 +124,8 @@ final class ProfileTableHandlerTest extends BaseCase
                 (8, 'Ultrabook', FALSE, 60, 75.00, 2.4, DATE '2021-05-25')
                 SQL,
             // phpcs:enable
-            SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
+                SnowflakeQuote::quoteSingleIdentifier(self::SCHEMA_NAME),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_NAME),
-        ));
+        ),);
     }
 }

@@ -30,9 +30,13 @@ class RollbackTransactionHelper
             // usually rollback is blocked by truncate table command
             new ExponentialRandomBackOffPolicy(500, 1.5, 30000),
         );
-        $proxy->call(fn() => $bqClient->runQuery($bqClient->query(
-            $sqlBuilder->getRollbackTransaction(),
-            $session->getAsQueryOptions(),
-        )));
+        $proxy->call(
+            fn() => $bqClient->runQuery(
+                $bqClient->query(
+                    $sqlBuilder->getRollbackTransaction(),
+                    $session->getAsQueryOptions(),
+                ),
+            ),
+        );
     }
 }

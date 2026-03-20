@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Redshift;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -31,9 +32,9 @@ class RedshiftDatatypeTest extends TestCase
     }
 
     /**
-     * @dataProvider validLengthsProvider
      * @param mixed[] $option
      */
+    #[DataProvider('validLengthsProvider')]
     public function testValidLengths(string $columnType, array $option, string $expectedOutput): void
     {
         foreach ([$columnType, strtoupper($columnType)] as $item) {
@@ -44,8 +45,8 @@ class RedshiftDatatypeTest extends TestCase
 
     /**
      * @param array<mixed> $options
-     * @dataProvider invalidLengthsProvider
      */
+    #[DataProvider('invalidLengthsProvider')]
     public function testInvalidLengths(string $columnType, array $options): void
     {
         foreach ([$columnType, strtoupper($columnType)] as $item) {
@@ -118,7 +119,7 @@ class RedshiftDatatypeTest extends TestCase
         $md = $datatype->toMetadata();
         $hasCompression = false;
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
+            $this->assertArrayHasKey('key', $mdat); // @phpstan-ignore method.alreadyNarrowedType
             if ($mdat['key'] === Common::KBC_METADATA_KEY_COMPRESSION) {
                 $this->assertEquals('ZSTD', $mdat['value']);
                 $hasCompression = true;
@@ -207,7 +208,7 @@ class RedshiftDatatypeTest extends TestCase
     /**
      * @return array<int, mixed[]>
      */
-    public function validLengthsProvider(): array
+    public static function validLengthsProvider(): array
     {
         return [
             [
@@ -346,7 +347,7 @@ class RedshiftDatatypeTest extends TestCase
     /**
      * @return array<int, array<string[]|string>>
      */
-    public function invalidLengthsProvider(): array
+    public static function invalidLengthsProvider(): array
     {
         return [
             [

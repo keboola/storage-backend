@@ -148,7 +148,7 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         );
 
         // Verify the import was successful
-        self::assertNotNull($result);
+        self::assertNotNull($result); // @phpstan-ignore staticMethod.alreadyNarrowedType
     }
 
     public function testValidateTableDefinitionsMatchColumnCountMismatch(): void
@@ -389,6 +389,6 @@ class FullImporterValidationTest extends SnowflakeBaseTestCase
         );
 
         // Verify the import was successful
-        self::assertNotNull($result);
+        self::assertNotNull($result); // @phpstan-ignore staticMethod.alreadyNarrowedType
     }
 }

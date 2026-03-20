@@ -68,12 +68,16 @@ trait SnowflakeCredentialsTrait
     {
         $keyPair = (new PemKeyCertificateGenerator())->createPemKeyCertificate(null);
         $meta = new Any();
-        $meta->pack(new CreateProjectCommand\CreateProjectSnowflakeMeta([
-            'projectUserLoginType' => 'SERVICE',
-            'projectUserPublicKey' => $keyPair->publicKey,
-            'setupDynamicBackends' => false,
-            'defaultWarehouseToGrant' => 'DEV',
-        ]));
+        $meta->pack(
+            new CreateProjectCommand\CreateProjectSnowflakeMeta(
+                [
+                'projectUserLoginType' => 'SERVICE',
+                'projectUserPublicKey' => $keyPair->publicKey,
+                'setupDynamicBackends' => false,
+                'defaultWarehouseToGrant' => 'DEV',
+                ],
+            ),
+        );
         $response = (new CreateProjectHandler())->__invoke(
             $this->createCredentialsWithKeyPair(),
             new CreateProjectCommand([
@@ -82,7 +86,7 @@ trait SnowflakeCredentialsTrait
                 'dataRetentionTime' => 0,
                 'fileStorage' => CreateProjectCommand\FileStorageType::S3,
                 'meta' => $meta,
-            ]),
+                ],),
             $features,
             new RuntimeOptions(),
         );

@@ -8,6 +8,7 @@ use Generator;
 use Keboola\Datatype\Definition\BaseType;
 use Keboola\Datatype\Definition\DefinitionInterface;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 abstract class BaseDatatypeTestCase extends TestCase
@@ -35,9 +36,7 @@ abstract class BaseDatatypeTestCase extends TestCase
      */
     abstract public static function provideTestGetDefinitionForBasetype(): Generator;
 
-    /**
-     * @dataProvider provideTestGetTypeByBasetype
-     */
+    #[DataProvider('provideTestGetTypeByBasetype')]
     public function testGetTypeByBasetype(
         string $basetype,
         ?string $expectedType = null,
@@ -53,9 +52,7 @@ abstract class BaseDatatypeTestCase extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideTestGetDefinitionForBasetype
-     */
+    #[DataProvider('provideTestGetDefinitionForBasetype')]
     public function testGetDefinitionForBasetype(
         string $basetype,
         ?DefinitionInterface $expectedColumnDefinition = null,
@@ -75,18 +72,22 @@ abstract class BaseDatatypeTestCase extends TestCase
 
     public function testAllBaseTypesTestedGetTypeByBasetype(): void
     {
-        $this->assertBaseTypesTested(array_map(
-            fn(array $case) => $case['basetype'],
-            iterator_to_array(static::provideTestGetTypeByBasetype()),
-        ));
+        $this->assertBaseTypesTested(
+            array_map(
+                fn(array $case) => $case['basetype'],
+                iterator_to_array(static::provideTestGetTypeByBasetype()),
+            ),
+        );
     }
 
     public function testAllBaseTypesTestedGetDefinitionForBasetype(): void
     {
-        $this->assertBaseTypesTested(array_map(
-            fn(array $case) => $case['basetype'],
-            iterator_to_array(static::provideTestGetDefinitionForBasetype()),
-        ));
+        $this->assertBaseTypesTested(
+            array_map(
+                fn(array $case) => $case['basetype'],
+                iterator_to_array(static::provideTestGetDefinitionForBasetype()),
+            ),
+        );
     }
 
     /**

@@ -43,6 +43,6 @@ class S3SlicedManifestFromUnloadQueryResultGenerator implements SlicedManifestGe
             'Key' => $path->getPathnameWithoutRoot() . 'manifest',
             'Body' => json_encode($manifest, JSON_THROW_ON_ERROR),
             'ServerSideEncryption' => 'AES256',
-        ]);
+            ],);
     }
 }

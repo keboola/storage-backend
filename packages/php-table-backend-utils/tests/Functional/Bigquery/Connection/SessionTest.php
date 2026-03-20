@@ -22,19 +22,24 @@ class SessionTest extends BigqueryBaseCase
 
         $sessionIdDecoded = base64_decode($session->getSessionId());
         // session id is base64 string which contains <project>$<uuid>
-        $this->assertIsString($sessionIdDecoded);
+        $this->assertIsString($sessionIdDecoded); // @phpstan-ignore method.alreadyNarrowedType
 
         // plain session use
-        $job = $this->bqClient->runJob($this->bqClient->query('SELECT 1', [
-            'configuration' => [
+        $job = $this->bqClient->runJob(
+            $this->bqClient->query(
+                'SELECT 1',
+                [
+                'configuration' => [
                 'query' => [
                     'connectionProperties' => [
                         'key' => 'session_id',
                         'value' => $session->getSessionId(),
                     ],
                 ],
-            ],
-        ]));
+                ],
+                ],
+            ),
+        );
 
         $testSessionPlain = Session::createFromJob($job);
         $this->assertSame($session->getSessionId(), $testSessionPlain->getSessionId());

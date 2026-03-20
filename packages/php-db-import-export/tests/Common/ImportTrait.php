@@ -6,35 +6,35 @@ namespace Tests\Keboola\Db\ImportExportCommon;
 
 trait ImportTrait
 {
-    protected function getSourceSchemaName(): string
+    protected static function getSourceSchemaName(): string
     {
         $buildPrefix = '';
         if (getenv('BUILD_PREFIX') !== false) {
             $buildPrefix = getenv('BUILD_PREFIX');
         }
 
-        return $this->getSourceSchema()
+        return static::getSourceSchema()
             . '-'
             . $buildPrefix
             . '-'
             . getenv('SUITE');
     }
 
-    protected function getDestinationSchemaName(): string
+    protected static function getDestinationSchemaName(): string
     {
         $buildPrefix = '';
         if (getenv('BUILD_PREFIX') !== false) {
             $buildPrefix = getenv('BUILD_PREFIX');
         }
 
-        return $this->getDestinationSchema()
+        return static::getDestinationSchema()
             . '-'
             . $buildPrefix
             . '-'
             . getenv('SUITE');
     }
 
-    abstract protected function getDestinationSchema(): string;
+    abstract protected static function getDestinationSchema(): string;
 
-    abstract protected function getSourceSchema(): string;
+    abstract protected static function getSourceSchema(): string;
 }

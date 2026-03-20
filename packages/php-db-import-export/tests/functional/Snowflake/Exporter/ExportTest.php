@@ -18,6 +18,7 @@ use Keboola\Db\ImportExport\Storage;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class ExportTest extends SnowflakeBaseTestCase
@@ -42,7 +43,9 @@ class ExportTest extends SnowflakeBaseTestCase
         $this->initTable(self::TABLE_NULL_EMPTY_STRING);
 
         $file = new CsvFile(self::DATA_DIR . 'null-and-empty-string.csv');
-        $source = $this->getSourceInstance('null-and-empty-string.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('null-and-empty-string.csv', $header);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             self::TABLE_NULL_EMPTY_STRING,
@@ -54,7 +57,7 @@ class ExportTest extends SnowflakeBaseTestCase
         // query needed otherwise timestamp is downloaded
         $query = sprintf(
             'SELECT %s FROM %s',
-            ColumnsHelper::getColumnsString($file->getHeader()),
+            ColumnsHelper::getColumnsString($header),
             $destination->getQuotedTableWithScheme(),
         );
         $source = new Storage\Snowflake\SelectSource($query);
@@ -68,7 +71,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -99,7 +102,9 @@ class ExportTest extends SnowflakeBaseTestCase
         $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             self::TABLE_OUT_CSV_2COLS,
@@ -119,7 +124,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -140,28 +145,30 @@ class ExportTest extends SnowflakeBaseTestCase
         $this->assertSame($expected, $files);
     }
 
-    public function exportSimpleDataProvider(): Generator
+    public static function exportSimpleDataProvider(): Generator
     {
         yield 'no fractional seconds' => [
             'features' => [],
-            'expectedFile' => 'with-ts.csv',
+            'expectationFile' => 'with-ts.csv',
         ];
         yield 'with fractional seconds' => [
             'features' => ['snowflake-export-fractional-seconds'],
-            'expectedFile' => 'with-ts.expected.snflk.fractional.csv',
+            'expectationFile' => 'with-ts.expected.snflk.fractional.csv',
         ];
     }
 
     /**
      * @param string[] $features
-     * @dataProvider exportSimpleDataProvider
      */
+    #[DataProvider('exportSimpleDataProvider')]
     public function testExportSimple(array $features, string $expectationFile): void
     {
         $this->initTable(self::TABLE_OUT_CSV_2COLS);
         // import
         $file = new CsvFile(self::DATA_DIR . 'with-ts.csv');
-        $source = $this->getSourceInstance('with-ts.csv', $file->getHeader());
+        /** @var string[] $header */
+        $header = $file->getHeader();
+        $source = $this->getSourceInstance('with-ts.csv', $header);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             self::TABLE_OUT_CSV_2COLS,
@@ -184,7 +191,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -225,7 +232,9 @@ class ExportTest extends SnowflakeBaseTestCase
         $this->initTable(self::TABLE_ACCOUNTS_3);
         // import
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
-        $source = $this->getSourceInstance('tw_accounts.csv', $file->getHeader());
+        /** @var string[] $accountHeader */
+        $accountHeader = $file->getHeader();
+        $source = $this->getSourceInstance('tw_accounts.csv', $accountHeader);
         $destination = new Storage\Snowflake\Table(
             $this->getDestinationSchemaName(),
             self::TABLE_ACCOUNTS_3,
@@ -237,7 +246,7 @@ class ExportTest extends SnowflakeBaseTestCase
         // query needed otherwise timestamp is downloaded
         $query = sprintf(
             'SELECT %s FROM %s',
-            ColumnsHelper::getColumnsString($file->getHeader()),
+            ColumnsHelper::getColumnsString($accountHeader),
             $destination->getQuotedTableWithScheme(),
         );
         $source = new Storage\Snowflake\SelectSource($query);
@@ -251,7 +260,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -290,7 +299,7 @@ class ExportTest extends SnowflakeBaseTestCase
             )',
             $schema,
             $table,
-        ));
+        ),);
 
         // Insert with explicit UTC timezone for deterministic values
         $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
@@ -300,7 +309,7 @@ class ExportTest extends SnowflakeBaseTestCase
             (\'2\', \'2024-07-15 12:00:00\')',
             $schema,
             $table,
-        ));
+        ),);
         $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
 
         $source = new Storage\Snowflake\Table(
@@ -350,14 +359,16 @@ class ExportTest extends SnowflakeBaseTestCase
             )',
             $schema,
             $table,
-        ));
+        ),);
 
         $this->connection->executeStatement("ALTER SESSION SET TIMEZONE = 'UTC'");
-        $this->connection->executeQuery(sprintf(
-            'INSERT INTO %s.%s ("id", "ts") VALUES (\'1\', \'2024-01-15 12:00:00\')',
-            $schema,
-            $table,
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'INSERT INTO %s.%s ("id", "ts") VALUES (\'1\', \'2024-01-15 12:00:00\')',
+                $schema,
+                $table,
+            ),
+        );
         $this->connection->executeStatement('ALTER SESSION UNSET TIMEZONE');
 
         $timezoneBefore = $this->getCurrentSessionTimezone();

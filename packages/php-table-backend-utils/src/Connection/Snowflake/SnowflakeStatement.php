@@ -17,21 +17,15 @@ use Throwable;
 
 class SnowflakeStatement implements Statement
 {
-    /**
-     * @var resource
-     */
+    /** @var resource */
     private $dbh;
 
     private RetryProxy $retry;
 
-    /**
-     * @var resource
-     */
+    /** @var resource */
     private $stmt;
 
-    /**
-     * @var array<mixed>
-     */
+    /** @var array<mixed> */
     private array $params = [];
 
     private string $query;
@@ -105,7 +99,7 @@ class SnowflakeStatement implements Statement
      */
     public function execute($params = null): Result
     {
-        if (!empty($params) && is_array($params)) {
+        if (!empty($params) && is_array($params)) { // @phpstan-ignore function.alreadyNarrowedType
             foreach ($params as $pos => $value) {
                 if (is_int($pos)) {
                     $pos += 1;
@@ -115,13 +109,19 @@ class SnowflakeStatement implements Statement
         }
 
         try {
-            $this->retry->call(function () {
-                odbc_execute(
+            $this->retry->call(function (): void {
+                $result = odbc_execute(
                     $this->stmt,
                     $this->repairBinding($this->params),
                 );
+                if ($result === false) {
+                    throw DriverException::newFromHandle($this->dbh);
+                }
             });
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            if ($e instanceof DriverException) {
+                throw $e;
+            }
             throw DriverException::newFromHandle($this->dbh);
         }
 

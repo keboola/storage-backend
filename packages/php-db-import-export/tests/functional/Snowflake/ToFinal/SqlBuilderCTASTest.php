@@ -74,7 +74,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
                         ],
                     ),
                 ),
-            ]),
+                ],),
             [
                 'pk1',
                 'pk2',
@@ -84,11 +84,13 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement($qb->getCreateTableCommandFromDefinition($def));
 
-        $this->connection->executeStatement(sprintf(
-            'INSERT INTO %s.%s VALUES (\'1\', \'1\'), (\'1\', \'2\'), (\'2\', \'1\'), (\'2\', \'2\')',
-            SnowflakeQuote::quoteSingleIdentifier($def->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($def->getTableName()),
-        ));
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.%s VALUES (\'1\', \'1\'), (\'1\', \'2\'), (\'2\', \'1\'), (\'2\', \'2\')',
+                SnowflakeQuote::quoteSingleIdentifier($def->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($def->getTableName()),
+            ),
+        );
 
         return $def;
     }
@@ -120,7 +122,7 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
                         ],
                     ),
                 ),
-            ]),
+                ],),
             [
                 'pk1',
                 'pk2',
@@ -177,13 +179,16 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $this->connection->executeStatement($sql);
 
         // Verify the data was copied and the timestamp column was added
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.%s',
-            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($destinationDef->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
+            ),
+        );
 
-        self::assertSame([
+        self::assertSame(
+            [
             [
                 'col1' => '1',
                 'col2' => '1',
@@ -204,7 +209,9 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
                 'col2' => '2',
                 '_timestamp' => '2023-10-01 12:00:00',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     public function testGetCTASInsertAllIntoTargetTableCommandWithConvertEmptyValuesToNull(): void
@@ -214,11 +221,13 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $destinationDef = $this->createTestTableWithColumns();
 
         // Insert a row with empty values
-        $this->connection->executeStatement(sprintf(
-            'INSERT INTO %s.%s VALUES (\'\', \'\')',
-            SnowflakeQuote::quoteSingleIdentifier($stagingDef->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($stagingDef->getTableName()),
-        ));
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO %s.%s VALUES (\'\', \'\')',
+                SnowflakeQuote::quoteSingleIdentifier($stagingDef->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($stagingDef->getTableName()),
+            ),
+        );
 
         // Test with convertEmptyValuesToNull option
         $sql = $this->getBuilder()->getCTASInsertAllIntoTargetTableCommand(
@@ -232,13 +241,16 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
         $this->connection->executeStatement($sql);
 
         // Verify the empty values were converted to NULL
-        $result = $this->connection->fetchAllAssociative(sprintf(
-            'SELECT * FROM %s.%s',
-            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
-        ));
+        $result = $this->connection->fetchAllAssociative(
+            sprintf(
+                'SELECT * FROM %s.%s',
+                SnowflakeQuote::quoteSingleIdentifier($destinationDef->getSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier($destinationDef->getTableName()),
+            ),
+        );
 
-        self::assertSame([
+        self::assertSame(
+            [
             [
                 'col1' => '1',
                 'col2' => '1',
@@ -264,7 +276,9 @@ class SqlBuilderCTASTest extends SnowflakeBaseTestCase
                 'col2' => '',
                 '_timestamp' => '2023-10-01 12:00:00',
             ],
-        ], $result);
-        self::assertCount(5, $result);
+            ],
+            $result,
+        );
+        self::assertCount(5, $result); // @phpstan-ignore staticMethod.alreadyNarrowedType
     }
 }

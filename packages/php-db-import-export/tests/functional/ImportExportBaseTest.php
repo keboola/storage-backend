@@ -32,12 +32,12 @@ abstract class ImportExportBaseTest extends TestCase
     protected const DATA_DIR = __DIR__ . '/../data/';
     use StorageTrait;
 
-    protected function getDestinationSchema(): string
+    protected static function getDestinationSchema(): string
     {
         return 'destination';
     }
 
-    protected function getSourceSchema(): string
+    protected static function getSourceSchema(): string
     {
         return 'source';
     }
@@ -92,7 +92,9 @@ abstract class ImportExportBaseTest extends TestCase
         $sortKey,
         string $message = '',
     ): void {
-        $comparsion = function ($attrLeft, $attrRight) use ($sortKey) {
+        $comparsion = function (mixed $attrLeft, mixed $attrRight) use ($sortKey) {
+            assert(is_array($attrLeft));
+            assert(is_array($attrRight));
             if ($attrLeft[$sortKey] === $attrRight[$sortKey]) {
                 return 0;
             }
@@ -133,7 +135,7 @@ abstract class ImportExportBaseTest extends TestCase
         );
     }
 
-    protected function getSimpleImportOptions(
+    protected static function getSimpleImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): ImportOptions {
         return new ImportOptions(
@@ -144,7 +146,7 @@ abstract class ImportExportBaseTest extends TestCase
         );
     }
 
-    protected function getSimpleIncrementalImportOptions(
+    protected static function getSimpleIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): ImportOptions {
         return new ImportOptions(
@@ -168,17 +170,20 @@ abstract class ImportExportBaseTest extends TestCase
         $expectedRows = [];
         $expectationFile = new CsvFile(self::DATA_DIR . $filePathInDataDir);
         foreach ($expectationFile as $row) {
+            assert(is_array($row));
             if ($convertNullsString === self::EXPECTATION_FILE_DATA_CONVERT_NULLS) {
-                $row = array_map(static function ($item) {
-                    return $item === 'null' ? null : $item; // convert 'null' string to null to compare
-                }, $row);
+                $row = array_map(
+                    static function ($item) {
+                        return $item === 'null' ? null : $item; // convert 'null' string to null to compare
+                    },
+                    $row,
+                );
             }
             $expectedRows[] = $row;
         }
         /** @var string[] $expectedColumns */
         $expectedColumns = array_shift($expectedRows);
-        /** @var array<string,mixed> $expectedRows */
-        $expectedRows = array_values($expectedRows);
+        $expectedRows = array_values($expectedRows); // @phpstan-ignore arrayValues.list
 
         return [
             $expectedColumns,
@@ -194,7 +199,7 @@ abstract class ImportExportBaseTest extends TestCase
         return new Configuration();
     }
 
-    protected function getParseCsvStub(string $filePathInDataDir): CsvStub
+    protected static function getParseCsvStub(string $filePathInDataDir): CsvStub
     {
         $file = new CsvFile(self::DATA_DIR . $filePathInDataDir);
         $rows = [];
@@ -204,7 +209,6 @@ abstract class ImportExportBaseTest extends TestCase
 
         /** @var string[] $columns */
         $columns = array_shift($rows);
-        $rows = array_values($rows);
 
         return new CsvStub(
             $columns,

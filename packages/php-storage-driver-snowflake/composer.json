@@ -10,17 +10,17 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "keboola/db-import-export": "^4.1",
         "keboola/key-generator": "^1.0",
         "keboola/storage-driver-common": ">=v7.11",
         "keboola/table-backend-utils": ">=3"
     },
     "require-dev": {
-        "keboola/coding-standard": "^15",
-        "phpstan/phpstan": "^1.4",
-        "phpstan/phpstan-phpunit": "^1",
-        "phpunit/phpunit": "^9"
+        "keboola/coding-standard": "^16",
+        "phpstan/phpstan": "^2",
+        "phpstan/phpstan-phpunit": "^2",
+        "phpunit/phpunit": "^12"
     },
     "autoload": {
         "psr-4": {
