@@ -99,7 +99,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
             static::getBigqueryIncrementalImportOptions(),
             [static::getDestinationDbName(), 'accounts-3'],
             $accountsStub->getRows(),
-            4,
+            3, // 4 rows in CSV but id=18 is duplicated, so 3 unique PKs
             self::TABLE_ACCOUNTS_3,
             ['id'],
         ];
@@ -132,7 +132,7 @@ class IncrementalImportTest extends BigqueryBaseTestCase
             ),
             [static::getDestinationDbName(), self::TABLE_ACCOUNTS_WITHOUT_TS],
             $accountsStub->getRows(),
-            4,
+            3, // 4 rows in CSV but id=18 is duplicated, so 3 unique PKs
             self::TABLE_ACCOUNTS_WITHOUT_TS,
             ['id'],
         ];

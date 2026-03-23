@@ -15,6 +15,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeImportOptions;
 use Keboola\Db\ImportExport\Backend\Snowflake\ToStage\StageTableDefinitionFactory;
 use Keboola\Db\ImportExport\Backend\ToFinalTableImporterInterface;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
+use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
@@ -92,6 +93,27 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                 $state->startTimer(self::TIMER_DEDUP_TABLE_CREATE);
                 $this->connection->executeStatement($sql);
                 $state->stopTimer(self::TIMER_DEDUP_TABLE_CREATE);
+
+                // Count unique rows in staging (by PK) before any modifications.
+                // This is the number of rows actually being imported (updates + inserts).
+                $pkColumns = $destinationTableDefinition->getPrimaryKeysNames();
+                $pkSql = implode(', ', array_map(
+                    static fn(string $col) => SnowflakeQuote::quoteSingleIdentifier($col),
+                    $pkColumns,
+                ));
+                $stagingRef = sprintf(
+                    '%s.%s',
+                    SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
+                    SnowflakeQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
+                );
+                /** @var string $uniqueCount */
+                $uniqueCount = $this->connection->fetchOne(sprintf(
+                    'SELECT COUNT(*) FROM (SELECT %s FROM %s GROUP BY %s)',
+                    $pkSql,
+                    $stagingRef,
+                    $pkSql,
+                ));
+                $state->setImportedRowsCount((int) $uniqueCount);
 
                 // 1. Run UPDATE command to update rows in final table with updated data based on PKs
                 $state->startTimer(self::TIMER_UPDATE_TARGET_TABLE);

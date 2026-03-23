@@ -260,7 +260,7 @@ SELECT 2,
             static::getSnowflakeIncrementalImportOptions(),
             [static::getDestinationSchemaName(), 'accounts_3'],
             $accountsStub->getRows(),
-            4,
+            3, // 4 rows in CSV but id=18 is duplicated, so 3 unique PKs
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'simple no timestamp' => [
@@ -294,7 +294,7 @@ SELECT 2,
             ),
             [static::getDestinationSchemaName(), 'accounts_without_ts'],
             $accountsStub->getRows(),
-            4,
+            3, // 4 rows in CSV but id=18 is duplicated, so 3 unique PKs
             self::TABLE_ACCOUNTS_WITHOUT_TS,
         ];
         yield 'multi pk' => [
@@ -345,7 +345,7 @@ SELECT 2,
             static::getSnowflakeIncrementalImportOptions(),
             [static::getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
             $multiPKWithNullStub->getRows(),
-            4,
+            3, // 4 rows in CSV but (200,,"ukulele") is duplicated, so 3 unique PKs
             self::TABLE_MULTI_PK_WITH_TS,
         ];
     }
