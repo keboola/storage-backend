@@ -1,4 +1,20 @@
 parameters:
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        -
+            identifier: argument.type
+            paths:
+                - src/Connection/Snowflake/*
+                - src/Connection/Exception/*
+            reportUnmatched: false
+        -
+            identifier: assign.propertyType
+            path: src/Connection/Snowflake/*
+            reportUnmatched: false
+        -
+            identifier: method.childParameterType
+            path: src/Connection/Snowflake/*
+            reportUnmatched: false
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - phpstan-baseline.neon

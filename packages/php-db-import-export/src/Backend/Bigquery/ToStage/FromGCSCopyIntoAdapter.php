@@ -82,8 +82,10 @@ class FromGCSCopyIntoAdapter implements CopyAdapterInterface
 
         $job = $this->bqClient->runJob($loadConfig);
         // check if the job has errors
-        if (isset($job->info()['status']['errorResult'])) {
-            throw BigqueryException::createExceptionFromJobResult($job->info());
+        /** @var array{status: array{errorResult?: array{message: string}, errors?: array<int, array{message: string, reason: string}>}, jobReference: array{jobId: string}} $jobInfo */
+        $jobInfo = $job->info();
+        if (isset($jobInfo['status']['errorResult'])) {
+            throw BigqueryException::createExceptionFromJobResult($jobInfo);
         }
 
         $ref = new BigqueryTableReflection(

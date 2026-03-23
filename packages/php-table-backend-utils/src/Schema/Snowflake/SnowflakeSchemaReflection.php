@@ -203,6 +203,7 @@ SQL,
             $column['null?'] = ($column['null?'] === 'YES' ? 'Y' : 'N');
 
             if (in_array($column['type'], self::TYPE_NEED_FALLBACK, true)) {
+                assert(is_string($column['TABLE_NAME']) && is_string($column['name']));
                 $tables[$tableKey]['COLUMNS'][] = $this->fallbackColumnType($column['TABLE_NAME'], $column['name']);
             } else {
                 $tables[$tableKey]['COLUMNS'][] = SnowflakeColumn::createFromDB($column);
@@ -224,7 +225,7 @@ SQL,
 
         $definitions = [];
         foreach ($tables as $table) {
-            if (!array_key_exists('PROPS', $table)) {
+            if (!array_key_exists('PROPS', $table)) { // @phpstan-ignore function.alreadyNarrowedType
                 throw new ReflectionException(sprintf('Malformed table definition: %s', json_encode($table)));
             }
             $tableName = $table['PROPS']['TABLE_NAME'];

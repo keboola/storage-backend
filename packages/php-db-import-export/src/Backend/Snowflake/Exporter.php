@@ -53,6 +53,7 @@ class Exporter implements ExporterInterface
     ): SnowflakeExportAdapterInterface {
         $adapterForUse = null;
         foreach ($this->adapters as $adapter) {
+            /** @var class-string $adapter */
             $ref = new ReflectionClass($adapter);
             if (!$ref->implementsInterface(SnowflakeExportAdapterInterface::class)) {
                 throw new Exception(
@@ -73,7 +74,9 @@ class Exporter implements ExporterInterface
                         ),
                     );
                 }
-                $adapterForUse = new $adapter($this->connection);
+                /** @var SnowflakeExportAdapterInterface $adapterInstance */
+                $adapterInstance = new $adapter($this->connection);
+                $adapterForUse = $adapterInstance;
             }
         }
         if ($adapterForUse === null) {

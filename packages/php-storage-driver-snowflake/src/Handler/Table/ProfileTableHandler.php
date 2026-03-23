@@ -32,14 +32,17 @@ final class ProfileTableHandler extends BaseHandler
      * @inheritDoc
      * @param GenericBackendCredentials $credentials
      * @param CreateProfileTableCommand $command
+     * @return CreateProfileTableResponse
      */
     public function __invoke(
         Message $credentials,
         Message $command,
         array $features,
         Message $runtimeOptions,
-    ): Message|null {
+    ): Message {
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($credentials instanceof GenericBackendCredentials);
+        /** @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue */
         assert($command instanceof CreateProfileTableCommand);
 
         // Validate

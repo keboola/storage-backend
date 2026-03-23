@@ -48,8 +48,6 @@ class GenericStorageDatatypeTest extends TestCase
         $datatypeMetadata = $datatype->toMetadata();
 
         foreach ($datatypeMetadata as $md) {
-            $this->assertArrayHasKey('key', $md);
-            $this->assertArrayHasKey('value', $md);
             if ($md['key'] === Common::KBC_METADATA_KEY_FORMAT) {
                 $this->assertEquals('Y-m-d', $md['value']);
             }

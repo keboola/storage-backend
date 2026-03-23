@@ -52,14 +52,13 @@ OPTIONS (
     ,overwrite = true
     ,header = false
     ,field_delimiter = \'%s\'
-    %s
-) AS (
+%s) AS (
     %s
 );',
                 $destination->getRelativePath()->getPathname(),
                 $exportOptions->isCompressed() ? '.gz' : '', // add file suffix if gzip
                 CsvOptions::DEFAULT_DELIMITER,
-                $exportOptions->isCompressed() ? ',compression=\'GZIP\'' : '',
+                $exportOptions->isCompressed() ? "    ,compression='GZIP'\n" : "    \n",
                 $source->getFromStatement(),
             ),
             ExportFileType::PARQUET => sprintf(
@@ -68,12 +67,11 @@ OPTIONS (
     uri = \'gs://%s*.parquet\'
     ,format = \'PARQUET\'
     ,overwrite = true
-    %s
-) AS (
+%s) AS (
     %s
 );',
                 $destination->getRelativePath()->getPathname(),
-                $exportOptions->isCompressed() ? ',compression=\'SNAPPY\'' : '',
+                $exportOptions->isCompressed() ? "    ,compression='SNAPPY'\n" : "    \n",
                 $source->getFromStatement(),
             ),
         };

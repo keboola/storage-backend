@@ -77,6 +77,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     /**
      * @dataProvider invalidLengths
      * @param string|int|null $length
+     * @param ?array<string, mixed> $extraOption
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
@@ -299,6 +300,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
 
     /**
      * @dataProvider expectedSqlDefinitions
+     * @param ?array<string, mixed> $options
      */
     public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void
     {

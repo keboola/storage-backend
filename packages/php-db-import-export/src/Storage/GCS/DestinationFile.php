@@ -28,7 +28,8 @@ class DestinationFile extends BaseFile implements DestinationFileInterface
      */
     private array $credentials;
 
-    /** @param array{
+    /**
+     * @param array{
      * type: string,
      * project_id: string,
      * private_key_id: string,

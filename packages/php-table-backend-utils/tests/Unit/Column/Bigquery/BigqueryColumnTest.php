@@ -10,7 +10,7 @@ use Keboola\TableBackendUtils\Column\Bigquery\Parser\SQLtoRestDatatypeConverter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers BigqueryColumn
+ * @covers \Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn
  */
 class BigqueryColumnTest extends TestCase
 {

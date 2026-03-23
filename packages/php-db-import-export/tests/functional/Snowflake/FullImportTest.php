@@ -23,7 +23,6 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $expectedEscaping[] = $row;
         }
         $escapingHeader = array_shift($expectedEscaping); // remove header
-        $expectedEscaping = array_values($expectedEscaping);
 
         $expectedAccounts = [];
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.csv');
@@ -31,7 +30,6 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $expectedAccounts[] = $row;
         }
         $accountsHeader = array_shift($expectedAccounts); // remove header
-        $expectedAccounts = array_values($expectedAccounts);
 
         $file = new CsvFile(self::DATA_DIR . 'tw_accounts.changedColumnsOrder.csv');
         $accountChangedColumnsOrderHeader = $file->getHeader();
@@ -42,7 +40,6 @@ class FullImportTest extends SnowflakeImportExportBaseTest
             $expectedLemma[] = $row;
         }
         $lemmaHeader = array_shift($expectedLemma);
-        $expectedLemma = array_values($expectedLemma);
 
         // large sliced manifest
         $expectedLargeSlicedManifest = [];

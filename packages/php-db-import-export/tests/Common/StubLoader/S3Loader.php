@@ -46,10 +46,11 @@ class S3Loader extends BaseStubLoader
         ]);
         $objects = $result->get('Contents');
         if ($objects) {
+            /** @var array<array{Key: string}> $objects */
             $this->client->deleteObjects([
                 'Bucket' => $this->bucket,
                 'Delete' => [
-                    'Objects' => array_map(static function ($object) {
+                    'Objects' => array_map(static function (array $object) {
                         return [
                             'Key' => $object['Key'],
                         ];

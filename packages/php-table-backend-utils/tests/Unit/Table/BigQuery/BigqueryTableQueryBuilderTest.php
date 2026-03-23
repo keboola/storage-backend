@@ -20,6 +20,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
 
     public function setUp(): void
     {
+        parent::setUp();
         $this->qb = new BigqueryTableQueryBuilder();
     }
 

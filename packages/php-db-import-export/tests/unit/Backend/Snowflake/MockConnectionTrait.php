@@ -18,7 +18,7 @@ trait MockConnectionTrait
         /** @var Connection|MockObject $mock */
         $mock = $this->createMock(Connection::class);
 
-        $mock->expects(self::any())->method('quoteIdentifier')->willReturnCallback(static function ($input) {
+        $mock->expects(self::any())->method('quoteIdentifier')->willReturnCallback(static function (string $input) {
             return QuoteHelper::quoteIdentifier($input);
         });
 

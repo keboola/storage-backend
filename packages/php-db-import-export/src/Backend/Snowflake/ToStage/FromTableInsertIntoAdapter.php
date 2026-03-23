@@ -42,9 +42,12 @@ class FromTableInsertIntoAdapter implements CopyAdapterInterface
         assert($destination instanceof SnowflakeTableDefinition);
         assert($importOptions instanceof SnowflakeImportOptions);
 
-        $quotedColumns = array_map(static function ($column) {
-            return SnowflakeQuote::quoteSingleIdentifier($column);
-        }, $source->getColumnsNames());
+        $quotedColumns = array_map(
+            static function ($column) {
+                return SnowflakeQuote::quoteSingleIdentifier($column);
+            },
+            $source->getColumnsNames(),
+        );
 
         $sql = sprintf(
             'INSERT INTO %s.%s (%s) %s',

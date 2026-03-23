@@ -118,7 +118,6 @@ class RedshiftDatatypeTest extends TestCase
         $md = $datatype->toMetadata();
         $hasCompression = false;
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
             if ($mdat['key'] === Common::KBC_METADATA_KEY_COMPRESSION) {
                 $this->assertEquals('ZSTD', $mdat['value']);
                 $hasCompression = true;
@@ -131,7 +130,6 @@ class RedshiftDatatypeTest extends TestCase
         $datatype = new Redshift('VARCHAR');
         $md = $datatype->toMetadata();
         foreach ($md as $mdat) {
-            $this->assertArrayHasKey('key', $mdat);
             if ($mdat['key'] === 'KBC.datatyp.compression') {
                 $this->fail('Redshift datatype should not produce compression metadata if compression is not set');
             }

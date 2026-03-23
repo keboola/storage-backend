@@ -41,7 +41,7 @@ class OracleDatatypeTest extends BaseDatatypeTestCase
 
     public function testGetSQLDefinition(): void
     {
-        $datatype = new Oracle(Oracle::TYPE_VARCHAR2, ['length' => 100, 'nullable' => false, 'default' => 'test']);
+        $datatype = new Oracle(Oracle::TYPE_VARCHAR2, ['length' => '100', 'nullable' => false, 'default' => 'test']);
         $this->assertEquals('VARCHAR2(100) NOT NULL DEFAULT test', $datatype->getSQLDefinition());
     }
 

@@ -17,43 +17,51 @@ class ColumnsMismatchException extends ImportExportException
         array $sourcePrimaryKeys,
         array $destinationPrimaryKeys,
     ): ColumnsMismatchException {
-        return new self(sprintf(
-            'Primary keys do not match between source and destination tables. Source: "%s", Destination: "%s"',
-            implode(',', $sourcePrimaryKeys),
-            implode(',', $destinationPrimaryKeys),
-        ));
+        return new self(
+            sprintf(
+                'Primary keys do not match between source and destination tables. Source: "%s", Destination: "%s"',
+                implode(',', $sourcePrimaryKeys),
+                implode(',', $destinationPrimaryKeys),
+            ),
+        );
     }
     public static function createColumnsNamesMismatch(
         ColumnInterface $sourceDef,
         ColumnInterface $destDef,
     ): ColumnsMismatchException {
-        return new self(sprintf(
-            'Source destination columns name mismatch. "%s"->"%s"',
-            $sourceDef->getColumnName(),
-            $destDef->getColumnName(),
-        ));
+        return new self(
+            sprintf(
+                'Source destination columns name mismatch. "%s"->"%s"',
+                $sourceDef->getColumnName(),
+                $destDef->getColumnName(),
+            ),
+        );
     }
 
     public static function createColumnsMismatch(
         ColumnInterface $sourceDef,
         ColumnInterface $destDef,
     ): ColumnsMismatchException {
-        return new self(sprintf(
-            'Source destination columns mismatch. "%s %s"->"%s %s"',
-            $sourceDef->getColumnName(),
-            $sourceDef->getColumnDefinition()->getSQLDefinition(),
-            $destDef->getColumnName(),
-            $destDef->getColumnDefinition()->getSQLDefinition(),
-        ));
+        return new self(
+            sprintf(
+                'Source destination columns mismatch. "%s %s"->"%s %s"',
+                $sourceDef->getColumnName(),
+                $sourceDef->getColumnDefinition()->getSQLDefinition(),
+                $destDef->getColumnName(),
+                $destDef->getColumnDefinition()->getSQLDefinition(),
+            ),
+        );
     }
 
     public static function createColumnByNameMissing(
         ColumnInterface $sourceDef,
     ): ColumnsMismatchException {
-        return new self(sprintf(
-            'Source column "%s" not found in destination table',
-            $sourceDef->getColumnName(),
-        ));
+        return new self(
+            sprintf(
+                'Source column "%s" not found in destination table',
+                $sourceDef->getColumnName(),
+            ),
+        );
     }
 
     public static function createColumnsCountMismatch(

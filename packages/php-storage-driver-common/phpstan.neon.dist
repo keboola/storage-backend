@@ -1,3 +1,8 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - phpstan-baseline.neon
+
 parameters:
     level: max
     paths:
@@ -8,7 +13,3 @@ parameters:
         analyseAndScan:
             - tests/generated/*
     ignoreErrors:
-
-includes:
-    - vendor/phpstan/phpstan-phpunit/extension.neon
-    - vendor/phpstan/phpstan-symfony/extension.neon

@@ -29,9 +29,7 @@ final class SourceDestinationColumnMap
      */
     public const MODE_MAP_BY_NAME = 'name';
 
-    /**
-     * @var WeakMap<ColumnInterface,ColumnInterface>
-     */
+    /** @var WeakMap<ColumnInterface,ColumnInterface> */
     private WeakMap $map;
 
     /**
@@ -127,7 +125,6 @@ final class SourceDestinationColumnMap
             // this can happen only when class is used with different source and destination tables instances
             throw new Exception(sprintf('Column "%s" not found in destination table', $source->getColumnName()));
         }
-        assert($destination !== null);
         return $destination;
     }
 

@@ -18,7 +18,7 @@ use Keboola\TableBackendUtils\TableNotExistsReflectionException;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 /**
- * @covers SnowflakeTableReflection
+ * @covers \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection
  * @uses   ColumnCollection
  */
 class SnowflakeTableReflectionTest extends SnowflakeBaseCase

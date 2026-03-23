@@ -92,7 +92,9 @@ abstract class ImportExportBaseTest extends TestCase
         $sortKey,
         string $message = '',
     ): void {
-        $comparsion = function ($attrLeft, $attrRight) use ($sortKey) {
+        $comparsion = function ($attrLeft, $attrRight) use ($sortKey): int {
+            /** @var array<int|string, mixed> $attrLeft */
+            /** @var array<int|string, mixed> $attrRight */
             if ($attrLeft[$sortKey] === $attrRight[$sortKey]) {
                 return 0;
             }
@@ -159,7 +161,7 @@ abstract class ImportExportBaseTest extends TestCase
     public const EXPECTATION_FILE_DATA_KEEP_AS_IS = false;
     /**
      * @param self::EXPECTATION_FILE_DATA_* $convertNullsString
-     * @return array{0:string[], 1:array<string,mixed>}
+     * @return array{0:string[], 1:list<mixed>}
      */
     protected function getExpectationFileData(
         string $filePathInDataDir,
@@ -177,8 +179,8 @@ abstract class ImportExportBaseTest extends TestCase
         }
         /** @var string[] $expectedColumns */
         $expectedColumns = array_shift($expectedRows);
-        /** @var array<string,mixed> $expectedRows */
-        $expectedRows = array_values($expectedRows);
+        /** @var list<mixed> $expectedRows */
+        $expectedRows = $expectedRows;
 
         return [
             $expectedColumns,
@@ -204,7 +206,6 @@ abstract class ImportExportBaseTest extends TestCase
 
         /** @var string[] $columns */
         $columns = array_shift($rows);
-        $rows = array_values($rows);
 
         return new CsvStub(
             $columns,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\Db\ImportExport\Storage\ABS;
 
 use Exception as InternalException;
+use JsonException;
 use Keboola\CsvOptions\CsvOptions;
 use Keboola\Db\Import\Exception;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
@@ -19,7 +20,6 @@ use Keboola\FileStorage\Path\RelativePath;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
-use function GuzzleHttp\json_decode;
 
 class SourceFile extends BaseFile implements SourceInterface
 {
@@ -64,17 +64,29 @@ class SourceFile extends BaseFile implements SourceInterface
     }
 
     /**
-     * @return mixed
+     * @return array{entries: array<int, array{url: string}>}
      * @throws Exception
      */
-    private function downloadAndParseManifest(BlobRestProxy $blobClient)
+    private function downloadAndParseManifest(BlobRestProxy $blobClient): array
     {
         try {
             $manifestBlob = $blobClient->getBlob($this->container, $this->filePath);
         } catch (ServiceException $e) {
             throw new ManifestNotFoundException($e);
         }
-        return json_decode(stream_get_contents($manifestBlob->getContentStream()), true);
+        $content = stream_get_contents($manifestBlob->getContentStream());
+        assert(is_string($content));
+        try {
+            /** @var array{entries: array<int, array{url: string}>} $manifest */
+            $manifest = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception(
+                'Failed to decode manifest JSON: ' . $e->getMessage(),
+                Exception::MANDATORY_FILE_NOT_FOUND,
+                $e,
+            );
+        }
+        return $manifest;
     }
 
     /**
@@ -110,7 +122,8 @@ class SourceFile extends BaseFile implements SourceInterface
         }
 
         $manifest = $this->downloadAndParseManifest($blobClient);
-        $entries = array_map(function (array $entry) {
+        /** @var string[] $entries */
+        $entries = array_map(function (array $entry): string {
             return $entry['url'];
         }, $manifest['entries']);
 

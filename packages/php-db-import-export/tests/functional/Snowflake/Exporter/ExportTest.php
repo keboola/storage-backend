@@ -68,7 +68,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -119,7 +119,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -184,7 +184,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);
@@ -251,7 +251,7 @@ class ExportTest extends SnowflakeBaseTestCase
         );
 
         $this->assertCount(1, $result);
-        /** @var array<mixed> $slice */
+        /** @var array{FILE_NAME: string, FILE_SIZE: string, ROW_COUNT: string} $slice */
         $slice = reset($result);
 
         $this->assertArrayHasKey('FILE_NAME', $slice);

@@ -69,13 +69,17 @@ class SelectSource implements SourceInterface, SqlSourceInterface
         return $this->query;
     }
 
-    /** @return string[]|null */
+    /**
+     * @return string[]|null
+     */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
     }
 
-    /** @return array<mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     public function getQueryBindings(): array
     {
         return $this->queryBindings;

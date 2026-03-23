@@ -46,7 +46,7 @@ abstract class BaseFile
             ],
             'region' => $this->region,
             'version' => '2006-03-01',
-        ]);
+            ],);
     }
 
     public function getKey(): string

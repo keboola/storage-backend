@@ -15,7 +15,6 @@ use Keboola\Db\Import\Exception as LegacyException;
  * Redshift - 12xx
  *
  * Common exceptions have code <1000 (Keboola\Db\Import\Exception)
- *
  */
 class ImportExportException extends LegacyException
 {

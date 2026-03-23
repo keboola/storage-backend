@@ -62,7 +62,6 @@ class SqlBuilder
 
     /**
      * SQL to drop table. DOES NOT check existence of table
-     *
      */
     public function getDropTableUnsafe(string $dbName, string $tableName): string
     {
@@ -232,12 +231,18 @@ SQL,
         string $delimiter = ', ',
         ?string $tableAlias = null,
     ): string {
-        return implode($delimiter, array_map(static function ($columns) use (
-            $tableAlias,
-        ) {
-            $alias = $tableAlias === null ? '' : $tableAlias . '.';
-            return $alias . BigqueryQuote::quoteSingleIdentifier($columns);
-        }, $columns));
+        return implode(
+            $delimiter,
+            array_map(
+                static function ($columns) use (
+                    $tableAlias,
+                ) {
+                    $alias = $tableAlias === null ? '' : $tableAlias . '.';
+                    return $alias . BigqueryQuote::quoteSingleIdentifier($columns);
+                },
+                $columns,
+            ),
+        );
     }
 
     public function getDeleteOldItemsCommand(
@@ -302,10 +307,8 @@ SQL,
 
         foreach ($stagingTableDefinition->getColumnsNames() as $columnName) {
             if ($importOptions->usingUserDefinedTypes()
-                || (
-                    $importOptions->timestampMode === TimestampMode::FromSource
-                    && $columnName === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME
-                )
+                || ($importOptions->timestampMode === TimestampMode::FromSource
+                    && $columnName === ToStageImporterInterface::TIMESTAMP_COLUMN_NAME)
             ) {
                 // if table is typed
                 // if timestamp from source and column is _timestamp column
@@ -445,40 +448,45 @@ SQL,
         BigqueryImportOptions $importOptions,
         BigqueryTableDefinition $destinationTableDefinition,
     ): string {
-        $pkWhereSql = array_map(function (string $col) use ($importOptions, $destinationTableDefinition) {
-            if ($importOptions->usingUserDefinedTypes()) {
-                return sprintf(
-                    '`dest`.%s = `src`.%s',
-                    BigqueryQuote::quoteSingleIdentifier($col),
-                    BigqueryQuote::quoteSingleIdentifier($col),
-                );
-            }
-
-            // Check if PK column needs CAST
-            $destColType = null;
-            /** @var BigqueryColumn $colDef */
-            foreach ($destinationTableDefinition->getColumnsDefinitions() as $colDef) {
-                if ($colDef->getColumnName() === $col) {
-                    $destColType = $colDef->getColumnDefinition()->getType();
-                    break;
+        $pkWhereSql = array_map(
+            function (string $col) use ($importOptions, $destinationTableDefinition) {
+                if ($importOptions->usingUserDefinedTypes()) {
+                    return sprintf(
+                        '`dest`.%s = `src`.%s',
+                        BigqueryQuote::quoteSingleIdentifier($col),
+                        BigqueryQuote::quoteSingleIdentifier($col),
+                    );
                 }
-            }
 
-            if ($destColType !== null && strtoupper($destColType) !== 'STRING') {
-                // Cast dest to STRING so comparison works when staging columns are STRING
-                // but destination columns are typed (e.g. INT64 from cross-backend CSV loads)
+                // Check if PK column needs CAST
+                $destColType = null;
+                /**
+            * @var BigqueryColumn $colDef
+            */
+                foreach ($destinationTableDefinition->getColumnsDefinitions() as $colDef) {
+                    if ($colDef->getColumnName() === $col) {
+                        $destColType = $colDef->getColumnDefinition()->getType();
+                        break;
+                    }
+                }
+
+                if ($destColType !== null && strtoupper($destColType) !== 'STRING') {
+                    // Cast dest to STRING so comparison works when staging columns are STRING
+                    // but destination columns are typed (e.g. INT64 from cross-backend CSV loads)
+                    return sprintf(
+                        'CAST(`dest`.%s AS STRING) = COALESCE(`src`.%s, \'\')',
+                        BigqueryQuote::quoteSingleIdentifier($col),
+                        BigqueryQuote::quoteSingleIdentifier($col),
+                    );
+                }
                 return sprintf(
-                    'CAST(`dest`.%s AS STRING) = COALESCE(`src`.%s, \'\')',
+                    '`dest`.%s = COALESCE(`src`.%s, \'\')',
                     BigqueryQuote::quoteSingleIdentifier($col),
                     BigqueryQuote::quoteSingleIdentifier($col),
                 );
-            }
-            return sprintf(
-                '`dest`.%s = COALESCE(`src`.%s, \'\')',
-                BigqueryQuote::quoteSingleIdentifier($col),
-                BigqueryQuote::quoteSingleIdentifier($col),
-            );
-        }, $primaryKeys);
+            },
+            $primaryKeys,
+        );
 
         return implode(' AND ', $pkWhereSql) . ' ';
     }

@@ -43,16 +43,25 @@ class BigqueryTableReflection implements TableReflectionInterface
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function getTableInfo(): array
+    {
+        /** @var array<string, mixed> */
+        return $this->table->info();
+    }
+
     /** @return  string[] */
     public function getColumnsNames(): array
     {
         $this->throwIfNotExists();
 
         $columns = [];
-        /**
-         * @phpstan-var BigqueryTableFieldSchema $row
-         */
-        foreach ($this->table->info()['schema']['fields'] as $row) {
+        $info = $this->getTableInfo();
+        /** @var array{fields: array<BigqueryTableFieldSchema>} $schema */
+        $schema = $info['schema'];
+        foreach ($schema['fields'] as $row) {
             $columns[] = $row['name'];
         }
         return $columns;
@@ -62,10 +71,10 @@ class BigqueryTableReflection implements TableReflectionInterface
     {
         $this->throwIfNotExists();
         $columns = [];
-        /**
-         * @phpstan-var BigqueryTableFieldSchema $row
-         */
-        foreach ($this->table->info()['schema']['fields'] as $row) {
+        $info = $this->getTableInfo();
+        /** @var array{fields: array<BigqueryTableFieldSchema>} $schema */
+        $schema = $info['schema'];
+        foreach ($schema['fields'] as $row) {
             $columns[] = BigqueryColumn::createFromDB($row);
         }
 
@@ -75,27 +84,35 @@ class BigqueryTableReflection implements TableReflectionInterface
     public function getRowsCount(): int
     {
         $this->throwIfNotExists();
-        return (int) $this->table->info()['numRows'];
+        /** @var int|string $numRows */
+        $numRows = $this->getTableInfo()['numRows'];
+        return (int) $numRows;
     }
 
     /** @return  array<string> */
     public function getPrimaryKeysNames(): array
     {
         $this->throwIfNotExists();
-        $info = $this->table->info();
+        $info = $this->getTableInfo();
         if (!array_key_exists('tableConstraints', $info)) {
             return [];
         }
-        if (!array_key_exists('primaryKey', $info['tableConstraints'])) {
+        /** @var array<string, mixed> $tableConstraints */
+        $tableConstraints = $info['tableConstraints'];
+        if (!array_key_exists('primaryKey', $tableConstraints)) {
             return [];
         }
-        return $info['tableConstraints']['primaryKey']['columns'];
+        /** @var array{columns: array<string>} $primaryKey */
+        $primaryKey = $tableConstraints['primaryKey'];
+        return $primaryKey['columns'];
     }
 
     public function getTableStats(): TableStatsInterface
     {
         $this->throwIfNotExists();
-        return new TableStats((int) $this->table->info()['numBytes'], $this->getRowsCount());
+        /** @var int|string $numBytes */
+        $numBytes = $this->getTableInfo()['numBytes'];
+        return new TableStats((int) $numBytes, $this->getRowsCount());
     }
 
     public function isTemporary(): bool
@@ -139,9 +156,10 @@ class BigqueryTableReflection implements TableReflectionInterface
     public function getPartitioningConfiguration(): PartitioningConfig|null
     {
         $this->throwIfNotExists();
-        $info = $this->table->info();
+        $info = $this->getTableInfo();
         $timePartitioning = null;
         if (array_key_exists('timePartitioning', $info)) {
+            /** @var array{type: string, expirationMs?: string|null, field?: string|null} $data */
             $data = $info['timePartitioning'];
             $timePartitioning = new TimePartitioningConfig(
                 $data['type'],
@@ -151,6 +169,7 @@ class BigqueryTableReflection implements TableReflectionInterface
         }
         $rangePartitioning = null;
         if (array_key_exists('rangePartitioning', $info)) {
+            /** @var array{field: string, range: array{start: string, end: string, interval: string}} $data */
             $data = $info['rangePartitioning'];
             $rangePartitioning = new RangePartitioningConfig(
                 $data['field'],
@@ -162,6 +181,7 @@ class BigqueryTableReflection implements TableReflectionInterface
 
         $requirePartitionFilter = false;
         if (array_key_exists('requirePartitionFilter', $info)) {
+            /** @var bool $requirePartitionFilter */
             $requirePartitionFilter = $info['requirePartitionFilter'];
         }
 
@@ -175,11 +195,13 @@ class BigqueryTableReflection implements TableReflectionInterface
     public function getClusteringConfiguration(): ClusteringConfig|null
     {
         $this->throwIfNotExists();
-        $info = $this->table->info();
+        $info = $this->getTableInfo();
         if (!array_key_exists('clustering', $info)) {
             return null;
         }
-        return new ClusteringConfig($info['clustering']['fields']);
+        /** @var array{fields: array<string>} $clustering */
+        $clustering = $info['clustering'];
+        return new ClusteringConfig($clustering['fields']);
     }
 
     /**
@@ -225,6 +247,6 @@ class BigqueryTableReflection implements TableReflectionInterface
 
     public function getTableType(): TableType
     {
-        return ($this->table->info()['type'] === 'EXTERNAL') ? TableType::BIGQUERY_EXTERNAL : TableType::TABLE;
+        return ($this->getTableInfo()['type'] === 'EXTERNAL') ? TableType::BIGQUERY_EXTERNAL : TableType::TABLE;
     }
 }

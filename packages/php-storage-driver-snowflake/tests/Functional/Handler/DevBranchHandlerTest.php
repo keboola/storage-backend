@@ -93,6 +93,7 @@ final class DevBranchHandlerTest extends BaseProjectTestCase
         // test usage grant
         $this->assertCount(1, $grants, var_export($grants, true));
         $grant = reset($grants);
+        $this->assertIsArray($grant);
         $this->assertSame('ROLE', $grant['granted_to']);
         $this->assertSame('ROLE', $grant['granted_on']);
         $this->assertSame('USAGE', $grant['privilege']);

@@ -8,7 +8,7 @@ use Keboola\TableBackendUtils\Table\TableStats;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers TableStats
+ * @covers \Keboola\TableBackendUtils\Table\TableStats
  */
 class TableStatsTest extends TestCase
 {

@@ -674,7 +674,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
 
     /**
      * @return array{
-     *      length?:string|null|array,
+     *      length?:string|null|array<string, mixed>,
      *      nullable?:bool,
      *      default?:string|null
      *  }

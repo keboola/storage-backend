@@ -13,7 +13,7 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers SnowflakeTableQueryBuilder
+ * @covers \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder
  * @uses   ColumnCollection
  */
 class SnowflakeTableQueryBuilderTest extends TestCase

@@ -39,9 +39,12 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
 
     public function getFromStatement(): string
     {
-        $quotedColumns = array_map(static function ($column) {
-            return QuoteHelper::quoteIdentifier($column);
-        }, $this->getColumnsNames());
+        $quotedColumns = array_map(
+            static function ($column) {
+                return QuoteHelper::quoteIdentifier($column);
+            },
+            $this->getColumnsNames(),
+        );
 
         $select = '*';
         if (count($quotedColumns) > 0) {
@@ -74,13 +77,17 @@ class Table implements SourceInterface, DestinationInterface, SqlSourceInterface
         return $this->tableName;
     }
 
-    /** @return string[]|null */
+    /**
+     * @return string[]|null
+     */
     public function getPrimaryKeysNames(): ?array
     {
         return $this->primaryKeysNames;
     }
 
-    /** @return array<mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     public function getQueryBindings(): array
     {
         return [];
