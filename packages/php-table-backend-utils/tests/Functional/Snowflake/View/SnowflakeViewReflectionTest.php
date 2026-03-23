@@ -7,11 +7,10 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\View;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\View\Snowflake\SnowflakeViewReflection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
-/**
- * @covers \Keboola\TableBackendUtils\View\Snowflake\SnowflakeViewReflection
- */
+#[CoversClass(SnowflakeViewReflection::class)]
 class SnowflakeViewReflectionTest extends SnowflakeBaseCase
 {
 

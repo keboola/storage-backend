@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Unit\Column\Snowflake;
 
 use Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Keboola\TableBackendUtils\Column\Snowflake\SnowflakeColumn
- */
+#[CoversClass(SnowflakeColumn::class)]
 class SnowflakeColumnTest extends TestCase
 {
     public function testCreateGenericColumn(): void

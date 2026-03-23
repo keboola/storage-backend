@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Tests\Keboola\TableBackendUtils\Unit\Table;
 
 use Keboola\TableBackendUtils\Table\TableStats;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Keboola\TableBackendUtils\Table\TableStats
- */
+#[CoversClass(TableStats::class)]
 class TableStatsTest extends TestCase
 {
     public function testGetters(): void

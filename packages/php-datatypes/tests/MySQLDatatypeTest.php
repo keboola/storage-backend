@@ -9,15 +9,16 @@ use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\MySQL;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
 class MySQLDatatypeTest extends TestCase
 {
+    #[DoesNotPerformAssertions]
     public function testValid(): void
     {
         new MySQL('VARCHAR', ['length' => '50']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidType(): void
@@ -40,6 +41,7 @@ class MySQLDatatypeTest extends TestCase
         }
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidNumericLengths(): void
     {
         new MySQL('numeric');
@@ -82,7 +84,6 @@ class MySQLDatatypeTest extends TestCase
             ],
             ],
         );
-        $this->expectNotToPerformAssertions();
     }
 
     #[DataProvider('invalidNumericLengths')]
@@ -96,13 +97,13 @@ class MySQLDatatypeTest extends TestCase
         }
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidIntegerLengths(): void
     {
         new MySQL('integer');
         new MySQL('INTEGER');
         new MySQL('INTEGER', ['length' => '']);
         new MySQL('INTEGER', ['length' => '255']);
-        $this->expectNotToPerformAssertions();
     }
 
     #[DataProvider('invalidIntegerLengths')]
@@ -117,6 +118,7 @@ class MySQLDatatypeTest extends TestCase
     }
 
 
+    #[DoesNotPerformAssertions]
     public function testValidFloatLengths(): void
     {
         new MySQL('float');
@@ -124,7 +126,6 @@ class MySQLDatatypeTest extends TestCase
         new MySQL('FLOAT', ['length' => '']);
         new MySQL('FLOAT', ['length' => '255']);
         new MySQL('FLOAT', ['length' => '255,0']);
-        $this->expectNotToPerformAssertions();
     }
 
     #[DataProvider('invalidFloatLengths')]
@@ -139,6 +140,7 @@ class MySQLDatatypeTest extends TestCase
     }
 
 
+    #[DoesNotPerformAssertions]
     public function testValidVariableCharacterLengths(): void
     {
         new MySQL('varchar', ['length' => '1']);
@@ -152,9 +154,9 @@ class MySQLDatatypeTest extends TestCase
             ],
             ],
         );
-        $this->expectNotToPerformAssertions();
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidFixedCharacterLengths(): void
     {
         new MySQL('char');
@@ -162,7 +164,6 @@ class MySQLDatatypeTest extends TestCase
         new MySQL('CHAR', ['length' => '']);
         new MySQL('CHAR', ['length' => '1']);
         new MySQL('CHAR', ['length' => '255']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testVariableCharacterWithoutLength(): void

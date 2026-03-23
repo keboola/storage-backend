@@ -15,13 +15,12 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\Table\TableStats;
 use Keboola\TableBackendUtils\Table\TableType;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
-/**
- * @covers \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection
- */
+#[CoversClass(SnowflakeTableReflection::class)]
 #[UsesClass(ColumnCollection::class)]
 class SnowflakeTableReflectionTest extends SnowflakeBaseCase
 {

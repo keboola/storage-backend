@@ -11,6 +11,7 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use Throwable;
 
 class BigqueryDatatypeTest extends BaseDatatypeTestCase
@@ -367,6 +368,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
      * @throws InvalidTypeException
      */
     //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+    #[DoesNotPerformAssertions]
     #[DataProvider('validLengths')]
     public function testValidLengths(string $type, string|int|null $length): void
     {
@@ -375,7 +377,6 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
             $options['length'] = $length;
         }
         new Bigquery($type, $options);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testFieldAsArray(): void

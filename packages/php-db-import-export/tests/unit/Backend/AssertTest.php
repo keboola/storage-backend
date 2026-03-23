@@ -24,9 +24,9 @@ use Throwable;
 
 class AssertTest extends TestCase
 {
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumns(): void
     {
-        $this->expectNotToPerformAssertions();
         $sourceCols = [
             SnowflakeColumn::createGenericColumn('test'),
             SnowflakeColumn::createGenericColumn('test1'),
@@ -538,6 +538,7 @@ class AssertTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumnsStrictLengthPasses(): void
     {
         $sourceCols = [
@@ -564,7 +565,6 @@ class AssertTest extends TestCase
                 ),
             ),
         ];
-        $this->expectNotToPerformAssertions();
         Assert::assertSameColumnsOrdered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
@@ -609,11 +609,11 @@ class AssertTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testAssertPrimaryKeysPasses(): void
     {
         $tableDef1 = $this->createTableDefinitionWithPrimaryKeys(['id', 'name']);
         $tableDef2 = $this->createTableDefinitionWithPrimaryKeys(['name', 'id']); // order should not matter
-        $this->expectNotToPerformAssertions();
         Assert::assertPrimaryKeys(source: $tableDef1, destination: $tableDef2);
     }
 
@@ -671,6 +671,7 @@ class AssertTest extends TestCase
         };
     }
 
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumnsUnordered(): void
     {
         // identical columns, order doesn't matter
@@ -700,7 +701,6 @@ class AssertTest extends TestCase
             SnowflakeColumn::createGenericColumn('test1'),
             SnowflakeColumn::createGenericColumn('test'),
         ];
-        $this->expectNotToPerformAssertions();
         Assert::assertSameColumnsUnordered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),
@@ -970,6 +970,7 @@ class AssertTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testAssertSameColumnsUnorderedStrictLengthPasses(): void
     {
         $sourceCols = [
@@ -996,7 +997,6 @@ class AssertTest extends TestCase
             ),
             SnowflakeColumn::createGenericColumn('test'),
         ];
-        $this->expectNotToPerformAssertions();
         Assert::assertSameColumnsUnordered(
             source: new ColumnCollection($sourceCols),
             destination: new ColumnCollection($destCols),

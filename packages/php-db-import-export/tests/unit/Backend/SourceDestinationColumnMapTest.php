@@ -12,6 +12,7 @@ use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\Column\ColumnInterface;
 use Keboola\TableBackendUtils\Table\TableDefinitionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -252,9 +253,9 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testIgnoreColumnModeKeep(): void
     {
-        $this->expectNotToPerformAssertions();
         $source = new ColumnCollection(
             [
             $this->getColumn('col1', 'string'),
@@ -276,9 +277,9 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testIgnoreColumnModeNameOrder(): void
     {
-        $this->expectNotToPerformAssertions();
         $source = new ColumnCollection(
             [
             $this->getColumn('col1', 'string'),
@@ -301,9 +302,9 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testIgnoreColumnsMoreThanOneModeKeep(): void
     {
-        $this->expectNotToPerformAssertions();
         $source = new ColumnCollection(
             [
             $this->getColumn('col1', 'string'),
@@ -327,10 +328,10 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testIgnoreColumnsMoreThanOneModeNameOrderImplicitIgnore(): void
     {
         // test is expected not to fails since extra columns in destination are ignored
-        $this->expectNotToPerformAssertions();
         $source = new ColumnCollection(
             [
             $this->getColumn('col1', 'string'),
@@ -355,9 +356,9 @@ final class SourceDestinationColumnMapTest extends TestCase
         );
     }
 
+    #[DoesNotPerformAssertions]
     public function testIgnoreColumnsMoreThanOneModeNameOrderExplicitIgnoreInSource(): void
     {
-        $this->expectNotToPerformAssertions();
         $source = new ColumnCollection([
             $this->getColumn('col1', 'string'),
             $this->getColumn('col2', 'string'),

@@ -7,12 +7,11 @@ namespace Tests\Keboola\TableBackendUtils\Unit\Column\Bigquery;
 use Generator;
 use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\SQLtoRestDatatypeConverter;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn
- */
+#[CoversClass(BigqueryColumn::class)]
 class BigqueryColumnTest extends TestCase
 {
     public function testCreateGenericColumn(): void

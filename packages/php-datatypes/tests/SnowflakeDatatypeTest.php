@@ -11,14 +11,15 @@ use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use Throwable;
 
 class SnowflakeDatatypeTest extends BaseDatatypeTestCase
 {
+    #[DoesNotPerformAssertions]
     public function testValid(): void
     {
         new Snowflake('VARCHAR', ['length' => '50']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidType(): void
@@ -31,6 +32,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         }
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidNumericLengths(): void
     {
         new Snowflake('numeric');
@@ -76,7 +78,6 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
             ],
             ],
         );
-        $this->expectNotToPerformAssertions();
     }
 
     #[DataProvider('invalidNumericLengths')]
@@ -90,6 +91,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         }
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidDateTimeLengths(): void
     {
         new Snowflake('datetime');
@@ -100,9 +102,9 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
         new Snowflake('TIMESTAMP_NTZ', ['length' => '9']);
         new Snowflake('TIME', ['length' => '9']);
-        $this->expectNotToPerformAssertions();
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidBinaryLengths(): void
     {
         new Snowflake('binary');
@@ -118,7 +120,6 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('VARBINARY', ['length' => '1']);
         new Snowflake('BINARY', ['length' => '8388608']);
         new Snowflake('VARBINARY', ['length' => '8388608']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testSqlDefinition(): void
@@ -215,6 +216,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('NUMERIC', ['length' => ['invalidOption' => '123']]);
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidCharacterLengths(): void
     {
         new Snowflake('string');
@@ -236,7 +238,6 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
             'length' => [],
             ],
         );
-        $this->expectNotToPerformAssertions();
     }
 
     #[DataProvider('invalidCharacterLengths')]
@@ -414,10 +415,10 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         $this->assertEquals($expectedBasetype, $type->getBasetype());
     }
 
+    #[DoesNotPerformAssertions]
     public function testVariant(): void
     {
         new Snowflake('VARIANT');
-        $this->expectNotToPerformAssertions();
     }
 
     /**

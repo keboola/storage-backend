@@ -10,15 +10,16 @@ use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Redshift;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
 class RedshiftDatatypeTest extends TestCase
 {
+    #[DoesNotPerformAssertions]
     public function testValid(): void
     {
         new Redshift('VARCHAR', ['length' => '50']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidType(): void
@@ -60,6 +61,7 @@ class RedshiftDatatypeTest extends TestCase
         }
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidCompressions(): void
     {
         new Redshift('VARCHAR', ['compression' => 'RAW']);
@@ -75,7 +77,6 @@ class RedshiftDatatypeTest extends TestCase
         new Redshift('VARCHAR', ['compression' => 'TEXT255']);
         new Redshift('VARCHAR', ['compression' => 'TEXT32K']);
         new Redshift('VARCHAR', ['compression' => 'ZSTD']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidOption(): void
