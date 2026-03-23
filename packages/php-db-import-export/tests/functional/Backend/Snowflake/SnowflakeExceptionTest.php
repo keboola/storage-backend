@@ -8,15 +8,16 @@ use Generator;
 use Keboola\Db\Import\Exception as ImportException;
 use Keboola\Db\ImportExport\Backend\Snowflake\SnowflakeException;
 use Keboola\Db\ImportExport\Storage\FileNotFoundException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 class SnowflakeExceptionTest extends TestCase
 {
     /**
-     * @dataProvider provideExceptions
      * @param class-string<object> $expectedException
      */
+    #[DataProvider('provideExceptions')]
     public function testCovertException(
         string $inputMessage,
         string $expectedException,
@@ -37,7 +38,7 @@ class SnowflakeExceptionTest extends TestCase
         }
     }
 
-    public function provideExceptions(): Generator
+    public static function provideExceptions(): Generator
     {
         yield 'remote file not found' => [
             "Remote file 'abc' was not found",

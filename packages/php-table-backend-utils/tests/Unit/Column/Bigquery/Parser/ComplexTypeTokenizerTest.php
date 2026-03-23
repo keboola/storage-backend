@@ -10,11 +10,12 @@ use Keboola\TableBackendUtils\Column\Bigquery\Parser\ComplexTypeTokenizer;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\ParsingComplexTypeLengthException;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerNestedToken;
 use Keboola\TableBackendUtils\Column\Bigquery\Parser\Tokens\TokenizerToken;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ComplexTypeTokenizerTest extends TestCase
 {
-    public function definitions(): Generator
+    public static function definitions(): Generator
     {
         yield 'ARRAY<STRING>' => [
             'def' => 'col ARRAY<STRING>',
@@ -223,16 +224,16 @@ class ComplexTypeTokenizerTest extends TestCase
     }
 
     /**
-     * @dataProvider definitions
      * @param array<mixed> $expected
      */
+    #[DataProvider('definitions')]
     public function test(string $def, array $expected): void
     {
         $tokens = (new ComplexTypeTokenizer())->tokenize($def);
         $this->assertSame($expected, $this->recursiveIteratorToArray($tokens));
     }
 
-    public function errorDefinitions(): Generator
+    public static function errorDefinitions(): Generator
     {
         yield 'Invalid length close' => [
             'column ARRAY<STRING(123245',
@@ -246,9 +247,7 @@ class ComplexTypeTokenizerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider errorDefinitions
-     */
+    #[DataProvider('errorDefinitions')]
     public function testTokenizationErrors(string $def, string $expectedException): void
     {
         $this->expectException(ParsingComplexTypeLengthException::class);

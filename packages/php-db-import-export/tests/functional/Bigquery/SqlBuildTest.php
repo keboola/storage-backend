@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Escaping\Bigquery\BigqueryQuote;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableDefinition;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Throwable;
 
 class SqlBuildTest extends BigqueryBaseTestCase
@@ -62,36 +63,44 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $qb = new BigqueryTableQueryBuilder();
         $this->bqClient->runQuery($this->bqClient->query($qb->getCreateTableCommandFromDefinition($def)));
 
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED,
-            ),
-        ));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED,
-            ),
-        ));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'2\',\'2\',\'2\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED,
-            ),
-        ));
-
-        if ($includeEmptyValues) {
-            $this->bqClient->runQuery($this->bqClient->query(
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
                 sprintf(
-                    'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'2\',\'\',NULL)',
+                    'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
                     self::TEST_DB_QUOTED,
                     self::TEST_STAGING_TABLE_QUOTED,
                 ),
-            ));
+            ),
+        );
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_STAGING_TABLE_QUOTED,
+                ),
+            ),
+        );
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'2\',\'2\',\'2\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_STAGING_TABLE_QUOTED,
+                ),
+            ),
+        );
+
+        if ($includeEmptyValues) {
+            $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    sprintf(
+                        'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'2\',\'\',NULL)',
+                        self::TEST_DB_QUOTED,
+                        self::TEST_STAGING_TABLE_QUOTED,
+                    ),
+                ),
+            );
         }
 
         return $def;
@@ -101,11 +110,13 @@ class SqlBuildTest extends BigqueryBaseTestCase
     {
         try {
             (new BigqueryTableReflection($this->bqClient, $schemaName, $tableName))->getTableStats();
-            self::fail(sprintf(
-                'Table "%s.%s" is expected to not exist.',
-                $schemaName,
-                $tableName,
-            ));
+            self::fail(
+                sprintf(
+                    'Table "%s.%s" is expected to not exist.',
+                    $schemaName,
+                    $tableName,
+                ),
+            );
         } catch (Throwable $e) {
         }
     }
@@ -159,7 +170,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $this->assertEquals(0, $current['count']);
     }
 
-    public function getInsertAllIntoTargetTableCommandProvider(): Generator
+    public static function getInsertAllIntoTargetTableCommandProvider(): Generator
     {
         yield 'typed' => [
             BigqueryImportOptions::USING_TYPES_USER,
@@ -175,8 +186,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider getInsertAllIntoTargetTableCommandProvider
      */
+    #[DataProvider('getInsertAllIntoTargetTableCommandProvider')]
     public function testGetInsertAllIntoTargetTableCommand(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
@@ -191,7 +202,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -214,18 +225,26 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $out = $this->bqClient->runQuery($this->bqClient->query($sql));
         self::assertEquals(4, $out->info()['numDmlAffectedRows']);
 
-        $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
-            'SELECT * FROM %s.%s',
-            BigqueryQuote::quoteSingleIdentifier(self::TEST_DB),
-            BigqueryQuote::quoteSingleIdentifier(self::TEST_TABLE),
-        )));
+        $result = $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'SELECT * FROM %s.%s',
+                    BigqueryQuote::quoteSingleIdentifier(self::TEST_DB),
+                    BigqueryQuote::quoteSingleIdentifier(self::TEST_TABLE),
+                ),
+            ),
+        );
 
-        $queryResult = array_map(static function (array $row) {
-            return array_map(static function ($column) {
-                return $column;
-            }, array_values($row));
-        }, iterator_to_array($result->getIterator()));
-        self::assertEqualsCanonicalizing([
+        /** @var array<int, array<string, mixed>> $resultArray */
+        $resultArray = iterator_to_array($result->getIterator());
+        $queryResult = array_map(
+            static function (array $row): array {
+                return array_values($row);
+            },
+            $resultArray,
+        );
+        self::assertEqualsCanonicalizing(
+            [
             [
                 'id' => null,
                 'col1' => '1',
@@ -246,7 +265,9 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 'col1' => '',
                 'col2' => '',
             ],
-        ], $queryResult);
+            ],
+            $queryResult,
+        );
     }
 
     protected function createTestTableWithColumns(
@@ -281,9 +302,11 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection($columns),
             $pks,
         );
-        $this->bqClient->runQuery($this->bqClient->query(
-            (new BigqueryTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                (new BigqueryTableQueryBuilder())->getCreateTableCommandFromDefinition($tableDefinition),
+            ),
+        );
 
         return $tableDefinition;
     }
@@ -310,7 +333,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function getInsertAllIntoTargetTableCommandConvertToNullProvider(): Generator
+    public static function getInsertAllIntoTargetTableCommandConvertToNullProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -326,8 +349,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider getInsertAllIntoTargetTableCommandConvertToNullProvider
      */
+    #[DataProvider('getInsertAllIntoTargetTableCommandConvertToNullProvider')]
     public function testGetInsertAllIntoTargetTableCommandConvertToNull(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
@@ -342,7 +365,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -362,17 +385,25 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $out = $this->bqClient->runQuery($this->bqClient->query($sql));
         self::assertEquals(4, $out->info()['numDmlAffectedRows']);
 
-        $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_DB,
-        )));
+        $result = $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'SELECT * FROM %s',
+                    self::TEST_TABLE_IN_DB,
+                ),
+            ),
+        );
 
-        $queryResult = array_map(static function (array $row) {
-            return array_map(static function ($column) {
-                return $column;
-            }, array_values($row));
-        }, iterator_to_array($result->getIterator()));
-        self::assertEqualsCanonicalizing([
+        /** @var array<int, array<string, mixed>> $resultArray */
+        $resultArray = iterator_to_array($result->getIterator());
+        $queryResult = array_map(
+            static function (array $row): array {
+                return array_values($row);
+            },
+            $resultArray,
+        );
+        self::assertEqualsCanonicalizing(
+            [
             [
                 'id' => null,
                 'col1' => '1',
@@ -393,7 +424,9 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 'col1' => null,
                 'col2' => '',
             ],
-        ], $queryResult);
+            ],
+            $queryResult,
+        );
     }
 
     /**
@@ -402,7 +435,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function getInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): Generator
+    public static function getInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -418,8 +451,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider getInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider
      */
+    #[DataProvider('getInsertAllIntoTargetTableCommandConvertToNullWithTimestampProvider')]
     public function testGetInsertAllIntoTargetTableCommandConvertToNullWithTimestamp(
         string $usingTypes,
         string $expectedSql,
@@ -435,7 +468,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -455,10 +488,14 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $out = $this->bqClient->runQuery($this->bqClient->query($sql));
         self::assertEquals(4, $out->info()['numDmlAffectedRows']);
 
-        $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
-            'SELECT * FROM %s',
-            self::TEST_TABLE_IN_DB,
-        )));
+        $result = $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'SELECT * FROM %s',
+                    self::TEST_TABLE_IN_DB,
+                ),
+            ),
+        );
 
         /** @var array<string, string> $item */
         foreach ($result as $item) {
@@ -491,9 +528,11 @@ class SqlBuildTest extends BigqueryBaseTestCase
             [],
         );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($destination),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($destination),
+            ),
+        );
 
         // Staging table with STRING data (STRING_TABLE strategy)
         $this->createStagingTableWithData(true);
@@ -504,7 +543,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
@@ -516,7 +555,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 new BigqueryColumn('col2', new Bigquery(Bigquery::TYPE_TIMESTAMP, ['nullable' => true])),
-            ]),
+                ],),
             [],
         );
 
@@ -571,7 +610,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function getUpdateWithPkCommandProvider(): Generator
+    public static function getUpdateWithPkCommandProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -587,8 +626,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider getUpdateWithPkCommandProvider
      */
+    #[DataProvider('getUpdateWithPkCommandProvider')]
     public function testGetUpdateWithPkCommand(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
@@ -602,7 +641,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -613,26 +652,31 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',\'2\',\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',\'2\',\'1\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                ),
             ),
-        ));
+        );
 
         $result = $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED);
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '1',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         // no convert values no timestamp
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
@@ -651,13 +695,16 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $this->bqClient->runQuery($this->bqClient->query($sql));
 
         $result = $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED);
-        self::assertEquals([
+        self::assertEquals(
+            [
             [
                 'id' => '1',
                 'col1' => '2',
                 'col2' => '2',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     /**
@@ -666,7 +713,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function getUpdateWithPkCommandConvertValuesProvider(): Generator
+    public static function getUpdateWithPkCommandConvertValuesProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -682,8 +729,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider getUpdateWithPkCommandConvertValuesProvider
      */
+    #[DataProvider('getUpdateWithPkCommandConvertValuesProvider')]
     public function testGetUpdateWithPkCommandConvertValues(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
@@ -697,7 +744,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -708,28 +755,33 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',\'\',\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',\'\',\'1\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                ),
             ),
-        ));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',\'2\',\'\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
+        );
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',\'2\',\'\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                ),
             ),
-        ));
+        );
 
         $result = $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED);
 
-        self::assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing(
+            [
             [
                 'id' => '1',
                 'col1' => '',
@@ -740,7 +792,9 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 'col1' => '2',
                 'col2' => '',
             ],
-        ], $result);
+            ],
+            $result,
+        );
 
         $options = new BigqueryImportOptions(['col1'], false, false, BigqueryImportOptions::SKIP_NO_LINE, $usingTypes);
 
@@ -756,7 +810,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
         $result = $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED);
 
-        self::assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing(
+            [
             [
                 'id' => '1',
                 'col1' => null,
@@ -767,7 +822,9 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 'col1' => '2',
                 'col2' => '2',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     /**
@@ -776,7 +833,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function getUpdateWithPkCommandConvertValuesWithTimestampProvider(): Generator
+    public static function getUpdateWithPkCommandConvertValuesWithTimestampProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -792,8 +849,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider getUpdateWithPkCommandConvertValuesWithTimestampProvider
      */
+    #[DataProvider('getUpdateWithPkCommandConvertValuesWithTimestampProvider')]
     public function testGetUpdateWithPkCommandConvertValuesWithTimestamp(string $usingTypes, string $expectedSql): void
     {
         $timestampInit = new DateTime('2020-01-01 00:00:01');
@@ -810,7 +867,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -821,28 +878,33 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'1\',\'\',\'1\',\'%s\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
-                $timestampInit->format(DateTimeHelper::FORMAT),
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'1\',\'\',\'1\',\'%s\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                    $timestampInit->format(DateTimeHelper::FORMAT),
+                ),
             ),
-        ));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'1\',\'2\',\'\',\'%s\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
-                $timestampInit->format(DateTimeHelper::FORMAT),
+        );
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'1\',\'2\',\'\',\'%s\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                    $timestampInit->format(DateTimeHelper::FORMAT),
+                ),
             ),
-        ));
+        );
 
-        self::assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing(
+            [
             [
                 'id' => '1',
                 'col1' => '',
@@ -855,7 +917,9 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 'col2' => '',
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
-        ], $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED));
+            ],
+            $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED),
+        );
 
         // use timestamp
         $options = new BigqueryImportOptions(
@@ -889,7 +953,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
         }
     }
 
-    public function nullManipulationWithTimestampFeatures(): Generator
+    public static function nullManipulationWithTimestampFeatures(): Generator
     {
         yield 'default' => [
             'default',
@@ -899,9 +963,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider nullManipulationWithTimestampFeatures
-     */
+    #[DataProvider('nullManipulationWithTimestampFeatures')]
     public function testGetUpdateWithPkCommandNullManipulationWithTimestampFeatures(
         string $feature,
         string $expectedSQL,
@@ -912,13 +974,15 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $this->createTestDb();
         $this->createTestTableWithColumns(true);
         $this->createStagingTableWithData(true);
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'3\',\'3\',\'\',NULL)',
-                self::TEST_DB_QUOTED,
-                self::TEST_STAGING_TABLE_QUOTED,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'3\',\'3\',\'\',NULL)',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_STAGING_TABLE_QUOTED,
+                ),
             ),
-        ));
+        );
 
         // create fake destination and say that there is pk on col1
         $fakeDestination = new BigqueryTableDefinition(
@@ -928,7 +992,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // create fake stage and say that there is less columns
@@ -939,28 +1003,33 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'1\',\'1\',\'1\',\'%s\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
-                $timestampInit->format(DateTimeHelper::FORMAT),
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'1\',\'1\',\'1\',\'%s\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                    $timestampInit->format(DateTimeHelper::FORMAT),
+                ),
             ),
-        ));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'3\',\'3\',NULL,\'%s\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
-                $timestampInit->format(DateTimeHelper::FORMAT),
+        );
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`,`_timestamp`) VALUES (\'3\',\'3\',NULL,\'%s\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                    $timestampInit->format(DateTimeHelper::FORMAT),
+                ),
             ),
-        ));
+        );
 
-        self::assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing(
+            [
             [
                 'id' => '1',
                 'col1' => '1',
@@ -973,7 +1042,9 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 'col2' => null,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],
-        ], $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED));
+            ],
+            $this->fetchTable(self::TEST_DB_QUOTED, self::TEST_TABLE_QUOTED),
+        );
 
         // use timestamp
         $options = new BigQueryImportOptions(
@@ -1002,7 +1073,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
         }
 
         // timestamp was updated to $timestampSet but there is same row as in stage table so no other value is updated
-        self::assertEqualsCanonicalizing([
+        self::assertEqualsCanonicalizing(
+            [
             [
                 'id' => '1',
                 'col1' => '1',
@@ -1015,7 +1087,9 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 'col2' => null,
                 '_timestamp' => $timestampInit->format(DateTimeHelper::FORMAT),
             ],  // timestamp is not update when row has same value and there is null
-        ], $result);
+            ],
+            $result,
+        );
     }
 
 
@@ -1025,7 +1099,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
      *     string
      * }>
      */
-    public function getDeleteOldItemsCommandProvider(): Generator
+    public static function getDeleteOldItemsCommandProvider(): Generator
     {
         yield 'typed' => [ // nothing is converted
             BigqueryImportOptions::USING_TYPES_USER,
@@ -1041,8 +1115,8 @@ class SqlBuildTest extends BigqueryBaseTestCase
 
     /**
      * @param BigqueryImportOptions::USING_TYPES_* $usingTypes
-     * @dataProvider getDeleteOldItemsCommandProvider
      */
+    #[DataProvider('getDeleteOldItemsCommandProvider')]
     public function testGetDeleteOldItemsCommand(string $usingTypes, string $expectedSql): void
     {
         $this->createTestDb();
@@ -1062,7 +1136,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 BigqueryColumn::createGenericColumn('pk2'),
                 BigqueryColumn::createGenericColumn('col1'),
                 BigqueryColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
         $tableSql = sprintf(
@@ -1072,12 +1146,14 @@ class SqlBuildTest extends BigqueryBaseTestCase
         );
         $qb = new BigqueryTableQueryBuilder();
         $this->bqClient->runQuery($this->bqClient->query($qb->getCreateTableCommandFromDefinition($tableDefinition)));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s(`id`,`pk1`,`pk2`,`col1`,`col2`) VALUES (1,\'1\',\'1\',\'1\',\'1\')',
-                $tableSql,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s(`id`,`pk1`,`pk2`,`col1`,`col2`) VALUES (1,\'1\',\'1\',\'1\',\'1\')',
+                    $tableSql,
+                ),
             ),
-        ));
+        );
         $stagingTableDefinition = new BigqueryTableDefinition(
             self::TEST_DB,
             self::TEST_STAGING_TABLE,
@@ -1087,29 +1163,35 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 BigqueryColumn::createGenericColumn('pk2'),
                 BigqueryColumn::createGenericColumn('col1'),
                 BigqueryColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTableDefinition),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTableDefinition),
+            ),
+        );
         $stagingTableSql = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
-                $stagingTableSql,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
+                    $stagingTableSql,
+                ),
             ),
-        ));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'1\',\'1\',\'1\')',
-                $stagingTableSql,
+        );
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'1\',\'1\',\'1\')',
+                    $stagingTableSql,
+                ),
             ),
-        ));
+        );
 
         $sql = $this->getBuilder()->getDeleteOldItemsCommand(
             $stagingTableDefinition,
@@ -1123,14 +1205,17 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $result = $this->fetchTable($stagingTableDefinition->getSchemaName(), $stagingTableDefinition->getTableName());
 
         self::assertCount(1, $result);
-        self::assertSame([
+        self::assertSame(
+            [
             [
                 'pk1' => '2',
                 'pk2' => '1',
                 'col1' => '1',
                 'col2' => '1',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     /**
@@ -1151,13 +1236,15 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 $this->createNullableGenericColumn('id'),
                 new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($tableDefinition),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($tableDefinition),
+            ),
+        );
 
         // Create staging table with STRING data (cross-backend CSV scenario)
         $this->createStagingTableWithData(false);
@@ -1170,7 +1257,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         // Fake stage (always STRING from CSV)
@@ -1181,18 +1268,20 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
         // Insert initial data in destination (col1 is INT64)
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',2,\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',2,\'1\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                ),
             ),
-        ));
+        );
 
         // no convert values no timestamp
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
@@ -1241,13 +1330,15 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 $this->createNullableGenericColumn('id'),
                 new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
         $qb = new BigqueryTableQueryBuilder();
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($tableDefinition),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($tableDefinition),
+            ),
+        );
 
         $this->createStagingTableWithData(false);
 
@@ -1259,7 +1350,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 new BigqueryColumn('col1', new Bigquery(Bigquery::TYPE_INT64, ['nullable' => true])),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             ['col1'],
         );
         $fakeStage = new BigqueryTableDefinition(
@@ -1269,17 +1360,19 @@ class SqlBuildTest extends BigqueryBaseTestCase
             new ColumnCollection([
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
 
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',2,\'1\')',
-                self::TEST_DB_QUOTED,
-                self::TEST_TABLE_QUOTED,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s.%s(`id`,`col1`,`col2`) VALUES (\'1\',2,\'1\')',
+                    self::TEST_DB_QUOTED,
+                    self::TEST_TABLE_QUOTED,
+                ),
             ),
-        ));
+        );
 
         // convert col1 to null when empty
         $sql = $this->getBuilder()->getUpdateWithPkCommand(
@@ -1326,7 +1419,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 BigqueryColumn::createGenericColumn('pk2'),
                 BigqueryColumn::createGenericColumn('col1'),
                 BigqueryColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
         $tableSql = sprintf(
@@ -1337,12 +1430,14 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $qb = new BigqueryTableQueryBuilder();
         $this->bqClient->runQuery($this->bqClient->query($qb->getCreateTableCommandFromDefinition($tableDefinition)));
         // pk1 is INT64
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s(`id`,`pk1`,`pk2`,`col1`,`col2`) VALUES (1,1,\'1\',\'1\',\'1\')',
-                $tableSql,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s(`id`,`pk1`,`pk2`,`col1`,`col2`) VALUES (1,1,\'1\',\'1\',\'1\')',
+                    $tableSql,
+                ),
             ),
-        ));
+        );
 
         // Staging table (all STRING, as from CSV)
         $stagingTableDefinition = new BigqueryTableDefinition(
@@ -1354,29 +1449,35 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 BigqueryColumn::createGenericColumn('pk2'),
                 BigqueryColumn::createGenericColumn('col1'),
                 BigqueryColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             ['pk1', 'pk2'],
         );
-        $this->bqClient->runQuery($this->bqClient->query(
-            $qb->getCreateTableCommandFromDefinition($stagingTableDefinition),
-        ));
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                $qb->getCreateTableCommandFromDefinition($stagingTableDefinition),
+            ),
+        );
         $stagingTableSql = sprintf(
             '%s.%s',
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getSchemaName()),
             BigqueryQuote::quoteSingleIdentifier($stagingTableDefinition->getTableName()),
         );
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
-                $stagingTableSql,
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'1\',\'1\',\'1\',\'1\')',
+                    $stagingTableSql,
+                ),
             ),
-        ));
-        $this->bqClient->runQuery($this->bqClient->query(
-            sprintf(
-                'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'1\',\'1\',\'1\')',
-                $stagingTableSql,
+        );
+        $this->bqClient->runQuery(
+            $this->bqClient->query(
+                sprintf(
+                    'INSERT INTO %s(`pk1`,`pk2`,`col1`,`col2`) VALUES (\'2\',\'1\',\'1\',\'1\')',
+                    $stagingTableSql,
+                ),
             ),
-        ));
+        );
 
         $sql = $this->getBuilder()->getDeleteOldItemsCommand(
             $stagingTableDefinition,
@@ -1396,14 +1497,17 @@ class SqlBuildTest extends BigqueryBaseTestCase
         $result = $this->fetchTable($stagingTableDefinition->getSchemaName(), $stagingTableDefinition->getTableName());
 
         self::assertCount(1, $result);
-        self::assertSame([
+        self::assertSame(
+            [
             [
                 'pk1' => '2',
                 'pk2' => '1',
                 'col1' => '1',
                 'col2' => '1',
             ],
-        ], $result);
+            ],
+            $result,
+        );
     }
 
     private function getStagingTableDefinition(): BigqueryTableDefinition
@@ -1417,7 +1521,7 @@ class SqlBuildTest extends BigqueryBaseTestCase
                 $this->createNullableGenericColumn('pk2'),
                 $this->createNullableGenericColumn('col1'),
                 $this->createNullableGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
     }

@@ -12,6 +12,7 @@ class TableTest extends TestCase
     public function testDefaultValues(): void
     {
         $source = new Storage\Bigquery\Table('schema', 'table');
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertInstanceOf(Storage\SourceInterface::class, $source);
         self::assertEquals('schema', $source->getSchema());
         self::assertEquals('table', $source->getTableName());

@@ -41,7 +41,7 @@ class ParquetExportTest extends SnowflakeBaseTestCase
                 "BOOL_COL" BOOLEAN
             )',
             $this->connection->quoteIdentifier($tableName),
-        ));
+        ),);
 
         // Insert test data
         $this->connection->executeQuery(sprintf(
@@ -49,7 +49,7 @@ class ParquetExportTest extends SnowflakeBaseTestCase
             (1, \'test string\', 123.45, \'2024-01-01\', TRUE),
             (2, \'another string\', 678.90, \'2024-02-01\', FALSE)',
             $this->connection->quoteIdentifier($tableName),
-        ));
+        ),);
     }
 
     public function testExportSimpleToParquet(): void
@@ -94,7 +94,8 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $files = $this->listFiles($this->getExportDir());
         $tmpFiles = $this->getParquetFileFromStorage($files);
         $content = $this->getParquetContent($tmpFiles);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'ID' => 1.0,
                 'STRING_COL' => 'test string',
@@ -109,7 +110,9 @@ class ParquetExportTest extends SnowflakeBaseTestCase
                 'DATE_COL' => '2024-02-01T00:00:00+00:00',
                 'BOOL_COL' => false,
             ],
-        ], $content);
+            ],
+            $content,
+        );
     }
 
     public function testExportCompressedParquet(): void
@@ -117,10 +120,12 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $tableName = $this->getTestTableName();
         $this->createTestTable($tableName);
 
-        $source = new Storage\Snowflake\SelectSource(sprintf(
-            'SELECT * FROM %s',
-            $this->connection->quoteIdentifier($tableName),
-        ));
+        $source = new Storage\Snowflake\SelectSource(
+            sprintf(
+                'SELECT * FROM %s',
+                $this->connection->quoteIdentifier($tableName),
+            ),
+        );
 
         $options = new ExportOptions(
             isCompressed: true,
@@ -154,7 +159,8 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $files = $this->listFiles($this->getExportDir());
         $tmpFiles = $this->getParquetFileFromStorage($files);
         $content = $this->getParquetContent($tmpFiles);
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'ID' => 1.0,
                 'STRING_COL' => 'test string',
@@ -169,7 +175,9 @@ class ParquetExportTest extends SnowflakeBaseTestCase
                 'DATE_COL' => '2024-02-01T00:00:00+00:00',
                 'BOOL_COL' => false,
             ],
-        ], $content);
+            ],
+            $content,
+        );
     }
 
     public function testExportParquetWithTimezoneThrowsException(): void
@@ -206,10 +214,12 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $this->createTestTable($tableName);
 
         // Use a query that transforms the data
-        $source = new Storage\Snowflake\SelectSource(sprintf(
-            'SELECT * FROM %s',
-            $this->connection->quoteIdentifier($tableName),
-        ));
+        $source = new Storage\Snowflake\SelectSource(
+            sprintf(
+                'SELECT * FROM %s',
+                $this->connection->quoteIdentifier($tableName),
+            ),
+        );
 
         $options = new ExportOptions(
             isCompressed: false,
@@ -244,7 +254,8 @@ class ParquetExportTest extends SnowflakeBaseTestCase
         $tmpFiles = $this->getParquetFileFromStorage($files);
         $content = $this->getParquetContent($tmpFiles);
 
-        $this->assertSame([
+        $this->assertSame(
+            [
             [
                 'ID' => 1.0,
                 'STRING_COL' => 'test string',
@@ -259,6 +270,8 @@ class ParquetExportTest extends SnowflakeBaseTestCase
                 'DATE_COL' => '2024-02-01T00:00:00+00:00',
                 'BOOL_COL' => false,
             ],
-        ], $content);
+            ],
+            $content,
+        );
     }
 }

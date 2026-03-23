@@ -8,11 +8,11 @@ use Doctrine\DBAL\Exception;
 use Keboola\TableBackendUtils\DataHelper;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaQueryBuilder;
+use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
-/**
- * @covers \Keboola\TableBackendUtils\Schema\Snowflake\SnowflakeSchemaQueryBuilder
- */
+#[CoversClass(SnowflakeSchemaQueryBuilder::class)]
 class SnowflakeSchemaQueryBuilderTest extends SnowflakeBaseCase
 {
     public const TEST_SCHEMA = self::TESTS_PREFIX . 'qb_schema_schema';
@@ -116,6 +116,8 @@ CREATE OR REPLACE TABLE %s.%s (
         try {
             $this->connection->executeQuery($qb->getDropSchemaCommand(self::TEST_SCHEMA, false));
             self::fail('Should fail');
+        } catch (AssertionFailedError $e) {
+            throw $e;
         } catch (Exception $e) {
             self::assertStringContainsString('Cannot drop the schema because of dependencies', $e->getMessage());
         }

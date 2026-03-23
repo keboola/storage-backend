@@ -10,14 +10,16 @@ use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
 use Keboola\Datatype\Definition\Snowflake;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use Throwable;
 
 class SnowflakeDatatypeTest extends BaseDatatypeTestCase
 {
+    #[DoesNotPerformAssertions]
     public function testValid(): void
     {
         new Snowflake('VARCHAR', ['length' => '50']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testInvalidType(): void
@@ -30,6 +32,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         }
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidNumericLengths(): void
     {
         new Snowflake('numeric');
@@ -41,37 +44,44 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('NUMERIC', ['length' => '38,0']);
         new Snowflake('NUMERIC', ['length' => '38,38']);
         new Snowflake('NUMERIC', ['length' => '38']);
-        new Snowflake('NUMERIC', [
+        new Snowflake(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_precision' => '38',
                 'numeric_scale' => '0',
             ],
-        ]);
-        new Snowflake('NUMERIC', [
+            ],
+        );
+        new Snowflake(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_precision' => '38',
                 'numeric_scale' => '38',
             ],
-        ]);
-        new Snowflake('NUMERIC', [
+            ],
+        );
+        new Snowflake(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_precision' => '38',
             ],
-        ]);
-        new Snowflake('NUMERIC', [
+            ],
+        );
+        new Snowflake(
+            'NUMERIC',
+            [
             'length' => [
                 'numeric_scale' => '38',
             ],
-        ]);
-        $this->expectNotToPerformAssertions();
+            ],
+        );
     }
 
-    /**
-     * @dataProvider invalidNumericLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidNumericLengths($length): void
+    #[DataProvider('invalidNumericLengths')]
+    public function testInvalidNumericLengths(string|int|null $length): void
     {
         try {
             new Snowflake('NUMERIC', ['length' => $length]);
@@ -81,6 +91,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         }
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidDateTimeLengths(): void
     {
         new Snowflake('datetime');
@@ -91,9 +102,9 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('TIMESTAMP_TZ', ['length' => '0']);
         new Snowflake('TIMESTAMP_NTZ', ['length' => '9']);
         new Snowflake('TIME', ['length' => '9']);
-        $this->expectNotToPerformAssertions();
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidBinaryLengths(): void
     {
         new Snowflake('binary');
@@ -109,7 +120,6 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('VARBINARY', ['length' => '1']);
         new Snowflake('BINARY', ['length' => '8388608']);
         new Snowflake('VARBINARY', ['length' => '8388608']);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testSqlDefinition(): void
@@ -178,12 +188,8 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         $this->assertSame('TIMESTAMP_TZ', $definition->getTypeOnlySQLDefinition());
     }
 
-    /**
-     * @dataProvider invalidDateTimeLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidDateTimeLengths($length): void
+    #[DataProvider('invalidDateTimeLengths')]
+    public function testInvalidDateTimeLengths(string|int|null $length): void
     {
         try {
             new Snowflake('DATETIME', ['length' => $length]);
@@ -210,6 +216,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('NUMERIC', ['length' => ['invalidOption' => '123']]);
     }
 
+    #[DoesNotPerformAssertions]
     public function testValidCharacterLengths(): void
     {
         new Snowflake('string');
@@ -217,23 +224,24 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         new Snowflake('STRING', ['length' => '']);
         new Snowflake('STRING', ['length' => '1']);
         new Snowflake('STRING', ['length' => '134217728']);
-        new Snowflake('STRING', [
+        new Snowflake(
+            'STRING',
+            [
             'length' => [
                 'character_maximum' => '134217728',
             ],
-        ]);
-        new Snowflake('STRING', [
+            ],
+        );
+        new Snowflake(
+            'STRING',
+            [
             'length' => [],
-        ]);
-        $this->expectNotToPerformAssertions();
+            ],
+        );
     }
 
-    /**
-     * @dataProvider invalidCharacterLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidCharacterLengths($length): void
+    #[DataProvider('invalidCharacterLengths')]
+    public function testInvalidCharacterLengths(string|int|null $length): void
     {
         try {
             new Snowflake('STRING', ['length' => $length]);
@@ -243,12 +251,8 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         }
     }
 
-    /**
-     * @dataProvider invalidBinaryLengths
-     * @param string|int|null $length
-     */
-    //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidBinaryLengths($length): void
+    #[DataProvider('invalidBinaryLengths')]
+    public function testInvalidBinaryLengths(string|int|null $length): void
     {
         try {
             new Snowflake('BINARY', ['length' => $length]);
@@ -265,101 +269,101 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         }
     }
 
-    public function basetypeProvider(): Generator
+    public static function basetypeProvider(): Generator
     {
         yield Snowflake::TYPE_INT => [
-            new Snowflake(Snowflake::TYPE_INT, $this->getTypeDefaultOptions(Snowflake::TYPE_INT)),
+            new Snowflake(Snowflake::TYPE_INT, self::getTypeDefaultOptions(Snowflake::TYPE_INT)),
             'INTEGER',
         ];
         yield Snowflake::TYPE_INTEGER => [
-            new Snowflake(Snowflake::TYPE_INTEGER, $this->getTypeDefaultOptions(Snowflake::TYPE_INTEGER)),
+            new Snowflake(Snowflake::TYPE_INTEGER, self::getTypeDefaultOptions(Snowflake::TYPE_INTEGER)),
             'INTEGER',
         ];
         yield Snowflake::TYPE_BIGINT => [
-            new Snowflake(Snowflake::TYPE_BIGINT, $this->getTypeDefaultOptions(Snowflake::TYPE_BIGINT)),
+            new Snowflake(Snowflake::TYPE_BIGINT, self::getTypeDefaultOptions(Snowflake::TYPE_BIGINT)),
             'INTEGER',
         ];
         yield Snowflake::TYPE_SMALLINT => [
-            new Snowflake(Snowflake::TYPE_SMALLINT, $this->getTypeDefaultOptions(Snowflake::TYPE_SMALLINT)),
+            new Snowflake(Snowflake::TYPE_SMALLINT, self::getTypeDefaultOptions(Snowflake::TYPE_SMALLINT)),
             'INTEGER',
         ];
         yield Snowflake::TYPE_TINYINT => [
-            new Snowflake(Snowflake::TYPE_TINYINT, $this->getTypeDefaultOptions(Snowflake::TYPE_TINYINT)),
+            new Snowflake(Snowflake::TYPE_TINYINT, self::getTypeDefaultOptions(Snowflake::TYPE_TINYINT)),
             'INTEGER',
         ];
         yield Snowflake::TYPE_BYTEINT => [
-            new Snowflake(Snowflake::TYPE_BYTEINT, $this->getTypeDefaultOptions(Snowflake::TYPE_BYTEINT)),
+            new Snowflake(Snowflake::TYPE_BYTEINT, self::getTypeDefaultOptions(Snowflake::TYPE_BYTEINT)),
             'INTEGER',
         ];
         yield Snowflake::TYPE_NUMBER => [
-            new Snowflake(Snowflake::TYPE_NUMBER, $this->getTypeDefaultOptions(Snowflake::TYPE_NUMBER)),
+            new Snowflake(Snowflake::TYPE_NUMBER, self::getTypeDefaultOptions(Snowflake::TYPE_NUMBER)),
             'NUMERIC',
         ];
         yield Snowflake::TYPE_DECIMAL => [
-            new Snowflake(Snowflake::TYPE_DECIMAL, $this->getTypeDefaultOptions(Snowflake::TYPE_DECIMAL)),
+            new Snowflake(Snowflake::TYPE_DECIMAL, self::getTypeDefaultOptions(Snowflake::TYPE_DECIMAL)),
             'NUMERIC',
         ];
         yield Snowflake::TYPE_DEC => [
-            new Snowflake(Snowflake::TYPE_DEC, $this->getTypeDefaultOptions(Snowflake::TYPE_DEC)),
+            new Snowflake(Snowflake::TYPE_DEC, self::getTypeDefaultOptions(Snowflake::TYPE_DEC)),
             'NUMERIC',
         ];
         yield Snowflake::TYPE_NUMERIC => [
-            new Snowflake(Snowflake::TYPE_NUMERIC, $this->getTypeDefaultOptions(Snowflake::TYPE_NUMERIC)),
+            new Snowflake(Snowflake::TYPE_NUMERIC, self::getTypeDefaultOptions(Snowflake::TYPE_NUMERIC)),
             'NUMERIC',
         ];
         yield Snowflake::TYPE_FLOAT => [
-            new Snowflake(Snowflake::TYPE_FLOAT, $this->getTypeDefaultOptions(Snowflake::TYPE_FLOAT)),
+            new Snowflake(Snowflake::TYPE_FLOAT, self::getTypeDefaultOptions(Snowflake::TYPE_FLOAT)),
             'FLOAT',
         ];
         yield Snowflake::TYPE_FLOAT4 => [
-            new Snowflake(Snowflake::TYPE_FLOAT4, $this->getTypeDefaultOptions(Snowflake::TYPE_FLOAT4)),
+            new Snowflake(Snowflake::TYPE_FLOAT4, self::getTypeDefaultOptions(Snowflake::TYPE_FLOAT4)),
             'FLOAT',
         ];
         yield Snowflake::TYPE_FLOAT8 => [
-            new Snowflake(Snowflake::TYPE_FLOAT8, $this->getTypeDefaultOptions(Snowflake::TYPE_FLOAT8)),
+            new Snowflake(Snowflake::TYPE_FLOAT8, self::getTypeDefaultOptions(Snowflake::TYPE_FLOAT8)),
             'FLOAT',
         ];
         yield Snowflake::TYPE_DOUBLE => [
-            new Snowflake(Snowflake::TYPE_DOUBLE, $this->getTypeDefaultOptions(Snowflake::TYPE_DOUBLE)),
+            new Snowflake(Snowflake::TYPE_DOUBLE, self::getTypeDefaultOptions(Snowflake::TYPE_DOUBLE)),
             'FLOAT',
         ];
         yield Snowflake::TYPE_DOUBLE_PRECISION => [
             new Snowflake(
                 Snowflake::TYPE_DOUBLE_PRECISION,
-                $this->getTypeDefaultOptions(Snowflake::TYPE_DOUBLE_PRECISION),
+                self::getTypeDefaultOptions(Snowflake::TYPE_DOUBLE_PRECISION),
             ),
             'FLOAT',
         ];
         yield Snowflake::TYPE_REAL => [
-            new Snowflake(Snowflake::TYPE_REAL, $this->getTypeDefaultOptions(Snowflake::TYPE_REAL)),
+            new Snowflake(Snowflake::TYPE_REAL, self::getTypeDefaultOptions(Snowflake::TYPE_REAL)),
             'FLOAT',
         ];
         yield Snowflake::TYPE_BOOLEAN => [
-            new Snowflake(Snowflake::TYPE_BOOLEAN, $this->getTypeDefaultOptions(Snowflake::TYPE_BOOLEAN)),
+            new Snowflake(Snowflake::TYPE_BOOLEAN, self::getTypeDefaultOptions(Snowflake::TYPE_BOOLEAN)),
             'BOOLEAN',
         ];
         yield Snowflake::TYPE_DATE => [
-            new Snowflake(Snowflake::TYPE_DATE, $this->getTypeDefaultOptions(Snowflake::TYPE_DATE)),
+            new Snowflake(Snowflake::TYPE_DATE, self::getTypeDefaultOptions(Snowflake::TYPE_DATE)),
             'DATE',
         ];
         yield Snowflake::TYPE_DATETIME => [
-            new Snowflake(Snowflake::TYPE_DATETIME, $this->getTypeDefaultOptions(Snowflake::TYPE_DATETIME)),
+            new Snowflake(Snowflake::TYPE_DATETIME, self::getTypeDefaultOptions(Snowflake::TYPE_DATETIME)),
             'TIMESTAMP',
         ];
         yield Snowflake::TYPE_TIMESTAMP => [
-            new Snowflake(Snowflake::TYPE_TIMESTAMP, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP)),
+            new Snowflake(Snowflake::TYPE_TIMESTAMP, self::getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP)),
             'TIMESTAMP',
         ];
         yield Snowflake::TYPE_TIMESTAMP_NTZ => [
-            new Snowflake(Snowflake::TYPE_TIMESTAMP_NTZ, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_NTZ)),
+            new Snowflake(Snowflake::TYPE_TIMESTAMP_NTZ, self::getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_NTZ)),
             'TIMESTAMP',
         ];
         yield Snowflake::TYPE_TIMESTAMP_LTZ => [
-            new Snowflake(Snowflake::TYPE_TIMESTAMP_LTZ, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_LTZ)),
+            new Snowflake(Snowflake::TYPE_TIMESTAMP_LTZ, self::getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_LTZ)),
             'TIMESTAMP',
         ];
         yield Snowflake::TYPE_TIMESTAMP_TZ => [
-            new Snowflake(Snowflake::TYPE_TIMESTAMP_TZ, $this->getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_TZ)),
+            new Snowflake(Snowflake::TYPE_TIMESTAMP_TZ, self::getTypeDefaultOptions(Snowflake::TYPE_TIMESTAMP_TZ)),
             'TIMESTAMP',
         ];
 
@@ -391,7 +395,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         foreach (Snowflake::TYPES as $type) {
             if (!in_array($type, $testedTypes, true)) {
                 yield $type => [
-                    new Snowflake($type, $this->getTypeDefaultOptions($type)),
+                    new Snowflake($type, self::getTypeDefaultOptions($type)),
                     'STRING',
                 ];
             }
@@ -403,9 +407,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         ];
     }
 
-    /**
-     * @dataProvider basetypeProvider
-     */
+    #[DataProvider('basetypeProvider')]
     public function testBasetypes(
         Snowflake $type,
         string $expectedBasetype,
@@ -413,16 +415,16 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         $this->assertEquals($expectedBasetype, $type->getBasetype());
     }
 
+    #[DoesNotPerformAssertions]
     public function testVariant(): void
     {
         new Snowflake('VARIANT');
-        $this->expectNotToPerformAssertions();
     }
 
     /**
      * @return array<int, array<string>>
      */
-    public function invalidNumericLengths(): array
+    public static function invalidNumericLengths(): array
     {
         return [
             ['notANumber'],
@@ -439,7 +441,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidCharacterLengths(): array
+    public static function invalidCharacterLengths(): array
     {
         return [
             ['a'],
@@ -452,7 +454,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidDateTimeLengths(): array
+    public static function invalidDateTimeLengths(): array
     {
         return [
             ['notANumber'],
@@ -467,7 +469,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
     /**
      * @return array<int, array<string>>
      */
-    public function invalidBinaryLengths(): array
+    public static function invalidBinaryLengths(): array
     {
         return [
             ['a'],
@@ -572,25 +574,23 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
 
     /**
      * @param array<string, mixed> $expectedArray
-     * @dataProvider arrayFromLengthProvider
      */
+    #[DataProvider('arrayFromLengthProvider')]
     public function testArrayFromLength(string $type, ?string $length, array $expectedArray): void
     {
         $definition = new Snowflake($type, ['length' => $length]);
         $this->assertSame($expectedArray, $definition->getArrayFromLength());
     }
 
-    /**
-     * @dataProvider provideTestGetTypeFromAlias
-     */
+    #[DataProvider('provideTestGetTypeFromAlias')]
     public function testBackendBasetypeFromAlias(string $type, string $expectedType): void
     {
 
-        $definition = new Snowflake($type, $this->getTypeDefaultOptions($type));
+        $definition = new Snowflake($type, self::getTypeDefaultOptions($type));
         $this->assertSame($expectedType, $definition->getBackendBasetype());
     }
 
-    public function arrayFromLengthProvider(): Generator
+    public static function arrayFromLengthProvider(): Generator
     {
         yield 'simple' => [
             'VARCHAR',
@@ -619,7 +619,7 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
         ];
     }
 
-    public function provideTestGetTypeFromAlias(): Generator
+    public static function provideTestGetTypeFromAlias(): Generator
     {
         foreach (Snowflake::TYPES as $type) {
             switch ($type) {
@@ -674,12 +674,12 @@ class SnowflakeDatatypeTest extends BaseDatatypeTestCase
 
     /**
      * @return array{
-     *      length?:string|null|array<string, mixed>,
+     *      length?:string|null|array<string, int|string|null>,
      *      nullable?:bool,
      *      default?:string|null
      *  }
      */
-    private function getTypeDefaultOptions(string $type): array
+    private static function getTypeDefaultOptions(string $type): array
     {
         $options = [];
         if ($type === Snowflake::TYPE_VECTOR) {

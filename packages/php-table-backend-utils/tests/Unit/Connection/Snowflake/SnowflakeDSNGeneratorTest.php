@@ -8,6 +8,7 @@ use Generator;
 use Keboola\TableBackendUtils\Connection\Exception\DriverException;
 use Keboola\TableBackendUtils\Connection\Snowflake\SnowflakeDSNGenerator;
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SnowflakeDSNGeneratorTest extends TestCase
@@ -15,7 +16,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
     /**
      * @return \Generator<array<int, array<string, array<mixed>|bool|int|string>|string>>
      */
-    public function dsnOptionsProvider(): Generator
+    public static function dsnOptionsProvider(): Generator
     {
         $options = [
             'host' => 'snowflakecomputing.com',
@@ -141,9 +142,9 @@ class SnowflakeDSNGeneratorTest extends TestCase
     }
 
     /**
-     * @dataProvider dsnOptionsProvider
      * @param array<mixed> $options
      */
+    #[DataProvider('dsnOptionsProvider')]
     public function testDSNGenerate(array $options, string $expectedDSN): void
     {
         // @phpstan-ignore-next-line
@@ -163,7 +164,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
             'someRandomParameter' => false,
             'otherRandomParameter' => false,
             'value',
-        ]);
+            ],);
     }
 
     public function testFailsWhenRequiredParamsMissing(): void
@@ -174,7 +175,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         // @phpstan-ignore-next-line
         SnowflakeDSNGenerator::generateDSN([
             'password' => getenv('SNOWFLAKE_PASSWORD'),
-        ]);
+            ],);
     }
 
     public function testFailsWhenPasswordAndCertMissing(): void
@@ -186,7 +187,7 @@ class SnowflakeDSNGeneratorTest extends TestCase
         SnowflakeDSNGenerator::generateDSN([
             'host' => getenv('SNOWFLAKE_HOST'),
             'user' => getenv('SNOWFLAKE_USER'),
-        ]);
+            ],);
     }
 
     public function testFailsWhenPasswordAndCertBothIsSet(): void
@@ -200,6 +201,6 @@ class SnowflakeDSNGeneratorTest extends TestCase
             'user' => getenv('SNOWFLAKE_USER'),
             'password' => 'pass',
             'privateKeyPath' => 'cert',
-        ]);
+            ],);
     }
 }

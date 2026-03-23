@@ -9,6 +9,7 @@ use Keboola\Db\ImportExport\Backend\Snowflake\Importer;
 use Keboola\Db\ImportExport\ImportOptions;
 use Keboola\Db\ImportExport\ImportOptionsInterface;
 use Keboola\Db\ImportExport\Storage;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Tests\Keboola\Db\ImportExportCommon\ABSSourceTrait;
 use Throwable;
@@ -18,6 +19,7 @@ class ImporterTest extends TestCase
     use MockConnectionTrait;
     use ABSSourceTrait;
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testGetAdapterMoreThanOneSupports(): void
     {
         $source = $this->createDummyABSSourceInstance('');
@@ -34,6 +36,7 @@ class ImporterTest extends TestCase
         $importer->importTable($source, $destination, new ImportOptions());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testGetAdapterNoAdapter(): void
     {
         $source = $this->createDummyABSSourceInstance('');
@@ -43,7 +46,7 @@ class ImporterTest extends TestCase
         $importer->setAdapters([
             Storage\Snowflake\SnowflakeImportAdapter::class,
             Storage\Snowflake\SnowflakeImportAdapter::class,
-        ]);
+            ],);
 
         $this->expectExceptionMessage(
         // phpcs:ignore
@@ -53,6 +56,7 @@ class ImporterTest extends TestCase
         $importer->importTable($source, $destination, new ImportOptions());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testGetAdapterInvalidAdapter(): void
     {
         $source = $this->createDummyABSSourceInstance('');
@@ -75,7 +79,7 @@ class ImporterTest extends TestCase
             ): int {
                 return 0;
             }
-        })]);
+        },)],);
 
         $this->expectExceptionMessage(
         // phpcs:ignore

@@ -15,15 +15,14 @@ use Keboola\Db\ImportExport\Storage\SlicedManifestGeneratorInterface;
 use Keboola\FileStorage\Gcs\GcsProvider;
 use Keboola\FileStorage\Path\RelativePath;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
 {
     public function testGenerateAndSaveManifest(): void
     {
-        $streamableUploaderMock = $this->getMockBuilder(StreamableUploader::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $streamableUploaderMock = $this->createStub(StreamableUploader::class);
         $streamableUploaderMock->method('getResumeUri')->willReturn('');
         $streamableUploaderMock->method('upload')->willReturn([]);
 
@@ -40,10 +39,14 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
         $bucket->expects($this->once())
             ->method('objects')
             ->with(['prefix' => 'prefix/xxx'])
-            ->willReturn($this->createObjectIterator([
-                $object1,
-                $object2,
-            ]));
+            ->willReturn(
+                $this->createObjectIterator(
+                    [
+                    $object1,
+                    $object2,
+                    ],
+                ),
+            );
         $bucket->expects($this->exactly(2))
             ->method('name')
             ->willReturn('bucket1');
@@ -63,48 +66,59 @@ class GCSSlicedManifestFromFolderGeneratorTest extends TestCase
         $generator = new GcsSlicedManifestFromFolderGenerator($clientMock);
         $generator->generateAndSaveManifest($path);
 
+        /** @phpstan-ignore method.alreadyNarrowedType */
         $this->assertInstanceOf(SlicedManifestGeneratorInterface::class, $generator);
     }
 
     /**
-     * @param StorageObject[] $items
-     * @return MockObject|ObjectIterator
+     * @param  StorageObject[] $items
+     * @return Stub|ObjectIterator
      */
     private function createObjectIterator(array $items = []): ObjectIterator
     {
-        $someIterator = $this->createMock(ObjectIterator::class);
+        $someIterator = $this->createStub(ObjectIterator::class);
 
         $iterator = new ArrayIterator($items);
 
         $someIterator
             ->method('rewind')
-            ->willReturnCallback(function () use ($iterator): void {
-                $iterator->rewind();
-            });
+            ->willReturnCallback(
+                function () use ($iterator): void {
+                    $iterator->rewind();
+                },
+            );
 
         $someIterator
             ->method('current')
-            ->willReturnCallback(function () use ($iterator) {
-                return $iterator->current();
-            });
+            ->willReturnCallback(
+                function () use ($iterator) {
+                    return $iterator->current();
+                },
+            );
 
         $someIterator
             ->method('key')
-            ->willReturnCallback(function () use ($iterator) {
-                return $iterator->key();
-            });
+            ->willReturnCallback(
+                function () use ($iterator) {
+                    return $iterator->key();
+                },
+            );
 
         $someIterator
             ->method('next')
-            ->willReturnCallback(function () use ($iterator): void {
-                $iterator->next();
-            });
+            ->willReturnCallback(
+                function () use ($iterator): void {
+                    $iterator->next();
+                },
+            );
 
         $someIterator
             ->method('valid')
-            ->willReturnCallback(function () use ($iterator): bool {
-                return $iterator->valid();
-            });
+            ->willReturnCallback(
+                function () use ($iterator): bool {
+                    return $iterator->valid();
+                },
+            );
 
         return $someIterator;
     }

@@ -13,13 +13,14 @@ use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\TableNotExistsReflectionException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
 // TODO we dont use DEFAULT values in columns.
-/**
- * @covers \Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder
- * @uses   ColumnCollection
- */
+#[CoversClass(SnowflakeTableQueryBuilder::class)]
+#[UsesClass(ColumnCollection::class)]
 class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
 {
     private SnowflakeTableQueryBuilder $qb;
@@ -109,8 +110,8 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
      * @param string[] $expectedColumnNames
      * @param string[] $expectedPKs
      * @throws DBALException
-     * @dataProvider createTableTestSqlProvider
      */
+    #[DataProvider('createTableTestSqlProvider')]
     public function testGetCreateCommand(
         array $columns,
         array $primaryKeys,
@@ -147,7 +148,7 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
             new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
         );
         self::assertSame(
             'CREATE TEMPORARY TABLE "' . self::TEST_SCHEMA . '"."' . $tableName . '"
@@ -166,22 +167,22 @@ class SnowflakeTableQueryBuilderTest extends SnowflakeBaseCase
     }
 
     /**
-     * @return \Generator<string, mixed, mixed, mixed>
+     * @return \Generator<string, array<string, mixed>>
      */
-    public function createTableTestSqlProvider(): Generator
+    public static function createTableTestSqlProvider(): Generator
     {
         $testDb = self::TEST_SCHEMA;
         $tableName = self::TABLE_GENERIC;
 
         yield 'no keys' => [
-            'cols' => [
+            'columns' => [
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
             ],
             'primaryKeys' => [],
             'expectedColumnNames' => ['col1', 'col2'],
-            'expectedPrimaryKeys' => [],
-            'query' => <<<EOT
+            'expectedPKs' => [],
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -191,14 +192,14 @@ EOT
             ,
         ];
         yield 'with single pk' => [
-            'cols' => [
+            'columns' => [
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
             ],
             'primaryKeys' => ['col1'],
             'expectedColumnNames' => ['col1', 'col2'],
-            'expectedPrimaryKeys' => ['col1'],
-            'query' => <<<EOT
+            'expectedPKs' => ['col1'],
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -209,14 +210,14 @@ EOT
             ,
         ];
         yield 'with multiple pks' => [
-            'cols' => [
+            'columns' => [
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
             ],
             'primaryKeys' => ['col1', 'col2'],
             'expectedColumnNames' => ['col1', 'col2'],
-            'expectedPrimaryKeys' => ['col1', 'col2'],
-            'query' => <<<EOT
+            'expectedPKs' => ['col1', 'col2'],
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -228,20 +229,23 @@ EOT
         ];
 
         yield 'nullable pks' => [
-            'cols' => [
-                new SnowflakeColumn('col1', new Snowflake(
-                    Snowflake::TYPE_VARCHAR,
-                    [
+            'columns' => [
+                new SnowflakeColumn(
+                    'col1',
+                    new Snowflake(
+                        Snowflake::TYPE_VARCHAR,
+                        [
                         'nullable' => true,
                         'default' => '\'\'',
-                    ],
-                )),
+                        ],
+                    ),
+                ),
                 SnowflakeColumn::createGenericColumn('col2'),
             ],
             'primaryKeys' => ['col1', 'col2'],
             'expectedColumnNames' => ['col1', 'col2'],
-            'expectedPrimaryKeys' => ['col1', 'col2'],
-            'query' => <<<EOT
+            'expectedPKs' => ['col1', 'col2'],
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR DEFAULT '',
@@ -256,11 +260,11 @@ EOT
     /**
      * @return \Generator<string, array{
      *     definition: SnowflakeTableDefinition,
-     *     query: string,
+     *     expectedSql: string,
      *     createPrimaryKeys: bool
      * }>
      */
-    public function createTableTestFromDefinitionSqlProvider(): Generator
+    public static function createTableTestFromDefinitionSqlProvider(): Generator
     {
         $testDb = self::TEST_SCHEMA;
         $tableName = self::TABLE_GENERIC;
@@ -278,7 +282,7 @@ EOT
                 ),
                 [],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -301,7 +305,7 @@ EOT
                 ),
                 ['col1'],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -325,7 +329,7 @@ EOT
                 ),
                 ['col1', 'col2'],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -350,7 +354,7 @@ EOT
                 ),
                 ['col1', 'col2'],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TABLE "$testDb"."$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -373,7 +377,7 @@ EOT
                 ),
                 [],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -396,7 +400,7 @@ EOT
                 ),
                 ['col1', 'col2'],
             ),
-            'query' => <<<EOT
+            'expectedSql' => <<<EOT
 CREATE TEMPORARY TABLE "$testDb"."__temp_$tableName"
 (
 "col1" VARCHAR NOT NULL DEFAULT '',
@@ -408,9 +412,7 @@ EOT
         ];
     }
 
-    /**
-     * @dataProvider createTableTestFromDefinitionSqlProvider
-     */
+    #[DataProvider('createTableTestFromDefinitionSqlProvider')]
     public function testGetCreateTableCommandFromDefinition(
         SnowflakeTableDefinition $definition,
         string $expectedSql,

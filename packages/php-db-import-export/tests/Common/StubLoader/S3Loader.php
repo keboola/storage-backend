@@ -30,7 +30,7 @@ class S3Loader extends BaseStubLoader
         $this->client = new S3Client([
             'region' => $region,
             'version' => '2006-03-01',
-        ]);
+            ],);
 
         $this->bucket = $bucket;
         $this->key = $key;
@@ -43,20 +43,23 @@ class S3Loader extends BaseStubLoader
             'Bucket' => $this->bucket,
             'Prefix' => $this->key,
             'Delimiter' => '/',
-        ]);
+            ],);
+        /** @var array<int, array{Key: string}>|null $objects */
         $objects = $result->get('Contents');
         if ($objects) {
-            /** @var array<array{Key: string}> $objects */
             $this->client->deleteObjects([
                 'Bucket' => $this->bucket,
                 'Delete' => [
-                    'Objects' => array_map(static function (array $object) {
-                        return [
+                    'Objects' => array_map(
+                        static function (array $object): array {
+                            return [
                             'Key' => $object['Key'],
-                        ];
-                    }, $objects),
+                            ];
+                        },
+                        $objects,
+                    ),
                 ],
-            ]);
+                ],);
         }
     }
 
@@ -94,8 +97,8 @@ class S3Loader extends BaseStubLoader
                         'mandatory' => true,
                     ],
                 ],
-            ]),
-        ]);
+                ],),
+            ],);
 
         echo "S3 load complete \n";
     }

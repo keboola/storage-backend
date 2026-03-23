@@ -26,12 +26,13 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class IncrementalImportTest extends SnowflakeBaseTestCase
 {
-    protected function getSnowflakeIncrementalImportOptions(
+    protected static function getSnowflakeIncrementalImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): SnowflakeImportOptions {
         return new SnowflakeImportOptions(
@@ -59,9 +60,12 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
      */
     public function testLoadTypedTableWithCastingValues(): void
     {
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'CREATE TABLE %s."types" (
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'CREATE TABLE %s."types" (
               "id" NUMBER,
               "VARIANT" VARIANT,
               "BINARY" BINARY,
@@ -73,11 +77,15 @@ class IncrementalImportTest extends SnowflakeBaseTestCase
               "_timestamp" TIMESTAMP,
                PRIMARY KEY ("id")
             );',
-            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-        ));
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
+                SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+            ),
+        );
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 1, 
       TO_VARIANT(\'3.14\'),
       TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
@@ -87,9 +95,10 @@ SELECT 1,
       \'POINT(-122.35 37.55)\',
       \'POINT(1820.12 890.56)\'
 ;',
-            $this->getDestinationSchemaName(),
-            'types',
-        ));
+                $this->getDestinationSchemaName(),
+                'types',
+            ),
+        );
 
         // skipping header
         $options = new SnowflakeImportOptions(
@@ -158,7 +167,7 @@ SELECT 1,
                     Snowflake::TYPE_GEOMETRY,
                 ),
             ),
-        ]);
+            ],);
 
         $stagingTable =
             new SnowflakeTableDefinition(
@@ -173,9 +182,12 @@ SELECT 1,
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 1, 
        TO_VARIANT(\'3.14\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
@@ -185,12 +197,16 @@ SELECT 1,
        \'POINT(-122.35 37.55)\',
        \'POINT(1820.12 890.56)\'
 ;',
-            $stagingTable->getSchemaName(),
-            $stagingTable->getTableName(),
-        ));
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
+                $stagingTable->getSchemaName(),
+                $stagingTable->getTableName(),
+            ),
+        );
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 SELECT 2, 
        TO_VARIANT(\'3.14\'),
        TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\'),
@@ -200,9 +216,10 @@ SELECT 2,
        \'POINT(-122.35 37.55)\',
        \'POINT(1820.12 890.56)\'
 ;',
-            $stagingTable->getSchemaName(),
-            $stagingTable->getTableName(),
-        ));
+                $stagingTable->getSchemaName(),
+                $stagingTable->getTableName(),
+            ),
+        );
         $toFinalTableImporter = new IncrementalImporter($this->connection);
 
         $toFinalTableImporter->importToTable(
@@ -218,37 +235,36 @@ SELECT 2,
     /**
      * @return \Generator<string, array<mixed>>
      */
-    public function incrementalImportData(): Generator
+    public static function incrementalImportData(): Generator
     {
-        $accountsStub = $this->getParseCsvStub('expectation.tw_accounts.increment.csv');
-        $multiPKStub = $this->getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
-        $multiPKWithNullStub = $this->getParseCsvStub('expectation.multi-pk.increment.csv');
+        $accountsStub = static::getParseCsvStub('expectation.tw_accounts.increment.csv');
+        $multiPKStub = static::getParseCsvStub('expectation.multi-pk_not-null.increment.csv');
+        $multiPKWithNullStub = static::getParseCsvStub('expectation.multi-pk.increment.csv');
 
-        $tests = [];
         yield 'simple' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            $this->getSnowflakeImportOptions(),
-            $this->getSourceInstance(
+            static::getSnowflakeImportOptions(),
+            static::getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            $this->getSnowflakeIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'accounts_3'],
+            static::getSnowflakeIncrementalImportOptions(),
+            [static::getDestinationSchemaName(), 'accounts_3'],
             $accountsStub->getRows(),
             4,
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'simple no timestamp' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.csv',
                 $accountsStub->getColumns(),
                 false,
@@ -262,7 +278,7 @@ SELECT 2,
                 numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.increment.csv',
                 $accountsStub->getColumns(),
                 false,
@@ -276,36 +292,36 @@ SELECT 2,
                 numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
-            [$this->getDestinationSchemaName(), 'accounts_without_ts'],
+            [static::getDestinationSchemaName(), 'accounts_without_ts'],
             $accountsStub->getRows(),
             4,
             self::TABLE_ACCOUNTS_WITHOUT_TS,
         ];
         yield 'multi pk' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'multi-pk_not-null.csv',
                 $multiPKStub->getColumns(),
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem'],
             ),
-            $this->getSnowflakeImportOptions(),
-            $this->getSourceInstance(
+            static::getSnowflakeImportOptions(),
+            static::getSourceInstance(
                 'multi-pk_not-null.increment.csv',
                 $multiPKStub->getColumns(),
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem'],
             ),
-            $this->getSnowflakeIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), 'multi_pk_ts'],
+            static::getSnowflakeIncrementalImportOptions(),
+            [static::getDestinationSchemaName(), 'multi_pk_ts'],
             $multiPKStub->getRows(),
             3,
             self::TABLE_MULTI_PK_WITH_TS,
         ];
 
         yield 'multi pk with null' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'multi-pk.csv',
                 $multiPKWithNullStub->getColumns(),
                 false,
@@ -319,28 +335,26 @@ SELECT 2,
                 numberOfIgnoredLines: ImportOptions::SKIP_FIRST_LINE,
                 ignoreColumns: [ToStageImporterInterface::TIMESTAMP_COLUMN_NAME],
             ),
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'multi-pk.increment.csv',
                 $multiPKWithNullStub->getColumns(),
                 false,
                 false,
                 ['VisitID', 'Value', 'MenuItem'],
             ),
-            $this->getSnowflakeIncrementalImportOptions(),
-            [$this->getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
+            static::getSnowflakeIncrementalImportOptions(),
+            [static::getDestinationSchemaName(), self::TABLE_MULTI_PK_WITH_TS],
             $multiPKWithNullStub->getRows(),
             4,
             self::TABLE_MULTI_PK_WITH_TS,
         ];
-
-        return $tests;
     }
 
     /**
-     * @dataProvider  incrementalImportData
-     * @param string[] $table
+     * @param string[]     $table
      * @param array<mixed> $expected
      */
+    #[DataProvider('incrementalImportData')]
     public function testIncrementalImport(
         Storage\SourceInterface $fullLoadSource,
         SnowflakeImportOptions $fullLoadOptions,
@@ -434,7 +448,7 @@ SELECT 2,
         );
     }
 
-    public function incrementalImportTimestampBehavior(): Generator
+    public static function incrementalImportTimestampBehavior(): Generator
     {
         yield 'import typed table, timestamp update onchange`' => [
             'expectedContent' => [
@@ -471,9 +485,9 @@ SELECT 2,
     }
 
     /**
-     * @dataProvider incrementalImportTimestampBehavior
      * @param array<mixed> $expectedContent
      */
+    #[DataProvider('incrementalImportTimestampBehavior')]
     public function testImportTimestampBehavior(array $expectedContent): void
     {
         $this->connection->executeQuery(sprintf(
@@ -486,36 +500,42 @@ SELECT 2,
             );',
             SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
             SnowflakeQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
-        ));
+        ),);
 
-        $this->connection->executeQuery(sprintf(
-            'CREATE TABLE %s.%s (
+        $this->connection->executeQuery(
+            sprintf(
+                'CREATE TABLE %s.%s (
     "id" INT,
     "name" STRING,
     "price" INT,
     "isDeleted" INT
             );',
-            SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
-        ));
+                SnowflakeQuote::quoteSingleIdentifier($this->getSourceSchemaName()),
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_TRANSLATIONS),
+            ),
+        );
 
-        $this->connection->executeStatement(sprintf(
-            'INSERT INTO "%s"."%s" VALUES
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO "%s"."%s" VALUES
                 (1, \'change\', 100, 0), (3, \'test3\', 300, 0), (4, \'test4\', 400, 0);
         ',
-            $this->getSourceSchemaName(),
-            self::TABLE_TRANSLATIONS,
-        ));
+                $this->getSourceSchemaName(),
+                self::TABLE_TRANSLATIONS,
+            ),
+        );
 
-        $this->connection->executeStatement(sprintf(
-            'INSERT INTO "%s"."%s" VALUES
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO "%s"."%s" VALUES
 (1, \'test\', 100, 0, \'2021-01-01 00:00:00\'),
 (2, \'test2\', 200, 0, \'2021-01-01 00:00:00\'),
 (3, \'test3\', 300, 0, \'2021-01-01 00:00:00\')
         ',
-            $this->getDestinationSchemaName(),
-            self::TABLE_TRANSLATIONS,
-        ));
+                $this->getDestinationSchemaName(),
+                self::TABLE_TRANSLATIONS,
+            ),
+        );
 
         $source = (new SnowflakeTableReflection(
             $this->connection,

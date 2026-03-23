@@ -33,7 +33,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
                 [
                     'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
                 ],
-            ]);
+                ],);
 
         $destination = new SnowflakeTableDefinition(
             'test_schema',
@@ -42,7 +42,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
         $options = new SnowflakeImportOptions([]);
@@ -80,7 +80,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
                 [
                     'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
                 ],
-            ]);
+                ],);
 
         $destination = new SnowflakeTableDefinition(
             'test_schema',
@@ -89,7 +89,7 @@ class FromTableInsertIntoAdapterTest extends BaseTestCase
             new ColumnCollection([
                 SnowflakeColumn::createGenericColumn('col1'),
                 SnowflakeColumn::createGenericColumn('col2'),
-            ]),
+                ],),
             [],
         );
         $options = new SnowflakeImportOptions([]);

@@ -22,6 +22,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportCommon\StorageTrait;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
@@ -43,9 +44,12 @@ class FullImportTest extends SnowflakeBaseTestCase
      */
     public function testLoadTypedTableWithCastingValues(): void
     {
-        $this->connection->executeQuery(sprintf(
-            /** @lang Snowflake */
-            'CREATE TABLE %s."types" (
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'CREATE TABLE %s."types" (
               "id"  NUMBER,
               "VARIANT" VARIANT,
               "BINARY" BINARY,
@@ -56,8 +60,9 @@ class FullImportTest extends SnowflakeBaseTestCase
               "GEOMETRY" GEOMETRY,
               "_timestamp" TIMESTAMP
             );',
-            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-        ));
+                SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+            ),
+        );
 
         // skipping header
         $options = new SnowflakeImportOptions(
@@ -95,9 +100,12 @@ class FullImportTest extends SnowflakeBaseTestCase
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("id","VARIANT","BINARY","VARBINARY","OBJECT","ARRAY","GEOGRAPHY","GEOMETRY") 
 select 1, 
        TO_VARCHAR(TO_VARIANT(\'3.14\')),
        TO_VARCHAR(TO_BINARY(HEX_ENCODE(\'1\'), \'HEX\')),
@@ -107,9 +115,10 @@ select 1,
        \'POINT(-122.35 37.55)\',
        \'POINT(1820.12 890.56)\'
 ;',
-            $stagingTable->getSchemaName(),
-            $stagingTable->getTableName(),
-        ));
+                $stagingTable->getSchemaName(),
+                $stagingTable->getTableName(),
+            ),
+        );
         $toFinalTableImporter = new FullImporter($this->connection);
 
         $toFinalTableImporter->importToTable(
@@ -149,13 +158,16 @@ select 1,
             self::TABLE_SINGLE_PK,
         );
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
@@ -201,10 +213,13 @@ select 1,
             self::TABLE_COLUMN_NAME_ROW_NUMBER,
         );
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'id',
             'row_number',
-        ]);
+            ],
+        );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
@@ -252,13 +267,16 @@ select 1,
             self::TABLE_SINGLE_PK,
         );
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
@@ -306,13 +324,16 @@ select 1,
             self::TABLE_MULTI_PK,
         );
         $destination = $destinationRef->getTableDefinition();
-        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition($destination, [
+        $stagingTable = StageTableDefinitionFactory::createStagingTableDefinition(
+            $destination,
+            [
             'VisitID',
             'Value',
             'MenuItem',
             'Something',
             'Other',
-        ]);
+            ],
+        );
         $qb = new SnowflakeTableQueryBuilder();
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
@@ -346,12 +367,12 @@ select 1,
     /**
      * @return Generator<string, array<mixed>>
      */
-    public function fullImportData(): Generator
+    public static function fullImportData(): Generator
     {
-        $escapingStub = $this->getParseCsvStub('escaping/standard-with-enclosures.csv');
-        $accountsStub = $this->getParseCsvStub('tw_accounts.csv');
-        $accountsChangedColumnsOrderStub = $this->getParseCsvStub('tw_accounts.changedColumnsOrder.csv');
-        $lemmaStub = $this->getParseCsvStub('lemma.csv');
+        $escapingStub = static::getParseCsvStub('escaping/standard-with-enclosures.csv');
+        $accountsStub = static::getParseCsvStub('tw_accounts.csv');
+        $accountsChangedColumnsOrderStub = static::getParseCsvStub('tw_accounts.changedColumnsOrder.csv');
+        $lemmaStub = static::getParseCsvStub('lemma.csv');
 
         // large sliced manifest
         $expectedLargeSlicedManifest = [];
@@ -360,82 +381,82 @@ select 1,
         }
 
         yield 'large manifest' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/2cols-large/%MANIFEST_PREFIX%2cols-large.csvmanifest',
                 $escapingStub->getColumns(),
                 true,
                 false,
                 [],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
             $expectedLargeSlicedManifest,
             1501,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'empty manifest' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'empty.manifest',
                 $escapingStub->getColumns(),
                 true,
                 false,
                 [],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
             [],
             0,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'lemma' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'lemma.csv',
                 $lemmaStub->getColumns(),
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_LEMMA],
-            $this->getSnowflakeImportOptions(),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_LEMMA],
+            static::getSnowflakeImportOptions(),
             $lemmaStub->getRows(),
             5,
             self::TABLE_OUT_LEMMA,
         ];
 
         yield 'standard with enclosures' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingStub->getColumns(),
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSnowflakeImportOptions(),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSnowflakeImportOptions(),
             $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'gzipped standard with enclosure' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'gzipped-standard-with-enclosures.csv.gz',
                 $escapingStub->getColumns(),
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSnowflakeImportOptions(),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSnowflakeImportOptions(),
             $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'standard with enclosures tabs' => [
-            $this->getSourceInstanceFromCsv(
+            static::getSourceInstanceFromCsv(
                 'standard-with-enclosures.tabs.csv',
                 new CsvOptions("\t"),
                 $escapingStub->getColumns(),
@@ -443,15 +464,15 @@ select 1,
                 false,
                 [],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSnowflakeImportOptions(),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSnowflakeImportOptions(),
             $escapingStub->getRows(),
             7,
             self::TABLE_OUT_CSV_2COLS,
         ];
 
         yield 'accounts changedColumnsOrder' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.changedColumnsOrder.csv',
                 $accountsChangedColumnsOrderStub->getColumns(),
                 false,
@@ -459,24 +480,24 @@ select 1,
                 ['id'],
             ),
             [
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 self::TABLE_ACCOUNTS_3,
             ],
-            $this->getSnowflakeImportOptions(),
+            static::getSnowflakeImportOptions(),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
         yield 'accounts' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
-            $this->getSnowflakeImportOptions(),
+            [static::getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
+            static::getSnowflakeImportOptions(),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
@@ -484,15 +505,15 @@ select 1,
 
         // line ending detection is not supported yet for S3
         yield 'accounts crlf' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'tw_accounts.crlf.csv',
                 $accountsStub->getColumns(),
                 false,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
-            $this->getSnowflakeImportOptions(),
+            [static::getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
+            static::getSnowflakeImportOptions(),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
@@ -500,61 +521,63 @@ select 1,
 
         // manifests
         yield 'accounts sliced' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/accounts/%MANIFEST_PREFIX%accounts.csvmanifest',
                 $accountsStub->getColumns(),
                 true,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
-            $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
+            static::getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
 
         yield 'accounts sliced gzip' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'sliced/accounts-gzip/%MANIFEST_PREFIX%accounts-gzip.csvmanifest',
                 $accountsStub->getColumns(),
                 true,
                 false,
                 ['id'],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
-            $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
+            [static::getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
+            static::getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
             $accountsStub->getRows(),
             3,
             self::TABLE_ACCOUNTS_3,
         ];
 
-        // folder
-        yield 'accounts sliced folder import' => [
-            $this->getSourceInstance(
-                'sliced_accounts_no_manifest/',
-                $accountsStub->getColumns(),
-                true,
-                true,
-                ['id'],
-            ),
-            [$this->getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
-            $this->getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
-            $accountsStub->getRows(),
-            3,
-            self::TABLE_ACCOUNTS_3,
-        ];
+        // folder (not supported for GCS)
+        if (getenv('STORAGE_TYPE') !== 'GCS') {
+            yield 'accounts sliced folder import' => [
+                static::getSourceInstance(
+                    'sliced_accounts_no_manifest/',
+                    $accountsStub->getColumns(),
+                    true,
+                    true,
+                    ['id'],
+                ),
+                [static::getDestinationSchemaName(), self::TABLE_ACCOUNTS_3],
+                static::getSnowflakeImportOptions(ImportOptions::SKIP_NO_LINE),
+                $accountsStub->getRows(),
+                3,
+                self::TABLE_ACCOUNTS_3,
+            ];
+        }
 
         // reserved words
         yield 'reserved words' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'reserved-words.csv',
                 ['column', 'table'],
                 false,
                 false,
                 [],
             ),
-            [$this->getDestinationSchemaName(), self::TABLE_TABLE],
+            [static::getDestinationSchemaName(), self::TABLE_TABLE],
             new SnowflakeImportOptions(
                 convertEmptyValuesToNull: [],
                 isIncremental: false,
@@ -571,7 +594,7 @@ select 1,
         ];
         // import table with _timestamp columns - used by snapshots
         yield 'import with _timestamp columns' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'with-ts.csv',
                 [
                     'col1',
@@ -583,10 +606,10 @@ select 1,
                 [],
             ),
             [
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 self::TABLE_OUT_CSV_2COLS,
             ],
-            $this->getSnowflakeImportOptions(),
+            static::getSnowflakeImportOptions(),
             [
                 ['a', 'b', '2014-11-10 13:12:06'],
                 ['c', 'd', '2014-11-10 14:12:06'],
@@ -596,7 +619,7 @@ select 1,
         ];
         // test creating table without _timestamp column
         yield 'table without _timestamp column' => [
-            $this->getSourceInstance(
+            static::getSourceInstance(
                 'standard-with-enclosures.csv',
                 $escapingStub->getColumns(),
                 false,
@@ -604,7 +627,7 @@ select 1,
                 [],
             ),
             [
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 self::TABLE_OUT_NO_TIMESTAMP_TABLE,
             ],
             new SnowflakeImportOptions(
@@ -620,16 +643,16 @@ select 1,
         ];
         // copy from table
         yield 'copy from table' => [
-            new Table($this->getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
-            [$this->getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
-            $this->getSnowflakeImportOptions(),
+            new Table(static::getSourceSchemaName(), self::TABLE_OUT_CSV_2COLS, $escapingStub->getColumns()),
+            [static::getDestinationSchemaName(), self::TABLE_OUT_CSV_2COLS],
+            static::getSnowflakeImportOptions(),
             [['a', 'b'], ['c', 'd']],
             2,
             self::TABLE_OUT_CSV_2COLS,
         ];
         yield 'copy from table 2' => [
             new Table(
-                $this->getSourceSchemaName(),
+                static::getSourceSchemaName(),
                 self::TABLE_TYPES,
                 [
                     'charCol',
@@ -639,10 +662,10 @@ select 1,
                 ],
             ),
             [
-                $this->getDestinationSchemaName(),
+                static::getDestinationSchemaName(),
                 self::TABLE_TYPES,
             ],
-            $this->getSnowflakeImportOptions(),
+            static::getSnowflakeImportOptions(),
             [['a', '10.5', '0.3', '1']],
             1,
             self::TABLE_TYPES,
@@ -650,10 +673,10 @@ select 1,
     }
 
     /**
-     * @dataProvider  fullImportData
-     * @param string[] $table
+     * @param string[]     $table
      * @param array<mixed> $expected
      */
+    #[DataProvider('fullImportData')]
     public function testFullImportWithDataSet(
         SourceInterface $source,
         array $table,

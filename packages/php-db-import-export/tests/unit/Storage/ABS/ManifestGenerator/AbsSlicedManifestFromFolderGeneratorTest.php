@@ -12,6 +12,7 @@ use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\Blob;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsResult;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 class AbsSlicedManifestFromFolderGeneratorTest extends TestCase
@@ -19,16 +20,10 @@ class AbsSlicedManifestFromFolderGeneratorTest extends TestCase
     public function testGenerateAndSaveManifest(): void
     {
         /** @var MockObject|BlobRestProxy $mock */
-        $mock = $this->getMockBuilder(BlobRestProxy::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['listBlobs', 'createBlockBlob'])
-            ->getMock();
+        $mock = $this->createMock(BlobRestProxy::class);
 
-        /** @var MockObject|ListBlobsResult $blobResultMock */
-        $blobResultMock = $this->getMockBuilder(ListBlobsResult::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getBlobs', 'getNextMarker'])
-            ->getMock();
+        /** @var Stub|ListBlobsResult $blobResultMock */
+        $blobResultMock = $this->createStub(ListBlobsResult::class);
         $blob1 = new Blob();
         $blob1->setUrl('azure://1');
         $blob2 = new Blob();
@@ -36,7 +31,7 @@ class AbsSlicedManifestFromFolderGeneratorTest extends TestCase
         $blobResultMock->method('getBlobs')->willReturn([
             $blob1,
             $blob2,
-        ]);
+            ],);
         $blobResultMock->method('getNextMarker')->willReturn(null);
 
         $mock->method('listBlobs')->willReturn($blobResultMock);
@@ -52,6 +47,7 @@ class AbsSlicedManifestFromFolderGeneratorTest extends TestCase
         $generator = new AbsSlicedManifestFromFolderGenerator($mock);
         $generator->generateAndSaveManifest($path);
 
+        /** @phpstan-ignore method.alreadyNarrowedType */
         $this->assertInstanceOf(SlicedManifestGeneratorInterface::class, $generator);
     }
 }

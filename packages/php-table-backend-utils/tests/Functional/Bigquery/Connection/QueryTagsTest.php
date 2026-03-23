@@ -37,13 +37,14 @@ class QueryTagsTest extends BigqueryBaseCase
 
         // Get job info and verify the run_id and branch_id label
         $job = $queryResults->job();
+        /** @var array<string, mixed> $info */
         $info = $job->info();
 
         $this->assertArrayHasKey('configuration', $info);
         /** @var array<string, mixed> $configuration */
         $configuration = $info['configuration'];
         $this->assertArrayHasKey('labels', $configuration);
-        /** @var array<string, mixed> $labels */
+        /** @var array<string, string> $labels */
         $labels = $configuration['labels'];
         $this->assertArrayHasKey('run_id', $labels);
         $this->assertEquals('e2e-utils-lib', $labels['run_id']);

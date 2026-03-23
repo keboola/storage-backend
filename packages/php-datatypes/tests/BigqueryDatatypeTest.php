@@ -10,6 +10,8 @@ use Keboola\Datatype\Definition\Bigquery;
 use Keboola\Datatype\Definition\Exception\InvalidLengthException;
 use Keboola\Datatype\Definition\Exception\InvalidOptionException;
 use Keboola\Datatype\Definition\Exception\InvalidTypeException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use Throwable;
 
 class BigqueryDatatypeTest extends BaseDatatypeTestCase
@@ -17,7 +19,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     /**
      * @return array<int, mixed[]>
      */
-    public function invalidLengths(): array
+    public static function invalidLengths(): array
     {
         return [
             ['string', 'notANumber'],
@@ -75,15 +77,16 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     }
 
     /**
-     * @dataProvider invalidLengths
-     * @param string|int|null $length
-     * @param ?array<string, mixed> $extraOption
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
+    /**
+     * @param array<string, mixed> $extraOption
+     */
     //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testInvalidLengths(string $type, $length, ?array $extraOption = []): void
+    #[DataProvider('invalidLengths')]
+    public function testInvalidLengths(string $type, string|int|float|null $length, ?array $extraOption = []): void
     {
         $options = $extraOption;
         $options['length'] = $length;
@@ -154,7 +157,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     /**
      * @return array<int, mixed[]>
      */
-    public function expectedSqlDefinitions(): array
+    public static function expectedSqlDefinitions(): array
     {
         $tests = [];
 
@@ -299,9 +302,9 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     }
 
     /**
-     * @dataProvider expectedSqlDefinitions
-     * @param ?array<string, mixed> $options
+     * @param array<string, mixed>|null $options
      */
+    #[DataProvider('expectedSqlDefinitions')]
     public function testSqlDefinition(string $type, ?array $options, string $expectedDefinition): void
     {
         $definition = new Bigquery($type, $options);
@@ -311,7 +314,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     /**
      * @return array<int, array<int, int|string|null>>
      */
-    public function validLengths(): array
+    public static function validLengths(): array
     {
         return [
             ['bytes', null],
@@ -360,41 +363,44 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
     }
 
     /**
-     * @dataProvider validLengths
-     * @param string|int|null $length
      * @throws InvalidLengthException
      * @throws InvalidOptionException
      * @throws InvalidTypeException
      */
     //phpcs:ignore SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
-    public function testValidLengths(string $type, $length): void
+    #[DoesNotPerformAssertions]
+    #[DataProvider('validLengths')]
+    public function testValidLengths(string $type, string|int|null $length): void
     {
         $options = [];
         if ($length !== null) {
             $options['length'] = $length;
         }
         new Bigquery($type, $options);
-        $this->expectNotToPerformAssertions();
     }
 
     public function testFieldAsArray(): void
     {
-        $def = new Bigquery('ARRAY', [
+        $def = new Bigquery(
+            'ARRAY',
+            [
             'fieldAsArray' => [
                 'name' => 'test',
                 'type' => 'STRING',
             ],
-        ]);
+            ],
+        );
 
-        $this->assertSame([
+        $this->assertSame(
+            [
             'name' => 'test',
             'type' => 'STRING',
-        ], $def->getFieldAsArray());
+            ],
+            $def->getFieldAsArray(),
+        );
     }
 
-    /**
-     * @dataProvider provideTestGetTypeFromAlias
-     */
+    #[DataProvider('provideTestGetTypeFromAlias')]
     public function testBackendBasetypeFromAlias(string $type, string $expectedType): void
     {
         $definition = new Bigquery($type);
@@ -494,7 +500,7 @@ class BigqueryDatatypeTest extends BaseDatatypeTestCase
         ];
     }
 
-    public function provideTestGetTypeFromAlias(): Generator
+    public static function provideTestGetTypeFromAlias(): Generator
     {
         foreach (Bigquery::TYPES as $type) {
             $expectedType = match ($type) {

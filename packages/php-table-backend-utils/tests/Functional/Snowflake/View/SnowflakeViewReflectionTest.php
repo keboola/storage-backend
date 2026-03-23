@@ -7,11 +7,10 @@ namespace Tests\Keboola\TableBackendUtils\Functional\Snowflake\View;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
 use Keboola\TableBackendUtils\View\Snowflake\SnowflakeViewReflection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tests\Keboola\TableBackendUtils\Functional\Snowflake\SnowflakeBaseCase;
 
-/**
- * @covers \Keboola\TableBackendUtils\View\Snowflake\SnowflakeViewReflection
- */
+#[CoversClass(SnowflakeViewReflection::class)]
 class SnowflakeViewReflectionTest extends SnowflakeBaseCase
 {
 
@@ -36,10 +35,13 @@ class SnowflakeViewReflectionTest extends SnowflakeBaseCase
         $dependentViews = $ref->getDependentViews();
         self::assertCount(1, $dependentViews);
 
-        self::assertSame([
+        self::assertSame(
+            [
             'schema_name' => self::TEST_SCHEMA,
             'name' => $secondViewName,
-        ], $dependentViews[0]);
+            ],
+            $dependentViews[0],
+        );
     }
 
 
@@ -74,10 +76,12 @@ class SnowflakeViewReflectionTest extends SnowflakeBaseCase
         // create view V from table A
         $this->initView(self::VIEW_GENERIC, self::TABLE_GENERIC);
         // add new column to table A
-        $this->connection->executeQuery(sprintf(
-            'ALTER TABLE %s ADD COLUMN "xxx" VARCHAR(300) NULL;',
-            SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+                'ALTER TABLE %s ADD COLUMN "xxx" VARCHAR(300) NULL;',
+                SnowflakeQuote::quoteSingleIdentifier(self::TABLE_GENERIC),
+            ),
+        );
         // check that table A has new column (3->4)
         $tableRef = new SnowflakeTableReflection($this->connection, self::TEST_SCHEMA, self::TABLE_GENERIC);
         self::assertCount(4, $tableRef->getColumnsNames());

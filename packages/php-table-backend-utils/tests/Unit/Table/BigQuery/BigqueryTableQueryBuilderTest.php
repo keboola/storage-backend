@@ -11,6 +11,7 @@ use Keboola\TableBackendUtils\Column\Bigquery\BigqueryColumn;
 use Keboola\TableBackendUtils\Column\ColumnCollection;
 use Keboola\TableBackendUtils\QueryBuilderException;
 use Keboola\TableBackendUtils\Table\Bigquery\BigqueryTableQueryBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\TableBackendUtils\Functional\Bigquery\BigqueryBaseCase;
 use Throwable;
 
@@ -27,8 +28,8 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
     /**
      * @param string[] $expectedCommands
      * @param string[] $keys
-     * @dataProvider alterColumnCommandProvider
      */
+    #[DataProvider('alterColumnCommandProvider')]
     public function testAlterColumnCommandOnValidCases(
         Bigquery $newDefinition,
         array $expectedCommands,
@@ -48,9 +49,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
         $this->assertEquals([], $commands);
     }
 
-    /**
-     * @dataProvider alterColumnCommandInvalidProvider
-     */
+    #[DataProvider('alterColumnCommandInvalidProvider')]
     public function testAlterColumnCommandInvalid(
         Bigquery $newDefinition,
         QueryBuilderException $expectedException,
@@ -70,7 +69,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
         }
     }
 
-    public function alterColumnCommandProvider(): Generator
+    public static function alterColumnCommandProvider(): Generator
     {
         yield 'REQUIRED -> NULLABLE' => [
             new Bigquery(Bigquery::TYPE_STRING, ['nullable' => true]),
@@ -100,7 +99,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
         ];
     }
 
-    public function alterColumnCommandInvalidProvider(): Generator
+    public static function alterColumnCommandInvalidProvider(): Generator
     {
         yield 'Setting default "sdfsadf" on BOOLEAN type' => [
             new Bigquery(Bigquery::TYPE_BOOL, ['default' => 'abc']),
@@ -122,7 +121,7 @@ class BigqueryTableQueryBuilderTest extends BigqueryBaseCase
                 'name',
                 new Bigquery(Bigquery::TYPE_STRING),
             ),
-        ]);
+            ],);
 
         $sql = $this->qb->getCreateTableCommand(
             'mydataset',
@@ -158,7 +157,7 @@ SQL;
                 'name',
                 new Bigquery(Bigquery::TYPE_STRING),
             ),
-        ]);
+            ],);
 
         $sql = $this->qb->getCreateTableCommand(
             'mydataset',
@@ -191,7 +190,7 @@ SQL;
                 'name',
                 new Bigquery(Bigquery::TYPE_STRING),
             ),
-        ]);
+            ],);
 
         $this->expectException(QueryBuilderException::class);
         $this->expectExceptionMessage('Trying to set "nonexistent" as PKs but not present in columns');

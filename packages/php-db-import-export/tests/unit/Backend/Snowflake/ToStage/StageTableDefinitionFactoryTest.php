@@ -23,7 +23,7 @@ class StageTableDefinitionFactoryTest extends BaseTestCase
             new ColumnCollection([
                 new SnowflakeColumn('name', new Snowflake(Snowflake::TYPE_DATE)),
                 SnowflakeColumn::createGenericColumn('id'),
-            ]),
+                ],),
             [],
         );
         $stageDefinition = StageTableDefinitionFactory::createStagingTableDefinition(

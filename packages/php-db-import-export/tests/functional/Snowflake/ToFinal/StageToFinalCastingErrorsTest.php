@@ -17,6 +17,7 @@ use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableDefinition;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableQueryBuilder;
 use Keboola\TableBackendUtils\Table\Snowflake\SnowflakeTableReflection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Keboola\Db\ImportExportFunctional\Snowflake\SnowflakeBaseTestCase;
 
 class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
@@ -30,7 +31,7 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
         $this->createSchema($this->getDestinationSchemaName());
     }
 
-    public function castingErrorCases(): Generator
+    public static function castingErrorCases(): Generator
     {
         yield 'BINARY string' => [
             'column' => new SnowflakeColumn('id', new Snowflake(Snowflake::TYPE_BINARY)),
@@ -64,24 +65,26 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider castingErrorCases
-     */
+    #[DataProvider('castingErrorCases')]
     public function testLoadTypedTableWithCastingValuesErrors(
         SnowflakeColumn $column,
         string $insertData,
         string $expectedMessage,
     ): void {
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'CREATE TABLE %s."types" (
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'CREATE TABLE %s."types" (
               "%s" %s,
               "_timestamp" TIMESTAMP
             );',
-            SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
-            $column->getColumnName(),
-            $column->getColumnDefinition()->getSQLDefinition(),
-        ));
+                SnowflakeQuote::quoteSingleIdentifier($this->getDestinationSchemaName()),
+                $column->getColumnName(),
+                $column->getColumnDefinition()->getSQLDefinition(),
+            ),
+        );
 
         // skipping header
         $options = new SnowflakeImportOptions(
@@ -112,14 +115,18 @@ class StageToFinalCastingErrorsTest extends SnowflakeBaseTestCase
         $this->connection->executeStatement(
             $qb->getCreateTableCommandFromDefinition($stagingTable),
         );
-        $this->connection->executeQuery(sprintf(
-        /** @lang Snowflake */
-            'INSERT INTO "%s"."%s" ("%s") SELECT %s;',
-            $stagingTable->getSchemaName(),
-            $stagingTable->getTableName(),
-            $column->getColumnName(),
-            $insertData,
-        ));
+        $this->connection->executeQuery(
+            sprintf(
+            /**
+            * @lang Snowflake
+            */
+                'INSERT INTO "%s"."%s" ("%s") SELECT %s;',
+                $stagingTable->getSchemaName(),
+                $stagingTable->getTableName(),
+                $column->getColumnName(),
+                $insertData,
+            ),
+        );
         $toFinalTableImporter = new FullImporter($this->connection);
 
         try {

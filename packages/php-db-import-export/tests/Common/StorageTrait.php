@@ -88,53 +88,56 @@ trait StorageTrait
     }
 
     /**
-     * @param string[] $columns
-     * @param string[]|null $primaryKeys
-     * @return S3\SourceFile|ABS\SourceFile|Storage\GCS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
+     * @param  string[]      $columns
+     * @param  string[]|null $primaryKeys
+     * @return S3\SourceFile|ABS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory|Storage\GCS\SourceFile
      */
-    public function getSourceInstance(
+    public static function getSourceInstance(
         string $filePath,
         array $columns = [],
         bool $isSliced = false,
         bool $isDirectory = false,
         ?array $primaryKeys = null,
     ) {
-        switch (getenv('STORAGE_TYPE')) {
-            case StorageType::STORAGE_S3:
-                $getSourceInstance = 'createS3SourceInstance';
-                $manifestPrefix = 'S3.';
-                break;
-            case StorageType::STORAGE_ABS:
-                $getSourceInstance = 'createABSSourceInstance';
-                $manifestPrefix = 'ABS.';
-                break;
-            case StorageType::STORAGE_GCS:
-                $getSourceInstance = 'createGCSSourceInstance';
-                $manifestPrefix = 'GCS.';
-                if ($isDirectory) {
-                    self::markTestSkipped('GCS does not support directory import');
-                }
-                break;
-            default:
-                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
-        }
+        $filePath = match (getenv('STORAGE_TYPE')) {
+            StorageType::STORAGE_S3 => str_replace('%MANIFEST_PREFIX%', 'S3.', $filePath),
+            StorageType::STORAGE_ABS => str_replace('%MANIFEST_PREFIX%', 'ABS.', $filePath),
+            StorageType::STORAGE_GCS => str_replace('%MANIFEST_PREFIX%', 'GCS.', $filePath),
+            default => throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE'))),
+        };
 
-        $filePath = str_replace('%MANIFEST_PREFIX%', $manifestPrefix, $filePath);
-        return $this->$getSourceInstance(
-            $filePath,
-            $columns,
-            $isSliced,
-            $isDirectory,
-            $primaryKeys,
-        );
+        return match (getenv('STORAGE_TYPE')) {
+            StorageType::STORAGE_S3 => static::createS3SourceInstance(
+                $filePath,
+                $columns,
+                $isSliced,
+                $isDirectory,
+                $primaryKeys,
+            ),
+            StorageType::STORAGE_ABS => static::createABSSourceInstance(
+                $filePath,
+                $columns,
+                $isSliced,
+                $isDirectory,
+                $primaryKeys,
+            ),
+            StorageType::STORAGE_GCS => static::createGCSSourceInstance(
+                $filePath,
+                $columns,
+                $isSliced,
+                $isDirectory,
+                $primaryKeys,
+            ),
+            default => throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE'))),
+        };
     }
 
     /**
-     * @param string[] $columns
-     * @param string[]|null $primaryKeys
-     * @return S3\SourceFile|ABS\SourceFile|Storage\GCS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory
+     * @param  string[]      $columns
+     * @param  string[]|null $primaryKeys
+     * @return S3\SourceFile|ABS\SourceFile|S3\SourceDirectory|ABS\SourceDirectory|Storage\GCS\SourceFile
      */
-    public function getSourceInstanceFromCsv(
+    public static function getSourceInstanceFromCsv(
         string $filePath,
         CsvOptions $options,
         array $columns = [],
@@ -142,39 +145,48 @@ trait StorageTrait
         bool $isDirectory = false,
         ?array $primaryKeys = null,
     ) {
-        switch (getenv('STORAGE_TYPE')) {
-            case StorageType::STORAGE_S3:
-                $getSourceInstanceFromCsv = 'createS3SourceInstanceFromCsv';
-                $manifestPrefix = 'S3.';
-                break;
-            case StorageType::STORAGE_ABS:
-                $getSourceInstanceFromCsv = 'createABSSourceInstanceFromCsv';
-                $manifestPrefix = '';
-                break;
-            case StorageType::STORAGE_GCS:
-                $getSourceInstanceFromCsv = 'createGCSSourceInstanceFromCsv';
-                $manifestPrefix = '';
-                break;
-            default:
-                throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
-        }
+        $filePath = match (getenv('STORAGE_TYPE')) {
+            StorageType::STORAGE_S3 => str_replace('%MANIFEST_PREFIX%', 'S3.', $filePath),
+            StorageType::STORAGE_ABS, StorageType::STORAGE_GCS => str_replace('%MANIFEST_PREFIX%', '', $filePath),
+            default => throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE'))),
+        };
 
-        $filePath = str_replace('%MANIFEST_PREFIX%', $manifestPrefix, $filePath);
-        return $this->$getSourceInstanceFromCsv(
-            $filePath,
-            $options,
-            $columns,
-            $isSliced,
-            $isDirectory,
-            $primaryKeys,
-        );
+        return match (getenv('STORAGE_TYPE')) {
+            StorageType::STORAGE_S3 => static::createS3SourceInstanceFromCsv(
+                $filePath,
+                $options,
+                $columns,
+                $isSliced,
+                $isDirectory,
+                $primaryKeys,
+            ),
+            StorageType::STORAGE_ABS => static::createABSSourceInstanceFromCsv(
+                $filePath,
+                $options,
+                $columns,
+                $isSliced,
+                $isDirectory,
+                $primaryKeys,
+            ),
+            StorageType::STORAGE_GCS => static::createGCSSourceInstanceFromCsv(
+                $filePath,
+                $options,
+                $columns,
+                $isSliced,
+                $isDirectory,
+                $primaryKeys,
+            ),
+            default => throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE'))),
+        };
     }
 
     public function clearDestination(string $dirToClear): void
     {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
-                /** @var S3Client $client */
+                /**
+     * @var S3Client $client
+*/
                 $client = $this->createClient();
                 $client->deleteMatchingObjects(
                     (string) getenv('AWS_S3_BUCKET'),
@@ -182,7 +194,9 @@ trait StorageTrait
                 );
                 return;
             case StorageType::STORAGE_ABS:
-                /** @var BlobRestProxy $client */
+                /**
+     * @var BlobRestProxy $client
+*/
                 $client = $this->createClient();
                 // delete blobs from EXPORT_BLOB_DIR
                 $listOptions = new ListBlobsOptions();
@@ -194,7 +208,9 @@ trait StorageTrait
                 }
                 return;
             case StorageType::STORAGE_GCS:
-                /** @var StorageClient $client */
+                /**
+     * @var StorageClient $client
+*/
                 $client = $this->createClient();
                 $bucket = $client->bucket((string) getenv($this->getGCSBucketEnvName()));
                 $objects = $bucket->objects(['prefix' => $dirToClear]);
@@ -221,7 +237,7 @@ trait StorageTrait
                     ],
                     'region' => (string) getenv('AWS_REGION'),
                     'version' => '2006-03-01',
-                ]);
+                    ],);
             case StorageType::STORAGE_ABS:
                 $connectionString = sprintf(
                     'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=core.windows.net',
@@ -235,7 +251,7 @@ trait StorageTrait
                 return new StorageClient([
                     'keyFile' => $this->getGCSCredentials(),
                     'debug' => true,
-                ]);
+                    ],);
             default:
                 throw new Exception(sprintf('Unknown STORAGE_TYPE "%s".', getenv('STORAGE_TYPE')));
         }
@@ -269,13 +285,19 @@ trait StorageTrait
     {
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
-                /** @var S3Client $client */
+                /**
+     * @var S3Client $client
+*/
                 $client = $this->createClient();
-                $result = $client->listObjects([
+                $result = $client->listObjects(
+                    [
                     'Bucket' => (string) getenv('AWS_S3_BUCKET'),
                     'Prefix' => $dir,
-                ]);
-                /** @var array<array{Key:string}> $blobs */
+                    ],
+                );
+                /**
+     * @var array<array{Key:string}> $blobs
+*/
                 $blobs = $result->get('Contents');
                 if ($excludeManifest) {
                     $blobs = array_filter(
@@ -285,7 +307,9 @@ trait StorageTrait
                 }
                 return $blobs;
             case StorageType::STORAGE_ABS:
-                /** @var BlobRestProxy $client */
+                /**
+     * @var BlobRestProxy $client
+*/
                 $client = $this->createClient();
                 $listOptions = new ListBlobsOptions();
                 $listOptions->setPrefix($dir);
@@ -298,7 +322,9 @@ trait StorageTrait
                 }
                 return $blobs;
             case StorageType::STORAGE_GCS:
-                /** @var StorageClient $client */
+                /**
+     * @var StorageClient $client
+*/
                 $client = $this->createClient();
                 $bucket = $client->bucket((string) getenv($this->getGCSBucketEnvName()));
                 $objects = $bucket->objects(['prefix' => $dir]);
@@ -351,10 +377,13 @@ trait StorageTrait
         foreach ($tmpFiles as $file) {
             $process = Process::fromShellCommandline('cat "${:FILE}" >> "${:FINAL_FILE}"');
             $process->setTimeout(null);
-            $code = $process->run(null, [
+            $code = $process->run(
+                null,
+                [
                 'FILE' => $file,
                 'FINAL_FILE' => $finalFile,
-            ]);
+                ],
+            );
 
             if ($code !== 0) {
                 throw new ProcessFailedException($process);
@@ -387,14 +416,18 @@ trait StorageTrait
         $tmpFiles = [];
         switch (getenv('STORAGE_TYPE')) {
             case StorageType::STORAGE_S3:
-                /** @var S3Client $client */
+                /**
+     * @var S3Client $client
+*/
                 $client = $this->createClient();
-                /** @var array{Key:string, Body:string} $file */
+                /**
+     * @var array{Key:string, Body:string} $file
+*/
                 foreach ($files as $file) {
                     $result = $client->getObject([
                         'Bucket' => (string) getenv('AWS_S3_BUCKET'),
                         'Key' => $file['Key'],
-                    ]);
+                        ],);
                     $tmpFiles[] = $tmpName = $tmpFolder . '/' . basename($file['Key']);
                     file_put_contents($tmpName, $result['Body']);
                 }
@@ -408,7 +441,9 @@ trait StorageTrait
                 }
                 break;
             case StorageType::STORAGE_GCS:
-                /** @var StorageClient $client */
+                /**
+     * @var StorageClient $client
+*/
                 $client = $this->createClient();
                 $bucket = $client->bucket((string) getenv($this->getGCSBucketEnvName()));
                 foreach ($files as $file) {
@@ -432,12 +467,8 @@ trait StorageTrait
         $content = [];
         $reader = new Reader();
         foreach ($files as $tmpFile) {
-            /** @var \Flow\Parquet\ParquetFile $file */
             $file = $reader->read($tmpFile);
-            /** @var iterable<array<string, mixed>> $values */
-            $values = $file->values();
-            foreach ($values as $row) {
-                /** @var array<string, mixed> $row */
+            foreach ($file->values() as $row) {
                 foreach ($row as $column => &$value) {
                     if ($value instanceof DateTimeInterface) {
                         $row[$column] = $value->format(DateTimeInterface::ATOM);

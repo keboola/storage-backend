@@ -39,15 +39,20 @@ class GenericStorageDatatypeTest extends TestCase
 
     public function testToMetadata(): void
     {
-        $datatype = new GenericStorage('DATE', [
+        $datatype = new GenericStorage(
+            'DATE',
+            [
             'length' => 10,
             'nullable' => false,
             'default' => '1970-01-01',
             'format' => 'Y-m-d',
-        ]);
+            ],
+        );
         $datatypeMetadata = $datatype->toMetadata();
 
         foreach ($datatypeMetadata as $md) {
+            $this->assertArrayHasKey('key', $md); // @phpstan-ignore method.alreadyNarrowedType
+            $this->assertArrayHasKey('value', $md); // @phpstan-ignore method.alreadyNarrowedType
             if ($md['key'] === Common::KBC_METADATA_KEY_FORMAT) {
                 $this->assertEquals('Y-m-d', $md['value']);
             }
@@ -74,35 +79,47 @@ class GenericStorageDatatypeTest extends TestCase
 
     public function testToArray(): void
     {
-        $datatype = new GenericStorage('DATE', [
+        $datatype = new GenericStorage(
+            'DATE',
+            [
             'length' => 10,
             'nullable' => false,
             'default' => '1970-01-01',
             'format' => 'Y-m-d',
-        ]);
+            ],
+        );
 
-        $this->assertEquals([
+        $this->assertEquals(
+            [
             'type' => 'DATE',
             'length' => '10',
             'nullable' => false,
             'default' => '1970-01-01',
-            'format' => 'Y-m-d'], $datatype->toArray());
+            'format' => 'Y-m-d'],
+            $datatype->toArray(),
+        );
     }
 
     public function testSqlDefinition(): void
     {
-        $datatype = new GenericStorage('DATE', [
+        $datatype = new GenericStorage(
+            'DATE',
+            [
             'length' => 10,
             'nullable' => false,
             'default' => '1970-01-01',
             'format' => 'Y-m-d',
-        ]);
+            ],
+        );
 
         $this->assertEquals("DATE(10) NOT NULL DEFAULT '1970-01-01'", $datatype->getSQLDefinition());
 
-        $datatype = new GenericStorage('INTEGER', [
+        $datatype = new GenericStorage(
+            'INTEGER',
+            [
             'length' => 10,
-        ]);
+            ],
+        );
         $this->assertEquals('INTEGER(10) NULL DEFAULT NULL', $datatype->getSQLDefinition());
 
         $datatype = new GenericStorage('VARCHAR', ['length' => '50', 'nullable' => false, 'default' => 'NULL']);
@@ -111,11 +128,14 @@ class GenericStorageDatatypeTest extends TestCase
 
     public function testFalseyDefaults(): void
     {
-        $datatype = new GenericStorage('INTEGER', [
+        $datatype = new GenericStorage(
+            'INTEGER',
+            [
             'length' => 11,
             'nullable' => false,
             'default' => 0,
-        ]);
+            ],
+        );
 
         $this->assertEquals("INTEGER(11) NOT NULL DEFAULT '0'", $datatype->getSQLDefinition());
 

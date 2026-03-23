@@ -54,10 +54,13 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
 
     private function getBigqueryConnection(): BigQueryClient
     {
-        return new BigQueryClientWrapper([
-            'keyFile' => $this->getBqCredentials(),
+        return new BigQueryClientWrapper(
+            [
+            'keyFile' => self::getBqCredentials(),
             'restRetryFunction' => Retry::getRestRetryFunction(new NullLogger(), true),
-        ], 'e2e-ie-lib');
+            ],
+            'e2e-ie-lib',
+        );
     }
 
     protected function datasetExists(string $datasetName): bool
@@ -83,7 +86,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );
     }
 
-    protected function getSourceDbName(): string
+    protected static function getSourceDbName(): string
     {
         /** @var string $suitePrefixEnv */
         $suitePrefixEnv = getenv('SUITE') ?: '';
@@ -92,7 +95,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             . str_replace('-', '_', $suitePrefixEnv);
     }
 
-    protected function getDestinationDbName(): string
+    protected static function getDestinationDbName(): string
     {
         /** @var string $suitePrefixEnv */
         $suitePrefixEnv = getenv('SUITE') ?: '';
@@ -119,7 +122,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
            )',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_OUT_CSV_2COLS:
                 $this->bqClient->runQuery($this->bqClient->query(
@@ -132,34 +135,50 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
                         BigqueryQuote::quoteSingleIdentifier($dbName),
                         BigqueryQuote::quoteSingleIdentifier($tableName),
                     ),
-                ));
+                ),);
 
-                $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'x\', \'y\', CURRENT_TIMESTAMP());',
-                    BigqueryQuote::quoteSingleIdentifier($dbName),
-                    BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        sprintf(
+                            'INSERT INTO %s.%s VALUES (\'x\', \'y\', CURRENT_TIMESTAMP());',
+                            BigqueryQuote::quoteSingleIdentifier($dbName),
+                            BigqueryQuote::quoteSingleIdentifier($tableName),
+                        ),
+                    ),
+                );
 
-                $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                    'CREATE TABLE %s.%s (
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        sprintf(
+                            'CREATE TABLE %s.%s (
           `col1` STRING(50),
           `col2` STRING(50) 
         );',
-                    BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                            BigqueryQuote::quoteSingleIdentifier($tableName),
+                        ),
+                    ),
+                );
 
-                $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
-                    BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        sprintf(
+                            'INSERT INTO %s.%s VALUES (\'a\', \'b\');',
+                            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                            BigqueryQuote::quoteSingleIdentifier($tableName),
+                        ),
+                    ),
+                );
 
-                $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                    'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
-                    BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        sprintf(
+                            'INSERT INTO %s.%s VALUES (\'c\', \'d\');',
+                            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                            BigqueryQuote::quoteSingleIdentifier($tableName),
+                        ),
+                    ),
+                );
                 break;
             case self::TABLE_OUT_LEMMA:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -171,7 +190,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_ACCOUNTS_3:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -192,7 +211,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             )',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_TABLE:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -204,7 +223,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_OUT_NO_TIMESTAMP_TABLE:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -214,7 +233,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_TYPES:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -227,25 +246,33 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
 
-                $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                    'CREATE TABLE  %s.%s (
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        sprintf(
+                            'CREATE TABLE  %s.%s (
               `charCol`  STRING(4000) ,
               `numCol` DECIMAL(10,1) ,
               `floatCol` FLOAT64 ,
               `boolCol` BOOL 
             );',
-                    BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
-                $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                    'INSERT INTO  %s.%s VALUES
+                            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                            BigqueryQuote::quoteSingleIdentifier($tableName),
+                        ),
+                    ),
+                );
+                $this->bqClient->runQuery(
+                    $this->bqClient->query(
+                        sprintf(
+                            'INSERT INTO  %s.%s VALUES
               (\'a\', 10.5, 0.3, TRUE)
            ;',
-                    BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
-                    BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                            BigqueryQuote::quoteSingleIdentifier($this->getSourceDbName()),
+                            BigqueryQuote::quoteSingleIdentifier($tableName),
+                        ),
+                    ),
+                );
                 break;
             case self::TABLE_ACCOUNTS_WITHOUT_TS:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -265,7 +292,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             ) ',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_COLUMN_NAME_ROW_NUMBER:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -276,7 +303,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
            )',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_SINGLE_PK:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -289,7 +316,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_MULTI_PK:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -302,7 +329,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             case self::TABLE_MULTI_PK_WITH_TS:
                 $this->bqClient->runQuery($this->bqClient->query(sprintf(
@@ -316,14 +343,14 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
             );',
                     BigqueryQuote::quoteSingleIdentifier($dbName),
                     BigqueryQuote::quoteSingleIdentifier($tableName),
-                )));
+                ),),);
                 break;
             default:
                 throw new Exception('unknown table');
         }
     }
 
-    protected function getSimpleImportOptions(
+    protected static function getSimpleImportOptions(
         int $skipLines = ImportOptions::SKIP_FIRST_LINE,
     ): BigqueryImportOptions {
         return new BigqueryImportOptions(
@@ -352,7 +379,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
                 BigqueryQuote::quoteSingleIdentifier($db),
                 BigqueryQuote::quoteSingleIdentifier($table),
             ),
-        ));
+        ),);
     }
 
     /**
@@ -369,7 +396,7 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
      * client_x509_cert_url: string,
      * }
      */
-    private function getBqCredentials(): array
+    private static function getBqCredentials(): array
     {
         /**
          * @var array{
@@ -386,19 +413,20 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
          * }
          */
         $credentials = json_decode((string) getenv('BQ_KEY_FILE'), true, 512, JSON_THROW_ON_ERROR);
-        assert(array_key_exists('type', $credentials));
-        assert(array_key_exists('project_id', $credentials));
-        assert(array_key_exists('private_key_id', $credentials));
-        assert(array_key_exists('private_key', $credentials));
-        assert(array_key_exists('client_email', $credentials));
-        assert(array_key_exists('client_id', $credentials));
-        assert(array_key_exists('auth_uri', $credentials));
-        assert(array_key_exists('token_uri', $credentials));
+        assert(array_key_exists('type', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('project_id', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('private_key_id', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('private_key', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('client_email', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('client_id', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('auth_uri', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        assert(array_key_exists('token_uri', $credentials)); // @phpstan-ignore function.alreadyNarrowedType
+        /** @phpstan-ignore function.alreadyNarrowedType */
         assert(array_key_exists('auth_provider_x509_cert_url', $credentials));
         return $credentials;
     }
 
-    protected function getGCSBucketEnvName(): string
+    protected static function getGCSBucketEnvName(): string
     {
         return 'BQ_BUCKET_NAME';
     }
@@ -417,9 +445,9 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
      * client_x509_cert_url: string,
      * }
      */
-    protected function getGCSCredentials(): array
+    protected static function getGCSCredentials(): array
     {
-        return $this->getBqCredentials();
+        return self::getBqCredentials();
     }
 
     /**
@@ -448,14 +476,20 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
         }
 
         if (!in_array('_timestamp', $source->getColumnsNames(), true)) {
-            $tableColumns = array_filter($tableColumns, static function ($column) {
-                return $column !== '_timestamp';
-            });
+            $tableColumns = array_filter(
+                $tableColumns,
+                static function ($column) {
+                    return $column !== '_timestamp';
+                },
+            );
         }
 
-        $tableColumns = array_map(static function ($column) {
-            return sprintf('%s', $column);
-        }, $tableColumns);
+        $tableColumns = array_map(
+            static function ($column) {
+                return sprintf('%s', $column);
+            },
+            $tableColumns,
+        );
         $result = $this->fetchTable($destination->getSchemaName(), $destination->getTableName(), $tableColumns);
         /** @var mixed[] $queryResult */
         $queryResult = array_map(static fn(array $row): array => array_values($row), $result);
@@ -475,20 +509,34 @@ class BigqueryBaseTestCase extends ImportExportBaseTest
     public function fetchTable(string $schemaName, string $tableName, array $columns = []): array
     {
         if (count($columns) === 0) {
-            $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                'SELECT * FROM %s.%s',
-                $schemaName,
-                $tableName,
-            )));
+            $result = $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    sprintf(
+                        'SELECT * FROM %s.%s',
+                        $schemaName,
+                        $tableName,
+                    ),
+                ),
+            );
         } else {
-            $result = $this->bqClient->runQuery($this->bqClient->query(sprintf(
-                'SELECT %s FROM %s.%s',
-                implode(', ', array_map(static function ($item) {
-                    return BigqueryQuote::quoteSingleIdentifier($item);
-                }, $columns)),
-                BigqueryQuote::quoteSingleIdentifier($schemaName),
-                BigqueryQuote::quoteSingleIdentifier($tableName),
-            )));
+            $result = $this->bqClient->runQuery(
+                $this->bqClient->query(
+                    sprintf(
+                        'SELECT %s FROM %s.%s',
+                        implode(
+                            ', ',
+                            array_map(
+                                static function ($item) {
+                                    return BigqueryQuote::quoteSingleIdentifier($item);
+                                },
+                                $columns,
+                            ),
+                        ),
+                        BigqueryQuote::quoteSingleIdentifier($schemaName),
+                        BigqueryQuote::quoteSingleIdentifier($tableName),
+                    ),
+                ),
+            );
         }
 
         $result = iterator_to_array($result);

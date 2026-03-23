@@ -38,14 +38,24 @@ class FeaturesTest extends TestCase
             Features::FEATURE_PAY_AS_YOU_GO,
         ];
 
-        $this->assertTrue(Features::isOneOfFeaturesInList($features, [
-            Features::FEATURE_PROTECTED_DEFAULT_BRANCH,
-            Features::FEATURE_PAY_AS_YOU_GO,
-        ])); // intersects on pay-as-you-go
+        $this->assertTrue(
+            Features::isOneOfFeaturesInList(
+                $features,
+                [
+                Features::FEATURE_PROTECTED_DEFAULT_BRANCH,
+                Features::FEATURE_PAY_AS_YOU_GO,
+                ],
+            ),
+        ); // intersects on pay-as-you-go
 
-        $this->assertTrue(Features::isOneOfFeaturesInList($features, [
-            Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
-        ]));
+        $this->assertTrue(
+            Features::isOneOfFeaturesInList(
+                $features,
+                [
+                Features::FEATURE_INPUT_MAPPING_READ_ONLY_STORAGE,
+                ],
+            ),
+        );
     }
 
     public function testIsOneOfFeaturesInListNegative(): void
@@ -55,17 +65,27 @@ class FeaturesTest extends TestCase
             Features::FEATURE_PAY_AS_YOU_GO,
         ];
 
-        $this->assertFalse(Features::isOneOfFeaturesInList($features, [
-            Features::FEATURE_PROTECTED_DEFAULT_BRANCH,
-            Features::FEATURE_REAL_STORAGE_BRANCHES,
-        ]));
+        $this->assertFalse(
+            Features::isOneOfFeaturesInList(
+                $features,
+                [
+                Features::FEATURE_PROTECTED_DEFAULT_BRANCH,
+                Features::FEATURE_REAL_STORAGE_BRANCHES,
+                ],
+            ),
+        );
     }
 
     public function testIsOneOfFeaturesInListEmptyList(): void
     {
-        $this->assertFalse(Features::isOneOfFeaturesInList([], [
-            Features::FEATURE_PROTECTED_DEFAULT_BRANCH,
-        ]));
+        $this->assertFalse(
+            Features::isOneOfFeaturesInList(
+                [],
+                [
+                Features::FEATURE_PROTECTED_DEFAULT_BRANCH,
+                ],
+            ),
+        );
 
         $this->assertFalse(Features::isOneOfFeaturesInList([], [])); // no features anywhere
     }

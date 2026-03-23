@@ -48,7 +48,7 @@ EOT,
                 [
                     'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
                 ],
-            ]);
+                ],);
 
         $destination = new SnowflakeTableDefinition(
             'schema',
@@ -98,7 +98,7 @@ EOT,
                 [
                     'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
                 ],
-            ]);
+                ],);
 
         $destination = new SnowflakeTableDefinition(
             'schema',
@@ -150,7 +150,7 @@ EOT,
                 [
                     'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 10,
                 ],
-            ]);
+                ],);
 
         $destination = new SnowflakeTableDefinition(
             'schema',
@@ -202,7 +202,7 @@ EOT,
                 [
                     'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
                 ],
-            ]);
+                ],);
 
         $destination = new SnowflakeTableDefinition(
             'schema',
@@ -255,16 +255,28 @@ COPY INTO "schema"."stagingTable" FROM 'gcs://bucket'
 EOT;
         $q1 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 0, 1000)));
         $q2 = sprintf($qTemplate, implode(', ', array_slice($entriesWithoutBucket, 1000, 5)));
-        $conn->expects(self::exactly(2))->method('executeStatement')->withConsecutive([$q1], [$q2]);
+        $matcher = self::exactly(2);
+        $conn->expects($matcher)->method('executeStatement')->willReturnCallback(
+            function (...$parameters) use ($matcher, $q1, $q2) {
+                if ($matcher->numberOfInvocations() === 1) {
+                    $this->assertSame($q1, $parameters[0]);
+                }
+                if ($matcher->numberOfInvocations() === 2) {
+                    $this->assertSame($q2, $parameters[0]);
+                }
+            },
+        );
 
         $conn->expects(self::once())->method('fetchAllAssociative')
             // phpcs:ignore
             ->with("SELECT TABLE_TYPE,BYTES,ROW_COUNT FROM information_schema.tables WHERE TABLE_SCHEMA = 'schema' AND TABLE_NAME = 'stagingTable';")
-            ->willReturn([
+            ->willReturn(
+                [
                 [
                     'TABLE_TYPE' => 'BASE TABLE', 'BYTES' => 0, 'ROW_COUNT' => 7,
                 ],
-            ]);
+                ],
+            );
 
         $destination = new SnowflakeTableDefinition(
             'schema',
