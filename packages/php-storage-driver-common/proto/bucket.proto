@@ -138,6 +138,11 @@ message RevokeBucketAccessFromReadOnlyRoleCommand {
   google.protobuf.Any meta = 4; // metadata specific for each backend
 }
 
+message TestBucketAccessCommand {
+  string bucketObjectName = 1; // dataset name in backend which access should be tested
+  google.protobuf.Any meta = 2; // metadata specific for each backend
+}
+
 /**
  * Grants roles/analyticshub.subscriber to a service account on an Analytics Hub listing.
  * Used for linking external BQ buckets: called with KBC1's PROJECT credentials (which have
