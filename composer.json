@@ -15,7 +15,7 @@
         "ext-pdo": "*",
         "google/cloud-bigquery": "^1.23",
         "google/cloud-storage": "^1.27",
-        "google/protobuf": "^3.21",
+        "google/protobuf": "^4.33.6",
         "keboola/common-exceptions": "^1",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^6",
