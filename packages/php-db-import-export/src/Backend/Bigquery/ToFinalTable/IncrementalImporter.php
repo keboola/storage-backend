@@ -81,13 +81,13 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                         $session->getAsQueryOptions(),
                     ),
                 );
-                /** @var BigqueryTableDefinition $deduplicationTableDefinition */
                 $bigqueryTableReflection = new BigqueryTableReflection(
                     $this->bqClient,
                     $stagingTableDefinition->getSchemaName(),
                     $deduplicationTableName,
                 );
                 $deduplicationTableDefinition = $bigqueryTableReflection->getTableDefinition();
+                assert($deduplicationTableDefinition instanceof BigqueryTableDefinition);
 
                 $tableToCopyFrom = $deduplicationTableDefinition;
                 $state->stopTimer(self::TIMER_DEDUP_STAGING);

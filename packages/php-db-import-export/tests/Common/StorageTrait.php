@@ -121,7 +121,7 @@ trait StorageTrait
                 $isDirectory,
                 $primaryKeys,
             ),
-            StorageType::STORAGE_GCS => static::createGCSSourceInstance(
+            StorageType::STORAGE_GCS => static::createGCSSourceInstance( // @phpstan-ignore match.alwaysTrue
                 $filePath,
                 $columns,
                 $isSliced,
@@ -168,7 +168,7 @@ trait StorageTrait
                 $isDirectory,
                 $primaryKeys,
             ),
-            StorageType::STORAGE_GCS => static::createGCSSourceInstanceFromCsv(
+            StorageType::STORAGE_GCS => static::createGCSSourceInstanceFromCsv( // @phpstan-ignore match.alwaysTrue
                 $filePath,
                 $options,
                 $columns,
