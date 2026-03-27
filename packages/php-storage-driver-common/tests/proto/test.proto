@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package keboola.storageDriver.generatedTests;
-
-message CustomMessage {
-  repeated string value = 1;
-}
