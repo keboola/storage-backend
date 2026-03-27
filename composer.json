@@ -8,21 +8,18 @@
     ],
     "require": {
         "php": "^8.3",
-        "aws/aws-sdk-php": "^3",
         "doctrine/dbal": "^3.3",
         "ext-json": "*",
         "ext-odbc": "*",
         "ext-pdo": "*",
         "google/cloud-bigquery": "^1.23",
         "google/cloud-storage": "^1.27",
-        "google/protobuf": "^3.21",
         "keboola/common-exceptions": "^1",
         "keboola/csv-options": "^1",
         "keboola/php-csv-db-import": "^6",
         "keboola/php-file-storage-utils": "^0.2.2",
         "keboola/php-temp": "^2.0",
         "keboola/php-utils": "^4.1",
-        "keboola/key-generator": "^1.0",
         "keboola/retry": "^0.5.0",
         "microsoft/azure-storage-blob": "^1.4",
         "symfony/console": "^5.2|^6",
@@ -48,37 +45,25 @@
     },
     "autoload": {
         "psr-4": {
-            "GPBMetadata\\Proto\\": "packages/php-storage-driver-common/generated/GPBMetadata/Proto",
             "Keboola\\Datatype\\": "packages/php-datatypes/src/",
             "Keboola\\Db\\ImportExport\\": "packages/php-db-import-export/src/",
             "Keboola\\Provisioning\\": "packages/php-db-import-export/provisioning/./src",
             "Keboola\\StorageBackend\\": "src/",
-            "Keboola\\StorageDriver\\": "packages/php-storage-driver-common/generated/Keboola/StorageDriver",
-            "Keboola\\StorageDriver\\Contract\\": "packages/php-storage-driver-common/contract/",
-            "Keboola\\StorageDriver\\Shared\\": "packages/php-storage-driver-common/Shared/",
-            "Keboola\\StorageDriver\\Snowflake\\": "packages/php-storage-driver-snowflake/src/",
             "Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "GPBMetadata\\Tests\\": "packages/php-storage-driver-common/tests/generated/GPBMetadata/Tests",
             "Keboola\\DatatypeTest\\": "packages/php-datatypes/tests/",
-            "Keboola\\StorageDriver\\GeneratedTests\\": "packages/php-storage-driver-common/tests/generated/Keboola/StorageDriver/GeneratedTests",
-            "Keboola\\StorageDriver\\TestsStubLoader\\": "packages/php-storage-driver-common/tests/StubLoader",
-            "Keboola\\StorageDriver\\UnitTests\\": "packages/php-storage-driver-common/tests/unit",
             "Tests\\Keboola\\Db\\ImportExportCommon\\": "packages/php-db-import-export/tests/Common",
             "Tests\\Keboola\\Db\\ImportExportFunctional\\": "packages/php-db-import-export/tests/functional/",
             "Tests\\Keboola\\Db\\ImportExportUnit\\": "packages/php-db-import-export/tests/unit",
-            "Tests\\Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/tests",
-            "Keboola\\StorageDriver\\Snowflake\\Tests\\Functional\\": "packages/php-storage-driver-snowflake/tests/Functional"
+            "Tests\\Keboola\\TableBackendUtils\\": "packages/php-table-backend-utils/tests"
         }
     },
     "replace": {
         "keboola/db-import-export": "*",
         "keboola/php-datatypes": "*",
-        "keboola/storage-driver-common": "*",
-        "keboola/storage-driver-snowflake": "*",
         "keboola/table-backend-utils": "*"
     },
     "config": {

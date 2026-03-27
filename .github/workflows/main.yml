@@ -23,8 +23,6 @@ jobs:
       changed-php-datatypes: ${{ steps.changes.outputs.php-datatypes }}
       changed-php-table-backend-utils: ${{ steps.changes.outputs.php-table-backend-utils }}
       changed-php-db-import-export: ${{ steps.changes.outputs.php-db-import-export }}
-      changed-php-storage-driver-common: ${{ steps.changes.outputs.php-storage-driver-common }}
-      changed-php-storage-driver-snowflake: ${{ steps.changes.outputs.php-storage-driver-snowflake }}
       table-utils-requirements: ${{ steps.changes.outputs.table-utils-requirements }}
       db-import-export-requirements: ${{ steps.changes.outputs.db-import-export-requirements }}
       isReleaseTag: ${{ steps.checkReleaseTag.outputs.isReleaseTag }}
@@ -59,10 +57,6 @@ jobs:
               - 'packages/php-table-backend-utils/**'
             php-db-import-export:
               - 'packages/php-db-import-export/**'
-            php-storage-driver-common:
-              - 'packages/php-storage-driver-common/**'
-            php-storage-driver-snowflake:
-              - 'packages/php-storage-driver-snowflake/**'
             table-utils-requirements:
               - 'packages/php-datatypes/**'
             db-import-export-requirements:
@@ -125,43 +119,17 @@ jobs:
       GCS_CREDENTIALS: ${{ secrets.IE_GCS_CREDENTIALS }}
     needs: build
 
-  build_php_storage_driver_common:
-    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
-    uses: ./.github/workflows/build-php-storage-driver-common.yml
-    with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-common == 'true' }}
-      isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
-    secrets:
-      S3_BUCKET: ${{ secrets.S3_BUCKET }}
-      S3_AWS_REGION: ${{ secrets.S3_AWS_REGION }}
-    needs: build
-
-  build_php_storage_driver_snowflake:
-    if: ${{ needs.build.outputs.isReleaseTag == 0 }}
-    uses: ./.github/workflows/build-php-storage-driver-snowflake.yml
-    with:
-      hasCodeChanged: ${{ needs.build.outputs.changed-php-storage-driver-snowflake == 'true' }}
-      isTag: ${{ startsWith(github.ref, 'refs/tags/') }}
-    secrets:
-      SNOWFLAKE_PASSWORD: ${{ secrets.PHP_STORAGE_DRIVER_SNOWFLAKE_SNOWFLAKE_PASSWORD }}
-      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.PHP_STORAGE_DRIVER_SNOWFLAKE_SNOWFLAKE_PRIVATE_KEY }}
-    needs: build
-
   test_results:
     needs:
         - build_datatypes
         - build_php_table_backend_utils
         - build_php_db_import_export
-        - build_php_storage_driver_common
-        - build_php_storage_driver_snowflake
     runs-on: ubuntu-latest
     if: |
       always()
-        && contains(fromJson('["success", "skipped"]'), needs.build_datatypes.result) 
+        && contains(fromJson('["success", "skipped"]'), needs.build_datatypes.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_table_backend_utils.result)
         && contains(fromJson('["success", "skipped"]'), needs.build_php_db_import_export.result)
-        && contains(fromJson('["success", "skipped"]'), needs.build_php_storage_driver_common.result)
-        && contains(fromJson('["success", "skipped"]'), needs.build_php_storage_driver_snowflake.result)
     steps:
       - name: Tests passed
         run: echo "Tests passed"
@@ -189,16 +157,6 @@ jobs:
             repo: 'git@github.com:keboola/php-db-import-export'
             lastTag: 'v1.20.1'
             sshKey: 'PHP_DB_IMPORT_EXPORT_SSH_PRIVATE_KEY'
-          - name: 'php-storage-driver-common'
-            path: 'packages/php-storage-driver-common'
-            repo: 'git@github.com:keboola/php-storage-driver-common'
-            lastTag: 'v2.5.0'
-            sshKey: 'PHP_STORAGE_DRIVER_COMMON_SSH_PRIVATE_KEY'
-          - name: 'php-storage-driver-snowflake'
-            path: 'packages/php-storage-driver-snowflake'
-            repo: 'git@github.com:keboola/php-storage-driver-snowflake'
-            lastTag: 'v0.0.1'
-            sshKey: 'PHP_STORAGE_DRIVER_SNOWFLAKE_SSH_PRIVATE_KEY'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
