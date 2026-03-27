@@ -81,15 +81,21 @@ final class IncrementalImporter implements ToFinalTableImporterInterface
                         $session->getAsQueryOptions(),
                     ),
                 );
-                /** @var BigqueryTableDefinition $deduplicationTableDefinition */
-                $deduplicationTableDefinition = (new BigqueryTableReflection(
+                $bigqueryTableReflection = new BigqueryTableReflection(
                     $this->bqClient,
                     $stagingTableDefinition->getSchemaName(),
                     $deduplicationTableName,
-                ))->getTableDefinition();
+                );
+                $deduplicationTableDefinition = $bigqueryTableReflection->getTableDefinition();
+                assert($deduplicationTableDefinition instanceof BigqueryTableDefinition);
 
                 $tableToCopyFrom = $deduplicationTableDefinition;
                 $state->stopTimer(self::TIMER_DEDUP_STAGING);
+
+                // Count unique rows in dedup table (= unique PKs from staging).
+                // This is the number of rows actually being imported (updates + inserts).
+                $dedupRowCount = $bigqueryTableReflection->getRowsCount();
+                $state->setImportedRowsCount($dedupRowCount);
 
                 $this->bqClient->runQuery(
                     $this->bqClient->query(

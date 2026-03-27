@@ -32,6 +32,11 @@ class ImportState
         $this->importedRowsCount += $count;
     }
 
+    public function setImportedRowsCount(int $count): void
+    {
+        $this->importedRowsCount = $count;
+    }
+
     public function getResult(): Result
     {
         return new Result([

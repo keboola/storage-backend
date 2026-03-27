@@ -42,4 +42,14 @@ class ImportStateTest extends TestCase
         );
         self::assertSame([], $result->getWarnings());
     }
+
+    public function testSetImportedRowsCountOverwritesPreviousValue(): void
+    {
+        $state = new ImportState('stagingTable');
+        $state->addImportedRowsCount(20);
+        self::assertEquals(20, $state->getResult()->getImportedRowsCount());
+
+        $state->setImportedRowsCount(5);
+        self::assertEquals(5, $state->getResult()->getImportedRowsCount());
+    }
 }
