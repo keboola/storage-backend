@@ -47,7 +47,7 @@ class QueryTagsTest extends TestCase
     public function testInvalidQueryTagsInConstructor(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id');
+        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id, run_id, keboola_run_id, keboola_branch_id, keboola_service');
 
         new QueryTags([
             'invalid_key' => 'some-value',
@@ -57,7 +57,7 @@ class QueryTagsTest extends TestCase
     public function testInvalidQueryTagsAddition(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id');
+        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id, run_id, keboola_run_id, keboola_branch_id, keboola_service');
 
         $queryTags = new QueryTags();
         $queryTags->addTag('invalid_key', 'some-value');
@@ -74,6 +74,35 @@ class QueryTagsTest extends TestCase
             ['branch_id' => 'test-branch-2'],
             $queryTags->toArray(),
         );
+    }
+
+    public function testKeboolaPrefixedTags(): void
+    {
+        $queryTags = new QueryTags([
+            QueryTagKey::KEBOOLA_RUN_ID->value => 'test-run-123',
+            QueryTagKey::KEBOOLA_BRANCH_ID->value => 'test-branch-456',
+            QueryTagKey::KEBOOLA_SERVICE->value => 'sapi',
+        ]);
+
+        $this->assertFalse($queryTags->isEmpty());
+        $this->assertCount(3, $queryTags->toArray());
+        $this->assertSame('test-run-123', $queryTags->toArray()['keboola_run_id']);
+        $this->assertSame('test-branch-456', $queryTags->toArray()['keboola_branch_id']);
+        $this->assertSame('sapi', $queryTags->toArray()['keboola_service']);
+    }
+
+    public function testAllTagsCombined(): void
+    {
+        $queryTags = new QueryTags([
+            QueryTagKey::BRANCH_ID->value => 'branch-1',
+            QueryTagKey::RUN_ID->value => 'run-1',
+            QueryTagKey::KEBOOLA_RUN_ID->value => 'run-1',
+            QueryTagKey::KEBOOLA_BRANCH_ID->value => 'branch-1',
+            QueryTagKey::KEBOOLA_SERVICE->value => 'sapi',
+        ]);
+
+        $this->assertFalse($queryTags->isEmpty());
+        $this->assertCount(5, $queryTags->toArray());
     }
 
     #[DataProvider('validQueryTagsValuesProvider')]

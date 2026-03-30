@@ -40,10 +40,14 @@ class SnowflakeConnection implements Connection
         } catch (Throwable $e) {
             throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
         }
+        $queryTag = [];
         if (isset($options['runId'])) {
-            $queryTag = [
-                'runId' => $options['runId'],
-            ];
+            $queryTag['runId'] = $options['runId'];
+        }
+        if (isset($options['queryTags']) && is_array($options['queryTags'])) {
+            $queryTag = array_merge($queryTag, $options['queryTags']);
+        }
+        if ($queryTag !== []) {
             $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag, JSON_THROW_ON_ERROR) . "';");
         }
     }
