@@ -47,7 +47,10 @@ class QueryTagsTest extends TestCase
     public function testInvalidQueryTagsInConstructor(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id, run_id, keboola_run_id, keboola_branch_id, keboola_service');
+        $this->expectExceptionMessage(
+            'Invalid query tag key "invalid_key".'
+            . ' Valid keys are: branch_id, run_id, keboola_run_id, keboola_branch_id, keboola_service',
+        );
 
         new QueryTags([
             'invalid_key' => 'some-value',
@@ -57,7 +60,10 @@ class QueryTagsTest extends TestCase
     public function testInvalidQueryTagsAddition(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid query tag key "invalid_key". Valid keys are: branch_id, run_id, keboola_run_id, keboola_branch_id, keboola_service');
+        $this->expectExceptionMessage(
+            'Invalid query tag key "invalid_key".'
+            . ' Valid keys are: branch_id, run_id, keboola_run_id, keboola_branch_id, keboola_service',
+        );
 
         $queryTags = new QueryTags();
         $queryTags->addTag('invalid_key', 'some-value');
