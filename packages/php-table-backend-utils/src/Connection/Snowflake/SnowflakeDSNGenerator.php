@@ -68,6 +68,7 @@ class SnowflakeDSNGenerator
             'schema',
             'warehouse',
             'runId',
+            'queryTags',
             'clientSessionKeepAlive',
             'driverClass',
             'driverOptions',

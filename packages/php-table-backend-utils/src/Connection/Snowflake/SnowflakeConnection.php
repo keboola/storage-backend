@@ -49,7 +49,7 @@ class SnowflakeConnection implements Connection
         }
         if ($queryTag !== []) {
             $queryTagJson = json_encode($queryTag, JSON_THROW_ON_ERROR);
-            $this->query("ALTER SESSION SET QUERY_TAG=" . SnowflakeQuote::quote($queryTagJson) . ";");
+            $this->query('ALTER SESSION SET QUERY_TAG=' . SnowflakeQuote::quote($queryTagJson) . ';');
         }
     }
 
