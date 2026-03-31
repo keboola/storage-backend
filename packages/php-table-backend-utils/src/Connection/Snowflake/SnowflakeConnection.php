@@ -41,14 +41,15 @@ class SnowflakeConnection implements Connection
             throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
         }
         $queryTag = [];
+        if (isset($options['queryTags']) && is_array($options['queryTags'])) {
+            $queryTag = $options['queryTags'];
+        }
         if (isset($options['runId'])) {
             $queryTag['runId'] = $options['runId'];
         }
-        if (isset($options['queryTags']) && is_array($options['queryTags'])) {
-            $queryTag = array_merge($queryTag, $options['queryTags']);
-        }
         if ($queryTag !== []) {
-            $this->query("ALTER SESSION SET QUERY_TAG='" . json_encode($queryTag, JSON_THROW_ON_ERROR) . "';");
+            $queryTagJson = json_encode($queryTag, JSON_THROW_ON_ERROR);
+            $this->query("ALTER SESSION SET QUERY_TAG=" . SnowflakeQuote::quote($queryTagJson) . ";");
         }
     }
 

@@ -350,6 +350,75 @@ SQL,);
         $this->assertEquals('{"runId":"runIdValue"}', $queries[0]['QUERY_TAG']);
     }
 
+    public function testQueryTaggingWithQueryTags(): void
+    {
+        $connection = SnowflakeConnectionFactory::getConnection(
+            (string) getenv('SNOWFLAKE_HOST'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_USER'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_PASSWORD'), // @phpstan-ignore cast.string
+            [
+                'port' => (string) getenv('SNOWFLAKE_PORT'), // @phpstan-ignore cast.string
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'), // @phpstan-ignore cast.string
+                'database' => (string) getenv('SNOWFLAKE_DATABASE'), // @phpstan-ignore cast.string
+                'runId' => 'runIdValue',
+                'queryTags' => [
+                    'keboola_branch_id' => 'branch-123',
+                    'keboola_service' => 'sapi',
+                ],
+            ],
+        );
+
+        $connection->executeQuery('SELECT current_date;');
+        $queries = $connection->fetchAllAssociative(<<<SQL
+    SELECT
+        QUERY_TEXT, QUERY_TAG
+    FROM
+        TABLE(INFORMATION_SCHEMA.QUERY_HISTORY_BY_SESSION())
+    WHERE QUERY_TEXT = 'SELECT current_date;'
+    ORDER BY START_TIME DESC
+    LIMIT 1
+SQL,);
+
+        $this->assertEquals(
+            '{"keboola_branch_id":"branch-123","keboola_service":"sapi","runId":"runIdValue"}',
+            $queries[0]['QUERY_TAG'],
+        );
+    }
+
+    public function testQueryTaggingRunIdTakesPrecedence(): void
+    {
+        $connection = SnowflakeConnectionFactory::getConnection(
+            (string) getenv('SNOWFLAKE_HOST'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_USER'), // @phpstan-ignore cast.string
+            (string) getenv('SNOWFLAKE_PASSWORD'), // @phpstan-ignore cast.string
+            [
+                'port' => (string) getenv('SNOWFLAKE_PORT'), // @phpstan-ignore cast.string
+                'warehouse' => (string) getenv('SNOWFLAKE_WAREHOUSE'), // @phpstan-ignore cast.string
+                'database' => (string) getenv('SNOWFLAKE_DATABASE'), // @phpstan-ignore cast.string
+                'runId' => 'correctRunId',
+                'queryTags' => [
+                    'runId' => 'overriddenRunId',
+                ],
+            ],
+        );
+
+        $connection->executeQuery('SELECT current_date;');
+        $queries = $connection->fetchAllAssociative(<<<SQL
+    SELECT
+        QUERY_TEXT, QUERY_TAG
+    FROM
+        TABLE(INFORMATION_SCHEMA.QUERY_HISTORY_BY_SESSION())
+    WHERE QUERY_TEXT = 'SELECT current_date;'
+    ORDER BY START_TIME DESC
+    LIMIT 1
+SQL,);
+
+        $this->assertEquals(
+            '{"runId":"correctRunId"}',
+            $queries[0]['QUERY_TAG'],
+        );
+    }
+
     #[DataProvider('connectionProvider')]
     public function testQueryTimeoutLimit(Connection $connection): void
     {
