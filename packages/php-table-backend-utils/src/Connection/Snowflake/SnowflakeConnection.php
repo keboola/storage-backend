@@ -8,6 +8,7 @@ use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result;
 use Doctrine\DBAL\ParameterType;
 use Exception;
+use JsonException;
 use Keboola\TableBackendUtils\Connection\Exception\DriverException;
 use Keboola\TableBackendUtils\Escaping\Snowflake\SnowflakeQuote;
 use Throwable;
@@ -41,14 +42,29 @@ class SnowflakeConnection implements Connection
             throw DriverException::newConnectionFailure($e->getMessage(), (int) $e->getCode(), $e->getPrevious());
         }
         $queryTag = [];
-        if (isset($options['queryTags']) && is_array($options['queryTags'])) {
+        if (isset($options['queryTags'])) {
+            if (!is_array($options['queryTags'])) {
+                throw DriverException::newConnectionFailure(
+                    sprintf('Invalid "queryTags" option: expected array, got %s.', gettype($options['queryTags'])),
+                    0,
+                    null,
+                );
+            }
             $queryTag = $options['queryTags'];
         }
         if (isset($options['runId'])) {
             $queryTag['runId'] = $options['runId'];
         }
         if ($queryTag !== []) {
-            $queryTagJson = json_encode($queryTag, JSON_THROW_ON_ERROR);
+            try {
+                $queryTagJson = json_encode($queryTag, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw DriverException::newConnectionFailure(
+                    sprintf('Failed to encode queryTags to JSON: %s', $e->getMessage()),
+                    0,
+                    $e,
+                );
+            }
             $this->query('ALTER SESSION SET QUERY_TAG=' . SnowflakeQuote::quote($queryTagJson) . ';');
         }
     }
